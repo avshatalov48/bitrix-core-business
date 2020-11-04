@@ -23,19 +23,25 @@ $arComponentParams = array_merge($arParams, [
 	"bReload" => $arResult["bReload"],
 	"bGetComments" => $arResult["bGetComments"],
 	"IND" => $ind,
-	"CURRENT_PAGE_DATE" => $arResult["CURRENT_PAGE_DATE"],
 	"EVENT" => [
 		"IS_UNREAD" => $is_unread
 	],
 	"LAZYLOAD" => "Y",
-	"FROM_LOG" => (isset($arParams["LOG_ID"]) && intval($arParams["LOG_ID"]) > 0 ? "N" : "Y"),
+	"FROM_LOG" => (isset($arParams["LOG_ID"]) && (int)$arParams["LOG_ID"] > 0 ? "N" : "Y"),
 	"PATH_TO_LOG_TAG" => $arResult["PATH_TO_LOG_TAG"],
 	'TOP_RATING_DATA' => (!empty($arResult['TOP_RATING_DATA'][$arEvent["ID"]]) ? $arResult['TOP_RATING_DATA'][$arEvent["ID"]] : false)
 ]);
 
 if ($USER->isAuthorized())
 {
-	if ($arResult["SHOW_FOLLOW_CONTROL"] == "Y")
+	$arComponentParams['EVENT']['PINNED'] = (
+		array_key_exists('PINNED_USER_ID', $arEvent)
+		&& (int)$arEvent['PINNED_USER_ID'] > 0
+			? 'Y'
+			: 'N'
+	);
+
+	if ($arResult["SHOW_FOLLOW_CONTROL"] === "Y")
 	{
 		$arComponentParams["USE_FOLLOW"] = "Y";
 		$arComponentParams["EVENT"]["FOLLOW"] = $arEvent["FOLLOW"];
@@ -44,7 +50,7 @@ if ($USER->isAuthorized())
 
 	if (
 		!isset($arParams["USE_FAVORITES"])
-		|| $arParams["USE_FAVORITES"] != "N"
+		|| $arParams["USE_FAVORITES"] !== "N"
 	)
 	{
 		$arComponentParams["EVENT"]["FAVORITES"] = (
@@ -54,11 +60,6 @@ if ($USER->isAuthorized())
 				: "N"
 		);
 	}
-}
-
-if ($arResult["CURRENT_PAGE_DATE"])
-{
-	$arComponentParams["CURRENT_PAGE_DATE"] = $arResult["CURRENT_PAGE_DATE"];
 }
 
 if (!empty($arEvent['CONTENT_ID']))
@@ -75,16 +76,13 @@ if (!empty($_REQUEST["commentId"]))
 {
 	$arComponentParams["COMMENT_ID"] = intval($_REQUEST["commentId"]);
 }
-/*
-elseif (
-	!empty($arEvent['CONTENT_ITEM_TYPE'])
-	&& $arEvent['CONTENT_ITEM_TYPE'] == \Bitrix\Socialnetwork\LogIndexTable::ITEM_TYPE_COMMENT
-	&& !empty($arEvent['CONTENT_ITEM_ID'])
-)
-{
-	$arComponentParams['COMMENT_ID'] = $arEvent['CONTENT_ITEM_ID'];
-}
-*/
+
+$arComponentParams['PINNED_PANEL_DATA'] = (
+	array_key_exists('PINNED_PANEL_DATA', $arEvent)
+		? $arEvent['PINNED_PANEL_DATA']
+		: []
+);
+
 $APPLICATION->IncludeComponent(
 	"bitrix:socialnetwork.log.entry",
 	"",

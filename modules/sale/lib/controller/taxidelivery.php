@@ -4,9 +4,9 @@ namespace Bitrix\Sale\Controller;
 
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Sale\Delivery\Services\Taxi\ITaxiDeliveryService;
 use Bitrix\Sale\Internals\ShipmentTable;
 use Bitrix\Sale\Shipment;
-use Sale\Handlers\Delivery\Taxi\TaxiDeliveryServiceContract;
 use Bitrix\Sale\Order;
 
 /**
@@ -29,10 +29,10 @@ class TaxiDelivery extends \Bitrix\Main\Engine\Controller
 			return null;
 		}
 
-		/** @var TaxiDeliveryServiceContract $deliveryService */
+		/** @var ITaxiDeliveryService $deliveryService */
 		$deliveryService = $shipment->getDelivery();
 
-		$result = $deliveryService->sendTaxiRequest($shipment);
+		$result = $deliveryService->createTaxiRequest($shipment);
 
 		if (!$result->isSuccess())
 		{
@@ -56,7 +56,7 @@ class TaxiDelivery extends \Bitrix\Main\Engine\Controller
 			return null;
 		}
 
-		/** @var TaxiDeliveryServiceContract $deliveryService */
+		/** @var ITaxiDeliveryService $deliveryService */
 		$deliveryService = $shipment->getDelivery();
 
 		$result = $deliveryService->cancelTaxiRequest($requestId);
@@ -115,7 +115,7 @@ class TaxiDelivery extends \Bitrix\Main\Engine\Controller
 			return null;
 		}
 
-		if (!$shipment->getDelivery() instanceof TaxiDeliveryServiceContract)
+		if (!$shipment->getDelivery() instanceof ITaxiDeliveryService)
 		{
 			$this->addError(new Error(Loc::getMessage('CONTROLLER_ERROR_CODE_NOT_OF_TAXI_TYPE')));
 			return null;

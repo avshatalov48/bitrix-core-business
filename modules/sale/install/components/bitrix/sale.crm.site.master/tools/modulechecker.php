@@ -93,18 +93,15 @@ class ModuleChecker
 			}
 
 			$version = $this->getModuleVersion($moduleName);
-			if ($version !== false)
+			if ($version !== false
+				&& !empty($moduleData["version"])
+				&& (version_compare($version, $moduleData["version"]) === -1))
 			{
-				if ($version && $moduleData["version"]
-					&& (version_compare($version, $moduleData["version"]) === -1)
-				)
-				{
 					$result["MIN_VERSION"][$moduleName] = [
 						"NAME" => $moduleData["name"],
 						"REQUIRED_VERSION" => $moduleData["version"],
 						"CURRENT_VERSION" => $version,
 					];
-				}
 			}
 		}
 

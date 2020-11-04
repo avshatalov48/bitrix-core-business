@@ -9,14 +9,14 @@ Loc::loadMessages(__FILE__);
 
 class Event extends Main\Event
 {
+	/** @var Entity */
 	protected $entity = null;
-	protected $entityEventType;
 
-	protected static $catalogHandlerExist = array();
+	protected static $catalogHandlerExist = [];
 
-	private static $keys = array('fields', 'external_fields', 'actions');
+	private static $keys = ['fields', 'external_fields', 'actions'];
 
-	public function __construct(Entity $entity, $type, array $parameters = array())
+	public function __construct(Entity $entity, string $type, array $parameters = [])
 	{
 		$this->entity = $entity;
 
@@ -30,7 +30,7 @@ class Event extends Main\Event
 	 * @param Main\Result $result
 	 * @return bool
 	 */
-	public function getErrors(Main\Result $result)
+	public function getErrors(Main\Result $result): bool
 	{
 		$hasErrors = false;
 
@@ -46,7 +46,13 @@ class Event extends Main\Event
 		return $hasErrors;
 	}
 
-	public function mergeData(array &$data)
+	/**
+	 * Merge data from handlers.
+	 *
+	 * @param array $data
+	 * @return void
+	 */
+	public function mergeData(array &$data): void
 	{
 		/** @var $eventResult Catalog\Model\EventResult */
 		foreach($this->getResults() as $eventResult)
@@ -72,22 +78,35 @@ class Event extends Main\Event
 		}
 	}
 
-	public static function existEventHandlers(Entity $entity, $type)
+	/**
+	 * Search handlers for event.
+	 *
+	 * @param Entity $entity
+	 * @param string $type
+	 * @return bool
+	 */
+	public static function existEventHandlers(Entity $entity, string $type): bool
 	{
-		$id = get_class($entity).'::'.$type;
+		return static::existEventHandlersById(get_class($entity).'::'.$type);
+	}
+
+	/**
+	 * Search handlers for event by id.
+	 *
+	 * @param string $id
+	 * @return bool
+	 */
+	public static function existEventHandlersById(string $id): bool
+	{
 		if (!isset(self::$catalogHandlerExist[$id]))
 		{
 			$eventManager = Main\EventManager::getInstance();
-
 			$eventsList = $eventManager->findEventHandlers(
-				'catalog', get_class($entity).'::'.$type
+				'catalog', $id
 			);
-
 			self::$catalogHandlerExist[$id] = !empty($eventsList);
-
 			unset($eventsList, $eventManager);
 		}
-
 		return self::$catalogHandlerExist[$id];
 	}
 }

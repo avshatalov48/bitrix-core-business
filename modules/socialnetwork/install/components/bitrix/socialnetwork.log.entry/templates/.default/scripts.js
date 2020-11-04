@@ -278,7 +278,8 @@ function __logShowHiddenDestination(log_id, created_by_id, bindElement)
 				pathToWorkgroup: BX.message('sonetLPathToGroup'),
 				pathToDepartment: BX.message('sonetLPathToDepartment'),
 				nameTemplate: BX.message('sonetLNameTemplate'),
-				showLogin: BX.message('sonetLShowLogin')
+				showLogin: BX.message('sonetLShowLogin'),
+				destinationLimit: BX.message('sonetLDestinationLimit')
 			}
 		}
 	}).then(function(response)

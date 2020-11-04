@@ -22,8 +22,8 @@ if(is_array($arParams["GROUP_ID"]))
 {
 	$tmp = Array();
 	foreach($arParams["GROUP_ID"] as $v)
-		if(IntVal($v) > 0)
-			$tmp[] = IntVal($v);
+		if(intval($v) > 0)
+			$tmp[] = intval($v);
 	$arParams["GROUP_ID"] = $tmp;
 }
 

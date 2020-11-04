@@ -1,10 +1,11 @@
-import { Type, Loc } from 'main.core';
+import { Loc } from 'main.core';
 import Tab from './tab';
 import type { TabOptions } from './tab-options';
+import type Dialog from '../dialog';
 
 export default class RecentTab extends Tab
 {
-	constructor(tabOptions: TabOptions)
+	constructor(dialog: Dialog, tabOptions: TabOptions)
 	{
 		const icon =
 			'data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2219%22%20height%3D%2219%22%20fill%3D' +
@@ -29,9 +30,9 @@ export default class RecentTab extends Tab
 			}
 		};
 
-		const options = Object.assign({}, defaults, tabOptions);
+		const options: TabOptions = Object.assign({}, defaults, tabOptions);
 		options.id = 'recents';
 
-		super(options);
+		super(dialog, options);
 	}
 }

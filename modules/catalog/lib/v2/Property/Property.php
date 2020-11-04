@@ -61,9 +61,9 @@ class Property extends BaseEntity implements HasPropertyValueCollection
 		return $this->settings->getField($name);
 	}
 
-	public function getId()
+	public function getId(): ?int
 	{
-		return $this->getSetting('ID');
+		return (int)$this->getSetting('ID') ?: null;
 	}
 
 	public function setId(int $id): BaseEntity
@@ -71,9 +71,9 @@ class Property extends BaseEntity implements HasPropertyValueCollection
 		throw new NotSupportedException('Property ID can\'t be modified.');
 	}
 
-	public function getIndex()
+	public function getCode(): string
 	{
-		return $this->getSetting('CODE') ?: $this->getSetting('ID');
+		return (string)$this->getSetting('CODE');
 	}
 
 	public function getName()
@@ -84,6 +84,22 @@ class Property extends BaseEntity implements HasPropertyValueCollection
 	public function getDefaultValue()
 	{
 		$defaultValue = $this->getSetting('DEFAULT_VALUE');
+
+		if ($this->getPropertyType() === 'L')
+		{
+			$enumResult = \Bitrix\Iblock\PropertyEnumerationTable::getList(
+				[
+					'filter' =>
+					[
+						'PROPERTY_ID' => $this->getId(),
+						'=DEF' => 'Y'
+					],
+					'limit' => 1
+				]
+			)->fetch();
+
+			return $enumResult ? $enumResult['ID'] : null;
+		}
 
 		if (
 			!empty($defaultValue)

@@ -10,17 +10,17 @@ $arParams["BLOG_URL"] = preg_replace("/[^a-zA-Z0-9_-]/is", "", Trim($arParams["B
 if(!is_array($arParams["GROUP_ID"]))
 	$arParams["GROUP_ID"] = array($arParams["GROUP_ID"]);
 foreach($arParams["GROUP_ID"] as $k=>$v)
-	if(IntVal($v) <= 0)
+	if(intval($v) <= 0)
 		unset($arParams["GROUP_ID"][$k]);
-if(strLen($arParams["BLOG_VAR"])<=0)
+if($arParams["BLOG_VAR"] == '')
 	$arParams["BLOG_VAR"] = "blog";
-if(strLen($arParams["PAGE_VAR"])<=0)
+if($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
 $arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"]);
-if(strlen($arParams["PATH_TO_BLOG"])<=0)
+if($arParams["PATH_TO_BLOG"] == '')
 	$arParams["PATH_TO_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
 $arParams["PATH_TO_BLOG_EDIT"] = trim($arParams["PATH_TO_BLOG_EDIT"]);
-if(strlen($arParams["PATH_TO_BLOG_EDIT"])<=0)
+if($arParams["PATH_TO_BLOG_EDIT"] == '')
 	$arParams["PATH_TO_BLOG_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog_edit&".$arParams["BLOG_VAR"]."=#blog#");
 $blogModulePermissions = $APPLICATION->GetGroupRight("blog");
 
@@ -34,14 +34,14 @@ else
 	if(CBlog::CanUserCreateBlog($USER->GetID()))
 	{
 		$USER_ID = intval($USER->GetID());
-		if(strlen($arParams["BLOG_URL"])>0)
+		if($arParams["BLOG_URL"] <> '')
 		{
 			$arBlog = CBlog::GetByUrl($arParams["BLOG_URL"], $arParams["GROUP_ID"]);
 			if($arBlog["ACTIVE"] == "Y")
 			{
 				$arGroup = CBlogGroup::GetByID($arBlog["GROUP_ID"]);
 				if(
-					intval($arBlog["SOCNET_GROUP_ID"]) <= 0 
+					intval($arBlog["SOCNET_GROUP_ID"]) <= 0
 					&& $arGroup["SITE_ID"] != SITE_ID
 				)
 					unset($arBlog);
@@ -71,7 +71,7 @@ else
 			$arResult["BLOG"] = $arBlog;
 		}
 
-		if (CBlog::CanUserManageBlog($arBlog["ID"], IntVal($USER->GetID())) || (CBlog::CanUserCreateBlog($USER->GetID()) && IntVal($arBlog["ID"])<=0))
+		if (CBlog::CanUserManageBlog($arBlog["ID"], intval($USER->GetID())) || (CBlog::CanUserCreateBlog($USER->GetID()) && intval($arBlog["ID"])<=0))
 		{
 			$bBlockURL = COption::GetOptionString("blog", "block_url_change", "N") == 'Y' ? true : false;
 			if($bBlockURL && !($USER->IsAdmin()) && !empty($arBlog))
@@ -98,10 +98,10 @@ else
 //					"PERMS_POST" => $_POST['perms_p'],
 //					"PERMS_COMMENT" => $_POST['perms_c'],
 				);
-				if(IntVal($_POST['GROUP_ID'])>0)
-					$arFields["GROUP_ID"] = IntVal($_POST['GROUP_ID']);
+				if(intval($_POST['GROUP_ID'])>0)
+					$arFields["GROUP_ID"] = intval($_POST['GROUP_ID']);
 
-				if ((!$bBlockURL || $USER->IsAdmin() || empty($arBlog)) && strlen($_POST["URL"])>0)
+				if ((!$bBlockURL || $USER->IsAdmin() || empty($arBlog)) && $_POST["URL"] <> '')
 					$arFields["URL"] = $_POST['URL'];
 
 				if (count($arParams["BLOG_PROPERTY"]) > 0)
@@ -131,14 +131,14 @@ else
 				}
 				
 					
-				if(IntVal($newID) > 0)
+				if(intval($newID) > 0)
 				{
 					$autoGroup = Array();
 					if(!empty($_POST["grp_name"]))
 					{
 						foreach($_POST["grp_name"] as $k => $v)
 						{
-							if(IntVal($k) > 0)
+							if(intval($k) > 0)
 							{
 								if($_POST["grp_delete"][$k] != "Y")
 								{
@@ -164,7 +164,7 @@ else
 								{
 									$uGrID = CBlogUserGroup::Add(Array("NAME" => $v, "BLOG_ID" => $newID));
 									
-									if(IntVal($uGrID) > 0 && $_POST["group"][$k] == "Y")
+									if(intval($uGrID) > 0 && $_POST["group"][$k] == "Y")
 										$autoGroup[] = $uGrID;							
 								}
 								else
@@ -185,7 +185,7 @@ else
 					$newID = CBlog::Update($newID, $arFields);
 				}
 
-				if (IntVal($newID)>0 && empty($arResult["ERROR_MESSAGE"]))
+				if (intval($newID)>0 && empty($arResult["ERROR_MESSAGE"]))
 				{
 					$arBlog = CBlog::GetByID($newID);
 					$arBlog = CBlogTools::htmlspecialcharsExArray($arBlog);
@@ -217,7 +217,7 @@ else
 						BXClearCache(True, "/".$site_id_tmp."/blog/blog_groups/");
 					}
 
-					if (strlen($_POST['apply'])>0)
+					if ($_POST['apply'] <> '')
 						LocalRedirect($arResult["urlToBlogEdit"]);
 					else
 						LocalRedirect($arResult["urlToBlog"]);
@@ -291,7 +291,7 @@ else
 				{
 					if(is_array($arResult["AUTO_GROUPS"]) && in_array($arUGroup["ID"], $arResult["AUTO_GROUPS"]))
 						$arUGroup["CHECKED"] = "Y";
-					$arUGroup["CNT"] = IntVal($arSumGroup[$arUGroup["ID"]]);
+					$arUGroup["CNT"] = intval($arSumGroup[$arUGroup["ID"]]);
 					$arUGroupTmp[] = $arUGroup;
 				}
 				$arResult["USER_GROUP"] = $arUGroupTmp;
@@ -313,22 +313,22 @@ else
 				
 				foreach($arResult["BLOG_POST_PERMS"] as  $v)
 				{
-					if(strlen($arResult["post_everyone_max_rights"]) > 0 && $v <= $arResult["post_everyone_max_rights"])
+					if($arResult["post_everyone_max_rights"] <> '' && $v <= $arResult["post_everyone_max_rights"])
 						$arResult["ar_post_everyone_rights"][] = $v;
-					if(strlen($arResult["post_auth_user_max_rights"]) > 0 && $v <= $arResult["post_auth_user_max_rights"])
+					if($arResult["post_auth_user_max_rights"] <> '' && $v <= $arResult["post_auth_user_max_rights"])
 						$arResult["ar_post_auth_user_rights"][] = $v;
-					if(strlen($arResult["post_group_user_max_rights"]) > 0 && $v <= $arResult["post_group_user_max_rights"])
+					if($arResult["post_group_user_max_rights"] <> '' && $v <= $arResult["post_group_user_max_rights"])
 						$arResult["ar_post_group_user_rights"][] = $v;
 
 				}
 
 				foreach($arResult["BLOG_COMMENT_PERMS"] as  $v)
 				{
-					if(strlen($arResult["comment_everyone_max_rights"]) > 0 && $v <= $arResult["comment_everyone_max_rights"])
+					if($arResult["comment_everyone_max_rights"] <> '' && $v <= $arResult["comment_everyone_max_rights"])
 						$arResult["ar_comment_everyone_rights"][] = $v;
-					if(strlen($arResult["comment_auth_user_max_rights"]) > 0 && $v <= $arResult["comment_auth_user_max_rights"])
+					if($arResult["comment_auth_user_max_rights"] <> '' && $v <= $arResult["comment_auth_user_max_rights"])
 						$arResult["ar_comment_auth_user_rights"][] = $v;
-					if(strlen($arResult["comment_group_user_max_rights"]) > 0 && $v <= $arResult["comment_group_user_max_rights"])
+					if($arResult["comment_group_user_max_rights"] <> '' && $v <= $arResult["comment_group_user_max_rights"])
 						$arResult["ar_comment_group_user_rights"][] = $v;
 				}
 			}
@@ -345,7 +345,7 @@ else
 					{
 						if (!in_array($FIELD_NAME, $arParams["BLOG_PROPERTY"]))
 							continue;
-						$arBlogField["EDIT_FORM_LABEL"] = strLen($arBlogField["EDIT_FORM_LABEL"]) > 0 ? $arBlogField["EDIT_FORM_LABEL"] : $arBlogField["FIELD_NAME"];
+						$arBlogField["EDIT_FORM_LABEL"] = $arBlogField["EDIT_FORM_LABEL"] <> '' ? $arBlogField["EDIT_FORM_LABEL"] : $arBlogField["FIELD_NAME"];
 						$arBlogField["EDIT_FORM_LABEL"] = htmlspecialcharsEx($arBlogField["EDIT_FORM_LABEL"]);
 						$arBlogField["~EDIT_FORM_LABEL"] = $arBlogField["EDIT_FORM_LABEL"];
 						$arResult["BLOG_PROPERTIES"]["DATA"][$FIELD_NAME] = $arBlogField;

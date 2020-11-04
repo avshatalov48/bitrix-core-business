@@ -26,6 +26,7 @@ use Bitrix\Sender\Posting\ThreadStrategy\IThreadStrategy;
 use Bitrix\Sender\PostingRecipientTable;
 use Bitrix\Sender\PostingTable;
 use Bitrix\Sender\Recipient;
+use Bitrix\Sender\Runtime\TimeLineJob;
 
 Loc::loadMessages(__FILE__);
 
@@ -265,6 +266,7 @@ class Sender
 		if ($this->resultCode == static::RESULT_SENT)
 		{
 			$this->resultCode = !$this->threadStrategy->finalize() ? static::RESULT_CONTINUE : static::RESULT_SENT;
+			TimeLineJob::addEventAgent($this->letterId);
 		}
 	}
 
@@ -517,68 +519,89 @@ class Sender
 	 */
 	private function sendToRecipients($recipients)
 	{
-		foreach ($recipients as $recipient)
+		$dataToInsert = [];
+		try
 		{
-
-			if ($this->isPrevented())
+			foreach ($recipients as $recipient)
 			{
-				break;
-			}
 
-			if ($this->isStoppedOnRun())
-			{
-				break;
-			}
-
-			$this->setPostingDateSend();
-
-			if (empty($recipient['CONTACT_CODE']) || $recipient['CONTACT_BLACKLISTED'] === 'Y' || $recipient['CONTACT_UNSUBSCRIBED'] === 'Y')
-			{
-				$sendResult = false;
-			}
-			else
-			{
-				$sendResult = $this->sendToRecipient($recipient);
 				if ($this->isPrevented())
 				{
 					break;
 				}
+
+				if ($this->isStoppedOnRun())
+				{
+					break;
+				}
+
+				$this->setPostingDateSend();
+
+				if (empty($recipient['CONTACT_CODE']) || $recipient['CONTACT_BLACKLISTED'] === 'Y' || $recipient['CONTACT_UNSUBSCRIBED'] === 'Y')
+				{
+					$sendResult = false;
+				}
+				else
+				{
+					$sendResult = $this->sendToRecipient($recipient);
+					if ($this->isPrevented())
+					{
+						break;
+					}
+				}
+
+				$sendResultStatus = $sendResult? PostingRecipientTable::SEND_RESULT_SUCCESS
+					: PostingRecipientTable::SEND_RESULT_ERROR;
+				Model\Posting\RecipientTable::update(
+					$recipient["ID"],
+					[
+						'STATUS'    => $sendResultStatus,
+						'DATE_SENT' => new Type\DateTime()
+					]
+				);
+
+				// send event
+				$eventData = [
+					'SEND_RESULT' => $sendResult,
+					'RECIPIENT'   => $recipient,
+					'POSTING'     => [
+						'ID'               => $this->postingId,
+						'STATUS'           => $this->status,
+						'MAILING_ID'       => $this->mailingId,
+						'MAILING_CHAIN_ID' => $this->letterId,
+					]
+				];
+				$event = new Event('sender', 'OnAfterPostingSendRecipient', [$eventData, $this->letter]);
+				$event->send();
+
+				$dataToInsert[] = $eventData;
+
+				// limit executing script by time
+				if ($this->isTimeout() || $this->isLimitExceeded() || $this->isTransportLimitsExceeded())
+				{
+					break;
+				}
+
+				// increment sending statistic
+				$this->sentCount++;
 			}
+		} catch(\Exception $e)
+		{
 
-			$sendResultStatus = $sendResult ? PostingRecipientTable::SEND_RESULT_SUCCESS
-				: PostingRecipientTable::SEND_RESULT_ERROR;
-			Model\Posting\RecipientTable::update(
-				$recipient["ID"],
-				[
-					'STATUS'    => $sendResultStatus,
-					'DATE_SENT' => new Type\DateTime()
-				]
-			);
+		}
 
-			// send event
-			$eventData = [
-				'SEND_RESULT' => $sendResult,
-				'RECIPIENT'   => $recipient,
-				'POSTING'     => [
-					'ID'               => $this->postingId,
-					'STATUS'           => $this->status,
-					'MAILING_ID'       => $this->mailingId,
-					'MAILING_CHAIN_ID' => $this->letterId,
-				]
-			];
-			$event     = new Event('sender', 'OnAfterPostingSendRecipient', [$eventData, $this->letter]);
-			$event->send();
-
-			Integration\EventHandler::onAfterPostingSendRecipient($eventData, $this->letter);
-
-			// limit executing script by time
-			if ($this->isTimeout() || $this->isLimitExceeded() || $this->isTransportLimitsExceeded())
+		try
+		{
+			if($dataToInsert)
 			{
-				break;
+				Integration\EventHandler::onAfterPostingSendRecipientMultiple(
+					$dataToInsert,
+					$this->letter
+				);
 			}
+		} catch(\Exception $e)
+		{
 
-			// increment sending statistic
-			$this->sentCount++;
 		}
 
 		return $sendResult;

@@ -1561,7 +1561,7 @@
 				target : "_top"
 			});
 			panels.push({
-				text : '<span id="record-popup-' + linkId + '-link-text">' + BX.message("B_B_MS_LINK") + '</span>' +
+				html : '<span id="record-popup-' + linkId + '-link-text">' + BX.message("B_B_MS_LINK") + '</span>' +
 					'<span id="record-popup-' + linkId + '-link-icon-animate" class="comment-menu-link-icon-wrap">' +
 						'<span class="comment-menu-link-icon" id="record-popup-' + linkId + '-link-icon-done" style="display: none;">' +
 

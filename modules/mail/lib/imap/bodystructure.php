@@ -189,6 +189,11 @@ class BodyStructure
 		return $this->getDisposition()[0] === 'attachment';
 	}
 
+	public function isBodyText()
+	{
+		return $this->isText() && !$this->isAttachment() && $this->getSubtype() != 'calendar';
+	}
+
 	public function traverse(callable $callback, $flat = false)
 	{
 		$items = array();

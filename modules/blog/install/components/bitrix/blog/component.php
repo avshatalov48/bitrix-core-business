@@ -48,7 +48,7 @@ $arDefaultVariableAliases = array();
 $componentPage = "";
 $arComponentVariables = array("user_id", "post_id", "blog", "group_id", "type", "category", "day", "month", "year", "title", "url", "excerpt", "blog_name", "page");
 
-if (strlen(trim($arParams["NAME_TEMPLATE"])) <= 0)
+if (trim($arParams["NAME_TEMPLATE"]) == '')
 	$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
 	
 $arParams['SHOW_LOGIN'] = $arParams['SHOW_LOGIN'] != "N" ? "Y" : "N";	
@@ -97,22 +97,21 @@ if ($arParams["SEF_MODE"] == "Y")
 
 	if (empty($componentPage) || (!array_key_exists($componentPage, $arDefaultUrlTemplates404)))
 	{
-		//if(strlen($componentPage)<=0)
-			$componentPage = "index";
+		$componentPage = "index";
 	}
 
 	CComponentEngine::InitComponentVariables($componentPage, $arComponentVariables, $arVariableAliases, $arVariables);
 
 	foreach ($arUrlTemplates as $url => $value)
 	{
-		if(strlen($arParams["PATH_TO_".strToUpper($url)]) <= 0)
-			$arResult["PATH_TO_".strToUpper($url)] = $arParams["SEF_FOLDER"].$value;
+		if($arParams["PATH_TO_".mb_strtoupper($url)] == '')
+			$arResult["PATH_TO_".mb_strtoupper($url)] = $arParams["SEF_FOLDER"].$value;
 		else
-			$arResult["PATH_TO_".strToUpper($url)] = $arParams["PATH_TO_".strToUpper($url)];
+			$arResult["PATH_TO_".mb_strtoupper($url)] = $arParams["PATH_TO_".mb_strtoupper($url)];
 	}
 
-	$arResult["PATH_TO_USER_EDIT"] = $arParams["SEF_FOLDER"].$arUrlTemplates["user"].(strpos($arParams["SEF_FOLDER"].$arUrlTemplates["user"], "?")===false ? "?" : "&")."mode=edit";
-	$arResult["PATH_TO_BLOG_CATEGORY"] = $arParams["SEF_FOLDER"].$arUrlTemplates["blog"].(strpos($arParams["SEF_FOLDER"].$arUrlTemplates["blog"], "?")===false ? "?" : "&")."category=#category_id#";
+	$arResult["PATH_TO_USER_EDIT"] = $arParams["SEF_FOLDER"].$arUrlTemplates["user"].(mb_strpos($arParams["SEF_FOLDER"].$arUrlTemplates["user"], "?") === false ? "?" : "&")."mode=edit";
+	$arResult["PATH_TO_BLOG_CATEGORY"] = $arParams["SEF_FOLDER"].$arUrlTemplates["blog"].(mb_strpos($arParams["SEF_FOLDER"].$arUrlTemplates["blog"], "?") === false ? "?" : "&")."category=#category_id#";
 	$arResult["PATH_TO_BLOG_INDEX"] = $arParams["SEF_FOLDER"];
 
 	if($_REQUEST["auth"]=="Y")
@@ -130,18 +129,17 @@ else
 
 	if (empty($componentPage) || (!array_key_exists($componentPage, $arDefaultUrlTemplates404)))
 	{
-		//if(strlen($componentPage)<=0)
-			$componentPage = "index";
+		$componentPage = "index";
 	}
 	if($_REQUEST["auth"]=="Y")
 		$componentPage = "auth";
 
-	if(strlen($arResult["PATH_TO_SEARCH"])<=0)
+	if($arResult["PATH_TO_SEARCH"] == '')
 		$arResult["PATH_TO_SEARCH"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arVariableAliases["page"]."=search");
 
 }
 
-if(strlen($arResult["PATH_TO_BLOG_EDIT"])>0)
+if($arResult["PATH_TO_BLOG_EDIT"] <> '')
 	$blogEdit = $arResult["PATH_TO_BLOG_EDIT"];
 else
 	$blogEdit = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arVariableAliases["page"]."=blog_edit&".$arVariableAliases["blog"]."=#blog#");

@@ -15,7 +15,7 @@
 						<td><a href="<?=$arParams["PATH_TO_BLOG_INDEX"]?>" title="<?=GetMessage("BLOG_MENU_BLOGS_LIST_TITLE")?>" class="blogtoolbutton"><?=GetMessage("BLOG_MENU_BLOGS_LIST")?></a></td>
 						
 						<?
-						if(strlen($arResult["urlToCurrentBlog"])>0)
+						if($arResult["urlToCurrentBlog"] <> '')
 						{
 							?>
 							<td><div class="blogtoolseparator"></div></td>
@@ -24,7 +24,7 @@
 							<?
 						}
 
-						if(strlen($arResult["urlToUser"])>0)
+						if($arResult["urlToUser"] <> '')
 						{
 							?>
 								<td><div class="blogtoolseparator"></div></td>
@@ -45,7 +45,7 @@
 						<td><div class="blogtoolsection"></div></td>
 
 						<?
-						if (strlen($arResult["urlToNewPost"])>0)
+						if ($arResult["urlToNewPost"] <> '')
 						{
 							?>
 							<td><a href="<?=$arResult["urlToNewPost"]?>" title="<?=GetMessage("BLOG_MENU_ADD_MESSAGE_TITLE")?>"><img src="<?=$templateFolder?>/images/icon_new_message.gif" class="blogmenuicon" border="0" title="<?=GetMessage("BLOG_MENU_ADD_MESSAGE_TITLE")?>" hspace="4" alt=""></a></td>
@@ -53,7 +53,7 @@
 							<?
 						}
 						
-						if(strlen($arResult["urlToDraft"])>0)
+						if($arResult["urlToDraft"] <> '')
 						{
 							?>
 							<td><div class="blogtoolseparator"></div></td>
@@ -61,7 +61,7 @@
 							<td><a href="<?=$arResult["urlToDraft"]?>" title="<?=GetMessage("BLOG_MENU_DRAFT_MESSAGES_TITLE")?>" class="blogtoolbutton"><?=GetMessage("BLOG_MENU_DRAFT_MESSAGES")?></a></td>
 							<?
 						}
-						if(strlen($arResult["urlToBlogEdit"])>0)
+						if($arResult["urlToBlogEdit"] <> '')
 						{
 							?>
 							<td><div class="blogtoolseparator"></div></td>

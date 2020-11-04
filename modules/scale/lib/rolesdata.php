@@ -15,7 +15,7 @@ class RolesData
 	 */
 	public static function getRole($roleId)
 	{
-		if(strlen($roleId) <= 0)
+		if($roleId == '')
 			throw new \Bitrix\Main\ArgumentNullException("roleId");
 
 		$rolesDefinitions = self::getList();
@@ -61,7 +61,7 @@ class RolesData
 	 */
 	public static function getGraphsCategories($roleId)
 	{
-		if(strlen($roleId) <= 0)
+		if($roleId == '')
 			throw new \Bitrix\Main\ArgumentNullException("roleId");
 
 		$result = array();

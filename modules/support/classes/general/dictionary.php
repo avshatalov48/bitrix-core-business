@@ -46,13 +46,13 @@ class CAllTicketDictionary
 		$rs = CTicketDictionary::GetList(($v1="s_dropdown"), $v2, $arFilter, $v3);
 		
 		$oldFunctionality = COption::GetOptionString( "support", "SUPPORT_OLD_FUNCTIONALITY", "Y" );
-		if( intval( $sla_id ) <= 0 || $oldFunctionality != "Y" || ( $type != "C" && $type!="K" && $type!="M" ) ) return $rs;
+		if( intval($sla_id) <= 0 || $oldFunctionality != "Y" || ( $type != "C" && $type!="K" && $type!="M" ) ) return $rs;
 		
 		switch($type)
 		{
-			case "C": $strSql = "SELECT CATEGORY_ID as DID FROM b_ticket_sla_2_category WHERE SLA_ID=" . intval( $sla_id ); break;
-			case "K": $strSql = "SELECT CRITICALITY_ID as DID FROM b_ticket_sla_2_criticality WHERE SLA_ID=" . intval( $sla_id ); break;
-			case "M": $strSql = "SELECT MARK_ID as DID FROM b_ticket_sla_2_mark WHERE SLA_ID=" . intval( $sla_id ); break;
+			case "C": $strSql = "SELECT CATEGORY_ID as DID FROM b_ticket_sla_2_category WHERE SLA_ID=" . intval($sla_id); break;
+			case "K": $strSql = "SELECT CRITICALITY_ID as DID FROM b_ticket_sla_2_criticality WHERE SLA_ID=" . intval($sla_id); break;
+			case "M": $strSql = "SELECT MARK_ID as DID FROM b_ticket_sla_2_mark WHERE SLA_ID=" . intval($sla_id); break;
 		}
 		$r = $DB->Query( $strSql, false, $err_mess . __LINE__ );
 		while( $a = $r->Fetch() ) $arDID[] = $a["DID"];
@@ -259,7 +259,7 @@ class CAllTicketDictionary
 	{
 		$arMsg = Array();
 
-		if ( $id ===false && !(array_key_exists('NAME', $arFields) && strlen($arFields['NAME']) > 0) )
+		if ( $id ===false && !(array_key_exists('NAME', $arFields) && $arFields['NAME'] <> '') )
 		{
 			$arMsg[] = array("id"=>"NAME", "text"=> GetMessage("SUP_FORGOT_NAME"));
 		}
@@ -278,7 +278,7 @@ class CAllTicketDictionary
 			$arMsg[] = array("id"=>"SID", "text"=> GetMessage("SUP_INCORRECT_SID"));
 		}
 		elseif (
-				strlen($arFields['SID']) > 0 && array_key_exists('arrSITE', $arFields) &&
+				$arFields['SID'] <> '' && array_key_exists('arrSITE', $arFields) &&
 				is_array($arFields['arrSITE']) && count($arFields['arrSITE']) > 0
 			)
 		{
@@ -302,7 +302,7 @@ class CAllTicketDictionary
 									'SUP_SID_ALREADY_IN_USE',
 									array(
 										'#TYPE#' => CTicketDictionary::GetTypeNameByID($arFields['C_TYPE']),
-										'#LANG#' => strlen($zr['LID']) > 0? $zr['LID']: $zr['SITE_ID'],
+										'#LANG#' => $zr['LID'] <> ''? $zr['LID']: $zr['SITE_ID'],
 										'#RECORD_ID#' => $zr['ID'],
 									)
 							)

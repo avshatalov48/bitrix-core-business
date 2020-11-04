@@ -206,7 +206,19 @@ class CSocServGoogleOAuth extends CSocServAuth
 		if(!$short && isset($arGoogleUser['picture']) && static::CheckPhotoURI($arGoogleUser['picture']))
 		{
 			$arGoogleUser['picture'] = preg_replace("/\?.*$/", '', $arGoogleUser['picture']);
-			$arPic = CFile::MakeFileArray($arGoogleUser['picture']);
+			$arPic = false;
+			if ($arGoogleUser['picture'])
+			{
+				$temp_path =  CFile::GetTempName('', sha1($arGoogleUser['picture']));
+
+				$http = new \Bitrix\Main\Web\HttpClient();
+				$http->setPrivateIp(false);
+				if($http->download($arGoogleUser['picture'], $temp_path))
+				{
+					$arPic = CFile::MakeFileArray($temp_path);
+				}
+			}
+
 			if($arPic)
 			{
 				$arFields["PERSONAL_PHOTO"] = $arPic;

@@ -288,7 +288,7 @@ class CSaleViewedProduct extends CAllSaleViewedProduct
 	* @param array $arFields - params for add
 	* @return true false
 	*/
-	public function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB;
 
@@ -321,7 +321,15 @@ class CSaleViewedProduct extends CAllSaleViewedProduct
 		{
 			if (\Bitrix\Main\Loader::includeModule('catalog'))
 			{
-				return \Bitrix\Catalog\CatalogViewedProductTable::refresh($arFields["PRODUCT_ID"], CSaleBasket::GetBasketUserID(), $arFields["LID"]);
+				if ((string)\Bitrix\Main\Config\Option::get('catalog', 'enable_viewed_products') !== 'N')
+				{
+					$result = \Bitrix\Catalog\CatalogViewedProductTable::refresh(
+						$arFields["PRODUCT_ID"],
+						CSaleBasket::GetBasketUserID(),
+						$arFields["LID"]
+					);
+					return ($result > 0);
+				}
 			}
 		}
 

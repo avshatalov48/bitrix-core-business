@@ -3,7 +3,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Exchange\EntityType;
-use Bitrix\Sale\Exchange\Internals\ExchangeLogTable;
+use Bitrix\Sale\Exchange\Logger;
 
 \Bitrix\Main\Loader::includeModule('sale');
 IncludeModuleLangFile(__FILE__);
@@ -149,7 +149,7 @@ $headers = array(
 	array("id"=>"DATE_INSERT", "content"=>Loc::getMessage("LOG_DATE_INSERT"), "sort"=>"DATE_INSERT", "default"=>true),
 );
 
-$dbResultList = new CAdminResult(ExchangeLogTable::getList($params), $tableId);
+$dbResultList = new CAdminResult((new Logger\Exchange(Logger\ProviderType::ONEC_NAME))->getList($params), $tableId);
 $dbResultList->NavStart();
 
 $lAdmin->NavText($dbResultList->GetNavPrint(Loc::getMessage("group_admin_nav")));

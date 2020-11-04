@@ -13,28 +13,28 @@ if($arParams["SET_TITLE"]=="Y")
 if(!is_array($arParams["GROUP_ID"]))
 	$arParams["GROUP_ID"] = array($arParams["GROUP_ID"]);
 foreach($arParams["GROUP_ID"] as $k=>$v)
-	if(IntVal($v) <= 0)
+	if(intval($v) <= 0)
 		unset($arParams["GROUP_ID"][$k]);
 
-if(strLen($arParams["BLOG_VAR"])<=0)
+if($arParams["BLOG_VAR"] == '')
 	$arParams["BLOG_VAR"] = "blog";
-if(strLen($arParams["PAGE_VAR"])<=0)
+if($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if(strLen($arParams["POST_VAR"])<=0)
+if($arParams["POST_VAR"] == '')
 	$arParams["POST_VAR"] = "id";
 	
 $arParams["PATH_TO_BLOG_CATEGORY"] = trim($arParams["PATH_TO_BLOG_CATEGORY"]);
-if(strlen($arParams["PATH_TO_BLOG_CATEGORY"])<=0)
+if($arParams["PATH_TO_BLOG_CATEGORY"] == '')
 	$arParams["PATH_TO_BLOG_CATEGORY"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#"."&category=#category_id#");
 	
 $arParams["PATH_TO_POST_EDIT"] = trim($arParams["PATH_TO_POST_EDIT"]);
-if(strlen($arParams["PATH_TO_POST_EDIT"])<=0)
+if($arParams["PATH_TO_POST_EDIT"] == '')
 	$arParams["PATH_TO_POST_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post_edit&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
 $arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 	
-$arParams["PATH_TO_SMILE"] = strlen(trim($arParams["PATH_TO_SMILE"]))<=0 ? false : trim($arParams["PATH_TO_SMILE"]);
-$arParams["IMAGE_MAX_WIDTH"] = IntVal($arParams["IMAGE_MAX_WIDTH"]);
-$arParams["IMAGE_MAX_HEIGHT"] = IntVal($arParams["IMAGE_MAX_HEIGHT"]);
+$arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"]) == '' ? false : trim($arParams["PATH_TO_SMILE"]);
+$arParams["IMAGE_MAX_WIDTH"] = intval($arParams["IMAGE_MAX_WIDTH"]);
+$arParams["IMAGE_MAX_HEIGHT"] = intval($arParams["IMAGE_MAX_HEIGHT"]);
 
 if(!is_array($arParams["POST_PROPERTY_LIST"]))
 	$arParams["POST_PROPERTY_LIST"] = Array("UF_BLOG_POST_DOC");
@@ -45,7 +45,7 @@ else
 $arResult["OK_MESSAGE"] = Array();
 $arResult["ERROR_MESSAGE"] = Array();
 
-$user_id = IntVal($USER->GetID());
+$user_id = intval($USER->GetID());
 
 $arBlog = CBlog::GetByUrl($arParams["BLOG_URL"], $arParams["GROUP_ID"]);
 $arResult["PostPerm"] = CBlog::GetBlogUserPostPerms($arBlog["ID"], $user_id);
@@ -66,7 +66,7 @@ if(!empty($arBlog) && $arBlog["ACTIVE"] == "Y")
 			{
 				$errorMessage = "";
 				$okMessage = "";
-				if (IntVal($_GET["del_id"]) > 0)
+				if (intval($_GET["del_id"]) > 0)
 				{
 					if($_GET["success"] == "Y") 
 					{
@@ -74,7 +74,7 @@ if(!empty($arBlog) && $arBlog["ACTIVE"] == "Y")
 					}
 					else
 					{
-						$DEL_ID = IntVal($_GET["del_id"]);
+						$DEL_ID = intval($_GET["del_id"]);
 						if (check_bitrix_sessid() && CBlogPost::CanUserDeletePost($DEL_ID, $user_id))
 						{
 							if (CBlogPost::Delete($DEL_ID))
@@ -88,7 +88,7 @@ if(!empty($arBlog) && $arBlog["ACTIVE"] == "Y")
 							$errorMessage = GetMessage("B_B_HIDE_M_DEL_RIGHTS");
 					}
 				}
-				elseif (IntVal($_GET["show_id"]) > 0)
+				elseif (intval($_GET["show_id"]) > 0)
 				{
 					if($_GET["success"] == "Y") 
 					{
@@ -98,7 +98,7 @@ if(!empty($arBlog) && $arBlog["ACTIVE"] == "Y")
 					{
 						if (check_bitrix_sessid())
 						{
-							$show_id = IntVal($_GET["show_id"]);
+							$show_id = intval($_GET["show_id"]);
 							if($arResult["PostPerm"]>=BLOG_PERMS_MODERATE)
 							{
 								if($arPost = CBlogPost::GetByID($show_id))
@@ -133,9 +133,9 @@ if(!empty($arBlog) && $arBlog["ACTIVE"] == "Y")
 					}
 				}
 
-				if (StrLen($errorMessage) > 0)
+				if ($errorMessage <> '')
 					$arResult["ERROR_MESSAGE"][] = $errorMessage;
-				if (StrLen($okMessage) > 0)
+				if ($okMessage <> '')
 					$arResult["OK_MESSAGE"][] = $okMessage;			
 				
 				$arResult["POST"] = Array();
@@ -239,7 +239,7 @@ if(!empty($arBlog) && $arBlog["ACTIVE"] == "Y")
 							{
 								if (!in_array($FIELD_NAME, $arParams["POST_PROPERTY_LIST"]))
 									continue;
-								$arPostField["EDIT_FORM_LABEL"] = strLen($arPostField["EDIT_FORM_LABEL"]) > 0 ? $arPostField["EDIT_FORM_LABEL"] : $arPostField["FIELD_NAME"];
+								$arPostField["EDIT_FORM_LABEL"] = $arPostField["EDIT_FORM_LABEL"] <> '' ? $arPostField["EDIT_FORM_LABEL"] : $arPostField["FIELD_NAME"];
 								$arPostField["EDIT_FORM_LABEL"] = htmlspecialcharsEx($arPostField["EDIT_FORM_LABEL"]);
 								$arPostField["~EDIT_FORM_LABEL"] = $arPostField["EDIT_FORM_LABEL"];
 								$arPost["POST_PROPERTIES"]["DATA"][$FIELD_NAME] = $arPostField;
@@ -264,12 +264,12 @@ if(!empty($arBlog) && $arBlog["ACTIVE"] == "Y")
 						$arPost["urlToDelete"] = htmlspecialcharsbx($arPost["urlToDelete"]);
 					}
 					
-					if(strlen($arPost["CATEGORY_ID"])>0)
+					if($arPost["CATEGORY_ID"] <> '')
 					{
 						$arCategory = explode(",",$arPost["CATEGORY_ID"]);
 						foreach($arCategory as $v)
 						{
-							if(IntVal($v)>0)
+							if(intval($v)>0)
 							{
 								$arCatTmp = CBlogTools::htmlspecialcharsExArray(CBlogCategory::GetByID($v));
 								$arCatTmp["urlToCategory"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_BLOG_CATEGORY"], array("blog" => $arBlog["URL"], "category_id" => $v, "user_id" => $arParams["USER_ID"]));

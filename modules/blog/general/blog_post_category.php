@@ -8,7 +8,7 @@ class CAllBlogPostCategory
 	{
 		global $APPLICATION;
 
-		if ((is_set($arFields, "POST_ID") || $ACTION=="ADD") && strlen($arFields["POST_ID"]) <= 0)
+		if ((is_set($arFields, "POST_ID") || $ACTION=="ADD") && $arFields["POST_ID"] == '')
 		{
 			$APPLICATION->ThrowException(GetMessage("BLG_GCT_EMPTY_POST_ID"), "EMPTY_POST_ID");
 			return false;
@@ -23,7 +23,7 @@ class CAllBlogPostCategory
 			}
 		}
 
-		if ((is_set($arFields, "BLOG_ID") || $ACTION=="ADD") && IntVal($arFields["BLOG_ID"]) <= 0)
+		if ((is_set($arFields, "BLOG_ID") || $ACTION=="ADD") && intval($arFields["BLOG_ID"]) <= 0)
 		{
 			$APPLICATION->ThrowException(GetMessage("BLG_GCT_EMPTY_BLOG_ID"), "EMPTY_BLOG_ID");
 			return false;
@@ -38,7 +38,7 @@ class CAllBlogPostCategory
 			}
 		}
 
-		if ((is_set($arFields, "CATEGORY_ID") || $ACTION=="ADD") && IntVal($arFields["CATEGORY_ID"]) <= 0)
+		if ((is_set($arFields, "CATEGORY_ID") || $ACTION=="ADD") && intval($arFields["CATEGORY_ID"]) <= 0)
 		{
 			$APPLICATION->ThrowException(GetMessage("BLG_GCT_EMPTY_CATEGORY_ID"), "EMPTY_CATEGORY_ID");
 			return false;
@@ -60,7 +60,7 @@ class CAllBlogPostCategory
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		return $DB->Query("DELETE FROM b_blog_post_category WHERE ID = ".$ID."", true);
 	}
@@ -70,7 +70,7 @@ class CAllBlogPostCategory
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$strSql =
 			"SELECT C.ID, C.BLOG_ID, C.POST_ID, C.CATEGORY_ID ".
@@ -88,7 +88,7 @@ class CAllBlogPostCategory
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		return $DB->Query("DELETE FROM b_blog_post_category WHERE POST_ID = ".$ID."", true);
 	}

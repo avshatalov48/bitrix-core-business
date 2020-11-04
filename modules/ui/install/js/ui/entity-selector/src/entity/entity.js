@@ -36,7 +36,7 @@ export default class Entity extends EventEmitter
 		super();
 		this.setEventNamespace('BX.UI.EntitySelector.Entity');
 
-		let options = Type.isPlainObject(entityOptions) ? entityOptions : {};
+		let options: EntityOptions = Type.isPlainObject(entityOptions) ? entityOptions : {};
 		if (!Type.isStringFilled(options.id))
 		{
 			throw new Error('EntitySelector.Entity: "id" parameter is required.');

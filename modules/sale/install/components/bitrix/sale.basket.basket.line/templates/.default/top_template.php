@@ -19,7 +19,7 @@ $compositeStub = (isset($arResult['COMPOSITE_STUB']) && $arResult['COMPOSITE_STU
 			?>
 			<a href="<?=$arParams['PATH_TO_PROFILE']?>"><?=htmlspecialcharsbx($name)?></a>
 			&nbsp;
-			<a href="?logout=yes"><?=GetMessage('TSB1_LOGOUT')?></a>
+			<a href="?logout=yes&<?=bitrix_sessid_get()?>"><?=GetMessage('TSB1_LOGOUT')?></a>
 		<?else:
 			$arParamsToDelete = array(
 				"login",

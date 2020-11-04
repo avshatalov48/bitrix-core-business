@@ -116,6 +116,8 @@ if(typeof BX.UI.EntitySchemeElement === "undefined")
 		this._isContextMenuEnabled = true;
 		this._isRequired = false;
 		this._isRequiredConditionally = false;
+		this._isRequiredByAttribute = false;
+		this._isPhaseDependent = true;
 		this._isHeading = false;
 		this._isMergeable = true;
 
@@ -145,8 +147,10 @@ if(typeof BX.UI.EntitySchemeElement === "undefined")
 			this._isTitleEnabled = BX.prop.getBoolean(this._settings, "enableTitle", true)
 				&& this.getDataBooleanParam("enableTitle", true);
 			this._isDragEnabled = BX.prop.getBoolean(this._settings, "isDragEnabled", true);
+			this._isPhaseDependent = this.getDataBooleanParam("isPhaseDependent", true);
 			this._isRequired = BX.prop.getBoolean(this._settings, "required", false);
 			this._isRequiredConditionally = BX.prop.getBoolean(this._settings, "requiredConditionally", false);
+			this._isRequiredByAttribute = this.getRequiredByAttributeConfiguration();
 			this._isHeading = BX.prop.getBoolean(this._settings, "isHeading", false);
 
 			this._visibilityPolicy = BX.UI.EntityEditorVisibilityPolicy.parse(
@@ -264,6 +268,10 @@ if(typeof BX.UI.EntitySchemeElement === "undefined")
 		isRequiredConditionally: function()
 		{
 			return this._isRequiredConditionally;
+		},
+		isRequiredByAttribute: function()
+		{
+			return this._isRequiredByAttribute;
 		},
 		isContextMenuEnabled: function()
 		{
@@ -420,7 +428,10 @@ if(typeof BX.UI.EntitySchemeElement === "undefined")
 			var index = -1;
 			for(var i = 0, length = this._data["attrConfigs"].length; i < length; i++)
 			{
-				if(BX.prop.getInteger(this._data["attrConfigs"][i], "typeId", BX.UI.EntityFieldAttributeType.undefined) === typeId)
+				if(BX.prop.getInteger(
+					this._data["attrConfigs"][i],
+					"typeId",
+					BX.UI.EntityFieldAttributeType.undefined) === typeId)
 				{
 					index = i;
 					break;
@@ -435,22 +446,86 @@ if(typeof BX.UI.EntitySchemeElement === "undefined")
 			{
 				this._data["attrConfigs"].push(config);
 			}
+
+			this._isRequiredByAttribute = this.getRequiredByAttributeConfiguration();
 		},
 		removeAttributeConfiguration: function(attributeTypeId)
 		{
-			if(typeof(this._data["attrConfigs"]) === "undefined")
+			if(typeof(this._data["attrConfigs"]) !== "undefined")
 			{
-				return;
-			}
-
-			for(var i = 0, length = this._data["attrConfigs"].length; i < length; i++)
-			{
-				if(BX.prop.getInteger(this._data["attrConfigs"][i], "typeId", BX.UI.EntityFieldAttributeType.undefined) === attributeTypeId)
+				for(var i = 0, length = this._data["attrConfigs"].length; i < length; i++)
 				{
-					this._data["attrConfigs"].splice(i, 1);
-					return;
+					if(BX.prop.getInteger(
+						this._data["attrConfigs"][i],
+						"typeId",
+						BX.UI.EntityFieldAttributeType.undefined) === attributeTypeId)
+					{
+						this._data["attrConfigs"].splice(i, 1);
+						break;
+					}
 				}
 			}
+
+			this._isRequiredByAttribute = this.getRequiredByAttributeConfiguration();
+		},
+		getRequiredByAttributeConfiguration: function()
+		{
+			var result = false;
+			var resultReady = false;
+
+			if(typeof(this._data["attrConfigs"]) === "undefined")
+			{
+				resultReady = true;
+			}
+
+			if (!resultReady)
+			{
+				for(var i = 0, length = this._data["attrConfigs"].length; i < length; i++)
+				{
+					if (BX.prop.getInteger(
+						this._data["attrConfigs"][i],
+						"typeId",
+						BX.UI.EntityFieldAttributeType.undefined
+					) === BX.UI.EntityFieldAttributeType.required)
+					{
+						if (this._isPhaseDependent)
+						{
+							var config = this._data["attrConfigs"][i];
+							if (config.hasOwnProperty("groups") && BX.Type.isArray(config["groups"]))
+							{
+								for (var j = 0; j <= config["groups"].length; j++)
+								{
+									if (BX.Type.isPlainObject(config["groups"][j]))
+									{
+										var group = config["groups"][j];
+										if (group.hasOwnProperty("phaseGroupTypeId"))
+										{
+											if (parseInt(group["phaseGroupTypeId"]) ===
+												BX.UI.EntityFieldAttributePhaseGroupType.general)
+											{
+												result = true;
+												resultReady = true;
+												break;
+											}
+										}
+									}
+								}
+							}
+						}
+						else
+						{
+							result = true;
+							resultReady = true;
+						}
+						if (resultReady)
+						{
+							break;
+						}
+					}
+				}
+			}
+
+			return result;
 		},
 		setVisibilityConfiguration: function(config)
 		{

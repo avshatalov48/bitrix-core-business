@@ -293,7 +293,10 @@ class CCatalogAdmin
 			$arItems = [];
 			$arItems[] = [
 				"text" => htmlspecialcharsbx($productsName),
-				"url" => $url."?IBLOCK_ID=".$arIBlock["ID"]."&type=".urlencode($arIBlock["IBLOCK_TYPE_ID"]).'&lang='.LANGUAGE_ID.'&find_section_section=-1',
+				"url" => ($mixedList
+					? $url."?IBLOCK_ID=".$arIBlock["ID"]."&type=".urlencode($arIBlock["IBLOCK_TYPE_ID"]).'&lang='.LANGUAGE_ID.'&find_section_section=0&SECTION_ID=0&apply_filter=Y'
+					: $url."?IBLOCK_ID=".$arIBlock["ID"]."&type=".urlencode($arIBlock["IBLOCK_TYPE_ID"]).'&lang='.LANGUAGE_ID.'&find_section_section=-1'
+				),
 				"more_url" => [
 					$url."?IBLOCK_ID=".$arIBlock["ID"]."&type=".urlencode($arIBlock["IBLOCK_TYPE_ID"]).'&lang='.LANGUAGE_ID,
 					CIBlock::GetAdminElementListLink($arIBlock["ID"], ["find_section_section" => -1]),

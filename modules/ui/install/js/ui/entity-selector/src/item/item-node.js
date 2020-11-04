@@ -56,7 +56,7 @@ export default class ItemNode
 
 	constructor(item: Item, nodeOptions: ItemNodeOptions)
 	{
-		const options = Type.isPlainObject(nodeOptions) ? nodeOptions : {};
+		const options: ItemNodeOptions = Type.isPlainObject(nodeOptions) ? nodeOptions : {};
 
 		if (Type.isObject(item))
 		{
@@ -247,6 +247,11 @@ export default class ItemNode
 		while (child.getFirstChild())
 		{
 			child.removeChild(child.getFirstChild());
+		}
+
+		if (child.isFocused())
+		{
+			child.unfocus();
 		}
 
 		child.setParentNode(null);

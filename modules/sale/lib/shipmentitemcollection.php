@@ -31,27 +31,18 @@ class ShipmentItemCollection
 
 	/**
 	 * @param Basket $basket
-	 *
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
 	 * @throws Main\ArgumentOutOfRangeException
+	 * @throws Main\ArgumentTypeException
 	 * @throws Main\NotSupportedException
 	 * @throws Main\ObjectNotFoundException
-	 * @throws \ErrorException
 	 */
 	public function resetCollection(Basket $basket)
 	{
 		if ($this->getShipment()->isShipped())
+		{
 			throw new Main\NotSupportedException();
-
-		/** @var Shipment $shipment */
-		if (!$shipment = $this->getShipment())
-		{
-			throw new Main\ObjectNotFoundException('Entity "Shipment" not found');
-		}
-
-		/** @var ShipmentCollection $shipmentCollection */
-		if (!$shipmentCollection = $shipment->getCollection())
-		{
-			throw new Main\ObjectNotFoundException('Entity "ShipmentCollection" not found');
 		}
 
 		if (!empty($this->collection))
@@ -64,7 +55,10 @@ class ShipmentItemCollection
 			}
 		}
 
-		$quantityList = array();
+		$quantityList = [];
+
+		/** @var ShipmentCollection $shipmentCollection */
+		$shipmentCollection = $this->getShipment()->getCollection();
 
 		/** @var BasketItem $basketItem */
 		foreach ($basket as $basketItem)
@@ -96,14 +90,17 @@ class ShipmentItemCollection
 			{
 				$this->addBundleToCollection($basketItem);
 			}
-
 		}
 	}
 
 	/**
 	 * @param BasketItem $basketItem
-	 * @return ShipmentItem
+	 * @return ShipmentItem|null
+	 * @throws Main\ArgumentNullException
 	 * @throws Main\ArgumentOutOfRangeException
+	 * @throws Main\ArgumentTypeException
+	 * @throws Main\NotSupportedException
+	 * @throws Main\ObjectNotFoundException
 	 */
 	public function createItem(BasketItem $basketItem)
 	{
@@ -372,6 +369,7 @@ class ShipmentItemCollection
 	public function getPrice()
 	{
 		$price = 0;
+
 		$sellableItems = $this->getSellableItems();
 		/** @var ShipmentItem $shipmentItem */
 		foreach ($sellableItems as $shipmentItem)
@@ -379,7 +377,7 @@ class ShipmentItemCollection
 			/** @var BasketItem $basketItem */
 			if ($basketItem = $shipmentItem->getBasketItem())
 			{
-				$price += $basketItem->getPrice() * $shipmentItem->getQuantity();
+				$price += PriceMaths::roundPrecision($basketItem->getPriceWithVat() * $shipmentItem->getQuantity());
 			}
 		}
 

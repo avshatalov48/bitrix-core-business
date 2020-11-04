@@ -40,6 +40,18 @@
 	box-shadow: -5px 0 22px -5px rgba(0, 0, 0, 0.3);
 }
 
+.side-panel-fullscreen {
+	left: 0 !important;
+	top: 0 !important;
+	bottom: 0 !important;
+	right: 0 !important;
+}
+
+.side-panel-fullscreen .side-panel-container {
+	max-width: none !important;
+	width: 100% !important;
+}
+
 .side-panel-disable-scrollbar {
 	overflow: hidden;
 }

@@ -124,6 +124,12 @@ class CatalogViewedProductTable extends Main\Entity\DataManager
 	public static function refresh($productId, $fuserId, $siteId = SITE_ID, $elementId = 0, $recommendationId = '')
 	{
 		$rowId = -1;
+
+		if ((string)Option::get('catalog', 'enable_viewed_products') != 'Y')
+		{
+			return $rowId;
+		}
+
 		$productId = (int)$productId;
 		$fuserId = (int)$fuserId;
 		$siteId = (string)$siteId;

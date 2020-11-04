@@ -23,6 +23,7 @@ import type { ItemOptions } from '../item/item-options';
 import type { EntityOptions } from '../entity/entity-options';
 import type { ItemId } from '../item/item-id';
 import type { PopupOptions } from 'main.popup';
+import type { FooterOptions, FooterContent } from './footer/footer-content';
 
 class LoadState
 {
@@ -99,6 +100,8 @@ export default class Dialog extends EventEmitter
 	focusOnFirst: boolean = true;
 	focusedNode: ItemNode = null;
 
+	clearUnavailableItems: boolean = false;
+
 	static getById(id: string): ?Dialog
 	{
 		return instances.get(id) || null;
@@ -109,10 +112,11 @@ export default class Dialog extends EventEmitter
 		super();
 		this.setEventNamespace('BX.UI.EntitySelector.Dialog');
 
-		const options = Type.isPlainObject(dialogOptions) ? dialogOptions : {};
+		const options: DialogOptions = Type.isPlainObject(dialogOptions) ? dialogOptions : {};
 		this.id = Type.isStringFilled(options.id) ? options.id : `ui-selector-${Text.getRandom().toLowerCase()}`;
 		this.multiple = Type.isBoolean(options.multiple) ? options.multiple : true;
 		this.context = Type.isStringFilled(options.context) ? options.context : null;
+		this.clearUnavailableItems = options.clearUnavailableItems === true;
 
 		if (Type.isArray(options.entities))
 		{
@@ -161,8 +165,8 @@ export default class Dialog extends EventEmitter
 		this.setCacheable(options.cacheable);
 		this.setFocusOnFirst(options.focusOnFirst);
 
-		this.recentTab = new RecentTab(options.recentTabOptions);
-		this.searchTab = new SearchTab(options.searchTabOptions, options.searchOptions);
+		this.recentTab = new RecentTab(this, options.recentTabOptions);
+		this.searchTab = new SearchTab(this, options.searchTabOptions, options.searchOptions);
 
 		this.addTab(this.recentTab);
 		this.addTab(this.searchTab);
@@ -256,52 +260,132 @@ export default class Dialog extends EventEmitter
 		return this.footer;
 	}
 
-	setFooter(footer: string | HTMLElement | HTMLElement[] | null, footerOptions?: { [option: string]: any })
+	getActiveFooter(): ?BaseFooter
 	{
-		if (!Type.isStringFilled(footer) && !Type.isArrayFilled(footer) && !Type.isDomNode(footer) && footer !== null)
+		if (!this.getActiveTab())
+		{
+			return null;
+		}
+
+		if (this.getActiveTab().getFooter())
+		{
+			return this.getActiveTab().getFooter();
+		}
+
+		return this.getFooter() && this.getActiveTab().canShowDefaultFooter() ? this.getFooter() : null;
+	}
+
+	adjustFooter(): void
+	{
+		if (!this.getActiveTab())
 		{
 			return;
 		}
 
-		let instance = null;
+		if (this.getActiveTab().getFooter())
+		{
+			if (this.getFooter())
+			{
+				this.getFooter().hide();
+			}
+
+			this.getActiveTab().getFooter().show();
+		}
+		else
+		{
+			if (this.getFooter())
+			{
+				if (this.getActiveTab().canShowDefaultFooter())
+				{
+					this.getFooter().show();
+				}
+				else
+				{
+					this.getFooter().hide();
+				}
+			}
+		}
+	}
+
+	setFooter(footerContent: ?FooterContent, footerOptions?: FooterOptions): void
+	{
+		/** @var {BaseFooter} */
+		let footer = null;
+		if (footerContent !== null)
+		{
+			footer = this.constructor.createFooter(this, footerContent, footerOptions);
+			if (footer === null)
+			{
+				return;
+			}
+		}
+
+		if (this.isRendered() && this.getFooter() !== null)
+		{
+			Dom.remove(this.getFooter().getContainer());
+			this.adjustFooter();
+		}
+
+		this.footer = footer;
+
+		if (this.isRendered())
+		{
+			this.appendFooter(footer);
+			this.adjustFooter();
+		}
+	}
+
+	appendFooter(footer: BaseFooter): void
+	{
+		if (footer instanceof BaseFooter)
+		{
+			Dom.append(footer.getContainer(), this.getFooterContainer());
+		}
+	}
+
+	static createFooter(context: Dialog | Tab, footerContent: FooterContent, footerOptions?: FooterOptions): ?BaseFooter
+	{
+		if (
+			!Type.isStringFilled(footerContent) &&
+			!Type.isArrayFilled(footerContent) &&
+			!Type.isDomNode(footerContent) &&
+			!Type.isFunction(footerContent)
+		)
+		{
+			return null;
+		}
+
+		/** @var {BaseFooter} */
+		let footer = null;
 		const options = Type.isPlainObject(footerOptions) ? footerOptions : {};
 
-		if (Type.isString(footer))
+		if (Type.isFunction(footerContent) || Type.isString(footerContent))
 		{
-			const className = Reflection.getClass(footer);
+			const className = Type.isString(footerContent) ? Reflection.getClass(footerContent) : footerContent;
 			if (Type.isFunction(className))
 			{
-				instance = new className(this, options);
-				if (!(instance instanceof BaseFooter))
+				footer = new className(context, options);
+				if (!(footer instanceof BaseFooter))
 				{
 					console.error('EntitySelector: footer is not an instance of BaseFooter.');
-					instance = null;
+					footer = null;
 				}
 			}
 		}
 
-		if (footer !== null && !instance)
+		if (footerContent !== null && !footer)
 		{
-			instance = new DefaultFooter(this, Object.assign({}, options, { content: footer }));
+			footer = new DefaultFooter(context, Object.assign({}, options, { content: footerContent }));
 		}
 
-		this.footer = instance;
-
-		if (this.isRendered())
-		{
-			Dom.clean(this.getFooterContainer());
-			if (this.footer)
-			{
-				Dom.append(this.footer.render(), this.getFooterContainer());
-			}
-		}
+		return footer;
 	}
 
 	addTab(tab: Tab | TabOptions): Tab
 	{
 		if (Type.isPlainObject(tab))
 		{
-			tab = new Tab(tab);
+			tab = new Tab(this, tab);
 		}
 
 		if (!(tab instanceof Tab))
@@ -376,14 +460,13 @@ export default class Dialog extends EventEmitter
 
 		this.focusSearch();
 
+		this.clearNodeFocus();
 		if (this.shouldFocusOnFirst())
 		{
 			this.focusOnFirstNode();
 		}
-		else
-		{
-			this.clearNodeFocus();
-		}
+
+		this.adjustFooter();
 
 		return newActiveTab;
 	}
@@ -396,6 +479,11 @@ export default class Dialog extends EventEmitter
 		tab.renderLabel();
 		Dom.append(tab.getLabelContainer(), this.getLabelsContainer());
 		Dom.append(tab.getContainer(), this.getTabContentsContainer());
+
+		if (tab.getFooter())
+		{
+			Dom.append(tab.getFooter().getContainer(), this.getFooterContainer());
+		}
 	}
 
 	selectFirstTab(onlyVisible = true): ?Tab
@@ -507,6 +595,11 @@ export default class Dialog extends EventEmitter
 
 		Dom.remove(tab.getLabelContainer(), this.getLabelsContainer());
 		Dom.remove(tab.getContainer(), this.getTabContentsContainer());
+
+		if (tab.getFooter())
+		{
+			Dom.remove(tab.getFooter().getContainer(), this.getFooterContainer());
+		}
 
 		this.selectFirstTab();
 	}
@@ -1485,10 +1578,10 @@ export default class Dialog extends EventEmitter
 	getFooterContainer(): HTMLElement
 	{
 		return this.cache.remember('footer', () => {
-			const footer = this.getFooter() && this.getFooter().render();
+			const footer = this.getFooter() && this.getFooter().getContainer();
 
 			return Tag.render`
-				<div class="ui-selector-footer">${footer ? footer : ''}</div>
+				<div class="ui-selector-footer-container">${footer ? footer : ''}</div>
 			`;
 		});
 	}
@@ -1716,6 +1809,11 @@ export default class Dialog extends EventEmitter
 		return null;
 	}
 
+	shouldClearUnavailableItems(): boolean
+	{
+		return this.clearUnavailableItems;
+	}
+
 	handleItemNodeFocus(event: BaseEvent): void
 	{
 		const { node } = event.getData();
@@ -1740,7 +1838,8 @@ export default class Dialog extends EventEmitter
 			id: this.getId(),
 			context: this.getContext(),
 			entities: this.getEntities(),
-			preselectedItems: this.getPreselectedItems()
+			preselectedItems: this.getPreselectedItems(),
+			clearUnavailableItems: this.shouldClearUnavailableItems()
 		};
 	}
 }

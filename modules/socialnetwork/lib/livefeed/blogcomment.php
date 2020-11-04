@@ -62,6 +62,11 @@ final class BlogComment extends Provider
 					)))
 				)
 				{
+					if (!empty($post['DETAIL_TEXT']))
+					{
+						$post['DETAIL_TEXT'] = \Bitrix\Main\Text\Emoji::decode($post['DETAIL_TEXT']);
+					}
+
 					$this->setSourceFields(array_merge($comment, array("POST" => $post)));
 					$this->setSourceDescription(htmlspecialcharsback($comment['POST_TEXT']));
 
@@ -140,4 +145,8 @@ final class BlogComment extends Provider
 		return $pathToPost;
 	}
 
+	public function getSuffix()
+	{
+		return '2';
+	}
 }

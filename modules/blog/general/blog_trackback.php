@@ -9,7 +9,7 @@ class CAllBlogTrackback
 	{
 		global $DB;
 
-		if ((is_set($arFields, "BLOG_ID") || $ACTION=="ADD") && IntVal($arFields["BLOG_ID"]) <= 0)
+		if ((is_set($arFields, "BLOG_ID") || $ACTION=="ADD") && intval($arFields["BLOG_ID"]) <= 0)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("BLG_GT_EMPTY_BLOG_ID"), "EMPTY_BLOG_ID");
 			return false;
@@ -24,7 +24,7 @@ class CAllBlogTrackback
 			}
 		}
 
-		if ((is_set($arFields, "POST_ID") || $ACTION=="ADD") && IntVal($arFields["POST_ID"]) <= 0)
+		if ((is_set($arFields, "POST_ID") || $ACTION=="ADD") && intval($arFields["POST_ID"]) <= 0)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("BLG_GT_EMPTY_POST_ID"), "EMPTY_POST_ID");
 			return false;
@@ -45,13 +45,13 @@ class CAllBlogTrackback
 			return false;
 		}
 
-		if ((is_set($arFields, "TITLE") || $ACTION=="ADD") && strlen($arFields["TITLE"]) <= 0)
+		if ((is_set($arFields, "TITLE") || $ACTION=="ADD") && $arFields["TITLE"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("BLG_GT_EMPTY_TITLE"), "EMPTY_TITLE");
 			return false;
 		}
 
-		if ((is_set($arFields, "URL") || $ACTION=="ADD") && strlen($arFields["URL"]) <= 0)
+		if ((is_set($arFields, "URL") || $ACTION=="ADD") && $arFields["URL"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("BLG_GT_EMPTY_URL"), "EMPTY_URL");
 			return false;
@@ -64,7 +64,7 @@ class CAllBlogTrackback
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$arTrackback = CBlogTrackback::GetByID($ID);
 		if ($arTrackback)
@@ -80,7 +80,7 @@ class CAllBlogTrackback
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		if (isset($GLOBALS["BLOG_TRACKBACK"]["BLOG_TRACKBACK_CACHE_".$ID]) && is_array($GLOBALS["BLOG_TRACKBACK"]["BLOG_TRACKBACK_CACHE_".$ID]) && is_set($GLOBALS["BLOG_TRACKBACK"]["BLOG_TRACKBACK_CACHE_".$ID], "ID"))
 		{
@@ -108,7 +108,7 @@ class CAllBlogTrackback
 	//*************** SEND / RECEIVE PINGS *********************/
 	function SendPing($postID, $arPingUrls = array())
 	{
-		$postID = IntVal($postID);
+		$postID = intval($postID);
 
 		if (count($arPingUrls) <= 0)
 			return False;
@@ -120,7 +120,7 @@ class CAllBlogTrackback
 			$arGroup = CBlogGroup::GetByID($arBlog["GROUP_ID"]);
 
 			$title = urlencode($arPost["TITLE"]);
-			$excerpt = urlencode(substr($arPost["DETAIL_TEXT"], 0, 255));
+			$excerpt = urlencode(mb_substr($arPost["DETAIL_TEXT"], 0, 255));
 			$blogName = urlencode($arBlog["NAME"]);
 
 			$serverName = "";
@@ -132,18 +132,18 @@ class CAllBlogTrackback
 				$charset = $arSite["CHARSET"];
 			}
 
-			if (strlen($serverName) <= 0)
+			if ($serverName == '')
 			{
-				if (defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME) > 0)
+				if (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '')
 					$serverName = SITE_SERVER_NAME;
 				else
 					$serverName = COption::GetOptionString("main", "server_name", "");
 			}
 			$serverName = \Bitrix\Main\Text\HtmlFilter::encode($serverName);
 
-			if (strlen($charset) <= 0)
+			if ($charset == '')
 			{
-				if (defined("SITE_CHARSET") && strlen(SITE_CHARSET) > 0)
+				if (defined("SITE_CHARSET") && SITE_CHARSET <> '')
 					$charset = SITE_CHARSET;
 				else
 					$charset = "windows-1251";
@@ -176,7 +176,7 @@ class CAllBlogTrackback
 						fputs($fp, "Host: {$host}\r\n");
 						fputs($fp, "Content-type: application/x-www-form-urlencoded; charset=\"".$charset."\"\r\n");
 						fputs($fp, "User-Agent: bitrixBlog\r\n");
-						fputs($fp, "Content-length: ".strlen($query)."\r\n");
+						fputs($fp, "Content-length: ".mb_strlen($query)."\r\n");
 						fputs($fp, "Connection: close\r\n\r\n");
 						fputs($fp, $query."\r\n\r\n");
 						fclose($fp);
@@ -191,7 +191,7 @@ class CAllBlogTrackback
 		global $DB;
 
 		$blogUrl = Trim($blogUrl);
-		$postID = IntVal($postID);
+		$postID = intval($postID);
 
 		$bSuccess = True;
 
@@ -223,8 +223,8 @@ class CAllBlogTrackback
 
 		if ($bSuccess)
 		{
-			if (!isset($arParams["title"]) || strlen($arParams["title"]) <= 0
-				|| !isset($arParams["url"]) || strlen($arParams["url"]) <= 0)
+			if (!isset($arParams["title"]) || $arParams["title"] == ''
+				|| !isset($arParams["url"]) || $arParams["url"] == '')
 			{
 				CBlogTrackback::SendPingResponce(1, "Missing required fields");
 				$bSuccess = False;
@@ -249,9 +249,9 @@ class CAllBlogTrackback
 			if ($arSite = $dbSite->Fetch())
 				$serverCharset = $arSite["CHARSET"];
 
-			if (strlen($serverCharset) <= 0)
+			if ($serverCharset == '')
 			{
-				if (defined("SITE_CHARSET") && strlen(SITE_CHARSET) > 0)
+				if (defined("SITE_CHARSET") && SITE_CHARSET <> '')
 					$serverCharset = SITE_CHARSET;
 				else
 					$serverCharset = "windows-1251";
@@ -259,7 +259,7 @@ class CAllBlogTrackback
 
 			preg_match("/charset=(\")*(.*?)(\")*(;|$)/", $_SERVER["CONTENT_TYPE"], $charset);
 			$charset = preg_replace("#[^[:space:]a-zA-Z0-9\-]#is", "", $charset[2]);
-			if(strlen($charset)<=0) $charset = "utf-8";
+			if($charset == '') $charset = "utf-8";
 			
 			if ($charset != $serverCharset)
 			{

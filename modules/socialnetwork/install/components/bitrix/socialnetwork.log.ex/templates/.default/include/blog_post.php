@@ -33,7 +33,7 @@ $arComponentParams = [
 	"CREATED_BY_ID" => (
 		array_key_exists("log_filter_submit", $_REQUEST)
 		&& array_key_exists("flt_comments", $_REQUEST)
-		&& $_REQUEST["flt_comments"] == "Y"
+		&& $_REQUEST["flt_comments"] === "Y"
 			? $arParams["CREATED_BY_ID"]
 			: false
 	),
@@ -68,8 +68,8 @@ $arComponentParams = [
 	"IS_UNREAD" => $is_unread,
 	"MARK_NEW_COMMENTS" => (
 		$USER->isAuthorized()
-		&& $arResult["COUNTER_TYPE"] == "**"
-		&& $arResult["SHOW_UNREAD"] == "Y"
+		&& $arResult["COUNTER_TYPE"] === "**"
+		&& $arResult["SHOW_UNREAD"] === "Y"
 			? "Y"
 			: "N"
 	),
@@ -84,28 +84,23 @@ $arComponentParams = [
 	"AVATAR_SIZE" => $arParams["AVATAR_SIZE"],
 	"AVATAR_SIZE_COMMENT" => $arParams["AVATAR_SIZE_COMMENT"],
 	"LAZYLOAD" => "Y",
-	"CHECK_COMMENTS_PERMS" => (isset($arParams["CHECK_COMMENTS_PERMS"]) && $arParams["CHECK_COMMENTS_PERMS"] == "Y" ? "Y" : "N"),
-	"GROUP_READ_ONLY" => (isset($arResult["Group"]) && isset($arResult["Group"]["READ_ONLY"]) && $arResult["Group"]["READ_ONLY"] == "Y" ? "Y" : "N"),
+	"CHECK_COMMENTS_PERMS" => (isset($arParams["CHECK_COMMENTS_PERMS"]) && $arParams["CHECK_COMMENTS_PERMS"] === "Y" ? "Y" : "N"),
+	"GROUP_READ_ONLY" => (isset($arResult["Group"]) && isset($arResult["Group"]["READ_ONLY"]) && $arResult["Group"]["READ_ONLY"] === "Y" ? "Y" : "N"),
 	"BLOG_NO_URL_IN_COMMENTS" => $arParams["BLOG_NO_URL_IN_COMMENTS"],
 	"BLOG_NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["BLOG_NO_URL_IN_COMMENTS_AUTHORITY"],
 	'TOP_RATING_DATA' => (!empty($arResult['TOP_RATING_DATA'][$arEvent["ID"]]) ? $arResult['TOP_RATING_DATA'][$arEvent["ID"]] : false),
 	"SELECTOR_VERSION" => 2,
 ];
 
-if ($arResult["SHOW_FOLLOW_CONTROL"] == "Y")
+if ($arResult["SHOW_FOLLOW_CONTROL"] === "Y")
 {
 	$arComponentParams["FOLLOW"] = $arEvent["FOLLOW"];
-}
-
-if ($arResult["CURRENT_PAGE_DATE"])
-{
-	$arComponentParams["CURRENT_PAGE_DATE"] = $arResult["CURRENT_PAGE_DATE"];
 }
 
 if (
 	(
 		!isset($arParams["USE_FAVORITES"])
-		|| $arParams["USE_FAVORITES"] != "N"
+		|| $arParams["USE_FAVORITES"] !== "N"
 	)
 	&& $USER->isAuthorized()
 )
@@ -130,6 +125,17 @@ if (
 {
 	$arComponentParams['LOG_CONTENT_ITEM_TYPE'] = $arEvent['CONTENT_ITEM_TYPE'];
 	$arComponentParams['LOG_CONTENT_ITEM_ID'] = intval($arEvent['CONTENT_ITEM_ID']);
+}
+
+$arComponentParams['PINNED_PANEL_DATA'] = [];
+if (array_key_exists('PINNED_PANEL_DATA', $arEvent))
+{
+	$arComponentParams['PINNED_PANEL_DATA'] = $arEvent['PINNED_PANEL_DATA'];
+}
+
+if (isset($arEvent['PINNED_USER_ID']))
+{
+	$arComponentParams['PINNED'] = ((int)$arEvent['PINNED_USER_ID'] > 0 ? 'Y' : 'N');
 }
 
 $APPLICATION->IncludeComponent(

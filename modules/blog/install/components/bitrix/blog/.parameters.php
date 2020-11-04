@@ -8,7 +8,7 @@ $userProp = array();
 if (!empty($arRes))
 {
 	foreach ($arRes as $key => $val)
-		$userProp[$val["FIELD_NAME"]] = (strLen($val["EDIT_FORM_LABEL"]) > 0 ? $val["EDIT_FORM_LABEL"] : $val["FIELD_NAME"]);
+		$userProp[$val["FIELD_NAME"]] = ($val["EDIT_FORM_LABEL"] <> '' ? $val["EDIT_FORM_LABEL"] : $val["FIELD_NAME"]);
 }
 
 $arRes = $GLOBALS["USER_FIELD_MANAGER"]->GetUserFields("BLOG_BLOG", 0, LANGUAGE_ID);
@@ -16,7 +16,7 @@ $blogProp = array();
 if (!empty($arRes))
 {
 	foreach ($arRes as $key => $val)
-		$blogProp[$val["FIELD_NAME"]] = (strLen($val["EDIT_FORM_LABEL"]) > 0 ? $val["EDIT_FORM_LABEL"] : $val["FIELD_NAME"]);
+		$blogProp[$val["FIELD_NAME"]] = ($val["EDIT_FORM_LABEL"] <> '' ? $val["EDIT_FORM_LABEL"] : $val["FIELD_NAME"]);
 }
 
 $arRes = $GLOBALS["USER_FIELD_MANAGER"]->GetUserFields("BLOG_POST", 0, LANGUAGE_ID);
@@ -24,7 +24,7 @@ $postProp = array();
 if (!empty($arRes))
 {
 	foreach ($arRes as $key => $val)
-		$postProp[$val["FIELD_NAME"]] = (strLen($val["EDIT_FORM_LABEL"]) > 0 ? $val["EDIT_FORM_LABEL"] : $val["FIELD_NAME"]);
+		$postProp[$val["FIELD_NAME"]] = ($val["EDIT_FORM_LABEL"] <> '' ? $val["EDIT_FORM_LABEL"] : $val["FIELD_NAME"]);
 }
 unset($postProp["UF_BLOG_POST_DOC"]);
 unset($postProp["UF_BLOG_POST_FILE"]);
@@ -34,7 +34,7 @@ $commentProp = array();
 if (!empty($arRes))
 {
 	foreach ($arRes as $key => $val)
-		$commentProp[$val["FIELD_NAME"]] = (strLen($val["EDIT_FORM_LABEL"]) > 0 ? $val["EDIT_FORM_LABEL"] : $val["FIELD_NAME"]);
+		$commentProp[$val["FIELD_NAME"]] = ($val["EDIT_FORM_LABEL"] <> '' ? $val["EDIT_FORM_LABEL"] : $val["FIELD_NAME"]);
 }
 unset($commentProp["UF_BLOG_COMMENT_DOC"]);
 unset($commentProp["UF_BLOG_COMMENT_FILE"]);

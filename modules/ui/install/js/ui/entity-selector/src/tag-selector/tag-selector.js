@@ -1,4 +1,4 @@
-import { Cache, Dom, Tag, Text, Type, Loc } from 'main.core';
+import { Cache, Dom, Tag, Text, Type, Loc, Browser } from 'main.core';
 import { EventEmitter, BaseEvent } from 'main.core.events';
 
 import Dialog from '../dialog/dialog';
@@ -812,6 +812,11 @@ export default class TagSelector extends EventEmitter
 		{
 			// prevent a form submit
 			event.preventDefault();
+
+			if ((Browser.isMac() && event.metaKey) || event.ctrlKey)
+			{
+				this.emit('onMetaEnter', { selector: this, event });
+			}
 		}
 
 		this.emit('onKeyDown', { selector: this, event });

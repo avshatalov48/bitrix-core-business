@@ -12,7 +12,7 @@
 					<table class="blog-calendar-table">
 						<tr>
 							<td width="0%" align="left"><?
-								if (strlen($arResult["urlToPrevYear"])>0):
+								if ($arResult["urlToPrevYear"] <> ''):
 									?><a title="<?=GetMessage("BLOG_BLOG_CLNDR_P_M")?>" href="<?=$arResult["urlToPrevYear"]?>" rel="nofollow">&laquo;</a>&nbsp;&nbsp;<?
 								else:
 									?><span class="blogCalDisable">&laquo;&nbsp;&nbsp;</span><?
@@ -20,7 +20,7 @@
 							?></td>
 							<td width="0%" align="center"><b><?= GetMessage("BLOG_BLOG_CLNDR_M_".$arResult["CurrentMonth"])." ".$arResult["CurrentYear"]?></b></td>
 							<td width="0%" align="right"><?
-								if (strlen($arResult["urlToNextYear"])>0):
+								if ($arResult["urlToNextYear"] <> ''):
 									?>&nbsp;&nbsp;<a title="<?=GetMessage("BLOG_BLOG_CLNDR_N_M")?>" href="<?=$arResult["urlToNextYear"]?>" rel="nofollow">&raquo;</a><?
 								else:
 									?><span class="blogCalDisable">&nbsp;&nbsp;&raquo;</span><?
@@ -64,7 +64,7 @@
 								?>
 								<td align="center" class="<?=$class?>" onMouseOver="this.className='blogCalHighlight'" onMouseOut="this.className='<?=$class?>'">
 									<?
-									if(strlen($vv["link"])>0)
+									if($vv["link"] <> '')
 									{
 										?>
 										<a href="<?=$vv["link"]?>" rel="nofollow"><?=$vv["day"]?></a>

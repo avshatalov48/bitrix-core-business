@@ -11,28 +11,28 @@ $arParams["BLOG_URL"] = preg_replace("/[^a-zA-Z0-9_-]/is", "", $arParams["BLOG_U
 if(!is_array($arParams["GROUP_ID"]))
 	$arParams["GROUP_ID"] = array($arParams["GROUP_ID"]);
 foreach($arParams["GROUP_ID"] as $k=>$v)
-	if(IntVal($v) <= 0)
+	if(intval($v) <= 0)
 		unset($arParams["GROUP_ID"][$k]);
 		
-if(strLen($arParams["BLOG_VAR"])<=0)
+if($arParams["BLOG_VAR"] == '')
 	$arParams["BLOG_VAR"] = "blog";
-if(strLen($arParams["USER_VAR"])<=0)
+if($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "id";
-if(strLen($arParams["PAGE_VAR"])<=0)
+if($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
 
 $arParams["PATH_TO_USER_SETTINGS"] = trim($arParams["PATH_TO_USER_SETTINGS"]);
-if(strlen($arParams["PATH_TO_USER_SETTINGS"])<=0)
+if($arParams["PATH_TO_USER_SETTINGS"] == '')
 	$arParams["PATH_TO_USER_SETTINGS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_settings&".$arParams["BLOG_VAR"]."=#blog#");
 	
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if(strlen($arParams["PATH_TO_USER"])<=0)
+if($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
-$arParams["ID"] = IntVal($arParams["ID"]);
+$arParams["ID"] = intval($arParams["ID"]);
 
-if (StrLen($arParams["BLOG_URL"]) > 0)
+if ($arParams["BLOG_URL"] <> '')
 {
-	if(IntVal($arParams["ID"]) > 0)
+	if(intval($arParams["ID"]) > 0)
 	{
 		if($arParams["SET_TITLE"]=="Y")
 			$APPLICATION->SetTitle(GetMessage("B_B_USE_TITLE"));
@@ -50,7 +50,7 @@ if (StrLen($arParams["BLOG_URL"]) > 0)
 					{
 						$arResult["Blog"] = $arBlog;
 
-						if (CBlog::CanUserManageBlog($arBlog["ID"], IntVal($USER->GetID())))
+						if (CBlog::CanUserManageBlog($arBlog["ID"], intval($USER->GetID())))
 						{
 							if($arParams["SET_TITLE"]=="Y")
 								$APPLICATION->SetTitle(str_replace("#NAME#", $arBlog["NAME"], GetMessage("B_B_USE_TITLE_BLOG")));
@@ -62,7 +62,7 @@ if (StrLen($arParams["BLOG_URL"]) > 0)
 							
 							if ($GLOBALS["user_action"] == "Y" && check_bitrix_sessid())
 							{
-								if(strlen($GLOBALS["cancel"])>0)
+								if($GLOBALS["cancel"] <> '')
 									LocalRedirect(CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER_SETTINGS"], array("blog" => $arBlog["URL"])));
 								if (empty($arBlogUser))
 								{

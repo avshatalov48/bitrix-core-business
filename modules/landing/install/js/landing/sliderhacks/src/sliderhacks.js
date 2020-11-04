@@ -69,6 +69,21 @@ export class SliderHacks
 				Dom.insertAfter(frame, srcFrame);
 
 				Event.bind(frame, 'load', (event) => {
+					// clone nav history
+					if(
+						!Type.isUndefined(srcFrame.contentWindow.BX.Landing.Pub)
+						&& !Type.isUndefined(srcFrame.contentWindow.BX.Landing.Pub.TopPanel)
+						&& Type.isArrayFilled(srcFrame.contentWindow.BX.Landing.Pub.TopPanel.history)
+						&& Type.isNumber(srcFrame.contentWindow.BX.Landing.Pub.TopPanel.historyState)
+					)
+					{
+						frame.contentWindow.BX.Landing.Pub.TopPanel.history =
+							srcFrame.contentWindow.BX.Landing.Pub.TopPanel.history;
+						frame.contentWindow.BX.Landing.Pub.TopPanel.historyState =
+							srcFrame.contentWindow.BX.Landing.Pub.TopPanel.historyState;
+						frame.contentWindow.BX.Landing.Pub.TopPanel.checkNavButtonsActivity();
+					}
+
 					if (Type.isFunction(slider.handleFrameLoad))
 					{
 						slider.handleFrameLoad(event);

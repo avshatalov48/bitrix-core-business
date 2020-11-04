@@ -1,5 +1,5 @@
 <?
-$MESS["SALE_DELETE_ERROR"] = "Error deleting the payment system. Some orders has probably been placed using this payment system.<br>";
+$MESS["SALE_DELETE_ERROR"] = "Error deleting the payment system. Some orders have probably been placed using this payment system.<br>";
 $MESS["SALE_SECTION_TITLE"] = "Payment systems";
 $MESS["SALE_F_FILTER"] = "Filter";
 $MESS["SALE_F_LANG"] = "Site";

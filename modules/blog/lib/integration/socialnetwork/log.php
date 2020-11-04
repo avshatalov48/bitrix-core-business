@@ -77,7 +77,7 @@ class Log
 			if (
 				$postFieldList["MICRO"] != "Y"
 				&& isset($postFieldList["TITLE"])
-				&& strlen($postFieldList["TITLE"]) > 0
+				&& $postFieldList["TITLE"] <> ''
 			)
 			{
 				$content .= \blogTextParser::killAllTags($postFieldList["TITLE"])." ";
@@ -114,7 +114,7 @@ class Log
 				if (
 					$metadata
 					&& isset($metadata['TITLE'])
-					&& strlen($metadata['TITLE']) > 0
+					&& $metadata['TITLE'] <> ''
 				)
 				{
 					$content .= ' '.$metadata['TITLE'];

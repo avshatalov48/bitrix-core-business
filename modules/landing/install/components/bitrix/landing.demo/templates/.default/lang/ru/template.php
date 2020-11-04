@@ -11,4 +11,7 @@ $MESS["LANDING_TPL_EMPTY_REPO_EXPIRED_LINK"] = "Пожалуйста, #LINK1#п�
 $MESS["LANDING_TPL_LOAD_APP_TEMPLATE"] = "<span>Загрузить</span> шаблон из Приложения24";
 $MESS["LANDING_TPL_LABEL_NEW"] = "новое";
 $MESS["LANDING_TPL_DESIGNED_BY"] = "Сделано в компании &laquo;#DESIGNER#&raquo;";
+$MESS["LANDING_TPL_FEEDBACK_TITLE"] = "Не нашли нужный шаблон?";
+$MESS["LANDING_TPL_FEEDBACK_MESSAGE"] = "Поделитесь с нами, какая тематика шаблона вам нужна!";
+$MESS["LANDING_TPL_FEEDBACK_SEND"] = "Написать";
 ?>

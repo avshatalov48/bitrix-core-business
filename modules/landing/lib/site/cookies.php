@@ -38,9 +38,10 @@ class Cookies
 
 	/**
 	 * Creates new agreement for current language, if not exists.
+	 * @param int|null Agreement id.
 	 * @return array
 	 */
-	public static function getMainAgreement(): ?array
+	public static function getMainAgreement(?int $agreementId = null): ?array
 	{
 		$currentLang = LANGUAGE_ID;
 		$agreementCode = 'landing_cookie_agreement';
@@ -61,7 +62,12 @@ class Cookies
 			'select' => [
 				'ID', 'NAME', 'AGREEMENT_TEXT', 'LABEL_TEXT'
 			],
-			'filter' => [
+			'filter' =>
+				$agreementId
+				? [
+					'ID' => $agreementId
+				]
+				: [
 				'=ACTIVE' => 'Y',
 				'=CODE' => $agreementCode,
 				'=LANGUAGE_ID' => $currentLang
@@ -254,7 +260,9 @@ class Cookies
 	 */
 	public static function acceptAgreement(int $siteId, array $accepted = []): void
 	{
-		$agreement = self::getMainAgreement();
+		$agreement = self::getMainAgreement(
+			\Bitrix\Landing\Hook\Page\Cookies::getAgreementIdBySiteId($siteId)
+		);
 		if (!$agreement)
 		{
 			return;

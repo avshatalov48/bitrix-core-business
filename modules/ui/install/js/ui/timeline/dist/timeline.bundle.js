@@ -106,9 +106,7 @@ this.BX = this.BX || {};
 	 * @memberOf BX.UI.Timeline
 	 */
 
-	var Item =
-	/*#__PURE__*/
-	function () {
+	var Item = /*#__PURE__*/function () {
 	  function Item(params) {
 	    babelHelpers.classCallCheck(this, Item);
 	    babelHelpers.defineProperty(this, "isProgress", false);
@@ -667,9 +665,7 @@ this.BX = this.BX || {};
 
 	  return data;
 	}
-	var History =
-	/*#__PURE__*/
-	function (_Item) {
+	var History = /*#__PURE__*/function (_Item) {
 	  babelHelpers.inherits(History, _Item);
 
 	  function History() {
@@ -772,9 +768,7 @@ this.BX = this.BX || {};
 
 	  return data;
 	}
-	var StageChange =
-	/*#__PURE__*/
-	function (_History) {
+	var StageChange = /*#__PURE__*/function (_History) {
 	  babelHelpers.inherits(StageChange, _History);
 
 	  function StageChange() {
@@ -812,9 +806,7 @@ this.BX = this.BX || {};
 
 	  return data;
 	}
-	var FieldsChange =
-	/*#__PURE__*/
-	function (_History) {
+	var FieldsChange = /*#__PURE__*/function (_History) {
 	  babelHelpers.inherits(FieldsChange, _History);
 
 	  function FieldsChange() {
@@ -843,9 +835,7 @@ this.BX = this.BX || {};
 	 * @memberOf BX.UI.Timeline
 	 */
 
-	var Editor =
-	/*#__PURE__*/
-	function () {
+	var Editor = /*#__PURE__*/function () {
 	  function Editor(params) {
 	    babelHelpers.classCallCheck(this, Editor);
 	    babelHelpers.defineProperty(this, "isProgress", false);
@@ -1004,9 +994,7 @@ this.BX = this.BX || {};
 	 * @mixes EventEmitter
 	 */
 
-	var CommentEditor =
-	/*#__PURE__*/
-	function (_Editor) {
+	var CommentEditor = /*#__PURE__*/function (_Editor) {
 	  babelHelpers.inherits(CommentEditor, _Editor);
 
 	  function CommentEditor(params) {
@@ -1400,9 +1388,7 @@ this.BX = this.BX || {};
 	 * @mixes EventEmitter
 	 */
 
-	var Comment =
-	/*#__PURE__*/
-	function (_History) {
+	var Comment = /*#__PURE__*/function (_History) {
 	  babelHelpers.inherits(Comment, _History);
 
 	  function Comment(props) {
@@ -1814,9 +1800,7 @@ this.BX = this.BX || {};
 	/**
 	 * @abstract
 	 */
-	var Animation =
-	/*#__PURE__*/
-	function () {
+	var Animation = /*#__PURE__*/function () {
 	  function Animation() {
 	    babelHelpers.classCallCheck(this, Animation);
 	  }
@@ -1840,9 +1824,7 @@ this.BX = this.BX || {};
 
 	  return data;
 	}
-	var Drop =
-	/*#__PURE__*/
-	function (_Animation) {
+	var Drop = /*#__PURE__*/function (_Animation) {
 	  babelHelpers.inherits(Drop, _Animation);
 
 	  function Drop(params) {
@@ -1946,9 +1928,7 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(Drop, "DEFAULT_TIMEOUT", 150);
 	babelHelpers.defineProperty(Drop, "DURATION", 1200);
 
-	var Pin =
-	/*#__PURE__*/
-	function (_Animation) {
+	var Pin = /*#__PURE__*/function (_Animation) {
 	  babelHelpers.inherits(Pin, _Animation);
 
 	  function Pin(params) {
@@ -2052,9 +2032,7 @@ this.BX = this.BX || {};
 	}(Animation);
 	babelHelpers.defineProperty(Pin, "DURATION", 1500);
 
-	var Show =
-	/*#__PURE__*/
-	function (_Animation) {
+	var Show = /*#__PURE__*/function (_Animation) {
 	  babelHelpers.inherits(Show, _Animation);
 
 	  function Show(params) {
@@ -2171,9 +2149,7 @@ this.BX = this.BX || {};
 
 	  return data;
 	}
-	var TaskComplete =
-	/*#__PURE__*/
-	function (_Animation) {
+	var TaskComplete = /*#__PURE__*/function (_Animation) {
 	  babelHelpers.inherits(TaskComplete, _Animation);
 
 	  function TaskComplete(params) {
@@ -2275,9 +2251,7 @@ this.BX = this.BX || {};
 	}(Animation);
 	babelHelpers.defineProperty(TaskComplete, "DURATION", 1200);
 
-	var Hide =
-	/*#__PURE__*/
-	function (_Animation) {
+	var Hide = /*#__PURE__*/function (_Animation) {
 	  babelHelpers.inherits(Hide, _Animation);
 
 	  function Hide(params) {
@@ -2351,9 +2325,7 @@ this.BX = this.BX || {};
 	function _classStaticPrivateFieldSpecSet(receiver, classConstructor, descriptor, value) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } if (descriptor.set) { descriptor.set.call(receiver, value); } else { if (!descriptor.writable) { throw new TypeError("attempted to set read only private field"); } descriptor.value = value; } return value; }
 
 	function _classStaticPrivateFieldSpecGet(receiver, classConstructor, descriptor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
-	var Queue =
-	/*#__PURE__*/
-	function () {
+	var Queue = /*#__PURE__*/function () {
 	  function Queue() {
 	    babelHelpers.classCallCheck(this, Queue);
 	  }
@@ -2534,9 +2506,7 @@ this.BX = this.BX || {};
 	 * @memberOf BX.UI.Timeline
 	 */
 
-	var Stream =
-	/*#__PURE__*/
-	function () {
+	var Stream = /*#__PURE__*/function () {
 	  function Stream(params) {
 	    var _this = this;
 

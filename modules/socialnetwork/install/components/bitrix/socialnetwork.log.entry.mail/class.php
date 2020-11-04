@@ -165,7 +165,6 @@ class CBitrixSocialnetworkLogEntryMailComponent extends CBitrixComponent
 						"PATH_TO_GROUP" => Config\Option::get("socialnetwork", "workgroups_page", false, $arResult["SITE"]["ID"])."group/#group_id#/",
 						"PATH_TO_CONPANY_DEPARTMENT" => Config\Option::get("main", "TOOLTIP_PATH_TO_CONPANY_DEPARTMENT", false, $arResult["SITE"]["ID"]),
 					),
-					false,
 					false
 				);
 

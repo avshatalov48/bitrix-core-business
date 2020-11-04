@@ -18,7 +18,7 @@ foreach($arResult as $arComment)
 	<div class="blog-mainpage-item">
 	<div class="blog-author">
 	<?
-	if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && (strlen($arComment["urlToBlog"]) > 0 || strlen($arComment["urlToAuthor"]) > 0) && array_key_exists("ALIAS", $arComment["BlogUser"]) && strlen($arComment["BlogUser"]["ALIAS"]) > 0)
+	if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && ($arComment["urlToBlog"] <> '' || $arComment["urlToAuthor"] <> '') && array_key_exists("ALIAS", $arComment["BlogUser"]) && $arComment["BlogUser"]["ALIAS"] <> '')
 		$arTmpUser = array(
 			"NAME" => "",
 			"LAST_NAME" => "",
@@ -26,7 +26,7 @@ foreach($arResult as $arComment)
 			"LOGIN" => "",
 			"NAME_LIST_FORMATTED" => $arComment["BlogUser"]["~ALIAS"],
 			);
-	elseif (strlen($arComment["urlToBlog"]) > 0 || strlen($arComment["urlToAuthor"]) > 0)
+	elseif ($arComment["urlToBlog"] <> '' || $arComment["urlToAuthor"] <> '')
 		$arTmpUser = array(
 			"NAME" => $arComment["arUser"]["~NAME"],
 			"LAST_NAME" => $arComment["arUser"]["~LAST_NAME"],
@@ -35,7 +35,7 @@ foreach($arResult as $arComment)
 			"NAME_LIST_FORMATTED" => "",
 		);
 	?>
-	<?if(strlen($arComment["urlToBlog"])>0)
+	<?if($arComment["urlToBlog"] <> '')
 	{
 		if($arParams["SEO_USER"] == "Y"):?>
 			<noindex>
@@ -77,7 +77,7 @@ foreach($arResult as $arComment)
 		?>
 		<?
 	}
-	elseif(strlen($arComment["urlToAuthor"])>0)
+	elseif($arComment["urlToAuthor"] <> '')
 	{
 		if($arParams["SEO_USER"] == "Y"):?>
 			<noindex>

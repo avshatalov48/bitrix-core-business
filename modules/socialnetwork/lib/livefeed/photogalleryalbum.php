@@ -4,14 +4,17 @@ namespace Bitrix\Socialnetwork\Livefeed;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Iblock\SectionTable;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Socialnetwork\LogTable;
+
+Loc::loadMessages(__FILE__);
 
 final class PhotogalleryAlbum extends Provider
 {
-	const PROVIDER_ID = 'PHOTO_ALBUM';
-	const CONTENT_TYPE_ID = 'PHOTO_ALBUM';
+	public const PROVIDER_ID = 'PHOTO_ALBUM';
+	public const CONTENT_TYPE_ID = 'PHOTO_ALBUM';
 
-	public static function getId()
+	public static function getId(): string
 	{
 		return static::PROVIDER_ID;
 	}
@@ -28,83 +31,128 @@ final class PhotogalleryAlbum extends Provider
 
 	public function getCommentProvider()
 	{
-		$provider = new \Bitrix\Socialnetwork\Livefeed\LogComment();
-		return $provider;
+		return new LogComment();
 	}
 
 	public function initSourceFields()
 	{
-		$elementId = $this->entityId;
+		static $cache = [];
 
-		if (
-			$elementId > 0
-			&& Loader::includeModule('iblock')
-		)
+		$sectionId = (int)$this->entityId;
+
+		if ($sectionId <= 0)
 		{
-			$res = SectionTable::getList(array(
-				'filter' => array(
-					'=ID' => $elementId
-				),
-				'select' => array('ID', 'NAME')
-			));
-			if ($element = $res->fetch())
+			return;
+		}
+
+		$albumFields = [];
+
+		if (isset($cache[$sectionId]))
+		{
+			$albumFields = $cache[$sectionId];
+		}
+		elseif (Loader::includeModule('iblock'))
+		{
+			$res = SectionTable::getList([
+				'filter' => [
+					'=ID' => $sectionId
+				],
+				'select' => [ 'ID', 'NAME' ]
+			]);
+			if ($sectionFields = $res->fetch())
 			{
 				$logId = false;
 
-				$res = LogTable::getList(array(
-					'filter' => array(
-						'SOURCE_ID' => $elementId,
+				$res = LogTable::getList([
+					'filter' => [
+						'SOURCE_ID' => $sectionId,
 						'@EVENT_ID' => $this->getEventId(),
-					),
-					'select' => array('ID', 'URL')
-				));
+					],
+					'select' => [ 'ID', 'URL' ]
+				]);
 				if ($logEntryFields = $res->fetch())
 				{
-					$logId = intval($logEntryFields['ID']);
+					$logId = (int)$logEntryFields['ID'];
 				}
 
 				if ($logId)
 				{
 					$res = \CSocNetLog::getList(
-						array(),
-						array(
+						[],
+						[
 							'=ID' => $logId
-						),
+						],
 						false,
 						false,
-						array('ID', 'EVENT_ID', 'URL'),
-						array(
+						[ 'ID', 'EVENT_ID', 'URL' ],
+						[
 							"CHECK_RIGHTS" => "Y",
 							"USE_FOLLOW" => "N",
 							"USE_SUBSCRIBE" => "N"
-						)
+						]
 					);
 					if ($logFields = $res->fetch())
 					{
-						$this->setLogId($logFields['ID']);
-						$this->setSourceFields(array_merge($element, array(
+						$albumFields = array_merge($sectionFields, [
+							'LOG_ID' => $logFields['ID'],
 							'LOG_EVENT_ID' => $logFields['EVENT_ID'],
 							'URL' => $logFields['URL']
-						)));
-						$title = $element['NAME'];
-						$this->setSourceDescription($title);
-						$this->setSourceTitle($title);
+						]);
 					}
 				}
 			}
+
+			$cache[$sectionId] = $albumFields;
 		}
+
+		if (empty($albumFields))
+		{
+			return;
+		}
+
+		$this->setLogId($albumFields['LOG_ID']);
+		$this->setSourceFields($albumFields);
+
+		$title = $albumFields['NAME'];
+		$this->setSourceDescription($title);
+		$this->setSourceTitle($title);
 	}
 
-	public static function canRead($params)
+	public function getPinnedTitle()
+	{
+		$result = '';
+
+		if (empty($this->sourceFields))
+		{
+			$this->initSourceFields();
+		}
+
+		$albumFields = $this->getSourceFields();
+		if (empty($albumFields))
+		{
+			return $result;
+		}
+
+		$result = Loc::getMessage('SONET_LIVEFEED_PHOTOGALLERY_ALBUM_PINNED_TITLE', [
+			'#TITLE#' => $albumFields['NAME']
+		]);
+
+		return $result;
+	}
+
+	public function getPinnedDescription()
+	{
+		return '';
+	}
+
+	public static function canRead($params): bool
 	{
 		return true;
 	}
 
-	protected function getPermissions(array $post)
+	protected function getPermissions(array $post): string
 	{
-		$result = self::PERMISSION_READ;
-
-		return $result;
+		return self::PERMISSION_READ;
 	}
 
 	public function getLiveFeedUrl()

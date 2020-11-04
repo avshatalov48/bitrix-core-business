@@ -1,11 +1,21 @@
 .catalog-entity-editor-content-block-field-iblock-section .ui-entity-editor-block-context-menu {
 	top: 8px;
 }
+
 .catalog-entity-editor-content-block-field-iblock-section.ui-entity-editor-content-block-click-empty .ui-entity-editor-block-context-menu {
 	top: -4px;
 }
+
 .catalog-entity-editor-content-block-field-iblock-section.ui-entity-editor-content-block-edit .ui-entity-editor-block-context-menu {
 	top: 10px;
+}
+
+.catalog-entity-editor-content-block-field-iblock-section.ui-entity-editor-content-block .ui-tile-selector-item > span {
+	white-space: nowrap;
+	max-width: 200px;
+	display: inline-block;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .ui-tile-selector-selector-wrap {

@@ -69,7 +69,7 @@ class CSupportTimetable
 		$id = $f->ID;
 		$isNew = ($f->ID <= 0);
 		
-		if(strlen($f->NAME) <= 0)
+		if($f->NAME == '')
 		{
 				$APPLICATION->ThrowException(GetMessage('SUP_ERROR_EMPTY_NAME'));
 				return false;
@@ -159,11 +159,11 @@ class CSupportTimetable
 		}
 		foreach($arFilter as $key => $val)
 		{
-			if((is_array($val) && count($val) <= 0) || (!is_array($val) && (strlen($val) <= 0 || $val === 'NOT_REF')))
+			if((is_array($val) && count($val) <= 0) || (!is_array($val) && ((string) $val == '' || $val === 'NOT_REF')))
 			{
 				continue;
 			}
-			$key = strtoupper($key);
+			$key = mb_strtoupper($key);
 			if (is_array($val))
 			{
 				$val = implode(" | ",$val);
@@ -200,7 +200,7 @@ class CSupportTimetable
 		}
 		foreach($arSort as $by => $order)
 		{
-			if(strtoupper($order) != "DESC")
+			if(mb_strtoupper($order) != "DESC")
 			{
 				$order="ASC";
 			}

@@ -89,7 +89,7 @@
 					return resolve();
 				}
 
-				this.enumerateDevices().then(function(deviceList)
+				this.checkMicrophone().then(this.enumerateDevices.bind(this)).then(function(deviceList)
 				{
 					this._currentDeviceList = deviceList;
 
@@ -98,6 +98,21 @@
 					resolve();
 				}.bind(this)).catch(reject);
 			}.bind(this))
+		},
+
+		checkMicrophone: function()
+		{
+			return new Promise(function(resolve, reject)
+			{
+				navigator.mediaDevices.getUserMedia({audio: true}).then(function(stream)
+				{
+					stream.getAudioTracks().forEach(function(track)
+					{
+						track.stop()
+					});
+					resolve();
+				}).catch(reject);
+			});
 		},
 
 		enumerateDevices: function()

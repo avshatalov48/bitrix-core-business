@@ -13,34 +13,34 @@ Loc::loadMessages(__FILE__);
 
 abstract class Provider
 {
-	const DATA_RESULT_TYPE_SOURCE = 'SOURCE';
+	public const DATA_RESULT_TYPE_SOURCE = 'SOURCE';
 
-	const TYPE_POST = 'POST';
-	const TYPE_COMMENT = 'COMMENT';
+	public const TYPE_POST = 'POST';
+	public const TYPE_COMMENT = 'COMMENT';
 
-	const DATA_ENTITY_TYPE_BLOG_POST = 'BLOG_POST';
-	const DATA_ENTITY_TYPE_BLOG_COMMENT = 'BLOG_COMMENT';
-	const DATA_ENTITY_TYPE_TASKS_TASK = 'TASK';
-	const DATA_ENTITY_TYPE_FORUM_TOPIC = 'FORUM_TOPIC';
-	const DATA_ENTITY_TYPE_FORUM_POST = 'FORUM_POST';
-	const DATA_ENTITY_TYPE_CALENDAR_EVENT = 'CALENDAR_EVENT';
-	const DATA_ENTITY_TYPE_LOG_ENTRY = 'LOG_ENTRY';
-	const DATA_ENTITY_TYPE_LOG_COMMENT = 'LOG_COMMENT';
-	const DATA_ENTITY_TYPE_RATING_LIST = 'RATING_LIST';
-	const DATA_ENTITY_TYPE_PHOTOGALLERY_ALBUM = 'PHOTO_ALBUM';
-	const DATA_ENTITY_TYPE_PHOTOGALLERY_PHOTO = 'PHOTO_PHOTO';
-	const DATA_ENTITY_TYPE_LISTS_ITEM = 'LISTS_NEW_ELEMENT';
-	const DATA_ENTITY_TYPE_WIKI = 'WIKI';
-	const DATA_ENTITY_TYPE_TIMEMAN_ENTRY = 'TIMEMAN_ENTRY';
-	const DATA_ENTITY_TYPE_TIMEMAN_REPORT = 'TIMEMAN_REPORT';
-	const DATA_ENTITY_TYPE_INTRANET_NEW_USER = 'INTRANET_NEW_USER';
-	const DATA_ENTITY_TYPE_BITRIX24_NEW_USER = 'BITRIX24_NEW_USER';
+	public const DATA_ENTITY_TYPE_BLOG_POST = 'BLOG_POST';
+	public const DATA_ENTITY_TYPE_BLOG_COMMENT = 'BLOG_COMMENT';
+	public const DATA_ENTITY_TYPE_TASKS_TASK = 'TASK';
+	public const DATA_ENTITY_TYPE_FORUM_TOPIC = 'FORUM_TOPIC';
+	public const DATA_ENTITY_TYPE_FORUM_POST = 'FORUM_POST';
+	public const DATA_ENTITY_TYPE_CALENDAR_EVENT = 'CALENDAR_EVENT';
+	public const DATA_ENTITY_TYPE_LOG_ENTRY = 'LOG_ENTRY';
+	public const DATA_ENTITY_TYPE_LOG_COMMENT = 'LOG_COMMENT';
+	public const DATA_ENTITY_TYPE_RATING_LIST = 'RATING_LIST';
+	public const DATA_ENTITY_TYPE_PHOTOGALLERY_ALBUM = 'PHOTO_ALBUM';
+	public const DATA_ENTITY_TYPE_PHOTOGALLERY_PHOTO = 'PHOTO_PHOTO';
+	public const DATA_ENTITY_TYPE_LISTS_ITEM = 'LISTS_NEW_ELEMENT';
+	public const DATA_ENTITY_TYPE_WIKI = 'WIKI';
+	public const DATA_ENTITY_TYPE_TIMEMAN_ENTRY = 'TIMEMAN_ENTRY';
+	public const DATA_ENTITY_TYPE_TIMEMAN_REPORT = 'TIMEMAN_REPORT';
+	public const DATA_ENTITY_TYPE_INTRANET_NEW_USER = 'INTRANET_NEW_USER';
+	public const DATA_ENTITY_TYPE_BITRIX24_NEW_USER = 'BITRIX24_NEW_USER';
 
-	const PERMISSION_DENY = 'D';
-	const PERMISSION_READ = 'I';
-	const PERMISSION_FULL = 'W';
+	public const PERMISSION_DENY = 'D';
+	public const PERMISSION_READ = 'I';
+	public const PERMISSION_FULL = 'W';
 
-	const CONTENT_TYPE_ID = false;
+	public const CONTENT_TYPE_ID = false;
 
 	protected $entityId = 0;
 	protected $logId = 0;
@@ -142,55 +142,55 @@ abstract class Provider
 			switch ($entityType)
 			{
 				case self::DATA_ENTITY_TYPE_BLOG_POST:
-					$provider = new \Bitrix\Socialnetwork\Livefeed\BlogPost();
+					$provider = new BlogPost();
 					break;
 				case self::DATA_ENTITY_TYPE_BLOG_COMMENT:
-					$provider = new \Bitrix\Socialnetwork\Livefeed\BlogComment();
+					$provider = new BlogComment();
 					break;
 				case self::DATA_ENTITY_TYPE_TASKS_TASK:
-					$provider = new \Bitrix\Socialnetwork\Livefeed\TasksTask();
+					$provider = new TasksTask();
 					break;
 				case self::DATA_ENTITY_TYPE_FORUM_TOPIC:
-					$provider = new \Bitrix\Socialnetwork\Livefeed\ForumTopic();
+					$provider = new ForumTopic();
 					break;
 				case self::DATA_ENTITY_TYPE_FORUM_POST:
-					$provider = new \Bitrix\Socialnetwork\Livefeed\ForumPost();
+					$provider = new ForumPost();
 					break;
 				case self::DATA_ENTITY_TYPE_CALENDAR_EVENT:
-					$provider = new \Bitrix\Socialnetwork\Livefeed\CalendarEvent();
+					$provider = new CalendarEvent();
 					break;
 				case self::DATA_ENTITY_TYPE_LOG_ENTRY:
-					$provider = new \Bitrix\Socialnetwork\Livefeed\LogEvent();
+					$provider = new LogEvent();
 					break;
 				case self::DATA_ENTITY_TYPE_LOG_COMMENT:
-					$provider = new \Bitrix\Socialnetwork\Livefeed\LogComment();
+					$provider = new LogComment();
 					break;
 				case self::DATA_ENTITY_TYPE_RATING_LIST:
-					$provider = new \Bitrix\Socialnetwork\Livefeed\RatingVoteList();
+					$provider = new RatingVoteList();
 					break;
 				case self::DATA_ENTITY_TYPE_PHOTOGALLERY_ALBUM:
-					$provider = new \Bitrix\Socialnetwork\Livefeed\PhotogalleryAlbum();
+					$provider = new PhotogalleryAlbum();
 					break;
 				case self::DATA_ENTITY_TYPE_PHOTOGALLERY_PHOTO:
-					$provider = new \Bitrix\Socialnetwork\Livefeed\PhotogalleryPhoto();
+					$provider = new PhotogalleryPhoto();
 					break;
 				case self::DATA_ENTITY_TYPE_LISTS_ITEM:
-					$provider = new \Bitrix\Socialnetwork\Livefeed\ListsItem();
+					$provider = new ListsItem();
 					break;
 				case self::DATA_ENTITY_TYPE_WIKI:
-					$provider = new \Bitrix\Socialnetwork\Livefeed\Wiki();
+					$provider = new Wiki();
 					break;
 				case self::DATA_ENTITY_TYPE_TIMEMAN_ENTRY:
-					$provider = new \Bitrix\Socialnetwork\Livefeed\TimemanEntry();
+					$provider = new TimemanEntry();
 					break;
 				case self::DATA_ENTITY_TYPE_TIMEMAN_REPORT:
-					$provider = new \Bitrix\Socialnetwork\Livefeed\TimemanReport();
+					$provider = new TimemanReport();
 					break;
 			case self::DATA_ENTITY_TYPE_INTRANET_NEW_USER:
-				$provider = new \Bitrix\Socialnetwork\Livefeed\IntranetNewUser();
+				$provider = new IntranetNewUser();
 				break;
 			case self::DATA_ENTITY_TYPE_BITRIX24_NEW_USER:
-				$provider = new \Bitrix\Socialnetwork\Livefeed\Bitrix24NewUser();
+				$provider = new Bitrix24NewUser();
 				break;
 				default:
 					$provider = false;
@@ -240,9 +240,9 @@ abstract class Provider
 	{
 		$result = false;
 
-		if (intval($this->logId) > 0)
+		if ((int)$this->logId > 0)
 		{
-			$result = intval($this->logId);
+			$result = (int)$this->logId;
 		}
 		else
 		{
@@ -258,7 +258,7 @@ abstract class Provider
 					'EVENT_ID' => $eventId
 				);
 
-				if ($this->getId() == LogEvent::PROVIDER_ID)
+				if (self::getId() == LogEvent::PROVIDER_ID)
 				{
 					$filter['=ID'] = $this->entityId;
 				}
@@ -298,7 +298,7 @@ abstract class Provider
 					'EVENT_ID' => $eventId
 				);
 
-				if ($this->getId() == LogComment::PROVIDER_ID)
+				if (self::getId() == LogComment::PROVIDER_ID)
 				{
 					$filter['ID'] = $this->entityId;
 				}
@@ -317,10 +317,10 @@ abstract class Provider
 
 				if (
 					($logCommentEntry = $res->fetch())
-					&& (intval($logCommentEntry['LOG_ID']) > 0)
+					&& ((int)$logCommentEntry['LOG_ID'] > 0)
 				)
 				{
-					$result = $this->logId = intval($logCommentEntry['LOG_ID']);
+					$result = $this->logId = (int)$logCommentEntry['LOG_ID'];
 				}
 			}
 		}
@@ -534,6 +534,35 @@ abstract class Provider
 		return $this->sourceTitle;
 	}
 
+	public function getPinnedTitle()
+	{
+		if (empty($this->sourceFields))
+		{
+			$this->initSourceFields();
+		}
+
+		$result = $this->pinnedTitle;
+		if ($result === null)
+		{
+			$result = $this->getSourceTitle();
+		}
+
+		return $result;
+	}
+
+	public function getPinnedDescription()
+	{
+		if (empty($this->sourceFields))
+		{
+			$this->initSourceFields();
+		}
+
+		$result = $this->getSourceDescription();
+		$result = truncateText(\CTextParser::clearAllTags($result), 100);
+
+		return $result;
+	}
+
 	final protected function setSourceOriginalText($text)
 	{
 		$this->sourceOriginalText = $text;
@@ -658,22 +687,20 @@ abstract class Provider
 
 			return $result;
 		}
-		else
-		{
-			$diskObjects = $this->getAttachedDiskObjects(false);
 
-			if (
-				!empty($diskObjects)
-				&& Loader::includeModule('disk')
-			)
+		$diskObjects = $this->getAttachedDiskObjects(false);
+
+		if (
+			!empty($diskObjects)
+			&& Loader::includeModule('disk')
+		)
+		{
+			foreach ($diskObjects as $attachedObjectId)
 			{
-				foreach ($diskObjects as $attachedObjectId)
+				$attachedObject = \Bitrix\Disk\AttachedObject::loadById($attachedObjectId);
+				if ($attachedObject)
 				{
-					$attachedObject = \Bitrix\Disk\AttachedObject::loadById($attachedObjectId);
-					if ($attachedObject)
-					{
-						$result[] = \Bitrix\Disk\Uf\FileUserType::NEW_FILE_PREFIX.$attachedObject->getObjectId();
-					}
+					$result[] = \Bitrix\Disk\Uf\FileUserType::NEW_FILE_PREFIX.$attachedObject->getObjectId();
 				}
 			}
 		}
@@ -807,7 +834,7 @@ abstract class Provider
 
 		if (
 			!empty($event["EVENT_ID"])
-			&& $event["EVENT_ID"] == 'photo'
+			&& $event["EVENT_ID"] === 'photo'
 		)
 		{
 			$contentEntityType = self::DATA_ENTITY_TYPE_PHOTOGALLERY_ALBUM;
@@ -815,7 +842,7 @@ abstract class Provider
 		}
 		elseif (
 			!empty($event["EVENT_ID"])
-			&& $event["EVENT_ID"] == 'photo_photo'
+			&& $event["EVENT_ID"] === 'photo_photo'
 		)
 		{
 			$contentEntityType = self::DATA_ENTITY_TYPE_PHOTOGALLERY_PHOTO;
@@ -823,7 +850,7 @@ abstract class Provider
 		}
 		elseif (
 			!empty($event["EVENT_ID"])
-			&& $event["EVENT_ID"] == 'data'
+			&& $event["EVENT_ID"] === 'data'
 		)
 		{
 			$contentEntityType = self::DATA_ENTITY_TYPE_LOG_ENTRY;
@@ -849,7 +876,7 @@ abstract class Provider
 				));
 				if ($logEntryFields = $res->fetch())
 				{
-					if ($event["RATING_TYPE_ID"] == 'IBLOCK_ELEMENT')
+					if ($event["RATING_TYPE_ID"] === 'IBLOCK_ELEMENT')
 					{
 						$found = false;
 						$photogalleryPhotoProvider = new \Bitrix\Socialnetwork\Livefeed\PhotogalleryPhoto;
@@ -871,7 +898,7 @@ abstract class Provider
 							}
 						}
 					}
-					elseif ($event["RATING_TYPE_ID"] == 'IBLOCK_SECTION')
+					elseif ($event["RATING_TYPE_ID"] === 'IBLOCK_SECTION')
 					{
 						$photogalleryalbumProvider = new \Bitrix\Socialnetwork\Livefeed\PhotogalleryAlbum;
 						if (in_array($logEntryFields['EVENT_ID'], $photogalleryalbumProvider->getEventId()))
@@ -941,7 +968,7 @@ abstract class Provider
 		if (
 			!isset($params["user_id"])
 			&& is_object($USER)
-			&& isset($_SESSION["SONET_ADMIN"])
+			&& \CSocNetUser::isCurrentUserModuleAdmin()
 		) // don't track users on God Mode
 		{
 			return false;
@@ -1212,7 +1239,7 @@ abstract class Provider
 
 	public function getAdditionalData($params = [])
 	{
-		return array();
+		return [];
 	}
 
 	protected function checkAdditionalDataParams(&$params)

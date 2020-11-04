@@ -14,6 +14,12 @@ class Tab implements \JsonSerializable
 	protected $stub;
 	protected $stubOptions;
 
+	/** @var string */
+	protected $footer;
+
+	/** @var array */
+	protected $footerOptions;
+
 	public function __construct(array $options)
 	{
 		if (!empty($options['id']) && is_string($options['id']))
@@ -85,6 +91,17 @@ class Tab implements \JsonSerializable
 		if (!empty($options['stubOptions']) && is_array($options['stubOptions']))
 		{
 			$this->setStubOptions($options['stubOptions']);
+		}
+
+		if (isset($options['footer']) && is_string($options['footer']))
+		{
+			$footerOptions =
+				isset($options['footerOptions']) && is_array($options['footerOptions'])
+					? $options['footerOptions']
+					: []
+			;
+
+			$this->setFooter($options['footer'], $footerOptions);
 		}
 	}
 
@@ -194,6 +211,25 @@ class Tab implements \JsonSerializable
 		return $this->stubOptions;
 	}
 
+	public function setFooter(string $footer, array $options = [])
+	{
+		if (strlen($footer) > 0)
+		{
+			$this->footer = $footer;
+			$this->footerOptions = $options;
+		}
+	}
+
+	public function getFooter(): ?string
+	{
+		return $this->footer;
+	}
+
+	public function getFooterOptions(): ?array
+	{
+		return $this->footerOptions;
+	}
+
 	public function jsonSerialize()
 	{
 		$json = [
@@ -215,6 +251,12 @@ class Tab implements \JsonSerializable
 		if ($this->getStubOptions() !== null)
 		{
 			$json['stubOptions'] = $this->getStubOptions();
+		}
+
+		if ($this->getFooter())
+		{
+			$json['footer'] = $this->getFooter();
+			$json['footerOptions'] = $this->getFooterOptions();
 		}
 
 		return $json;

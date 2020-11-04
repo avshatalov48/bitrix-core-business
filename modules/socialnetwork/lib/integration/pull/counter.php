@@ -3,6 +3,7 @@ namespace Bitrix\Socialnetwork\Integration\Pull;
 
 use Bitrix\Main\EventResult;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ModuleManager;
 
 class Counter
 {
@@ -13,7 +14,7 @@ class Counter
 	{
 		return new EventResult(EventResult::SUCCESS, Array(
 			self::TYPE_LIVEFEED => Array(
-				'NAME' => Loc::getMessage('SONET_COUNTER_TYPE_LIVEFEED'),
+				'NAME' => Loc::getMessage(ModuleManager::isModuleInstalled('intranet') ? 'SONET_COUNTER_TYPE_LIVEFEED2' : 'SONET_COUNTER_TYPE_LIVEFEED'),
 				'DEFAULT' => true
 			)
 		), self::MODULE_ID);

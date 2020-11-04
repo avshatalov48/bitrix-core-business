@@ -47,13 +47,13 @@ if (!empty($arResult["TICKET"])):
 		
 		<?=GetMessage("SUP_SOURCE")." / ".GetMessage("SUP_FROM")?>:
 
-			<?if (strlen($arResult["TICKET"]["SOURCE_NAME"])>0):?>
+			<?if ($arResult["TICKET"]["SOURCE_NAME"] <> ''):?>
 				[<?=$arResult["TICKET"]["SOURCE_NAME"]?>]
 			<?else:?>
 				[web]
 			<?endif?>
 
-			<?if (strlen($arResult["TICKET"]["OWNER_SID"])>0):?>
+			<?if ($arResult["TICKET"]["OWNER_SID"] <> ''):?>
 				<?=$arResult["TICKET"]["OWNER_SID"]?>
 			<?endif?>
 
@@ -67,7 +67,7 @@ if (!empty($arResult["TICKET"])):
 		
 		<?=GetMessage("SUP_CREATE")?>: <?=$arResult["TICKET"]["DATE_CREATE"]?> 
 
-		<?if (strlen($arResult["TICKET"]["CREATED_MODULE_NAME"])<=0 || $arResult["TICKET"]["CREATED_MODULE_NAME"]=="support"):?>
+		<?if ($arResult["TICKET"]["CREATED_MODULE_NAME"] == '' || $arResult["TICKET"]["CREATED_MODULE_NAME"]=="support"):?>
 			[<?=$arResult["TICKET"]["CREATED_USER_ID"]?>] 
 			(<?=$arResult["TICKET"]["CREATED_LOGIN"]?>) 
 			<?=$arResult["TICKET"]["CREATED_NAME"]?>
@@ -80,7 +80,7 @@ if (!empty($arResult["TICKET"])):
 		<?if ($arResult["TICKET"]["DATE_CREATE"]!=$arResult["TICKET"]["TIMESTAMP_X"]):?>
 				<?=GetMessage("SUP_TIMESTAMP")?>: <?=$arResult["TICKET"]["TIMESTAMP_X"]?>
 
-				<?if (strlen($arResult["TICKET"]["MODIFIED_MODULE_NAME"])<=0 || $arResult["TICKET"]["MODIFIED_MODULE_NAME"]=="support"):?>
+				<?if ($arResult["TICKET"]["MODIFIED_MODULE_NAME"] == '' || $arResult["TICKET"]["MODIFIED_MODULE_NAME"]=="support"):?>
 					[<?=$arResult["TICKET"]["MODIFIED_USER_ID"]?>] 
 					(<?=$arResult["TICKET"]["MODIFIED_BY_LOGIN"]?>) 
 					<?=$arResult["TICKET"]["MODIFIED_BY_NAME"]?>
@@ -92,22 +92,22 @@ if (!empty($arResult["TICKET"])):
 		<?endif?>
 
 		
-		<? if (strlen($arResult["TICKET"]["DATE_CLOSE"])>0): ?>
+		<? if ($arResult["TICKET"]["DATE_CLOSE"] <> ''): ?>
 			<?=GetMessage("SUP_CLOSE")?>: <?=$arResult["TICKET"]["DATE_CLOSE"]?>
 		<?endif?>
 
 		
-		<?if (strlen($arResult["TICKET"]["STATUS_NAME"])>0) :?>
+		<?if ($arResult["TICKET"]["STATUS_NAME"] <> '') :?>
 				<?=GetMessage("SUP_STATUS")?>: <span title="<?=$arResult["TICKET"]["STATUS_DESC"]?>"><?=$arResult["TICKET"]["STATUS_NAME"]?></span><br />
 		<?endif;?>
 
 		
-		<?if (strlen($arResult["TICKET"]["CATEGORY_NAME"]) > 0):?>
+		<?if ($arResult["TICKET"]["CATEGORY_NAME"] <> ''):?>
 				<?=GetMessage("SUP_CATEGORY")?>: <span title="<?=$arResult["TICKET"]["CATEGORY_DESC"]?>"><?=$arResult["TICKET"]["CATEGORY_NAME"]?></span><br />
 		<?endif?>
 
 		
-		<?if(strlen($arResult["TICKET"]["CRITICALITY_NAME"])>0) :?>
+		<?if($arResult["TICKET"]["CRITICALITY_NAME"] <> '') :?>
 				<?=GetMessage("SUP_CRITICALITY")?>: <span title="<?=$arResult["TICKET"]["CRITICALITY_DESC"]?>"><?=$arResult["TICKET"]["CRITICALITY_NAME"]?></span><br />
 		<?endif?>
 
@@ -118,7 +118,7 @@ if (!empty($arResult["TICKET"])):
 		<?endif?>
 
 		
-		<?if (strlen($arResult["TICKET"]["SLA_NAME"])>0) :?>
+		<?if ($arResult["TICKET"]["SLA_NAME"] <> '') :?>
 			<?=GetMessage("SUP_SLA")?>: 
 			<span title="<?=$arResult["TICKET"]["SLA_DESCRIPTION"]?>"><?=$arResult["TICKET"]["SLA_NAME"]?></span>
 		<?endif?>
@@ -162,7 +162,7 @@ if (!empty($arResult["TICKET"])):
 		foreach ($arMessage["FILES"] as $arFile):
 		?>
 		<div class="support-paperclip"></div>
-		<?if(in_array(strtolower(GetFileExtension($arFile["NAME"])), $aImg)):?>
+		<?if(in_array(mb_strtolower(GetFileExtension($arFile["NAME"])), $aImg)):?>
 			<a title="<?=GetMessage("SUP_VIEW_ALT")?>" href="<?=$componentPath?>/ticket_show_file.php?hash=<?echo $arFile["HASH"]?>&amp;lang=<?=LANG?>"><?=$arFile["NAME"]?></a> 
 		<?else:?>
 			<?=$arFile["NAME"]?>
@@ -220,7 +220,7 @@ if (!empty($arResult["TICKET"])):
 	<?endif?>
 
 
-	<?if (strlen($arResult["TICKET"]["DATE_CLOSE"]) <= 0):?>
+	<?if ($arResult["TICKET"]["DATE_CLOSE"] == ''):?>
 	<tr>
 		<td class="field-name"><span class="starrequired">*</span><?=GetMessage("SUP_MESSAGE")?>:</td>
 		<td>
@@ -263,9 +263,9 @@ if (!empty($arResult["TICKET"])):
 		<td class="field-name"><?=GetMessage("SUP_CRITICALITY")?>:</td>
 		<td>
 			<?
-			if (empty($arResult["TICKET"]) || strlen($arResult["ERROR_MESSAGE"]) > 0 )
+			if (empty($arResult["TICKET"]) || $arResult["ERROR_MESSAGE"] <> '' )
 			{
-				if (strlen($arResult["DICTIONARY"]["CRITICALITY_DEFAULT"]) > 0 && strlen($arResult["ERROR_MESSAGE"]) <= 0)
+				if ($arResult["DICTIONARY"]["CRITICALITY_DEFAULT"] <> '' && $arResult["ERROR_MESSAGE"] == '')
 					$criticality = $arResult["DICTIONARY"]["CRITICALITY_DEFAULT"];
 				else
 					$criticality = htmlspecialcharsbx($_REQUEST["CRITICALITY_ID"]);
@@ -287,7 +287,7 @@ if (!empty($arResult["TICKET"])):
 		<td class="field-name"><?=GetMessage("SUP_CATEGORY")?>:</td>
 		<td>
 			<?
-			if (strlen($arResult["DICTIONARY"]["CATEGORY_DEFAULT"]) > 0 && strlen($arResult["ERROR_MESSAGE"]) <= 0)
+			if ($arResult["DICTIONARY"]["CATEGORY_DEFAULT"] <> '' && $arResult["ERROR_MESSAGE"] == '')
 				$category = $arResult["DICTIONARY"]["CATEGORY_DEFAULT"];
 			else
 				$category = htmlspecialcharsbx($_REQUEST["CATEGORY_ID"]);
@@ -304,7 +304,7 @@ if (!empty($arResult["TICKET"])):
 	<tr>
 		<td class="field-name"><?=GetMessage("SUP_MARK")?>:</td>
 		<td>
-			<?$mark = (strlen($arResult["ERROR_MESSAGE"]) > 0 ? htmlspecialcharsbx($_REQUEST["MARK_ID"]) : $arResult["TICKET"]["MARK_ID"]);?>
+			<?$mark = ($arResult["ERROR_MESSAGE"] <> '' ? htmlspecialcharsbx($_REQUEST["MARK_ID"]) : $arResult["TICKET"]["MARK_ID"]);?>
 			<select name="MARK_ID" id="MARK_ID">
 				<option value="">&nbsp;</option>
 			<?foreach ($arResult["DICTIONARY"]["MARK"] as $value => $option):?>
@@ -317,7 +317,7 @@ if (!empty($arResult["TICKET"])):
 
 
 
-	<?if (strlen($arResult["TICKET"]["DATE_CLOSE"])<=0):?>
+	<?if ($arResult["TICKET"]["DATE_CLOSE"] == ''):?>
 	<tr>
 		<td class="field-name"><?=GetMessage("SUP_CLOSE_TICKET")?>:</td>
 		<td><input type="checkbox" name="CLOSE" value="Y" <?if($arResult["TICKET"]["CLOSE"] == "Y"):?>checked="checked" <?endif?>/>

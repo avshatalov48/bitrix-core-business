@@ -3764,7 +3764,7 @@ class SaleOrderAjax extends \CBitrixComponent
 	protected function initDelivery(Shipment $shipment)
 	{
 		$deliveryId = intval($this->arUserResult['DELIVERY_ID']);
-		$this->arDeliveryServiceAll = Delivery\Services\Manager::getRestrictedObjectsList($shipment);
+		$this->initDeliveryServices($shipment);
 		/** @var Sale\ShipmentCollection $shipmentCollection */
 		$shipmentCollection = $shipment->getCollection();
 		$order = $shipmentCollection->getOrder();
@@ -3836,6 +3836,59 @@ class SaleOrderAjax extends \CBitrixComponent
 				'CURRENCY' => $order->getCurrency(),
 			]);
 		}
+	}
+
+	protected function initDeliveryServices(Shipment $shipment)
+	{
+		$services = Delivery\Services\Manager::getRestrictedObjectsList($shipment);
+
+		if (!in_array($this->arParams['SHOW_NOT_CALCULATED_DELIVERIES'], ['N', 'L']))
+		{
+			$this->arDeliveryServiceAll = $services;
+
+			return;
+		}
+
+		$prevDeliveryId = $shipment->getDeliveryId();
+
+		$result = [];
+		foreach ($services as $deliveryId => $deliveryObj)
+		{
+			$mustBeCalculated = $this->arParams['DELIVERY_NO_AJAX'] === 'Y'
+				|| ($this->arParams['DELIVERY_NO_AJAX'] === 'H' && $deliveryObj->isCalculatePriceImmediately());
+
+			if (!$mustBeCalculated)
+			{
+				$result[$deliveryId] = $deliveryObj;
+			}
+
+			$shipment->setField('DELIVERY_ID', $deliveryId);
+			$calcResult = $deliveryObj->calculate($shipment);
+			if (!$calcResult->isSuccess())
+			{
+				if ($this->arParams['SHOW_NOT_CALCULATED_DELIVERIES'] === 'N')
+				{
+					continue;
+				}
+
+				if ($this->arParams['SHOW_NOT_CALCULATED_DELIVERIES'] === 'L')
+				{
+					$problemDeliveries[$deliveryId] = $deliveryObj;
+					continue;
+				}
+			}
+
+			$result[$deliveryId] = $deliveryObj;
+		}
+
+		if ($this->arParams['SHOW_NOT_CALCULATED_DELIVERIES'] === 'L' && !empty($problemDeliveries))
+		{
+			$result += $problemDeliveries;
+		}
+
+		$shipment->setField('DELIVERY_ID', $prevDeliveryId);
+
+		$this->arDeliveryServiceAll = $result;
 	}
 
 	protected function loadUserAccount(Order $order)
@@ -4334,7 +4387,6 @@ class SaleOrderAjax extends \CBitrixComponent
 	protected function calculateDeliveries(Order $order)
 	{
 		$this->arResult['DELIVERY'] = [];
-		$problemDeliveries = [];
 
 		if (!empty($this->arDeliveryServiceAll))
 		{
@@ -4426,20 +4478,6 @@ class SaleOrderAjax extends \CBitrixComponent
 						{
 							$arDelivery['CALCULATE_ERRORS'] = Loc::getMessage('SOA_DELIVERY_CALCULATE_ERROR');
 						}
-
-						if ($arDelivery['CHECKED'] !== 'Y')
-						{
-							if ($this->arParams['SHOW_NOT_CALCULATED_DELIVERIES'] === 'N')
-							{
-								unset($this->arDeliveryServiceAll[$deliveryId]);
-								continue;
-							}
-							elseif ($this->arParams['SHOW_NOT_CALCULATED_DELIVERIES'] === 'L')
-							{
-								$problemDeliveries[$deliveryId] = $arDelivery;
-								continue;
-							}
-						}
 					}
 
 					$arDelivery['CALCULATE_DESCRIPTION'] = $calcResult->getDescription();
@@ -4453,11 +4491,6 @@ class SaleOrderAjax extends \CBitrixComponent
 			{
 				$order->doFinalAction(true);
 			}
-		}
-
-		if (!empty($problemDeliveries))
-		{
-			$this->arResult['DELIVERY'] += $problemDeliveries;
 		}
 
 		$eventParameters = [

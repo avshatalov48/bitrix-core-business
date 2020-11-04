@@ -12,7 +12,7 @@ use Bitrix\Intranet\Integration\Templates\Bitrix24\ThemePicker;
 CJSCore::Init();
 $this->addExternalCss($this->GetFolder() . '/template.css');
 $this->addExternalJs($this->GetFolder() . '/template.js');
-\Bitrix\Main\UI\Extension::load(['sidepanel', 'ui.common', 'sidepanel']);
+\Bitrix\Main\UI\Extension::load(['sidepanel', 'ui.common', 'ui.fonts.opensans']);
 
 ?><!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="<?=LANGUAGE_ID ?>" lang="<?=LANGUAGE_ID ?>">
@@ -68,55 +68,62 @@ if ($arResult["SHOW_BITRIX24_THEME"] == "Y")
 	$themePicker->showBodyAssets();
 }
 ?>
-	<div class="ui-slider-page">
-		<div id="left-panel" class="ui-page-slider-left-panel"><? $APPLICATION->ShowViewContent("left-panel"); ?></div>
-		<div id="ui-page-slider-content">
-			<div class="pagetitle-above"><?$APPLICATION->ShowViewContent("above_pagetitle")?></div>
-			<? if(!isset($arParams['USE_UI_TOOLBAR']) || $arParams['USE_UI_TOOLBAR'] !== 'Y')
-			{
-			?>
-				<div class="ui-side-panel-wrap-title-wrap" style="<?=($arParams['PLAIN_VIEW'] ? 'display: none;' : '')?>">
-					<div class="ui-side-panel-wrap-title-inner-container">
-						<div class="ui-side-panel-wrap-title-menu ui-side-panel-wrap-title-last-item-in-a-row">
-							<? $APPLICATION->ShowViewContent("pagetitle"); ?>
-						</div>
-						<div class="ui-side-panel-wrap-title">
-							<span id="pagetitle" class="ui-side-panel-wrap-title-item ui-side-panel-wrap-title-name"><? $APPLICATION->ShowTitle(); ?></span>
-							<span class="ui-side-panel-wrap-title-edit-button" style="display: none;"></span>
-							<input type="text" class="ui-side-panel-wrap-title-item ui-side-panel-wrap-title-input" style="display: none;">
-							<? $APPLICATION->ShowViewContent("inside_pagetitle_below"); ?>
-						</div>
-						<? $APPLICATION->ShowViewContent("inside_pagetitle"); ?>
+<div class="ui-slider-page">
+	<div id="left-panel" class="ui-page-slider-left-panel"><? $APPLICATION->ShowViewContent("left-panel"); ?></div>
+	<div id="ui-page-slider-content">
+		<div class="pagetitle-above"><?$APPLICATION->ShowViewContent("above_pagetitle")?></div>
+		<? if(!isset($arParams['USE_UI_TOOLBAR']) || $arParams['USE_UI_TOOLBAR'] !== 'Y')
+		{
+		?>
+			<div class="ui-side-panel-wrap-title-wrap" style="<?=($arParams['PLAIN_VIEW'] ? 'display: none;' : '')?>">
+				<div class="ui-side-panel-wrap-title-inner-container">
+					<div class="ui-side-panel-wrap-title-menu ui-side-panel-wrap-title-last-item-in-a-row">
+						<? $APPLICATION->ShowViewContent("pagetitle"); ?>
 					</div>
-				</div>
-			<?
-			}
-			else
-			{
-				$APPLICATION->IncludeComponent("bitrix:ui.toolbar", '', []);
-			}
-			?>
-			<div class="ui-side-panel-wrap-below"><?$APPLICATION->ShowViewContent("below_pagetitle")?></div>
-
-			<div class="ui-page-slider-workarea">
-				<div class="ui-side-panel-wrap-sidebar"><? $APPLICATION->ShowViewContent("sidebar"); ?></div>
-				<div id="workarea-content" class="ui-side-panel-wrap-workarea<?=($arParams['USE_PADDING'] ? ' ui-page-slider-workarea-content-padding' : '')?>">
-					<?
-					include ('content.php');
-
-					if (!empty($arParams['BUTTONS']))
-					{
-						$APPLICATION->IncludeComponent(
-							"bitrix:ui.button.panel",
-							"",
-							["BUTTONS" => $arParams['BUTTONS']],
-							false
-						);
-					}
-					?>
+					<div class="ui-side-panel-wrap-title">
+						<div class="ui-side-panel-wrap-title-box">
+							<span id="pagetitle" class="ui-side-panel-wrap-title-item">
+								<span class="ui-side-panel-wrap-title-name-item ui-side-panel-wrap-title-name"><? $APPLICATION->ShowTitle(); ?></span>
+								<span class="ui-side-panel-wrap-title-edit-button" style="display: none;"></span>
+								<input type="text" class="ui-side-panel-wrap-title-item ui-side-panel-wrap-title-input" style="display: none;">
+							</span>
+							<span class="ui-side-panel-wrap-subtitle-box">
+								<span class="ui-side-panel-wrap-subtitle-item"></span>
+								<span class="ui-side-panel-wrap-subtitle-control"></span>
+							</span>
+						</div>
+						<? $APPLICATION->ShowViewContent("inside_pagetitle_below"); ?>
+					</div>
+					<? $APPLICATION->ShowViewContent("inside_pagetitle"); ?>
 				</div>
 			</div>
+		<?
+		}
+		else
+		{
+			$APPLICATION->IncludeComponent("bitrix:ui.toolbar", '', []);
+		}
+		?>
+		<div class="ui-side-panel-wrap-below"><?$APPLICATION->ShowViewContent("below_pagetitle")?></div>
+
+		<div class="ui-page-slider-workarea">
+		<div class="ui-side-panel-wrap-sidebar"><? $APPLICATION->ShowViewContent("sidebar"); ?></div>
+		<div id="workarea-content" class="ui-side-panel-wrap-workarea<?=($arParams['USE_PADDING'] ? ' ui-page-slider-workarea-content-padding' : '')?>">
+			<?
+			include ('content.php');
+
+			if (!empty($arParams['BUTTONS']))
+			{
+				$APPLICATION->IncludeComponent(
+					"bitrix:ui.button.panel",
+					"",
+					["BUTTONS" => $arParams['BUTTONS']],
+					false
+				);
+			}
+			?>
 		</div>
+	</div>
 	</div>
 	<div><?$APPLICATION->ShowViewContent("below_page")?></div>
 	<script type="text/javascript">

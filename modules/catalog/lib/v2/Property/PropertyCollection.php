@@ -63,12 +63,12 @@ class PropertyCollection extends BaseCollection
 		return null;
 	}
 
-	public function findByIndex(string $index): ?Property
+	public function findByCode(string $code): ?Property
 	{
 		/** @var \Bitrix\Catalog\v2\Property\Property $item */
 		foreach ($this->getIterator() as $item)
 		{
-			if ($item->getIndex() === $index)
+			if ($item->getCode() === $code)
 			{
 				return $item;
 			}
@@ -85,7 +85,17 @@ class PropertyCollection extends BaseCollection
 	{
 		foreach ($propertyValues as $index => $values)
 		{
-			$property = $this->findByIndex($index);
+			$property = null;
+
+			if (is_numeric($index))
+			{
+				$property = $this->findById((int)$index);
+			}
+
+			if (!$property)
+			{
+				$property = $this->findByCode($index);
+			}
 
 			if ($property)
 			{
@@ -103,7 +113,7 @@ class PropertyCollection extends BaseCollection
 		/** @var \Bitrix\Catalog\v2\Property\Property $property */
 		foreach ($this->getIterator() as $property)
 		{
-			$values[$property->getIndex()] = $property->getPropertyValueCollection()->toArray();
+			$values[$property->getId()] = $property->getPropertyValueCollection()->toArray();
 		}
 
 		return $values;

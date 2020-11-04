@@ -67,6 +67,11 @@ class ComponentHelper
 
 			if ($result = $res->fetch())
 			{
+				if (!empty($result['DETAIL_TEXT']))
+				{
+					$result['DETAIL_TEXT'] = \Bitrix\Main\Text\Emoji::decode($result['DETAIL_TEXT']);
+				}
+
 				$result["ATTACHMENTS"] = array();
 
 				if($result["HAS_PROPS"] != "N")
@@ -1576,6 +1581,11 @@ class ComponentHelper
 				return false;
 			}
 
+			if (!empty($post['DETAIL_TEXT']))
+			{
+				$post['DETAIL_TEXT'] = \Bitrix\Main\Text\Emoji::decode($post['DETAIL_TEXT']);
+			}
+
 			$intranetUserIdList = ($extranet ? \CExtranet::getIntranetUsers() : false);
 			$auxLiveParamList = array();
 			$sharedToIntranetUser = false;
@@ -2062,6 +2072,12 @@ class ComponentHelper
 				$userPage = Option::get('socialnetwork', 'user_page', SITE_DIR.'company/personal/');
 				$userPath = $userPage.'user/'.$post['AUTHOR_ID'].'/';
 
+				$entityProvider = \Bitrix\Socialnetwork\Livefeed\Provider::init(array(
+					'ENTITY_TYPE' => $sourceEntityType,
+					'ENTITY_ID' => $sourceEntityId,
+					'LOG_ID' => $logId
+				));
+
 				$auxLiveParamList = array(
 					'sourceEntityType' => $sourceEntityType,
 					'sourceEntityId' => $sourceEntityId,
@@ -2073,7 +2089,8 @@ class ComponentHelper
 						$sourceEntityType == CreateTask::SOURCE_TYPE_BLOG_COMMENT
 							? $userPath.'blog/'.$post['ID'].'/?commentId='.$sourceEntityId.'#com'.$sourceEntityId
 							: ''
-					)
+					),
+					'suffix' => $entityProvider->getSuffix(),
 				);
 
 				$provider = \Bitrix\Socialnetwork\CommentAux\Base::init(\Bitrix\Socialnetwork\CommentAux\CreateTask::getType(), array(
@@ -2205,11 +2222,7 @@ class ComponentHelper
 				'taskUrl' => \CTaskNotifications::getNotificationPath(['ID' => $task['CREATED_BY']], $task['ID'], false),
 				'taskResponsibleId' => $task['CREATED_BY'],
 				'taskName' => htmlspecialcharsback($task['TITLE']),
-				'suffix' => (
-					$provider->getType() == Provider::TYPE_COMMENT
-						? $provider->getSuffix()
-						: false
-				),
+				'suffix' => $provider->getSuffix(),
 				'sourceEntityLink' => $provider->getLiveFeedUrl()
 			);
 
@@ -3569,7 +3582,7 @@ class ComponentHelper
 		}
 		if (!empty($res))
 		{
-			echo Stepper::getHtml($res, Loc::getMessage('SONET_HELPER_STEPPER_LIVEFEED'));
+			echo Stepper::getHtml($res, Loc::getMessage(ModuleManager::isModuleInstalled('intranet') ? 'SONET_HELPER_STEPPER_LIVEFEED2': 'SONET_HELPER_STEPPER_LIVEFEED'));
 		}
 	}
 
@@ -3775,7 +3788,7 @@ class ComponentHelper
 				'socnetRights' => $socnetPerms,
 			);
 
-			preg_match_all("/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/ies".BX_UTF_PCRE_MODIFIER, $postFields["DETAIL_TEXT"], $matches);
+			preg_match_all("/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/is".BX_UTF_PCRE_MODIFIER, $postFields["DETAIL_TEXT"], $matches);
 			if (!empty($matches))
 			{
 				$notificationParamsList["mentionList"] = $matches[1];

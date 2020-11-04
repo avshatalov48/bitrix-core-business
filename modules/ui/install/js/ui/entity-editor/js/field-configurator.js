@@ -530,7 +530,8 @@ if (typeof BX.UI.EntityEditorFieldConfigurator === "undefined")
 		{
 			params["field"] = this._field;
 			params["mandatory"] = this._isRequiredCheckBox
-				? this._isRequiredCheckBox.checked : this._field.isRequired();
+				? this._isRequiredCheckBox.checked
+				: (this._field.isRequired() || this._field.isRequiredByAttribute());
 		}
 		else
 		{

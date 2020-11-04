@@ -8,7 +8,7 @@ if (!CModule::IncludeModule("blog"))
 }
 
 $arParams["BLOG_URL"] = preg_replace("/[^a-zA-Z0-9_-]/is", "", Trim($arParams["BLOG_URL"]));
-$arParams["CATEGORY_ID"] = (IntVal($arParams["CATEGORY_ID"])>0 ? IntVal($arParams["CATEGORY_ID"]) : false);
+$arParams["CATEGORY_ID"] = (intval($arParams["CATEGORY_ID"])>0 ? intval($arParams["CATEGORY_ID"]) : false);
 if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
 	$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
 else
@@ -16,31 +16,31 @@ else
 if(!is_array($arParams["GROUP_ID"]))
 	$arParams["GROUP_ID"] = array($arParams["GROUP_ID"]);
 foreach($arParams["GROUP_ID"] as $k=>$v)
-	if(IntVal($v) <= 0)
+	if(intval($v) <= 0)
 		unset($arParams["GROUP_ID"][$k]);	
 
-if(strLen($arParams["BLOG_VAR"])<=0)
+if($arParams["BLOG_VAR"] == '')
 	$arParams["BLOG_VAR"] = "blog";
-if(strLen($arParams["PAGE_VAR"])<=0)
+if($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if(strLen($arParams["USER_VAR"])<=0)
+if($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "id";
 	
 $arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"]);
-if(strlen($arParams["PATH_TO_BLOG"])<=0)
+if($arParams["PATH_TO_BLOG"] == '')
 	$arParams["PATH_TO_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
 
 $arParams["PATH_TO_BLOG_CATEGORY"] = trim($arParams["PATH_TO_BLOG_CATEGORY"]);
-if(strlen($arParams["PATH_TO_BLOG_CATEGORY"])<=0)
+if($arParams["PATH_TO_BLOG_CATEGORY"] == '')
 	$arParams["PATH_TO_BLOG_CATEGORY"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#"."&category=#category_id#");
 	
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if(strlen($arParams["PATH_TO_USER"])<=0)
+if($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 
 
-if(strlen($arParams["BLOG_URL"])>0)
+if($arParams["BLOG_URL"] <> '')
 {
 	$cache = new CPHPCache;
 	$cache_id = "blog_blog_category"."_".$arParams["CATEGORY_ID"];
@@ -118,7 +118,7 @@ if(strlen($arParams["BLOG_URL"])>0)
 							{
 								if (!in_array($FIELD_NAME, $arParams["BLOG_PROPERTY_LIST"]))
 									continue;
-								$arBlogField["EDIT_FORM_LABEL"] = strLen($arBlogField["EDIT_FORM_LABEL"]) > 0 ? $arBlogField["EDIT_FORM_LABEL"] : $arBlogField["FIELD_NAME"];
+								$arBlogField["EDIT_FORM_LABEL"] = $arBlogField["EDIT_FORM_LABEL"] <> '' ? $arBlogField["EDIT_FORM_LABEL"] : $arBlogField["FIELD_NAME"];
 								$arBlogField["EDIT_FORM_LABEL"] = htmlspecialcharsEx($arBlogField["EDIT_FORM_LABEL"]);
 								$arBlogField["~EDIT_FORM_LABEL"] = $arBlogField["EDIT_FORM_LABEL"];
 								$arResult["BLOG_PROPERTIES"]["DATA"][$FIELD_NAME] = $arBlogField;

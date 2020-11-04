@@ -44,6 +44,10 @@ class Manager
 		(new Scenarios\Connector())->delete($result);
 
 		Token::delete($this->app->getCode());
+
+		\CAgent::RemoveAgent('\\Bitrix\\Sale\\Exchange\\Integration\\Agent\\Statistic::modify();', 'sale');
+
+		static::unRegisterEvents();
 	}
 
 	public function add()
@@ -67,7 +71,16 @@ class Manager
 
 		$result['OPTIONS'] = ['url'=>$this->app->getAppUrl()];
 
+		$result['PROVIDER'] = [
+			'xmlId'=>$this->app->getCode(),
+			'name'=> (string)\Bitrix\Main\Config\Option::get('main', 'site_name'),
+			'externalServerHost'=> (string)\Bitrix\Main\Config\Option::get('main', 'server_name',
+				\Bitrix\Main\Application::getInstance()->getContext()->getRequest()->getHttpHost())
+		];
+
 		(new Scenarios\Connector())->add($result);
+
+		\CAgent::AddAgent('\\Bitrix\\Sale\\Exchange\\Integration\\Agent\\Statistic::modify();', 'sale', 'N', 3600);
 
 		static::registerEvents();
 	}

@@ -20,6 +20,16 @@ class PublicAction
 	const REST_SCOPE_CLOUD = 'landing_cloud';
 
 	/**
+	 * Code indicating used blocks in REST statistics.
+	 */
+	public const REST_USAGE_TYPE_BLOCK = 'blocks';
+
+	/**
+	 * Code indicating used pages in REST statistics.
+	 */
+	public const REST_USAGE_TYPE_PAGE = 'pages';
+
+	/**
 	 * REST application.
 	 * @var array
 	 */
@@ -525,7 +535,7 @@ class PublicAction
 		if ($app = AppTable::getByClientId($parameters['ID']))
 		{
 			$stat = self::getRestStat(true);
-			if (isset($stat['blocks'][$app['CODE']]))
+			if (isset($stat[self::REST_USAGE_TYPE_BLOCK][$app['CODE']]))
 			{
 				$eventResult = new \Bitrix\Main\EventResult(
 					\Bitrix\Main\EventResult::ERROR,
@@ -537,7 +547,7 @@ class PublicAction
 
 				return $eventResult;
 			}
-			else if (isset($stat['pages'][$app['CODE']]))
+			else if (isset($stat[self::REST_USAGE_TYPE_PAGE][$app['CODE']]))
 			{
 				$eventResult = new \Bitrix\Main\EventResult(
 					\Bitrix\Main\EventResult::ERROR,
@@ -563,8 +573,8 @@ class PublicAction
 	{
 		$blockCnt = [];
 		$fullStat = [
-			'blocks' => [],
-			'pages' => []
+			self::REST_USAGE_TYPE_BLOCK => [],
+			self::REST_USAGE_TYPE_PAGE => []
 		];
 		$activeValues = $onlyActive ? 'Y' : ['Y', 'N'];
 		$filter = [
@@ -615,11 +625,11 @@ class PublicAction
 			{
 				continue;
 			}
-			if (!isset($fullStat['blocks'][$row['APP_CODE']]))
+			if (!isset($fullStat[self::REST_USAGE_TYPE_BLOCK][$row['APP_CODE']]))
 			{
-				$fullStat['blocks'][$row['APP_CODE']] = 0;
+				$fullStat[self::REST_USAGE_TYPE_BLOCK][$row['APP_CODE']] = 0;
 			}
-			$fullStat['blocks'][$row['APP_CODE']] += $blockCnt[$row['ID']];
+			$fullStat[self::REST_USAGE_TYPE_BLOCK][$row['APP_CODE']] += $blockCnt[$row['ID']];
 		}
 		unset($blockCnt);
 
@@ -663,11 +673,11 @@ class PublicAction
 			while ($row = $res->fetch())
 			{
 				$appCode = $row['INITIATOR_APP_CODE'];
-				if (!isset($fullStat['pages'][$appCode]))
+				if (!isset($fullStat[self::REST_USAGE_TYPE_PAGE][$appCode]))
 				{
-					$fullStat['pages'][$appCode] = 0;
+					$fullStat[self::REST_USAGE_TYPE_PAGE][$appCode] = 0;
 				}
-				$fullStat['pages'][$appCode] += $row['CNT'];
+				$fullStat[self::REST_USAGE_TYPE_PAGE][$appCode] += $row['CNT'];
 			}
 		}
 
@@ -675,8 +685,8 @@ class PublicAction
 		if (!$humanFormat && \Bitrix\Main\Loader::includeModule('rest'))
 		{
 			$appsCode = array_merge(
-				array_keys($fullStat['blocks']),
-				array_keys($fullStat['pages'])
+				array_keys($fullStat[self::REST_USAGE_TYPE_BLOCK]),
+				array_keys($fullStat[self::REST_USAGE_TYPE_PAGE])
 			);
 			if ($appsCode)
 			{

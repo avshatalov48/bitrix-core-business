@@ -10,6 +10,7 @@ return [
 	'block' => [
 		'name' => Loc::getMessage('LANDING_BLOCK_SYSTEM_REST_PENDING_TITLE'),
 		'namespace' => 'bitrix',
+		'type' => 'null'
 	],
 	'nodes' => [
 		'bitrix:landing.rest.pending' => [

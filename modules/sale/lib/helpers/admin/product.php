@@ -4,7 +4,6 @@ namespace Bitrix\Sale\Helpers\Admin;
 use Bitrix\Catalog;
 use Bitrix\Iblock\PropertyTable;
 use Bitrix\Main\ArgumentNullException;
-use Bitrix\Main\ModuleManager;
 use Bitrix\Sale;
 use Bitrix\Sale\Fuser;
 use Bitrix\Sale\Provider;
@@ -31,7 +30,7 @@ class Product
 
 	private $resultData = array();
 
-	private $bitrix24exist = null;
+	private $useSliderCard = null;
 
 	/**
 	 * @param array $productsIds
@@ -145,7 +144,7 @@ class Product
 			)
 		);
 
-		$this->bitrix24exist = ModuleManager::isModuleInstalled('bitrix24');
+		$this->useSliderCard = Catalog\Config\State::isProductCardSliderEnabled();
 	}
 
 	private function getResultData()
@@ -714,7 +713,7 @@ class Product
 			$propertyImage = (int)$product['PROPERTY_MORE_PHOTO_VALUE'];
 		}
 
-		if ($this->bitrix24exist)
+		if ($this->useSliderCard)
 		{
 			$result = ($propertyImage > 0 ? $propertyImage : $fieldImage);
 		}

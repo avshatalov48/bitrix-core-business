@@ -330,22 +330,4 @@ else if ($arResult["ajax_comment"] > 0 && $_GET["delete_comment_id"] > 0)
 		"ACTION" => "DELETE"
 	);
 }
-
-$emptyPageParams = [];
-if (
-	!empty($arParams['EMPTY_PAGE_PARAMS'])
-	&& is_array($arParams['EMPTY_PAGE_PARAMS'])
-)
-{
-	$emptyPageParams = $arParams['EMPTY_PAGE_PARAMS'];
-	$emptyPageParams["focus_form"] = true;
-	$emptyPageParams["show_full"] = false;
-	$emptyPageParams["focus_comments"] = false;
-}
-
-$arResult["replyAction"] = (
-	!empty($emptyPageParams)
-		? "__MSLOpenLogEntryNew(".\CUtil::phpToJSObject($emptyPageParams).", null); event.stopPropagation(); return (event ? event.preventDefault() : false);"
-		: ""
-);
 ?>

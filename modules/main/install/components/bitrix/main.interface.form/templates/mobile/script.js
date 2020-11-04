@@ -797,6 +797,9 @@
 					BX.addCustomEvent(obj, "onChange", ff);
 				}
 			}
+
+			BX.addCustomEvent('BX.Mobile.Field:onChangeUserField', this.apply);
+
 			if (BX(this.formId) && BX('submit_' + this.formId))
 			{
 				BX.bind(BX('submit_' + this.formId), "click", BX.delegate(this.click, this));

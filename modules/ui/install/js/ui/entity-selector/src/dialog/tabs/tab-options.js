@@ -1,3 +1,5 @@
+import type { FooterContent, FooterOptions } from '../footer/footer-content';
+
 export type TabOptions = {
 	id: string,
 	title?: string,
@@ -10,6 +12,9 @@ export type TabOptions = {
 	bgColor?: TabLabelStates | string,
 	stub?: boolean | string,
 	stubOptions?: { [option: string]: any },
+	footer?: FooterContent,
+	footerOptions?: FooterOptions,
+	showDefaultFooter?: boolean
 };
 
 export type TabLabelState = 'default' | 'selected' | 'hovered' | 'selectedHovered';

@@ -80,7 +80,7 @@ class LogComment
 				if (
 					$metadata
 					&& isset($metadata['TITLE'])
-					&& strlen($metadata['TITLE']) > 0
+					&& $metadata['TITLE'] <> ''
 				)
 				{
 					$content .= ' '.$metadata['TITLE'];

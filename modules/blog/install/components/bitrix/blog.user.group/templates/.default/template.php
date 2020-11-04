@@ -1,6 +1,6 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
-if(strlen($arResult["FATAL_ERROR_MESSAGE"])>0)
+if($arResult["FATAL_ERROR_MESSAGE"] <> '')
 {
 	?>
 	<span class='errortext'><?=$arResult["FATAL_ERROR_MESSAGE"]?></span><br /><br />
@@ -8,7 +8,7 @@ if(strlen($arResult["FATAL_ERROR_MESSAGE"])>0)
 }
 else
 {
-	if(strlen($arResult["ERROR_MESSAGE"])>0)
+	if($arResult["ERROR_MESSAGE"] <> '')
 	{
 		?>
 		<span class='errortext'><?=$arResult["ERROR_MESSAGE"]?></span><br /><br />

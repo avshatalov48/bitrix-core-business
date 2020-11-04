@@ -495,7 +495,6 @@ class Manager
 			'\Bitrix\Sale\Delivery\Services\Configurable' => 'lib/delivery/services/configurable.php',
 			'\Bitrix\Sale\Delivery\Services\AutomaticProfile' => 'lib/delivery/services/automatic_profile.php',
 			'\Bitrix\Sale\Delivery\Services\EmptyDeliveryService' => 'lib/delivery/services/emptydeliveryservice.php',
-			'\Sale\Handlers\Delivery\Taxi\Yandex\YandexTaxi' => 'handlers/delivery/taxi/yandex/yandextaxi.php',
 		);
 
 		\Bitrix\Main\Loader::registerAutoLoadClasses('sale', $result);
@@ -1138,7 +1137,12 @@ class Manager
 		$con = \Bitrix\Main\Application::getConnection();
 		$deliveryId = (int)$deliveryId;
 
-		$con->queryExecute("DELETE FROM b_sale_service_rstr WHERE SERVICE_ID=".$deliveryId);
+		$con->queryExecute("
+			DELETE FROM b_sale_service_rstr
+			WHERE
+			    SERVICE_ID = " . $deliveryId . "
+			    AND SERVICE_TYPE = " . (int)Restrictions\Manager::SERVICE_TYPE_SHIPMENT . "
+		");
 		$con->queryExecute("DELETE FROM b_sale_delivery2location WHERE DELIVERY_ID=".$deliveryId);
 		$con->queryExecute("DELETE FROM b_sale_delivery2paysystem WHERE DELIVERY_ID=".$deliveryId);
 		$con->queryExecute("DELETE FROM b_sale_delivery_es WHERE DELIVERY_ID=".$deliveryId);

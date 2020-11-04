@@ -153,6 +153,7 @@ abstract class BaseIblockElementRepository implements RepositoryContract
 		$order = $params['order'] ?? [];
 
 		$iblockElements = [];
+		\CTimeZone::Disable();
 		$elements = \CIBlockElement::GetList(
 			$order,
 			array_merge(
@@ -172,7 +173,7 @@ abstract class BaseIblockElementRepository implements RepositoryContract
 		{
 			$iblockElements[$element['ID']] = $element;
 		}
-
+		\CTimeZone::Enable();
 		$result = array_fill_keys(array_keys($iblockElements), false);
 
 		if (!empty($iblockElements))
@@ -339,6 +340,16 @@ abstract class BaseIblockElementRepository implements RepositoryContract
 
 	protected function prepareElementFields(array $fields): array
 	{
+		if (array_key_exists('ACTIVE_FROM', $fields) && $fields['ACTIVE_FROM'] === null)
+		{
+			$fields['ACTIVE_FROM'] = false;
+		}
+
+		if (array_key_exists('ACTIVE_TO', $fields) && $fields['ACTIVE_TO'] === null)
+		{
+			$fields['ACTIVE_TO'] = false;
+		}
+
 		return array_intersect_key($fields, ElementTable::getMap());
 	}
 

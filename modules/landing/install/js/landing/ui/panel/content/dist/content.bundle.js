@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports, main_core, landing_ui_panel_base) {
+(function (exports,landing_ui_panel_base,main_core) {
 	'use strict';
 
 	function getDeltaFromEvent(event) {
@@ -167,9 +167,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	 * @memberOf BX.Landing.UI.Panel
 	 */
 
-	var Content =
-	/*#__PURE__*/
-	function (_BasePanel) {
+	var Content = /*#__PURE__*/function (_BasePanel) {
 	  babelHelpers.inherits(Content, _BasePanel);
 	  babelHelpers.createClass(Content, null, [{
 	    key: "createOverlay",
@@ -214,12 +212,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    }
 	  }, {
 	    key: "scrollTo",
-	    value: function scrollTo$1(container, element) {
+	    value: function scrollTo$$1(container, element) {
 	      return scrollTo(container, element);
 	    }
 	  }, {
 	    key: "getDeltaFromEvent",
-	    value: function getDeltaFromEvent$1(event) {
+	    value: function getDeltaFromEvent$$1(event) {
 	      return getDeltaFromEvent(event);
 	    }
 	  }]);
@@ -386,7 +384,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    }
 	  }, {
 	    key: "scrollTo",
-	    value: function scrollTo(element) {
+	    value: function scrollTo$$1(element) {
 	      void Content.scrollTo(this.content, element);
 	    }
 	  }, {
@@ -479,5 +477,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.Content = Content;
 
-}(this.BX.Landing.UI.Panel = this.BX.Landing.UI.Panel || {}, BX, BX.Landing.UI.Panel));
+}((this.BX.Landing.UI.Panel = this.BX.Landing.UI.Panel || {}),BX.Landing.UI.Panel,BX));
 //# sourceMappingURL=content.bundle.js.map

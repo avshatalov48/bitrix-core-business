@@ -11,6 +11,8 @@
 		this.progressBg = null;
 		this.number = null;
 		this.waves = null;
+		this.leftWave = null;
+		this.rightWave = null;
 		this.fixCounter = fixCounter ? fixCounter : null;
 	};
 
@@ -81,7 +83,19 @@
 						this.waves = BX.create('div', {
 							attrs: {
 								className: 'ui-graph-circle-waves'
-							}
+							},
+							children: [
+								this.leftWave = BX.create('div', {
+									attrs: {
+										className: 'ui-graph-circle-waves-left'
+									}
+								}),
+								this.rightWave = BX.create('div', {
+									attrs: {
+										className: 'ui-graph-circle-waves-right'
+									}
+								})
+							]
 						})
 					]
 				})
@@ -108,6 +122,47 @@
 
 				this.progressBar <= 25 ? progress = 25 : null;
 				this.waves.style.transform = 'translateY(-' + progress + '%)';
+			},
+
+			animateBothWaves: function() {
+				var currentPosWaveLeft = 0;
+				var currentPosWaveRight = 50;
+				var fps = 15;
+				var now;
+				var then = Date.now();
+				var interval = 1000/fps;
+				var delta;
+
+				function draw() {
+					requestAnimationFrame(draw);
+					now = Date.now();
+					delta = now - then;
+
+					if (delta > interval)
+					{
+						then = now - (delta % interval);
+
+						var leftWave = document.querySelector('.ui-graph-circle-waves-left');
+						var rightWave = document.querySelector('.ui-graph-circle-waves-right');
+
+						currentPosWaveLeft += 1;
+						currentPosWaveRight -= 1;
+
+						leftWave.style.transform = 'translateX('+ currentPosWaveLeft + '%)';
+						rightWave.style.transform = 'translateX('+ currentPosWaveRight + '%)';
+
+						if (parseInt(currentPosWaveLeft, 10) >= 50)
+						{
+							currentPosWaveLeft = 0;
+						}
+
+						if (parseInt(currentPosWaveRight, 10) <= 0)
+						{
+							currentPosWaveRight = 50;
+						}
+					}
+				}
+				draw();
 			},
 
 			createWrapper: function() {
@@ -203,6 +258,7 @@
 					{
 						this.animateProgressBar();
 					}
+					this.animateBothWaves();
 					this.animateWavesBlock(this.fixCounter);
 				}.bind(this), 500);
 			}

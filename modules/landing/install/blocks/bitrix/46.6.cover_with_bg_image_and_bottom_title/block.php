@@ -11,7 +11,7 @@
 					<h2 class="landing-block-node-card-title landing-semantic-title-image-medium js-animation fadeInUp g-line-height-1 g-font-weight-700 g-font-size-90 g-color-white g-mb-15">
 						Company24 agency</h2>
 					<div class="landing-block-node-card-text-container js-animation fadeInUp row align-items-start">
-						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_5 mb-0 col-12 col-md-9">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_5 mb-0 col-12 col-md-9" data-auto-font-scale>
 							<p>Donec erat urna, tincidunt at leo non, blandit finibus ante. Nunc venenatis risus in
 								finibus dapibus. Ut ac massa sodales, mattis enim id, efficitur tortor. Nullam faucibus
 								iaculis laoreet.
@@ -43,7 +43,7 @@
 					<h2 class="landing-block-node-card-title landing-semantic-title-image-medium js-animation fadeInUp g-line-height-1 g-font-weight-700 g-font-size-90 g-color-white g-mb-15">
 						Company24 video</h2>
 					<div class="landing-block-node-card-text-container js-animation fadeInUp row align-items-start">
-						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_5 mb-0 col-12 col-md-9">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_5 mb-0 col-12 col-md-9" data-auto-font-scale>
 							<p>Donec erat urna, tincidunt at leo non, blandit finibus ante. Nunc venenatis risus in
 								finibus dapibus. Ut ac massa sodales, mattis enim id, efficitur tortor. Nullam faucibus
 								iaculis laoreet.

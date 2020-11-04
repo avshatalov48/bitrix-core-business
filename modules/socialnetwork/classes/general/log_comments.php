@@ -100,7 +100,7 @@ class CAllSocNetLogComments
 
 		if ((is_set($arFields, "LOG_ID") || $ACTION=="ADD") && intval($arFields["LOG_ID"]) <= 0)
 		{
-			$APPLICATION->ThrowException(GetMessage("SONET_GLC_EMPTY_LOG_ID"), "EMPTY_LOG_ID");
+			$APPLICATION->ThrowException(GetMessage(\Bitrix\Main\ModuleManager::isModuleInstalled('intranet') ? "SONET_GLC_EMPTY_LOG_ID2" : "SONET_GLC_EMPTY_LOG_ID"), "EMPTY_LOG_ID");
 			return false;
 		}
 

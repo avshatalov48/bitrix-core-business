@@ -244,28 +244,66 @@ function __blogPostSetFollow(log_id)
 	};
 
 	BX.SBPostMenu.showMenu = function(params) {
+
 		if (
 			typeof params == 'undefined'
-			|| typeof params.postId == 'undefined'
-			|| parseInt(params.postId) <= 0
-			|| typeof params.bindNode == 'undefined'
-			|| !BX(params.bindNode)
+			|| typeof params.event === 'undefined'
 		)
 		{
 			return false;
 		}
 
-		BX.PopupMenu.destroy('blog-post-' + params.postId);
+		var bindNode = params.event.currentTarget;
+		if (!BX.type.isDomNode(bindNode))
+		{
+			return false;
+		}
 
-		var
-			isPublicPage = (typeof params.publicPage != 'undefined' && !!params.publicPage),
-			isTasksAvailable = (typeof params.tasksAvailable != 'undefined' && !!params.tasksAvailable),
-			pathToPost = (typeof params.pathToPost != 'undefined' ? params.pathToPost : ''),
-			urlToEdit = (typeof params.urlToEdit != 'undefined' ? params.urlToEdit : ''),
-			urlToHide = (typeof params.urlToHide != 'undefined' ? params.urlToHide : ''),
-			urlToDelete = (typeof params.urlToDelete != 'undefined' ? params.urlToDelete : ''),
-			voteId = (typeof params.voteId != 'undefined' ? parseInt(params.voteId) : false),
-			postType = (typeof params.postType != 'undefined' ? params.postType : false);
+		var menuNode = params.menuNode;
+		if (!BX.type.isDomNode(menuNode))
+		{
+			return false;
+		}
+
+		var postId = parseInt(menuNode.getAttribute('data-bx-post-id'));
+		if (postId <= 0)
+		{
+			return false;
+		}
+
+		BX.PopupMenu.destroy('blog-post-' + postId);
+
+		var isPublicPage = menuNode.getAttribute('data-bx-public-page');
+		isPublicPage = (isPublicPage === 'Y');
+
+		var isTasksAvailable = menuNode.getAttribute('data-bx-tasks-available');
+		isTasksAvailable = (isTasksAvailable === 'Y');
+
+		var isGroupReadOnly = menuNode.getAttribute('data-bx-group-read-only');
+		isGroupReadOnly = (isGroupReadOnly === 'Y');
+
+		var items = menuNode.getAttribute('data-bx-items');
+		try
+		{
+			items = JSON.parse(items);
+			if (!BX.type.isPlainObject(items))
+			{
+				items = {};
+			}
+		}
+		catch(e)
+		{
+			items = {};
+		}
+
+		var pathToPost = menuNode.getAttribute('data-bx-path-to-post');
+		var urlToEdit = menuNode.getAttribute('data-bx-path-to-edit');
+		var urlToHide = menuNode.getAttribute('data-bx-path-to-hide');
+		var urlToDelete = menuNode.getAttribute('data-bx-path-to-delete');
+		var urlToPub = menuNode.getAttribute('data-bx-path-to-pub');
+		var voteId = parseInt(menuNode.getAttribute('data-bx-vote-id'));
+		var postType = menuNode.getAttribute('data-bx-post-type');
+		var serverName = menuNode.getAttribute('data-bx-server-name');
 
 		if (BX.type.isNotEmptyString(urlToHide))
 		{
@@ -280,7 +318,7 @@ function __blogPostSetFollow(log_id)
 			return false;
 		}
 
-		var menuWaiterPopup = new BX.PopupWindow('blog-post-' + params.postId + '-waiter', params.bindNode, {
+		var menuWaiterPopup = new BX.PopupWindow('blog-post-' + postId + '-waiter', bindNode, {
 			offsetLeft: -14,
 			offsetTop: 4,
 			lightShadow: false,
@@ -298,10 +336,10 @@ function __blogPostSetFollow(log_id)
 		BX.ajax.runAction('socialnetwork.api.livefeed.blogpost.getData', {
 			data: {
 				params: {
-					postId : parseInt(params.postId),
+					postId : postId,
 					public : (isPublicPage ? 'Y' : 'N'),
 					mobile : 'N',
-					groupReadOnly : (typeof params.group_readonly != 'undefined' && !!params.group_readonly ? 'Y' : 'N'),
+					groupReadOnly : (isGroupReadOnly ? 'Y' : 'N'),
 					pathToPost : pathToPost,
 					voteId: voteId,
 					checkModeration : 'Y',
@@ -313,10 +351,7 @@ function __blogPostSetFollow(log_id)
 
 			if (
 				postData.perms <= 'D' // \Bitrix\Blog\Item\Permissions::DENY
-				&& (
-					typeof params.items == 'undefined'
-					|| params.items.length <= 0
-				)
+				&& items.length <= 0
 			)
 			{
 				menuWaiterPopup.destroy();
@@ -328,6 +363,27 @@ function __blogPostSetFollow(log_id)
 			if(!BX.util.in_array(postType, [ 'DRAFT', 'MODERATION' ]))
 			{
 				if (
+					parseInt(BX.message('USER_ID')) > 0
+					&& (parseInt(postData.logId) > 0)
+				)
+				{
+					var isPinned = (parseInt(postData.logPinnedUserId) > 0);
+					menuItems.push({
+						text: BX.message(isPinned ? 'SONET_EXT_LIVEFEED_MENU_TITLE_PINNED_Y' : 'SONET_EXT_LIVEFEED_MENU_TITLE_PINNED_N'),
+						onclick: function(e) {
+							BX.Livefeed.PinnedPanelInstance.changePinned({
+								logId: parseInt(postData.logId),
+								newState: (isPinned ? 'N' : 'Y'),
+								event: e,
+								node: bindNode
+							});
+							this.popupWindow.close();
+							return e.preventDefault();
+						}
+					});
+				}
+
+				if (
 					postData.isGroupReadOnly != 'Y'
 					&& parseInt(BX.message('USER_ID')) > 0
 					&& (parseInt(postData.logId) > 0)
@@ -335,20 +391,19 @@ function __blogPostSetFollow(log_id)
 				{
 					var isFavorites = (parseInt(postData.logFavoritesUserId) > 0);
 					menuItems.push({
-						text: BX.message(isFavorites ? "sonetLMenuFavoritesTitleY" : "sonetLMenuFavoritesTitleN"),
+						text: BX.message(isFavorites ? "SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_Y" : "SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_N"),
 						onclick: function(e) {
 							__logChangeFavorites(
 								parseInt(postData.logId),
 								'log_entry_favorites_' + parseInt(postData.logId),
 								(isFavorites ? 'N' : 'Y'),
-								true
+								true,
+								e
 							);
 							return false;
 						}
 					});
 				}
-
-				var serverName = params.serverName;
 
 				menuItems.push({
 					text: BX.message('BLOG_HREF'),
@@ -384,7 +439,7 @@ function __blogPostSetFollow(log_id)
 						text: BX.message('BLOG_SHARE'),
 						onclick: function() {
 							showSharing(
-								parseInt(params.postId),
+								postId,
 								parseInt(postData.authorId)
 							);
 							this.popupWindow.close();
@@ -430,11 +485,11 @@ function __blogPostSetFollow(log_id)
 							{
 								if (urlToDelete.length > 0)
 								{
-									window.location = urlToDelete.replace('#del_post_id#', parseInt(params.postId));
+									window.location = urlToDelete.replace('#del_post_id#', postId);
 								}
 								else
 								{
-									window.deleteBlogPost(parseInt(params.postId));
+									window.deleteBlogPost(postId);
 								}
 								this.popupWindow.close();
 							}
@@ -454,12 +509,17 @@ function __blogPostSetFollow(log_id)
 
 							oLF.createTask({
 								entityType: 'BLOG_POST',
-								entityId: parseInt(params.postId)
+								entityId: postId
 							});
 							this.popupWindow.close();
 							return e.preventDefault();
 						}
 					});
+				}
+
+				if (typeof BX.Landing.UI.Note.Menu.getMenuItem !== 'undefined')
+				{
+					menuItems.push(BX.Landing.UI.Note.Menu.getMenuItem('blog', postId));
 				}
 
 				if (postData.urlToVoteExport.length > 0)
@@ -475,12 +535,12 @@ function __blogPostSetFollow(log_id)
 			if(
 				postType == 'DRAFT'
 				&& postData.allowModerate == 'Y'
-				&& BX.type.isNotEmptyString(params.urlToPub)
+				&& BX.type.isNotEmptyString(urlToPub)
 			)
 			{
 				menuItems.push({
 					text: BX.message('BLOG_POST_MOD_PUB'),
-					href: params.urlToPub,
+					href: urlToPub,
 					target: '_top'
 				});
 			}
@@ -490,95 +550,41 @@ function __blogPostSetFollow(log_id)
 				menuItem = null,
 				item = null;
 
-			if (typeof params.items != 'undefined')
+
+			for (var key in items)
 			{
-				for (var key in params.items)
+				if (items.hasOwnProperty(key))
 				{
-					if (params.items.hasOwnProperty(key))
+					item = items[key];
+
+					menuItem = {};
+					if (typeof item.text_php != 'undefined')
 					{
-						item = params.items[key];
-
-						menuItem = {};
-						if (typeof item.text_php != 'undefined')
-						{
-							menuItem.text = item.text_php;
-						}
-
-						if (typeof item.onclick != 'undefined')
-						{
-							eval("onclickHandler = " + item.onclick);
-							menuItem.onclick = onclickHandler;
-						}
-						else if (typeof item.href != 'undefined')
-						{
-							menuItem.href = item.href;
-						}
-
-						menuItems.push(menuItem);
+						menuItem.text = item.text_php;
 					}
+
+					if (typeof item.onclick != 'undefined')
+					{
+						eval("onclickHandler = " + item.onclick);
+						menuItem.onclick = onclickHandler;
+					}
+					else if (typeof item.href != 'undefined')
+					{
+						menuItem.href = item.href;
+					}
+
+					menuItems.push(menuItem);
 				}
 			}
 
-			var popupEvents = (
-				typeof params.logId != 'undefined' && parseInt(params.logId) > 0
-					? {
-						onPopupShow : function(ob)
-						{
-							if (BX('log_entry_favorites_' + parseInt(params.logId)))
-							{
-								var menuItems = BX.findChildren(ob.contentContainer, {'className' : 'menu-popup-item-text'}, true);
-								if (menuItems != null)
-								{
-									for (var i = 0; i < menuItems.length; i++)
-									{
-										if (
-											menuItems[i].innerHTML == BX.message('sonetLMenuFavoritesTitleY')
-											|| menuItems[i].innerHTML == BX.message('sonetLMenuFavoritesTitleN')
-										)
-										{
-											var favoritesMenuItem = menuItems[i];
-											break;
-										}
-									}
-								}
-
-								if (typeof favoritesMenuItem != 'undefined')
-								{
-									BX(favoritesMenuItem).innerHTML = (
-										BX.hasClass(BX('log_entry_favorites_' + parseInt(params.logId)), 'feed-post-important-switch-active')
-											? BX.message('sonetLMenuFavoritesTitleY')
-											: BX.message('sonetLMenuFavoritesTitleN')
-									);
-								}
-							}
-
-							if (BX('post-menu-' + parseInt(params.logId) + '-link'))
-							{
-								var linkMenuItem = BX.findChild(ob.popupContainer, {className: 'feed-entry-popup-menu-link'}, true, false);
-								if (linkMenuItem)
-								{
-									var height = parseInt(!!linkMenuItem.getAttribute('bx-height') ? linkMenuItem.getAttribute('bx-height') : 0);
-									if (height > 0)
-									{
-										BX('post-menu-' + parseInt(params.logId) + '-link').style.display = 'none';
-										linkMenuItem.setAttribute('bx-status', 'hidden');
-										linkMenuItem.style.height = height + 'px';
-									}
-								}
-							}
-						}
-					}
-					: {}
-			);
-
 			menuWaiterPopup.destroy();
-			BX.PopupMenu.show('blog-post-' + params.postId, params.bindNode, menuItems,
+			BX.PopupMenu.show('blog-post-' + postId, bindNode, menuItems,
 				{
 					offsetLeft: -14,
 					offsetTop: 4,
 					lightShadow: false,
 					angle: {position: 'top', offset: 50},
-					events: popupEvents
+					events: {}
 				});
 			return false;
 		}, function (response) {

@@ -68,7 +68,7 @@ export default class VariationGridController extends BX.UI.EntityEditorControlle
 
 	onAfterSave()
 	{
-		if (this.isChanged())
+		if (this.isChanged() || this._editor.isChanged())
 		{
 			this.setGridControlCache(null);
 		}

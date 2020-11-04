@@ -1,5 +1,5 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
-<?if(strlen($arResult["PATH_TO_GROUP"]) <= 0)
+<?if($arResult["PATH_TO_GROUP"] == '')
 	$arResult["PATH_TO_GROUP"] = $APPLICATION->GetCurPage()."?".$arResult["ALIASES"]["page"]."=group&".$arResult["ALIASES"]["group_id"]."=#group_id#";
 ?>
 
@@ -171,7 +171,7 @@ function BXBlogTabShow(id, type)
 		?>
 	</div>
 	<?
-	if(strlen($arResult["PATH_TO_HISTORY"]) <= 0)
+	if($arResult["PATH_TO_HISTORY"] == '')
 		$arResult["PATH_TO_HISTORY"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arResult["ALIASES"]["page"]."=history");
 	?>
 	<noindex>
@@ -179,7 +179,7 @@ function BXBlogTabShow(id, type)
 	</noindex>
 	</div>
 	
-<?if(((!is_array($arParams["GROUP_ID"]) && IntVal($arParams["GROUP_ID"]) > 0) || (is_array($arParams["GROUP_ID"]) && count($arParams["GROUP_ID"]) > 1)) && $arParams["USE_SOCNET"] != "Y")
+<?if(((!is_array($arParams["GROUP_ID"]) && intval($arParams["GROUP_ID"]) > 0) || (is_array($arParams["GROUP_ID"]) && count($arParams["GROUP_ID"]) > 1)) && $arParams["USE_SOCNET"] != "Y")
 {
 	?>
 	<div class="blog-tab-container">

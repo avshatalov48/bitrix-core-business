@@ -66,6 +66,11 @@ abstract class Base
 		$this->options = $options;
 	}
 
+	public function getOptions()
+	{
+		return $this->options;
+	}
+
 	public function checkRecalcNeeded($fields, $params)
 	{
 		return false;

@@ -3,10 +3,10 @@ class CBlogSoNetPost
 {
 	function CanUserDeletePost($ID, $userID, $blogOwnerID, $groupOwnerID)
 	{
-		$ID = IntVal($ID);
-		$userID = IntVal($userID);
-		$blogOwnerID = IntVal($blogOwnerID);
-		$groupOwnerID = IntVal($groupOwnerID);
+		$ID = intval($ID);
+		$userID = intval($userID);
+		$blogOwnerID = intval($blogOwnerID);
+		$groupOwnerID = intval($groupOwnerID);
 
 		$blogModulePermissions = $GLOBALS["APPLICATION"]->GetGroupRight("blog");
 		if ($blogModulePermissions >= "W")
@@ -66,7 +66,7 @@ class CBlogSoNetPost
 	
 	function OnGroupDelete($ID)
 	{
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if($ID <= 0)
 			return false;
 		$arBlog = CBlog::GetBySocNetGroupID($ID);

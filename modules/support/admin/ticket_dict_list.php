@@ -31,13 +31,13 @@ $err_mess = "File: ".__FILE__."<br>Line: ";
 ****************************************************************************/
 if (
 	!isset($find_type) ||
-	strlen($find_type) < 0 ||
+	mb_strlen($find_type) < 0 ||
 	!in_array($find_type, Array("C","K","S","M","F","SR", "D"))
 	)
 	$find_type = "C";
 
 
-$sTableID = "t_dict_list_" . strtolower($find_type);
+$sTableID = "t_dict_list_".mb_strtolower($find_type);
 $oSort = new CAdminSorting($sTableID, "SORT", "asc");// инициализация сортировки
 $lAdmin = new CAdminList($sTableID, $oSort);// инициализация списка
 
@@ -118,7 +118,7 @@ if ($bAdmin=="Y" && $lAdmin->EditAction()) //если идет сохранение со списка
 
 		$arFields["C_SORT"] = intval($arFields["C_SORT"]);
 
-		if (strlen(trim($arFields["NAME"]))>0)
+		if (trim($arFields["NAME"]) <> '')
 		{
 			$arUpdate = array(
 					'C_SORT' => $arFields['C_SORT'],
@@ -151,7 +151,7 @@ if($bAdmin=="Y" && $arID = $lAdmin->GroupAction())
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
 		$ID = intval($ID);
 
@@ -170,7 +170,7 @@ if ($find_type=="C" ||
 	$find_type=="K" || 
 	$find_type=="SR" || 
 	$find_type=="NOT_REF" || 
-	strlen($find_type)<=0) $show_responsible_column = "Y";
+	$find_type == '') $show_responsible_column = "Y";
 
 
 $rsData = CTicketDictionary::GetList($by, $order, $arFilter, $is_filtered);

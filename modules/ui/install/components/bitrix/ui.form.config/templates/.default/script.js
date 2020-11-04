@@ -24,6 +24,8 @@
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var namespace = main_core.Reflection.namespace('BX.Ui.Form');
 
+	var _items = new WeakMap();
+
 	var Config = function Config(options) {
 	  var _this = this;
 
@@ -43,7 +45,35 @@
 	  this.popupContainer = options.componentId;
 	};
 
-	var _items = new WeakMap();
+	var _scopeId = new WeakMap();
+
+	var _members = new WeakMap();
+
+	var _node = new WeakMap();
+
+	var _selectedItems = new WeakMap();
+
+	var _moduleId = new WeakMap();
+
+	var _openPopupEvent = new WeakMap();
+
+	var _reinitDialogEvent = new WeakMap();
+
+	var _drawMembers = new WeakSet();
+
+	var _createMember = new WeakSet();
+
+	var _createPlusButton = new WeakSet();
+
+	var _showPopup = new WeakSet();
+
+	var _addEvents = new WeakSet();
+
+	var _getSelectedItems = new WeakSet();
+
+	var _removeEvents = new WeakSet();
+
+	var _adjust = new WeakSet();
 
 	var ConfigItem = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(ConfigItem, _EventEmitter);
@@ -183,66 +213,6 @@
 	  }]);
 	  return ConfigItem;
 	}(main_core_events.EventEmitter);
-
-	var _scopeId = new WeakMap();
-
-	var _members = new WeakMap();
-
-	var _node = new WeakMap();
-
-	var _selectedItems = new WeakMap();
-
-	var _moduleId = new WeakMap();
-
-	var _openPopupEvent = new WeakMap();
-
-	var _reinitDialogEvent = new WeakMap();
-
-	var _drawMembers = new WeakSet();
-
-	var _createMember = new WeakSet();
-
-	var _createPlusButton = new WeakSet();
-
-	var _showPopup = new WeakSet();
-
-	var _addEvents = new WeakSet();
-
-	var _getSelectedItems = new WeakSet();
-
-	var _removeEvents = new WeakSet();
-
-	var _adjust = new WeakSet();
-
-	var _scopeId = new WeakMap();
-
-	var _members = new WeakMap();
-
-	var _node = new WeakMap();
-
-	var _selectedItems = new WeakMap();
-
-	var _moduleId = new WeakMap();
-
-	var _openPopupEvent = new WeakMap();
-
-	var _reinitDialogEvent = new WeakMap();
-
-	var _drawMembers = new WeakSet();
-
-	var _createMember = new WeakSet();
-
-	var _createPlusButton = new WeakSet();
-
-	var _showPopup = new WeakSet();
-
-	var _addEvents = new WeakSet();
-
-	var _getSelectedItems = new WeakSet();
-
-	var _removeEvents = new WeakSet();
-
-	var _adjust = new WeakSet();
 
 	var _drawMembers2 = function _drawMembers2() {
 	  if (babelHelpers.classPrivateFieldGet(this, _members)) {

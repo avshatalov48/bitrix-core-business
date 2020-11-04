@@ -633,27 +633,48 @@ if($arSelectFieldsMap['USER_ID'] || $arSelectFieldsMap['MODIFIED_BY'])
 
 if (!$bReadOnly)
 {
-	$lAdmin->AddGroupActionTable([
-		'edit' => true,
-		'delete' => true
-	]);
+	$actions = [];
+	if (!Catalog\Config\State::isExceededStoreLimit())
+	{
+		$actions['edit'] = true;
+	}
+	$actions['delete'] = true;
+	$lAdmin->AddGroupActionTable($actions);
+	unset($actions);
 }
 
-if(!$bReadOnly && Catalog\Config\State::isAllowedNewStore())
+$aContext = [];
+if(!$bReadOnly)
 {
-	$addUrl = $selfFolderUrl."cat_store_edit.php?lang=".LANGUAGE_ID;
-	$addUrl = $adminSidePanelHelper->editUrlToPublicPage($addUrl);
-	$aContext = array(
-		array(
+	if (Catalog\Config\State::isAllowedNewStore())
+	{
+		$addUrl = $selfFolderUrl."cat_store_edit.php?lang=".LANGUAGE_ID;
+		$addUrl = $adminSidePanelHelper->editUrlToPublicPage($addUrl);
+		$aContext[] = [
 			"TEXT" => Loc::getMessage("STORE_ADD_NEW"),
 			"ICON" => "btn_new",
 			"LINK" => $addUrl,
 			"TITLE" => Loc::getMessage("STORE_ADD_NEW_ALT")
-		),
-	);
-	$lAdmin->setContextSettings(array("pagePath" => $selfFolderUrl."cat_store_list.php"));
-	$lAdmin->AddAdminContextMenu($aContext);
+		];
+	}
+	else
+	{
+		$helpLink = Catalog\Config\Feature::getMultiStoresHelpLink();
+		if (!empty($helpLink))
+		{
+			$aContext[] = [
+				'TEXT' => Loc::getMessage('STORE_ADD_NEW'),
+				'ICON' => 'btn_lock',
+				$helpLink['TYPE'] => $helpLink['LINK'],
+				'TITLE' => Loc::getMessage('STORE_ADD_NEW_ALT')
+			];
+		}
+		unset($helpLink);
+	}
 }
+$lAdmin->setContextSettings(array("pagePath" => $selfFolderUrl."cat_store_list.php"));
+$lAdmin->AddAdminContextMenu($aContext);
+unset($aContext);
 
 $lAdmin->CheckListMode();
 

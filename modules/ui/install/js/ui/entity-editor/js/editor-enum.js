@@ -154,3 +154,13 @@ if(typeof BX.UI.EntityFieldAttributeType === "undefined")
 			required:   3
 		};
 }
+if(typeof BX.UI.EntityFieldAttributePhaseGroupType === "undefined")
+{
+	BX.UI.EntityFieldAttributePhaseGroupType =
+		{
+			undefined:  0,
+			general:    1,
+			pipeline:   2,
+			junk:       3
+		};
+}

@@ -18,7 +18,7 @@
 					You're on my mind official video
 				</h2>
 
-				<div class="landing-block-node-card-text g-mb-30">
+				<div class="landing-block-node-card-text g-mb-30" data-auto-font-scale>
 					<p>
 						Etiam varius sit amet est a varius. Nullam pharetra non diam non mollis. Pellentesque
 						congue quam ipsum, non tempor placerat ante volutpat est
@@ -45,7 +45,7 @@
 					You're on my mind official video
 				</h2>
 
-				<div class="landing-block-node-card-text g-mb-30">
+				<div class="landing-block-node-card-text g-mb-30" data-auto-font-scale>
 					<p>
 						Etiam varius sit amet est a varius. Nullam pharetra non diam non mollis. Pellentesque
 						congue quam ipsum, non tempor placerat ante volutpat est

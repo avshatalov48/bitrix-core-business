@@ -1,9 +1,7 @@
 (function (exports,main_core,catalog_entityCard,main_core_events) {
 	'use strict';
 
-	var VariationCard =
-	/*#__PURE__*/
-	function (_EntityCard) {
+	var VariationCard = /*#__PURE__*/function (_EntityCard) {
 	  babelHelpers.inherits(VariationCard, _EntityCard);
 
 	  function VariationCard(id) {

@@ -5,7 +5,7 @@
 			<h2 class="landing-block-node-title landing-semantic-title-image-medium text-uppercase g-line-height-1_1 g-font-weight-700 g-font-size-26 g-color-white g-mb-15">
 				Tour
 				services</h2>
-			<div class="landing-block-node-text landing-semantic-text-image-medium g-color-white-opacity-0_8 mb-0">
+			<div class="landing-block-node-text landing-semantic-text-image-medium g-color-white-opacity-0_8 mb-0" data-auto-font-scale>
 				<p>Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus.
 					Maecenas tempus.</p>
 			</div>
@@ -24,7 +24,7 @@
 						</span>
 						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium h6 text-uppercase g-font-weight-700 g-color-white g-mt-minus-35 g-mb-15">
 							International Shipping</h3>
-						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 mb-0">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 mb-0" data-auto-font-scale>
 							<p>Fusce mauris eros, ullamcorper in gravida a, feugiat
 								in mauris. Curabitur ac scelerisque nisi. Vivamus accumsan in purus et egestas.</p>
 						</div>
@@ -42,7 +42,7 @@
 						</span>
 						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium h6 text-uppercase g-font-weight-700 g-color-white g-mt-minus-35 g-mb-15">
 							Packaging</h3>
-						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 mb-0">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 mb-0" data-auto-font-scale>
 							<p>Fusce mauris eros, ullamcorper in gravida a, feugiat
 								in mauris. Curabitur ac scelerisque nisi. Vivamus accumsan in purus et egestas.</p>
 						</div>
@@ -61,7 +61,7 @@
 						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium h6 text-uppercase g-font-weight-700 g-color-white g-mt-minus-35 g-mb-15">
 							Competitive
 							rates</h3>
-						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 mb-0">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 mb-0" data-auto-font-scale>
 							<p>Fusce mauris eros, ullamcorper in gravida a, feugiat
 								in mauris. Curabitur ac scelerisque nisi. Vivamus accumsan in purus et egestas.</p>
 						</div>
@@ -80,7 +80,7 @@
 						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium h6 text-uppercase g-font-weight-700 g-color-white g-mt-minus-35 g-mb-15">
 							Quick
 							shipping</h3>
-						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 mb-0">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 mb-0" data-auto-font-scale>
 							<p>Fusce mauris eros, ullamcorper in gravida a, feugiat
 								in mauris. Curabitur ac scelerisque nisi. Vivamus accumsan in purus et egestas.</p>
 						</div>
@@ -99,7 +99,7 @@
 						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium h6 text-uppercase g-font-weight-700 g-color-white g-mt-minus-35 g-mb-15">
 							Quality
 							protection</h3>
-						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 mb-0">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 mb-0" data-auto-font-scale>
 							<p>Fusce mauris eros, ullamcorper in gravida a, feugiat
 								in mauris. Curabitur ac scelerisque nisi. Vivamus accumsan in purus et egestas.</p>
 						</div>
@@ -118,7 +118,7 @@
 						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium h6 text-uppercase g-font-weight-700 g-color-white g-mt-minus-35 g-mb-15">
 							Shipping
 							anywhere</h3>
-						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 mb-0">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 mb-0" data-auto-font-scale>
 							<p>Fusce mauris eros, ullamcorper in gravida a, feugiat
 								in mauris. Curabitur ac scelerisque nisi. Vivamus accumsan in purus et egestas.</p>
 						</div>

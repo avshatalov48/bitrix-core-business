@@ -710,7 +710,7 @@
 					roles[field['SystemExpression']] = {
 						id: field['SystemExpression'],
 						entityId: field['SystemExpression'],
-						name: field['Name'],
+						name: BX.Text.encode(field['Name']),
 						entityType: 'bpuserroles'
 					};
 				}

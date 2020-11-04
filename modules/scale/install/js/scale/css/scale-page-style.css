@@ -1017,7 +1017,8 @@ td.adm-scale-info-table-header {
 }
 
 .adm-scale-item-role-state {
-	font-style: italic;
+	color: #fff;
+	font-weight: bold;
 	position: absolute;
 	bottom: 6px;
 	left: 7px;

@@ -8,7 +8,7 @@ endif;
 <?CUtil::InitJSCore(array("image"));?>
 <div id="blog-friens-content">
 <?
-if(strlen($arResult["ERROR_MESSAGE"])>0)
+if($arResult["ERROR_MESSAGE"] <> '')
 {
 	?>
 	<div class="blog-errors">
@@ -18,7 +18,7 @@ if(strlen($arResult["ERROR_MESSAGE"])>0)
 	</div>
 	<?
 }
-if(strlen($arResult["FATAL_MESSAGE"])>0)
+if($arResult["FATAL_MESSAGE"] <> '')
 {
 	?>
 	<div class="blog-errors">
@@ -78,7 +78,7 @@ else
 						<a class="blog-author-icon" href="<?=$CurPost["urlToAuthor"]?>"></a>
 					<?endif;?>
 					<?
-					if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && (strlen($CurPost["urlToBlog"]) > 0 || strlen($CurPost["urlToAuthor"]) > 0) && array_key_exists("ALIAS", $CurPost["BlogUser"]) && strlen($CurPost["BlogUser"]["ALIAS"]) > 0)
+					if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && ($CurPost["urlToBlog"] <> '' || $CurPost["urlToAuthor"] <> '') && array_key_exists("ALIAS", $CurPost["BlogUser"]) && $CurPost["BlogUser"]["ALIAS"] <> '')
 					{
 						$arTmpUser = array(
 							"NAME" => "",
@@ -88,7 +88,7 @@ else
 							"NAME_LIST_FORMATTED" => $CurPost["BlogUser"]["~ALIAS"],
 						);
 					}
-					elseif (strlen($CurPost["urlToBlog"]) > 0 || strlen($CurPost["urlToAuthor"]) > 0)
+					elseif ($CurPost["urlToBlog"] <> '' || $CurPost["urlToAuthor"] <> '')
 						$arTmpUser = array(
 							"NAME" => $CurPost["arUser"]["~NAME"],
 							"LAST_NAME" => $CurPost["arUser"]["~LAST_NAME"],
@@ -202,8 +202,8 @@ else
 					}
 					?>
 					<div class="blog-post-meta-util">
-						<span class="blog-post-views-link"><a href="<?=$CurPost["urlToPost"]?>"><?=GetMessage("BLOG_BLOG_BLOG_VIEWS")?></a> <a href="<?=$CurPost["urlToPost"]?>"><?=IntVal($CurPost["VIEWS"]);?></a></span>
-						<span class="blog-post-comments-link"><a href="<?=$CurPost["urlToPost"]?>#comments"><?=GetMessage("BLOG_BLOG_BLOG_COMMENTS")?></a> <a href="<?=$CurPost["urlToPost"]?>#comments"><?=IntVal($CurPost["NUM_COMMENTS"]);?></a></span>
+						<span class="blog-post-views-link"><a href="<?=$CurPost["urlToPost"]?>"><?=GetMessage("BLOG_BLOG_BLOG_VIEWS")?></a> <a href="<?=$CurPost["urlToPost"]?>"><?=intval($CurPost["VIEWS"]);?></a></span>
+						<span class="blog-post-comments-link"><a href="<?=$CurPost["urlToPost"]?>#comments"><?=GetMessage("BLOG_BLOG_BLOG_COMMENTS")?></a> <a href="<?=$CurPost["urlToPost"]?>#comments"><?=intval($CurPost["NUM_COMMENTS"]);?></a></span>
 						<?if ($arParams["SHOW_RATING"] == "Y"):?>
 						<span class="rating_vote_text">
 						<?

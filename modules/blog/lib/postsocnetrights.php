@@ -184,7 +184,7 @@ class PostSocnetRightsTable extends Entity\DataManager
 
 	public static function deleteByEntity($value = '')
 	{
-		if (strlen($value) <= 0)
+		if ($value == '')
 		{
 			return false;
 		}

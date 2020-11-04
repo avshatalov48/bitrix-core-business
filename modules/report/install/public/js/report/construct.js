@@ -25,7 +25,7 @@ if (typeof(BX.Report.rebuildSelect) === "undefined")
 			{
 				el = document.createElement("option");
 				el.value = items[i]['id'];
-				el.innerHTML = items[i]['title'];
+				el.innerText = items[i]['title'];
 				try
 				{
 					// for IE earlier than version 8

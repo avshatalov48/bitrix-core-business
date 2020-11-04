@@ -8,7 +8,7 @@ endif;
 <?CUtil::InitJSCore(array("image"));?>
 <div class="blog-post-current">
 <?
-if(strlen($arResult["MESSAGE"])>0)
+if($arResult["MESSAGE"] <> '')
 {
 	?>
 	<div class="blog-textinfo blog-note-box">
@@ -18,7 +18,7 @@ if(strlen($arResult["MESSAGE"])>0)
 	</div>
 	<?
 }
-if(strlen($arResult["ERROR_MESSAGE"])>0)
+if($arResult["ERROR_MESSAGE"] <> '')
 {
 	?>
 	<div class="blog-errors blog-note-box blog-note-error">
@@ -28,7 +28,7 @@ if(strlen($arResult["ERROR_MESSAGE"])>0)
 	</div>
 	<?
 }
-if(strlen($arResult["FATAL_MESSAGE"])>0)
+if($arResult["FATAL_MESSAGE"] <> '')
 {
 	?>
 	<div class="blog-errors blog-note-box blog-note-error">
@@ -38,7 +38,7 @@ if(strlen($arResult["FATAL_MESSAGE"])>0)
 	</div>
 	<?
 }
-elseif(strlen($arResult["NOTE_MESSAGE"])>0)
+elseif($arResult["NOTE_MESSAGE"] <> '')
 {
 	?>
 	<div class="blog-textinfo blog-note-box">
@@ -56,8 +56,8 @@ else
 		$className .= " blog-post-first";
 		$className .= " blog-post-alt";
 		$className .= " blog-post-year-".$arResult["Post"]["DATE_PUBLISH_Y"];
-		$className .= " blog-post-month-".IntVal($arResult["Post"]["DATE_PUBLISH_M"]);
-		$className .= " blog-post-day-".IntVal($arResult["Post"]["DATE_PUBLISH_D"]);
+		$className .= " blog-post-month-".intval($arResult["Post"]["DATE_PUBLISH_M"]);
+		$className .= " blog-post-day-".intval($arResult["Post"]["DATE_PUBLISH_D"]);
 		?>
 		<script>
 		BX.viewImageBind(
@@ -101,7 +101,7 @@ else
 				<a class="blog-author-icon" href="<?=$arResult["urlToAuthor"]?>"></a>
 			<?endif;?>
 			<?
-			if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && array_key_exists("ALIAS", $arResult["BlogUser"]) && strlen($arResult["BlogUser"]["ALIAS"]) > 0)
+			if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && array_key_exists("ALIAS", $arResult["BlogUser"]) && $arResult["BlogUser"]["ALIAS"] <> '')
 				$arTmpUser = array(
 					"NAME" => "",
 					"LAST_NAME" => "",
@@ -109,7 +109,7 @@ else
 					"LOGIN" => "",
 					"NAME_LIST_FORMATTED" => $arResult["BlogUser"]["~ALIAS"],
 				);
-			elseif (strlen($arResult["urlToBlog"]) > 0 || strlen($arResult["urlToAuthor"]) > 0)
+			elseif ($arResult["urlToBlog"] <> '' || $arResult["urlToAuthor"] <> '')
 					$arTmpUser = array(
 						"NAME" => $arResult["arUser"]["~NAME"],
 						"LAST_NAME" => $arResult["arUser"]["~LAST_NAME"],
@@ -272,17 +272,17 @@ else
 					<?
 				}?>
 				<div class="blog-post-meta-util">
-					<span class="blog-post-views-link"><a href=""><span class="blog-post-link-caption"><?=GetMessage("BLOG_BLOG_BLOG_VIEWS")?></span><span class="blog-post-link-counter"><?=IntVal($arResult["Post"]["VIEWS"])?></span></a></span>
+					<span class="blog-post-views-link"><a href=""><span class="blog-post-link-caption"><?=GetMessage("BLOG_BLOG_BLOG_VIEWS")?></span><span class="blog-post-link-counter"><?=intval($arResult["Post"]["VIEWS"])?></span></a></span>
 					<?if($arResult["Post"]["ENABLE_COMMENTS"] == "Y"):?>
-						<span class="blog-post-comments-link"><a href=""><span class="blog-post-link-caption"><?=GetMessage("BLOG_BLOG_BLOG_COMMENTS")?></span><span class="blog-post-link-counter"><?=IntVal($arResult["Post"]["NUM_COMMENTS"])?></span></a></span>
+						<span class="blog-post-comments-link"><a href=""><span class="blog-post-link-caption"><?=GetMessage("BLOG_BLOG_BLOG_COMMENTS")?></span><span class="blog-post-link-counter"><?=intval($arResult["Post"]["NUM_COMMENTS"])?></span></a></span>
 					<?endif;?>
-					<?if(strLen($arResult["urlToHide"])>0):?>
+					<?if($arResult["urlToHide"] <> ''):?>
 						<span class="blog-post-hide-link"><a href="javascript:if(confirm('<?=GetMessage("BLOG_MES_HIDE_POST_CONFIRM")?>')) window.location='<?=$arResult["urlToHide"]."&".bitrix_sessid_get()?>'"><span class="blog-post-link-caption"><?=GetMessage("BLOG_MES_HIDE")?></span></a></span>
 					<?endif;?>
-					<?if(strLen($arResult["urlToEdit"])>0):?>
+					<?if($arResult["urlToEdit"] <> ''):?>
 						<span class="blog-post-edit-link"><a href="<?=$arResult["urlToEdit"]?>"><span class="blog-post-link-caption"><?=GetMessage("BLOG_BLOG_BLOG_EDIT")?></span></a></span>
 					<?endif;?>
-					<?if(strLen($arResult["urlToDelete"])>0):?>
+					<?if($arResult["urlToDelete"] <> ''):?>
 						<span class="blog-post-delete-link"><a href="javascript:if(confirm('<?=GetMessage("BLOG_MES_DELETE_POST_CONFIRM")?>')) window.location='<?=$arResult["urlToDelete"]."&".bitrix_sessid_get()?>'"><span class="blog-post-link-caption"><?=GetMessage("BLOG_BLOG_BLOG_DELETE")?></span></a></span>
 					<?endif;?>
 

@@ -8,9 +8,9 @@ return [
 	'css' => 'dist/history.bundle.css',
 	'js' => 'dist/history.bundle.js',
 	'rel' => [
+		'landing.main',
 		'main.core',
 		'landing.pageobject',
-		'landing.main',
 		'landing.ui.highlight',
 	],
 	'skip_core' => false,

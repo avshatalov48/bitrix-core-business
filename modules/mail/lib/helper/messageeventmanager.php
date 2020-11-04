@@ -218,5 +218,7 @@ class MessageEventManager
 		{
 			return array('HEADER_MD5', 'MESSAGE_ID', 'MAILBOX_USER_ID');
 		}
+
+		return [];
 	}
 }

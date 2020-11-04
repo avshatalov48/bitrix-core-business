@@ -178,105 +178,126 @@ final class CreateTask extends Base
 		$siteId = (!empty($options['siteId']) ? $options['siteId'] : SITE_ID);
 
 		if (
-			isset($params['sourcetype'])
-			&& in_array($params['sourcetype'], $this->getSourceTypeList())
-			&& isset($params['sourceid'])
-			&& intval($params['sourceid']) > 0
-			&& isset($params['taskid'])
-			&& intval($params['taskid']) > 0
+			!isset($params['sourcetype'])
+			|| !in_array($params['sourcetype'], $this->getSourceTypeList())
+			|| !isset($params['sourceid'])
+			|| (int)$params['sourceid'] <= 0
+			|| !isset($params['taskid'])
+			|| (int)$params['taskid'] <= 0
 		)
 		{
-			if ($task = $this->getTask($params['taskid'], false))
-			{
-				if ($userPage === null)
-				{
-					$userPage = Option::get(
-						'socialnetwork',
-						'user_page',
-						SITE_DIR.'company/personal/',
-						$siteId
-					).'user/#user_id#/';
-				}
+			return $result;
+		}
 
-				$taskPath = (
-					(!isset($options['cache']) || !$options['cache'])
-					&& (!isset($options['im']) || !$options['im'])
+		if ($provider = \Bitrix\Socialnetwork\Livefeed\Provider::init(array(
+			'ENTITY_TYPE' => $params['sourcetype'],
+			'ENTITY_ID' => $params['sourceid']
+		)))
+		{
+			$options['suffix'] = $provider->getSuffix();
+		}
+
+		if ($task = $this->getTask($params['taskid'], false))
+		{
+			if ($userPage === null)
+			{
+				$userPage = Option::get(
+					'socialnetwork',
+					'user_page',
+					SITE_DIR.'company/personal/',
+					$siteId
+				).'user/#user_id#/';
+			}
+
+			$taskPath = (
+				(!isset($options['cache']) || !$options['cache'])
+				&& (!isset($options['im']) || !$options['im'])
+				&& (!isset($options['bPublicPage']) || !$options['bPublicPage'])
+					? str_replace(array("#user_id#", "#USER_ID#"), $task['RESPONSIBLE_ID'], $userPage).'tasks/task/view/'.$task['ID'].'/'
+					: ''
+			);
+
+			$taskTitle = $task['TITLE'];
+		}
+		else
+		{
+			$taskPath = '';
+			$taskTitle = Loc::getMessage('SONET_COMMENTAUX_CREATETASK_NOT_FOUND');
+		}
+
+		if (in_array($params['sourcetype'], $this->getCommentTypeList()))
+		{
+			$commentPath = '';
+
+			if (
+				$params['sourcetype'] == self::SOURCE_TYPE_BLOG_COMMENT
+				&& Loader::includeModule('blog')
+				&& ($comment = \CBlogComment::getByID($params['sourceid']))
+				&& ($post = \CBlogPost::getByID($comment['POST_ID']))
+			)
+			{
+				$commentPath = (
+					(!isset($options['im']) || !$options['im'])
 					&& (!isset($options['bPublicPage']) || !$options['bPublicPage'])
-						? str_replace(array("#user_id#", "#USER_ID#"), $task['RESPONSIBLE_ID'], $userPage).'tasks/task/view/'.$task['ID'].'/'
+					&& (!isset($options['mail']) || !$options['mail'])
+						? str_replace(array("#user_id#", "#USER_ID#"), $post['AUTHOR_ID'], $userPage).'blog/'.$post['ID'].'/?commentId='.$params['sourceid'].'#com'.$params['sourceid']
 						: ''
 				);
-
-				$taskTitle = $task['TITLE'];
 			}
 			else
 			{
-				$taskPath = '';
-				$taskTitle = Loc::getMessage('SONET_COMMENTAUX_CREATETASK_NOT_FOUND');
-			}
-
-			if (in_array($params['sourcetype'], $this->getCommentTypeList()))
-			{
-				$commentPath = '';
+				$commentProvider = \Bitrix\Socialnetwork\Livefeed\Provider::getProvider($params['sourcetype']);
 
 				if (
-					$params['sourcetype'] == self::SOURCE_TYPE_BLOG_COMMENT
-					&& Loader::includeModule('blog')
-					&& ($comment = \CBlogComment::getByID($params['sourceid']))
-					&& ($post = \CBlogPost::getByID($comment['POST_ID']))
+					$commentProvider
+					&& (!isset($options['im']) || !$options['im'])
+					&& (!isset($options['bPublicPage']) || !$options['bPublicPage'])
+					&& (!isset($options['mail']) || !$options['mail'])
+					&& isset($options['logId'])
+					&& intval($options['logId']) > 0
 				)
 				{
-					$commentPath = (
-						(!isset($options['im']) || !$options['im'])
-						&& (!isset($options['bPublicPage']) || !$options['bPublicPage'])
-						&& (!isset($options['mail']) || !$options['mail'])
-							? str_replace(array("#user_id#", "#USER_ID#"), $post['AUTHOR_ID'], $userPage).'blog/'.$post['ID'].'/?commentId='.$params['sourceid'].'#com'.$params['sourceid']
-							: ''
-					);
+					$commentProvider->setEntityId(intval($params['sourceid']));
+					$commentProvider->setLogId($options['logId']);
+					$commentProvider->initSourceFields();
+
+					$commentPath = $commentProvider->getLiveFeedUrl();
 				}
-				else
-				{
-					$commentProvider = \Bitrix\Socialnetwork\Livefeed\Provider::getProvider($params['sourcetype']);
-
-					if (
-						$commentProvider
-						&& (!isset($options['im']) || !$options['im'])
-						&& (!isset($options['bPublicPage']) || !$options['bPublicPage'])
-						&& (!isset($options['mail']) || !$options['mail'])
-						&& isset($options['logId'])
-						&& intval($options['logId']) > 0
-					)
-					{
-						$commentProvider->setEntityId(intval($params['sourceid']));
-						$commentProvider->setLogId($options['logId']);
-						$commentProvider->initSourceFields();
-
-						$commentPath = $commentProvider->getLiveFeedUrl();
-					}
-				}
-
-				$suffix = (isset($options['suffix']) ? $options['suffix'] : '');
-				$result = Loc::getMessage('SONET_COMMENTAUX_CREATETASK_COMMENT_'.$params['sourcetype'].(!empty($suffix) ? '_'.$suffix : ''), array(
-					'#TASK_NAME#' => (!empty($taskPath) ? '[URL='.$taskPath.']'.$taskTitle.'[/URL]' : $taskTitle),
-					'#A_BEGIN#' => (!empty($commentPath) ? '[URL='.$commentPath.']' : ''),
-					'#A_END#' => (!empty($commentPath) ? '[/URL]' : '')
-				));
 			}
-			elseif (in_array($params['sourcetype'], $this->getPostTypeList()))
+
+			$suffix = (
+				isset($options['suffix'])
+					? $options['suffix']
+					: ($params['sourcetype'] === self::SOURCE_TYPE_BLOG_COMMENT ? '2' : '')
+			);
+
+			$result = Loc::getMessage('SONET_COMMENTAUX_CREATETASK_COMMENT_'.$params['sourcetype'].(!empty($suffix) ? '_'.$suffix : ''), array(
+				'#TASK_NAME#' => (!empty($taskPath) ? '[URL='.$taskPath.']'.$taskTitle.'[/URL]' : $taskTitle),
+				'#A_BEGIN#' => (!empty($commentPath) ? '[URL='.$commentPath.']' : ''),
+				'#A_END#' => (!empty($commentPath) ? '[/URL]' : '')
+			));
+		}
+		elseif (in_array($params['sourcetype'], $this->getPostTypeList()))
+		{
+			$suffix = (
+				isset($options['suffix'])
+					? $options['suffix']
+					: ($params['sourcetype'] === self::SOURCE_TYPE_BLOG_POST ? '2' : '')
+			);
+
+			$result = Loc::getMessage('SONET_COMMENTAUX_CREATETASK_POST_'.$params['sourcetype'].(!empty($suffix) ? '_'.$suffix : ''), array(
+				'#TASK_NAME#' => (!empty($taskPath) ? '[URL='.$taskPath.']'.$taskTitle.'[/URL]' : $taskTitle),
+			));
+		}
+
+		if (!empty($result))
+		{
+			if ($parser === null)
 			{
-				$result = Loc::getMessage('SONET_COMMENTAUX_CREATETASK_POST_'.$params['sourcetype'], array(
-					'#TASK_NAME#' => (!empty($taskPath) ? '[URL='.$taskPath.']'.$taskTitle.'[/URL]' : $taskTitle),
-				));
+				$parser = new \CTextParser();
+				$parser->allow = array("HTML" => "N", "ANCHOR" => "Y");
 			}
-
-			if (!empty($result))
-			{
-				if ($parser === null)
-				{
-					$parser = new \CTextParser();
-					$parser->allow = array("HTML" => "N", "ANCHOR" => "Y");
-				}
-				$result = $parser->convertText($result);
-			}
+			$result = $parser->convertText($result);
 		}
 
 		return $result;

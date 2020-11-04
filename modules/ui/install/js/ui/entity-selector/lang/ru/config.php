@@ -11,3 +11,4 @@ $MESS["UI_SELECTOR_SEARCH_STUB_SUBTITLE"] = "Попробуйте изменит
 $MESS["UI_SELECTOR_RECENT_TAB_TITLE"] = "Последние";
 $MESS["UI_SELECTOR_ITEM_LINK_TITLE"] = "подробнее";
 $MESS["UI_SELECTOR_TAB_STUB_TITLE"] = "В категории &laquo;#TAB_TITLE#&raquo; ничего не найдено";
+$MESS["UI_SELECTOR_CREATE_ITEM_LABEL"] = "Создать:";

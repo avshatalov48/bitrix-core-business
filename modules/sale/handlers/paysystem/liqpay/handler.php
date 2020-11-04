@@ -214,7 +214,7 @@ class LiqPayHandler extends PaySystem\ServiceHandler
 	 */
 	public function getCurrencyList()
 	{
-		return array('RUB', 'USD', 'EUR');
+		return ['RUB', 'USD', 'EUR', 'UAH'];
 	}
 
 	/**

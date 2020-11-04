@@ -21,7 +21,7 @@ class CBlogUserOptions
 			"NAME" => array("FIELD" => "BPP.NAME", "TYPE" => "string"),
 			"VALUE" => array("FIELD" => "BPP.VALUE", "TYPE" => "string"),
 			"RANK" => ($arOrder["OWNER_ID"] > 0 ? array(
-				"FIELD" => "RV0.RANK",
+				"FIELD" => "RV0.USER_RANK",
 				"TYPE" => "int",
 				"FROM" =>
 					"\n\tLEFT JOIN (\n\t\t".
@@ -30,16 +30,16 @@ class CBlogUserOptions
 						(isset($arFilter["POST_ID"]) && !is_array($arFilter["POST_ID"]) && intval($arFilter["POST_ID"]) > 0 ? " WHERE RV2.ENTITY_ID IN (SELECT BPP.USER_ID as USER_ID FROM b_blog_post_param BPP WHERE BPP.POST_ID = ".intval($arFilter["POST_ID"]).")\n\t\t" : "").
 						"GROUP BY RV2.ENTITY_ID) RV ON (RV.ENTITY_ID = BPP.USER_ID)\n\t".
 					"LEFT JOIN (\n\t\t".
-						"SELECT RV1.OWNER_ID, SUM(case when RV1.ID is not null then 1 else 0 end) as RANK \n\t\t".
+						"SELECT RV1.OWNER_ID, SUM(case when RV1.ID is not null then 1 else 0 end) as USER_RANK \n\t\t".
 						"FROM b_rating_vote RV1 \n\t\t".
 						"WHERE RV1.USER_ID = ".$arOrder["OWNER_ID"].(isset($arFilter["POST_ID"]) && !is_array($arFilter["POST_ID"]) && intval($arFilter["POST_ID"]) > 0 ? " AND RV1.OWNER_ID IN (SELECT BPP.USER_ID as USER_ID FROM b_blog_post_param BPP WHERE BPP.POST_ID = ".intval($arFilter["POST_ID"]).")" : "")."\n\t\t".
 						"GROUP BY RV1.OWNER_ID) RV0 ON (RV0.OWNER_ID = BPP.USER_ID)"
 				) : array (
-					"FIELD" => "RV.RANK",
+					"FIELD" => "RV.USER_RANK",
 					"TYPE" => "string",
 					"FROM" =>
 						"\n\tLEFT JOIN (".
-						"\n\t\tSELECT MAX(RV2.VOTE_WEIGHT) as VOTE_WEIGHT, RV2.ENTITY_ID, 0 as RANK ".
+						"\n\t\tSELECT MAX(RV2.VOTE_WEIGHT) as VOTE_WEIGHT, RV2.ENTITY_ID, 0 as USER_RANK ".
 						"\n\t\tFROM b_rating_user RV2".
 						"\n\t\tGROUP BY RV2.ENTITY_ID) RV ON (RV.ENTITY_ID = BPP.USER_ID)")),
 			"USER_ACTIVE" => array("FIELD" => "U.ACTIVE", "TYPE" => "string", "FROM" => "\n\tINNER JOIN b_user U ON (BPP.USER_ID = U.ID)"),
@@ -73,20 +73,20 @@ class CBlogUserOptions
 		$arSqlOrder = Array();
 		foreach ($arOrder as $by => $order)
 		{
-			$by = strtoupper($by);
-			$order = (strtoupper($order) != "ASC" ? "DESC" : "ASK");
+			$by = mb_strtoupper($by);
+			$order = (mb_strtoupper($order) != "ASC" ? "DESC" : "ASK");
 			if (array_key_exists($by, $arFields) && !array_key_exists($by, $arSqlOrder))
 			{
-				if(strtoupper($DB->type)=="ORACLE")
+				if($DB->type == "ORACLE")
 					$order .= ($order == "ASC" ? " NULLS FIRST" : " NULLS LAST");
 
-				if (isset($arFields[$by]["FROM"]) && !empty($arFields[$by]["FROM"]) && strpos($arSql["FROM"], $arFields[$by]["FROM"]) === false)
+				if (isset($arFields[$by]["FROM"]) && !empty($arFields[$by]["FROM"]) && mb_strpos($arSql["FROM"], $arFields[$by]["FROM"]) === false)
 					$arSql["FROM"] .= " ".$arFields[$by]["FROM"];
 				if ($by == "RANK")
 				{
 					$arSql["SELECT"] .= ", ".$arFields["RANK"]["FIELD"];
-					$arSqlOrder[$by] = (IsModuleInstalled("intranet") ? "RV.VOTE_WEIGHT ".$order.", RANK ".$order :
-						"RANK ".$order.", RV.VOTE_WEIGHT ".$order);
+					$arSqlOrder[$by] = (IsModuleInstalled("intranet") ? "RV.VOTE_WEIGHT ".$order.", USER_RANK ".$order :
+						"USER_RANK ".$order.", RV.VOTE_WEIGHT ".$order);
 				}
 				else
 					$arSqlOrder[$by] = (array_key_exists("ORDER", $arFields[$by])? $arFields[$by]["ORDER"]: $arFields[$by]["FIELD"])." ".$order;

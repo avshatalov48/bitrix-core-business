@@ -30,7 +30,7 @@ endif;
 </form>
 
 <?
-if(strlen($arResult["ERROR_MESSAGE"])<=0)
+if($arResult["ERROR_MESSAGE"] == '')
 {
 	foreach($arResult["SEARCH_RESULT"] as $v)
 	{
@@ -40,7 +40,7 @@ if(strlen($arResult["ERROR_MESSAGE"])<=0)
 
 
 			<div class="blog-mainpage-title"><a href="<?echo $v["URL"]?>"><?echo $v["TITLE_FORMATED"]; ?></a></div>
-			<?if(strlen($v["BODY_FORMATED"]) > 0)
+			<?if($v["BODY_FORMATED"] <> '')
 			{
 				?>
 				<div class="blog-mainpage-content">
@@ -50,7 +50,7 @@ if(strlen($arResult["ERROR_MESSAGE"])<=0)
 			}
 			?>
 			
-			<?if(strlen($v["AuthorName"])>0 && strlen($v["BLOG_URL"])>0)
+			<?if($v["AuthorName"] <> '' && $v["BLOG_URL"] <> '')
 			{
 				?>
 				<div class="blog-author">
@@ -62,7 +62,7 @@ if(strlen($arResult["ERROR_MESSAGE"])<=0)
 						<a class="blog-author-icon" href="<?=$v["USER_URL"]?>"></a>
 					<?endif;?>
 					<?
-					if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && (strlen($v["BLOG_URL"]) > 0 || strlen($v["USER_URL"]) > 0) && array_key_exists("ALIAS", $v["BlogUser"]) && strlen($v["BlogUser"]["ALIAS"]) > 0)
+					if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && ($v["BLOG_URL"] <> '' || $v["USER_URL"] <> '') && array_key_exists("ALIAS", $v["BlogUser"]) && $v["BlogUser"]["ALIAS"] <> '')
 						$arTmpUser = array(
 							"NAME" => "",
 							"LAST_NAME" => "",
@@ -70,7 +70,7 @@ if(strlen($arResult["ERROR_MESSAGE"])<=0)
 							"LOGIN" => "",
 							"NAME_LIST_FORMATTED" => $v["BlogUser"]["~ALIAS"],
 						);
-					elseif (strlen($v["BLOG_URL"]) > 0 || strlen($v["USER_URL"]) > 0)
+					elseif ($v["BLOG_URL"] <> '' || $v["USER_URL"] <> '')
 						$arTmpUser = array(
 							"NAME" => $v["arUser"]["~NAME"],
 							"LAST_NAME" => $v["arUser"]["~LAST_NAME"],
@@ -122,11 +122,11 @@ if(strlen($arResult["ERROR_MESSAGE"])<=0)
 			<div class="blog-line"></div>
 		<?
 	}
-	if(strlen($arResult["NAV_STRING"]) > 0):
+	if($arResult["NAV_STRING"] <> ''):
 		?><p><?=$arResult["NAV_STRING"]?></p><?
 	endif;
 		
-	if(strlen($arResult["ORDER_LINK"])>0)
+	if($arResult["ORDER_LINK"] <> '')
 	{
 		if($arResult["how"]=="d"):
 			?><p><a href="<?=$arResult["ORDER_LINK"]?>"><?=GetMessage("BLOG_MAIN_SEARCH_SORT_RELEVATION")?></a>&nbsp;|&nbsp;<b><?=GetMessage("BLOG_MAIN_SEARCH_SORTED_DATE")?></b></p><?

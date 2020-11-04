@@ -16,7 +16,7 @@ class ServersData
 	 */
 	public static function getServer($hostname)
 	{
-		if(strlen($hostname) <= 0)
+		if($hostname == '')
 			throw new \Bitrix\Main\ArgumentNullException("hostname");
 
 		$result = array();
@@ -84,7 +84,7 @@ class ServersData
 	 */
 	public static function getServerRoles($hostname)
 	{
-		if(strlen($hostname) <= 0)
+		if($hostname == '')
 			throw new \Bitrix\Main\ArgumentNullException("hostname");
 
 		$result = array();
@@ -100,7 +100,7 @@ class ServersData
 
 	public function getDbList($hostname)
 	{
-		if(strlen($hostname) <= 0)
+		if($hostname == '')
 			throw new \Bitrix\Main\ArgumentNullException("hostname");
 
 		$dbList = array();
@@ -135,7 +135,7 @@ class ServersData
 	 */
 	protected static function getBxInfo($hostname)
 	{
-		if(strlen($hostname) <= 0)
+		if($hostname == '')
 			throw new \Bitrix\Main\ArgumentNullException("hostname");
 
 		$result = array();
@@ -163,7 +163,7 @@ class ServersData
 			}
 			elseif(isset($actRes["get_bx_info"]["RESULT"])
 				&& $actRes["get_bx_info"]["RESULT"] = "ERROR"
-					&& strlen($actRes["get_bx_info"]["ERROR"]) > 0
+					&& $actRes["get_bx_info"]["ERROR"] <> ''
 			)
 			{
 				throw new \Bitrix\Scale\ServerBxInfoException($actRes["get_bx_info"]["ERROR"], $hostname);
@@ -180,7 +180,7 @@ class ServersData
 	 */
 	public function getBxEnvVer($hostname)
 	{
-		if(strlen($hostname) <= 0)
+		if($hostname == '')
 			throw new \Bitrix\Main\ArgumentNullException("hostname");
 
 		$bxInfo = static::getBxInfo($hostname);

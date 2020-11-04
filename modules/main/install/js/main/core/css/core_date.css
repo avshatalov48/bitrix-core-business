@@ -63,6 +63,9 @@ img.calendar-icon-hover {
 .bx-calendar-set-time-opened .bx-calendar-set-time {display: none;}
 .bx-calendar-set-time-opened .bx-calendar-form-block {display: block;}
 
+.bx-calendar-buttons-disabled  {display: none;}
+.bx-calendar-set-time-wrap-simple  {border-bottom: none;}
+
 .bx-calendar-set-time {cursor:pointer; font-size:11px; color:#b2b2b2; height:14px; margin-right:3px; text-align:center; padding:1px 0 0;}
 .bx-calendar-set-time i {background:url("/bitrix/js/main/core/images/calendar-sprite.png") no-repeat 0 0; height:9px; display:inline-block; margin:2px 3px 0 0; vertical-align:top;  width:9px;}
 

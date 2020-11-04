@@ -8,31 +8,31 @@ if (!CModule::IncludeModule("blog"))
 	return;
 }
 
-$arParams["ID"] = IntVal($arParams["ID"]);
+$arParams["ID"] = intval($arParams["ID"]);
 if(!is_array($arParams["GROUP_ID"]))
 	$arParams["GROUP_ID"] = array($arParams["GROUP_ID"]);
 foreach($arParams["GROUP_ID"] as $k=>$v)
-	if(IntVal($v) <= 0)
+	if(intval($v) <= 0)
 		unset($arParams["GROUP_ID"][$k]);
 
-if(strLen($arParams["BLOG_VAR"])<=0)
+if($arParams["BLOG_VAR"] == '')
 	$arParams["BLOG_VAR"] = "blog";
-if(strLen($arParams["USER_VAR"])<=0)
+if($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "id";
-if(strLen($arParams["PAGE_VAR"])<=0)
+if($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
 $arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"]);
-if(strlen($arParams["PATH_TO_BLOG"])<=0)
+if($arParams["PATH_TO_BLOG"] == '')
 	$arParams["PATH_TO_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if(strlen($arParams["PATH_TO_USER"])<=0)
+if($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
-if(strlen($arParams["PATH_TO_USER_EDIT"])<=0)
+if($arParams["PATH_TO_USER_EDIT"] == '')
 	$arParams["PATH_TO_USER_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#&mode=edit");
 $arParams["PATH_TO_SEARCH"] = trim($arParams["PATH_TO_SEARCH"]);
-if(strlen($arParams["PATH_TO_SEARCH"])<=0)
+if($arParams["PATH_TO_SEARCH"] == '')
 	$arParams["PATH_TO_SEARCH"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=search");
-if(strpos($arParams["PATH_TO_SEARCH"], "?")===false)
+if(mb_strpos($arParams["PATH_TO_SEARCH"], "?") === false)
 	$arParams["PATH_TO_SEARCH"] .= "?";
 else
 	$arParams["PATH_TO_SEARCH"] .= "&";
@@ -56,7 +56,7 @@ if(!is_array($arResult["arUser"]))
 else
 {
 	$BLOG_USER_ID=intval($_POST["BLOG_USER_ID"]);
-	if($_SERVER["REQUEST_METHOD"]=="POST" && strlen($_POST["save"])>0 && check_bitrix_sessid())
+	if($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["save"] <> '' && check_bitrix_sessid())
 	{
 		if(CModule::IncludeModule("blog"))
 		{
@@ -170,7 +170,7 @@ else
 				$strErrorMessage.= GetMessage("B_B_PU_NO_RIGHTS")."<br />";
 		}
 
-		if(strlen($strErrorMessage)<=0)
+		if($strErrorMessage == '')
 			LocalRedirect(CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $arParams["ID"])));
 		else
 			$arResult["ERROR_MESSAGE"] = $strErrorMessage;
@@ -211,14 +211,14 @@ else
 	if(!empty($arResult["Blog"]))
 		$arResult["Blog"]["urlToBlog"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_BLOG"], array("blog" => $arResult["Blog"]["URL"]));
 	
-	if(strlen($arResult["User"]["PERSONAL_WWW"])>0)
-		$arResult["User"]["PERSONAL_WWW"] = ((strpos($arResult["User"]["PERSONAL_WWW"], "http") === false)? "http://" : "").$arResult["User"]["PERSONAL_WWW"];
+	if($arResult["User"]["PERSONAL_WWW"] <> '')
+		$arResult["User"]["PERSONAL_WWW"] = ((mb_strpos($arResult["User"]["PERSONAL_WWW"], "http") === false)? "http://" : "").$arResult["User"]["PERSONAL_WWW"];
 	
 	$arHobby = explode(", ", $arResult["User"]["~INTERESTS"]);
 	$arResult["User"]["Hobby"]=Array();
 	foreach($arHobby as $Hobby)
 	{
-		if(strlen($Hobby)>0)
+		if($Hobby <> '')
 			$arResult["User"]["Hobby"][] = Array(
 					"link" => $arParams["PATH_TO_SEARCH"].'where=USER&q='.urlencode($Hobby),
 					"name" => HtmlFilter::encode($Hobby),
@@ -272,7 +272,7 @@ else
 			{
 				if (!in_array($FIELD_NAME, $arParams["USER_PROPERTY"]))
 					continue;
-				$arUserField["EDIT_FORM_LABEL"] = strLen($arUserField["EDIT_FORM_LABEL"]) > 0 ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"];
+				$arUserField["EDIT_FORM_LABEL"] = $arUserField["EDIT_FORM_LABEL"] <> '' ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"];
 				$arUserField["EDIT_FORM_LABEL"] = htmlspecialcharsEx($arUserField["EDIT_FORM_LABEL"]);
 				$arUserField["~EDIT_FORM_LABEL"] = $arUserField["EDIT_FORM_LABEL"];
 				$arResult["USER_PROPERTIES"]["DATA"][$FIELD_NAME] = $arUserField;
@@ -280,7 +280,7 @@ else
 		}
 		if (!empty($arResult["USER_PROPERTIES"]["DATA"]))
 			$arResult["USER_PROPERTIES"]["SHOW"] = "Y";
-		$arResult["bVarsFromForm"] = strLen($strErrorMessage) > 0 ? true : false;
+		$arResult["bVarsFromForm"] = $strErrorMessage <> '' ? true : false;
 	}
 	// ******************** /User properties ***************************************************
 }

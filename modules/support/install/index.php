@@ -19,9 +19,7 @@ class support extends CModule
 	{
 		$arModuleVersion = array();
 
-		$path = str_replace("\\", "/", __FILE__);
-		$path = substr($path, 0, strlen($path) - strlen("/index.php"));
-		include($path."/version.php");
+		include(__DIR__.'/version.php');
 
 		if (is_array($arModuleVersion) && array_key_exists("VERSION", $arModuleVersion))
 		{
@@ -51,7 +49,7 @@ class support extends CModule
 		
 		if ($EMPTY)
 		{
-			$errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/support/install/db/'.strtolower($DB->type).'/install.sql');
+			$errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/support/install/db/'.mb_strtolower($DB->type).'/install.sql');
 		}
 		
 		if (is_array($errors))
@@ -104,7 +102,7 @@ class support extends CModule
 
 		if(array_key_exists("savedata", $arParams) && $arParams["savedata"] != "Y")
 		{
-			$errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/support/install/db/'.strtolower($DB->type).'/uninstall.sql');
+			$errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/support/install/db/'.mb_strtolower($DB->type).'/uninstall.sql');
 			if (!is_array($errors))
 			{
 				@set_time_limit(600);
@@ -213,7 +211,7 @@ class support extends CModule
 		}
 		else
 		{
-			$step = IntVal($step);
+			$step = intval($step);
 			if($step<2)
 			{
 				$APPLICATION->IncludeAdminFile(GetMessage("SUP_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/support/install/step1.php");
@@ -241,7 +239,7 @@ class support extends CModule
 	{
 		global $DB, $APPLICATION, $step;
 		
-		$step = IntVal($step);
+		$step = intval($step);
 		if($step<2)
 			$APPLICATION->IncludeAdminFile(GetMessage("SUP_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/support/install/unstep1.php");
 		elseif($step==2)

@@ -11,6 +11,7 @@ return array(
 		'name' => Loc::getMessage('LANDING_BLOCK_6_THREE_COLS_FIX_TARIFFS_NAME'),
 		'section' => array('tariffs'),
 		'type' => ['page', 'store', 'smn'],
+		'namespace' => 'bitrix'
 	),
 	'cards' => array(
 		'.landing-block-card' => array(

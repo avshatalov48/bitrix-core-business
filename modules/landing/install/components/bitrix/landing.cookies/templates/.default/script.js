@@ -309,7 +309,7 @@
 				this.hideOverlay();
 				BX.hide(BX(this.idAgreementPopup));
 			}
-			// this.hideSmallPopup();
+			this.hideSmallPopup();
 			this.showCookiesNotice();
 		},
 

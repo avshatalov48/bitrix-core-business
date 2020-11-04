@@ -20,14 +20,14 @@ if (array_key_exists("TICKETS", $arResult) && is_array($arResult["TICKETS"])):
 		}
 		?>
 		<span class="sonet-forum-post-date"><small><?=GetMessage("G_TICKETS_TIMESTAMP_X")?>: <?=$arTicket["TIMESTAMP_X"]?></small><br /></span>
-		<table class="support-ticket-lamp"><tr><td><div class="support-lamp-<?=str_replace("_","-",$arTicket["LAMP"])?>" title="<?=GetMessage("G_TICKETS_".strtoupper($arTicket["LAMP"]).($bADS ? "_ALT_SUP" : "_ALT"))?>"></div></td><td><b><a href="<?=$arTicket["TICKET_EDIT_URL"]?>"><? echo $arTicket["TITLE"]; ?></a></b></td></tr></table>
+		<table class="support-ticket-lamp"><tr><td><div class="support-lamp-<?=str_replace("_","-",$arTicket["LAMP"])?>" title="<?=GetMessage("G_TICKETS_".mb_strtoupper($arTicket["LAMP"]).($bADS ? "_ALT_SUP" : "_ALT"))?>"></div></td><td><b><a href="<?=$arTicket["TICKET_EDIT_URL"]?>"><? echo $arTicket["TITLE"]; ?></a></b></td></tr></table>
 
 		<span class="support-ticket-info">
 			<?=GetMessage("G_TICKETS_MESSAGES")?>:&nbsp;<?=$arTicket["MESSAGES"]?><br />
-			<? if (strlen($arTicket["STATUS_NAME"]) > 0):?>
+			<? if ($arTicket["STATUS_NAME"] <> ''):?>
 				<?=GetMessage("G_TICKETS_STATUS")?>:&nbsp;<?=$arTicket["STATUS_NAME"]?><br />
 			<? endif; ?>
-			<? if (strlen($arTicket["RESPONSIBLE_NAME"]) > 0):?>
+			<? if ($arTicket["RESPONSIBLE_NAME"] <> ''):?>
 				<?=GetMessage("G_TICKETS_RESPONSIBLE")?>:&nbsp;<?=$arTicket["RESPONSIBLE_NAME"]?><br />
 			<? endif; ?>
 		</span>

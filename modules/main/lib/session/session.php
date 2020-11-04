@@ -21,7 +21,7 @@ class Session implements SessionInterface, \ArrayAccess
 	protected $debug = false;
 
 	/**
-	 * Session constructor.
+	 * Session constructor
 	 */
 	public function __construct(\SessionHandlerInterface $sessionHandler = null)
 	{

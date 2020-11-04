@@ -720,11 +720,11 @@ class YandexCheckoutHandler
 	}
 
 	/**
-	 * @return array
+	 * @return array|string[]
 	 */
 	public function getCurrencyList()
 	{
-		return array('RUB');
+		return ['RUB', 'BYN'];
 	}
 
 	/**

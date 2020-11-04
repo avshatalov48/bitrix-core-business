@@ -119,11 +119,16 @@ BX.Helper =
 		}
 	},
 
-	show: function(additionalParam)
+	show: function(additionalParam, sliderOptions)
 	{
 		if (this.isOpen())
 		{
 			return;
+		}
+
+		if (!BX.Type.isPlainObject(sliderOptions))
+		{
+			sliderOptions = {};
 		}
 
 		var url = this.frameOpenUrl + ((this.frameOpenUrl.indexOf("?") < 0) ? "?" : "&") +
@@ -142,6 +147,7 @@ BX.Helper =
 			}.bind(this),
 			width: 860,
 			cacheable: false,
+			zIndex: sliderOptions.zIndex || null,
 			events: {
 				onCloseComplete: function() {
 					BX.Helper.close();

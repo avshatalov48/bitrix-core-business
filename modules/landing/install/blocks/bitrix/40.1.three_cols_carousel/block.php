@@ -50,7 +50,7 @@
 						<h2 class="landing-block-node-card-title landing-semantic-title-image-small text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-10">
 							Dance courses
 						</h2>
-						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 g-mb-30">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 g-mb-30" data-auto-font-scale>
 							<p>Curabitur eget tortor sed urna
 								faucibus iaculis id et nulla.</p>
 						</div>
@@ -83,7 +83,7 @@
 						<h2 class="landing-block-node-card-title landing-semantic-title-image-small text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-10">
 							Creative photos
 						</h2>
-						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 g-mb-30">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 g-mb-30" data-auto-font-scale>
 							<p>Curabitur eget tortor sed urna
 								faucibus iaculis id et nulla.</p>
 						</div>
@@ -116,7 +116,7 @@
 						<h2 class="landing-block-node-card-title landing-semantic-title-image-small text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-10">
 							Art for all
 						</h2>
-						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 g-mb-30">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 g-mb-30" data-auto-font-scale>
 							<p>Curabitur eget tortor sed urna
 								faucibus iaculis id et nulla.</p>
 						</div>
@@ -149,7 +149,7 @@
 						<h2 class="landing-block-node-card-title landing-semantic-title-image-small text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-10">
 							Painting
 						</h2>
-						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 g-mb-30">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 g-mb-30" data-auto-font-scale>
 							<p>Curabitur eget tortor sed urna
 								faucibus iaculis id et nulla.</p>
 						</div>
@@ -182,7 +182,7 @@
 						<h2 class="landing-block-node-card-title landing-semantic-title-image-small text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-10">
 							Courses for elderly
 						</h2>
-						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 g-mb-30">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 g-mb-30" data-auto-font-scale>
 							<p>Curabitur eget tortor sed urna
 								faucibus iaculis id et nulla.</p>
 						</div>

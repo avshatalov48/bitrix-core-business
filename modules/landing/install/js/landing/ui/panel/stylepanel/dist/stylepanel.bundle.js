@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports, main_core, main_loader, landing_ui_panel_content, landing_loc, landing_pageobject) {
+(function (exports,main_core,main_loader,landing_ui_panel_content,landing_loc,landing_pageobject) {
 	'use strict';
 
 	var showPseudoContent = Symbol('showPseudoContent');
@@ -12,9 +12,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	 * @memberOf BX.Landing.UI.Panel
 	 */
 
-	var StylePanel =
-	/*#__PURE__*/
-	function (_Content) {
+	var StylePanel = /*#__PURE__*/function (_Content) {
 	  babelHelpers.inherits(StylePanel, _Content);
 
 	  function StylePanel() {
@@ -176,5 +174,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.StylePanel = StylePanel;
 
-}(this.BX.Landing.UI.Panel = this.BX.Landing.UI.Panel || {}, BX, BX, BX.Landing.UI.Panel, BX.Landing, BX.Landing));
+}((this.BX.Landing.UI.Panel = this.BX.Landing.UI.Panel || {}),BX,BX,BX.Landing.UI.Panel,BX.Landing,BX.Landing));
 //# sourceMappingURL=stylepanel.bundle.js.map

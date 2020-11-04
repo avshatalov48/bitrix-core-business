@@ -33,7 +33,7 @@
 							</div>
 						</div>
 
-						<div class="landing-block-node-card-text landing-semantic-text-image-small js-animation slideInUp g-max-width-800 g-color-white-opacity-0_7 g-mb-45">
+						<div class="landing-block-node-card-text landing-semantic-text-image-small js-animation slideInUp g-max-width-800 g-color-white-opacity-0_7 g-mb-45" data-auto-font-scale>
 							<p>Donec erat urna, tincidunt at leo non, blandit finibus ante. Nunc venenatis risus in
 								finibus
 								dapibus. Ut ac massa sodales, mattis enim id, efficitur tortor</p>
@@ -81,7 +81,7 @@
 							</div>
 						</div>
 
-						<div class="landing-block-node-card-text landing-semantic-text-image-small js-animation slideInUp g-max-width-800 g-color-white-opacity-0_7 g-mb-45">
+						<div class="landing-block-node-card-text landing-semantic-text-image-small js-animation slideInUp g-max-width-800 g-color-white-opacity-0_7 g-mb-45" data-auto-font-scale>
 							<p>Donec erat urna, tincidunt at leo non, blandit finibus ante. Nunc venenatis risus in
 								finibus
 								dapibus. Ut ac massa sodales, mattis enim id, efficitur tortor</p>

@@ -11,6 +11,7 @@ use \Bitrix\Landing\Rights;
 use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\Transfer;
 use \Bitrix\Landing\Restriction;
+use \Bitrix\Main\Context;
 use \Bitrix\Main\ModuleManager;
 use \Bitrix\Main\Loader;
 use \Bitrix\Main\Config\Option;
@@ -90,16 +91,13 @@ class LandingSitesComponent extends LandingBaseComponent
 		{
 			return $sites;
 		}
-		if (!Loader::includeModule('extranet'))
-		{
-			return $sites;
-		}
 
 		// prepare filter
-		$disabledSiteIds = [
-			\CExtranet::getExtranetSiteID(),
-			SITE_ID
-		];
+		$disabledSiteIds = [SITE_ID];
+		if (Loader::includeModule('extranet'))
+		{
+			$disabledSiteIds[] = \CExtranet::getExtranetSiteID();
+		}
 		$search = LandingFilterComponent::getFilterRaw(
 			LandingFilterComponent::TYPE_SITE,
 			$this->arParams['TYPE']
@@ -117,6 +115,8 @@ class LandingSitesComponent extends LandingBaseComponent
 		// get data
 		$by = 'lid';
 		$order = 'desc';
+		$request = Context::getCurrent()->getRequest();
+		$protocol = ($request->isHttps() ? 'https://' : 'http://');
 		$res = \CSite::getList($by, $order, $filter);
 		while ($row = $res->fetch())
 		{
@@ -126,12 +126,12 @@ class LandingSitesComponent extends LandingBaseComponent
 			}
 
 			$row['DOMAIN_NAME'] = $defaultServerName;
-			$row['PUBLIC_URL'] = '//' . $defaultServerName;
+			$row['PUBLIC_URL'] = $protocol . $defaultServerName . $row['DIR'];
 
 			if ($row['SERVER_NAME'])
 			{
 				$row['DOMAIN_NAME'] = $row['SERVER_NAME'];
-				$row['PUBLIC_URL'] = '//' . $row['SERVER_NAME'];
+				$row['PUBLIC_URL'] = $protocol . $row['SERVER_NAME'];
 				$row['PUBLIC_URL'] .= $row['DIR'];
 			}
 			elseif ($row['DOMAINS'])
@@ -144,7 +144,7 @@ class LandingSitesComponent extends LandingBaseComponent
 				if ($url)
 				{
 					$row['DOMAIN_NAME'] = $url;
-					$row['PUBLIC_URL'] = '//' . $url;
+					$row['PUBLIC_URL'] = $protocol . $url;
 					$row['PUBLIC_URL'] .= $row['DIR'];
 				}
 			}
@@ -234,12 +234,8 @@ class LandingSitesComponent extends LandingBaseComponent
 					'DOMAIN_PROVIDER' => 'DOMAIN.PROVIDER'
 				],
 				'filter' => $filter,
-				'order' => $this->arResult['IS_DELETED']
-					? [
+				'order' => [
 						'DATE_MODIFY' => 'desc'
-					]
-					: [
-						'ID' => 'desc'
 					],
 				'navigation' => $this::COUNT_PER_PAGE
 			]);
@@ -350,6 +346,11 @@ class LandingSitesComponent extends LandingBaseComponent
 				}
 				unset($siteUrls, $item, $ids);
 			}
+		}
+
+		if (\Bitrix\Main\Loader::includeModule('bitrix24'))
+		{
+			$this->arResult['LICENSE'] = \CBitrix24::getLicenseType();
 		}
 
 		parent::executeComponent();

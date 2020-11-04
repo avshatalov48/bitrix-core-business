@@ -311,6 +311,10 @@ class LandingViewComponent extends LandingBaseComponent
 			));
 			foreach ($pages as $page)
 			{
+				if ($page['ACTIVE'] != 'Y')
+				{
+					$page['PUBLIC'] = 'N';
+				}
 				if ($page['PUBLIC'] == 'Y')
 				{
 					continue;

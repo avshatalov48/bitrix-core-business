@@ -8,12 +8,12 @@ use Bitrix\Main\Config\Option;
 
 Loc::loadMessages(__FILE__);
 
-final class BlogPost extends Provider
+class BlogPost extends Provider
 {
-	const PROVIDER_ID = 'BLOG_POST';
-	const CONTENT_TYPE_ID = 'BLOG_POST';
+	public const PROVIDER_ID = 'BLOG_POST';
+	public const CONTENT_TYPE_ID = 'BLOG_POST';
 
-	public static function getId()
+	public static function getId(): string
 	{
 		return static::PROVIDER_ID;
 	}
@@ -40,18 +40,25 @@ final class BlogPost extends Provider
 
 	public function getCommentProvider()
 	{
-		$provider = new \Bitrix\Socialnetwork\Livefeed\BlogComment();
-		return $provider;
+		return new BlogComment();
 	}
 
 	public function initSourceFields()
 	{
+		static $cache = [];
+
 		$postId = $this->entityId;
 
-		if (
-			$postId > 0
-			&& Loader::includeModule('blog')
-		)
+		if ($postId <= 0)
+		{
+			return;
+		}
+
+		if (isset($cache[$postId]))
+		{
+			$post = $cache[$postId];
+		}
+		elseif (Loader::includeModule('blog'))
 		{
 			$res = \CBlogPost::getList(
 				array(),
@@ -59,20 +66,92 @@ final class BlogPost extends Provider
 					"ID" => $postId
 				)
 			);
-			if (
-				($post = $res->fetch())
-				&& (self::canRead(array(
-					'POST' => $post
-				)))
-			)
-			{
-				$this->setSourceFields($post);
-				$this->setSourceDescription($post['DETAIL_TEXT']);
-				$this->setSourceTitle(truncateText(($post['MICRO'] == 'N' ? $post['TITLE'] : htmlspecialcharsback($post['TITLE'])), 100));
-				$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects());
-				$this->setSourceDiskObjects($this->getDiskObjects($postId, $this->cloneDiskObjects));
-			}
+
+			$post = $res->fetch();
+			$cache[$postId] = $post;
 		}
+
+		if (
+			empty($post)
+			|| !self::canRead([
+				'POST' => $post
+			])
+		)
+		{
+			return;
+		}
+
+		if (!empty($post['DETAIL_TEXT']))
+		{
+			$post['DETAIL_TEXT'] = \Bitrix\Main\Text\Emoji::decode($post['DETAIL_TEXT']);
+		}
+
+		$this->setSourceFields($post);
+		$this->setSourceDescription($post['DETAIL_TEXT']);
+		$this->setSourceTitle(truncateText(($post['MICRO'] === 'N' ? $post['TITLE'] : htmlspecialcharsback($post['TITLE'])), 100));
+		$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects());
+		$this->setSourceDiskObjects($this->getDiskObjects($postId, $this->cloneDiskObjects));
+	}
+
+	public function getPinnedTitle()
+	{
+		$result = '';
+
+		if (empty($this->sourceFields))
+		{
+			$this->initSourceFields();
+		}
+
+		$post = $this->getSourceFields();
+		if (empty($post))
+		{
+			return $result;
+		}
+
+		$result = ($post['MICRO'] === 'N' ? truncateText($post['TITLE'], 100) : '');
+
+		return $result;
+	}
+
+	public function getPinnedDescription()
+	{
+		$result = '';
+
+		if (empty($this->sourceFields))
+		{
+			$this->initSourceFields();
+		}
+
+		$post = $this->getSourceFields();
+		if (empty($post))
+		{
+			return $result;
+		}
+
+		$result = truncateText(htmlspecialcharsBack(\CTextParser::clearAllTags($post['DETAIL_TEXT'])), 100);
+		$result = str_replace((\Bitrix\Main\Application::isUtfMode() ? "\xC2\xA0" : "\xA0"), '', $result);
+
+		if (
+			$result === ''
+			&& Loader::includeModule('disk')
+		)
+		{
+			$fileNameList = [];
+			$res = \Bitrix\Disk\AttachedObject::getList([
+				'filter' => [
+					'=ENTITY_TYPE' => \Bitrix\Disk\Uf\BlogPostConnector::className(),
+					'ENTITY_ID' => $this->entityId
+				],
+				'select' => [ 'ID', 'FILENAME' => 'OBJECT.NAME' ]
+			]);
+			foreach ($res as $attachedObjectFields)
+			{
+				$fileNameList[] = $attachedObjectFields['FILENAME'];
+			}
+			$result = truncateText(implode(' ', $fileNameList), 100);
+		}
+
+		return $result;
 	}
 
 	protected function getAttachedDiskObjects($clone = false)
@@ -113,17 +192,17 @@ final class BlogPost extends Provider
 		return $result;
 	}
 
-	public static function canRead($params)
+	public static function canRead($params): bool
 	{
 		static $blogPostProvider = null;
 
 		if (
 			!is_array($params)
-			&& intval($params) > 0
+			&& (int)$params > 0
 		)
 		{
 			$params = array(
-				'POST' => \CBlogPost::getByID($params)
+				'POST' => \CBlogPost::getById($params)
 			);
 		}
 
@@ -135,7 +214,7 @@ final class BlogPost extends Provider
 		{
 			if ($blogPostProvider === null)
 			{
-				$blogPostProvider = new \Bitrix\Socialnetwork\Livefeed\BlogPost;
+				$blogPostProvider = new self;
 			}
 
 			$permissions = $blogPostProvider->getPermissions($params["POST"]);
@@ -145,7 +224,7 @@ final class BlogPost extends Provider
 		return $result;
 	}
 
-	protected function getPermissions(array $post)
+	protected function getPermissions(array $post): string
 	{
 		global $USER;
 
@@ -153,7 +232,7 @@ final class BlogPost extends Provider
 
 		if (Loader::includeModule('blog'))
 		{
-			if($post["AUTHOR_ID"] == $USER->getId())
+			if((int)$post["AUTHOR_ID"] === (int)$USER->getId())
 			{
 				$result = self::PERMISSION_FULL;
 			}
@@ -182,9 +261,15 @@ final class BlogPost extends Provider
 		return $result;
 	}
 
-	public function getLiveFeedUrl()
+	public function getLiveFeedUrl(BlogPostService $service = null): string
 	{
-		$pathToPost = Option::get('socialnetwork', 'userblogpost_page', '', SITE_ID);
+		if ($service === null)
+		{
+			$service = new BlogPostService();
+		}
+
+		$pathToPost = $service->getPathToPost();
+
 		if (
 			!empty($pathToPost)
 			&& ($post = $this->getSourceFields())
@@ -195,5 +280,18 @@ final class BlogPost extends Provider
 		}
 
 		return $pathToPost;
+	}
+
+	public function getSuffix()
+	{
+		return '2';
+	}
+}
+
+class BlogPostService
+{
+	public function getPathToPost()
+	{
+		return Option::get('socialnetwork', 'userblogpost_page', '', SITE_ID);
 	}
 }

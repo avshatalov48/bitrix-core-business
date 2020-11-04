@@ -172,30 +172,66 @@ class CAllSocNetUser
 	{
 		global $APPLICATION, $USER;
 
+		static $cache = [];
+
 		if (!is_object($USER) || !$USER->IsAuthorized())
 			return false;
 
-		if ($bUseSession && !isset($_SESSION["SONET_ADMIN"]))
-			return false;
+		$result = $USER->isAdmin();
 
-		if ($USER->isAdmin())
-			return true;
-
-		if (is_array($site_id))
+		if (!$result)
 		{
-			foreach ($site_id as $site_id_tmp)
+			$cacheKey = 'false';
+			if (is_array($site_id))
 			{
-				$modulePerms = $APPLICATION->GetGroupRight("socialnetwork", false, "Y", "Y", array($site_id_tmp, false));
-				if ($modulePerms >= "W")
-					return true;
+				$cacheKey = serialize($cacheKey);
 			}
-			return false;
+			elseif ($site_id)
+			{
+				$cacheKey = $site_id;
+			}
+			else
+			{
+				$cacheKey = 'false';
+			}
+
+			if (isset($cache[$cacheKey]))
+			{
+				$result = $cache[$cacheKey];
+			}
+			else
+			{
+				if (is_array($site_id))
+				{
+					foreach ($site_id as $site_id_tmp)
+					{
+						$modulePerms = $APPLICATION->GetGroupRight("socialnetwork", false, "Y", "Y", array($site_id_tmp, false));
+						if ($modulePerms >= "W")
+						{
+							$result = true;
+							break;
+						}
+					}
+				}
+				else
+				{
+					$modulePerms = $APPLICATION->GetGroupRight("socialnetwork", false, "Y", "Y", ($site_id ? array($site_id, false) : false));
+					$result = ($modulePerms >= "W");
+				}
+
+				$cache[$cacheKey] = $result;
+			}
 		}
-		else
-		{
-			$modulePerms = $APPLICATION->GetGroupRight("socialnetwork", false, "Y", "Y", ($site_id ? array($site_id, false) : false));
-			return ($modulePerms >= "W");
-		}
+
+		$result = (
+			$result
+			&& (
+				!$bUseSession
+				|| isset($_SESSION["SONET_ADMIN"])
+			)
+		);
+
+		return $result;
 	}
 
 	public static function IsUserModuleAdmin($userID, $site_id = SITE_ID)

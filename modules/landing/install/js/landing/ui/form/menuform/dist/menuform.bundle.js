@@ -27,9 +27,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	 * @memberOf BX.Landing.UI.Form
 	 */
 
-	var MenuForm =
-	/*#__PURE__*/
-	function (_BaseForm) {
+	var MenuForm = /*#__PURE__*/function (_BaseForm) {
 	  babelHelpers.inherits(MenuForm, _BaseForm);
 
 	  function MenuForm() {

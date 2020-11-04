@@ -14,6 +14,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 global $CACHE_MANAGER, $USER_FIELD_MANAGER;
 
 use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 
 if (!Loader::includeModule("socialnetwork"))
 {
@@ -195,14 +196,14 @@ if (
 			$arResult["CanView"]["content_search"] = (array_key_exists("search", $arResult["ActiveFeatures"]) && CSocNetFeaturesPerms::CanPerformOperation($USER->GetID(), SONET_ENTITY_GROUP, $arResult["Group"]["ID"], "search", "view", CSocNetUser::IsCurrentUserModuleAdmin()));
 			$arResult["CanView"]["chat"] = array_key_exists("chat", $arResult["ActiveFeatures"]);
 
-			$arResult["Title"]["blog"] = ((array_key_exists("blog", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["blog"] <> '') ? $arResult["ActiveFeatures"]["blog"] : GetMessage("SONET_UM_BLOG"));
-			$arResult["Title"]["microblog"] = ((array_key_exists("microblog", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["microblog"] <> '') ? $arResult["ActiveFeatures"]["microblog"] : GetMessage("SONET_UM_MICROBLOG"));
-			$arResult["Title"]["photo"] = ((array_key_exists("photo", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["photo"] <> '') ? $arResult["ActiveFeatures"]["photo"] : GetMessage("SONET_UM_PHOTO"));
-			$arResult["Title"]["forum"] = ((array_key_exists("forum", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["forum"] <> '') ? $arResult["ActiveFeatures"]["forum"] : GetMessage("SONET_UM_FORUM"));
-			$arResult["Title"]["calendar"] = ((array_key_exists("calendar", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["calendar"] <> '') ? $arResult["ActiveFeatures"]["calendar"] : GetMessage("SONET_UM_CALENDAR"));
-			$arResult["Title"]["tasks"] = ((array_key_exists("tasks", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["tasks"] <> '') ? $arResult["ActiveFeatures"]["tasks"] : GetMessage("SONET_UM_TASKS"));
-			$arResult["Title"]["files"] = ((array_key_exists("files", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["files"] <> '') ? $arResult["ActiveFeatures"]["files"] : GetMessage("SONET_UM_FILES"));
-			$arResult["Title"]["content_search"] = ((array_key_exists("search", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["search"] <> '') ? $arResult["ActiveFeatures"]["search"] : GetMessage("SONET_UM_SEARCH"));
+			$arResult["Title"]["blog"] = Loc::getMessage("SONET_UM_BLOG");
+			$arResult["Title"]["microblog"] = Loc::getMessage("SONET_UM_MICROBLOG");
+			$arResult["Title"]["photo"] = Loc::getMessage("SONET_UM_PHOTO");
+			$arResult["Title"]["forum"] = Loc::getMessage("SONET_UM_FORUM");
+			$arResult["Title"]["calendar"] = Loc::getMessage("SONET_UM_CALENDAR");
+			$arResult["Title"]["tasks"] = Loc::getMessage("SONET_UM_TASKS");
+			$arResult["Title"]["files"] = Loc::getMessage("SONET_UM_FILES");
+			$arResult["Title"]["content_search"] = Loc::getMessage("SONET_UM_SEARCH");
 
 			if($arResult["CanView"]["chat"])
 			{
@@ -231,6 +232,14 @@ if (
 				ExecuteModuleEventEx($arEvent, array(&$arResult, array("ENTITY_TYPE" => SONET_ENTITY_GROUP, "ENTITY_ID" => $arResult["Group"]["ID"])));
 			}
 
+			foreach($arResult["ActiveFeatures"] as $key => $value)
+			{
+				if ($value <> '')
+				{
+					$arResult["Title"][($key === 'search' ? 'content_search' : $key)] = $value;
+				}
+			}
+
 			if (Loader::includeModule('rest'))
 			{
 				$arResult["CanView"]['marketplace'] = array_key_exists('marketplace', $arResult["ActiveFeatures"]);
@@ -238,7 +247,7 @@ if (
 					array_key_exists('marketplace', $arResult["ActiveFeatures"])
 					&& $arResult["ActiveFeatures"]['marketplace'] <> ''
 						? $arResult["ActiveFeatures"]['marketplace']
-						: Bitrix\Main\Localization\Loc::getMessage('SONET_UM_MARKETPLACE')
+						: Loc::getMessage('SONET_UM_MARKETPLACE')
 				);
 				$arResult["Urls"]['marketplace'] = $arResult["Urls"]["view"]."marketplace/";
 
@@ -256,7 +265,7 @@ if (
 							&& $arResult["ActiveFeatures"][$tabId] <> ''
 									? $arResult["ActiveFeatures"][$tabId]
 									: (
-										!empty($placementHandler['TITLE']) > 0
+										$placementHandler['TITLE'] <> ''
 											? $placementHandler['TITLE']
 											: $placementHandler['APP_NAME']
 									)

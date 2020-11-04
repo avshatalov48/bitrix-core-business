@@ -11,9 +11,10 @@ Loc::loadMessages(__FILE__);
 
 class Price extends Entity
 {
+	/** @var bool Enable offers automation */
 	private static $separateSkuMode = null;
 
-	private static $productPrices = array();
+	private static $productPrices = [];
 
 	private static $basePriceType = null;
 
@@ -21,7 +22,12 @@ class Price extends Entity
 
 	private static $extraList = null;
 
-	public static function getTabletClassName()
+	/**
+	 * Returns price tablet name.
+	 *
+	 * @return string
+	 */
+	public static function getTabletClassName(): string
 	{
 		return '\Bitrix\Catalog\PriceTable';
 	}
@@ -41,10 +47,10 @@ class Price extends Entity
 		if (self::$separateSkuMode === null)
 			self::$separateSkuMode = (string)Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') === 'Y';
 
-		$iterator = Catalog\PriceTable::getList(array(
-			'select' => array('ID', 'PRODUCT_ID', 'CATALOG_GROUP_ID', 'PRICE', 'CURRENCY', 'QUANTITY_FROM', 'QUANTITY_TO'),
-			'filter' => array('=ID' => $id)
-		));
+		$iterator = Catalog\PriceTable::getList([
+			'select' => ['ID', 'PRODUCT_ID', 'CATALOG_GROUP_ID', 'PRICE', 'CURRENCY', 'QUANTITY_FROM', 'QUANTITY_TO'],
+			'filter' => ['=ID' => $id]
+		]);
 		$price = $iterator->fetch();
 		unset($iterator);
 		if (empty($price))
@@ -85,18 +91,18 @@ class Price extends Entity
 			$filter->where('QUANTITY_TO', '=', (int)$price['QUANTITY_TO']);
 
 		$datetime = new Main\Type\DateTime();
-		$updatePriceTypes = array();
-		$iterator = Catalog\PriceTable::getList(array(
-			'select' => array('ID', 'EXTRA_ID', 'CATALOG_GROUP_ID', 'QUANTITY_FROM', 'QUANTITY_TO'),
+		$updatePriceTypes = [];
+		$iterator = Catalog\PriceTable::getList([
+			'select' => ['ID', 'EXTRA_ID', 'CATALOG_GROUP_ID', 'QUANTITY_FROM', 'QUANTITY_TO'],
 			'filter' => $filter
-		));
+		]);
 		while ($row = $iterator->fetch())
 		{
-			$fields = array(
+			$fields = [
 				'PRICE' => $price['PRICE']*self::$extraList[$row['EXTRA_ID']],
 				'CURRENCY' => $price['CURRENCY'],
 				'TIMESTAMP_X' => $datetime
-			);
+			];
 			$fields['PRICE_SCALE'] = $fields['PRICE']*$currency['CURRENT_BASE_RATE'];
 
 			$result = Catalog\PriceTable::update($row['ID'], $fields);
@@ -112,7 +118,15 @@ class Price extends Entity
 		return true;
 	}
 
-	protected static function prepareForAdd(ORM\Data\AddResult $result, $id, array &$data)
+	/**
+	 * Check and modify fields before add product price. Need for entity automation.
+	 *
+	 * @param ORM\Data\AddResult $result
+	 * @param int|null $id
+	 * @param array &$data
+	 * @return void
+	 */
+	protected static function prepareForAdd(ORM\Data\AddResult $result, $id, array &$data): void
 	{
 		$fields = $data['fields'];
 		parent::prepareForAdd($result, $id, $fields);
@@ -127,7 +141,7 @@ class Price extends Entity
 
 		if ($defaultValues === null)
 		{
-			$defaultValues = array(
+			$defaultValues = [
 				'PRODUCT_ID' => 0,
 				'CATALOG_GROUP_ID' => 0,
 				'EXTRA_ID' => null,
@@ -136,11 +150,11 @@ class Price extends Entity
 				'QUANTITY_FROM' => null,
 				'QUANTITY_TO' => null,
 				'TMP_ID' => null
-			);
+			];
 
-			$blackList = array(
+			$blackList = [
 				'ID' => true
-			);
+			];
 		}
 		if (self::$extraList === null)
 			self::loadSettings();
@@ -259,7 +273,15 @@ class Price extends Entity
 		unset($fields);
 	}
 
-	protected static function prepareForUpdate(ORM\Data\UpdateResult $result, $id, array &$data)
+	/**
+	 * Check and modify fields before update product price. Need for entity automation.
+	 *
+	 * @param ORM\Data\UpdateResult $result
+	 * @param int $id
+	 * @param array &$data
+	 * @return void
+	 */
+	protected static function prepareForUpdate(ORM\Data\UpdateResult $result, $id, array &$data): void
 	{
 		$id = (int)$id;
 		if ($id <= 0)
@@ -278,9 +300,9 @@ class Price extends Entity
 		if (!$result->isSuccess())
 			return;
 
-		$blackList = array(
+		$blackList = [
 			'ID' => true
-		);
+		];
 
 		if (self::$extraList === null)
 			self::loadSettings();
@@ -400,7 +422,7 @@ class Price extends Entity
 			);
 			$recountPrices = isset($data['actions']['RECOUNT_PRICES']);
 
-			$copyFields = array();
+			$copyFields = [];
 			if ($priceScale || $needCalculatePrice || $recountPrices)
 				$copyFields = array_merge(static::getCacheItem($id, true), $fields);
 
@@ -442,7 +464,14 @@ class Price extends Entity
 		unset($fields);
 	}
 
-	protected static function runAddExternalActions($id, array $data)
+	/**
+	 * Run core automation after add product price.
+	 *
+	 * @param int $id
+	 * @param array $data
+	 * @return void
+	 */
+	protected static function runAddExternalActions($id, array $data): void
 	{
 		if (isset($data['actions']['RECOUNT_PRICES']))
 		{
@@ -454,12 +483,19 @@ class Price extends Entity
 				$data['fields']['PRODUCT_ID'],
 				null,
 				Catalog\ProductTable::TYPE_OFFER,
-				array($data['fields']['CATALOG_GROUP_ID'])
+				[0 => $data['fields']['CATALOG_GROUP_ID']]
 			);
 		}
 	}
 
-	protected static function runUpdateExternalActions($id, array $data)
+	/**
+	 * Run core automation after update product price.
+	 *
+	 * @param int $id
+	 * @param array $data
+	 * @return void
+	 */
+	protected static function runUpdateExternalActions($id, array $data): void
 	{
 		$price = self::getCacheItem($id);
 		if (isset($data['actions']['RECOUNT_PRICES']))
@@ -468,7 +504,7 @@ class Price extends Entity
 		}
 		if (isset($data['actions']['PARENT_PRICE']))
 		{
-			$priceTypes = array($price['CATALOG_GROUP_ID']);
+			$priceTypes = [0 => $price['CATALOG_GROUP_ID']];
 			if (
 				isset($price[self::PREFIX_OLD.'CATALOG_GROUP_ID'])
 				&& $price[self::PREFIX_OLD.'CATALOG_GROUP_ID'] != $price['CATALOG_GROUP_ID']
@@ -486,7 +522,13 @@ class Price extends Entity
 		unset($price);
 	}
 
-	protected static function runDeleteExternalActions($id)
+	/**
+	 * Run core automation after delete product price.
+	 *
+	 * @param int $id
+	 * @return void
+	 */
+	protected static function runDeleteExternalActions($id): void
 	{
 		$price = self::getCacheItem($id);
 		$product = Product::getCacheItem($price[self::PREFIX_OLD.'PRODUCT_ID']);
@@ -496,13 +538,18 @@ class Price extends Entity
 				$price[self::PREFIX_OLD.'PRODUCT_ID'],
 				null,
 				Catalog\ProductTable::TYPE_OFFER,
-				array($price[self::PREFIX_OLD.'CATALOG_GROUP_ID'])
+				[0 => $price[self::PREFIX_OLD.'CATALOG_GROUP_ID']]
 			);
 		}
 		unset($product, $price);
 	}
 
-	protected static function getDefaultCachedFieldList()
+	/**
+	 * Returns product price default fields list for caching.
+	 *
+	 * @return array
+	 */
+	protected static function getDefaultCachedFieldList(): array
 	{
 		return [
 			'ID',
@@ -552,7 +599,7 @@ class Price extends Entity
 				$result->addError(new ORM\EntityError(
 					Loc::getMessage(
 						'BX_CATALOG_MODEL_PRICE_ERR_WRONG_QUANTITY_RANGE_INVERT',
-						array('#LEFT#' => $fields['QUANTITY_FROM'], '#RIGHT#' => $fields['QUANTITY_TO'])
+						['#LEFT#' => $fields['QUANTITY_FROM'], '#RIGHT#' => $fields['QUANTITY_TO']]
 					)
 				));
 			}
@@ -595,13 +642,13 @@ class Price extends Entity
 
 	private static function loadSettings()
 	{
-		self::$extraList = array();
+		self::$extraList = [];
 		//TODO: remove after create \Bitrix\Catalog\Model\Extra
-		$iterator = Catalog\ExtraTable::getList(array(
-			'select' => array('ID', 'PERCENTAGE'),
-			'order' => array('ID' => 'ASC'),
-			'cache' => array('ttl' => 3600)
-		));
+		$iterator = Catalog\ExtraTable::getList([
+			'select' => ['ID', 'PERCENTAGE'],
+			'order' => ['ID' => 'ASC'],
+			'cache' => ['ttl' => 3600]
+		]);
 		while ($row = $iterator->fetch())
 			self::$extraList[$row['ID']] = (100 + (float)$row['PERCENTAGE']) / 100;
 		unset($row, $iterator);
@@ -626,10 +673,13 @@ class Price extends Entity
 		{
 			if ($id !== null)
 			{
-				$data = self::getList(array(
-					'select' => array('ID', 'PRODUCT_ID', 'CATALOG_GROUP_ID', 'QUANTITY_FROM', 'QUANTITY_TO'),
-					'filter' => array('=ID' => $id)
-				))->fetch();
+
+				$iterator = self::getList([
+					'select' => ['ID', 'PRODUCT_ID', 'CATALOG_GROUP_ID', 'QUANTITY_FROM', 'QUANTITY_TO'],
+					'filter' => ['=ID' => $id]
+				]);
+				$data = $iterator->fetch();
+				unset($iterator);
 				if (!empty($data))
 				{
 					$copyFields = array_merge($data, $copyFields);
@@ -667,13 +717,13 @@ class Price extends Entity
 
 	private static function loadProductBasePrices($productId)
 	{
-		self::$productPrices = array(
-			$productId => array()
-		);
-		$iterator = Catalog\PriceTable::getList(array(
-			'select' => array('ID', 'PRICE', 'CURRENCY', 'QUANTITY_FROM', 'QUANTITY_TO'),
-			'filter' => array('=PRODUCT_ID' => $productId, '=CATALOG_GROUP_ID' => self::$basePriceType)
-		));
+		self::$productPrices = [
+			$productId => []
+		];
+		$iterator = Catalog\PriceTable::getList([
+			'select' => ['ID', 'PRICE', 'CURRENCY', 'QUANTITY_FROM', 'QUANTITY_TO'],
+			'filter' => ['=PRODUCT_ID' => $productId, '=CATALOG_GROUP_ID' => self::$basePriceType]
+		]);
 		while ($row = $iterator->fetch())
 			self::$productPrices[$productId][self::getPriceIndex($row)] = $row;
 		unset($row, $iterator);

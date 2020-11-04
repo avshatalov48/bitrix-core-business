@@ -5,11 +5,18 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 /** @var \Bitrix\Main\UI\PageNavigation $navigation */
+/** @var \LandingSitesComponent $component */
+/** @var \CMain $APPLICATION */
+/** @var array $arParams */
+/** @var array $arResult */
 
 use \Bitrix\Landing\Manager;
 use \Bitrix\Main\ModuleManager;
 use \Bitrix\Main\Localization\Loc;
+
 Loc::loadMessages(__FILE__);
+
+$zone = Manager::getZone();
 $context = \Bitrix\Main\Application::getInstance()->getContext();
 $request = $context->getRequest();
 $navigation = $arResult['NAVIGATION'];
@@ -241,6 +248,30 @@ if ($arParams['TYPE'] == \Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP)
 				'bitrix:sale.bsm.site.master.button',
 				'.default'
 			);
+		}
+		if (
+			$lastPage &&
+			!$arResult['IS_DELETED'] &&
+			$arParams['TYPE'] == 'PAGE' &&
+			(!isset($arResult['LICENSE']) || $arResult['LICENSE'] != 'nfr')
+		)
+		{
+			?>
+			<div style="display: none">
+				<?$APPLICATION->includeComponent(
+					'bitrix:ui.feedback.form',
+					'',
+					$component->getFeedbackParameters('developer')
+				);?>
+			</div>
+			<div class="landing-item landing-item-dev" onclick="BX.fireEvent(BX('landing-feedback-developer-button'), 'click');">
+				<span class="landing-item-inner">
+					<span class="landing-item-dev-title"><?= Loc::getMessage('LANDING_TPL_DEV_HELP');?></span>
+					<span class="landing-item-dev-subtitle"><?= Loc::getMessage('LANDING_TPL_DEV_ORDER');?></span>
+					<button class="ui-btn ui-btn-primary"><?= Loc::getMessage('LANDING_TPL_DEV_BTN');?></button>
+				</span>
+			</div>
+			<?
 		}
 		?>
 

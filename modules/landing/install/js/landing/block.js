@@ -4254,7 +4254,7 @@
 			var anchorField = fieldFactory.create({
 				type: "text",
 				name: BX.Landing.Loc.getMessage("BLOCK_SETTINGS_ANCHOR_FIELD"),
-				description: "<span class='landing-ui-anchor-preview'>"+previewText+"</span>",
+				description: "<span class='landing-ui-anchor-preview'>"+BX.Text.encode(previewText)+"</span>",
 				attribute: "id",
 				value: this.anchor || this.node.id,
 				onInput: function() {
@@ -4262,7 +4262,7 @@
 
 					if (preview)
 					{
-						preview.innerHTML = join(baseUrl, "#", encodeDataValue(anchorField.getValue()));
+						preview.innerHTML = BX.Text.encode(join(baseUrl, "#", BX.Text.decode(anchorField.getValue())));
 					}
 
 					this.anchor = anchorField.getValue();

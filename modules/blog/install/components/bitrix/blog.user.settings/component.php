@@ -11,24 +11,24 @@ $arParams["BLOG_URL"] = preg_replace("/[^a-zA-Z0-9_-]/is", "", $arParams["BLOG_U
 if(!is_array($arParams["GROUP_ID"]))
 	$arParams["GROUP_ID"] = array($arParams["GROUP_ID"]);
 foreach($arParams["GROUP_ID"] as $k=>$v)
-	if(IntVal($v) <= 0)
+	if(intval($v) <= 0)
 		unset($arParams["GROUP_ID"][$k]);
-if(strLen($arParams["BLOG_VAR"])<=0)
+if($arParams["BLOG_VAR"] == '')
 	$arParams["BLOG_VAR"] = "blog";
-if(strLen($arParams["USER_VAR"])<=0)
+if($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "id";
-if(strLen($arParams["PAGE_VAR"])<=0)
+if($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
 
 $arParams["PATH_TO_USER_SETTINGS_EDIT"] = trim($arParams["PATH_TO_USER_SETTINGS_EDIT"]);
-if(strlen($arParams["PATH_TO_USER_SETTINGS_EDIT"])<=0)
+if($arParams["PATH_TO_USER_SETTINGS_EDIT"] == '')
 	$arParams["PATH_TO_USER_SETTINGS_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_settings_edit&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if(strlen($arParams["PATH_TO_USER"])<=0)
+if($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
-if (StrLen($arParams["BLOG_URL"]) > 0)
+if ($arParams["BLOG_URL"] <> '')
 {
 	if($arParams["SET_TITLE"]=="Y")
 		$APPLICATION->SetTitle(GetMessage("B_B_US_TITLE"));
@@ -42,7 +42,7 @@ if (StrLen($arParams["BLOG_URL"]) > 0)
 			{
 				$arResult["Blog"] = $arBlog;
 
-				if (CBlog::CanUserManageBlog($arBlog["ID"], IntVal($USER->GetID())))
+				if (CBlog::CanUserManageBlog($arBlog["ID"], intval($USER->GetID())))
 				{
 					if($arParams["SET_TITLE"]=="Y")
 						$APPLICATION->SetTitle(str_replace("#NAME#", $arBlog["NAME"], GetMessage("B_B_US_TITLE_BLOG")));
@@ -50,7 +50,7 @@ if (StrLen($arParams["BLOG_URL"]) > 0)
 					$errorMessage = "";
 					$okMessage = "";
 
-					if (IntVal($GLOBALS["del_id"]) > 0)
+					if (intval($GLOBALS["del_id"]) > 0)
 					{
 						if(check_bitrix_sessid())
 						{
@@ -58,7 +58,7 @@ if (StrLen($arParams["BLOG_URL"]) > 0)
 
 							$dbCandidate = CBlogCandidate::GetList(
 								array(),
-								array("BLOG_ID" => $arBlog["ID"], "USER_ID" => IntVal($GLOBALS["del_id"]))
+								array("BLOG_ID" => $arBlog["ID"], "USER_ID" => intval($GLOBALS["del_id"]))
 							);
 							if ($arCandidate = $dbCandidate->Fetch())
 							{
@@ -77,7 +77,7 @@ if (StrLen($arParams["BLOG_URL"]) > 0)
 							foreach ($_REQUEST["add_friend"] as $key => $friend)
 							{
 								$arFriendUsers = Array();
-								if (StrLen($friend) > 0)
+								if ($friend <> '')
 								{
 									$arUserID = array();
 									$dbUsers = CBlogUser::GetList(
@@ -88,11 +88,15 @@ if (StrLen($arParams["BLOG_URL"]) > 0)
 										array("ID", "USER_ID")
 										);
 									while($arUsers = $dbUsers->Fetch())
+									{
 										$arFriendUsers[] = $arUsers["USER_ID"];
+									}
 
 									$dbSearchUser = CBlog::GetList(array(), array("URL" => $friend), false, false, array("ID", "OWNER_ID"));
 									if($arSearchUser = $dbSearchUser->Fetch())
+									{
 										$arUserID[] = $arSearchUser["OWNER_ID"];
+									}
 
 									/*
 									$dbSearchUser = CBlog::GetList(array(), array("NAME" => $friend), false, false, array("ID", "OWNER_ID"));
@@ -101,20 +105,25 @@ if (StrLen($arParams["BLOG_URL"]) > 0)
 									*/
 
 									$canUseAlias = COption::GetOptionString("blog", "allow_alias", "Y");
-									if ($canUseAlias == "Y")
+									if ($canUseAlias === "Y")
 									{
 										$dbSearchUser = CBlogUser::GetList(array(), array("ALIAS" => $friend), false, false, array("ID", "USER_ID"));
 										if(($arSearchUser = $dbSearchUser->Fetch()) && !in_array($arSearchUser["USER_ID"], $arUserID))
+										{
 											$arUserID[] = $arSearchUser["USER_ID"];
+										}
 									}
 
 									$dbSearchUser = CUser::GetList(($b = "LOGIN"), ($o = "ASC"), array("LOGIN_EQUAL" => $friend));
 									if(($arSearchUser = $dbSearchUser->Fetch()) && !in_array($arSearchUser["ID"], $arUserID))
-										$arUserID[] = $arSearchUser["ID"];
-
-									if (count($arUserID) > 0)
 									{
-										for ($i = 0; $i < count($arUserID); $i++)
+										$arUserID[] = $arSearchUser["ID"];
+									}
+
+									$usersCount = count($arUserID);
+									if ($usersCount > 0)
+									{
+										for ($i = 0; $i < $usersCount; $i++)
 										{
 											if($arUserID[$i] != $arBlog["OWNER_ID"] && !in_array($arUserID[$i], $arFriendUsers))
 											{
@@ -140,13 +149,13 @@ if (StrLen($arParams["BLOG_URL"]) > 0)
 														$AuthorName = CBlogUser::GetUserName($BlogUser["ALIAS"], $arUser["NAME"], $arUser["LAST_NAME"], $arUser["LOGIN"], $arUser["SECOND_NAME"]);
 														$dbUser = CUser::GetByID($arBlog["OWNER_ID"]);
 														$arUserBlog = $dbUser->GetNext();
-														if (strlen($serverName) <=0)
+														if ($serverName == '')
 														{
-															if (defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME)>0)
+															if (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '')
 																$serverName = SITE_SERVER_NAME;
 															else
 																$serverName = COption::GetOptionString("main", "server_name", "");
-															if (strlen($serverName) <=0)
+															if ($serverName == '')
 																$serverName = $_SERVER["SERVER_NAME"];
 														}
 

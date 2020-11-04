@@ -1,10 +1,13 @@
 import { Type, Tag, Dom, Text, Cache, Reflection } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 import ItemNode from '../../item/item-node';
-import type { TabLabelState, TabLabelStates, TabOptions } from './tab-options';
-import type Dialog from '../dialog';
+import Dialog from '../dialog';
 import BaseStub from './base-stub';
 import DefaultStub from './default-stub';
+import BaseFooter from '../footer/base-footer';
+
+import type { TabLabelState, TabLabelStates, TabOptions } from './tab-options';
+import type { FooterContent, FooterOptions } from '../footer/footer-content';
 
 /**
  * @memberof BX.UI.EntitySelector
@@ -30,21 +33,25 @@ export default class Tab extends EventEmitter
 
 	itemMaxDepth: number = 3;
 
+	footer: BaseFooter = null;
+	showDefaultFooter = true;
 	cache = new Cache.MemoryCache();
 
-	constructor(tabOptions: TabOptions)
+	constructor(dialog: Dialog, tabOptions: TabOptions)
 	{
 		super();
 		this.setEventNamespace('BX.UI.EntitySelector.Tab');
 
-		const options = Type.isPlainObject(tabOptions) ? tabOptions : {};
+		const options: TabOptions = Type.isPlainObject(tabOptions) ? tabOptions : {};
 
 		if (!Type.isStringFilled(options.id))
 		{
 			throw new Error('EntitySelector.Tab: "id" parameter is required.');
 		}
 
+		this.setDialog(dialog);
 		this.id = options.id;
+		this.showDefaultFooter = options.showDefaultFooter !== false;
 
 		this.rootNode = new ItemNode(null, { itemOrder: options.itemOrder });
 		this.rootNode.setTab(this);
@@ -56,6 +63,7 @@ export default class Tab extends EventEmitter
 		this.setTextColor(options.textColor);
 		this.setBgColor(options.bgColor);
 		this.setStub(options.stub, options.stubOptions);
+		this.setFooter(options.footer, options.footerOptions);
 	}
 
 	getId(): string
@@ -106,6 +114,56 @@ export default class Tab extends EventEmitter
 		}
 
 		this.stub = instance;
+	}
+
+	getFooter(): ?BaseFooter
+	{
+		return this.footer;
+	}
+
+	setFooter(footerContent: ?FooterContent, footerOptions?: FooterOptions)
+	{
+		/** @var {BaseFooter} */
+		let footer = null;
+		if (footerContent !== null)
+		{
+			footer = Dialog.createFooter(this, footerContent, footerOptions);
+			if (footer === null)
+			{
+				return;
+			}
+		}
+
+		if (this.isRendered() && this.getFooter() !== null)
+		{
+			Dom.remove(this.getFooter().getContainer());
+			this.getDialog().adjustFooter();
+		}
+
+		this.footer = footer;
+
+		if (this.isRendered())
+		{
+			this.getDialog().appendFooter(footer);
+			this.getDialog().adjustFooter();
+		}
+	}
+
+	canShowDefaultFooter(): boolean
+	{
+		return this.showDefaultFooter;
+	}
+
+	enableDefaultFooter(): void
+	{
+		this.showDefaultFooter = true;
+		this.getDialog().adjustFooter();
+	}
+
+	disableDefaultFooter(): void
+	{
+		this.showDefaultFooter = false;
+		this.getDialog().adjustFooter();
 	}
 
 	getRootNode(): ItemNode
@@ -356,6 +414,11 @@ export default class Tab extends EventEmitter
 		{
 			this.renderLabel();
 		}
+
+		if (this.getFooter())
+		{
+			this.getFooter().show();
+		}
 	}
 
 	deselect(): void
@@ -377,6 +440,11 @@ export default class Tab extends EventEmitter
 		if (this.isVisible())
 		{
 			this.renderLabel();
+		}
+
+		if (this.getFooter())
+		{
+			this.getFooter().hide();
 		}
 	}
 

@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports, main_core, landing_env, landing_loc, landing_ui_panel_content, landing_sliderhacks, landing_pageobject) {
+(function (exports,landing_env,landing_loc,landing_ui_panel_content,landing_sliderhacks,landing_pageobject,main_core) {
 	'use strict';
 
 	/**
@@ -74,9 +74,7 @@ this.BX = this.BX || {};
 	 */
 
 
-	var Main =
-	/*#__PURE__*/
-	function (_Event$EventEmitter) {
+	var Main = /*#__PURE__*/function (_Event$EventEmitter) {
 	  babelHelpers.inherits(Main, _Event$EventEmitter);
 	  babelHelpers.createClass(Main, null, [{
 	    key: "getMode",
@@ -528,6 +526,9 @@ this.BX = this.BX || {};
 	            sec: 'd9e09o',
 	            lang: 'ua'
 	          };
+	          break;
+
+	        default:
 	          break;
 	      }
 
@@ -1129,5 +1130,5 @@ this.BX = this.BX || {};
 
 	exports.Main = Main;
 
-}(this.BX.Landing = this.BX.Landing || {}, BX, BX.Landing, BX.Landing, BX.Landing.UI.Panel, BX.Landing, BX.Landing));
+}((this.BX.Landing = this.BX.Landing || {}),BX.Landing,BX.Landing,BX.Landing.UI.Panel,BX.Landing,BX.Landing,BX));
 //# sourceMappingURL=main.bundle.js.map

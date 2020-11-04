@@ -7,15 +7,15 @@ if (!CModule::IncludeModule("blog"))
 	return;
 }
 
-$arParams["MESSAGE_COUNT"] = IntVal($arParams["MESSAGE_COUNT"])>0 ? IntVal($arParams["MESSAGE_COUNT"]): 6;
-$arParams["PREVIEW_WIDTH"] = IntVal($arParams["PREVIEW_WIDTH"])>0 ? IntVal($arParams["PREVIEW_WIDTH"]): 100;
-$arParams["PREVIEW_HEIGHT"] = IntVal($arParams["PREVIEW_HEIGHT"])>0 ? IntVal($arParams["PREVIEW_HEIGHT"]): 100;
-$arParams["PERIOD_DAYS"] = IntVal($arParams["PERIOD_DAYS"])>0 ? IntVal($arParams["PERIOD_DAYS"]): 30;
-$arParams["SORT_BY1"] = (strlen($arParams["SORT_BY1"])>0 ? $arParams["SORT_BY1"] : "NUM_COMMENTS");
-$arParams["SORT_ORDER1"] = (strlen($arParams["SORT_ORDER1"])>0 ? $arParams["SORT_ORDER1"] : "DESC");
-$arParams["SORT_BY2"] = (strlen($arParams["SORT_BY2"])>0 ? $arParams["SORT_BY2"] : "DATE_PUBLISH");
-$arParams["SORT_ORDER2"] = (strlen($arParams["SORT_ORDER2"])>0 ? $arParams["SORT_ORDER2"] : "DESC");
-$arParams["MESSAGE_LENGTH"] = (IntVal($arParams["MESSAGE_LENGTH"])>0)?$arParams["MESSAGE_LENGTH"]:100;
+$arParams["MESSAGE_COUNT"] = intval($arParams["MESSAGE_COUNT"])>0 ? intval($arParams["MESSAGE_COUNT"]): 6;
+$arParams["PREVIEW_WIDTH"] = intval($arParams["PREVIEW_WIDTH"])>0 ? intval($arParams["PREVIEW_WIDTH"]): 100;
+$arParams["PREVIEW_HEIGHT"] = intval($arParams["PREVIEW_HEIGHT"])>0 ? intval($arParams["PREVIEW_HEIGHT"]): 100;
+$arParams["PERIOD_DAYS"] = intval($arParams["PERIOD_DAYS"])>0 ? intval($arParams["PERIOD_DAYS"]): 30;
+$arParams["SORT_BY1"] = ($arParams["SORT_BY1"] <> '' ? $arParams["SORT_BY1"] : "NUM_COMMENTS");
+$arParams["SORT_ORDER1"] = ($arParams["SORT_ORDER1"] <> '' ? $arParams["SORT_ORDER1"] : "DESC");
+$arParams["SORT_BY2"] = ($arParams["SORT_BY2"] <> '' ? $arParams["SORT_BY2"] : "DATE_PUBLISH");
+$arParams["SORT_ORDER2"] = ($arParams["SORT_ORDER2"] <> '' ? $arParams["SORT_ORDER2"] : "DESC");
+$arParams["MESSAGE_LENGTH"] = (intval($arParams["MESSAGE_LENGTH"])>0)?$arParams["MESSAGE_LENGTH"]:100;
 $arParams["BLOG_URL"] = preg_replace("/[^a-zA-Z0-9_-]/is", "", Trim($arParams["BLOG_URL"]));
 $arParams["USE_SOCNET"] = ($arParams["USE_SOCNET"] == "Y") ? "Y" : "N";
 // activation rating
@@ -24,7 +24,7 @@ CRatingsComponentsMain::GetShowRating($arParams);
 if(!is_array($arParams["GROUP_ID"]))
 	$arParams["GROUP_ID"] = array($arParams["GROUP_ID"]);
 foreach($arParams["GROUP_ID"] as $k=>$v)
-	if(IntVal($v) <= 0)
+	if(intval($v) <= 0)
 		unset($arParams["GROUP_ID"][$k]);
 
 if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
@@ -33,27 +33,27 @@ else
 	$arParams["CACHE_TIME"] = 0;
 $arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 
-if(strLen($arParams["BLOG_VAR"])<=0)
+if($arParams["BLOG_VAR"] == '')
 	$arParams["BLOG_VAR"] = "blog";
-if(strLen($arParams["PAGE_VAR"])<=0)
+if($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if(strLen($arParams["USER_VAR"])<=0)
+if($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "id";
-if(strLen($arParams["POST_VAR"])<=0)
+if($arParams["POST_VAR"] == '')
 	$arParams["POST_VAR"] = "id";
 
 $arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"]);
-if(strlen($arParams["PATH_TO_BLOG"])<=0)
+if($arParams["PATH_TO_BLOG"] == '')
 	$arParams["PATH_TO_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
 
-$arParams["PATH_TO_SMILE"] = strlen(trim($arParams["PATH_TO_SMILE"]))<=0 ? false : trim($arParams["PATH_TO_SMILE"]);
+$arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"]) == '' ? false : trim($arParams["PATH_TO_SMILE"]);
 
 $arParams["PATH_TO_POST"] = trim($arParams["PATH_TO_POST"]);
-if(strlen($arParams["PATH_TO_POST"])<=0)
+if($arParams["PATH_TO_POST"] == '')
 	$arParams["PATH_TO_POST"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if(strlen($arParams["PATH_TO_USER"])<=0)
+if($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 $arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 $arParams["ALLOW_POST_CODE"] = $arParams["ALLOW_POST_CODE"] !== "N";
@@ -62,7 +62,7 @@ $UserGroupID = Array(1);
 if($USER->IsAuthorized())
 	$UserGroupID[] = 2;
 
-$user_id = IntVal($USER->GetID());
+$user_id = intval($USER->GetID());
 $cache = new CPHPCache;
 $cache_id = "blog_last_messages_".serialize($arParams)."_".serialize($UserGroupID)."_".$USER->IsAdmin();
 if(($tzOffset = CTimeZone::GetOffset()) <> 0)
@@ -96,7 +96,7 @@ else
 			">NUM_COMMENTS" => 0
 		);
 
-	if(strlen($arParams["BLOG_URL"]) > 0)
+	if($arParams["BLOG_URL"] <> '')
 		$arFilter["BLOG_URL"] = $arParams["BLOG_URL"];
 	if(!empty($arParams["GROUP_ID"]))
 		$arFilter["BLOG_GROUP_ID"] = $arParams["GROUP_ID"];
@@ -110,18 +110,18 @@ else
 		unset($arFilter[">PERMS"]);
 		$arFilter["BLOG_USE_SOCNET"] = "Y";
 		$SORT = Array("RATING_TOTAL_VALUE" => "DESC", "VIEWS" => "DESC");
-		if(IntVal($arParams["SOCNET_GROUP_ID"]) <= 0 && IntVal($arParams["USER_ID"]) <= 0)
+		if(intval($arParams["SOCNET_GROUP_ID"]) <= 0 && intval($arParams["USER_ID"]) <= 0)
 		{
 			$arFilter["FOR_USER"] = $user_id;
 		}
 		else
 		{
-			if(IntVal($arParams["USER_ID"]) > 0)
+			if(intval($arParams["USER_ID"]) > 0)
 			{
 				$arFilter["AUTHOR_ID"] = $arParams["USER_ID"];
 				$arFilter["FOR_USER"] = $user_id;
 			}
-			elseif(IntVal($arParams["SOCNET_GROUP_ID"]) > 0)
+			elseif(intval($arParams["SOCNET_GROUP_ID"]) > 0)
 			{
 				$arFilter["SOCNET_GROUP_ID"] = $arParams["SOCNET_GROUP_ID"];
 				$perms = BLOG_PERMS_DENY;
@@ -156,7 +156,7 @@ else
 		$itemCnt = 0;
 		while ($arPost = $dbPosts->GetNext())
 		{
-			if(IntVal($arPost["ATTACH_IMG"]) <= 0)
+			if(intval($arPost["ATTACH_IMG"]) <= 0)
 			{
 				$dbImage = CBlogImage::GetList(Array("ID" => "ASC"), Array("BLOG_ID" => $arPost["BLOG_ID"], "POST_ID" => $arPost["ID"], "IS_COMMENT" => "N"));
 				if($arImage = $dbImage -> Fetch())
@@ -177,7 +177,7 @@ else
 			}
 			else
 			{
-				if($arParams["USE_SOCNET"] == "Y" && IntVal($arParams["SOCNET_GROUP_ID"]) > 0)
+				if($arParams["USE_SOCNET"] == "Y" && intval($arParams["SOCNET_GROUP_ID"]) > 0)
 					$arTmp["urlToBlog"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $arPost["AUTHOR_ID"]));
 				else
 				{
@@ -189,7 +189,7 @@ else
 				}
 			}
 
-			if(IntVal($arPost["BLOG_SOCNET_GROUP_ID"]) > 0)
+			if(intval($arPost["BLOG_SOCNET_GROUP_ID"]) > 0)
 				$arTmp["urlToPost"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP_BLOG_POST"], array("blog" => $arPost["BLOG_URL"], "post_id"=>CBlogPost::GetPostID($arPost["ID"], $arPost["CODE"], $arParams["ALLOW_POST_CODE"]), "group_id" => $arPost["BLOG_SOCNET_GROUP_ID"]));
 			else
 				$arTmp["urlToPost"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_POST"], array("blog" => $arPost["BLOG_URL"], "post_id"=>CBlogPost::GetPostID($arPost["ID"], $arPost["CODE"], $arParams["ALLOW_POST_CODE"]), "user_id" => $arPost["BLOG_OWNER_ID"]));

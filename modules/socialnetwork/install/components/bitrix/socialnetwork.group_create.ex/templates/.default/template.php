@@ -950,7 +950,7 @@ else
 														}
 														else
 														{
-															?><input type="text" name="GROUP_KEYWORDS" style="width:98%" value="<?= $arResult["POST"]["KEYWORDS"]; ?>"><?
+															?><input type="text" style="width:98%" value=""><?
 														}
 														?>
 														<script>
@@ -995,7 +995,7 @@ else
 															{
 																?><div class="social-group-create-form-field-list-item">
 																<label class="social-group-create-form-field-list-label<?=($arResult["POST"]["PROJECT"] == "Y" ? ' sgcp-switch-project' : '')?>" id="GROUP_VISIBLE_LABEL_block">
-																	<input type="checkbox" id="GROUP_VISIBLE" name="GROUP_VISIBLE" class="social-group-create-form-field-list-input" value="Y" <?= ($arResult["POST"]["VISIBLE"] == "Y") ? " checked" : ""?>>
+																	<input type="checkbox" id="GROUP_VISIBLE" name="GROUP_VISIBLE" class="social-group-create-form-field-list-input" value="Y" <?= ($arResult["POST"]["VISIBLE"] === "Y") ? " checked" : ""?><?= ($arResult["POST"]["IS_EXTRANET_GROUP"] === "Y") ? " disabled" : ""?>>
 																	<span class="social-group-create-form-field-list-name sgcp-inlineblock-nonproject" title="<?=Loc::getMessage("SONET_GCE_T_PARAMS_VIS2_HINT")?>"><?=Loc::getMessage("SONET_GCE_T_PARAMS_VIS2") ?></span>
 																	<span class="social-group-create-form-field-list-name sgcp-inlineblock-project" title="<?=Loc::getMessage("SONET_GCE_T_PARAMS_VIS2_HINT_PROJECT")?>"><?=Loc::getMessage("SONET_GCE_T_PARAMS_VIS2_PROJECT")?></span>
 																</label>

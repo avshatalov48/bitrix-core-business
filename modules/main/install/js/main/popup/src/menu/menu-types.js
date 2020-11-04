@@ -7,6 +7,7 @@ export type MenuOptions = PopupOptions & {
 export type MenuItemOptions = {
 	id?: string,
 	text?: string,
+	html?: string,
 	title?: string,
 	disabled?: boolean,
 	href?: string,

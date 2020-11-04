@@ -1,9 +1,11 @@
 <?php
 namespace Bitrix\Socialnetwork\Livefeed;
 
+use Bitrix\Iblock\SectionTable;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ModuleManager;
 use Bitrix\Main\UserTable;
 use Bitrix\Socialnetwork\LogTable;
 
@@ -11,17 +13,17 @@ Loc::loadMessages(__FILE__);
 
 class IntranetNewUser extends Provider
 {
-	const PROVIDER_ID = 'INTRANET_NEW_USER';
-	const CONTENT_TYPE_ID = 'INTRANET_NEW_USER';
+	public const PROVIDER_ID = 'INTRANET_NEW_USER';
+	public const CONTENT_TYPE_ID = 'INTRANET_NEW_USER';
 
-	public static function getId()
+	public static function getId(): string
 	{
 		return static::PROVIDER_ID;
 	}
 
 	public function getEventId()
 	{
-		return array('intranet_new_user');
+		return [ 'intranet_new_user' ];
 	}
 
 	public function getType()
@@ -31,71 +33,160 @@ class IntranetNewUser extends Provider
 
 	public function getCommentProvider()
 	{
-		$provider = new \Bitrix\Socialnetwork\Livefeed\LogComment();
-		return $provider;
+		return new LogComment();
 	}
 
 	public function initSourceFields()
 	{
-		$ratingEntityId = $this->getEntityId();
-		$userId = 0;
+		static $cache = [];
 
-		if (!empty($ratingEntityId))
+		$ratingEntityId = $this->getEntityId();
+
+		if ($ratingEntityId <= 0)
 		{
-			$res = LogTable::getList(array(
-				'filter' => array(
-					'@EVENT_ID' => $this->getEventId(),
+			return;
+		}
+
+		$sourceFields = [];
+
+		if (isset($cache[$ratingEntityId]))
+		{
+			$sourceFields = $cache[$ratingEntityId];
+		}
+		else
+		{
+			$userId = 0;
+			$bitrix24NewUserProvider = new Bitrix24NewUser();
+
+			$res = LogTable::getList([
+				'filter' => [
+					'@EVENT_ID' => array_merge($this->getEventId(), $bitrix24NewUserProvider->getEventId() ),
 					'=RATING_ENTITY_ID' => $ratingEntityId
-				),
-				'select' => array('ID', 'ENTITY_ID')
-			));
+				],
+				'select' => [ 'ID', 'ENTITY_ID' ]
+			]);
 			if ($logEntry = $res->fetch())
 			{
-				$this->setLogId($logEntry['ID']);
 				$userId = $logEntry['ENTITY_ID'];
 			}
-		}
 
-		if ($userId > 0)
-		{
-			$res = UserTable::getList(array(
-				'filter' => array(
-					'=ID' => $userId
-				)
-			));
-			if ($user = $res->fetch())
+			if ($userId > 0)
 			{
-				$this->setSourceFields($user);
+				$res = UserTable::getList(array(
+					'filter' => [
+						'=ID' => $userId
+					],
+					'select' => [
+						'NAME', 'LAST_NAME', 'SECOND_NAME', 'LOGIN', 'UF_DEPARTMENT'
+					]
+				));
+				if ($user = $res->fetch())
+				{
+					$userName = \CUser::formatName(
+						\CSite::getNameFormat(),
+						$user,
+						true,
+						false
+					);
+					$user['FULL_NAME'] = $userName;
 
-				$userName = \CUser::formatName(
-					\CSite::getNameFormat(),
-					$user,
-					true,
-					false
-				);
-				$user['FULL_NAME'] = $userName;
+					$user['DEPARTMENT_NAME'] = '';
+					if (
+						is_array($user['UF_DEPARTMENT'])
+						&& !empty($user['UF_DEPARTMENT'])
+						&& Loader::includeModule('iblock')
+					)
+					{
+						$res = SectionTable::getList([
+							'filter' => [
+								'ID' => $user['UF_DEPARTMENT']
+							],
+							'select' => [ 'ID', 'NAME' ]
+						]);
+						if ($sectionFields = $res->fetch())
+						{
+							$user['DEPARTMENT_NAME'] = $sectionFields['NAME'];
+						}
+					}
 
-				$this->setSourceFields(array_merge($user, array('LOG_ENTRY' => $logEntry)));
-				$this->setSourceTitle(Loc::getMessage('SONET_LIVEFEED_INTRANET_NEW_USER_TITLE', array(
-					'#USER_NAME#' => $userName
-				)));
+					$sourceFields = array_merge($user, [ 'LOG_ENTRY' => $logEntry ]);
+					$cache[$ratingEntityId] = $sourceFields;
+				}
 			}
 		}
+
+		if (empty($sourceFields))
+		{
+			return;
+		}
+
+		$this->setLogId($sourceFields['LOG_ENTRY']['ID']);
+		$this->setSourceFields($sourceFields);
+		$this->setSourceTitle(Loc::getMessage('SONET_LIVEFEED_INTRANET_NEW_USER_TITLE', [
+			'#USER_NAME#' => $sourceFields['FULL_NAME']
+		]));
 	}
 
-	public static function canRead($params)
+	public function getPinnedTitle(): string
 	{
-		return true;
-	}
+		$result = '';
 
-	protected function getPermissions(array $post)
-	{
-		$result = self::PERMISSION_READ;
+		if (ModuleManager::isModuleInstalled('bitrix24'))
+		{
+			$result = Option::get('main', 'site_name', '');
+		}
+		else
+		{
+			if (empty($this->sourceFields))
+			{
+				$this->initSourceFields();
+			}
+
+			$sourceFields = $this->getSourceFields();
+			if (empty($sourceFields))
+			{
+				return $result;
+			}
+
+			$result = $sourceFields['DEPARTMENT_NAME'];
+		}
 
 		return $result;
 	}
 
-	public function getLiveFeedUrl()
+	public function getPinnedDescription()
+	{
+		$result = '';
+
+		if (empty($this->sourceFields))
+		{
+			$this->initSourceFields();
+		}
+
+		$sourceFields = $this->getSourceFields();
+		if (empty($sourceFields))
+		{
+			return $result;
+		}
+
+		$result = Loc::getMessage('SONET_LIVEFEED_INTRANET_NEW_USER_PINNED_DESCRIPTION', [
+			'#USER_NAME#' => $sourceFields['FULL_NAME']
+		]);
+
+		return $result;
+	}
+
+	public static function canRead($params): bool
+	{
+		return true;
+	}
+
+	protected function getPermissions(array $post): string
+	{
+		return self::PERMISSION_READ;
+	}
+
+	public function getLiveFeedUrl(): string
 	{
 		$pathToLogEntry = '';
 
@@ -108,6 +199,7 @@ class IntranetNewUser extends Provider
 				$pathToLogEntry = \CComponentEngine::makePathFromTemplate($pathToLogEntry, array("log_id" => $logId));
 			}
 		}
+
 		return $pathToLogEntry;
 	}
 }

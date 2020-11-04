@@ -127,7 +127,7 @@ class OrderUserProperties
 
 		if ($userId <= 0)
 		{
-			$result->addError(new Error("EMPTY USER ID"));
+			return $result->addError(new Error("EMPTY USER ID"));
 		}
 		else
 		{

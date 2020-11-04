@@ -8,10 +8,10 @@ return [
 	'css' => 'dist/sourcefield.bundle.css',
 	'js' => 'dist/sourcefield.bundle.js',
 	'rel' => [
-		'main.core',
-		'landing.loc',
 		'landing.env',
 		'landing.ui.field.basefield',
+		'landing.loc',
+		'main.core',
 	],
 	'skip_core' => false,
 ];

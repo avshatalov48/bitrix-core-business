@@ -20,6 +20,10 @@ class CustomExtensions
 	{
 		$newExtensions = [];
 		$content = $block->getContent();
+		if (!$content)
+		{
+			return;
+		}
 
 		// todo: decode and check "enable" flag
 		if (

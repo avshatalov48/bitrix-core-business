@@ -2,11 +2,11 @@
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
-use Bitrix\Mail\Helper\MailboxDirectoryHelper;
+use Bitrix\Mail;
+use Bitrix\Mail\Integration\Calendar\ICal\ICalMailManager;
+use Bitrix\Mail\Internals\MessageAccessTable;
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Mail;
-use Bitrix\Mail\Internals\MessageAccessTable;
 
 Loc::loadMessages(__DIR__ . '/../mail.client/class.php');
 
@@ -137,7 +137,9 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 			))->fetchAll();
 		}
 
+		$this->prepareICal($message);
 		$this->prepareMessage($message);
+
 		$message['SENDER_EMAIL'] = $this->getEmailFromFieldFrom($message['FIELD_FROM']);
 		$this->arResult['MESSAGE'] = $message;
 
@@ -239,9 +241,10 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 				$this->arResult['LOG']['B'][] = $item;
 			}
 		}
-		$this->markMessageAsSeen($message);
 
+		$this->markMessageAsSeen($message);
 		$this->prepareUser();
+
 		$this->arResult['avatarParams'] = $this->getAvatarParams(array_merge(
 			$this->arResult['LOG']['B'],
 			$this->arResult['LOG']['A'],
@@ -562,6 +565,21 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 		);
 
 		$this->arResult['USER_IMAGE'] = !empty($userImage['src']) ? $userImage['src'] : '';
+	}
+
+	protected function prepareICal($message)
+	{
+		if (empty($message['OPTIONS']['iCal']))
+		{
+			return;
+		}
+
+		list($event, $method) = ICalMailManager::parseRequest($message['OPTIONS']['iCal']);
+
+		if (isset($method) && $method === 'REQUEST')
+		{
+			$this->arResult['iCalEvent'] = $event;
+		}
 	}
 
 	/**

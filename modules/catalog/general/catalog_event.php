@@ -4,22 +4,30 @@ Loc::loadMessages(__FILE__);
 
 class CCatalogEvent
 {
-	function GetAuditTypes()
+	/**
+	 * @return array
+	 */
+	public static function GetAuditTypes(): array
 	{
-		return array(
+		return [
 			"CAT_YAND_AGENT" => "[CAT_YAND_AGENT] ".Loc::getMessage("CAT_YAND_AGENT"),
 			"CAT_YAND_FILE" => "[CAT_YAND_FILE] ".Loc::getMessage('CAT_YAND_FILE'),
-		);
+		];
 	}
 
-	function GetYandexAgentEvent()
+	/**
+	 * @return array
+	 */
+	public static function GetYandexAgentEvent(): array
 	{
-		return array('CAT_YAND_AGENT','CAT_YAND_FILE');
+		return ['CAT_YAND_AGENT','CAT_YAND_FILE'];
 	}
 
-	function GetYandexAgentFilter()
+	/**
+	 * @return string
+	 */
+	public static function GetYandexAgentFilter(): string
 	{
 		return '&find_audit_type[]=CAT_YAND_AGENT&find_audit_type[]=CAT_YAND_FILE';
 	}
 }
-?>

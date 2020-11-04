@@ -11,9 +11,7 @@
 	  return data;
 	}
 
-	var ImageInput =
-	/*#__PURE__*/
-	function () {
+	var ImageInput = /*#__PURE__*/function () {
 	  function ImageInput() {
 	    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, ImageInput);

@@ -743,6 +743,12 @@ if(typeof BX.UI.EntityEditorUserField === "undefined")
 		{
 			return true;
 		}
+		// if rest field marked as "show always", it always has value and should be shown:
+		if (this.checkOptionFlag(BX.UI.EntityEditorControlOptions.showAlways)
+			&& this.getFieldType().indexOf('rest_') === 0)
+		{
+			return true;
+		}
 		return this.checkIfNotEmpty(this.getValue());
 	};
 	BX.UI.EntityEditorUserField.prototype.layout = function(options)

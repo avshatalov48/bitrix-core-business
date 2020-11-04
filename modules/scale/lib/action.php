@@ -33,13 +33,13 @@ class Action
 	 */
 	public function __construct($actionId, $actionParams, $serverHostname="", $userParams = array(), $freeParams = array())
 	{
-		if(strlen($actionId) <= 0)
+		if($actionId == '')
 			throw new \Bitrix\Main\ArgumentNullException("actionId");
 
 		if(!is_array($actionParams) || empty($actionParams))
 			throw new \Exception("Params of action ".$actionId." are not defined correctly!");
 
-		if(!isset($actionParams["START_COMMAND_TEMPLATE"]) || strlen($actionParams["START_COMMAND_TEMPLATE"]) <= 0)
+		if(!isset($actionParams["START_COMMAND_TEMPLATE"]) || $actionParams["START_COMMAND_TEMPLATE"] == '')
 			throw new \Exception("Required param START_COMMAND_TEMPLATE of action ".$actionId." are not defined!");
 
 		if(!is_array($userParams))
@@ -81,7 +81,7 @@ class Action
 		{
 			if($this->actionParams['USER_PARAMS'][$key]['THROUGH_FILE'] == 'Y')
 			{
-				if(strlen($paramValue) > 0)
+				if($paramValue <> '')
 				{
 					$tmpDir = Helper::getTmpDir();
 					$tmpFile = $tmpDir.'/.'.randString();
@@ -97,7 +97,7 @@ class Action
 			$retStr = str_replace('##USER_PARAMS:'.$key.'##', $paramValue, $retStr);
 		}
 
-		if(strlen($this->serverHostname) > 0 && $this->serverHostname != "global")
+		if($this->serverHostname <> '' && $this->serverHostname != "global")
 		{
 			$serverParams = $this->getServerParams();
 			$serverParams["hostname"] = $this->serverHostname;
@@ -172,13 +172,13 @@ class Action
 		$arOutput = array();
 		$command = $this->makeStartCommand($inputParams);
 
-		if(strlen($command) > 0)
+		if($command <> '')
 		{
 			$result =  $this->shellAdapter->syncExec($command);
 			$output = $this->shellAdapter->getLastOutput();
 			$arOutput = array();
 
-			if(strlen($output) > 0)
+			if($output <> '')
 			{
 				$arOut = json_decode($output, true);
 
@@ -190,7 +190,7 @@ class Action
 			$error = $this->shellAdapter->getLastError();
 
 			//error returned by bitrix-env
-			if(isset($arOutput["error"]) && intval($arOutput["error"]) > 0 && isset($arOutput["message"]) && strlen($arOutput["message"]) > 0)
+			if(isset($arOutput["error"]) && intval($arOutput["error"]) > 0 && isset($arOutput["message"]) && $arOutput["message"] <> '')
 				$error .= " ".$arOutput["message"];
 
 			$this->makeLogRecords($command, $result, $output, $error);
@@ -226,7 +226,7 @@ class Action
 
 	protected function makeLogRecords($command = "", $result = null, $output = "", $error = "")
 	{
-		if(strlen($command) > 0)
+		if($command <> '')
 		{
 			//cut password data from log records
 			$preg = "/(-p.*\s+|--mysql_password=.*\s+|--cluster_password=.*\s+|--replica_password=.*\s+|--password=.*\s+)/is";
@@ -250,7 +250,7 @@ class Action
 			);
 		}
 
-		if(strlen($output) > 0)
+		if($output <> '')
 		{
 			$this->log(
 				Logger::LOG_LEVEL_DEBUG,
@@ -260,7 +260,7 @@ class Action
 			);
 		}
 
-		if(strlen($error) > 0)
+		if($error <> '')
 		{
 			$this->log(
 				Logger::LOG_LEVEL_ERROR,

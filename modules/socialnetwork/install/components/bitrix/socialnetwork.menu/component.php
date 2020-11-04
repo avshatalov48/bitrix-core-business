@@ -49,7 +49,7 @@ if (count($parts) == 2)
 	$arParams["UPD_URL"] = $arResult["UPD_URL"] = $string;
 }
 
-$arParams["LogName"] = ($arParams["LogName"] <> '' ? $arParams["LogName"] : GetMessage("SONET_SM_M_LOG"));
+$arParams["LogName"] = ($arParams["LogName"] <> '' ? $arParams["LogName"] : GetMessage(\Bitrix\Main\ModuleManager::isModuleInstalled('intranet' ? "SONET_SM_M_LOG2" : "SONET_SM_M_LOG")));
 if (in_array($arParams["ENTITY_TYPE"], array(SONET_ENTITY_GROUP, SONET_ENTITY_USER)))
 	$arParams["GeneralName"] = ($arParams["GeneralName"] <> '' ? $arParams["GeneralName"] : GetMessage("SONET_SM_GENERAL_".$arParams["ENTITY_TYPE"]));
 $arParams["FriendsName"] = ($arParams["FriendsName"] <> '' ? $arParams["FriendsName"] : GetMessage("SONET_SM_U_FRIENDS"));

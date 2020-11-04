@@ -96,6 +96,8 @@ class PostTable extends Entity\DataManager
 			),
 			'DETAIL_TEXT' => array(
 				'data_type' => 'text',
+				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
+				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 			'CATEGORY_ID' => array(
 				'data_type' => 'string',

@@ -4,6 +4,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use \Bitrix\Landing\Block;
+use \Bitrix\Landing\Landing;
+use \Bitrix\Landing\Syspage;
 use \Bitrix\Landing\Hook\Page\Settings;
 
 class StoreCartBlock extends \Bitrix\Landing\LandingBlock
@@ -39,5 +42,26 @@ class StoreCartBlock extends \Bitrix\Landing\LandingBlock
 
 		$this->params['SITE_ID'] = $params['site_id'];
 		$this->params['LANDING_ID'] = $params['landing_id'];
+	}
+
+	public function beforeView(Block $block)
+	{
+		// bugfix #0130635
+		$eventManager = \Bitrix\Main\EventManager::getInstance();
+		$eventManager->addEventHandler('main', 'onEndBufferContent',
+			function(&$content) use($block)
+			{
+				if (strpos($content, '#system_catalog'))
+				{
+					$sysPages = Syspage::get($block->getSiteId(), true);
+					if (isset($sysPages['catalog']))
+					{
+						$landing = Landing::createInstance(0);
+						$catalogUrl = $landing->getPublicUrl($sysPages['catalog']['LANDING_ID']);
+						$content = str_replace('#system_catalog', $catalogUrl, $content);
+					}
+				}
+			}
+		);
 	}
 }

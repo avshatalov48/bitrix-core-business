@@ -31,7 +31,7 @@ export default class SearchLoader
 		return this.loader;
 	}
 
-	getContainer()
+	getContainer(): HTMLElement
 	{
 		return this.cache.remember('container', () => {
 			return Tag.render`
@@ -43,7 +43,7 @@ export default class SearchLoader
 		});
 	}
 
-	getBoxContainer()
+	getBoxContainer(): HTMLElement
 	{
 		return this.cache.remember('box-container', () => {
 			return Tag.render`
@@ -54,14 +54,14 @@ export default class SearchLoader
 		});
 	}
 
-	getIconContainer()
+	getIconContainer(): HTMLElement
 	{
 		return this.cache.remember('icon', () => {
 			return Tag.render`<div class="ui-selector-search-loader-icon"></div>`;
 		});
 	}
 
-	getTextContainer()
+	getTextContainer(): HTMLElement
 	{
 		return this.cache.remember('text', () => {
 			return Tag.render`
@@ -72,21 +72,21 @@ export default class SearchLoader
 		});
 	}
 
-	getSpacerContainer()
+	getSpacerContainer(): HTMLElement
 	{
 		return this.cache.remember('spacer', () => {
 			return Tag.render`<div class="ui-selector-search-loader-spacer"></div>`;
 		});
 	}
 
-	show()
+	show(): void
 	{
 		if (!this.getContainer().parentNode)
 		{
 			Dom.append(this.getContainer(), this.getTab().getContainer());
 		}
 
-		this.getLoader().show();
+		void this.getLoader().show();
 
 		Dom.addClass(this.getContainer(), 'ui-selector-search-loader--show');
 		requestAnimationFrame(() => {
@@ -94,7 +94,7 @@ export default class SearchLoader
 		});
 	}
 
-	hide()
+	hide(): void
 	{
 		if (this.loader === null)
 		{
@@ -106,6 +106,11 @@ export default class SearchLoader
 			['ui-selector-search-loader--show', 'ui-selector-search-loader--animate']
 		);
 
-		this.getLoader().hide();
+		void this.getLoader().hide();
+	}
+
+	isShown(): boolean
+	{
+		return this.loader !== null && this.loader.isShown();
 	}
 }

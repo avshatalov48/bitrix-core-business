@@ -7,7 +7,7 @@ endif;
 ?>
 <div class="blog-post-edit blog-post-edit-micro">
 <?
-if(strlen($arResult["MESSAGE"])>0)
+if($arResult["MESSAGE"] <> '')
 {
 	?>
 	<div class="blog-textinfo blog-note-box">
@@ -17,7 +17,7 @@ if(strlen($arResult["MESSAGE"])>0)
 	</div>
 	<?
 }
-if(strlen($arResult["ERROR_MESSAGE"])>0)
+if($arResult["ERROR_MESSAGE"] <> '')
 {
 	?>
 	<div class="blog-errors blog-note-box blog-note-error">
@@ -27,10 +27,10 @@ if(strlen($arResult["ERROR_MESSAGE"])>0)
 	</div>
 	<?
 }
-if(strlen($arResult["FATAL_MESSAGE"])>0)
+if($arResult["FATAL_MESSAGE"] <> '')
 {
 }
-elseif(strlen($arResult["UTIL_MESSAGE"])>0)
+elseif($arResult["UTIL_MESSAGE"] <> '')
 {
 	?>
 	<div class="blog-textinfo blog-note-box">
@@ -112,7 +112,7 @@ else
 										"BIND_ELEMENT" => "blog-post-group-selector",
 										"ON_SELECT" => "onGroupBlogSelect",
 										"FEATURES_PERMS" => array("microblog", array("premoderate_post", "moderate_post", "write_post", "full_post", "view_post")),
-										"SELECTED" => IntVal($_POST["SONETGROUP"])
+										"SELECTED" => intval($_POST["SONETGROUP"])
 									), null, array("HIDE_ICONS" => "Y")
 								);
 						?>

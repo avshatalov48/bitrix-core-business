@@ -264,7 +264,7 @@ class CSaleMobileOrderUtils
 						)
 					);
 
-		if($saleModulePermissions > D)
+		if($saleModulePermissions > "D")
 			$arSection["ROWS"][] = array("TITLE" => GetMessage("SMOB_C_MANAGER").":", "VALUE" => $arOrder['COMMENTS']);
 
 		$mad->addSection($arSection);

@@ -39,18 +39,18 @@ $USER_FIELD_MANAGER->AdminListAddFilterFields("BLOG_COMMENT", $arFilterFields);
 $lAdmin->InitFilter($arFilterFields);
 
 $arFilter = array();
-if (strlen($filter_post_text) > 0)
+if ($filter_post_text <> '')
 	$arFilter["~POST_TEXT"] = "%".$filter_post_text."%";
-if (strlen($filter_author_name) > 0)
+if ($filter_author_name <> '')
 	$arFilter["~AUTHOR_NAME"] = "%".$filter_author_name."%";
-if (strlen($filter_author_email) > 0)
+if ($filter_author_email <> '')
 	$arFilter["~AUTHOR_EMAIL"] = "%".$filter_author_email."%";
-if (strlen($filter_date_create_from)>0) $arFilter[">=DATE_CREATE"] = Trim($filter_date_create_from);
-if (strlen($filter_date_create_to)>0)
+if ($filter_date_create_from <> '') $arFilter[">=DATE_CREATE"] = Trim($filter_date_create_from);
+if ($filter_date_create_to <> '')
 {
 	if ($arDate = ParseDateTime($filter_date_create_to, CSite::GetDateFormat("FULL", SITE_ID)))
 	{
-		if (StrLen($filter_date_create_to) < 11)
+		if (mb_strlen($filter_date_create_to) < 11)
 		{
 			$arDate["HH"] = 23;
 			$arDate["MI"] = 59;
@@ -65,7 +65,7 @@ if (strlen($filter_date_create_to)>0)
 		$filter_date_create_to = "";
 	}
 }
-if (strlen($filter_author_anonym) > 0)
+if ($filter_author_anonym <> '')
 {
 	if($filter_author_anonym == "Y")
 		$arFilter["AUTHOR_ID"] = false;
@@ -74,30 +74,30 @@ if (strlen($filter_author_anonym) > 0)
 }
 
 
-if (IntVal($filter_id) > 0)
-	$arFilter["ID"] = IntVal($filter_id);
-if (IntVal($filter_author_id) > 0)
-	$arFilter["AUTHOR_ID"] = IntVal($filter_author_id);
-if (IntVal($filter_blog_id) > 0)
-	$arFilter["BLOG_ID"] = IntVal($filter_blog_id);
-if (IntVal($filter_post_id) > 0)
-	$arFilter["POST_ID"] = IntVal($filter_post_id);
-if (IntVal($filter_owner_id) > 0)
-	$arFilter["BLOG_OWNER_ID"] = IntVal($filter_owner_id);
-if (IntVal($filter_socnet_group_id) > 0)
-	$arFilter["BLOG_SOCNET_GROUP_ID"] = IntVal($filter_socnet_group_id);
-if (IntVal($filter_blog_group_id) > 0)
-	$arFilter["BLOG_GROUP_ID"] = IntVal($filter_blog_group_id);
+if (intval($filter_id) > 0)
+	$arFilter["ID"] = intval($filter_id);
+if (intval($filter_author_id) > 0)
+	$arFilter["AUTHOR_ID"] = intval($filter_author_id);
+if (intval($filter_blog_id) > 0)
+	$arFilter["BLOG_ID"] = intval($filter_blog_id);
+if (intval($filter_post_id) > 0)
+	$arFilter["POST_ID"] = intval($filter_post_id);
+if (intval($filter_owner_id) > 0)
+	$arFilter["BLOG_OWNER_ID"] = intval($filter_owner_id);
+if (intval($filter_socnet_group_id) > 0)
+	$arFilter["BLOG_SOCNET_GROUP_ID"] = intval($filter_socnet_group_id);
+if (intval($filter_blog_group_id) > 0)
+	$arFilter["BLOG_GROUP_ID"] = intval($filter_blog_group_id);
 		
-if (strlen($filter_author_ip) > 0)
+if ($filter_author_ip <> '')
 	$arFilter["AUTHOR_IP"] = $filter_author_ip;
-if (strlen($filter_author_ip1) > 0)
+if ($filter_author_ip1 <> '')
 	$arFilter["AUTHOR_IP1"] = $filter_author_ip1;
-if (strlen($filter_publish_status) > 0)
+if ($filter_publish_status <> '')
 	$arFilter["PUBLISH_STATUS"] = $filter_publish_status;
-if (strlen($filter_blog_active) > 0)
+if ($filter_blog_active <> '')
 	$arFilter["BLOG_ACTIVE"] = $filter_blog_active;
-if (strlen($filter_blog_group_site_id) > 0)
+if ($filter_blog_group_site_id <> '')
 	$arFilter["BLOG_GROUP_SITE_ID"] = $filter_blog_group_site_id;
 
 if (is_array($filter_blog_group_id) && count($filter_blog_group_id) > 0)
@@ -148,7 +148,7 @@ if (($arID = $lAdmin->GroupAction()) && $blogModulePermissions >= "W")
 
 	foreach ($arID as $ID)
 	{
-		if (strlen($ID) <= 0)
+		if ($ID == '')
 			continue;
 		switch ($_REQUEST['action'])
 		{
@@ -242,13 +242,13 @@ $dbSite = CSite::GetList($b = "SORT", $o = "ASC");
 while($arSite = $dbSite->Fetch())
 {
 	$serverName = $arSite["SERVER_NAME"];
-	if (strLen($serverName) <=0)
+	if ($serverName == '')
 	{
-		if (defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME)>0)
+		if (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '')
 			$serverName = SITE_SERVER_NAME;
 		else
 			$serverName = COption::GetOptionString("main", "server_name", "");
-		if (strlen($serverName) <=0)
+		if ($serverName == '')
 			$serverName = $_SERVER["SERVER_NAME"];
 	}
 	$serverName = \Bitrix\Main\Text\HtmlFilter::encode($serverName);
@@ -270,15 +270,15 @@ while ($arComment = $dbResultList->Fetch())
 	$row->AddField("POST_TITLE", "<span title=\"".htmlspecialcharsEx($arComment["POST_TITLE"])."\">".htmlspecialcharsEx(TruncateText($arComment["POST_TITLE"], 50))."</span>");
 	
 	$row->AddField("PUBLISH_STATUS", (($arComment["PUBLISH_STATUS"] == "P") ? GetMessage("BLB_YES") : GetMessage("BLB_NO")));
-	if(IntVal($arComment["AUTHOR_ID"]) > 0)
+	if(intval($arComment["AUTHOR_ID"]) > 0)
 		$row->AddField("AUTHOR_ID", "[<a href=\"/bitrix/admin/user_edit.php?ID=".$arComment["AUTHOR_ID"]."&lang=".LANG."\">".$arComment["AUTHOR_ID"]."</a>] ".htmlspecialcharsEx("(".$arComment["USER_LOGIN"].") ".$arComment["USER_NAME"]." ".$arComment["USER_LAST_NAME"]));
-	elseif(strlen($arComment["AUTHOR_NAME"]) > 0)
+	elseif($arComment["AUTHOR_NAME"] <> '')
 		$row->AddField("AUTHOR_ID", htmlspecialcharsEx($arComment["AUTHOR_NAME"]." (".$arComment["AUTHOR_EMAIL"].")"));
-	if(IntVal($arComment["BLOG_ID"]) > 0)
+	if(intval($arComment["BLOG_ID"]) > 0)
 		$row->AddField("BLOG_ID", "[<a href=\"/bitrix/admin/blog_blog_edit.php?ID=".$arComment["BLOG_ID"]."&lang=".LANG."\">".$arComment["BLOG_ID"]."</a>] ".htmlspecialcharsEx($arComment["BLOG_NAME"].""));
-	if(Strlen($arComment["AUTHOR_IP"]) > 0)
+	if($arComment["AUTHOR_IP"] <> '')
 	{
-		$ip = GetWhoisLink($arComment["AUTHOR_IP"]).(strlen($arComment["AUTHOR_IP1"]) > 0 ? " / ".GetWhoisLink($arComment["AUTHOR_IP1"]) : "");
+		$ip = GetWhoisLink($arComment["AUTHOR_IP"]).($arComment["AUTHOR_IP1"] <> '' ? " / ".GetWhoisLink($arComment["AUTHOR_IP1"]) : "");
 		if(CModule::IncludeModule("statistic"))
 		{
 			$arr = explode(".", $arComment["AUTHOR_IP"]);

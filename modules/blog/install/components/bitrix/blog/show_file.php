@@ -104,8 +104,8 @@ if(!CModule::IncludeModule("blog"))
 $arParams = Array();
 $arParams["WIDTH"] = (isset($_REQUEST['width']) && intval($_REQUEST['width'])>0) ? intval($_REQUEST['width']) : 0;
 $arParams["HEIGHT"] = (isset($_REQUEST['height']) && intval($_REQUEST['height'])>0) ? intval($_REQUEST['height']) : 0;
-$arParams["FILE_ID"] = IntVal($_REQUEST["fid"]);
-$arParams["BP_FILE_ID"] = IntVal($_REQUEST["bp_fid"]);
+$arParams["FILE_ID"] = intval($_REQUEST["fid"]);
+$arParams["BP_FILE_ID"] = intval($_REQUEST["bp_fid"]);
 $arParams["PERMISSION"] = false;
 $arParams["QUALITY"] = (isset($_REQUEST['mobile']) && $_REQUEST["mobile"] == "y") ? "50" : false;
 
@@ -114,10 +114,10 @@ $arResult["MESSAGE"] = array();
 $arResult["FILE"] = array();
 $arResult["POST"] = array();
 $arResult["FILE_INFO"] = array();
-$user_id = IntVal($USER->GetID());
+$user_id = intval($USER->GetID());
 
 $arError = array();
-if (intVal($arParams["FILE_ID"]) > 0)
+if (intval($arParams["FILE_ID"]) > 0)
 {
 	if ($res = CBlogImage::GetByID($arParams["FILE_ID"]))
 	{
@@ -125,12 +125,12 @@ if (intVal($arParams["FILE_ID"]) > 0)
 		$arResult["FILE"] = CFile::GetFileArray($arResult["FILE_INFO"]["FILE_ID"]);
 	}
 }
-elseif (intVal($arParams["BP_FILE_ID"]) > 0)
+elseif (intval($arParams["BP_FILE_ID"]) > 0)
 {
-	$arResult["FILE"] = CFile::GetFileArray(intVal($arParams['BP_FILE_ID']));
+	$arResult["FILE"] = CFile::GetFileArray(intval($arParams['BP_FILE_ID']));
 	if (!empty($arResult["FILE"]))
 	{
-		$dbPost = CBlogPost::GetList(array(), array('UF_BLOG_POST_DOC' => intVal($arParams['BP_FILE_ID'])));
+		$dbPost = CBlogPost::GetList(array(), array('UF_BLOG_POST_DOC' => intval($arParams['BP_FILE_ID'])));
 		if ($dbPost && $arPost = $dbPost->Fetch())
 		{
 			$arResult["FILE_INFO"] = array(
@@ -140,7 +140,7 @@ elseif (intVal($arParams["BP_FILE_ID"]) > 0)
 		}
 		else
 		{
-			$dbPost = CBlogComment::GetList(array(), array('UF_BLOG_COMMENT_DOC' => intVal($arParams['BP_FILE_ID'])));
+			$dbPost = CBlogComment::GetList(array(), array('UF_BLOG_COMMENT_DOC' => intval($arParams['BP_FILE_ID'])));
 			if ($dbPost && $arPost = $dbPost->Fetch())
 			{
 				$arResult["FILE_INFO"] = array(
@@ -161,7 +161,7 @@ if (empty($arResult["FILE"]))
 }
 else
 {
-	if (intVal($arResult["FILE_INFO"]["POST_ID"]) > 0)
+	if (intval($arResult["FILE_INFO"]["POST_ID"]) > 0)
 	{
 		if (empty($arResult['POST']))
 		{
@@ -212,7 +212,7 @@ if (!empty($arError))
 }
 // *************************/Default params*************************************************************
 
-if (strlen(CFile::CheckImageFile(CFile::MakeFileArray($arResult["FILE"]['ID']))) <= 0)
+if (CFile::CheckImageFile(CFile::MakeFileArray($arResult["FILE"]['ID'])) == '')
 {
 //	get only valid image sizes, to preserve ddos
 	$validSizes = validImageSizes($arParams['WIDTH'], $arParams['HEIGHT'], $arResult["FILE"]);
@@ -248,8 +248,8 @@ if (strlen(CFile::CheckImageFile(CFile::MakeFileArray($arResult["FILE"]['ID'])))
 }
 else
 {
-	$ct = strtolower($arResult["FILE"]["CONTENT_TYPE"]);
-	if (strpos($ct, "word") !== false || strpos($ct, "excel") !== false)
+	$ct = mb_strtolower($arResult["FILE"]["CONTENT_TYPE"]);
+	if (mb_strpos($ct, "word") !== false || mb_strpos($ct, "excel") !== false)
 		CFile::ViewByUser($arResult["FILE"], array("force_download" => true, "cache_time" => 86400));
 	else
 		CFile::ViewByUser($arResult["FILE"], array("content_type" => "application/octet-stream", "force_download" => true, "cache_time" => 86400));

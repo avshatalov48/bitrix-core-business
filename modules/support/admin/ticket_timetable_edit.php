@@ -235,7 +235,7 @@ class CSupportPage
 		
 	static function ProcessAJAX()
 	{
-		if(isset($_REQUEST[self::AJAX_VAR_NAME]) && strlen($_REQUEST[self::AJAX_VAR_NAME]) > 0)
+		if(isset($_REQUEST[self::AJAX_VAR_NAME]) && $_REQUEST[self::AJAX_VAR_NAME] <> '')
 		{
 			self::$needShowInterface = false;
 			$type = $_REQUEST[self::AJAX_VAR_NAME];
@@ -269,8 +269,8 @@ class CSupportPage
 	
 	static function Save()
 	{
-		$presSave = (isset($_REQUEST["save"]) && strlen($_REQUEST["save"]) > 0);
-		$presApply = (isset($_REQUEST["apply"]) && strlen($_REQUEST["apply"]) > 0);
+		$presSave = (isset($_REQUEST["save"]) && $_REQUEST["save"] <> '');
+		$presApply = (isset($_REQUEST["apply"]) && $_REQUEST["apply"] <> '');
 		if($presSave || $presApply)
 		{
 			self::$id = intval(CSupportTimetable::Set(self::$postTimeTableFields, self::$postTimeTableSheduleFields));
@@ -495,7 +495,7 @@ class CSupportPage
 		$arrTTS = array();
 		foreach($arr as $DateWeekday => $arDay)
 		{
-			if(!isset($arDay["OPEN_TIME"]) || strlen($arDay["OPEN_TIME"]) <= 0) continue;
+			if(!isset($arDay["OPEN_TIME"]) || $arDay["OPEN_TIME"] == '') continue;
 			if($arDay["OPEN_TIME"] == "CUSTOM" && !(isset($arDay["CUSTOM_TIME"]) && is_array($arDay["CUSTOM_TIME"]) && count($arDay["CUSTOM_TIME"]) > 0)) continue;
 			
 			$arrTTS["TIMETABLE_ID"] = self::$id;
@@ -505,8 +505,8 @@ class CSupportPage
 			{
 				foreach($arDay["CUSTOM_TIME"] as $ar)
 				{
-					$presMF = (isset($ar["MINUTE_FROM"]) && strlen($ar["MINUTE_FROM"]) > 0);
-					$presMT = (isset($ar["MINUTE_TILL"]) && strlen($ar["MINUTE_TILL"]) > 0);
+					$presMF = (isset($ar["MINUTE_FROM"]) && $ar["MINUTE_FROM"] <> '');
+					$presMT = (isset($ar["MINUTE_TILL"]) && $ar["MINUTE_TILL"] <> '');
 					if($presMF || $presMT)
 					{
 						$minute_from = self::StrToTime(($presMF ? $ar["MINUTE_FROM"] : "00:00"));

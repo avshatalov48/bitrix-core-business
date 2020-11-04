@@ -1,4 +1,4 @@
-import { Text, Tag, Type, Loc, Dom } from 'main.core';
+import { Text, Tag, Type, Loc } from 'main.core';
 import type Tab from '../tabs/tab';
 import BaseStub from './base-stub';
 
@@ -30,13 +30,20 @@ export default class DefaultStub extends BaseStub
 					: ''
 			;
 
-			const arrow = this.getOption('arrow', false) && this.getTab().getDialog().getFooter() !== null;
+			const arrow = this.getOption('arrow', false) && this.getTab().getDialog().getActiveFooter() !== null;
 
 			return Tag.render`
 				<div class="ui-selector-tab-default-stub">
 					<div class="ui-selector-tab-default-stub-icon"${iconStyle}></div>
-					<div class="ui-selector-tab-default-stub-title">${title}</div>
-					${subtitle ? Tag.render`<div class="ui-selector-tab-default-stub-subtitle">${subtitle}</div>` : ''}
+					<div class="ui-selector-tab-default-stub-titles">
+						<div class="ui-selector-tab-default-stub-title">${title}</div>
+						${
+							subtitle ? 
+								Tag.render`<div class="ui-selector-tab-default-stub-subtitle">${subtitle}</div>` 
+								: ''
+						}
+					</div>
+					
 					${arrow ? Tag.render`<div class="ui-selector-tab-default-stub-arrow"></div>` : ''}
 				</div>
 			`;

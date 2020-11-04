@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports, main_core, landing_env) {
+(function (exports,main_core,landing_env) {
 	'use strict';
 
 	var pageTypeAlias = {
@@ -9,9 +9,7 @@ this.BX = this.BX || {};
 	 * @memberOf BX.Landing
 	 */
 
-	var Loc =
-	/*#__PURE__*/
-	function (_MainLoc) {
+	var Loc = /*#__PURE__*/function (_MainLoc) {
 	  babelHelpers.inherits(Loc, _MainLoc);
 
 	  function Loc() {
@@ -43,5 +41,5 @@ this.BX = this.BX || {};
 
 	exports.Loc = Loc;
 
-}(this.BX.Landing = this.BX.Landing || {}, BX, BX.Landing));
+}((this.BX.Landing = this.BX.Landing || {}),BX,BX.Landing));
 //# sourceMappingURL=loc.bundle.js.map

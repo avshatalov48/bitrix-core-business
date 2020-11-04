@@ -7,6 +7,8 @@ use Bitrix\Main\ArgumentOutOfRangeException;
 use Bitrix\Main\NotImplementedException;
 use Bitrix\Sale\Exchange\Internals\ExchangeLogTable;
 use Bitrix\Sale\Exchange\Internals\LoggerDiag;
+use Bitrix\Sale\Exchange\Logger\Exchange;
+use Bitrix\Sale\Exchange\ProviderType\ProviderType;
 
 abstract class ManagerBase
 {
@@ -21,6 +23,7 @@ abstract class ManagerBase
 
 	/**
 	 * @return string
+	 * @throws NotImplementedException
 	 */
 	static public function getDirectionType()
 	{
@@ -62,9 +65,14 @@ abstract class ManagerBase
 		throw new NotImplementedException('The method is not implemented.');
 	}
 
+	/**
+	 * @throws ArgumentOutOfRangeException
+	 * @throws NotImplementedException
+	 */
 	static public function deleteLoggingDate()
 	{
-		ExchangeLogTable::deleteOldRecords(static::getDirectionType());
+		(new Exchange(Logger\ProviderType::ONEC_NAME))
+			->deleteOldRecords(static::getDirectionType(), LoggerDiag::getInterval());
 	}
 
 	static protected function IsDefinedTypeId($typeId)

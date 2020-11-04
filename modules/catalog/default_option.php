@@ -65,6 +65,7 @@ $catalog_default_option = array(
 	'product_form_show_offers_iblock' => 'N',
 	'product_form_simple_search' => 'Y',
 	'product_form_show_offer_name' => 'N',
+	'enable_viewed_products' => 'Y',
 	'viewed_time' => 10,
 	'viewed_count' => 10,
 	'viewed_period' => 5,

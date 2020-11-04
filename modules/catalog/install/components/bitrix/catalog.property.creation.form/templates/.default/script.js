@@ -11,9 +11,7 @@
 	  return data;
 	}
 
-	var PropertyCreationForm =
-	/*#__PURE__*/
-	function (_BX$Catalog$IblockFie) {
+	var PropertyCreationForm = /*#__PURE__*/function (_BX$Catalog$IblockFie) {
 	  babelHelpers.inherits(PropertyCreationForm, _BX$Catalog$IblockFie);
 
 	  function PropertyCreationForm() {

@@ -1,7 +1,6 @@
-import type { ItemOptions } from '../item/item-options';
+import type { FooterOptions } from './footer/footer-content';
 
 export type SearchOptions = {
 	allowCreateItem?: boolean,
-	draftItemOptions?: ItemOptions,
-	draftItemRender?: Function
+	footerOptions?: FooterOptions
 };

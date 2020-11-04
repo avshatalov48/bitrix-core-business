@@ -16,7 +16,7 @@ $ID = intval($ID);
 
 $message = false;
 
-if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=='POST' && $bAdmin && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $REQUEST_METHOD=='POST' && $bAdmin && check_bitrix_sessid())
 {
 	$obSSC = new CSupportSuperCoupon();
 	$bOK = false;
@@ -26,8 +26,8 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=='POST' && $bAdmin 
 		"ACTIVE_FROM" 	 => $_POST['ACTIVE_FROM'],
 		"ACTIVE_TO"		 => $_POST['ACTIVE_TO'],
 		"ACTIVE"		 => $_POST['ACTIVE'],
-		"COUNT_TICKETS"	 => IntVal($_POST['COUNT_TICKETS']),
-		"SLA_ID"		 => IntVal($_POST['SLA_ID']),
+		"COUNT_TICKETS"	 => intval($_POST['COUNT_TICKETS']),
+		"SLA_ID"		 => intval($_POST['SLA_ID']),
 	);
 	
 	if ($ID > 0)
@@ -57,7 +57,7 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=='POST' && $bAdmin 
 	}
 	if ($bOK)
 	{
-		if (strlen($save)>0) LocalRedirect($LIST_URL . '?lang='.LANG . ($new?'&SHOW_COUPON=Y':''));
+		if ($save <> '') LocalRedirect($LIST_URL . '?lang='.LANG . ($new?'&SHOW_COUPON=Y':''));
 		elseif ($new) LocalRedirect($APPLICATION->GetCurPage() . '?ID='.$ID. '&lang='.LANG.'&tabControl_active_tab='.urlencode($tabControl_active_tab));
 	}
 	else 
@@ -83,8 +83,8 @@ if (!$arCoupon)
 
 $str_ACTIVE_FROM = isset($_REQUEST["ACTIVE_FROM"]) ? htmlspecialcharsbx($_REQUEST["ACTIVE_FROM"]) : $arCoupon["ACTIVE_FROM"];
 $str_ACTIVE_TO = isset($_REQUEST["ACTIVE_TO"]) ? htmlspecialcharsbx($_REQUEST["ACTIVE_TO"]) : $arCoupon["ACTIVE_TO"];
-$str_COUNT_TICKETS = isset($_REQUEST["COUNT_TICKETS"]) ? IntVal($_REQUEST["COUNT_TICKETS"]) : $arCoupon["COUNT_TICKETS"];
-$str_SLA_ID  = isset($_REQUEST["SLA_ID"]) ? IntVal($arCoupon["SLA_ID"]) : $arCoupon["SLA_ID"];
+$str_COUNT_TICKETS = isset($_REQUEST["COUNT_TICKETS"]) ? intval($_REQUEST["COUNT_TICKETS"]) : $arCoupon["COUNT_TICKETS"];
+$str_SLA_ID  = isset($_REQUEST["SLA_ID"]) ? intval($arCoupon["SLA_ID"]) : $arCoupon["SLA_ID"];
 $str_ACTIVE  = isset($_REQUEST["ACTIVE"]) ? ($_REQUEST["ACTIVE"] == 'Y' ? 'Y' : 'N') : $arCoupon["ACTIVE"];
 
 

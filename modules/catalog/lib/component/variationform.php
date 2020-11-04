@@ -40,16 +40,6 @@ class VariationForm extends BaseForm
 		$descriptions = [];
 		$priceTypeList = \CCatalogGroup::GetListArray();
 
-		$currencyList = [];
-
-		foreach (CurrencyManager::getCurrencyList() as $currency => $currencyName)
-		{
-			$currencyList[] = [
-				'VALUE' => $currency,
-				'NAME' => htmlspecialcharsbx($currencyName),
-			];
-		}
-
 		if (!empty($priceTypeList))
 		{
 			foreach ($priceTypeList as $priceType)
@@ -233,14 +223,16 @@ class VariationForm extends BaseForm
 
 	public function getControllers(): array
 	{
-		$controllers = parent::getControllers();
+		return parent::getControllers();
+	}
 
-		$controllers[] = [
-			'name' => 'IBLOCK_SECTION_CONTROLLER',
-			'type' => 'iblock_section',
-			'config' => [],
-		];
+	protected function getCatalogProductFieldsList(): array
+	{
+		$fieldList = parent::getCatalogProductFieldsList();
+		$fieldList[] = 'AVAILABLE';
+		$fieldList[] = 'PURCHASING_PRICE';
+		$fieldList[] = 'PURCHASING_CURRENCY';
 
-		return $controllers;
+		return $fieldList;
 	}
 }

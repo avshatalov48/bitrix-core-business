@@ -150,4 +150,36 @@ class Agent
 
 		return __CLASS__ . '::' . __FUNCTION__ . '(' . $count . ');';
 	}
+
+	/**
+	 * Send used rest statistic.
+	 * @return string
+	 */
+	public static function sendRestStatistic() : string
+	{
+		if (
+			\Bitrix\Main\Loader::includeModule('rest')
+			&& is_callable(['\Bitrix\Rest\UsageStatTable', 'logLanding'])
+		)
+		{
+			$statCode = [
+				\Bitrix\Landing\PublicAction::REST_USAGE_TYPE_BLOCK => 'LANDING_BLOCK',
+				\Bitrix\Landing\PublicAction::REST_USAGE_TYPE_PAGE => 'LANDING_PAGE',
+			];
+			$data = PublicAction::getRestStat(false, true);
+			foreach ($data as $type => $stat)
+			{
+				if ($statCode[$type])
+				{
+					foreach ($stat as $clientId => $count)
+					{
+						\Bitrix\Rest\UsageStatTable::logLanding($clientId, $statCode[$type], $count);
+					}
+				}
+			}
+			\Bitrix\Rest\UsageStatTable::finalize();
+		}
+
+		return __CLASS__ . '::' . __FUNCTION__ . '();';
+	}
 }

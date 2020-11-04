@@ -69,11 +69,11 @@ class CSupportHolidays
 		$isNew = ($f->ID <= 0);
 
 		$objError = new CAdminException(array());
-		if(strlen($f->NAME) <= 0)
+		if($f->NAME == '')
 		{
 			$objError->AddMessage(array("text" => GetMessage('SUP_ERROR_EMPTY_NAME')));
 		}
-		if(strlen($f->OPEN_TIME) <= 0)
+		if($f->OPEN_TIME == '')
 		{
 			$objError->AddMessage(array("text" => GetMessage('SUP_ERROR_EMPTY_OPEN_TIME')));
 		}
@@ -149,8 +149,8 @@ class CSupportHolidays
 		if(!is_array($arFilter)) $arFilter = Array();
 		foreach($arFilter as $key => $val)
 		{
-			if((is_array($val) && count($val) <= 0) || (!is_array($val) && (strlen($val) <= 0 || $val === 'NOT_REF'))) continue;
-			$key = strtoupper($key);
+			if((is_array($val) && count($val) <= 0) || (!is_array($val) && ((string) $val == '' || $val === 'NOT_REF'))) continue;
+			$key = mb_strtoupper($key);
 			if (is_array($val)) $val = implode(" | ",$val);
 			switch($key)
 			{
@@ -196,7 +196,7 @@ class CSupportHolidays
 		$fs = "";
 		foreach($arSort as $by => $order) 
 		{
-			if(strtoupper($order) != "DESC") $order="ASC";
+			if(mb_strtoupper($order) != "DESC") $order="ASC";
 			if($by === "DATE_TILL" || $by === "DATE_FROM")
 			{
 				$fs .= ",

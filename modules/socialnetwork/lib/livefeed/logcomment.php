@@ -175,7 +175,7 @@ final class LogComment extends Provider
 				return 'BITRIX24_NEW_USER';
 			}
 		}
-		return '';
+		return '2';
 	}
 
 	public function add($params = array())

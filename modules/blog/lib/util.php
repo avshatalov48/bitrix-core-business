@@ -75,7 +75,7 @@ class Util
 
 		if (Option::get("blog","send_blog_ping", "N") == "Y")
 		{
-			if(strlen($serverName) <= 0)
+			if($serverName == '')
 			{
 				$res = \CSite::getById($siteId);
 				$siteFields = $res->fetch();
@@ -86,7 +86,7 @@ class Util
 				{
 					$serverName = (
 						defined("SITE_SERVER_NAME")
-						&& strlen(SITE_SERVER_NAME) > 0
+						&& SITE_SERVER_NAME <> ''
 							? SITE_SERVER_NAME
 							: Option::get("main", "server_name", "")
 					);

@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
-(function (exports, main_core, landing_loc, landing_env, landing_main, landing_backend, landing_menu_menuitem, landing_ui_form_menuform, landing_ui_panel_stylepanel) {
+(function (exports,main_core,landing_loc,landing_env,landing_main,landing_backend,landing_ui_form_menuform,landing_ui_panel_stylepanel,landing_menu_menuitem) {
 	'use strict';
 
 	function buildTree(root, selector) {
@@ -148,9 +148,7 @@ this.BX.Landing = this.BX.Landing || {};
 	 * @memberOf BX.Landing.Menu
 	 */
 
-	var Menu =
-	/*#__PURE__*/
-	function (_Event$EventEmitter) {
+	var Menu = /*#__PURE__*/function (_Event$EventEmitter) {
 	  babelHelpers.inherits(Menu, _Event$EventEmitter);
 
 	  function Menu() {
@@ -437,5 +435,5 @@ this.BX.Landing = this.BX.Landing || {};
 
 	exports.Menu = Menu;
 
-}(this.BX.Landing.Menu = this.BX.Landing.Menu || {}, BX, BX.Landing, BX.Landing, BX.Landing, BX.Landing, BX.Landing.Menu, BX.Landing.UI.Form, BX.Landing.UI.Panel));
+}((this.BX.Landing.Menu = this.BX.Landing.Menu || {}),BX,BX.Landing,BX.Landing,BX.Landing,BX.Landing,BX.Landing.UI.Form,BX.Landing.UI.Panel,BX.Landing.Menu));
 //# sourceMappingURL=menu.bundle.js.map

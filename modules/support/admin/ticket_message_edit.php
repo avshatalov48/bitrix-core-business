@@ -58,9 +58,9 @@ function CheckFields() // проверка на наличие об€зательных полей
 /***************************************************************************
 							ќбработка GET | POST
 ***************************************************************************/
-$TICKET_LIST_URL = strlen($TICKET_LIST_URL)>0? CUtil::AddSlashes(htmlspecialcharsbx((substr($TICKET_LIST_URL, 0, 4) == 'http'?'':'/').$TICKET_LIST_URL)) : "ticket_list.php";
-$TICKET_EDIT_URL = strlen($TICKET_EDIT_URL)>0? CUtil::AddSlashes(htmlspecialcharsbx((substr($TICKET_EDIT_URL, 0, 4) == 'http'?'':'/').$TICKET_EDIT_URL)) : "ticket_edit.php";
-$TICKET_MESSAGE_EDIT_URL = strlen($TICKET_MESSAGE_EDIT_URL)>0? CUtil::AddSlashes(htmlspecialcharsbx((substr($TICKET_MESSAGE_EDIT_URL, 0, 4) == 'http'?'':'/').$TICKET_MESSAGE_EDIT_URL)) : "ticket_message_edit.php";
+$TICKET_LIST_URL = $TICKET_LIST_URL <> ''? CUtil::AddSlashes(htmlspecialcharsbx((mb_substr($TICKET_LIST_URL, 0, 4) == 'http'?'':'/').$TICKET_LIST_URL)) : "ticket_list.php";
+$TICKET_EDIT_URL = $TICKET_EDIT_URL <> ''? CUtil::AddSlashes(htmlspecialcharsbx((mb_substr($TICKET_EDIT_URL, 0, 4) == 'http'?'':'/').$TICKET_EDIT_URL)) : "ticket_edit.php";
+$TICKET_MESSAGE_EDIT_URL = $TICKET_MESSAGE_EDIT_URL <> ''? CUtil::AddSlashes(htmlspecialcharsbx((mb_substr($TICKET_MESSAGE_EDIT_URL, 0, 4) == 'http'?'':'/').$TICKET_MESSAGE_EDIT_URL)) : "ticket_message_edit.php";
 
 $arFiles = array();
 $ID = intval($ID);
@@ -73,9 +73,9 @@ if ($arTicket = $rsTicket->Fetch())
 	if ($rsFiles = CTicket::GetFileList($v1="s_id", $v2="asc", array("MESSAGE_ID" => $ID))) :
 		while ($arFile = $rsFiles->Fetch()) :
 			$name = $arFile["ORIGINAL_NAME"];
-			if (strlen($arFile["EXTENSION_SUFFIX"])>0) :
-				$suffix_length = strlen($arFile["EXTENSION_SUFFIX"]);
-				$name = substr($name, 0, strlen($name)-$suffix_length);
+			if ($arFile["EXTENSION_SUFFIX"] <> '') :
+				$suffix_length = mb_strlen($arFile["EXTENSION_SUFFIX"]);
+				$name = mb_substr($name, 0, mb_strlen($name) - $suffix_length);
 			endif;
 			$arFile["NAME"] = $name;
 			$arFiles[] = $arFile;
@@ -83,7 +83,7 @@ if ($arTicket = $rsTicket->Fetch())
 	endif;
 
 	// если была нажата кнопка "save" на текущей странице
-	if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $bAdmin=="Y" && $ID>0 && $TICKET_ID>0 && check_bitrix_sessid())
+	if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $bAdmin=="Y" && $ID>0 && $TICKET_ID>0 && check_bitrix_sessid())
 	{
 		$DB->PrepareFields("b_ticket_message");
 		$arrFILES = array();
@@ -93,22 +93,22 @@ if ($arTicket = $rsTicket->Fetch())
 			foreach($arFiles as $arFile)
 			{
 				$key = "EXIST_FILE_".$arFile["ID"];
-				$arF = $HTTP_POST_FILES[$key];
+				$arF = $_FILES[$key];
 				$arF["MODULE_ID"] = "support";
 				$arF["old_file"] = $arFile["ID"];
 				$arF["del"] = ${$key."_del"};
-				if ($arF["del"]=="Y" || strlen($arF["name"])>0) $arrFILES[] = $arF;
+				if ($arF["del"]=="Y" || $arF["name"] <> '') $arrFILES[] = $arF;
 			}
 		}
 
-		if (is_array($HTTP_POST_FILES) && count($HTTP_POST_FILES)>0)
+		if (is_array($_FILES) && count($_FILES)>0)
 		{
-			while (list($key, $arF) = each($HTTP_POST_FILES))
+			while (list($key, $arF) = each($_FILES))
 			{
-				if (strlen($arF["name"])>0)
+				if ($arF["name"] <> '')
 				{
 					$arF["MODULE_ID"] = "support";
-					if (strpos($key, "NEW_FILE")!==false) 
+					if (mb_strpos($key, "NEW_FILE") !== false)
 					{
 						$arrFILES[] = $arF;
 					}
@@ -147,8 +147,8 @@ if ($arTicket = $rsTicket->Fetch())
 			
 			if (!$strError) 
 			{
-				if (strlen($save)>0) LocalRedirect($TICKET_EDIT_URL."?lang=".LANGUAGE_ID."&ID=".$TICKET_ID); 
-				elseif (strlen($apply)>0) LocalRedirect($TICKET_MESSAGE_EDIT_URL."?ID=".$ID. "&TICKET_ID=".$TICKET_ID."&lang=".LANGUAGE_ID);
+				if ($save <> '') LocalRedirect($TICKET_EDIT_URL."?lang=".LANGUAGE_ID."&ID=".$TICKET_ID); 
+				elseif ($apply <> '') LocalRedirect($TICKET_MESSAGE_EDIT_URL."?ID=".$ID. "&TICKET_ID=".$TICKET_ID."&lang=".LANGUAGE_ID);
 			}
 		}
 		else
@@ -171,9 +171,9 @@ if ($arTicket = $rsTicket->Fetch())
 		if ($rsFiles = CTicket::GetFileList($v1="s_id", $v2="asc", array("MESSAGE_ID" => $ID))) :
 			while ($arFile = $rsFiles->Fetch()) :
 				$name = $arFile["ORIGINAL_NAME"];
-				if (strlen($arFile["EXTENSION_SUFFIX"])>0) :
-					$suffix_length = strlen($arFile["EXTENSION_SUFFIX"]);
-					$name = substr($name, 0, strlen($name)-$suffix_length);
+				if ($arFile["EXTENSION_SUFFIX"] <> '') :
+					$suffix_length = mb_strlen($arFile["EXTENSION_SUFFIX"]);
+					$name = mb_substr($name, 0, mb_strlen($name) - $suffix_length);
 				endif;
 				$arFile["NAME"] = $name;
 				$arFiles[] = $arFile;
@@ -278,7 +278,7 @@ if ($strError)
 	<tr valign="top">
 		<td width="20%"><?=GetMessage("SUP_CREATE")?></td>
 		<td align="left" width="80%"><?=$str_DATE_CREATE?>&nbsp;&nbsp;&nbsp;<?
-		if (strlen($str_CREATED_MODULE_NAME)<=0 || $str_CREATED_MODULE_NAME=="support") :
+		if ($str_CREATED_MODULE_NAME == '' || $str_CREATED_MODULE_NAME=="support") :
 			?>[<a title="<?=GetMessage("SUP_USER_PROFILE")?>" href="/bitrix/admin/user_edit.php?lang=<?=LANG?>&ID=<?=$str_CREATED_USER_ID?>"><?echo $str_CREATED_USER_ID?></a>] (<?=$str_CREATED_LOGIN?>) <?=$str_CREATED_NAME?><?
 			if (intval($str_CREATED_GUEST_ID)>0 && CModule::IncludeModule("statistic")) :
 				echo " [<a title='".GetMessage("SUP_GUEST_ID")."'  href='/bitrix/admin/guest_list.php?lang=".LANG."&find_id=". $str_CREATED_GUEST_ID."&find_id_exact_match=Y&set_filter=Y' >".$str_CREATED_GUEST_ID."</a>]";

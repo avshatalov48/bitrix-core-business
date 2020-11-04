@@ -123,7 +123,7 @@ class BitrixVue
 	}
 
 	/**
-	 *	Defer the callback to be executed after the next DOM update cycle. Use it immediately after you’ve changed some data to wait for the DOM update.
+	 *	Defer the callback to be executed after the next DOM update cycle. Use it immediately after you have changed some data to wait for the DOM update.
 	 *
 	 * @param {Function} callback
 	 * @param {Object} context

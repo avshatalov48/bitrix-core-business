@@ -23,25 +23,25 @@ $sTemplateDir = preg_replace("'[\\\\/]+'", "/", $sTemplateDir."/");
 $date = @filemtime($sTemplateDirFull."styles/additional.css");
 $GLOBALS['APPLICATION']->SetAdditionalCSS($sTemplateDir.'styles/additional.css?'.$date);
 
-if($arParams["SHOW_NAVIGATION"] != "N" && (IntVal($arResult["VARIABLES"]["group_id"]) > 0 || strlen($arResult["VARIABLES"]["blog"]) > 0 || IntVal($arResult["VARIABLES"]["user_id"]) > 0))
+if($arParams["SHOW_NAVIGATION"] != "N" && (intval($arResult["VARIABLES"]["group_id"]) > 0 || $arResult["VARIABLES"]["blog"] <> '' || intval($arResult["VARIABLES"]["user_id"]) > 0))
 {
-	if(strLen($arParams["BLOG_VAR"])<=0)
+	if($arParams["BLOG_VAR"] == '')
 		$arParams["BLOG_VAR"] = "blog";
-	if(strLen($arParams["PAGE_VAR"])<=0)
+	if($arParams["PAGE_VAR"] == '')
 		$arParams["PAGE_VAR"] = "page";
-	if(strLen($arParams["USER_VAR"])<=0)
+	if($arParams["USER_VAR"] == '')
 		$arParams["USER_VAR"] = "page";
-	if(strLen($arParams["GROUP_VAR"])<=0)
+	if($arParams["GROUP_VAR"] == '')
 		$arParams["GROUP_VAR"] = "group_id";
 		
 	$arResultTmp["PATH_TO_INDEX"] = trim($arResult["PATH_TO_INDEX"]);
-	if(strlen($arResult["PATH_TO_INDEX"])<=0)
+	if($arResult["PATH_TO_INDEX"] == '')
 		$arResultTmp["PATH_TO_INDEX"] = htmlspecialcharsbx($GLOBALS['APPLICATION']->GetCurPage());	
 	$arResultTmp["PATH_TO_BLOG"] = trim($arResult["PATH_TO_BLOG"]);
-	if(strlen($arResultTmp["PATH_TO_BLOG"])<=0)
+	if($arResultTmp["PATH_TO_BLOG"] == '')
 		$arResultTmp["PATH_TO_BLOG"] = htmlspecialcharsbx($GLOBALS['APPLICATION']->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");	
 	$arResultTmp["PATH_TO_GROUP"] = trim($arResult["PATH_TO_GROUP"]);
-	if(strlen($arResultTmp["PATH_TO_GROUP"])<=0)
+	if($arResultTmp["PATH_TO_GROUP"] == '')
 		$arResultTmp["PATH_TO_GROUP"] = htmlspecialcharsbx($GLOBALS['APPLICATION']->GetCurPage()."?".$arParams["PAGE_VAR"]."=group&".$arParams["GROUP_VAR"]."=#group_id#");
 		
 	$arBlog = Array();
@@ -54,15 +54,15 @@ if($arParams["SHOW_NAVIGATION"] != "N" && (IntVal($arResult["VARIABLES"]["group_
 	{
 		$tmp = Array();
 		foreach($arParams["GROUP_ID"] as $v)
-			if(IntVal($v) > 0)
-				$tmp[] = IntVal($v);
+			if(intval($v) > 0)
+				$tmp[] = intval($v);
 		$arParams["GROUP_ID"] = $tmp;
 	}
 
-	if(IntVal($arParams["GROUP_ID"]) <= 0 || (is_array($arParams["GROUP_ID"]) && count($arParams["GROUP_ID"]) > 1))
+	if(intval($arParams["GROUP_ID"]) <= 0 || (is_array($arParams["GROUP_ID"]) && count($arParams["GROUP_ID"]) > 1))
 	{
 		$groupID = 0;
-		if(strlen($arResult["VARIABLES"]["blog"]) > 0)
+		if($arResult["VARIABLES"]["blog"] <> '')
 		{
 			if($arBlog = CBlog::GetByUrl($arResult["VARIABLES"]["blog"], $arParams["GROUP_ID"]))
 			{
@@ -72,7 +72,7 @@ if($arParams["SHOW_NAVIGATION"] != "N" && (IntVal($arResult["VARIABLES"]["group_
 				}
 			}
 		}
-		elseif(IntVal($arResult["VARIABLES"]["user_id"]) > 0)
+		elseif(intval($arResult["VARIABLES"]["user_id"]) > 0)
 		{
 			if($arBlog = CBlog::GetByOwnerID($arResult["VARIABLES"]["user_id"], $arParams["GROUP_ID"]))
 			{
@@ -82,11 +82,11 @@ if($arParams["SHOW_NAVIGATION"] != "N" && (IntVal($arResult["VARIABLES"]["group_
 				}
 			}
 		}
-		elseif(IntVal($arResult["VARIABLES"]["group_id"]) > 0)
+		elseif(intval($arResult["VARIABLES"]["group_id"]) > 0)
 		{
-			$groupID = IntVal($arResult["VARIABLES"]["group_id"]);
+			$groupID = intval($arResult["VARIABLES"]["group_id"]);
 		}
-		if(IntVal($groupID) > 0)
+		if(intval($groupID) > 0)
 		{		
 			$arGroup = CBlogGroup::GetByID($groupID);
 			if($arGroup["SITE_ID"] == SITE_ID)
@@ -100,7 +100,7 @@ if($arParams["SHOW_NAVIGATION"] != "N" && (IntVal($arResult["VARIABLES"]["group_
 			}
 		}
 	}
-	if(strlen($arResult["VARIABLES"]["blog"]) > 0 || IntVal($arResult["VARIABLES"]["user_id"]) > 0)
+	if($arResult["VARIABLES"]["blog"] <> '' || intval($arResult["VARIABLES"]["user_id"]) > 0)
 	{
 		if(empty($arBlog))
 		{

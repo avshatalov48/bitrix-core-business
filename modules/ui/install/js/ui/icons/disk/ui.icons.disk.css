@@ -10,9 +10,11 @@
 
 .ui-icon.ui-icon-file-txt > i { background-position: 0 calc(100% / var(--icon-file-col) * 1) }
 
-.ui-icon.ui-icon-file-doc > i { background-position: 0 calc(100% / var(--icon-file-col) * 2) }
+.ui-icon.ui-icon-file-doc > i,
+.ui-icon.ui-icon-file-docx > i { background-position: 0 calc(100% / var(--icon-file-col) * 2) }
 
-.ui-icon.ui-icon-file-xls > i { background-position: 0 calc(100% / var(--icon-file-col) * 3) }
+.ui-icon.ui-icon-file-xls > i,
+.ui-icon.ui-icon-file-xlsx > i { background-position: 0 calc(100% / var(--icon-file-col) * 3) }
 
 .ui-icon.ui-icon-file-php > i { background-position: 0 calc(100% / var(--icon-file-col) * 4) }
 
@@ -26,7 +28,8 @@
 
 .ui-icon.ui-icon-file-set > i { background-position: 0 calc(100% / var(--icon-file-col) * 9) }
 
-.ui-icon.ui-icon-file-mov > i { background-position: 0 calc(100% / var(--icon-file-col) * 10) }
+.ui-icon.ui-icon-file-mov > i,
+.ui-icon.ui-icon-file-mp4 > i { background-position: 0 calc(100% / var(--icon-file-col) * 10) }
 
 .ui-icon.ui-icon-file-img > i { background-position: 0 calc(100% / var(--icon-file-col) * 11) }
 
@@ -42,9 +45,11 @@
 
 .bx-ie .ui-icon-file-txt > i { background-position: 0 7.14% }
 
-.bx-ie .ui-icon-file-doc > i { background-position: 0 14.28% }
+.bx-ie .ui-icon-file-doc > i,
+.bx-ie .ui-icon-file-docx > i { background-position: 0 14.28% }
 
-.bx-ie .ui-icon-file-xls > i { background-position: 0 21.42% }
+.bx-ie .ui-icon-file-xls > i,
+.bx-ie .ui-icon-file-xlsx > i { background-position: 0 21.42% }
 
 .bx-ie .ui-icon-file-php > i { background-position: 0 28.58% }
 
@@ -58,7 +63,8 @@
 
 .bx-ie .ui-icon-file-set > i { background-position: 0 64.28% }
 
-.bx-ie .ui-icon-file-mov > i { background-position: 0 71.42% }
+.bx-ie .ui-icon-file-mov > i,
+.bx-ie .ui-icon-file-mp4 > i { background-position: 0 71.42% }
 
 .bx-ie .ui-icon-file-img > i { background-position: 0 78.58% }
 

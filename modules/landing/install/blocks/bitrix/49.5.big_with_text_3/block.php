@@ -12,7 +12,7 @@
 		<h2 class="landing-block-node-title text-uppercase landing-semantic-title-image-medium g-line-height-1 g-font-weight-700 g-font-size-30 g-color-white g-mb-20">
 			High quality solutions</h2>
 
-		<div class="landing-block-node-text landing-semantic-text-image-medium g-color-white-opacity-0_7 g-mb-35">
+		<div class="landing-block-node-text landing-semantic-text-image-medium g-color-white-opacity-0_7 g-mb-35" data-auto-font-scale>
 			Morbi a suscipit ipsum. Suspendisse mollis libero ante.
 			Pellentesque finibus convallis nulla vel placerat.
 		</div>

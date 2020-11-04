@@ -41,8 +41,20 @@ class Helper
 			return false;
 		}
 
+		$blogGroupId = Option::get('socialnetwork', 'userbloggroup_id', false, $siteId);
+		if (empty($blogGroupId))
+		{
+			$blogGroupIdList = \Bitrix\Socialnetwork\ComponentHelper::getSonetBlogGroupIdList([
+				'SITE_ID' => $siteId
+			]);
+			if (!empty($blogGroupIdList))
+			{
+				$blogGroupId = array_shift($blogGroupIdList);
+			}
+		}
+
 		$blog = \Bitrix\Blog\Item\Blog::getByUser([
-			'GROUP_ID' => Option::get('socialnetwork', 'userbloggroup_id', false, $siteId),
+			'GROUP_ID' => $blogGroupId,
 			'SITE_ID' => $siteId,
 			'USER_ID' => $authorId,
 			'CREATE' => 'Y'
@@ -387,7 +399,7 @@ class Helper
 				],
 				'siteId' => $siteId,
 				'postUrl' => $postUrl,
-				'socnetRights' => $postFields['SOCNET_RIGHTS'],
+				'socnetRights' => ($logId ? \Bitrix\Socialnetwork\Item\LogRight::get($logId) : $postFields['SOCNET_RIGHTS']),
 				'socnetRightsOld' => [],
 				'mentionListOld' => [],
 				'mentionList' => $mentionList

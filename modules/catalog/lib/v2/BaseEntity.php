@@ -154,7 +154,7 @@ abstract class BaseEntity
 		return $this->getId() === null;
 	}
 
-	public function getId()
+	public function getId(): ?int
 	{
 		return (int)$this->getField('ID') ?: null;
 	}

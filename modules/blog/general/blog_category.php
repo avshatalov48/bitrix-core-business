@@ -7,13 +7,13 @@ class CAllBlogCategory
 	/*************** ADD, UPDATE, DELETE *****************/
 	function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
-		if ((is_set($arFields, "NAME") || $ACTION=="ADD") && strlen($arFields["NAME"]) <= 0)
+		if ((is_set($arFields, "NAME") || $ACTION=="ADD") && $arFields["NAME"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("BLG_GCT_EMPTY_NAME"), "EMPTY_NAME");
 			return false;
 		}
 
-		if ((is_set($arFields, "BLOG_ID") || $ACTION=="ADD") && IntVal($arFields["BLOG_ID"]) <= 0)
+		if ((is_set($arFields, "BLOG_ID") || $ACTION=="ADD") && intval($arFields["BLOG_ID"]) <= 0)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("BLG_GCT_EMPTY_BLOG_ID"), "EMPTY_BLOG_ID");
 			return false;
@@ -34,7 +34,7 @@ class CAllBlogCategory
 			{
 				$blogID = $arFields["BLOG_ID"];
 			}
-			elseif(IntVal($ID)>0)
+			elseif(intval($ID)>0)
 			{
 				$arCat = CBlogCategory::GetByID($ID);
 				$blogID = $arCat["BLOG_ID"];
@@ -45,9 +45,9 @@ class CAllBlogCategory
 				return false;
 			}
 
-			if(strlen($arFields["NAME"]) > 255)
+			if(mb_strlen($arFields["NAME"]) > 255)
 			{
-				$arFields["NAME"] = substr($arFields["NAME"], 0, 255);
+				$arFields["NAME"] = mb_substr($arFields["NAME"], 0, 255);
 			}
 			$dbCategory = CBlogCategory::GetList(array(), array("BLOG_ID" => $blogID, "NAME" => $arFields["NAME"]));
 			while($arCategory = $dbCategory->Fetch())
@@ -67,7 +67,7 @@ class CAllBlogCategory
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$DB->Query("UPDATE b_blog_post SET CATEGORY_ID = null WHERE CATEGORY_ID = ".$ID."", true);
 
@@ -81,7 +81,7 @@ class CAllBlogCategory
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		if (isset($GLOBALS["BLOG_CATEGORY"]["BLOG_CATEGORY_CACHE_".$ID]) && is_array($GLOBALS["BLOG_CATEGORY"]["BLOG_CATEGORY_CACHE_".$ID]) && is_set($GLOBALS["BLOG_CATEGORY"]["BLOG_CATEGORY_CACHE_".$ID], "ID"))
 		{

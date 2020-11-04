@@ -342,10 +342,10 @@ class CCloudStorageService_S3 extends CCloudStorageService
 			$stime = microtime(1);
 			$request_id = md5((string)mt_rand());
 			AddMessage2Log('{'
-				.'"request_id": "'.$request_id.'";'
-				.'"portal":"'.(CModule::IncludeModule('replica')? getNameByDomain(): $_SERVER["HOST_NAME"]).'";'
-				.'"verb":"'.$verb.'";'
-				.'"host":"'.$host.'";'
+				.'"request_id": "'.$request_id.'",'
+				.'"portal":"'.(CModule::IncludeModule('replica')? getNameByDomain(): $_SERVER["HOST_NAME"]).'",'
+				.'"verb":"'.$verb.'",'
+				.'"host":"'.$host.'",'
 				.'"uri":"'.$file_name.$params.'"'
 			.'}', '', 0);
 		}
@@ -355,14 +355,14 @@ class CCloudStorageService_S3 extends CCloudStorageService
 		if ($request_id != '')
 		{
 			AddMessage2Log('{'
-				.'"request_id": "'.$request_id.'";'
-				.'"portal":"'.(CModule::IncludeModule('replica')? getNameByDomain(): $_SERVER["HOST_NAME"]).'";'
-				.'"verb":"'.$verb.'";'
-				.'"host":"'.$host.'";'
-				.'"uri":"'.$file_name.$params.'";'
-				.'"status":"'.$obRequest->status.'";'
+				.'"request_id": "'.$request_id.'",'
+				.'"portal":"'.(CModule::IncludeModule('replica')? getNameByDomain(): $_SERVER["HOST_NAME"]).'",'
+				.'"verb":"'.$verb.'",'
+				.'"host":"'.$host.'",'
+				.'"uri":"'.$file_name.$params.'",'
+				.'"status":"'.$obRequest->status.'",'
 				.'"time": "'.(round(microtime(1)-$stime,6)).'"'
-			.'}', '', 0);
+			.'}', 'clouds', 20);
 		}
 
 		$this->status = $obRequest->status;

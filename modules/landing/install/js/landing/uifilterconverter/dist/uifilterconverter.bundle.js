@@ -1,10 +1,8 @@
 this.BX = this.BX || {};
-(function (exports, main_core) {
+(function (exports,main_core) {
 	'use strict';
 
-	var UiFilterConverter =
-	/*#__PURE__*/
-	function () {
+	var UiFilterConverter = /*#__PURE__*/function () {
 	  function UiFilterConverter() {
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
 	      filterId: '',
@@ -131,5 +129,5 @@ this.BX = this.BX || {};
 
 	exports.UiFilterConverter = UiFilterConverter;
 
-}(this.BX.Landing = this.BX.Landing || {}, BX));
+}((this.BX.Landing = this.BX.Landing || {}),BX));
 //# sourceMappingURL=uifilterconverter.bundle.js.map

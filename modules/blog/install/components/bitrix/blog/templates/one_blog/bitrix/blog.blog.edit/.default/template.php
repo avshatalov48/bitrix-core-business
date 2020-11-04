@@ -179,8 +179,8 @@ else
 						<span id="group-form-<?=$v["ID"]?>" style="display:none;"><input name="GROUP_NAME" id="group_name_<?=$v["ID"]?>" size="20" maxlength="255" value="<?=$v["NAME"]?>"> <input type="button" name="blog_save" value="Ok" onclick="javascript:saveGroup('<?=$v["ID"]?>');"></span>
 						
 						<span id="group-name-<?=$v["ID"]?>" class="blog-group">
-							<label for="open_group_<?=$v["ID"]?>"><span class="blog-group-label" id="group-label-<?=$v["ID"]?>"><?=$v["NAME"]?></span> (<?=IntVal($v["CNT"])?>)</label>
-							<input type="hidden" name="grp_count[<?=$v["ID"]?>]" id="grp_count_<?=$v["ID"]?>" value="<?=IntVal($v["CNT"])?>">
+							<label for="open_group_<?=$v["ID"]?>"><span class="blog-group-label" id="group-label-<?=$v["ID"]?>"><?=$v["NAME"]?></span> (<?=intval($v["CNT"])?>)</label>
+							<input type="hidden" name="grp_count[<?=$v["ID"]?>]" id="grp_count_<?=$v["ID"]?>" value="<?=intval($v["CNT"])?>">
 							<input type="hidden" name="grp_name[<?=$v["ID"]?>]" id="grp_name_<?=$v["ID"]?>" value="<?=$v["NAME"]?>">
 							<input type="hidden" name="grp_delete[<?=$v["ID"]?>]" id="grp_delete_<?=$v["ID"]?>" value="">
 							&nbsp;<a href="javascript:group_edit('<?=$v["ID"]?>')" title="<?=GetMessage("BLOG_NAME_CHANGE")?>"><span class="blog-group-edit"></span></a>
@@ -301,7 +301,7 @@ else
 		<?endif;?>
 		</table>
 		<div class="blog-buttons">
-			<input type="submit" name="save" value="<?= (IntVal($arResult["BLOG"]["ID"])>0 ? GetMessage('BLOG_SAVE') : GetMessage('BLOG_CREATE')) ?>">
+			<input type="submit" name="save" value="<?= (intval($arResult["BLOG"]["ID"])>0 ? GetMessage('BLOG_SAVE') : GetMessage('BLOG_CREATE')) ?>">
 			<?
 			if ($arResult["CAN_UPDATE"]=="Y")
 			{

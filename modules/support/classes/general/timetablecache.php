@@ -32,7 +32,7 @@ class CSupportTimetableCache
 		}
 		try
 		{
-			if(strlen($d) > 0)
+			if($d <> '')
 			{
 				$res = new DateTime($d);
 			}
@@ -200,11 +200,11 @@ class CSupportTimetableCache
 		foreach($arFilter as $key => $val)
 		{
 		
-			if((is_array($val) && count($val) <= 0) || (!is_array($val) && strlen($val) <= 0)) 
+			if((is_array($val) && count($val) <= 0) || (!is_array($val) && (string) $val == ''))
 			{
 				continue;
 			}
-			$key = strtoupper($key);
+			$key = mb_strtoupper($key);
 			if(is_array($val))
 			{
 				$val = implode(" | ", $val);
@@ -457,11 +457,11 @@ class CSupportTimetableCache
 		foreach($arFilter as $key => $val)
 		{
 		
-			if((is_array($val) && count($val) <= 0) || (!is_array($val) && strlen($val) <= 0))
+			if((is_array($val) && count($val) <= 0) || (!is_array($val) && (string) $val == ''))
 			{
 				continue;
 			}
-			$key = strtoupper($key);
+			$key = mb_strtoupper($key);
 			if(is_array($val))
 			{
 				$val = implode(" | ", $val);
@@ -584,14 +584,14 @@ class CSupportTimetableCache
 		global $DB;
 		$currD = time();
 		$uniq = "";
-		$dbType = strtolower($DB->type);
+		$dbType = mb_strtolower($DB->type);
 
 		if($dbType === "mysql")
 		{
 			$DB->StartUsingMasterOnly();
 
 			$uniq = COption::GetOptionString("main", "server_uniq_id", "");
-			if(strlen($uniq)<=0)
+			if($uniq == '')
 			{
 				$uniq = md5(uniqid(rand(), true));
 				COption::SetOptionString("main", "server_uniq_id", $uniq);
@@ -635,11 +635,11 @@ class CSupportTimetableCache
 		$arSqlSearch = Array();
 		foreach($arFilter as $key => $val)
 		{
-			if((is_array($val) && count($val) <= 0) || (!is_array($val) && strlen($val) <= 0))
+			if((is_array($val) && count($val) <= 0) || (!is_array($val) && (string) $val == ''))
 			{
 				continue;
 			}
-			$key = strtoupper($key);
+			$key = mb_strtoupper($key);
 			if(is_array($val))
 			{
 				$val = implode(" | ", $val);
@@ -692,7 +692,7 @@ class CSupportTimetableCache
 							$colNames = implode(", ", array_keys($arCurrTicketFields));
 						}
 						$strCurrTicketFields = "(" . implode(",", $arCurrTicketFields) . ")";
-						if(strlen($strList . ", " . $strCurrTicketFields) > 2000)
+						if(mb_strlen($strList.", ".$strCurrTicketFields) > 2000)
 						{
 							$strSql = "INSERT INTO " . $timetable_cache . " (" . $colNames. ") VALUES " . $strList;
 							$strList = $strCurrTicketFields;
@@ -716,7 +716,7 @@ class CSupportTimetableCache
 		}
 		if($dbType === "mysql")
 		{
-			if(strlen($strList) > 0)
+			if($strList <> '')
 			{
 				$strSql = "INSERT INTO " . $timetable_cache . " (" . $colNames. ") VALUES " . $strList;
 				$DB->Query($strSql, false, $err_mess . __LINE__);

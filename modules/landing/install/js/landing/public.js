@@ -65,10 +65,10 @@
 						}
 
 						// stop click from children
-						var children = link.children;
-						if(children.length > 0)
+						var childLinks = link.getElementsByTagName('a');
+						if(childLinks.length > 0)
 						{
-							[].slice.call(children).map(function(node){
+							[].slice.call(childLinks).map(function(node){
 								stopPropagation(node);
 							})
 						}

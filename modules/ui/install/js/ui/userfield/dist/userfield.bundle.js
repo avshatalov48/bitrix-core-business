@@ -3,9 +3,7 @@ this.BX.UI = this.BX.UI || {};
 (function (exports,main_core) {
 	'use strict';
 
-	var UserField =
-	/*#__PURE__*/
-	function () {
+	var UserField = /*#__PURE__*/function () {
 	  function UserField(data, params) {
 	    babelHelpers.classCallCheck(this, UserField);
 	    this.progress = false;

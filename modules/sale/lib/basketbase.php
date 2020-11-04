@@ -282,10 +282,8 @@ abstract class BasketBase extends BasketItemCollection
 		/** @var BasketItemBase $basketItem */
 		foreach ($this->collection as $basketItem)
 		{
-			$orderPrice += PriceMaths::roundPrecision($basketItem->getBasePrice() * $basketItem->getQuantity());
+			$orderPrice += PriceMaths::roundPrecision($basketItem->getBasePriceWithVat() * $basketItem->getQuantity());
 		}
-
-		$orderPrice = PriceMaths::roundPrecision($orderPrice);
 
 		return $orderPrice;
 	}

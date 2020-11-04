@@ -555,7 +555,7 @@ class CSocNetLogDestination
 				CSocNetTools::InitGlobalExtranetArrays();
 
 				if (
-					!isset($arFilter['UF_DEPARTMENT'])
+					!isset($filter['UF_DEPARTMENT'])
 					&& $bExtranetInstalled
 				)
 				{
@@ -593,7 +593,7 @@ class CSocNetLogDestination
 					}
 
 					if (
-						!isset($arFilter['UF_DEPARTMENT']) // all users
+						!isset($filter['UF_DEPARTMENT']) // all users
 						&& $bExtranetInstalled
 					)
 					{
@@ -666,9 +666,9 @@ class CSocNetLogDestination
 			if (defined("BX_COMP_MANAGED_CACHE"))
 			{
 				$CACHE_MANAGER->RegisterTag("USER_NAME");
-				if (!empty($arFilter['UF_DEPARTMENT']))
+				if (!empty($filter['UF_DEPARTMENT']))
 				{
-					$CACHE_MANAGER->RegisterTag('intranet_department_'.$arFilter['UF_DEPARTMENT']);
+					$CACHE_MANAGER->RegisterTag('intranet_department_'.$filter['UF_DEPARTMENT']);
 				}
 				$CACHE_MANAGER->EndTagCache();
 			}

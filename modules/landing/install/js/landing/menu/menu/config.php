@@ -13,9 +13,9 @@ return [
 		'landing.env',
 		'landing.main',
 		'landing.backend',
-		'landing.menu.menuitem',
 		'landing.ui.form.menuform',
 		'landing.ui.panel.stylepanel',
+		'landing.menu.menuitem',
 	],
 	'skip_core' => false,
 ];

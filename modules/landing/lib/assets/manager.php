@@ -340,13 +340,17 @@ class Manager
 		{
 			case 'js':
 				return Types::TYPE_JS;
+
 			case 'css':
 				return Types::TYPE_CSS;
+
 			case 'php':
 				return Types::TYPE_LANG;
+
 			case 'woff':
 			case 'woff2':
 				return Types::TYPE_FONT;
+
 			default:
 				return null;
 		}

@@ -95,6 +95,12 @@ Asset::getInstance()->addJS('/bitrix/components/bitrix/landing.site_edit/templat
 
 $this->getComponent()->initAPIKeys();
 
+$bodyClass = $APPLICATION->GetPageProperty('BodyClass');
+$APPLICATION->SetPageProperty(
+	'BodyClass',
+	($bodyClass ? $bodyClass.' ' : '') . 'landing-slider-frame-popup'
+);
+
 // view-functions
 include Manager::getDocRoot() . '/bitrix/components/bitrix/landing.site_edit/templates/.default/template_class.php';
 $template = new Template($arResult);
@@ -161,7 +167,9 @@ if ($arParams['SUCCESS_SAVE'])
 								{
 									if ($siteCurrent)
 									{
-										echo Manager::getPublicationPath(trim($siteCurrent['CODE'], '/'));
+										echo \htmlspecialcharsbx(
+											Manager::getPublicationPath(trim($siteCurrent['CODE'], '/'))
+										);
 									}
 									else
 									{
@@ -172,10 +180,10 @@ if ($arParams['SUCCESS_SAVE'])
 								{
 									if ($siteCurrent && $siteCurrent['TYPE'] == 'SMN')
 									{
-										echo Manager::getPublicationPath(
+										echo \htmlspecialcharsbx(Manager::getPublicationPath(
 											null,
 											$siteCurrent['SMN_SITE_ID']
-										);
+										));
 									}
 									else
 									{
@@ -184,14 +192,14 @@ if ($arParams['SUCCESS_SAVE'])
 								}
 								else
 								{
-									echo Manager::getPublicationPath(
+									echo \htmlspecialcharsbx(Manager::getPublicationPath(
 										null,
 										$request->get('site')
-									);
+									));
 								}
 								if ($arResult['FOLDER'])
 								{
-									echo $arResult['FOLDER']['CODE'] . '/';
+									echo \htmlspecialcharsbx($arResult['FOLDER']['CODE']) . '/';
 								}
 								?>
 							</span>
@@ -320,7 +328,7 @@ if ($arParams['SUCCESS_SAVE'])
 					</td>
 				</tr>
 				<?endif;?>
-				
+
 				<?if (isset($hooks['THEME'])):
 					$pageFields = $hooks['THEME']->getPageFields();
 					if (isset($pageFields['THEME_CODE'])): ?>
@@ -333,7 +341,7 @@ if ($arParams['SUCCESS_SAVE'])
 									$selectParams['id'] = randString(5);
 									$selectParams['options'] = $pageFields['THEME_CODE']->getOptions();
 									$selectParams['value'] = $pageFields['THEME_CODE']->getValue();
-									
+
 									// set color and border for DEFAULT
 									$selectParams['options']['']['class'] = 'select-color-popup-menu-item--underline';
 									$siteFields = $hooksSite['THEME']->getPageFields();
@@ -349,14 +357,14 @@ if ($arParams['SUCCESS_SAVE'])
 										$selectParams['options']['']['color'] = $lastOption['color'];
 									}
 									?>
-										
+
 									<input
 										id="<?=$selectParams['id']?>_select_color"
 										type="hidden"
 										name="<?= $pageFields['THEME_CODE']->getName('fields[ADDITIONAL_FIELDS][#field_code#]');?>"
 										value="<?= \htmlspecialcharsbx($selectParams['value']);?>"
 									/>
-									
+
 									<div class="ui-select select-color-wrap"
 										 id="<?= $selectParams['id'];?>_select_color_wrap">
 									</div>
@@ -381,7 +389,7 @@ if ($arParams['SUCCESS_SAVE'])
 						</td>
 					</tr>
 				<?php endif;?>
-				
+
 				<tr>
 					<td class="ui-form-right-cell ui-form-collapse" colspan="2">
 						<div class="ui-form-collapse-block landing-form-collapse-block-js">
@@ -614,7 +622,7 @@ if ($arParams['SUCCESS_SAVE'])
 					</td>
 				</tr>
 				<?endif;?>
-				
+
 				<?if (isset($hooks['VIEW'])):
 					$pageFields = $hooks['VIEW']->getPageFields();
 					?>
@@ -918,7 +926,7 @@ if ($arParams['SUCCESS_SAVE'])
 		</div>
 	</div>
 
-	<div class="<?if (false && $request->get('IFRAME') == 'Y'){?>landing-edit-footer-fixed <?}?>pinable-block">
+	<div class="<?if ($request->get('IFRAME') == 'Y'){?>landing-edit-footer-fixed <?}?>pinable-block">
 		<div class="landing-form-footer-container">
 			<button id="landing-save-btn" type="submit" class="ui-btn ui-btn-success"  name="submit"  value="<?= Loc::getMessage('LANDING_TPL_BUTTON_' . ($arParams['SITE_ID'] ? 'SAVE' : 'ADD'));?>">
 				<?= Loc::getMessage('LANDING_TPL_BUTTON_' . ($arParams['LANDING_ID'] ? 'SAVE' : 'ADD'))?>

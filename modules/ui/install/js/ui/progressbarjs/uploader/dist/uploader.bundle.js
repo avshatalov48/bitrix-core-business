@@ -2,9 +2,7 @@ this.BX = this.BX || {};
 (function (exports) {
 	'use strict';
 
-	var Uploader =
-	/*#__PURE__*/
-	function () {
+	var Uploader = /*#__PURE__*/function () {
 	  function Uploader() {
 	    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, Uploader);

@@ -3,6 +3,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 
 use Bitrix\Catalog\Component\GridVariationForm;
+use Bitrix\Catalog\Product\PropertyCatalogFeature;
 use Bitrix\Catalog\v2\IoC\ServiceContainer;
 use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Errorable;
@@ -232,12 +233,29 @@ class CatalogPropertyCreationFormComponent extends \CBitrixComponent
 		return $this->propertyId;
 	}
 
+	private function getPropertyVariationFeatureList(): array
+	{
+		return [
+			[
+				'MODULE_ID' => 'catalog',
+				'FEATURE_ID' => PropertyCatalogFeature::FEATURE_ID_OFFER_TREE_PROPERTY,
+				'IS_ENABLED' => 'Y',
+			],
+			[
+				'MODULE_ID' => 'catalog',
+				'FEATURE_ID' => PropertyCatalogFeature::FEATURE_ID_BASKET_PROPERTY,
+				'IS_ENABLED' => 'Y',
+			],
+		];
+	}
+
 	public function addPropertyAction(array $fields = []): ?array
 	{
 		if ($this->checkModules() && $this->checkPermissions() && $this->checkRequiredParameters())
 		{
 			CBitrixComponent::includeComponentClass("bitrix:catalog.productcard.details");
 			$fields['IBLOCK_ID'] = $this->getIblockId();
+			$fields['FEATURES'] = $this->getPropertyVariationFeatureList();
 			$result = \CatalogProductDetailsComponent::addProperty($fields);
 			if (!$result->isSuccess())
 			{

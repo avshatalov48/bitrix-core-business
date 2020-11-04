@@ -30,14 +30,14 @@ function CheckFilter() // проверка введенных полей
 	$str = "";
 	$arMsg = Array();
 
-	if (strlen(trim($find_date_create1))>0 || strlen(trim($find_date_create2))>0)
+	if (trim($find_date_create1) <> '' || trim($find_date_create2) <> '')
 	{
 		// Дата создания
 		$date_1_ok = false;
 		$date1_stm = MkDateTime(ConvertDateTime($find_date_create1,"D.M.Y"),"d.m.Y");
 		$date2_stm = MkDateTime(ConvertDateTime($find_date_create2,"D.M.Y")." 23:59","d.m.Y H:i");
 
-		if (!$date1_stm && strlen(trim($find_date_create1))>0)
+		if (!$date1_stm && trim($find_date_create1) <> '')
 		{
 			//$str.= GetMessage("SUP_WRONG_DATE_CREATE_FROM")."<br>";
 			$arMsg[] = array("id"=>"find_date_create1", "text"=> GetMessage("SUP_WRONG_DATE_CREATE_FROM"));
@@ -47,26 +47,26 @@ function CheckFilter() // проверка введенных полей
 			$date_1_ok = true;
 		}
 
-		if (!$date2_stm && strlen(trim($find_date_create2))>0)
+		if (!$date2_stm && trim($find_date_create2) <> '')
 		{
 			//$str.= GetMessage("SUP_WRONG_DATE_CREATE_TILL")."<br>";
 			$arMsg[] = array("id"=>"find_date_create2", "text"=> GetMessage("SUP_WRONG_DATE_CREATE_TILL"));
 		}
-		elseif ($date_1_ok && $date2_stm <= $date1_stm && strlen($date2_stm)>0)
+		elseif ($date_1_ok && $date2_stm <= $date1_stm && $date2_stm <> '')
 		{
 			//$str.= GetMessage("SUP_FROM_TILL_DATE_CREATE")."<br>";
 			$arMsg[] = array("id"=>"find_date_create2", "text"=> GetMessage("SUP_FROM_TILL_DATE_CREATE"));
 		}
 	}
 
-	if (strlen(trim($find_date_timestamp1))>0 || strlen(trim($find_date_timestamp2))>0)
+	if (trim($find_date_timestamp1) <> '' || trim($find_date_timestamp2) <> '')
 	{
 		// Дата изменения
 		$date_1_ok = false;
 		$date1_stm = MkDateTime(ConvertDateTime($find_date_timestamp1,"D.M.Y"),"d.m.Y");
 		$date2_stm = MkDateTime(ConvertDateTime($find_date_timestamp2,"D.M.Y")." 23:59","d.m.Y H:i");
 
-		if (!$date1_stm && strlen(trim($find_date_timestamp1))>0)
+		if (!$date1_stm && trim($find_date_timestamp1) <> '')
 		{
 			//$str.= GetMessage("SUP_WRONG_DATE_TIMESTAMP_FROM")."<br>";
 			$arMsg[] = array("id"=>"find_date_timestamp1", "text"=> GetMessage("SUP_WRONG_DATE_TIMESTAMP_FROM"));
@@ -76,26 +76,26 @@ function CheckFilter() // проверка введенных полей
 			$date_1_ok = true;
 		}
 
-		if (!$date2_stm && strlen(trim($find_date_timestamp2))>0)
+		if (!$date2_stm && trim($find_date_timestamp2) <> '')
 		{
 			//$str.= GetMessage("SUP_WRONG_DATE_TIMESTAMP_TILL")."<br>";
 			$arMsg[] = array("id"=>"find_date_timestamp2", "text"=> GetMessage("SUP_WRONG_DATE_TIMESTAMP_TILL"));
 		}
-		elseif ($date_1_ok && $date2_stm <= $date1_stm && strlen($date2_stm)>0)
+		elseif ($date_1_ok && $date2_stm <= $date1_stm && $date2_stm <> '')
 		{
 			//$str.= GetMessage("SUP_FROM_TILL_DATE_TIMESTAMP")."<br>";
 			$arMsg[] = array("id"=>"find_date_timestamp2", "text"=> GetMessage("SUP_FROM_TILL_DATE_TIMESTAMP"));
 		}
 	}
 
-	if (strlen(trim($find_date_close1))>0 || strlen(trim($find_date_close2))>0)
+	if (trim($find_date_close1) <> '' || trim($find_date_close2) <> '')
 	{
 		// Дата закрытия
 		$date_1_ok = false;
 		$date1_stm = MkDateTime(ConvertDateTime($find_date_close1,"D.M.Y"),"d.m.Y");
 		$date2_stm = MkDateTime(ConvertDateTime($find_date_close2,"D.M.Y")." 23:59","d.m.Y H:i");
 
-		if (!$date1_stm && strlen(trim($find_date_close1))>0)
+		if (!$date1_stm && trim($find_date_close1) <> '')
 		{
 			//$str.= GetMessage("SUP_WRONG_DATE_CLOSE_FROM")."<br>";
 			$arMsg[] = array("id"=>"find_date_close1", "text"=> GetMessage("SUP_WRONG_DATE_CLOSE_FROM"));
@@ -105,12 +105,12 @@ function CheckFilter() // проверка введенных полей
 			$date_1_ok = true;
 		}
 
-		if (!$date2_stm && strlen(trim($find_date_close2))>0)
+		if (!$date2_stm && trim($find_date_close2) <> '')
 		{
 			//$str.= GetMessage("SUP_WRONG_DATE_CLOSE_TILL")."<br>";
 			$arMsg[] = array("id"=>"find_date_close2", "text"=> GetMessage("SUP_WRONG_DATE_CLOSE_TILL"));
 		}
-		elseif ($date_1_ok && $date2_stm <= $date1_stm && strlen($date2_stm)>0)
+		elseif ($date_1_ok && $date2_stm <= $date1_stm && $date2_stm <> '')
 		{
 			//$str.= GetMessage("SUP_FROM_TILL_DATE_CLOSE")."<br>";
 			$arMsg[] = array("id"=>"find_date_close2", "text"=> GetMessage("SUP_FROM_TILL_DATE_CLOSE"));
@@ -275,15 +275,15 @@ function Support_GetSLAInfo($ID, &$name, &$description, $safe_for_html=true)
 							Обработка GET | POST
 ****************************************************************************/
 $arrUsers = array();
-$TICKET_LIST_URL = strlen($TICKET_LIST_URL)>0? CUtil::AddSlashes(htmlspecialcharsbx((substr($TICKET_LIST_URL, 0, 4) == 'http'?'':'/').$TICKET_LIST_URL)) : "ticket_list.php";
-$TICKET_EDIT_URL = strlen($TICKET_EDIT_URL)>0? CUtil::AddSlashes(htmlspecialcharsbx((substr($TICKET_EDIT_URL, 0, 4) == 'http'?'':'/').$TICKET_EDIT_URL)) : "ticket_edit.php";
-$TICKET_MESSAGE_EDIT_URL = strlen($TICKET_MESSAGE_EDIT_URL)>0? CUtil::AddSlashes(htmlspecialcharsbx((substr($TICKET_MESSAGE_EDIT_URL, 0, 4) == 'http'?'':'/').$TICKET_MESSAGE_EDIT_URL)) : "ticket_message_edit.php";
+$TICKET_LIST_URL = $TICKET_LIST_URL <> ''? CUtil::AddSlashes(htmlspecialcharsbx((mb_substr($TICKET_LIST_URL, 0, 4) == 'http'?'':'/').$TICKET_LIST_URL)) : "ticket_list.php";
+$TICKET_EDIT_URL = $TICKET_EDIT_URL <> ''? CUtil::AddSlashes(htmlspecialcharsbx((mb_substr($TICKET_EDIT_URL, 0, 4) == 'http'?'':'/').$TICKET_EDIT_URL)) : "ticket_edit.php";
+$TICKET_MESSAGE_EDIT_URL = $TICKET_MESSAGE_EDIT_URL <> ''? CUtil::AddSlashes(htmlspecialcharsbx((mb_substr($TICKET_MESSAGE_EDIT_URL, 0, 4) == 'http'?'':'/').$TICKET_MESSAGE_EDIT_URL)) : "ticket_message_edit.php";
 
-if (strlen($tf)<=0)
+if ($tf == '')
 {
 	$tf = ${COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_TICKET_FILTER"};
 }
-if (strlen($tf)<=0)
+if ($tf == '')
 {
 	$tf = "none";
 }
@@ -587,7 +587,7 @@ if($arID = $lAdmin->GroupAction())
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
 		$ID = intval($ID);
 
@@ -723,7 +723,7 @@ $arGuestsPref = array("OWNER", "CREATED", "MODIFIED");
 while($arRes = $rsData->NavNext(true, "f_"))
 {
 	$lamp = "/bitrix/images/support/$f_LAMP.gif";
-	$lamp_alt = GetMessage("SUP_".strtoupper($f_LAMP)."_ALT");
+	$lamp_alt = GetMessage("SUP_".mb_strtoupper($f_LAMP)."_ALT");
 
 	/*if ($get_user_name=="N")
 	{
@@ -763,10 +763,10 @@ while($arRes = $rsData->NavNext(true, "f_"))
 
 	if ($bADS)
 	{
-		if (strlen($f_IS_SPAM)>0)
+		if ($f_IS_SPAM <> '')
 			$ID_HTML .= '<br><span style="color:#428857">'.GetMessage("SUP_SPAM").($f_IS_SPAM=="Y" ? "!" : "?").'</span>';
 
-		if (strlen($f_DATE_CLOSE)<=0)
+		if ($f_DATE_CLOSE == '')
 		{
 			if ($f_IS_OVERDUE=="Y")
 				$ID_HTML .= '<br><span class="required">'.GetMessage("SUP_OVERDUE").'</span>';
@@ -785,12 +785,12 @@ while($arRes = $rsData->NavNext(true, "f_"))
 
 	$row->AddViewField("LAMP", '<div class="lamp-'.str_replace("_","-",$f_LAMP).'" title="'.$lamp_alt.'"></div>'.$ID_HTML);
 
-	$TITLE_HTML = (strlen(trim($f_TITLE))<=0) ? "&nbsp;" : TxtToHTML($f_TITLE, true, 30);
+	$TITLE_HTML = (trim($f_TITLE) == '') ? "&nbsp;" : TxtToHTML($f_TITLE, true, 30);
 	$TITLE_HTML .= "<br>";
 
 	if (COption::GetOptionString('support', "SHOW_COMMENTS_IN_TICKET_LIST") == 'Y')
 	{
-		if (($bADS) && strlen(trim($f_SUPPORT_COMMENTS))>0)
+		if (($bADS) && trim($f_SUPPORT_COMMENTS) <> '')
 			$TITLE_HTML .= '<br><img src="/bitrix/images/1.gif" width="1" height="5" border="0" alt=""><br>[&nbsp;'.TxtToHTML($f_SUPPORT_COMMENTS, true, 30).'&nbsp;]';
 	}
 
@@ -831,10 +831,10 @@ while($arRes = $rsData->NavNext(true, "f_"))
 		$arr = explode(" ",$f_DATE_CREATE);
 		$DATE_CREATE_HTML = $arr[0]."&nbsp;".$arr[1]."<br>";
 
-		if (strlen($f_SOURCE_NAME)>0)
+		if ($f_SOURCE_NAME <> '')
 			$DATE_CREATE_HTML .= "<nobr>[".$f_SOURCE_NAME."]&nbsp;</nobr><br>";
 
-		if (strlen($f_OWNER_SID)>0)
+		if ($f_OWNER_SID <> '')
 			$DATE_CREATE_HTML .= TxtToHtml($f_OWNER_SID)."&nbsp;&nbsp;<br>";
 
 		/*
@@ -867,18 +867,18 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	*/
 	$row->AddViewField("MESSAGES", '<a title="'.GetMessage("SUP_EDIT_TICKET").'" href="'.$TICKET_EDIT_URL.'?ID='.$f_ID.'&lang='.LANG.'">'.$f_MESSAGES.'</a>');
 
-	if (strlen($f_SLA_NAME)>0)
+	if ($f_SLA_NAME <> '')
 		$row->AddViewField("SLA_ID", $f_SLA_NAME);
 	else
 		$row->AddViewField("SLA_ID", '&nbsp;');
 
-	if (strlen($f_CATEGORY_NAME)>0)
+	if ($f_CATEGORY_NAME <> '')
 		$row->AddViewField("CATEGORY_ID", $f_CATEGORY_NAME);
 	else
 		$row->AddViewField("CATEGORY_ID", '&nbsp;');
 
 
-	if (strlen($f_CRITICALITY_NAME)>0)
+	if ($f_CRITICALITY_NAME <> '')
 		$row->AddViewField("CRITICALITY_ID", $f_CRITICALITY_NAME);
 	else
 		$row->AddViewField("CRITICALITY_ID", '&nbsp;');
@@ -897,7 +897,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	$row->AddViewField("RESPONSIBLE_USER_ID", $INFO2_HTML);
 	*/
 
-	if( strlen($f_SUPPORT_DEADLINE) > 0 )
+	if( $f_SUPPORT_DEADLINE <> '' )
 		$row->AddViewField("SUPPORT_DEADLINE", $f_SUPPORT_DEADLINE);
 	else
 		$row->AddViewField("SUPPORT_DEADLINE", '&nbsp;');
@@ -912,18 +912,18 @@ while($arRes = $rsData->NavNext(true, "f_"))
 
 	if ($bADS)
 	{
-		if (strlen($f_DIFFICULTY_NAME)>0)
+		if ($f_DIFFICULTY_NAME <> '')
 			$row->AddViewField("DIFFICULTY_ID",$f_DIFFICULTY_NAME);
 		else
 			$row->AddViewField("DIFFICULTY_ID", '&nbsp;');
 	};
 
-	if (strlen($f_STATUS_NAME)>0)
+	if ($f_STATUS_NAME <> '')
 		$row->AddViewField("STATUS_ID",$f_STATUS_NAME);
 	else
 		$row->AddViewField("STATUS_ID", '&nbsp;');
 
-	if (strlen($f_MARK_NAME)>0)
+	if ($f_MARK_NAME <> '')
 		$row->AddViewField("MARK_ID", $f_MARK_NAME);
 	else
 		$row->AddViewField("MARK_ID", '&nbsp;');
@@ -940,7 +940,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 
 	$arActions[] = array("SEPARATOR" => true);
 
-	if (strlen($f_DATE_CLOSE)<=0)
+	if ($f_DATE_CLOSE == '')
 	{
 		$arActions[] = array(
 			"TEXT"	=> GetMessage("SUP_CLOSE"),
@@ -958,7 +958,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 
 	if ($bSupportTeam=="Y" || $bAdmin=="Y")
 	{
-		if (strlen($f_IS_SPAM)>0)
+		if ($f_IS_SPAM <> '')
 		{
 			$arActions[] = array(
 				"TEXT"	=> GetMessage("SUP_UNMARK_SPAM"),
@@ -1046,7 +1046,7 @@ foreach($arRows as $k => $v)
 	$mGuestID = intval($v["arFields"]["MODIFIED_GUEST_ID"]);
 	$timeStampXHtml = isset($v["arFields"]["TIMESTAMP_X"]) ? htmlspecialcharsbx($v["arFields"]["TIMESTAMP_X"]) . "<br>" : "";
 	$modifiedModuleName = isset($v["arFields"]["MODIFIED_MODULE_NAME"]) ? htmlspecialcharsbx($v["arFields"]["MODIFIED_MODULE_NAME"]) :  "";
-	if(strlen($modifiedModuleName)<=0 || $modifiedModuleName=="support")
+	if($modifiedModuleName == '' || $modifiedModuleName=="support")
 	{
 		if($mUserID > 0)
 		{

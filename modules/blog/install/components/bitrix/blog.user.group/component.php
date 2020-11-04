@@ -34,15 +34,15 @@ if ($arBlog = CBlog::GetByUrl($arParams["BLOG_URL"]))
 						'NAME' => $_POST["NAME"],
 					);
 
-					if (IntVal($_POST['ID']) > 0) // Check: new record or update old one
+					if (intval($_POST['ID']) > 0) // Check: new record or update old one
 					{
-						$res = CBlogUserGroup::GetList(Array("NAME"=>"ASC"), Array("BLOG_ID"=>$arBlog["ID"], "ID" => IntVal($_POST["ID"])));
+						$res = CBlogUserGroup::GetList(Array("NAME"=>"ASC"), Array("BLOG_ID"=>$arBlog["ID"], "ID" => intval($_POST["ID"])));
 						if ($res->Fetch())
 						{
 							if ($_POST["group_del"]=="Y")
-								CBlogUserGroup::Delete(IntVal($_POST['ID']));
+								CBlogUserGroup::Delete(intval($_POST['ID']));
 							else
-								$newID = CBlogUserGroup::Update(IntVal($_POST["ID"]), $arFields);
+								$newID = CBlogUserGroup::Update(intval($_POST["ID"]), $arFields);
 						}
 						else
 							$arResult["ERROR_MESSAGE"] = GetMessage("BLOG_ERR_NO_RIGHTS");
@@ -59,11 +59,11 @@ if ($arBlog = CBlog::GetByUrl($arParams["BLOG_URL"]))
 							$arResult["ERROR_MESSAGE"] = GetMessage("BLOG_GROUP_EXIST_1")." \"".htmlspecialcharsEx($arFields["NAME"])."\" ".GetMessage("BLOG_GROUP_EXIST_2");
 					}
 				
-					if(strlen($arResult["ERROR_MESSAGE"])<=0)
+					if($arResult["ERROR_MESSAGE"] == '')
 						LocalRedirect($_POST["BACK_URL"]);
 				}
 
-				if(strlen($_POST["BACK_URL"])>0)
+				if($_POST["BACK_URL"] <> '')
 					$arResult["BACK_URL"] = htmlspecialcharsbx($_POST["BACK_URL"]);
 				else
 					$arResult["BACK_URL"] = htmlspecialcharsbx($APPLICATION->GetCurPageParam());
@@ -77,7 +77,7 @@ if ($arBlog = CBlog::GetByUrl($arParams["BLOG_URL"]))
 				$res=CBlogUserGroup::GetList($arOrder = Array("NAME" => "ASC"), $arFilter = Array("BLOG_ID" => $arBlog["ID"]));
 				while($arGroupCount = $res->GetNext())
 				{
-					$arGroupCount['CNT'] = IntVal($arSumGroup[$arGroupCount["ID"]]);
+					$arGroupCount['CNT'] = intval($arSumGroup[$arGroupCount["ID"]]);
 					$arGroupCnt[] = $arGroupCount;
 				}
 				

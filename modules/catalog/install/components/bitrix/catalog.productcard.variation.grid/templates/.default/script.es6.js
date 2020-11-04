@@ -377,11 +377,15 @@ class VariationGrid
 
 	modifyCustomSkuProperties(node)
 	{
-		const id = node.getAttribute('data-id');
+		const postfix = '_' + node.getAttribute('data-id');
 
 		node.querySelectorAll('input[type="radio"]').forEach(input => {
-			input.id += id;
-			input.setAttribute('name', input.getAttribute('name') + id);
+			input.id += postfix;
+			input.setAttribute('name', input.getAttribute('name') + postfix);
+		});
+
+		node.querySelectorAll('label[data-role]').forEach(label => {
+			label.setAttribute('for', label.getAttribute('for') + postfix);
 		});
 	}
 

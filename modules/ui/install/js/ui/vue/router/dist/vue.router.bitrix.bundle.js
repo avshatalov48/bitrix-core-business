@@ -2556,9 +2556,7 @@
    * @copyright 2001-2019 Bitrix
    */
 
-  var BitrixVueRouter =
-  /*#__PURE__*/
-  function () {
+  var BitrixVueRouter = /*#__PURE__*/function () {
     function BitrixVueRouter() {
       babelHelpers.classCallCheck(this, BitrixVueRouter);
     }

@@ -2,14 +2,18 @@
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
+use Bitrix\Mail;
 use Bitrix\Mail\ImapCommands\MailsFlagsManager;
 use Bitrix\Mail\ImapCommands\MailsFoldersManager;
+use Bitrix\Mail\Integration\Calendar\ICal\ICalMailManager;
+use Bitrix\Mail\MailMessageTable;
 use Bitrix\Main;
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Mail;
+use Bitrix\Main\Context;
 use Bitrix\Main\Error;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 
-Main\Loader::includeModule('mail');
+Loader::includeModule('mail');
 Loc::loadLanguageFile(__FILE__);
 Loc::loadMessages(__DIR__ . '/../mail.client/class.php');
 
@@ -26,7 +30,7 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 	{
 		parent::init();
 
-		$this->isCrmEnable = Main\Loader::includeModule('crm') && \CCrmPerms::isAccessEnabled();
+		$this->isCrmEnable = Loader::includeModule('crm') && \CCrmPerms::isAccessEnabled();
 	}
 
 
@@ -533,7 +537,7 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 		$totalSize = 0;
 		$attachments = array();
 		$attachmentIds = array();
-		if (!empty($data['__diskfiles']) && is_array($data['__diskfiles']) && Main\Loader::includeModule('disk'))
+		if (!empty($data['__diskfiles']) && is_array($data['__diskfiles']) && Loader::includeModule('disk'))
 		{
 			foreach ($data['__diskfiles'] as $item)
 			{
@@ -747,7 +751,7 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 	 */
 	public function createCrmActivityAction($messageId, $level = 1)
 	{
-		if (!\Bitrix\Main\Loader::includeModule('crm'))
+		if (!Loader::includeModule('crm'))
 		{
 			$this->errorCollection[] = new \Bitrix\Main\Error(Loc::getMessage('MAIL_CLIENT_AJAX_ERROR'));
 			return;
@@ -838,7 +842,7 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 	{
 		global $USER;
 
-		if (!Main\Loader::includeModule('crm'))
+		if (!Loader::includeModule('crm'))
 		{
 			$this->errorCollection[] = new Main\Error(Loc::getMessage('MAIL_CLIENT_AJAX_ERROR'));
 			return;
@@ -984,4 +988,65 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 		}
 	}
 
+	public function icalAction()
+	{
+		$request = Context::getCurrent()->getRequest();
+
+		$messageId = (int)$request->getPost("messageId");
+		$action = (string)$request->getPost("action");
+
+		if (!$messageId || !$action)
+		{
+			$this->addError(new Error(Loc::getMessage('MAIL_CLIENT_FORM_ERROR')));
+
+			return false;
+		}
+
+		$message = MailMessageTable::getList([
+			'runtime' => [
+				new Main\Entity\ReferenceField(
+					'MAILBOX',
+					'Bitrix\Mail\MailboxTable',
+					[
+						'=this.MAILBOX_ID' => 'ref.ID',
+					],
+					[
+						'join_type' => 'INNER',
+					]
+				),
+			],
+			'select'  => [
+				'ID',
+				'FIELD_FROM',
+				'FIELD_TO',
+				'OPTIONS',
+				'USER_ID' => 'MAILBOX.USER_ID',
+			],
+			'filter'  => [
+				'=ID' => $messageId,
+			],
+		])->fetch();
+
+		if (empty($message['OPTIONS']['iCal']))
+		{
+			return false;
+		}
+
+		list($event, $method) = ICalMailManager::parseRequest($message['OPTIONS']['iCal']);
+
+		if (isset($method) && $method === 'REQUEST')
+		{
+			ICalMailManager::manageRequest([
+				'event'  => $event,
+				'userId' => $message['USER_ID'],
+				'emailFrom'  => $message['FIELD_FROM'],
+				'emailTo'  => $message['FIELD_TO'],
+				'answer' => $action
+			]);
+
+			return true;
+		}
+
+		return false;
+	}
 }

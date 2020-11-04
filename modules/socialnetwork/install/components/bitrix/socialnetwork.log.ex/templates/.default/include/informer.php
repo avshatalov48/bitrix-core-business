@@ -28,7 +28,7 @@ if (!in_array($arParams["MODE"], ['PUB', 'LANDING']))
 					?><span class="feed-new-message-informer-counter" id="sonet_log_counter_2">0</span><span class="feed-new-message-informer-counter feed-new-message-informer-counter-plus-hidden" id="sonet_log_counter_2_plus">+</span><?
 				?></span><?
 				?><span class="feed-new-message-inf-text feed-new-message-inf-text-reload new-message-balloon" style="display: none;"><?
-					?><?=GetMessage("SONET_C30_T_RELOAD_NEEDED")?><?
+					?><?=GetMessage(\Bitrix\Main\ModuleManager::isModuleInstalled('intranet') ? "SONET_C30_T_RELOAD_NEEDED2" : "SONET_C30_T_RELOAD_NEEDED")?><?
 				?></span><?
 			?></div><?
 		?></div><?

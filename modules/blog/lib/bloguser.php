@@ -37,7 +37,7 @@ class BlogUser
 		$height = intval($height);
 
 //		overwrite params if key exist or create new
-		$key = strlen($key) > 0 ? $key : "IMG_" . (count($this->avatarSizes) + 1);
+		$key = $key <> '' ? $key : "IMG_" . (count($this->avatarSizes) + 1);
 		$this->avatarSizes[$key] = array('WIDTH' => $width, 'HEIGHT' => $height);
 	}
 	
@@ -377,7 +377,7 @@ class BlogUser
 		if ($canUseAlias == "Y")
 			$result = $alias;
 		
-		if (strlen($result) <= 0)
+		if ($result == '')
 		{
 			$result = \CUser::FormatName(
 				\CSite::GetNameFormat(false),
@@ -403,7 +403,7 @@ class BlogUser
 				$result = $blogUser["ALIAS"];
 		}
 		
-		if (strlen($result) <= 0)
+		if ($result == '')
 		{
 			$params["NAME_TEMPLATE"] = $params["NAME_TEMPLATE"] ? $params["NAME_TEMPLATE"] : \CSite::GetNameFormat();
 			$params["NAME_TEMPLATE"] = str_replace(

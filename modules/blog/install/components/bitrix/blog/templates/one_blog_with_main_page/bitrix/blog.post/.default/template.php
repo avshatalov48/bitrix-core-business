@@ -1,24 +1,24 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
-if(strlen($arResult["MESSAGE"])>0)
+if($arResult["MESSAGE"] <> '')
 {
 	?>
 	<?=$arResult["MESSAGE"]?><br /><br />
 	<?
 }
-if(strlen($arResult["ERROR_MESSAGE"])>0)
+if($arResult["ERROR_MESSAGE"] <> '')
 {
 	?>
 	<span class='errortext'><?=$arResult["ERROR_MESSAGE"]?></span><br /><br />
 	<?
 }
-if(strlen($arResult["FATAL_MESSAGE"])>0)
+if($arResult["FATAL_MESSAGE"] <> '')
 {
 	?>
 	<span class='errortext'><?=$arResult["FATAL_MESSAGE"]?></span><br /><br />
 	<?
 }
-elseif(strlen($arResult["NOTE_MESSAGE"])>0)
+elseif($arResult["NOTE_MESSAGE"] <> '')
 {
 	?>
 	<?=$arResult["NOTE_MESSAGE"]?><br /><br />
@@ -40,12 +40,12 @@ else
 					<td align="right" nowrap>
 						<table width="0%" class="blog-table-post-table-author">
 						<tr>
-							<?if(strLen($arResult["urlToEdit"])>0):?>
+							<?if($arResult["urlToEdit"] <> ''):?>
 								<td align="right">
 									<a href="<?=$arResult["urlToEdit"]?>" class="blog-post-edit"></a>
 								</td>
 							<?endif;?>
-							<?if(strLen($arResult["urlToDelete"])>0):?>
+							<?if($arResult["urlToDelete"] <> ''):?>
 								<td align="right">
 									<a href="javascript:if(confirm('<?=GetMessage("BLOG_MES_DELETE_POST_CONFIRM")?>')) window.location='<?=$arResult["urlToDelete"]."&".bitrix_sessid_get()?>'" class="blog-post-delete"></a>
 								</td>
@@ -90,7 +90,7 @@ else
 					<br />
 					<table cellpadding="0" cellspacing="0" border="0" class="blog-table-post-table" style="width:0%;">
 					<?foreach ($arResult["POST_PROPERTIES"]["DATA"] as $FIELD_NAME => $arPostField):?>
-					<?if(strlen($arPostField["VALUE"])>0):?>
+					<?if($arPostField["VALUE"] <> ''):?>
 					<tr>
 						<td><b><?=$arPostField["EDIT_FORM_LABEL"]?>:</b></td>
 						<td>

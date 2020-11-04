@@ -1,7 +1,8 @@
 <?php
 
 namespace Bitrix\Sale\Delivery\Inputs;
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/lib/internals/input.php");
+
+require_once __DIR__.'/../internals/input.php';
 
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ArgumentTypeException;

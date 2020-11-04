@@ -104,7 +104,7 @@ class Livefeed extends Landing\Source\DataLoader
 
 		$result[] = [
 			'SOURCE_ID' => 'livefeed',
-			'TITLE' => Loc::getMessage('SONET_LANDING_DYNAMIC_BLOCK_LIVEFEED_TITLE'),
+			'TITLE' => Loc::getMessage('SONET_LANDING_DYNAMIC_BLOCK_LIVEFEED_TITLE2'),
 			'TYPE' => Landing\Source\Selector::SOURCE_TYPE_COMPONENT,
 			'SETTINGS' => [
 				'COMPONENT_NAME' => 'bitrix:socialnetwork.landing.livefeed.selector',
@@ -600,12 +600,12 @@ class Livefeed extends Landing\Source\DataLoader
 					$clearedText
 				);
 				$clearedText = preg_replace(
-					'/\[URL(.*?)]((?:[^\ ]{1,19}\s+)+)\[\/URL\]/is'.BX_UTF_PCRE_MODIFIER,
+					'/\[URL(.*?)]((?:[^\]\s]{1,19}\s+)+)\[\/URL\]/is'.BX_UTF_PCRE_MODIFIER,
 					'\\2',
 					$clearedText
 				);
 				$clearedText = preg_replace(
-					'/\[URL(.*?)]((?:[^\ ]{1,19}\s+)+)\[\/URL\]/is'.BX_UTF_PCRE_MODIFIER,
+					'/\[URL(.*?)]((?:[^\]\s]{1,19}\s+)+)\[\/URL\]/is'.BX_UTF_PCRE_MODIFIER,
 					'\\2',
 					$clearedText
 				);

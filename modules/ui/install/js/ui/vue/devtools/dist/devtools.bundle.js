@@ -8,9 +8,7 @@
 	 * @subpackage ui
 	 * @copyright 2001-2019 Bitrix
 	 */
-	var BitrixVueDevTools =
-	/*#__PURE__*/
-	function () {
+	var BitrixVueDevTools = /*#__PURE__*/function () {
 	  function BitrixVueDevTools(params) {
 	    babelHelpers.classCallCheck(this, BitrixVueDevTools);
 	    this.host = 'http://localhost';

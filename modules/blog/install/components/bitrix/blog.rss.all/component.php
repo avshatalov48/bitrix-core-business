@@ -7,8 +7,8 @@ if (!CModule::IncludeModule("blog"))
 	return;
 }
 
-$arParams["MESSAGE_COUNT"] = IntVal($arParams["MESSAGE_COUNT"])>0 ? IntVal($arParams["MESSAGE_COUNT"]): 10;
-$arParams["GROUP_ID"] = IntVal($arParams["GROUP_ID"]);
+$arParams["MESSAGE_COUNT"] = intval($arParams["MESSAGE_COUNT"])>0 ? intval($arParams["MESSAGE_COUNT"]): 10;
+$arParams["GROUP_ID"] = intval($arParams["GROUP_ID"]);
 if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
 	$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
 else
@@ -17,36 +17,36 @@ else
 if(!is_array($arParams["PARAM_GROUP_ID"]))
 	$arParams["PARAM_GROUP_ID"] = array($arParams["PARAM_GROUP_ID"]);
 foreach($arParams["PARAM_GROUP_ID"] as $k=>$v)
-	if(IntVal($v) <= 0)
+	if(intval($v) <= 0)
 		unset($arParams["PARAM_GROUP_ID"][$k]);
 
-if (strtolower($arParams["TYPE"]) == "rss1")
+if (mb_strtolower($arParams["TYPE"]) == "rss1")
 	$arResult["TYPE"] = "RSS .92";
-if (strtolower($arParams["TYPE"]) == "rss2")
+if (mb_strtolower($arParams["TYPE"]) == "rss2")
 	$arResult["TYPE"] = "RSS 2.0";
-if (strtolower($arParams["TYPE"]) == "atom")
+if (mb_strtolower($arParams["TYPE"]) == "atom")
 	$arResult["TYPE"] = "Atom .03";
 
-if(strLen($arParams["PAGE_VAR"])<=0)
+if($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if(strLen($arParams["POST_VAR"])<=0)
+if($arParams["POST_VAR"] == '')
 	$arParams["POST_VAR"] = "id";
-if(strLen($arParams["USER_VAR"])<=0)
+if($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "id";
 
 $arParams["PATH_TO_POST"] = trim($arParams["PATH_TO_POST"]);
-if(strlen($arParams["PATH_TO_POST"])<=0)
+if($arParams["PATH_TO_POST"] == '')
 	$arParams["PATH_TO_POST"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if(strlen($arParams["PATH_TO_USER"])<=0)
+if($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 $arParams["ALLOW_POST_CODE"] = $arParams["ALLOW_POST_CODE"] !== "N";
-$arParams["IMAGE_MAX_WIDTH"] = IntVal($arParams["IMAGE_MAX_WIDTH"]);
-$arParams["IMAGE_MAX_HEIGHT"] = IntVal($arParams["IMAGE_MAX_HEIGHT"]);
+$arParams["IMAGE_MAX_WIDTH"] = intval($arParams["IMAGE_MAX_WIDTH"]);
+$arParams["IMAGE_MAX_HEIGHT"] = intval($arParams["IMAGE_MAX_HEIGHT"]);
 
 $cache = new CPHPCache; 
-$cache_id = "blog_rss_all_out_".$arParams["GROUP_ID"]."_".$arParams["MESSAGE_COUNT"]."_".$arResult["TYPE"]."_".IntVal($USER->GetID())."_".$arParams["PATH_TO_POST"]."_".$arParams["PATH_TO_USER"];
+$cache_id = "blog_rss_all_out_".$arParams["GROUP_ID"]."_".$arParams["MESSAGE_COUNT"]."_".$arResult["TYPE"]."_".intval($USER->GetID())."_".$arParams["PATH_TO_POST"]."_".$arParams["PATH_TO_USER"];
 $cache_path = "/".SITE_ID."/blog/rss_all/";
 
 $APPLICATION->RestartBuffer();

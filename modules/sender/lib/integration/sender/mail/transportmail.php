@@ -11,15 +11,13 @@ namespace Bitrix\Sender\Integration\Sender\Mail;
 use Bitrix\Main;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\IO\File;
-use Bitrix\Main\Result;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Mail;
-
-use Bitrix\Sender\Message;
-use Bitrix\Sender\Transport;
-use Bitrix\Sender\Recipient;
-
+use Bitrix\Main\Result;
 use Bitrix\Sender\Integration;
+use Bitrix\Sender\Message;
+use Bitrix\Sender\Recipient;
+use Bitrix\Sender\Transport;
 
 Loc::loadMessages(__FILE__);
 
@@ -206,7 +204,7 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 		}
 
 		$mailMessageParams = array(
-			'EVENT' => null,
+			'EVENT' => [],
 			'FIELDS' => $fields,
 			'MESSAGE' => array(
 				'BODY_TYPE' => 'html',

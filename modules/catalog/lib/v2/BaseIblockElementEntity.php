@@ -158,15 +158,24 @@ abstract class BaseIblockElementEntity extends BaseEntity implements HasProperty
 
 	public function saveInternal(): Result
 	{
+		$entityChanged = $this->isChanged();
 		$propertyCollectionChanged = $this->propertyCollection && $this->propertyCollection->isChanged();
 
 		$result = parent::saveInternal();
 
-		// ToDo reload if at least one file property changed?
-		if ($propertyCollectionChanged && $result->isSuccess())
+		if ($result->isSuccess())
 		{
-			// re-initialize saved ids from database after file is saved
-			$this->setPropertyCollection($this->loadPropertyCollection());
+			if ($entityChanged)
+			{
+				\CIBlock::clearIblockTagCache($this->getIblockId());
+			}
+
+			// ToDo reload if at least one file property changed?
+			if ($propertyCollectionChanged)
+			{
+				// re-initialize saved ids from database after file is saved
+				$this->setPropertyCollection($this->loadPropertyCollection());
+			}
 		}
 
 		return $result;
@@ -195,20 +204,10 @@ abstract class BaseIblockElementEntity extends BaseEntity implements HasProperty
 			'DETAIL_TEXT_TYPE' => MapTypeCaster::NULLABLE_STRING,
 
 			'PREVIEW_PICTURE' => static function ($value) {
-				if (is_numeric($value))
-				{
-					return (int)$value;
-				}
-
-				return $value;
+				return is_numeric($value) ? (int)$value : $value;
 			},
 			'DETAIL_PICTURE' => static function ($value) {
-				if (is_numeric($value))
-				{
-					return (int)$value;
-				}
-
-				return $value;
+				return is_numeric($value) ? (int)$value : $value;
 			},
 
 			'QUANTITY' => MapTypeCaster::NULLABLE_FLOAT,

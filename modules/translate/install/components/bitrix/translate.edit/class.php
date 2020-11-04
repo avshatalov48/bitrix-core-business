@@ -47,20 +47,7 @@ class TranslateEditComponent extends Translate\ComponentBase
 		parent::prepareParams();
 		$paramsIn =& $this->getParams();
 
-		$tabId = $this->request->get('tabId');
-		if (!empty($tabId) && (int)$tabId > 0)
-		{
-			$this->tabId = (int)$tabId;
-		}
-		elseif (!empty($_SESSION[Translate\Filter::STORAGE_TAB_CNT]))
-		{
-			$this->tabId = (int)$_SESSION[Translate\Filter::STORAGE_TAB_CNT];
-		}
-		else
-		{
-			$this->tabId = 1;
-		}
-		$paramsIn['TAB_ID'] = $this->tabId;
+		$paramsIn['TAB_ID'] = $this->detectTabId();
 
 		// highlight phrase
 		$highlightPhraseId = $this->request->get('highlight');
@@ -89,6 +76,23 @@ class TranslateEditComponent extends Translate\ComponentBase
 		}
 	}
 
+	/**
+	 * @return string
+	 */
+	protected function detectTabId()
+	{
+		$tabId = $this->request->get('tabId');
+		if (!empty($tabId) && (int)$tabId > 0)
+		{
+			$this->tabId = (int)$tabId;
+		}
+		else
+		{
+			$this->tabId = Translate\Filter::getTabId(true);
+		}
+
+		return $this->tabId;
+	}
 
 	/**
 	 * @return void

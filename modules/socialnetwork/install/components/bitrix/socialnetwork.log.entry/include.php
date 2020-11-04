@@ -88,7 +88,7 @@ if (!function_exists('__SLEGetTransport'))
 
 if (!function_exists('__SLEGetLogRecord'))
 {
-	function __SLEGetLogRecord($logID, $arParams, $arCurrentUserSubscribe, $current_page_date)
+	function __SLEGetLogRecord($logID, $arParams, $arCurrentUserSubscribe)
 	{
 		global $APPLICATION, $CACHE_MANAGER, $USER_FIELD_MANAGER, $DB, $USER;
 
@@ -774,6 +774,7 @@ if (!function_exists('__SLEGetLogRecord'))
 		}
 
 		$arEvent["FIELDS_FORMATTED"]["FAVORITES"] = $arParams["EVENT"]["FAVORITES"];
+		$arEvent["FIELDS_FORMATTED"]["PINNED"] = $arParams["EVENT"]["PINNED"];
 
 		if ($arParams["USE_FOLLOW"] == "Y")
 		{

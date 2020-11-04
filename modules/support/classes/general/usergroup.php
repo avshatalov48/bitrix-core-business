@@ -47,12 +47,12 @@ class CSupportUserGroup
 			{
 				if (array_key_exists($k, $arFields))
 				{
-					$v = strtoupper($v);
+					$v = mb_strtoupper($v);
 					if($v != 'DESC')
 					{
 						$v  ='ASC';
 					}
-					if (strlen($strOrder) > 0)
+					if ($strOrder <> '')
 					{
 						$strOrder .= ', ';
 					}
@@ -68,12 +68,12 @@ class CSupportUserGroup
 
 		$strQuery = 'SELECT G.* FROM b_ticket_ugroups G';
 
-		if (strlen($where) > 0)
+		if ($where <> '')
 		{
 			$strQuery .= ' WHERE ' . $where;
 		}
 
-		if (strlen($strOrder) > 0)
+		if ($strOrder <> '')
 		{
 			$strQuery .= ' ORDER BY ' . $strOrder;
 		}

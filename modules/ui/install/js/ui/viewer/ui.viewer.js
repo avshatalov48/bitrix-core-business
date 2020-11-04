@@ -1739,6 +1739,10 @@
 			var nodes = BX.findChildren(container, filter, true);
 			var indexToShow = 0;
 			var targetNode = BX.getEventTarget(event);
+			if (targetNode.tagName !== 'A' && targetNode.closest('a[target="_blank"]'))
+			{
+				return false;
+			}
 
 			var items = nodes.map(function(node, index) {
 				if (node === targetNode)

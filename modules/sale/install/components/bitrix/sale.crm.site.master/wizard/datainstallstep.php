@@ -8,14 +8,7 @@ use Bitrix\Main,
 
 Loc::loadMessages(__FILE__);
 
-if (Main\IO\File::isFileExists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/intranet/install/wizards/bitrix/portal/wizard.php"))
-{
-	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/intranet/install/wizards/bitrix/portal/wizard.php");
-}
-elseif (Main\IO\File::isFileExists($_SERVER["DOCUMENT_ROOT"]."/bitrix/wizards/bitrix/portal/wizard.php"))
-{
-	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/wizards/bitrix/portal/wizard.php");
-}
+require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/wizards/bitrix/portal/wizard.php");
 
 /** @noinspection PhpUndefinedClassInspection */
 /**

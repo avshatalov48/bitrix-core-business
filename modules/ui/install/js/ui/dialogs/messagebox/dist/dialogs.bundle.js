@@ -24,9 +24,7 @@ this.BX.UI = this.BX.UI || {};
 	 * @namespace {BX.UI.Dialogs}
 	 */
 
-	var MessageBox =
-	/*#__PURE__*/
-	function () {
+	var MessageBox = /*#__PURE__*/function () {
 	  /** @var {PopupWindow} */
 	  function MessageBox() {
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};

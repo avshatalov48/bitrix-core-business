@@ -83,8 +83,8 @@ $lAdmin->InitFilter($arFilterFields);//инициализация фильтра
 
 foreach($arFilterFields as $key) 
 {
-	if (strpos($key, "_exact_match")!==false) InitBVar(${$key});
-	$arFilter[strtoupper(substr($key,5))] = ${$key};
+	if (mb_strpos($key, "_exact_match") !== false) InitBVar(${$key});
+	$arFilter[mb_strtoupper(mb_substr($key, 5))] = ${$key};
 }
 
 
@@ -99,7 +99,7 @@ if ($bAdmin=="Y" && $lAdmin->EditAction()) //если идет сохранение со списка
 
 		$arFields["PRIORITY"] = intval($arFields["PRIORITY"]);
 
-		if (strlen(trim($arFields["NAME"]))>0)
+		if (trim($arFields["NAME"]) <> '')
 		{
 			CTicketSLA::Set(array("NAME" => $arFields["NAME"], "PRIORITY" => $arFields["PRIORITY"]), $ID);
 		}
@@ -122,7 +122,7 @@ if($bAdmin=="Y" && $arID = $lAdmin->GroupAction())
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
 		$ID = intval($ID);
 
@@ -142,7 +142,7 @@ if($bAdmin=="Y" && $arID = $lAdmin->GroupAction())
 	}
 }
 
-$arSort = (strlen($by)>0 && strlen($order)>0) ? array($by=>$order) : "";
+$arSort = ($by <> '' && $order <> '') ? array($by=>$order) : "";
 
 
 $rsData = CTicketSLA::GetList($arSort, $arFilter, $is_filtered);

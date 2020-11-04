@@ -3,6 +3,8 @@
 use Bitrix\Sale\BusinessValue;
 use Bitrix\Sale\BusinessValueConsumer1C;
 use Bitrix\Sale;
+use Bitrix\Sale\Exchange\Internals\LoggerDiag;
+use Bitrix\Sale\Exchange\Logger\Exchange;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -931,38 +933,12 @@ class CSaleExport
 
 	protected static function getLastOrderExported($timeUpdate)
 	{
-		$result = array();
-
-		if($timeUpdate <> '')
-		{
-			$r = \Bitrix\Sale\Exchange\Internals\ExchangeLogTable::getList(array(
-				'select' => array(
-					'ENTITY_ID',
-					'ENTITY_DATE_UPDATE'
-				),
-				'filter' => array(
-					'ENTITY_TYPE_ID'=>static::getParentEntityTypeId(),
-					'=ENTITY_DATE_UPDATE'=>$timeUpdate,
-					'=DIRECTION'=>\Bitrix\Sale\Exchange\ManagerExport::getDirectionType()
-				),
-				'order'=>array('ID'=>'ASC'),
-
-			));
-			while ($order = $r->fetch())
-				$result[$order['ENTITY_DATE_UPDATE']->toString()][]=$order['ENTITY_ID'];
-		}
-		return $result;
+		return (new Exchange(Sale\Exchange\Logger\ProviderType::ONEC_NAME))
+			->getEffectedRows(
+					$timeUpdate,
+					static::getParentEntityTypeId(),
+					\Bitrix\Sale\Exchange\ManagerExport::getDirectionType());
 	}
-
-	protected static function exportedLastExport($arOrder, array $lastDateUpdateOrders)
-    {
-		$dateUpdate = $arOrder["DATE_UPDATE"]->toString();
-
-		$result = (isset($lastDateUpdateOrders[$dateUpdate]) &&
-			in_array($arOrder['ID'], $lastDateUpdateOrders[$dateUpdate]));
-
-		return $result;
-    }
 
 	/**
 	 * @return array
@@ -1025,7 +1001,7 @@ class CSaleExport
 
 		while($orderFields = $list->Fetch())
         {
-			if(static::exportedLastExport($orderFields, $lastDateUpdateOrders))
+			if((new Exchange(Sale\Exchange\Logger\ProviderType::ONEC_NAME))->isEffected($orderFields, $lastDateUpdateOrders))
 			{
 				continue;
 			}
@@ -1146,7 +1122,7 @@ class CSaleExport
 
 		while($arOrder = $dbOrderList->Fetch())
 		{
-		    if(!self::$crmMode && static::exportedLastExport($arOrder, $lastDateUpdateOrders))
+		    if(!self::$crmMode && (new Exchange(Sale\Exchange\Logger\ProviderType::ONEC_NAME))->isEffected($arOrder, $lastDateUpdateOrders))
             {
 				continue;
             }
@@ -3478,8 +3454,9 @@ class CSaleExport
 
 	/**
 	 * @param array $fields
-	 * @return \Bitrix\Main\Entity\AddResult
-     * @deprecated
+	 * @return \Bitrix\Main\ORM\Data\AddResult
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectException
 	 */
 	static public function log(array $fields)
 	{
@@ -3502,10 +3479,10 @@ class CSaleExport
 		if ($fields['MARKED'] <> '')
 		    $params['MARKED'] = $fields['MARKED'];
 
-		$params['MESSAGE'] = \Bitrix\Sale\Exchange\Internals\LoggerDiag::isOn()? $fields['MESSAGE']:null;
+		$params['MESSAGE'] = LoggerDiag::isOn()? $fields['MESSAGE']:null;
 
 		$params['DATE_INSERT'] = new \Bitrix\Main\Type\DateTime();
 
-		return \Bitrix\Sale\Exchange\Internals\ExchangeLogTable::add($params);
+		return (new Exchange(Sale\Exchange\Logger\ProviderType::ONEC_NAME))->add($params);
     }
 }

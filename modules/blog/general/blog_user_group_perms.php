@@ -7,7 +7,7 @@ class CAllBlogUserGroupPerms
 	/*************** ADD, UPDATE, DELETE *****************/
 	function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
-		if ((is_set($arFields, "BLOG_ID") || $ACTION=="ADD") && IntVal($arFields["BLOG_ID"]) <= 0)
+		if ((is_set($arFields, "BLOG_ID") || $ACTION=="ADD") && intval($arFields["BLOG_ID"]) <= 0)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("BLG_GUGP_EMPTY_BLOG_ID"), "EMPTY_BLOG_ID");
 			return false;
@@ -22,7 +22,7 @@ class CAllBlogUserGroupPerms
 			}
 		}
 
-		if ((is_set($arFields, "USER_GROUP_ID") || $ACTION=="ADD") && IntVal($arFields["USER_GROUP_ID"]) <= 0)
+		if ((is_set($arFields, "USER_GROUP_ID") || $ACTION=="ADD") && intval($arFields["USER_GROUP_ID"]) <= 0)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("BLG_GUGP_EMPTY_USER_GROUP_ID"), "EMPTY_USER_GROUP_ID");
 			return false;
@@ -43,7 +43,7 @@ class CAllBlogUserGroupPerms
 			return false;
 		}
 
-		if ((is_set($arFields, "PERMS") || $ACTION=="ADD") && strlen($arFields["PERMS"]) <= 0)
+		if ((is_set($arFields, "PERMS") || $ACTION=="ADD") && $arFields["PERMS"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("BLG_GUGP_EMPTY_PERMS"), "EMPTY_PERMS");
 			return false;
@@ -66,10 +66,10 @@ class CAllBlogUserGroupPerms
 
 	function __AutoSetPerms($ID)
 	{
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$arGroupPerms = CBlogUserGroupPerms::GetByID($ID);
-		if (IntVal($arGroupPerms["POST_ID"]) == 0)
+		if (intval($arGroupPerms["POST_ID"]) == 0)
 		{
 			$dbBlogPosts = CBlogPost::GetList(
 				array(),
@@ -124,10 +124,10 @@ class CAllBlogUserGroupPerms
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$arGroupPerms = CBlogUserGroupPerms::GetByID($ID);
-		if (IntVal($arGroupPerms["POST_ID"]) == 0)
+		if (intval($arGroupPerms["POST_ID"]) == 0)
 		{
 			$dbResult = CBlogUserGroupPerms::GetList(
 				array(),
@@ -156,7 +156,7 @@ class CAllBlogUserGroupPerms
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		if (isset($GLOBALS["BLOG_USER_GROUP_PERMS"]["BLOG_USER_GROUP_PERMS_CACHE_".$ID]) && is_array($GLOBALS["BLOG_USER_GROUP_PERMS"]["BLOG_USER_GROUP_PERMS_CACHE_".$ID]) && is_set($GLOBALS["BLOG_USER_GROUP_PERMS"]["BLOG_USER_GROUP_PERMS_CACHE_".$ID], "ID"))
 		{

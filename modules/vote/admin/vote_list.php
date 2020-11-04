@@ -100,8 +100,12 @@ $arFilterFields = Array(
 	"find_counter_1",
 	"find_counter_2");
 $arFilter = ($VOTE_RIGHT < "W" ? array("@CHANNEL_ID" => array_keys($arChannels)) : array());
-$filter = $lAdmin->InitFilter($arFilterFields);
-if (is_array($filter))
+$filter = $lAdmin->InitFilter($arFilterFields) ?: [];
+if ($request->getQuery("find_channel_id"))
+{
+	$filter["find_channel_id"] = $request->getQuery("find_channel_id");
+}
+if (!empty($filter))
 {
 	foreach (array("ACTIVE", "CHANNEL_ID") as $k)
 	{

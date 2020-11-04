@@ -644,6 +644,40 @@
 
 /*endregion*/
 
+/*region ui-btn-icon-forward*/
+.bx-ie .ui-btn-icon-forward.ui-btn:after,
+.bx-ie .ui-btn-icon-forward.ui-btn-main:after,
+.bx-ie .ui-btn-icon-forward .ui-btn-main:after {
+	top: auto;
+	bottom: 50%;
+	transform: rotate(180deg) translateY(-50%);
+}
+.bx-ie .ui-btn-icon-forward.ui-btn:after,
+.bx-ie .ui-btn-icon-forward.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-forward.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-forward.ui-btn.ui-btn-default:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-forward.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-forward .ui-btn-main:after,
+.bx-ie .ui-btn-icon-forward.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-forward.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-forward.ui-btn-default .ui-btn-main:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-back.ui-btn-forward .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-back-white.svg?v=1.2); }
+
+.bx-ie .ui-btn-icon-forward.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-forward.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-forward.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-forward.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-forward.ui-btn.ui-btn-light-border:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-forward.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-forward.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-forward.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-forward.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-forward.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-forward.ui-btn-light-border .ui-btn-main:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-forward.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-back-black.svg?v=1.2); }
+
+/*endregion*/
+
 /*region ui-btn-icon-pause*/
 .bx-ie .ui-btn-icon-pause.ui-btn:after,
 .bx-ie .ui-btn-icon-pause.ui-btn.ui-btn-danger:after,

@@ -194,7 +194,10 @@
 			var sliderOptions = top.BX.clone({
 				rules: [
 					{
-						condition: conditions
+						condition: conditions,
+						options: {
+							allowChangeHistory: false
+						}
 					}
 				]
 			});

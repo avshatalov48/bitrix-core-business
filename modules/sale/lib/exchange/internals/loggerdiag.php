@@ -15,10 +15,6 @@ class LoggerDiag extends LoggerDiagBase
 		return "SALE_EXCHANGE_DEBUG_INTERVAL_DAY";
 	}
 
-	/**
-	 * @param array $params
-	 * @return \Bitrix\Main\Entity\AddResult|null
-	 */
 	static public function log(array $params)
 	{
 		$params['MESSAGE'] = static::isOn()? $params['MESSAGE']:null;

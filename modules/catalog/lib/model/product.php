@@ -11,21 +11,41 @@ Loc::loadMessages(__FILE__);
 
 class Product extends Entity
 {
+	/** @var bool Enable offers automation */
 	private static $separateSkuMode = null;
-
+	/** @var bool Sale exists */
 	private static $saleIncluded = null;
 
-	public static function getTabletClassName()
+	/**
+	 * Returns product tablet name.
+	 *
+	 * @return string
+	 */
+	public static function getTabletClassName(): string
 	{
 		return '\Bitrix\Catalog\ProductTable';
 	}
 
-	public static function delete($id)
+	/**
+	 * Delete product item. Use instead of DataManager method.
+	 *
+	 * @param int $id
+	 * @return ORM\Data\DeleteResult
+	 */
+	public static function delete($id): ORM\Data\DeleteResult
 	{
 		return parent::deleteNoDemands($id);
 	}
 
-	protected static function prepareForAdd(ORM\Data\AddResult $result, $id, array &$data)
+	/**
+	 * Check and modify fields before add product. Need for product automation.
+	 *
+	 * @param ORM\Data\AddResult $result
+	 * @param int|null $id
+	 * @param array &$data
+	 * @return void
+	 */
+	protected static function prepareForAdd(ORM\Data\AddResult $result, $id, array &$data): void
 	{
 		if (isset($data['fields']['ID']))
 			$id = $data['fields']['ID'];
@@ -80,7 +100,7 @@ class Product extends Entity
 			$sizeFields = null;
 		if ($defaultValues === null)
 		{
-			$defaultValues = array(
+			$defaultValues = [
 				'QUANTITY' => 0,
 				'QUANTITY_RESERVED' => 0,
 				'QUANTITY_TRACE' => Catalog\ProductTable::STATUS_DEFAULT,
@@ -100,16 +120,16 @@ class Product extends Entity
 				'PURCHASING_PRICE' => null,
 				'PURCHASING_CURRENCY' => null,
 				'TMP_ID' => null
-			);
+			];
 
-			$blackList = array(
+			$blackList = [
 				'NEGATIVE_AMOUNT_TRACE' => true
-			);
+			];
 
 			$paymentPeriods = Catalog\ProductTable::getPaymentPeriods(false);
-			$tripleFields = array('QUANTITY_TRACE', 'CAN_BUY_ZERO', 'SUBSCRIBE');
-			$booleanFields = array('WITHOUT_ORDER', 'SELECT_BEST_PRICE', 'VAT_INCLUDED', 'BARCODE_MULTI', 'BUNDLE');
-			$nullFields = array('MEASURE', 'TRIAL_PRICE_ID', 'VAT_ID', 'RECUR_SCHEME_LENGTH');
+			$tripleFields = ['QUANTITY_TRACE', 'CAN_BUY_ZERO', 'SUBSCRIBE'];
+			$booleanFields = ['WITHOUT_ORDER', 'SELECT_BEST_PRICE', 'VAT_INCLUDED', 'BARCODE_MULTI', 'BUNDLE'];
+			$nullFields = ['MEASURE', 'TRIAL_PRICE_ID', 'VAT_ID', 'RECUR_SCHEME_LENGTH'];
 			$sizeFields = ['WIDTH', 'LENGTH', 'HEIGHT'];
 		}
 		$defaultValues['TYPE'] = $defaultType;
@@ -130,7 +150,7 @@ class Product extends Entity
 			$result->addError(new ORM\EntityError(
 				Loc::getMessage(
 					'BX_CATALOG_MODEL_PRODUCT_ERR_BAD_NUMERIC_FIELD',
-					array('#FIELD#' => 'QUANTITY')
+					['#FIELD#' => 'QUANTITY']
 				)
 			));
 		}
@@ -141,7 +161,7 @@ class Product extends Entity
 			$result->addError(new ORM\EntityError(
 				Loc::getMessage(
 					'BX_CATALOG_MODEL_PRODUCT_ERR_BAD_NUMERIC_FIELD',
-					array('#FIELD#' => 'QUANTITY_RESERVED')
+					['#FIELD#' => 'QUANTITY_RESERVED']
 				)
 			));
 		}
@@ -193,7 +213,7 @@ class Product extends Entity
 			$result->addError(new ORM\EntityError(
 				Loc::getMessage(
 					'BX_CATALOG_MODEL_PRODUCT_ERR_BAD_NUMERIC_FIELD',
-					array('#FIELD#' => 'WEIGHT')
+					['#FIELD#' => 'WEIGHT']
 				)
 			));
 		}
@@ -257,7 +277,15 @@ class Product extends Entity
 		unset($fields);
 	}
 
-	protected static function prepareForUpdate(ORM\Data\UpdateResult $result, $id, array &$data)
+	/**
+	 * Check and modify fields before update product. Need for product automation.
+	 *
+	 * @param ORM\Data\UpdateResult $result
+	 * @param int $id
+	 * @param array &$data
+	 * @return void
+	 */
+	protected static function prepareForUpdate(ORM\Data\UpdateResult $result, $id, array &$data): void
 	{
 		$id = (int)$id;
 		if ($id <= 0)
@@ -308,17 +336,17 @@ class Product extends Entity
 
 		if ($quantityFields === null)
 		{
-			$quantityFields = array('QUANTITY', 'QUANTITY_RESERVED');
+			$quantityFields = ['QUANTITY', 'QUANTITY_RESERVED'];
 			$paymentPeriods = Catalog\ProductTable::getPaymentPeriods(false);
-			$tripleFields = array('QUANTITY_TRACE', 'CAN_BUY_ZERO', 'SUBSCRIBE');
-			$booleanFields = array('WITHOUT_ORDER', 'SELECT_BEST_PRICE', 'VAT_INCLUDED', 'BARCODE_MULTI', 'BUNDLE', 'AVAILABLE');
-			$nullFields = array('MEASURE', 'TRIAL_PRICE_ID', 'VAT_ID', 'RECUR_SCHEME_LENGTH');
+			$tripleFields = ['QUANTITY_TRACE', 'CAN_BUY_ZERO', 'SUBSCRIBE'];
+			$booleanFields = ['WITHOUT_ORDER', 'SELECT_BEST_PRICE', 'VAT_INCLUDED', 'BARCODE_MULTI', 'BUNDLE', 'AVAILABLE'];
+			$nullFields = ['MEASURE', 'TRIAL_PRICE_ID', 'VAT_ID', 'RECUR_SCHEME_LENGTH'];
 			$sizeFields = ['WIDTH', 'LENGTH', 'HEIGHT'];
 
-			$blackList = array(
+			$blackList = [
 				'ID' => true,
 				'NEGATIVE_AMOUNT_TRACE' => true
-			);
+			];
 		}
 		$fields = array_diff_key($fields, $blackList);
 
@@ -493,7 +521,14 @@ class Product extends Entity
 		unset($fields);
 	}
 
-	protected static function runAddExternalActions($id, array $data)
+	/**
+	 * Run core automation after add product.
+	 *
+	 * @param int $id
+	 * @param array $data
+	 * @return void
+	 */
+	protected static function runAddExternalActions($id, array $data): void
 	{
 		switch ($data['fields']['TYPE'])
 		{
@@ -523,7 +558,14 @@ class Product extends Entity
 		}
 	}
 
-	protected static function runUpdateExternalActions($id, array $data)
+	/**
+	 * Run core automation after update product.
+	 *
+	 * @param int $id
+	 * @param array $data
+	 * @return void
+	 */
+	protected static function runUpdateExternalActions($id, array $data): void
 	{
 		$product = self::getCacheItem($id);
 		if (isset($data['actions']['SKU_AVAILABLE']))
@@ -564,7 +606,12 @@ class Product extends Entity
 		unset($product);
 	}
 
-	protected static function getDefaultCachedFieldList()
+	/**
+	 * Returns product default fields list for caching.
+	 *
+	 * @return array
+	 */
+	protected static function getDefaultCachedFieldList(): array
 	{
 		return [
 			'ID',
@@ -578,18 +625,17 @@ class Product extends Entity
 	}
 
 	/**
-	 * @param $id
+	 * Run core automation after delete product.
+	 *
+	 * @param int $id
+	 * @return void
 	 */
-	protected static function runDeleteExternalActions($id)
+	protected static function runDeleteExternalActions($id): void
 	{
 		Catalog\ProductTable::clearProductCache($id);
-		/** @noinspection PhpInternalEntityUsedInspection */
 		Catalog\PriceTable::deleteByProduct($id);
-		/** @noinspection PhpInternalEntityUsedInspection */
 		Catalog\MeasureRatioTable::deleteByProduct($id);
-		/** @noinspection PhpInternalEntityUsedInspection */
 		Catalog\ProductGroupAccessTable::deleteByProduct($id);
-		/** @noinspection PhpInternalEntityUsedInspection */
 		Catalog\StoreProductTable::deleteByProduct($id);
 		Catalog\SubscribeTable::onIblockElementDelete($id);
 		//TODO: replace this code
@@ -602,7 +648,15 @@ class Product extends Entity
 		unset($helper, $conn);
 	}
 
-	private static function checkSubscription($id, array $product)
+	/**
+	 * Sending messages that the product has become available.
+	 * @internal
+	 *
+	 * @param $id
+	 * @param array $product
+	 * @return void
+	 */
+	private static function checkSubscription($id, array $product): void
 	{
 		if (
 			isset($product[self::PREFIX_OLD.'AVAILABLE'])
@@ -636,7 +690,7 @@ class Product extends Entity
 		}
 	}
 
-	private static function checkPriceValue($price)
+	private static function checkPriceValue($price): ?float
 	{
 		$result = null;
 
@@ -663,7 +717,7 @@ class Product extends Entity
 		return $result;
 	}
 
-	private static function checkPriceCurrency($currency)
+	private static function checkPriceCurrency($currency): ?string
 	{
 		$result = null;
 		if ($currency !== null && $currency !== '')
@@ -710,35 +764,35 @@ class Product extends Entity
 	//TODO: remove after create \Bitrix\Catalog\Model\CatalogIblock
 	private static function getProductTypes($catalogType)
 	{
-		$result = array();
+		$result = [];
 
 		switch ($catalogType)
 		{
 			case \CCatalogSku::TYPE_CATALOG:
-				$result = array(
+				$result = [
 					Catalog\ProductTable::TYPE_PRODUCT => true,
 					Catalog\ProductTable::TYPE_SET => true
-				);
+				];
 				break;
 			case \CCatalogSku::TYPE_OFFERS:
-				$result = array(
+				$result = [
 					Catalog\ProductTable::TYPE_OFFER => true,
 					Catalog\ProductTable::TYPE_FREE_OFFER => true
-				);
+				];
 				break;
 			case \CCatalogSku::TYPE_FULL:
-				$result = array(
+				$result = [
 					Catalog\ProductTable::TYPE_PRODUCT => true,
 					Catalog\ProductTable::TYPE_SET => true,
 					Catalog\ProductTable::TYPE_SKU => true,
 					Catalog\ProductTable::TYPE_EMPTY_SKU => true
-				);
+				];
 				break;
 			case \CCatalogSku::TYPE_PRODUCT:
-				$result = array(
+				$result = [
 					Catalog\ProductTable::TYPE_SKU => true,
 					Catalog\ProductTable::TYPE_EMPTY_SKU => true
-				);
+				];
 				break;
 		}
 

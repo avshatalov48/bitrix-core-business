@@ -33,6 +33,7 @@ $containerId = "{$guid}_container";
 				'<?=htmlspecialcharsbx($arResult['PROPERTY_SCHEME_TYPE'])?>',
 				'' + propertyId,
 				{
+					model: BX.UI.EntityModel.create(propertyId, {}),
 					schemeElement: BX.UI.EntitySchemeElement.create(<?=CUtil::PhpToJSObject($arResult['PROPERTY_SCHEME'])?>)
 				}
 			);

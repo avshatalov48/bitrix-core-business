@@ -18,7 +18,7 @@
 						</h3>
 
 						<div class="g-pos-rel g-line-height-1_2">
-							<div class="landing-block-node-card-text landing-semantic-text-image-medium g-mb-20 g-font-size-18 g-color-white-opacity-0_8">
+							<div class="landing-block-node-card-text landing-semantic-text-image-medium g-mb-20 g-font-size-18 g-color-white-opacity-0_8" data-auto-font-scale>
 								<p>
 									Donec erat urna, tincidunt at leo non, blandit finibus ante. Nunc venenatis risus in
 									finibus dapibus. Ut ac
@@ -45,7 +45,7 @@
 						London, Great Britain
 					</h3>
 					<div class="g-pos-rel g-line-height-1_2">
-						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-mb-20 g-font-size-18 g-color-white-opacity-0_8">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-mb-20 g-font-size-18 g-color-white-opacity-0_8" data-auto-font-scale>
 							<p>
 								Donec erat urna, tincidunt at leo non, blandit finibus ante. Nunc venenatis risus in
 								finibus dapibus.
@@ -72,7 +72,7 @@
 						Crete, Greece
 					</h3>
 					<div class="g-pos-rel g-line-height-1_2">
-						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-mb-20 g-font-size-18 g-color-white-opacity-0_8">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-mb-20 g-font-size-18 g-color-white-opacity-0_8" data-auto-font-scale>
 							<p>
 								Donec erat urna, tincidunt at leo non, blandit finibus ante. Nunc venenatis risus in
 								finibus dapibus. Ut ac massa sodales, mattis enim id, efficitur tortor.
@@ -98,7 +98,7 @@
 						Langkwai, Malaysia
 					</h3>
 					<div class="g-pos-rel g-line-height-1_2">
-						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-mb-20 g-font-size-18 g-color-white-opacity-0_8">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-mb-20 g-font-size-18 g-color-white-opacity-0_8" data-auto-font-scale>
 							<p>
 								Donec erat urna, tincidunt at leo non, blandit finibus ante. Nunc venenatis risus in
 								finibus dapibus. Ut ac massa sodales, mattis enim id, efficitur tortor.
@@ -124,7 +124,7 @@
 						Bavaria, Germany
 					</h3>
 					<div class="g-pos-rel g-line-height-1_2">
-						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-mb-20 g-font-size-18 g-color-white-opacity-0_8">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-mb-20 g-font-size-18 g-color-white-opacity-0_8" data-auto-font-scale>
 							<p>
 								Donec erat urna, tincidunt at leo non, blandit finibus ante. Nunc venenatis risus in
 								finibus dapibus. Ut ac massa sodales, mattis enim id, efficitur tortor.
@@ -150,7 +150,7 @@
 						Paris, France
 					</h3>
 					<div class="g-pos-rel g-line-height-1_2">
-						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-mb-20 g-font-size-18 g-color-white-opacity-0_8">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-mb-20 g-font-size-18 g-color-white-opacity-0_8" data-auto-font-scale>
 							<p>
 								Donec erat urna, tincidunt at leo non, blandit finibus ante.
 								Nunc venenatis risus in finibus dapibus. Ut ac massa sodales, mattis enim id, efficitur
@@ -177,7 +177,7 @@
 						Hong Kong
 					</h3>
 					<div class="g-pos-rel g-line-height-1_2">
-						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-mb-20 g-font-size-18 g-color-white-opacity-0_8">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-mb-20 g-font-size-18 g-color-white-opacity-0_8" data-auto-font-scale>
 							<p>
 								Donec erat urna, tincidunt at leo non, blandit finibus ante.
 								Nunc venenatis risus in finibus dapibus. Ut ac massa sodales, mattis enim id, efficitur
@@ -204,7 +204,7 @@
 						Venice, Italy
 					</h3>
 					<div class="g-pos-rel g-line-height-1_2">
-						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-mb-20 g-font-size-18 g-color-white-opacity-0_8">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-mb-20 g-font-size-18 g-color-white-opacity-0_8" data-auto-font-scale>
 							<p>
 								Donec erat urna, tincidunt at leo non, blandit finibus ante. Nunc venenatis risus in
 								finibus dapibus. Ut ac massa sodales, mattis enim id, efficitur tortor.
@@ -230,7 +230,7 @@
 						Madrid, Spain
 					</h3>
 					<div class="g-pos-rel g-line-height-1_2">
-						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-mb-20 g-font-size-18 g-color-white-opacity-0_8">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-mb-20 g-font-size-18 g-color-white-opacity-0_8" data-auto-font-scale>
 							<p>
 								Donec erat urna, tincidunt at leo non, blandit finibus ante. Nunc venenatis risus in
 								finibus dapibus. Ut ac massa sodales, mattis enim id, efficitur tortor.
@@ -256,7 +256,7 @@
 						New York, USA
 					</h3>
 					<div class="g-pos-rel g-line-height-1_2">
-						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-mb-20 g-font-size-18 g-color-white-opacity-0_8">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-mb-20 g-font-size-18 g-color-white-opacity-0_8" data-auto-font-scale>
 							<p>
 								Donec erat urna, tincidunt at leo non, blandit finibus ante. Nunc venenatis risus in
 								finibus dapibus. Ut ac massa sodales, mattis enim id, efficitur tortor.

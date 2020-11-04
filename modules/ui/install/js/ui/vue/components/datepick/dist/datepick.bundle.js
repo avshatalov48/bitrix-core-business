@@ -641,9 +641,9 @@ this.BX.UI.Vue = this.BX.UI.Vue || {};
 	  }
 	});
 
-	var DatePick =
-	/*#__PURE__*/
-	function () {
+	var _vue = new WeakMap();
+
+	var DatePick = /*#__PURE__*/function () {
 	  function DatePick() {
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, DatePick);
@@ -725,8 +725,6 @@ this.BX.UI.Vue = this.BX.UI.Vue || {};
 	  }]);
 	  return DatePick;
 	}();
-
-	var _vue = new WeakMap();
 
 	exports.DatePick = DatePick;
 

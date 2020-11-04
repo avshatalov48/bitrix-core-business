@@ -27,7 +27,7 @@ class NativeFileSessionHandler extends \SessionHandler //implements \SessionUpda
 
 		if ($baseDir && !is_dir($baseDir) && !@mkdir($baseDir, 0777, true) && !is_dir($baseDir))
 		{
-			throw new SystemException("Native file session handler was not able to create directory \"{$baseDir}\".");
+//			throw new SystemException("Native file session handler was not able to create directory \"{$baseDir}\".");
 		}
 
 		ini_set('session.save_handler', 'files');

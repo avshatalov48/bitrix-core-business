@@ -37,7 +37,7 @@ $lAdmin->InitFilter($arFilterFields);
 $arFilter = array();
 foreach($arFilterFields as $key)
 {
-	if (strpos($key, '_EXACT_MATCH') !== false) continue;
+	if (mb_strpos($key, '_EXACT_MATCH') !== false) continue;
 
 	if (array_key_exists($key . '_EXACT_MATCH', $_REQUEST) && $_REQUEST[$key . '_EXACT_MATCH'] == 'Y')
 	{
@@ -48,15 +48,15 @@ foreach($arFilterFields as $key)
 		$op = '%';
 	}
 
-	if (array_key_exists($key, $_REQUEST) && strlen($_REQUEST[$key]) > 0)
+	if (array_key_exists($key, $_REQUEST) && (string) $_REQUEST[$key] <> '')
 	{
 		if (in_array($key . '_EXACT_MATCH', $arFilterFields))
 		{
-			$arFilter[$op . substr($key, 5)] = $_REQUEST[$key];
+			$arFilter[$op.mb_substr($key, 5)] = $_REQUEST[$key];
 		}
 		else
 		{
-			$arFilter[substr($key, 5)] = $_REQUEST[$key];
+			$arFilter[mb_substr($key, 5)] = $_REQUEST[$key];
 		}
 	}
 }

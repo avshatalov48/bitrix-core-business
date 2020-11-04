@@ -992,9 +992,7 @@
    * @subpackage ui
    * @copyright 2001-2019 Bitrix
    */
-  var VuexBuilderDatabaseIndexedDB =
-  /*#__PURE__*/
-  function () {
+  var VuexBuilderDatabaseIndexedDB = /*#__PURE__*/function () {
     function VuexBuilderDatabaseIndexedDB() {
       var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
       babelHelpers.classCallCheck(this, VuexBuilderDatabaseIndexedDB);
@@ -1063,9 +1061,7 @@
    * @subpackage ui
    * @copyright 2001-2019 Bitrix
    */
-  var VuexBuilderDatabaseLocalStorage =
-  /*#__PURE__*/
-  function () {
+  var VuexBuilderDatabaseLocalStorage = /*#__PURE__*/function () {
     function VuexBuilderDatabaseLocalStorage() {
       var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
       babelHelpers.classCallCheck(this, VuexBuilderDatabaseLocalStorage);
@@ -1204,9 +1200,7 @@
    * @subpackage ui
    * @copyright 2001-2019 Bitrix
    */
-  var VuexBuilderDatabaseJnSharedStorage =
-  /*#__PURE__*/
-  function () {
+  var VuexBuilderDatabaseJnSharedStorage = /*#__PURE__*/function () {
     function VuexBuilderDatabaseJnSharedStorage() {
       var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
       babelHelpers.classCallCheck(this, VuexBuilderDatabaseJnSharedStorage);
@@ -1335,9 +1329,7 @@
    * @subpackage ui
    * @copyright 2001-2019 Bitrix
    */
-  var VuexBuilderModel =
-  /*#__PURE__*/
-  function () {
+  var VuexBuilderModel = /*#__PURE__*/function () {
     babelHelpers.createClass(VuexBuilderModel, [{
       key: "getName",
 
@@ -1999,9 +1991,7 @@
     localStorage: 'localStorage',
     jnSharedStorage: 'jnSharedStorage'
   });
-  var VuexBuilder$$1 =
-  /*#__PURE__*/
-  function () {
+  var VuexBuilder$$1 = /*#__PURE__*/function () {
     babelHelpers.createClass(VuexBuilder$$1, null, [{
       key: "create",
 
@@ -2204,9 +2194,7 @@
    * @copyright 2001-2019 Bitrix
    */
 
-  var BitrixVuex =
-  /*#__PURE__*/
-  function () {
+  var BitrixVuex = /*#__PURE__*/function () {
     function BitrixVuex() {
       babelHelpers.classCallCheck(this, BitrixVuex);
     }

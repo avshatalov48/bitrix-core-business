@@ -6,6 +6,7 @@ use Bitrix\Catalog\Config\State;
 use Bitrix\Catalog\ProductTable;
 use Bitrix\Catalog\v2\BaseIblockElementEntity;
 use Bitrix\Catalog\v2\IoC\ServiceContainer;
+use Bitrix\Catalog\v2\Property\HasPropertyCollection;
 use Bitrix\Catalog\v2\Property\Property;
 use Bitrix\Crm;
 use Bitrix\Iblock\ElementTable;
@@ -63,7 +64,23 @@ abstract class BaseForm
 
 	public function getControllers(): array
 	{
-		return [];
+		return [
+			[
+				'name' => 'GOOGLE_MAP_CONTROLLER',
+				'type' => 'google_map',
+				'config' => [],
+			],
+			[
+				'name' => 'EMPLOYEE_CONTROLLER',
+				'type' => 'employee',
+				'config' => [],
+			],
+			[
+				'name' => 'CRM_CONTROLLER',
+				'type' => 'binding_to_crm_element',
+				'config' => [],
+			]
+		];
 	}
 
 	protected function prepareFieldName(string $name): string
@@ -71,15 +88,25 @@ abstract class BaseForm
 		return $name;
 	}
 
-	public function getValues(): array
+	public function getValues(bool $allowDefaultValues = true): array
 	{
 		$values = [];
 
-		foreach ($this->getDescriptions() as $field)
+		if ($allowDefaultValues)
 		{
-			$values[$field['name']] = $this->getFieldValue($field)
-				?? $field['defaultValue']
-				?? '';
+			foreach ($this->getDescriptions() as $field)
+			{
+				$values[$field['name']] = $this->getFieldValue($field)
+					?? $field['defaultValue']
+					?? '';
+			}
+		}
+		else
+		{
+			foreach ($this->getDescriptions() as $field)
+			{
+				$values[$field['name']] = $this->getFieldValue($field) ?? '';
+			}
 		}
 
 		$additionalValues = $this->getAdditionalValues($values);
@@ -224,26 +251,37 @@ abstract class BaseForm
 			{
 				if ($propertySettings['PROPERTY_TYPE'] === PropertyTable::TYPE_ELEMENT)
 				{
-					$additionalValues[$descriptionData['view']] = is_array($value) ? implode(', ', $value) : $value;
+					$elementData = ElementTable::getList([
+						'filter' => ['ID' => $value],
+						'select' => ['NAME'],
+					 ]);
+					$namesList = [];
+					while ($element = $elementData->fetch())
+					{
+						$namesList[] = $element['NAME'];
+					}
+					$viewValue = implode(', ', $namesList);
+					$additionalValues[$descriptionData['view']] = HtmlFilter::encode($viewValue);
 					$additionalValues[$descriptionData['edit']] = $this->getElementPropertyEditHtml(
 						$description['name'],
 						$propertySettings,
 						$value
 					);
 				}
-				elseif (
-					$propertySettings['PROPERTY_TYPE'] === PropertyTable::TYPE_FILE
-					|| $description['originalName'] === 'PREVIEW_PICTURE'
-					|| $description['originalName'] === 'DETAIL_PICTURE'
-				)
+				elseif ($propertySettings['PROPERTY_TYPE'] === PropertyTable::TYPE_FILE)
 				{
-					if ($description['index'] === self::MORE_PHOTO)
+					if ($description['propertyCode'] === self::MORE_PHOTO)
 					{
-						$value = $this->checkCompatiblePictureFields($value);
+						$value = $this->getEntityViewPictureValues($this->entity);
+						$editValue = $this->getEntityEditPictureValues($this->entity);
+					}
+					else
+					{
+						$editValue = $value;
 					}
 
 					$additionalValues[$descriptionData['view']] = $this->getFilePropertyViewHtml($value);
-					$additionalValues[$descriptionData['edit']] = $this->getFilePropertyEditHtml($description, $value);
+					$additionalValues[$descriptionData['edit']] = $this->getFilePropertyEditHtml($description, $editValue);
 				}
 				else
 				{
@@ -251,12 +289,17 @@ abstract class BaseForm
 						'SETTINGS' => $propertySettings,
 						'VALUE' => $value,
 						'FIELD_NAME' => $description['name'],
-						'ELEMENT_ID' => $this->entity->getId() ?? '',
+						'ELEMENT_ID' => $this->entity->getId() ?? 'n'.mt_rand(),
 					];
 
 					$viewMethod = $propertySettings['PROPERTY_USER_TYPE'][self::USER_TYPE_GET_VIEW_METHOD] ?? null;
 					if ($viewMethod && is_callable($viewMethod))
 					{
+						if ($propertySettings['USER_TYPE'] === 'map_google')
+						{
+							$params['WIDTH'] = '95%';
+							$params['HEIGHT'] = '400px';
+						}
 						$additionalValues[$descriptionData['view']] = $viewMethod($params);
 					}
 
@@ -272,9 +315,9 @@ abstract class BaseForm
 				$formatMethod = $propertySettings['PROPERTY_USER_TYPE'][self::USER_TYPE_FORMAT_VALUE_METHOD] ?? null;
 				if ($formatMethod && is_callable($formatMethod))
 				{
-					$values = $formatMethod($value);
-					$amount = $values['AMOUNT'];
-					$currency = $values['CURRENCY'];
+					$formattedValues = $formatMethod($value);
+					$amount = $formattedValues['AMOUNT'];
+					$currency = $formattedValues['CURRENCY'];
 
 					$additionalValues[$descriptionData['currencyCode']] = $currency;
 					$additionalValues[$descriptionData['amount']] = $amount;
@@ -340,26 +383,57 @@ abstract class BaseForm
 		return $additionalValues;
 	}
 
-	private function checkCompatiblePictureFields($value): array
+	private function getImageValuesForEntity(BaseIblockElementEntity $entity): array
 	{
-		if (!is_array($value))
+		$values = [];
+
+		if ($entity instanceof HasPropertyCollection)
 		{
-			$value = !empty($value) ? [$value] : [];
+			$morePhotoProperty = $entity->getPropertyCollection()->findByCode(self::MORE_PHOTO);
+			if ($morePhotoProperty)
+			{
+				$morePhotoValues = $morePhotoProperty->getPropertyValueCollection()->getValues();
+				if (!empty($morePhotoValues) && is_array($morePhotoValues))
+				{
+					$values = array_merge($values, $morePhotoValues);
+				}
+			}
 		}
 
-		$previewPicture = $this->entity->getField('PREVIEW_PICTURE');
+		$previewPicture = $entity->getField('PREVIEW_PICTURE');
 		if ($previewPicture)
 		{
-			$value = array_merge([$previewPicture], $value);
+			$values = array_merge([$previewPicture], $values);
 		}
 
-		$detailPicture = $this->entity->getField('DETAIL_PICTURE');
+		$detailPicture = $entity->getField('DETAIL_PICTURE');
 		if ($detailPicture)
 		{
-			$value = array_merge([$detailPicture], $value);
+			$values = array_merge([$detailPicture], $values);
 		}
 
-		return $value;
+		return $values;
+	}
+
+	private function getEntityEditPictureValues(BaseIblockElementEntity $entity): array
+	{
+		return $this->getImageValuesForEntity($entity);
+	}
+
+	private function getEntityViewPictureValues(BaseIblockElementEntity $entity): array
+	{
+		$values = $this->getImageValuesForEntity($entity);
+
+		if (empty($values))
+		{
+			$parent = $this->entity->getParent();
+			if ($parent)
+			{
+				$values = $this->getImageValuesForEntity($parent);
+			}
+		}
+
+		return $values;
 	}
 
 	protected function getFieldValue(array $field)
@@ -538,6 +612,46 @@ abstract class BaseForm
 					'pathToProfile' => 'PATH_TO_USER_PROFILE',
 				];
 			}
+			elseif ($fieldName === 'MEASURE')
+			{
+				$measureList = [];
+
+				foreach ($this->getMeasures() as $measure)
+				{
+					$measureTitle = $measure['MEASURE_TITLE'];
+
+					if (empty($measureTitle))
+					{
+						$measureTitle = \CCatalogMeasureClassifier::getMeasureTitle($measure["CODE"], 'MEASURE_TITLE');
+					}
+
+					$measureList[] = [
+						'NAME' => HtmlFilter::encode($measureTitle),
+						'VALUE' => $measure['ID'],
+					];
+				}
+
+				$description['data']['items'] = $measureList;
+				$description['type'] = 'list';
+			}
+			elseif ($fieldName === 'VAT_ID')
+			{
+				$vatList[] = [
+					'VALUE' => '0',
+					'NAME' => Loc::getMessage("CATALOG_PRODUCT_CARD_VARIATION_GRID_NOT_SELECTED")
+				];
+
+				foreach ($this->getVats() as $vat)
+				{
+					$vatList[] = [
+						'VALUE' => $vat['ID'],
+						'NAME' => $vat['NAME'],
+					];
+				}
+
+				$description['data']['items'] = $vatList;
+				$description['type'] = 'list';
+			}
 
 			$descriptions[] = $description;
 		}
@@ -693,7 +807,7 @@ abstract class BaseForm
 
 	private function isEditableField(Field $field): bool
 	{
-		if (in_array($field->getName(), ['IBLOCK_ID', 'MODIFIED_BY', 'CREATED_BY'], true))
+		if (in_array($field->getName(), ['IBLOCK_ID', 'MODIFIED_BY', 'CREATED_BY', 'AVAILABLE'], true))
 		{
 			return false;
 		}
@@ -850,13 +964,20 @@ abstract class BaseForm
 		return self::PROPERTY_FIELD_PREFIX.$name;
 	}
 
+	public static function preparePropertyNameFromProperty(Property $property): string
+	{
+		$name = $property->getCode() === self::MORE_PHOTO ? self::MORE_PHOTO : $property->getId();
+		
+		return static::preparePropertyName($name);
+	}
+
 	protected function getPropertyDescription(Property $property): array
 	{
 		$description = [
 			'entity' => 'property',
-			'name' => static::preparePropertyName($property->getIndex()),
-			'index' => $property->getIndex(),
+			'name' => static::preparePropertyNameFromProperty($property),
 			'propertyId' => $property->getId(),
+			'propertyCode' => $property->getCode(),
 			'title' => $property->getName(),
 			'editable' => true,
 			'required' => $property->isRequired(),
@@ -864,6 +985,11 @@ abstract class BaseForm
 			'defaultValue' => $property->getDefaultValue(),
 			'settings' => $property->getSettings(),
 		];
+
+		if ($description['propertyCode'] === self::MORE_PHOTO)
+		{
+			$description['optionFlags'] = 1; // showAlways
+		}
 
 		if ($description['multiple'] && !is_array($description['defaultValue']))
 		{
@@ -941,7 +1067,7 @@ abstract class BaseForm
 		foreach ($this->entity->getPropertyCollection() as $property)
 		{
 			$elements[] = [
-				'name' => static::preparePropertyName($property->getIndex()),
+				'name' => static::preparePropertyNameFromProperty($property),
 			];
 		}
 
@@ -961,7 +1087,7 @@ abstract class BaseForm
 
 		if ($type === 'custom')
 		{
-			$name = static::preparePropertyName($property->getIndex());
+			$name = static::preparePropertyNameFromProperty($property);
 			$description['data']['view'] = $name.'[VIEW_HTML]';
 			$description['data']['edit'] = $name.'[EDIT_HTML]';
 		}
@@ -1039,7 +1165,7 @@ abstract class BaseForm
 			$values = $property->getPropertyValueCollection()->getValues();
 			$description = $userTypeMethod($propertySettings, $values);
 
-			if ($property->getIndex() === 'CML2_LINK')
+			if ($property->getCode() === 'CML2_LINK')
 			{
 				$description['editable'] = false;
 			}
@@ -1047,7 +1173,7 @@ abstract class BaseForm
 			$specialTypes = ['custom', 'money'];
 			if (in_array($description['type'], $specialTypes, true))
 			{
-				$name = static::preparePropertyName($property->getIndex());
+				$name = static::preparePropertyNameFromProperty($property);
 				$descriptionData = $description['data'] ?? [];
 
 				if ($description['type'] === 'custom')
@@ -1272,19 +1398,19 @@ HTML;
 
 		$cnt = ($propertyFields["MULTIPLE"] === "Y" ? $multipleCount : 1);
 
-		if(!is_array($values))
+		if (!is_array($values))
 		{
-			$values = array();
+			$values = [$values];
 		}
 
 		$fixIBlock = $propertyFields["LINK_IBLOCK_ID"] > 0;
 		$windowTableId = 'iblockprop-'.PropertyTable::TYPE_ELEMENT.'-'.$propertyFields['ID'].'-'.$propertyFields['LINK_IBLOCK_ID'];
 
-		$searchParams = array(
+		$searchParams = [
 			'IBLOCK_ID' => (string)$propertyFields['LINK_IBLOCK_ID'],
 			'n' => $name,
-			'tableId' => $windowTableId
-		);
+			'tableId' => $windowTableId,
+		];
 		if ($fixIBlock)
 		{
 			$searchParams['iblockfix'] = 'y';
@@ -1292,7 +1418,7 @@ HTML;
 
 		$result = '<table cellpadding="0" cellspacing="0" border="0" class="nopadding" width="100%" id="tb'.md5($name).'">';
 		$key = '';
-		foreach ($values as $key=>$val)
+		foreach ($values as $key => $val)
 		{
 			$show = false;
 			if ($isCopying)
@@ -1309,7 +1435,7 @@ HTML;
 			$elementData = ElementTable::getList([
 				'filter' => ['ID' => $val],
 				'limit' => 1,
-				'select' => ['NAME']
+				'select' => ['NAME'],
 			]);
 			$element = $elementData->fetch();
 
@@ -1351,7 +1477,7 @@ HTML;
 			}
 		}
 
-		if($propertyFields["MULTIPLE"] === "Y")
+		if ($propertyFields["MULTIPLE"] === "Y")
 		{
 			$currentSearchParams = $searchParams;
 			$currentSearchParams['k'] = $key;
@@ -1382,6 +1508,7 @@ HTML;
 		$result .= 'MV_'.md5($name).'++;';
 		$result .= '}';
 		$result .= "\r\n</script>";
+
 		return $result;
 	}
 
@@ -1407,12 +1534,38 @@ HTML;
 			}
 		}
 
+		if ($field['originalName'] === 'MEASURE' && $value === null)
+		{
+			$defaultMeasure = \CCatalogMeasure::getDefaultMeasure();
+			if ($defaultMeasure)
+			{
+				$value = $defaultMeasure['ID'];
+			}
+		}
+
+		if ($field['originalName'] === 'VAT_ID' && $value === null)
+		{
+			$iblockId = $this->entity->getIblockId();
+			$defaultVat = \CCatalog::GetByID($iblockId);
+			if ($defaultVat)
+			{
+				$value = $defaultVat['VAT_ID'];
+			}
+		}
+
+		if (($field['originalName'] === 'ACTIVE_FROM' || $field['originalName'] === 'ACTIVE_TO')
+			&& !($this instanceof GridVariationForm)
+			&& !empty($value))
+		{
+			$value = $value->format(\Bitrix\Main\Type\DateTime::getFormat());
+		}
+
 		return $value;
 	}
 
 	protected function getPropertyFieldValue(array $field)
 	{
-		$property = $this->entity->getPropertyCollection()->findByIndex($field['index']);
+		$property = $this->entity->getPropertyCollection()->findById($field['propertyId']);
 		$value = $property ? $property->getPropertyValueCollection()->getValues() : null;
 
 		if ($field['type'] === 'html')
@@ -1428,35 +1581,36 @@ HTML;
 			{
 				$value = $value['TEXT'] ?? null;
 			}
-		}
-		elseif ($field['type'] === 'datetime')
-		{
-			$value = \CIBlockPropertyDateTime::ConvertFromDB(null, ['VALUE' => $value])['VALUE'];
 		}
 
 		return $value;
 	}
 
-	protected function saveProperty(array $field)
+	protected function getMeasures(): array
 	{
-		$property = $this->entity->getPropertyCollection()->findByIndex($field['index']);
-		$value = $property ? $property->getPropertyValueCollection()->getValues() : null;
+		static $measures = null;
 
-		if ($field['type'] === 'html')
+		if ($measures === null)
 		{
-			if ($field['multiple'])
-			{
-				foreach ($value as &$item)
-				{
-					$item = $item['TEXT'] ?? null;
-				}
-			}
-			else
-			{
-				$value = $value['TEXT'] ?? null;
-			}
+			$measures = \Bitrix\Catalog\MeasureTable::getList([
+				'select' => ['ID', 'CODE', 'MEASURE_TITLE'],
+			])->fetchAll();
 		}
 
-		return $value;
+		return $measures;
+	}
+
+	protected function getVats(): array
+	{
+		static $vats = null;
+
+		if ($vats === null)
+		{
+			$vats = \Bitrix\Catalog\VatTable::getList([
+				'select' => ['ID', 'NAME'],
+			])->fetchAll();
+		}
+
+		return $vats;
 	}
 }

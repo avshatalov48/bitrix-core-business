@@ -18,8 +18,8 @@ $aTabs[] = $USER_FIELD_MANAGER->EditFormTab("BLOG_BLOG");
 
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
-$ID = IntVal($ID);
-if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $blogModulePermissions>="W" && check_bitrix_sessid())
+$ID = intval($ID);
+if ($REQUEST_METHOD=="POST" && $Update <> '' && $blogModulePermissions>="W" && check_bitrix_sessid())
 {
 	$arFields = array(
 		"NAME" => $NAME,
@@ -48,8 +48,8 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $blogModulePermissions>="W" 
 	if(!IsModuleInstalled("socialnetwork"))
 		unset($arFields["USE_SOCNET"]);
 
-	if(IntVal($OWNER_ID) > 0)
-		$arFields["OWNER_ID"] = IntVal($OWNER_ID);
+	if(intval($OWNER_ID) > 0)
+		$arFields["OWNER_ID"] = intval($OWNER_ID);
 	else
 		$arFields["OWNER_ID"] = false;	
 	
@@ -71,7 +71,7 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $blogModulePermissions>="W" 
 		$arFields["=DATE_CREATE"] = $DB->CurrentTimeFunction();
 
 		$ID = CBlog::Add($arFields);
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$result = ($ID > 0);
 		$dbBlog = CBlog::GetList(
 				array(),
@@ -116,7 +116,7 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $blogModulePermissions>="W" 
 			$errorMessage .= GetMessage("BLBE_SAVE_ERROR")."<br />";
 	}
 
-	if (strlen($errorMessage) <= 0)
+	if ($errorMessage == '')
 	{
 		if (!empty($arBlogOld))
 		{
@@ -138,7 +138,7 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $blogModulePermissions>="W" 
 		}
 
 
-		if (strlen($apply) <= 0)
+		if ($apply == '')
 			LocalRedirect("/bitrix/admin/blog_blog.php?lang=".LANG.GetFilterParams("filter_", false));
 		else
 			LocalRedirect("/bitrix/admin/blog_blog_edit.php?lang=".LANG."&ID=".$ID."&".$tabControl->ActiveTabParam());
@@ -251,7 +251,7 @@ $tabControl->BeginNextTab();
 	<tr class="adm-detail-required-field">
 		<td><?echo GetMessage("BLBE_OWNER_ID")?>:</td>
 		<td>
-			<?echo FindUserID("OWNER_ID", IntVal($str_OWNER_ID));?>
+			<?echo FindUserID("OWNER_ID", intval($str_OWNER_ID));?>
 		</td>
 	</tr>
 
@@ -266,7 +266,7 @@ $tabControl->BeginNextTab();
 				);
 				while ($arBlogGroup = $dbBlogGroup->Fetch())
 				{
-					?><option value="<?= $arBlogGroup["ID"] ?>"<?if (IntVal($str_GROUP_ID) == IntVal($arBlogGroup["ID"])) echo " selected";?>>[<?= htmlspecialcharsbx($arBlogGroup["SITE_ID"]) ?>] <?= htmlspecialcharsbx($arBlogGroup["NAME"]) ?></option><?
+					?><option value="<?= $arBlogGroup["ID"] ?>"<?if (intval($str_GROUP_ID) == intval($arBlogGroup["ID"])) echo " selected";?>>[<?= htmlspecialcharsbx($arBlogGroup["SITE_ID"]) ?>] <?= htmlspecialcharsbx($arBlogGroup["NAME"]) ?></option><?
 				}
 				?>
 			</select>
@@ -364,7 +364,7 @@ $tabControl->BeginNextTab();
 		$dbGroupPerms = CBlogUserGroupPerms::GetList(array(), array("BLOG_ID" => $ID, "PERMS_TYPE" => BLOG_PERMS_POST, "POST_ID" => 0));
 		while ($arGroupPerm = $dbGroupPerms->Fetch())
 		{
-			$arGroupPerms[IntVal($arGroupPerm["USER_GROUP_ID"])] = $arGroupPerm["PERMS"];
+			$arGroupPerms[intval($arGroupPerm["USER_GROUP_ID"])] = $arGroupPerm["PERMS"];
 		}
 	}
 	?>
@@ -401,7 +401,7 @@ $tabControl->BeginNextTab();
 		</td>
 	</tr>
 	<?
-	if(IntVal($ID) > 0)
+	if(intval($ID) > 0)
 	{
 		$dbGroups = CBlogUserGroup::GetList(array("NAME" => "ASC"), array("BLOG_ID" => $ID));
 		while ($arGroup = $dbGroups->Fetch())
@@ -410,7 +410,7 @@ $tabControl->BeginNextTab();
 			<tr>
 				<td><?= htmlspecialcharsbx($arGroup["NAME"]) ?>:</td>
 				<td>
-					<select name="PERMS_P[<?= IntVal($arGroup["ID"]) ?>]">
+					<select name="PERMS_P[<?= intval($arGroup["ID"]) ?>]">
 					<?
 					foreach($GLOBALS["AR_BLOG_PERMS"] as $key => $val)
 					{
@@ -439,7 +439,7 @@ $tabControl->BeginNextTab();
 		$dbGroupPerms = CBlogUserGroupPerms::GetList(array(), array("BLOG_ID" => $ID, "PERMS_TYPE" => BLOG_PERMS_COMMENT, "POST_ID" => 0));
 		while ($arGroupPerm = $dbGroupPerms->Fetch())
 		{
-			$arGroupPerms[IntVal($arGroupPerm["USER_GROUP_ID"])] = $arGroupPerm["PERMS"];
+			$arGroupPerms[intval($arGroupPerm["USER_GROUP_ID"])] = $arGroupPerm["PERMS"];
 		}
 	}
 	?>
@@ -476,7 +476,7 @@ $tabControl->BeginNextTab();
 		</td>
 	</tr>
 	<?
-	if(IntVal($ID) > 0)
+	if(intval($ID) > 0)
 	{
 		$dbGroups = CBlogUserGroup::GetList(array("NAME" => "ASC"), array("BLOG_ID" => $ID));
 		while ($arGroup = $dbGroups->Fetch())
@@ -485,7 +485,7 @@ $tabControl->BeginNextTab();
 			<tr>
 				<td><?= htmlspecialcharsbx($arGroup["NAME"]) ?>:</td>
 				<td>
-					<select name="PERMS_C[<?= IntVal($arGroup["ID"]) ?>]">
+					<select name="PERMS_C[<?= intval($arGroup["ID"]) ?>]">
 					<?
 					foreach($GLOBALS["AR_BLOG_PERMS"] as $key => $val)
 					{

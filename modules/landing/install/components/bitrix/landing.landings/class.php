@@ -335,6 +335,7 @@ class LandingLandingsComponent extends LandingBaseComponent
 				$this->arParams['TYPE']
 			);
 			$filter['SITE_ID'] = $this->arParams['SITE_ID'];
+		//	$filter['==AREAS.ID'] = null;
 			if ($request->offsetExists($this->arParams['ACTION_FOLDER']))
 			{
 				$filter[] = array(

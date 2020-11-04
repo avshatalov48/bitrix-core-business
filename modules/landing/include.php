@@ -89,7 +89,7 @@ $jsConfig = array(
 		),
 		'lang' => $pathLang . '/js/action_dialog.php'
 	),
-	
+
 	'landing_public' => [
 		'js' => [
 			$pathJS . '/events/block_event.js',
@@ -105,7 +105,7 @@ $jsConfig = array(
 			'landing.utils',
 		],
 	],
-	
+
 	'landing_event_tracker' => array(
 		'js' => array(
 			$pathJS . '/event-tracker/event-tracker.js',
@@ -142,12 +142,13 @@ $jsConfig = array(
 			'landing.utils',
 		],
 	),
-	
+
 	'landing_critical_grid' => [
 		'css' => [
 			$pathTemplate24 . '/assets/vendor/bootstrap/bootstrap.css',
 			$pathTemplate24 . '/assets/css/custom-grid.css',
 			$pathTemplate24 . '/themes/themes_core.css',
+			$pathCSS . '/landing_public.css',
 		],
 	],
 
@@ -181,7 +182,7 @@ $jsConfig = array(
 			$pathTemplate24 . '/assets/js/helpers/upper_init.js',
 		),
 	),
-	
+
 	'landing_icon_fonts' => array(
 		'css' => array(
 			$pathTemplate24 . '/assets/vendor/icon-awesome/css/font-awesome.css',
@@ -268,13 +269,13 @@ $jsConfig = array(
 			'map_provider'
 		)
 	),
-	
+
 	'landing_lazyload' => [
 		'js' => [
 			$pathTemplate24 . '/assets/js/helpers/lazyload.js',
 		],
 	],
-	
+
 	'landing_auto_font_scale' => [
 		'js' => [
 			$pathJS . '/ui/tool/auto-font-scale.js',
@@ -282,7 +283,7 @@ $jsConfig = array(
 			$pathTemplate24 . '/assets/js/helpers/auto_font_scale_init.js',
 		],
 	],
-	
+
 	'landing_bootstrap_modal' => array(
 		'js' => array(
 			$pathTemplate24 . '/assets/vendor/bootstrap/js/dist/util.js',

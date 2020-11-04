@@ -367,7 +367,7 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 
 		);
 		$result['SHOW_UNREAD'] = $this->arParams['SHOW_UNREAD'];
-		$result['currentUserId'] = intval($USER->getId());
+		$result['currentUserId'] = (int)$USER->getId();
 
 		$logPageProcessorInstance->preparePrevPageLogId();
 		$this->setCurrentUserAdmin(\CSocNetUser::isCurrentUserModuleAdmin());
@@ -403,7 +403,7 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 			$processorInstance->processListParams($result);
 			$logPageProcessorInstance->getLogPageData($result);
 			$processorInstance->setListFilter($result);
-			$processorInstance->processSelectData();
+			$processorInstance->processSelectData($result);
 
 			$this->getEntriesData($result);
 			$processorInstance->processFavoritesData($result);
@@ -413,7 +413,8 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 			$logPageProcessorInstance->deleteLogPageData($result);
 
 			$processorInstance->processNextPageSize($result);
-			$processorInstance->processEventsList($result);
+			$processorInstance->processEventsList($result, 'main');
+			$processorInstance->processEventsList($result, 'pinned');
 
 			if (
 				$this->arParams['LOG_ID'] > 0
@@ -456,6 +457,17 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 	protected function getEntriesData(&$result)
 	{
 		$result['arLogTmpID'] = [];
+
+		$processorInstance = $this->getProcessorInstance();
+		$logPageProcessorInstance = $this->getLogPageProcessorInstance();
+		if (
+			!$processorInstance
+			|| !$logPageProcessorInstance
+		)
+		{
+			return;
+		}
+
 		$params = $this->arParams;
 
 		if (empty($result['RETURN_EMPTY_LIST']))
@@ -464,16 +476,133 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 
 			if (
 				count($result['arLogTmpID']) < $params['PAGE_SIZE']
-				&& $this->getLogPageProcessorInstance()->getNeedSetLogPage() // no log pages for user
+				&& $logPageProcessorInstance->getNeedSetLogPage() // no log pages for user
 			)
 			{
 				$result['arLogTmpID'] = [];
-				$this->getProcessorInstance()->setEventsList([]);
+				$processorInstance->setEventsList([]);
 
-				$this->getLogPageProcessorInstance()->setDateLastPageStart(null);
-				$this->getProcessorInstance()->unsetFilterKey('>=LOG_UPDATE');
+				$logPageProcessorInstance->setDateLastPageStart(null);
+				$processorInstance->unsetFilterKey('>=LOG_UPDATE');
 				$this->getEntryIdList($result);
 			}
+		}
+
+		$this->getPinnedIdList($result);
+	}
+
+	protected function processEvent(&$result, &$cnt, array $eventFields = [], array $options = [])
+	{
+		if ($eventFields['MODULE_ID'] === 'crm_shared')
+		{
+			$eventFields['MODULE_ID'] = 'crm';
+		}
+
+		static $timemanInstalled = null;
+		static $tasksInstalled = null;
+		static $listsInstalled = null;
+
+		if ($timemanInstalled === null)
+		{
+			$timemanInstalled = ModuleManager::isModuleInstalled('timeman');
+		}
+		if ($tasksInstalled === null)
+		{
+			$tasksInstalled = ModuleManager::isModuleInstalled('tasks');
+		}
+		if ($listsInstalled === null)
+		{
+			$listsInstalled = ModuleManager::isModuleInstalled('lists');
+		}
+
+		if (
+			!ModuleManager::isModuleInstalled('bitrix24')
+			&& (
+				(
+					!empty($eventFields['MODULE_ID'])
+					&& !ModuleManager::isModuleInstalled($eventFields['MODULE_ID'])
+				)
+				||
+				(
+					in_array($eventFields['EVENT_ID'], [ 'timeman_entry', 'report' ])
+					&& !$timemanInstalled
+				)
+				|| (
+					$eventFields['EVENT_ID'] === 'tasks'
+					&& !$tasksInstalled
+				)
+				|| (
+					$eventFields['EVENT_ID'] === 'lists_new_element'
+					&& !$listsInstalled
+				)
+			)
+		)
+		{
+			return;
+		}
+
+		$processorInstance = $this->getProcessorInstance();
+		if (!$processorInstance)
+		{
+			return;
+		}
+
+		if ($eventFields['EVENT_ID'] === 'crm_activity_add')
+		{
+			$activity2LogList = $this->getActivity2LogListValue();
+			$activity2LogList[$eventFields['ENTITY_ID']] = $eventFields['ID'];
+			$this->setActivity2LogListValue($activity2LogList);
+			unset($activity2LogList);
+		}
+
+		$cnt++;
+		if (isset($options['type']))
+		{
+			if ($options['type'] === 'main')
+			{
+				$result['arLogTmpID'][] = $eventFields['ID'];
+				$processorInstance->appendEventsList($eventFields);
+			}
+			elseif ($options['type'] === 'pinned')
+			{
+				$contentId = \Bitrix\Socialnetwork\Livefeed\Provider::getContentId($eventFields);
+
+				if (!empty($contentId['ENTITY_TYPE']))
+				{
+					$postProvider = \Bitrix\Socialnetwork\Livefeed\Provider::init([
+						'ENTITY_TYPE' => $contentId['ENTITY_TYPE'],
+						'ENTITY_ID' => $contentId['ENTITY_ID'],
+						'LOG_ID' => $eventFields['ID']
+					]);
+
+					$result['pinnedIdList'][] = $eventFields['ID'];
+					$eventFields['PINNED_PANEL_DATA'] = [
+						'TITLE' => $postProvider->getPinnedTitle(),
+						'DESCRIPTION' => $postProvider->getPinnedDescription()
+					];
+					$processorInstance->appendEventsList($eventFields, 'pinned');
+				}
+			}
+		}
+
+		$livefeedProvider = new \Bitrix\Socialnetwork\Livefeed\BlogPost();
+
+		if (
+			in_array($eventFields['EVENT_ID'], array_merge($livefeedProvider->getEventId(), [ 'idea' ]))
+			&& intval($eventFields['SOURCE_ID']) > 0
+		)
+		{
+			$diskUFEntityList = $this->getDiskUFEntityListValue();
+			$diskUFEntityList['BLOG_POST'][] = $eventFields['SOURCE_ID'];
+			$this->setDiskUFEntityListValue($diskUFEntityList);
+			unset($diskUFEntityList);
+		}
+		elseif (!in_array($eventFields['EVENT_ID'], [ 'data', 'photo', 'photo_photo', 'bitrix24_new_user', 'intranet_new_user', 'news' ]))
+		{
+			$diskUFEntityList = $this->getDiskUFEntityListValue();
+			$diskUFEntityList['SONET_LOG'][] = $eventFields['ID'];
+			$this->setDiskUFEntityListValue($diskUFEntityList);
+			unset($diskUFEntityList);
 		}
 	}
 
@@ -482,8 +611,12 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 		global $NavNum;
 
 		$processorInstance = $this->getProcessorInstance();
+		if (!$processorInstance)
+		{
+			return;
+		}
 
-		if ($processorInstance->getListParamsKey('EMPTY_LIST') == 'Y')
+		if ($processorInstance->getListParamsKey('EMPTY_LIST') === 'Y')
 		{
 			$result['arLogTmpID'] = [];
 			return;
@@ -516,77 +649,64 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 		$cnt = 0;
 		while ($eventFields = $res->getNext())
 		{
-			if ($eventFields['MODULE_ID'] == 'crm_shared')
-			{
-				$eventFields['MODULE_ID'] = 'crm';
-			}
+			$this->processEvent($result, $cnt, $eventFields, [
+				'type' => 'main',
+				'pageNumber' => $res->NavPageNomer
+			]);
+		}
+	}
 
-			if (
-				!ModuleManager::isModuleInstalled('bitrix24')
-				&& (
-					(
-						!empty($eventFields['MODULE_ID'])
-						&& !ModuleManager::isModuleInstalled($eventFields['MODULE_ID'])
-					)
-					||
-					(
-						in_array($eventFields['EVENT_ID'], [ 'timeman_entry', 'report' ])
-						&& !ModuleManager::isModuleInstalled('timeman')
-					)
-					|| (
-						in_array($eventFields['EVENT_ID'], [ 'tasks' ])
-						&& !ModuleManager::isModuleInstalled('tasks')
-					)
-					|| (
-						in_array($eventFields['EVENT_ID'], [ 'lists_new_element' ])
-						&& !ModuleManager::isModuleInstalled('lists')
-					)
-				)
-			)
-			{
-				continue;
-			}
+	protected function getPinnedIdList(&$result)
+	{
+		$result['pinnedEvents'] = [];
+		$result['pinnedIdList'] = [];
 
-			if (in_array($eventFields['EVENT_ID'], [ 'crm_activity_add' ]))
-			{
-				$activity2LogList = $this->getActivity2LogListValue();
-				$activity2LogList[$eventFields['ENTITY_ID']] = $eventFields['ID'];
-				$this->setActivity2LogListValue($activity2LogList);
-				unset($activity2LogList);
-			}
+		if ($result['USE_PINNED'] !== 'Y')
+		{
+			return;
+		}
 
-			$cnt++;
-			if ($cnt == 1)
-			{
-				$result['CURRENT_PAGE_DATE'] = (
-				$res->NavPageNomer > 1
-					? $eventFields['LOG_UPDATE']
-					: convertTimeStamp(time() + $result['TZ_OFFSET'], 'FULL')
-				);
-			}
-			$result['arLogTmpID'][] = $eventFields['ID'];
+		$processorInstance = $this->getProcessorInstance();
+		if (!$processorInstance)
+		{
+			return;
+		}
 
-			$processorInstance->appendEventsList($eventFields);
+		$logUpdateFilterValue = $processorInstance->getFilterKey('>=LOG_UPDATE');
+		$processorInstance->unsetFilterKey('>=LOG_UPDATE');
 
-			$livefeedProvider = new \Bitrix\Socialnetwork\Livefeed\BlogPost();
+		/* filter without >=LOG_UPDATE field */
+		$filter = $processorInstance->getFilter();
+		$processorInstance->setFilterKey('>=LOG_UPDATE', $logUpdateFilterValue);
 
-			if (
-				in_array($eventFields['EVENT_ID'], array_merge($livefeedProvider->getEventId(), [ 'idea' ]))
-				&& intval($eventFields['SOURCE_ID']) > 0
-			)
-			{
-				$diskUFEntityList = $this->getDiskUFEntityListValue();
-				$diskUFEntityList['BLOG_POST'][] = $eventFields['SOURCE_ID'];
-				$this->setDiskUFEntityListValue($diskUFEntityList);
-				unset($diskUFEntityList);
-			}
-			elseif (!in_array($eventFields['EVENT_ID'], [ 'data', 'photo', 'photo_photo', 'bitrix24_new_user', 'intranet_new_user', 'news' ]))
-			{
-				$diskUFEntityList = $this->getDiskUFEntityListValue();
-				$diskUFEntityList['SONET_LOG'][] = $eventFields['ID'];
-				$this->setDiskUFEntityListValue($diskUFEntityList);
-				unset($diskUFEntityList);
-			}
+		$filter['PINNED_USER_ID'] = $result['currentUserId'];
+
+		$select = $processorInstance->getSelect();
+		unset($select['TMP_ID']);
+		unset($select['PINNED_USER_ID']);
+
+		$res = \CSocNetLog::getList(
+			[
+				'PINNED_DATE' => 'DESC'
+			],
+			$filter,
+			false,
+			[
+				'nTopCount' => 50
+			],
+			$select,
+			[
+				'CHECK_RIGHTS' => 'Y',
+				'USE_PINNED' => 'Y',
+				'USE_FOLLOW' => 'N'
+			]
+		);
+		$cnt = 0;
+		while ($eventFields = $res->getNext())
+		{
+			$this->processEvent($result, $cnt, $eventFields, [
+				'type' => 'pinned'
+			]);
 		}
 	}
 

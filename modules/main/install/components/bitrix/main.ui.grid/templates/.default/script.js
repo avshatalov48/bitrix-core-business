@@ -1415,7 +1415,7 @@
 	            })]
 	          });
 	          return {
-	            text: subItem.innerHTML,
+	            html: subItem.innerHTML,
 	            className: currentValue === item.VALUE ? self.selectedClass : self.notSelectedClass,
 	            delimiter: item.DELIMITER,
 	            items: 'ITEMS' in item ? prepareItems(item.ITEMS) : null

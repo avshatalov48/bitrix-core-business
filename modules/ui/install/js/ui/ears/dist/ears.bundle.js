@@ -31,9 +31,7 @@ this.BX = this.BX || {};
 
 	  return data;
 	}
-	var Ears =
-	/*#__PURE__*/
-	function () {
+	var Ears = /*#__PURE__*/function () {
 	  function Ears(options) {
 	    babelHelpers.classCallCheck(this, Ears);
 	    this.container = options.container;

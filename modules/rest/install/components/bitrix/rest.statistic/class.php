@@ -199,52 +199,44 @@ class CRestStatisticComponent extends CBitrixComponent implements Controllerable
 	{
 		$result = [];
 		$cacheTime = 3600;
-		$cacheId = 'allPasswordApp_OnlyActive_' . $this->arParams['ONLY_ACTIVE'];
-		$cacheDir = 'bitrix/rest_stat/';
-		$cache = Cache::createInstance();
-		if ($cache->initCache($cacheTime, $cacheId, $cacheDir))
+		$prefix = self::PREFIX;
+
+		$filter = [];
+		if ($this->arParams['ONLY_ACTIVE'] === 'Y')
 		{
-			$result = $cache->getVars();
+			$filter['=ACTIVE'] = 'Y';
 		}
-		elseif ($cache->startDataCache())
-		{
-			$filter = [];
-			if ($this->arParams['ONLY_ACTIVE'] === 'Y')
-			{
-				$filter['=ACTIVE'] = 'Y';
-			}
 
-			$resAppData = PasswordTable::getList(
-				[
-					'order' => 'ID',
-					'filter' => $filter,
-					'select' => [
-						'ID',
-						'ACTIVE',
-						'TITLE'
-					]
+		$resAppData = PasswordTable::getList(
+			[
+				'order' => 'ID',
+				'filter' => $filter,
+				'select' => [
+					'ID',
+					'ACTIVE',
+					'TITLE'
+				],
+				'cache' => [
+					'ttl' => $cacheTime
 				]
-			);
-			$prefix = self::PREFIX;
-			while ($data = $resAppData->Fetch())
+			]
+		);
+		while ($data = $resAppData->Fetch())
+		{
+			if (!empty($data['TITLE']))
 			{
-				if(!empty($data['TITLE']))
-				{
-					$data['NAME'] = $data['TITLE'];
-				}
-				else
-				{
-					$data['NAME'] = Loc::getMessage(
-						'REST_STATISTIC_PASSWORD_NAME_NUMBER',
-						[
-							'#NUM#' => $data['ID']
-						]
-					);
-				}
-				$result[$prefix . $data['ID']] = $data;
+				$data['NAME'] = $data['TITLE'];
 			}
-
-			$cache->endDataCache($result);
+			else
+			{
+				$data['NAME'] = Loc::getMessage(
+					'REST_STATISTIC_PASSWORD_NAME_NUMBER',
+					[
+						'#NUM#' => $data['ID']
+					]
+				);
+			}
+			$result[$prefix . $data['ID']] = $data;
 		}
 
 		return $result;
@@ -787,7 +779,7 @@ class CRestStatisticComponent extends CBitrixComponent implements Controllerable
 			{
 				if (!empty($allApp[$prefix . $methodStat['ENTITY_DATA_ENTITY_ID']]['NAME']))
 				{
-					$item['NAME'] = $allApp[$prefix . $methodStat['ENTITY_DATA_ENTITY_ID']]['NAME'];
+					$item['NAME'] = htmlspecialcharsbx($allApp[$prefix . $methodStat['ENTITY_DATA_ENTITY_ID']]['NAME']);
 				}
 				else
 				{
@@ -800,7 +792,7 @@ class CRestStatisticComponent extends CBitrixComponent implements Controllerable
 					!empty($allPasswordApp[$prefix . $methodStat['ENTITY_DATA_ENTITY_ID']]['NAME'])
 				)
 				{
-					$item['NAME'] = $allPasswordApp[$prefix . $methodStat['ENTITY_DATA_ENTITY_ID']]['NAME'];
+					$item['NAME'] = htmlspecialcharsbx($allPasswordApp[$prefix . $methodStat['ENTITY_DATA_ENTITY_ID']]['NAME']);
 				}
 				else
 				{
@@ -812,6 +804,7 @@ class CRestStatisticComponent extends CBitrixComponent implements Controllerable
 					);
 				}
 			}
+			$item['ENTITY_DATA_SUB_ENTITY_NAME'] = htmlspecialcharsbx($item['ENTITY_DATA_SUB_ENTITY_NAME']);
 
 			$itemsStat[] = [
 				'id' => $item['id'],

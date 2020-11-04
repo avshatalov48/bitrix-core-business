@@ -8,7 +8,7 @@
 					<span style="font-weight: bold;" class="g-color-primary">stories</span></h2>
 			</div>
 
-			<div class="landing-block-node-text landing-semantic-text-image-medium mb-0 g-color-white">
+			<div class="landing-block-node-text landing-semantic-text-image-medium mb-0 g-color-white" data-auto-font-scale>
 				<p>Sed faucibus suscipit justo, eu dignissim tellus pretium et. Nam volutpat placerat libero
 					sit amet elementum. Curabitur et neque et mauris maximus efficitur.</p>
 			</div>
@@ -30,7 +30,7 @@
 							<h4 class="landing-block-node-card-subtitle landing-semantic-subtitle-medium-primary text-uppercase g-font-weight-700 g-font-size-10 g-color-primary g-mb-16">
 								Molestie
 								ullamcorper nisl eget</h4>
-							<div class="landing-block-node-card-text landing-semantic-text-image-medium g-mb-0">
+							<div class="landing-block-node-card-text landing-semantic-text-image-medium g-mb-0" data-auto-font-scale>
 								<p>Integer accumsan maximus leo, et consectetur metus vestibulum in.
 									Vestibulum viverra justo odio. Donec eu nulla leo. Vivamus risus lacus, viverra eu
 									maximus non, tincidunt sodales massa. Duis vulputate purus a libero luctus, sed
@@ -51,7 +51,7 @@
 							<h4 class="landing-block-node-card-subtitle landing-semantic-subtitle-medium-primary text-uppercase g-font-weight-700 g-font-size-10 g-color-primary g-mb-16">
 								Molestie
 								ullamcorper nisl eget</h4>
-							<div class="landing-block-node-card-text landing-semantic-text-image-medium g-mb-0">
+							<div class="landing-block-node-card-text landing-semantic-text-image-medium g-mb-0" data-auto-font-scale>
 								<p>Integer accumsan maximus leo, et consectetur metus vestibulum in.
 									Vestibulum viverra justo odio. Donec eu nulla leo. Vivamus risus lacus, viverra eu
 									maximus non, tincidunt sodales massa. Duis vulputate purus a libero luctus, sed

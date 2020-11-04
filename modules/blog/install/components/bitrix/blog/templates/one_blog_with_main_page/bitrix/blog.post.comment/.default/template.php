@@ -3,19 +3,19 @@
 CUtil::InitJSCore(array("ajax"));
 
 include($_SERVER["DOCUMENT_ROOT"].$templateFolder."/script.php");
-if(strlen($arResult["MESSAGE"])>0)
+if($arResult["MESSAGE"] <> '')
 {
 	?>
 	<?=$arResult["MESSAGE"]?><br /><br />
 	<?
 }
-if(strlen($arResult["ERROR_MESSAGE"])>0)
+if($arResult["ERROR_MESSAGE"] <> '')
 {
 	?>
 	<span class='errortext'><?=$arResult["ERROR_MESSAGE"]?></span><br /><br />
 	<?
 }
-if(strlen($arResult["FATAL_MESSAGE"])>0)
+if($arResult["FATAL_MESSAGE"] <> '')
 {
 	?>
 	<span class='errortext'><?=$arResult["FATAL_MESSAGE"]?></span><br /><br />
@@ -219,7 +219,7 @@ else
 						<table width="0%" class="blog-table-post-comment-table-date">
 						<tr>
 						<?
-						if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && (strlen($comment["urlToBlog"]) > 0 || strlen($comment["urlToAuthor"]) > 0) && array_key_exists("ALIAS", $comment["BlogUser"]) && strlen($comment["BlogUser"]["ALIAS"]) > 0)
+						if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && ($comment["urlToBlog"] <> '' || $comment["urlToAuthor"] <> '') && array_key_exists("ALIAS", $comment["BlogUser"]) && $comment["BlogUser"]["ALIAS"] <> '')
 							$arTmpUser = array(
 								"NAME" => "",
 								"LAST_NAME" => "",
@@ -227,7 +227,7 @@ else
 								"LOGIN" => "",
 								"NAME_LIST_FORMATTED" => $comment["BlogUser"]["~ALIAS"],
 							);
-						elseif (strlen($comment["urlToBlog"]) > 0 || strlen($comment["urlToAuthor"]) > 0)
+						elseif ($comment["urlToBlog"] <> '' || $comment["urlToAuthor"] <> '')
 							$arTmpUser = array(
 								"NAME" => $comment["arUser"]["~NAME"],
 								"LAST_NAME" => $comment["arUser"]["~LAST_NAME"],
@@ -236,7 +236,7 @@ else
 								"NAME_LIST_FORMATTED" => "",
 							);
 							
-						if(strlen($comment["urlToBlog"])>0)
+						if($comment["urlToBlog"] <> '')
 						{
 							?>
 							<td align="right" nowrap><a href="<?=$comment["urlToAuthor"]?>" class="blog-user"></a></td>
@@ -275,7 +275,7 @@ else
 							</td>
 							<?
 						}
-						elseif(strlen($comment["urlToAuthor"])>0)
+						elseif($comment["urlToAuthor"] <> '')
 						{
 							?>
 							<td align="right" nowrap><a href="<?=$comment["urlToAuthor"]?>" class="blog-user"></a></td>
@@ -321,9 +321,9 @@ else
 							<?
 						}
 
-						if(strlen($comment["urlToDelete"])>0)
+						if($comment["urlToDelete"] <> '')
 						{
-							if(strlen($comment["AuthorEmail"])>0)
+							if($comment["AuthorEmail"] <> '')
 							{
 								?>
 								<td align="right" nowrap><small>(Email: <a href="mailto:<?=$comment["AuthorEmail"]?>"><?=$comment["AuthorEmail"]?></a>)</small></td>
@@ -333,7 +333,7 @@ else
 							if($comment["ShowIP"] == "Y")
 							{
 								?>
-								<td align="right" nowrap><small>(<?=GetMessage("B_B_MS_FROM")?> <?=$comment["AUTHOR_IP"]?><?if(strlen($comment["AUTHOR_IP1"])>0) echo ', '.$comment["AUTHOR_IP1"];?>)</small>&nbsp;</td>
+								<td align="right" nowrap><small>(<?=GetMessage("B_B_MS_FROM")?> <?=$comment["AUTHOR_IP"]?><?if($comment["AUTHOR_IP1"] <> '') echo ', '.$comment["AUTHOR_IP1"];?>)</small>&nbsp;</td>
 								<?
 							}
 							?>
@@ -352,7 +352,7 @@ else
 				<tr>
 					<td>
 						<?=$comment["AVATAR_img"]?>
-						<?if(strlen($comment["TitleFormated"])>0)
+						<?if($comment["TitleFormated"] <> '')
 						{
 							?>
 							<b><?=$comment["TitleFormated"]?></b><br />
@@ -369,7 +369,7 @@ else
 							<?
 						}
 
-						if(IntVal($comment["PARENT_ID"])>0)
+						if(intval($comment["PARENT_ID"])>0)
 						{
 							?>
 							(<a href="#<?=$comment["PARENT_ID"]?>"><?=GetMessage("B_B_MS_PARENT")?></a>)&nbsp;
@@ -381,7 +381,7 @@ else
 				</tr>
 				</table>
 						<?
-						if(strlen($errorComment)<=0 && $_POST["parentId"]==$comment["ID"] && strlen($_POST["preview"]) > 0)
+						if($errorComment == '' && $_POST["parentId"]==$comment["ID"] && $_POST["preview"] <> '')
 						{							
 							?><div style="border:1px solid red"><?
 								$commentPreview = Array(
@@ -394,14 +394,14 @@ else
 								ShowComment($commentPreview, ($level+1), 30, $canModerate, $User, $use_captcha, $bCanUserComment, $errorComment, $arParams);
 							?></div><?
 						}
-						if(strlen($errorComment)>0 && IntVal($_POST["parentId"])==$comment["ID"] && $bCanUserComment===true)
+						if($errorComment <> '' && intval($_POST["parentId"])==$comment["ID"] && $bCanUserComment===true)
 						{							
 							?><span class='errortext'><?=$errorComment?></span><?
 						}
 						?>
 						<div id="form_comment_<?=$comment['ID']?>"></div>
 						<?
-						if((strlen($errorComment)>0 || strlen($_POST["preview"]) > 0) && IntVal($_POST["parentId"])==$comment["ID"] && $bCanUserComment===true)
+						if(($errorComment <> '' || $_POST["preview"] <> '') && intval($_POST["parentId"])==$comment["ID"] && $bCanUserComment===true)
 						{
 							$form1 = CUtil::JSEscape($_POST["comment"]);
 
@@ -479,7 +479,7 @@ else
 		<div align="center" class="blog-comment-text"><a name="comment"></a><a href="javascript:void(0)" onclick="return showComment('0', '<?=$postTitle?>')"><b><?=GetMessage("B_B_MS_ADD_COMMENT")?></b></a><br /></div>
 		<a name="0"></a>
 		<?
-		if(strlen($arResult["COMMENT_ERROR"]) <= 0 && strlen($_POST["parentId"]) < 2 && IntVal($_POST["parentId"])==0 && strlen($_POST["preview"]) > 0)
+		if($arResult["COMMENT_ERROR"] == '' && mb_strlen($_POST["parentId"]) < 2 && intval($_POST["parentId"])==0 && $_POST["preview"] <> '')
 		{							
 			?><div style="border:1px solid red"><?
 				$commentPreview = Array(
@@ -493,7 +493,7 @@ else
 			?></div><?
 		}
 
-		if(strlen($arResult["COMMENT_ERROR"])>0 && strlen($_POST["parentId"]) < 2 && IntVal($_POST["parentId"])==0)
+		if($arResult["COMMENT_ERROR"] <> '' && mb_strlen($_POST["parentId"]) < 2 && intval($_POST["parentId"])==0)
 		{
 			?>
 			<span class='errortext'><?=$arResult["COMMENT_ERROR"]?></span>
@@ -502,7 +502,7 @@ else
 		?>
 		<div id=form_comment_0></div><br />
 		<?
-		if((strlen($arResult["COMMENT_ERROR"])>0 || strlen($_POST["preview"]) > 0) && IntVal($_POST["parentId"]) == 0 && strlen($_POST["parentId"]) < 2)
+		if(($arResult["COMMENT_ERROR"] <> '' || $_POST["preview"] <> '') && intval($_POST["parentId"]) == 0 && mb_strlen($_POST["parentId"]) < 2)
 		{
 			$form1 = CUtil::JSEscape($_POST["comment"]);
 
@@ -542,7 +542,7 @@ else
 		?>
 		<div align="center" class="blog-comment-text"><a href="#comments" onclick="return showComment('00', '<?=$postTitle?>')"><b><?=GetMessage("B_B_MS_ADD_COMMENT")?></b></a><br /></div><a name="00"></a>
 		<?
-		if(strlen($arResult["COMMENT_ERROR"]) <= 0 && $_POST["parentId"] == "00" && strlen($_POST["parentId"]) > 1 && strlen($_POST["preview"]) > 0)
+		if($arResult["COMMENT_ERROR"] == '' && $_POST["parentId"] == "00" && mb_strlen($_POST["parentId"]) > 1 && $_POST["preview"] <> '')
 		{							
 			?><div style="border:1px solid red"><?
 				$commentPreview = Array(
@@ -556,7 +556,7 @@ else
 			?></div><?
 		}
 		
-		if(strlen($arResult["COMMENT_ERROR"])>0 && $_POST["parentId"] == "00" && strlen($_POST["parentId"]) > 1)
+		if($arResult["COMMENT_ERROR"] <> '' && $_POST["parentId"] == "00" && mb_strlen($_POST["parentId"]) > 1)
 		{
 			?>
 			<span class='errortext'><?=$arResult["COMMENT_ERROR"]?></span>
@@ -566,7 +566,7 @@ else
 
 		<div id=form_comment_00></div><br />
 		<?
-		if((strlen($arResult["COMMENT_ERROR"])>0 || strlen($_POST["preview"]) > 0) && $_POST["parentId"] == "00" && strlen($_POST["parentId"]) > 1)
+		if(($arResult["COMMENT_ERROR"] <> '' || $_POST["preview"] <> '') && $_POST["parentId"] == "00" && mb_strlen($_POST["parentId"]) > 1)
 		{
 			$form1 = CUtil::JSEscape($_POST["comment"]);
 

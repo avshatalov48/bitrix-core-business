@@ -60,6 +60,9 @@ class ExchangeLogTable extends Main\Entity\DataManager
 				'require' => true,
 				'values' => array('E', 'I')
 			),
+			'PROVIDER' => array(
+				'data_type' => 'string'
+			),
 		);
 	}
 
@@ -76,19 +79,22 @@ class ExchangeLogTable extends Main\Entity\DataManager
 	/**
 	 * Clears old logging data
 	 */
-	public static function deleteOldRecords($direction)
+	public static function deleteOldRecords($direction, $provider, $interval)
 	{
 		$tableName = static::getTableName();
 
 		if ($direction == '')
 			throw new Main\ArgumentOutOfRangeException("$direction");
+		if ($provider == '')
+			throw new Main\ArgumentOutOfRangeException("$provider");
 
 		$r = ExchangeLogTable::getList(array(
 			'select' => array(
 				new Main\Entity\ExpressionField('MAX_DATE_INSERT', 'MAX(%s)', array('DATE_INSERT'))
 			),
 			'filter' => array(
-				'=DIRECTION'=>$direction
+				'=DIRECTION'=>$direction,
+				'=PROVIDER'=>$provider
 			)
 		));
 
@@ -98,9 +104,8 @@ class ExchangeLogTable extends Main\Entity\DataManager
 			{
 				$maxDateInsert = $loggingRecord['MAX_DATE_INSERT'];
 				$date = new Main\Type\DateTime($maxDateInsert);
-				$interval = LoggerDiag::getInterval();
 				$connection = Main\Application::getConnection();
-				$connection->queryExecute("delete from {$tableName} where DATE_INSERT < DATE_SUB('{$date->format("Y-m-d")}', INTERVAL {$interval} DAY) and DIRECTION='{$direction}'");
+				$connection->queryExecute("delete from {$tableName} where DATE_INSERT < DATE_SUB('{$date->format("Y-m-d")}', INTERVAL {$interval} DAY) and DIRECTION='{$direction}' and PROVIDER='{$provider}'");
 			}
 		}
 	}

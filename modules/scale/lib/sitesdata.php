@@ -15,7 +15,7 @@ class SitesData
 	 */
 	public static function getSite($siteName, $dbName = false)
 	{
-		if(strlen($siteName) <= 0)
+		if($siteName == '')
 			throw new \Bitrix\Main\ArgumentNullException("siteName");
 
 		$result = array();
@@ -106,7 +106,7 @@ class SitesData
 				{
 					foreach($resSite as $siteId => $siteInfo)
 					{
-						$docRoot = strlen($site["DOC_ROOT"]) > 0 ? $site["DOC_ROOT"] : \Bitrix\Main\Application::getDocumentRoot();
+						$docRoot = $site["DOC_ROOT"] <> '' ? $site["DOC_ROOT"] : \Bitrix\Main\Application::getDocumentRoot();
 
 						if($siteInfo["DocumentRoot"] == $docRoot)
 						{

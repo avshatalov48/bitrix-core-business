@@ -281,3 +281,94 @@ if(typeof BX.UI.EntityAsyncValidator === "undefined")
 		return new BX.UI.EntityAsyncValidator();
 	};
 }
+
+if(typeof BX.UI.EntityTrackingSourceValidator === "undefined")
+{
+	BX.UI.EntityTrackingSourceValidator = function()
+	{
+		BX.UI.EntityTrackingSourceValidator.superclass.constructor.apply(this);
+	};
+
+	BX.extend(BX.UI.EntityTrackingSourceValidator, BX.UI.EntityValidator);
+
+	BX.UI.EntityTrackingSourceValidator.prototype.doInitialize = function()
+	{
+		this._trackingSourceField = this._editor.getControlById(
+			this.getDataStringParam("fieldName", "")
+		);
+		if(this._trackingSourceField)
+		{
+			this._trackingSourceField.addValidator(this);
+		}
+	};
+	BX.UI.EntityTrackingSourceValidator.prototype.release = function()
+	{
+		if(this._trackingSourceField)
+		{
+			this._trackingSourceField.removeValidator(this);
+		}
+	};
+	BX.UI.EntityTrackingSourceValidator.prototype.validate = function(result)
+	{
+		var isActive = this._trackingSourceField.isActive();
+		var value = "";
+		var select;
+
+		if(!isActive
+			|| !(this._trackingSourceField.isRequired()
+				|| this._trackingSourceField.isRequiredByAttribute()))
+		{
+			return true;
+		}
+
+		if (isActive)
+		{
+			if (this._trackingSourceField.hasOwnProperty("_innerWrapper")
+				&& BX.Type.isDomNode(this._trackingSourceField["_innerWrapper"]))
+			{
+				select = this._trackingSourceField["_innerWrapper"].querySelector(
+					"select[name=" + this._trackingSourceField.getId().replace(/["\\]/g, '\\$&') + "]"
+				);
+				if (select)
+				{
+					value = select.value;
+				}
+			}
+		}
+		else
+		{
+			value = this._trackingSourceField.getValue();
+		}
+
+		if(value !== "")
+		{
+			return true;
+		}
+
+		if(value === "" && isActive)
+		{
+			result.addError(BX.UI.EntityValidationError.create({ field: this._trackingSourceField }));
+			this._trackingSourceField.showError(this._trackingSourceField.getMessage("requiredFieldError"));
+		}
+
+		return false;
+	};
+	BX.UI.EntityTrackingSourceValidator.prototype.processFieldChange = function(field)
+	{
+		if(field !== this._trackingSourceField)
+		{
+			return;
+		}
+
+		if(this._trackingSourceField)
+		{
+			this._trackingSourceField.clearError();
+		}
+	};
+	BX.UI.EntityTrackingSourceValidator.create = function(settings)
+	{
+		var self = new BX.UI.EntityTrackingSourceValidator();
+		self.initialize(settings);
+		return self;
+	};
+}

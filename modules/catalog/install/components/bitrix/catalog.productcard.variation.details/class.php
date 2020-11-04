@@ -357,9 +357,19 @@ class CatalogProductVariationDetailsComponent
 
 					$response = [
 						'ENTITY_ID' => $variation->getId(),
-						'ENTITY_DATA' => $this->getForm()->getValues(),
+						'ENTITY_DATA' => $this->getForm()->getValues(false),
 						'IS_SIMPLE_PRODUCT' => $variation->isSimple(),
 					];
+
+					if (isset($response['ENTITY_DATA']['MEASURE']))
+					{
+						$response['ENTITY_DATA']['MEASURE'] = (string) $response['ENTITY_DATA']['MEASURE'];
+					}
+
+					if (isset($response['ENTITY_DATA']['VAT_ID']))
+					{
+						$response['ENTITY_DATA']['VAT_ID'] = (string) $response['ENTITY_DATA']['VAT_ID'];
+					}
 
 					if ($redirect)
 					{
@@ -627,21 +637,21 @@ class CatalogProductVariationDetailsComponent
 		$resultFields = [];
 		if ($this->checkModules() && $this->checkPermissions() && $this->checkRequiredParameters())
 		{
-			CBitrixComponent::includeComponentClass("bitrix:catalog.productcard.details");
-			$id = (int)str_replace(VariationForm::PROPERTY_FIELD_PREFIX, '', $fields['CODE']);
-			if ($id > 0)
+			CBitrixComponent::includeComponentClass('bitrix:catalog.productcard.details');
+			$id = str_replace(VariationForm::PROPERTY_FIELD_PREFIX, '', $fields['CODE']);
+			$result = \CatalogProductDetailsComponent::updateProperty($id, $fields);
+			if (!$result->isSuccess())
 			{
-				$result = \CatalogProductDetailsComponent::updateProperty($id, $fields);
-				if (!$result->isSuccess())
-				{
-					$this->errorCollection->add($result->getErrors());
-				}
+				$this->errorCollection->add($result->getErrors());
+
+				return [];
 			}
 
+			$id = (int)$result->getData()['ID'];
 			$descriptions = $this->getForm()->getIblockPropertiesDescriptions();
 			foreach ($descriptions as $property)
 			{
-				if ((int)$property['propertyId'] === $id)
+				if ($property['propertyId'] === $id)
 				{
 					$resultFields = $property;
 					break;

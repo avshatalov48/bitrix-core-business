@@ -3,9 +3,7 @@ this.BX.UI = this.BX.UI || {};
 (function (exports,main_core,ui_tour,main_loader) {
 	'use strict';
 
-	var Step =
-	/*#__PURE__*/
-	function (_Event$EventEmitter) {
+	var Step = /*#__PURE__*/function (_Event$EventEmitter) {
 	  babelHelpers.inherits(Step, _Event$EventEmitter);
 
 	  function Step(options) {
@@ -270,9 +268,7 @@ this.BX.UI = this.BX.UI || {};
 
 	  return data;
 	}
-	var Manager =
-	/*#__PURE__*/
-	function (_Event$EventEmitter) {
+	var Manager = /*#__PURE__*/function (_Event$EventEmitter) {
 	  babelHelpers.inherits(Manager, _Event$EventEmitter);
 
 	  function Manager() {
@@ -1294,9 +1290,7 @@ this.BX.UI = this.BX.UI || {};
 
 	  return data;
 	}
-	var Scenario =
-	/*#__PURE__*/
-	function (_Event$EventEmitter) {
+	var Scenario = /*#__PURE__*/function (_Event$EventEmitter) {
 	  babelHelpers.inherits(Scenario, _Event$EventEmitter);
 
 	  function Scenario() {

@@ -119,6 +119,16 @@ $actionsDefinitions = array(
 		)
 	),
 
+	"CHANGE_PASSWD_FIRST_ALL" => array(
+	"TYPE" => "CHAIN",
+	"NAME" =>Loc::getMessage("SCALE_ADEF_NEW_SERVER_CHAIN"),
+	"ACTIONS" => array(
+		"CHANGE_PASSWD_FIRST",
+		"CHANGE_PASSWD_BITRIX"
+	),
+	"PAGE_REFRESH" => "Y"
+),
+
 	"CHANGE_PASSWD_FIRST" => array(
 		"START_COMMAND_TEMPLATE" => "sudo -u root /opt/webdir/bin/wrapper_ansible_conf -a pw -i ##USER_PARAMS:SERVER_IP## -p ##USER_PARAMS:OLD_PASSWD## -P ##USER_PARAMS:NEW_PASSWD## -o json",
 		"NAME" => Loc::getMessage("SCALE_ADEF_CHPASS_NAME"),

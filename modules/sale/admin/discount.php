@@ -777,42 +777,59 @@ $adminList->AddGroupActionTable([
 	"deactivate" => Loc::getMessage("MAIN_ADMIN_LIST_DEACTIVATE")
 ]);
 
-if (!$readOnly && !isset($filter['=PRESET_ID']) && $enableDiscountConstructor)
+$aContext = [];
+if (!$readOnly && !isset($filter['=PRESET_ID']))
 {
-	$siteLID = '';
-	$arSiteMenu = array();
+	if ($enableDiscountConstructor)
+	{
 
-	if (count($arSitesShop) == 1)
-	{
-		$siteLID = "&LID=".$arSitesShop[0]['ID'];
-	}
-	else
-	{
-		foreach ($arSitesShop as $val)
+		$siteLID = '';
+		$arSiteMenu = array();
+
+		if (count($arSitesShop) == 1)
 		{
-			$editUrl = $selfFolderUrl."sale_discount_edit.php?lang=".LANGUAGE_ID."&LID=".$val['ID'];
-			$editUrl = $adminSidePanelHelper->editUrlToPublicPage($editUrl);
-			$arSiteMenu[] = array(
-				"TEXT" => $val["NAME"]." (".$val['ID'].")",
-				"LINK" => $editUrl
-			);
+			$siteLID = "&LID=".$arSitesShop[0]['ID'];
 		}
-	}
-	$addUrl = $selfFolderUrl."sale_discount_edit.php?lang=".LANGUAGE_ID.$siteLID;
-	$addUrl = $adminSidePanelHelper->editUrlToPublicPage($addUrl);
-	$aContext = array(
-		array(
+		else
+		{
+			foreach ($arSitesShop as $val)
+			{
+				$editUrl = $selfFolderUrl."sale_discount_edit.php?lang=".LANGUAGE_ID."&LID=".$val['ID'];
+				$editUrl = $adminSidePanelHelper->editUrlToPublicPage($editUrl);
+				$arSiteMenu[] = array(
+					"TEXT" => $val["NAME"]." (".$val['ID'].")",
+					"LINK" => $editUrl
+				);
+			}
+		}
+		$addUrl = $selfFolderUrl."sale_discount_edit.php?lang=".LANGUAGE_ID.$siteLID;
+		$addUrl = $adminSidePanelHelper->editUrlToPublicPage($addUrl);
+		$aContext[] = [
 			"TEXT" => Loc::getMessage("BT_SALE_DISCOUNT_LIST_MESS_NEW_DISCOUNT"),
 			"ICON" => "btn_new",
 			"LINK" => $addUrl,
 			"TITLE" => Loc::getMessage("BT_SALE_DISCOUNT_LIST_MESS_NEW_DISCOUNT_TITLE"),
 			"MENU" => $arSiteMenu
-		),
-	);
-
-	$adminList->setContextSettings(array("pagePath" => $selfFolderUrl."sale_discount.php"));
-	$adminList->AddAdminContextMenu($aContext);
+		];
+	}
+	else
+	{
+		$helpLink = Sale\Config\Feature::getDiscountConstructorHelpLink();
+		if (!empty($helpLink))
+		{
+			$aContext[] = [
+				"TEXT" => Loc::getMessage("BT_SALE_DISCOUNT_LIST_MESS_NEW_DISCOUNT"),
+				"ICON" => "btn_lock",
+				$helpLink['TYPE'] => $helpLink['LINK'],
+				"TITLE" => Loc::getMessage("BT_SALE_DISCOUNT_LIST_MESS_NEW_DISCOUNT_TITLE"),
+			];
+		}
+		unset($helpLink);
+	}
 }
+$adminList->setContextSettings(array("pagePath" => $selfFolderUrl."sale_discount.php"));
+$adminList->AddAdminContextMenu($aContext);
+unset($aContext);
 
 $adminList->CheckListMode();
 

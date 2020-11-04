@@ -27,7 +27,7 @@ if(!empty($arResult["ERROR_MESSAGE"]))
 		<?
 	}
 }
-if(strlen($arResult["FATAL_ERROR"])>0)
+if($arResult["FATAL_ERROR"] <> '')
 {
 	?>
 	<span class='errortext'><?=$arResult["FATAL_ERROR"]?></span><br /><br />
@@ -47,12 +47,12 @@ elseif(count($arResult["POST"])>0)
 						<span class="blog-post-date"><?=$CurPost["DATE_PUBLISH_FORMATED"]?>
 						<br /><b><?=$CurPost["TITLE"]?></b></span>
 					</td>
-					<?if(strLen($CurPost["urlToEdit"])>0):?>
+					<?if($CurPost["urlToEdit"] <> ''):?>
 						<td>
 							<a href="<?=$CurPost["urlToEdit"]?>" class="blog-post-edit"></a>
 						</td>
 					<?endif;?>
-					<?if(strLen($CurPost["urlToDelete"])>0):?>
+					<?if($CurPost["urlToDelete"] <> ''):?>
 						<td>
 							<a href="javascript:if(confirm('<?=GetMessage("BLOG_MES_DELETE_POST_CONFIRM")?>')) window.location='<?=$CurPost["urlToDelete"]?>'" class="blog-post-delete"></a>
 						</td>

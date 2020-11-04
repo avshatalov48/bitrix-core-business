@@ -1,18 +1,18 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
-if(strlen($arResult["MESSAGE"])>0)
+if($arResult["MESSAGE"] <> '')
 {
 	?>
 	<?=$arResult["MESSAGE"]?><br /><br />
 	<?
 }
-if(strlen($arResult["ERROR_MESSAGE"])>0)
+if($arResult["ERROR_MESSAGE"] <> '')
 {
 	?>
 	<span class='errortext'><?=$arResult["ERROR_MESSAGE"]?></span><br /><br />
 	<?
 }
-if(strlen($arResult["FATAL_MESSAGE"])>0)
+if($arResult["FATAL_MESSAGE"] <> '')
 {
 	?>
 	<span class='errortext'><?=$arResult["FATAL_MESSAGE"]?></span><br /><br />
@@ -55,7 +55,7 @@ else
 		</form>
 		</html>
 		<?
-		if(strlen($_POST["do_upload"])>0)
+		if($_POST["do_upload"] <> '')
 		{
 			?>
 			<script>
@@ -163,15 +163,15 @@ else
 			{
 				foreach($matches[0] as $key => $value)
 				{
-					if(strlen($value) > 0)
+					if($value <> '')
 					{
 						preg_match("#width=([0-9]+)#ie", $matches[1][$key], $width);
 						preg_match("#height=([0-9]+)#ie", $matches[1][$key], $height);
 						?>
 						arVideo['<?=$i?>'] = '<?=CUtil::JSEscape($matches[0][$key])?>';
 						arVideoP['<?=$i?>'] = '<?=CUtil::JSEscape($matches[2][$key])?>';
-						arVideoW['<?=$i?>'] = '<?=IntVal($width[1])?>';
-						arVideoH['<?=$i?>'] = '<?=IntVal($height[1])?>';
+						arVideoW['<?=$i?>'] = '<?=intval($width[1])?>';
+						arVideoH['<?=$i?>'] = '<?=intval($height[1])?>';
 						<?
 						$i++;
 					}
@@ -556,25 +556,6 @@ else
 			<tr>
 				<th valign="top" align="right" nowrap><b><?=GetMessage("BLOG_CATEGORY")?></b></th>
 				<td>
-					<?/*
-					<select name="CATEGORY_ID[]" id="CATEGORY_ID" multiple="multiple" size="5">
-						<option value="0"<?=(IntVal($arResult["PostToShow"]["CATEGORY_ID"])==0 ? " selected" : "")?>><?=GetMessage("BLOG_NO_CATEGORY")?></option>
-						<?
-						foreach($arResult["Category"] as $arCategory)
-						{
-							if($arCategory["Selected"]=="Y")
-								$value .= $arCategory["~NAME"].", ";
-							?>
-							<option value="<?=$arCategory["ID"]?>"<?=($arCategory["Selected"]=="Y" ? " selected" : "")?>><?=$arCategory["NAME"]?></option>
-							<?
-						}
-						$value = substr($value, 0, strlen($value)-2);
-						?>
-					</select>
-					
-					<br />
-					<div id="category-add"><a href="javascript:AddCategory();" class="blog-category-add" title="<?=GetMessage("BLOG_CATEGORY_ADD")?>"></a>&nbsp;<a href="javascript:AddCategory();" title="<?=GetMessage("BLOG_CATEGORY_ADD")?>"><?=GetMessage("BLOG_CATEGORY_ADD")?></a></div>
-					*/?>
 					<div id="category-new">
 						<?
 						if(IsModuleInstalled("search"))

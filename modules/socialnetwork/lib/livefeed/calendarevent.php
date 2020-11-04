@@ -3,13 +3,16 @@ namespace Bitrix\Socialnetwork\Livefeed;
 
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+
+Loc::loadMessages(__FILE__);
 
 final class CalendarEvent extends Provider
 {
-	const PROVIDER_ID = 'CALENDAR';
-	const CONTENT_TYPE_ID = 'CALENDAR_EVENT';
+	public const PROVIDER_ID = 'CALENDAR';
+	public const CONTENT_TYPE_ID = 'CALENDAR_EVENT';
 
-	public static function getId()
+	public static function getId(): string
 	{
 		return static::PROVIDER_ID;
 	}
@@ -24,59 +27,91 @@ final class CalendarEvent extends Provider
 		return Provider::TYPE_POST;
 	}
 
-	public static function canRead($params)
+	public static function canRead($params): bool
 	{
 		return true;
 	}
 
-	protected function getPermissions(array $post)
+	protected function getPermissions(array $post): string
 	{
-		$result = self::PERMISSION_READ;
-
-		return $result;
+		return self::PERMISSION_READ;
 	}
 
 	public function getCommentProvider()
 	{
-		$provider = new \Bitrix\Socialnetwork\Livefeed\ForumPost();
-		return $provider;
+		return new \Bitrix\Socialnetwork\Livefeed\ForumPost();
 	}
 
 	public function initSourceFields()
 	{
-		$calendarEventId = $this->entityId;
+		static $cache = [];
 
-		if (
-			$calendarEventId > 0
-			&& Loader::includeModule('calendar')
-		)
+		$calendarEventId = (int)$this->entityId;
+
+		if ($calendarEventId <= 0)
+		{
+			return;
+		}
+
+		$calendarEvent = [];
+
+		if (isset($cache[$calendarEventId]))
+		{
+			$calendarEvent = $cache[$calendarEventId];
+		}
+		elseif (Loader::includeModule('calendar'))
 		{
 			$res = \CCalendarEvent::getList(
-				array(
-					'arFilter' => array(
+				[
+					'arFilter' => [
 						"ID" => $calendarEventId,
-					),
+					],
 					'parseRecursion' => false,
 					'fetchAttendees' => false,
 					'checkPermissions' => false,
 					'setDefaultLimit' => false
-				)
+				]
 			);
 
-			$calendarEvent = is_array($res[0]) && is_array($res[0]) ? $res[0] : array();
-			if (!empty($calendarEvent))
-			{
-
-				$this->setSourceFields($calendarEvent);
-				$this->setSourceDescription($calendarEvent['DESCRIPTION']);
-				$this->setSourceTitle($calendarEvent['NAME']);
-				$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects($calendarEventId));
-				$this->setSourceDiskObjects($this->getDiskObjects($calendarEventId, $this->cloneDiskObjects));
-			}
+			$calendarEvent = is_array($res[0]) && is_array($res[0]) ? $res[0] : [];
+			$cache[$calendarEventId] = $calendarEvent;
 		}
+
+		if (empty($calendarEvent))
+		{
+			return;
+		}
+
+		$this->setSourceFields($calendarEvent);
+		$this->setSourceDescription($calendarEvent['DESCRIPTION']);
+		$this->setSourceTitle($calendarEvent['NAME']);
+		$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects($calendarEventId));
+		$this->setSourceDiskObjects($this->getDiskObjects($calendarEventId, $this->cloneDiskObjects));
 	}
 
-	public function getLiveFeedUrl()
+	public function getPinnedTitle(): string
+	{
+		$result = '';
+
+		if (empty($this->sourceFields))
+		{
+			$this->initSourceFields();
+		}
+
+		$calendarEvent = $this->getSourceFields();
+		if (empty($calendarEvent))
+		{
+			return $result;
+		}
+
+		$result = Loc::getMessage('SONET_LIVEFEED_CALENDAR_EVENT_PINNED_TITLE', [
+			'#TITLE#' => $calendarEvent['NAME']
+		]);
+
+		return $result;
+	}
+
+	public function getLiveFeedUrl(): string
 	{
 		$pathToCalendarEvent = '';
 		$userPage = Option::get('socialnetwork', 'user_page', '', SITE_ID);

@@ -96,7 +96,7 @@
 						itemClass = 'menu-popup-no-icon menu-popup-right-icon';
 					}
 					items.push({
-						text: itemText,
+						html: itemText,
 						title: mailboxes[i].formated,
 						onclick: handler,
 						className: itemClass,

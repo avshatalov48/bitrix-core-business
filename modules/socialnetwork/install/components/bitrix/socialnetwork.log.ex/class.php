@@ -17,14 +17,16 @@ final class SocialnetworkLogList extends \Bitrix\Socialnetwork\Component\LogList
 	{
 		global $APPLICATION;
 
-		if ($this->arParams['SET_TITLE'] == 'Y')
+		$title = Loc::getMessage(\Bitrix\Main\ModuleManager::isModuleInstalled('intranet') ? 'SONET_LOG_LIST_PAGE_TITLE2' : 'SONET_LOG_LIST_PAGE_TITLE');
+
+		if ($this->arParams['SET_TITLE'] === 'Y')
 		{
-			$APPLICATION->setTitle(Loc::getMessage('SONET_LOG_LIST_PAGE_TITLE'));
+			$APPLICATION->setTitle($title);
 		}
 
-		if ($this->arParams['SET_NAV_CHAIN'] != 'N')
+		if ($this->arParams['SET_NAV_CHAIN'] !== 'N')
 		{
-			$APPLICATION->addChainItem(Loc::getMessage('SONET_LOG_LIST_PAGE_TITLE'));
+			$APPLICATION->addChainItem($title);
 		}
 	}
 

@@ -1,6 +1,8 @@
 <?php
 namespace Bitrix\Landing\Hook\Page;
 
+use \Bitrix\Landing\Rights;
+use \Bitrix\Landing\Site;
 use \Bitrix\Landing\Field;
 use \Bitrix\Landing\Manager;
 use \Bitrix\Main\Localization\Loc;
@@ -106,7 +108,8 @@ class Cookies extends \Bitrix\Landing\Hook\Page
 					'USE' => $this->fields['USE']->getValue(),
 					'POSITION' => $this->fields['POSITION']->getValue(),
 					'COLOR_BG' => $this->fields['COLOR_BG']->getValue(),
-					'COLOR_TEXT' => $this->fields['COLOR_TEXT']->getValue()
+					'COLOR_TEXT' => $this->fields['COLOR_TEXT']->getValue(),
+					'AGREEMENT_ID' => $this->fields['AGREEMENT_ID']->getValue()
 				],
 				false
 			);
@@ -158,5 +161,20 @@ class Cookies extends \Bitrix\Landing\Hook\Page
 				</script>'
 			);
 		}
+	}
+
+	/**
+	 * Returns agreement id by site id.
+	 * @param int $siteId Site id.
+	 * @return int|null
+	 */
+	public static function getAgreementIdBySiteId(int $siteId): ?int
+	{
+		Rights::setOff();
+		$fields = Site::getAdditionalFields($siteId);
+		Rights::setOn();
+		return isset($fields['COOKIES_AGREEMENT_ID'])
+			? $fields['COOKIES_AGREEMENT_ID']->getValue()
+			: null;
 	}
 }

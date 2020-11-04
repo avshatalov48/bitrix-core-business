@@ -50,7 +50,7 @@ $arrMess["9_m"] = 0;
 $arrMess["10_m"] = 0;
 while ($arTicket = $rsTickets->Fetch())
 {
-	if (strlen($arTicket["DATE_CLOSE"])>0)
+	if ($arTicket["DATE_CLOSE"] <> '')
 	{
 		$MC = $arTicket["MESSAGES"];
 		if ($MC<=2) $arrMess["2_m"] += 1;

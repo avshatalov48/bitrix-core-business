@@ -8,16 +8,16 @@ class EventResult extends Main\Entity\EventResult
 	public function __construct()
 	{
 		parent::__construct();
-		$this->modified = array(
-			'fields' => array(),
-			'external_fields' => array(),
-			'actions' => array()
-		);
-		$this->unset = array(
-			'fields' => array(),
-			'external_fields' => array(),
-			'actions' => array()
-		);
+		$this->modified = [
+			'fields' => [],
+			'external_fields' => [],
+			'actions' => []
+		];
+		$this->unset = [
+			'fields' => [],
+			'external_fields' => [],
+			'actions' => []
+		];
 	}
 
 	public function modifyFields(array $fields)

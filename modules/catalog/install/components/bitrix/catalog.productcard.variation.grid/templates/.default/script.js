@@ -12,9 +12,7 @@
 	}
 	var GRID_TEMPLATE_ROW = 'template_0';
 
-	var VariationGrid =
-	/*#__PURE__*/
-	function () {
+	var VariationGrid = /*#__PURE__*/function () {
 	  function VariationGrid() {
 	    var settings = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, VariationGrid);
@@ -355,10 +353,13 @@
 	  }, {
 	    key: "modifyCustomSkuProperties",
 	    value: function modifyCustomSkuProperties(node) {
-	      var id = node.getAttribute('data-id');
+	      var postfix = '_' + node.getAttribute('data-id');
 	      node.querySelectorAll('input[type="radio"]').forEach(function (input) {
-	        input.id += id;
-	        input.setAttribute('name', input.getAttribute('name') + id);
+	        input.id += postfix;
+	        input.setAttribute('name', input.getAttribute('name') + postfix);
+	      });
+	      node.querySelectorAll('label[data-role]').forEach(function (label) {
+	        label.setAttribute('for', label.getAttribute('for') + postfix);
 	      });
 	    }
 	  }, {

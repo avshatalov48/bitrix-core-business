@@ -1,11 +1,10 @@
 <?php
 namespace Bitrix\Sender\Integration\Crm\Timeline;
 
-use Bitrix\Main;
-use Bitrix\Main\Type\DateTime;
-
 use Bitrix\Crm\Timeline;
 use Bitrix\Crm\Timeline\Entity\TimelineTable;
+use Bitrix\Main;
+use Bitrix\Main\Type\DateTime;
 
 /**
  * Class RecipientEntry
@@ -80,5 +79,22 @@ class RecipientEntry extends Timeline\TimelineEntry
 		self::registerBindings($id, $bindings);
 
 		return $id;
+	}
+	/**
+	 * Create multi.
+	 *
+	 * @param array $params array of Parameters.
+	 * @return array|int
+	 * @throws Main\ArgumentException
+	 */
+	public static function createMulti(array $parameters)
+	{
+		$ids = [];
+		foreach ($parameters as $params)
+		{
+			$ids[] = self::create($params);
+		}
+
+		return $ids;
 	}
 }

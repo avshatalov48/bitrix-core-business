@@ -56,7 +56,10 @@ class PropertyValueCollection extends BaseCollection
 	{
 		$values = $this->prepareValues($values);
 
-		$this->removeOldValues($values);
+		if ($this->isPropertyMultiple())
+		{
+			$this->removeOldValues($values);
+		}
 
 		foreach ($values as $fields)
 		{

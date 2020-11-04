@@ -20,6 +20,7 @@ CModule::AddAutoloadClasses(
 		"CCloudStorageUpload" => "classes/general/storage_upload.php",
 		"CCloudTempFile" => "classes/general/temp_file.php",
 		"CCloudFailover" => "classes/general/failover.php",
+		"CCloudFileHash" => "classes/general/filehash.php",
 		"CCloudStorageService" => "classes/general/storage_service.php",
 		"CCloudStorageService_S3" =>  "classes/general/storage_service_s3.php",
 		"CCloudStorageService_AmazonS3" =>  "classes/general/storage_service_amazon.php",

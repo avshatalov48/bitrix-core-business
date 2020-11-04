@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports, main_core, landing_imagecompressor, landing_backend) {
+(function (exports,main_core,landing_imagecompressor,landing_backend) {
 	'use strict';
 
 	function renameX(filename, x) {
@@ -11,9 +11,7 @@ this.BX = this.BX || {};
 	 * @memberOf BX.Landing
 	 */
 
-	var ImageUploader =
-	/*#__PURE__*/
-	function () {
+	var ImageUploader = /*#__PURE__*/function () {
 	  function ImageUploader(options) {
 	    babelHelpers.classCallCheck(this, ImageUploader);
 	    this.options = babelHelpers.objectSpread({
@@ -72,5 +70,5 @@ this.BX = this.BX || {};
 
 	exports.ImageUploader = ImageUploader;
 
-}(this.BX.Landing = this.BX.Landing || {}, BX, BX.Landing, BX.Landing));
+}((this.BX.Landing = this.BX.Landing || {}),BX,BX.Landing,BX.Landing));
 //# sourceMappingURL=imageuploader.bundle.js.map

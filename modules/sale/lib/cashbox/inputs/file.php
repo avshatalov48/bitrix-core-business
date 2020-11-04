@@ -7,7 +7,7 @@ use Bitrix\Sale\Internals\Input;
 
 Localization\Loc::loadMessages(__FILE__);
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/lib/internals/input.php");
+require_once __DIR__.'/../../internals/input.php';
 
 /**
  * Class File

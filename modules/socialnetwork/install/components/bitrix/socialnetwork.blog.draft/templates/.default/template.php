@@ -6,8 +6,13 @@
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
+use Bitrix\Main\UI;
+
 $APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/socialnetwork.log.ex/templates/.default/style.css');
 $APPLICATION->AddHeadScript("/bitrix/components/bitrix/socialnetwork.log.ex/templates/.default/script.js");
+UI\Extension::load([
+	'socialnetwork.livefeed'
+]);
 
 ?><div id="blog-posts-content"><?
 if(!empty($arResult["OK_MESSAGE"]))

@@ -86,7 +86,7 @@ class Comment
 	{
 		$message = (
 			isset($params["MESSAGE"])
-			&& strlen(trim($params["MESSAGE"])) > 0
+			&& trim($params["MESSAGE"]) <> ''
 				? trim($params["MESSAGE"])
 				: ''
 		);
@@ -113,7 +113,7 @@ class Comment
 		);
 
 		if (
-			strlen($message) <= 0
+			$message == ''
 			|| $blogId <= 0
 			|| $postId <= 0
 		)
@@ -136,7 +136,7 @@ class Comment
 		if (
 			($duplicateComment = $res->fetch())
 			&& md5($duplicateComment["POST_TEXT"]) == md5($message)
-			&& strlen($message) > 10
+			&& mb_strlen($message) > 10
 		)
 		{
 			return false;
@@ -211,7 +211,7 @@ class Comment
 		);
 
 		if (
-			strlen($message) <= 0
+			$message == ''
 			|| $blogId <= 0
 			|| $blogOwnerId <= 0
 			|| $postAuthorId <= 0
@@ -404,7 +404,7 @@ class Comment
 		$siteId = (isset($params['siteId']) ? $params['siteId'] : SITE_ID);
 
 		if (
-			strlen($commentText) <= 0
+			$commentText == ''
 			|| $postId <= 0
 		)
 		{
@@ -430,7 +430,7 @@ class Comment
 		{
 			foreach($matches[1] as $userId)
 			{
-				$userId = intVal($userId);
+				$userId = intval($userId);
 				if (
 					$userId > 0
 					&& $userId != $authorId

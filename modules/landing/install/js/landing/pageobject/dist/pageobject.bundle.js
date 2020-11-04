@@ -1,14 +1,12 @@
 this.BX = this.BX || {};
-(function (exports, main_core) {
+(function (exports,main_core) {
 	'use strict';
 
 	/**
 	 * @memberOf BX.Landing
 	 */
 
-	var PageObject =
-	/*#__PURE__*/
-	function () {
+	var PageObject = /*#__PURE__*/function () {
 	  function PageObject() {
 	    babelHelpers.classCallCheck(this, PageObject);
 	    babelHelpers.defineProperty(this, "store", {});
@@ -173,5 +171,5 @@ this.BX = this.BX || {};
 
 	exports.PageObject = PageObject;
 
-}(this.BX.Landing = this.BX.Landing || {}, BX));
+}((this.BX.Landing = this.BX.Landing || {}),BX));
 //# sourceMappingURL=pageobject.bundle.js.map

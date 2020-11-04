@@ -44,6 +44,7 @@ $MESS["SONET_SM_M_INPUT"] = "Входящие";
 $MESS["SONET_SM_M_OUTPUT"] = "Исходящие";
 $MESS["SONET_SM_M_BAN"] = "Черный список";
 $MESS["SONET_SM_M_LOG"] = "Живая лента";
+$MESS["SONET_SM_M_LOG2"] = "Новости";
 $MESS["SONET_SM_M_SUBSCRIBE"] = "Подписка";
 $MESS["SONET_SM_M_BIZPROC"] = "Бизнес-процессы";
 $MESS["SONET_SM_MAX_ITEMS"] = "Количество пунктов в строке";

@@ -25,7 +25,7 @@ $portalZone = Loader::includeModule('intranet') ? CIntranetUtils::getPortalZone(
 
 if (Loader::includeModule('bitrix24'))
 {
-	if ($licensePrefix !== 'ru')
+	if (!in_array($licensePrefix, ['ru', 'by'], true))
 	{
 		$isAvailable = PaySystem\Manager::HANDLER_AVAILABLE_FALSE;
 	}

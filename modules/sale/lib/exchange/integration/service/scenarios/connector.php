@@ -11,6 +11,7 @@ class Connector
 	{
 		Line\App::optionSet($params['OPTIONS']);
 		Batch\Placement::binds($params['PLACEMENTS']);
+		(new StatisticsProvider())->register($params['PROVIDER']);
 	}
 
 	public function delete(array $params)

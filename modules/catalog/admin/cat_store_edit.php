@@ -1,4 +1,5 @@
 <?
+use Bitrix\Main\Loader;
 use Bitrix\Catalog;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
@@ -14,7 +15,7 @@ $listUrl = $adminSidePanelHelper->editUrlToPublicPage($listUrl);
 
 if (!($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_store')))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
-CModule::IncludeModule("catalog");
+Loader::includeModule("catalog");
 $bReadOnly = !$USER->CanDoOperation('catalog_store');
 
 if($ex = $APPLICATION->GetException())
@@ -32,8 +33,7 @@ if ($id < 0)
 
 if(!Catalog\Config\Feature::isMultiStoresEnabled())
 {
-	$dbResultList = CCatalogStore::GetList(array());
-	if(($arResult = $dbResultList->Fetch()) && $id != $arResult["ID"])
+	if (Catalog\Config\State::isExceededStoreLimit())
 	{
 		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 		ShowError(GetMessage("CAT_FEATURE_NOT_ALLOW"));
@@ -50,7 +50,7 @@ $bVarsFromForm = false;
 
 $userId = (int)$USER->GetID();
 
-$entityId = "CAT_STORE";
+$entityId = Catalog\StoreTable::getUfId();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Update"] <> '' && !$bReadOnly && check_bitrix_sessid())
 {
@@ -207,15 +207,32 @@ $aMenu = array(
 
 if ($id > 0 && !$bReadOnly)
 {
-	$aMenu[] = array("SEPARATOR" => "Y");
+	$aMenu[] = ["SEPARATOR" => "Y"];
 
-	$addUrl = $selfFolderUrl."cat_store_edit.php?lang=".LANGUAGE_ID;
-	$addUrl = $adminSidePanelHelper->editUrlToPublicPage($addUrl);
-	$aMenu[] = array(
-		"TEXT" => GetMessage("STORE_NEW"),
-		"ICON" => "btn_new",
-		"LINK" => $addUrl
-	);
+	if (!Catalog\Config\State::isAllowedNewStore())
+	{
+		$addUrl = $selfFolderUrl."cat_store_edit.php?lang=".LANGUAGE_ID;
+		$addUrl = $adminSidePanelHelper->editUrlToPublicPage($addUrl);
+		$aMenu[] = [
+			"TEXT" => GetMessage("STORE_NEW"),
+			"ICON" => "btn_new",
+			"LINK" => $addUrl
+		];
+		unset($addUrl);
+	}
+	else
+	{
+		$helpLink = Catalog\Config\Feature::getMultiStoresHelpLink();
+		if (!empty($helpLink))
+		{
+			$aMenu[] = [
+				"TEXT" => GetMessage("STORE_NEW"),
+				"ICON" => "btn_lock",
+				$helpLink['TYPE'] => $helpLink['LINK'],
+			];
+		}
+		unset($helpLink);
+	}
 	$deleteUrl = $selfFolderUrl."cat_store_list.php?action=delete&ID[]=".$id."&lang=".LANGUAGE_ID."&".bitrix_sessid_get()."#tb";
 	if ($adminSidePanelHelper->isPublicFrame())
 	{
@@ -416,4 +433,7 @@ $userFieldUrl .= "&back_url=".urlencode($APPLICATION->GetCurPageParam('', array(
 	$tabControl->End();
 	?>
 </form>
+<?
+Catalog\Config\Feature::initUiHelpScope();
+?>
 <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

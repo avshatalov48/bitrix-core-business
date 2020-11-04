@@ -33,22 +33,22 @@ function CheckFilter() // проверка введенных полей
 	$str = "";
 	$arMsg = Array();
 
-	if (strlen(trim($find_date1))>0 || strlen(trim($find_date2))>0)
+	if (trim($find_date1) <> '' || trim($find_date2) <> '')
 	{
 		$date_1_ok = false;
 		$date1_stm = MkDateTime(ConvertDateTime($find_date1,"D.M.Y"),"d.m.Y");
 		$date2_stm = MkDateTime(ConvertDateTime($find_date2,"D.M.Y")." 23:59","d.m.Y H:i");
 
-		if (!$date1_stm && strlen(trim($find_date1))>0)
+		if (!$date1_stm && trim($find_date1) <> '')
 			//$str.= GetMessage("SUP_WRONG_DATE_FROM")."<br>";
 			$arMsg[] = array("id"=>"find_date1", "text"=> GetMessage("SUP_WRONG_DATE_FROM"));
 		else
 			$date_1_ok = true;
 
-		if (!$date2_stm && strlen(trim($find_date2))>0)
+		if (!$date2_stm && trim($find_date2) <> '')
 			//$str.= GetMessage("SUP_WRONG_DATE_TILL")."<br>";
 			$arMsg[] = array("id"=>"find_date2", "text"=> GetMessage("SUP_WRONG_DATE_TILL"));
-		elseif ($date_1_ok && $date2_stm <= $date1_stm && strlen($date2_stm)>0)
+		elseif ($date_1_ok && $date2_stm <= $date1_stm && $date2_stm <> '')
 			//$str.= GetMessage("SUP_FROM_TILL_DATE")."<br>";
 			$arMsg[] = array("id"=>"find_date2", "text"=> GetMessage("SUP_FROM_TILL_DATE"));
 	}
@@ -197,7 +197,7 @@ while ($arTicket = $rsTickets->Fetch())
 	foreach ($arrValues as $v)
 		$arrT[$v][intval($arTicket[$v."_ID"])]["ID"] = intval($arTicket[$v."_ID"]);
 
-	if (strlen($arTicket["DATE_CLOSE"])<=0)
+	if ($arTicket["DATE_CLOSE"] == '')
 	{
 		$OPEN_TICKETS++;
 		$OPEN_MESSAGES += $mess_count;
@@ -297,7 +297,7 @@ $tlist_filter_pass_array = array();
 
 foreach ($_GET as $k => $v)
 {
-	if (strpos($k, 'find_') === 0)
+	if (mb_strpos($k, 'find_') === 0)
 	{
 		$tlist_filter_pass_array[$k] = $v;
 	}
@@ -375,44 +375,44 @@ while (list($key, $arrR) = each($arrTickets)):
 	<tr valign="top">
 		<td><?=$arr["NAME"]?></td>
 
-		<td align="right">&nbsp;<a title="<?echo ($OPEN_TICKETS>0?round(($arr["COUNTER_OPEN_RED"]*100)/$OPEN_TICKETS,2):"0")."% ".GetMessage("SUP_FROM_OPEN_TICKETS")?>" href="ticket_list.php?lang=<?=LANGUAGE_ID?>&find_<?=strtolower($key)?>_id=<?=$id?>&find_close=N&find_lamp[]=red&find_lamp[]=yellow&set_filter=Y<?=$tlist_filter_pass?>"><?=(intval($arr["COUNTER_OPEN_RED"])>0) ? $arr["COUNTER_OPEN_RED"] : ""?></a></td>
+		<td align="right">&nbsp;<a title="<?echo ($OPEN_TICKETS>0?round(($arr["COUNTER_OPEN_RED"]*100)/$OPEN_TICKETS,2):"0")."% ".GetMessage("SUP_FROM_OPEN_TICKETS")?>" href="ticket_list.php?lang=<?=LANGUAGE_ID?>&find_<?= mb_strtolower($key)?>_id=<?=$id?>&find_close=N&find_lamp[]=red&find_lamp[]=yellow&set_filter=Y<?=$tlist_filter_pass?>"><?=(intval($arr["COUNTER_OPEN_RED"])>0) ? $arr["COUNTER_OPEN_RED"] : ""?></a></td>
 
-		<td align="right">&nbsp;<a title="<?echo ($OPEN_TICKETS>0?round(($arr["COUNTER_OPEN_GREEN"]*100)/$OPEN_TICKETS,2):"0")."% ".GetMessage("SUP_FROM_OPEN_TICKETS")?>" href="ticket_list.php?lang=<?=LANGUAGE_ID?>&find_<?=strtolower($key)?>_id=<?=$id?>&find_close=N&find_lamp[]=green&find_lamp[]=green_s&set_filter=Y<?=$tlist_filter_pass?>"><?=intval($arr["COUNTER_OPEN_GREEN"])>0 ? $arr["COUNTER_OPEN_GREEN"] : ""?></a></td>
+		<td align="right">&nbsp;<a title="<?echo ($OPEN_TICKETS>0?round(($arr["COUNTER_OPEN_GREEN"]*100)/$OPEN_TICKETS,2):"0")."% ".GetMessage("SUP_FROM_OPEN_TICKETS")?>" href="ticket_list.php?lang=<?=LANGUAGE_ID?>&find_<?= mb_strtolower($key)?>_id=<?=$id?>&find_close=N&find_lamp[]=green&find_lamp[]=green_s&set_filter=Y<?=$tlist_filter_pass?>"><?=intval($arr["COUNTER_OPEN_GREEN"])>0 ? $arr["COUNTER_OPEN_GREEN"] : ""?></a></td>
 
 
-		<td align="right">&nbsp;<a title="<?echo ($CLOSE_TICKETS>0 ? round(($arr["COUNTER_CLOSE"]*100)/$CLOSE_TICKETS,2) : "0")."% ".GetMessage("SUP_FROM_CLOSE_TICKETS")?>" href="ticket_list.php?lang=<?=LANGUAGE_ID?>&find_<?=strtolower($key)?>_id=<?=$id?>&find_close=Y&set_filter=Y<?=$tlist_filter_pass?>"><?=intval($arr["COUNTER_CLOSE"])>0 ? $arr["COUNTER_CLOSE"] : ""?></a></td>
+		<td align="right">&nbsp;<a title="<?echo ($CLOSE_TICKETS>0 ? round(($arr["COUNTER_CLOSE"]*100)/$CLOSE_TICKETS,2) : "0")."% ".GetMessage("SUP_FROM_CLOSE_TICKETS")?>" href="ticket_list.php?lang=<?=LANGUAGE_ID?>&find_<?= mb_strtolower($key)?>_id=<?=$id?>&find_close=Y&set_filter=Y<?=$tlist_filter_pass?>"><?=intval($arr["COUNTER_CLOSE"])>0 ? $arr["COUNTER_CLOSE"] : ""?></a></td>
 
 		<?if ($find_show_messages=="Y"):?>
 		<td align="right">&nbsp;<span title="<?echo ($CLOSE_MESSAGES>0 ? round(($arr["MESSAGES_CLOSE"]*100)/$CLOSE_MESSAGES,2):"0")."% ".GetMessage("SUP_FROM_CLOSE_MESSAGES")?>"><?echo (intval($arr["MESSAGES_CLOSE"])>0) ? $arr["MESSAGES_CLOSE"] : ""?></span></td>
 
 		<td align="right"><span title="<?=GetMessage("SUP_OVERDUE_MESSAGES")?>">&nbsp;<?
 			if (intval($arr["OVERDUE_MESSAGES_CLOSE"])>0):
-				?><a title="<?=GetMessage("SUP_OVERDUE_MESSAGES")?>"  href="ticket_list.php?lang=<?=LANGUAGE_ID?>&find_<?=strtolower($key)?>_id=<?=$id?>&find_overdue_messages1=1&find_close=Y&set_filter=Y<?=$tlist_filter_pass?>" ><?=$arr["OVERDUE_MESSAGES_CLOSE"]?></a><?
+				?><a title="<?=GetMessage("SUP_OVERDUE_MESSAGES")?>"  href="ticket_list.php?lang=<?=LANGUAGE_ID?>&find_<?= mb_strtolower($key)?>_id=<?=$id?>&find_overdue_messages1=1&find_close=Y&set_filter=Y<?=$tlist_filter_pass?>" ><?=$arr["OVERDUE_MESSAGES_CLOSE"]?></a><?
 			endif;
 			?></span></td>
 		<?endif;?>
 
-		<td align="right">&nbsp;<a title="<?echo ($OPEN_TICKETS>0?round(($arr["COUNTER_OPEN"]*100)/$OPEN_TICKETS,2):"0")."% ".GetMessage("SUP_FROM_OPEN_TICKETS")?>" href="ticket_list.php?lang=<?=LANGUAGE_ID?>&find_<?=strtolower($key)?>_id=<?=$id?>&find_close=N&set_filter=Y<?=$tlist_filter_pass?>"><?=intval($arr["COUNTER_OPEN"])>0 ? $arr["COUNTER_OPEN"] : ""?></a></td>
+		<td align="right">&nbsp;<a title="<?echo ($OPEN_TICKETS>0?round(($arr["COUNTER_OPEN"]*100)/$OPEN_TICKETS,2):"0")."% ".GetMessage("SUP_FROM_OPEN_TICKETS")?>" href="ticket_list.php?lang=<?=LANGUAGE_ID?>&find_<?= mb_strtolower($key)?>_id=<?=$id?>&find_close=N&set_filter=Y<?=$tlist_filter_pass?>"><?=intval($arr["COUNTER_OPEN"])>0 ? $arr["COUNTER_OPEN"] : ""?></a></td>
 
 		<?if ($find_show_messages=="Y"):?>
 		<td align="right"><span title="<?echo ($OPEN_MESSAGES>0 ? round(($arr["MESSAGES_OPEN"]*100)/$OPEN_MESSAGES,2) : "0")."% ".GetMessage("SUP_FROM_OPEN_MESSAGES")?>">&nbsp;<?=intval($arr["MESSAGES_OPEN"])>0 ? $arr["MESSAGES_OPEN"] : ""?></span></td>
 
 		<td align="right">&nbsp;<?
 			if (intval($arr["OVERDUE_MESSAGES_OPEN"])>0):
-				?><a title="<?=GetMessage("SUP_OVERDUE_MESSAGES")?>"  href="ticket_list.php?lang=<?=LANGUAGE_ID?>&find_<?=strtolower($key)?>_id=<?=$id?>&find_overdue_messages1=1&find_close=N&set_filter=Y<?=$tlist_filter_pass?>" ><?=$arr["OVERDUE_MESSAGES_OPEN"]?></a><?
+				?><a title="<?=GetMessage("SUP_OVERDUE_MESSAGES")?>"  href="ticket_list.php?lang=<?=LANGUAGE_ID?>&find_<?= mb_strtolower($key)?>_id=<?=$id?>&find_overdue_messages1=1&find_close=N&set_filter=Y<?=$tlist_filter_pass?>" ><?=$arr["OVERDUE_MESSAGES_OPEN"]?></a><?
 			endif;
 			?></td>
 		<?endif;?>
 
 
-		<td align="right">&nbsp;<a title="<?=(($OPEN_TICKETS+$CLOSE_TICKETS)>0 ? round((($arr["COUNTER_OPEN"]+$arr["COUNTER_CLOSE"])*100)/($OPEN_TICKETS+$CLOSE_TICKETS),2): "0")."% ".GetMessage("SUP_FROM_ALL_TICKETS")?>" href="ticket_list.php?lang=<?=LANGUAGE_ID?>&find_<?=strtolower($key)?>_id=<?=$id?>&set_filter=Y<?=$tlist_filter_pass?>"><?=(intval($arr["COUNTER_OPEN"]+$arr["COUNTER_CLOSE"])>0) ? $arr["COUNTER_OPEN"]+$arr["COUNTER_CLOSE"] : ""?></a></td>
+		<td align="right">&nbsp;<a title="<?=(($OPEN_TICKETS+$CLOSE_TICKETS)>0 ? round((($arr["COUNTER_OPEN"]+$arr["COUNTER_CLOSE"])*100)/($OPEN_TICKETS+$CLOSE_TICKETS),2): "0")."% ".GetMessage("SUP_FROM_ALL_TICKETS")?>" href="ticket_list.php?lang=<?=LANGUAGE_ID?>&find_<?= mb_strtolower($key)?>_id=<?=$id?>&set_filter=Y<?=$tlist_filter_pass?>"><?=(intval($arr["COUNTER_OPEN"]+$arr["COUNTER_CLOSE"])>0) ? $arr["COUNTER_OPEN"]+$arr["COUNTER_CLOSE"] : ""?></a></td>
 
 		<?if ($find_show_messages=="Y"):?>
 		<td nowrap><span title="<?echo (($OPEN_MESSAGES+ $CLOSE_MESSAGES)>0 ? round((($arr["MESSAGES_OPEN"]+$arr["MESSAGES_CLOSE"])*100)/($OPEN_MESSAGES+ $CLOSE_MESSAGES),2): "0")."% ".GetMessage("SUP_FROM_ALL_MESSAGES")?>">&nbsp;<?=intval($arr["MESSAGES_OPEN"]+$arr["MESSAGES_CLOSE"])>0 ? $arr["MESSAGES_OPEN"]+$arr["MESSAGES_CLOSE"] : ""?></span></td>
 
 		<td align="right">&nbsp;<?
 			if (intval($arr["OVERDUE_MESSAGES_OPEN"]+$arr["OVERDUE_MESSAGES_CLOSE"])>0):
-				?><a title="<?=GetMessage("SUP_OVERDUE_MESSAGES")?>"  href="ticket_list.php?lang=<?=LANGUAGE_ID?>&find_<?=strtolower($key)?>_id=<?=$id?>&find_overdue_messages1=1&set_filter=Y<?=$tlist_filter_pass?>" ><?=$arr["OVERDUE_MESSAGES_OPEN"]+$arr["OVERDUE_MESSAGES_CLOSE"]?></a><?
+				?><a title="<?=GetMessage("SUP_OVERDUE_MESSAGES")?>"  href="ticket_list.php?lang=<?=LANGUAGE_ID?>&find_<?= mb_strtolower($key)?>_id=<?=$id?>&find_overdue_messages1=1&set_filter=Y<?=$tlist_filter_pass?>" ><?=$arr["OVERDUE_MESSAGES_OPEN"]+$arr["OVERDUE_MESSAGES_CLOSE"]?></a><?
 			endif;
 			?></td>
 		<?endif;?>

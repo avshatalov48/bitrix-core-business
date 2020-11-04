@@ -6,7 +6,7 @@ if (!$this->__component->__parent || empty($this->__component->__parent->__name)
 endif;
 ?>
 <?
-if(strlen($arResult["FATAL_ERROR"])>0)
+if($arResult["FATAL_ERROR"] <> '')
 {
 	?>
 	<div class="blog-errors">
@@ -18,7 +18,7 @@ if(strlen($arResult["FATAL_ERROR"])>0)
 }
 else
 {
-	if(strlen($arResult["ERROR_MESSAGE"])>0)
+	if($arResult["ERROR_MESSAGE"] <> '')
 	{
 		?>
 		<div class="blog-errors">

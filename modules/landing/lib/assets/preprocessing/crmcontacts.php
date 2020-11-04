@@ -39,6 +39,12 @@ class CrmContacts
 	 */
 	public static function processing(Block $block): void
 	{
+		$content = $block->getContent();
+		if (!$content)
+		{
+			return;
+		}
+
 		// get requisites from my companies
 		$contacts = self::getContacts();
 		$company = $contacts[self::COMPANY_KEY];
@@ -48,7 +54,6 @@ class CrmContacts
 		// todo: just one contact to replace
 		// if phones or email found, replace markers
 		$replaced = 0;
-		$content = $block->getContent();
 		$content = preg_replace_callback(
 			'/#(PHONE|EMAIL)([\d]+)#/',
 			static function ($matches) use ($phones, $emails)

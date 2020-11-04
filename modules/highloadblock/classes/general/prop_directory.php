@@ -953,16 +953,6 @@ HIBSELECT;
 			$items[] = $item;
 		}
 
-		if (empty($items) && $gridMode)
-		{
-			$items[] = [
-				'NAME' => Loc::getMessage('HIBLOCK_PROP_DIRECTORY_EMPTY_GRID_VALUE'),
-				'TEXT' => Loc::getMessage('HIBLOCK_PROP_DIRECTORY_EMPTY_GRID_VALUE'),
-				'VALUE' => '',
-				'DESCRIPTION' => Loc::getMessage('HIBLOCK_PROP_DIRECTORY_EMPTY_GRID_VALUE'),
-			];
-		}
-
 		if ($settings['MULTIPLE'] === 'Y')
 		{
 			$type = 'multilist';
@@ -1003,9 +993,35 @@ HIBSELECT;
 		$labelHtml = '';
 		$selectedHtml = '';
 
-		foreach (static::getEntityFieldsForTable($hlTableName) as $field)
+		$entityFields = static::getEntityFieldsForTable($hlTableName);
+
+		if ($settings['IS_REQUIRED'] === 'N')
 		{
-			$checked = $field['UF_XML_ID'] === $params['VALUE'];
+			array_unshift($entityFields, [
+				'UF_XML_ID' => '0',
+				'UF_NAME' => Loc::getMessage('HIBLOCK_PROP_DIRECTORY_EMPTY_GRID_VALUE'),
+			]);
+		}
+
+		$checkedXmlId = null;
+
+		foreach ($entityFields as $field)
+		{
+			if ($field['UF_XML_ID'] === $params['VALUE'])
+			{
+				$checkedXmlId = $field['UF_XML_ID'];
+				break;
+			}
+		}
+
+		if (!$checkedXmlId && !empty($entityFields))
+		{
+			$checkedXmlId = reset($entityFields)['UF_XML_ID'];
+		}
+
+		foreach ($entityFields as $field)
+		{
+			$checked = $field['UF_XML_ID'] === $checkedXmlId;
 			$name = HtmlFilter::encode($field['UF_NAME']);
 			$xmlId = HtmlFilter::encode($field['UF_XML_ID']);
 
@@ -1097,23 +1113,6 @@ LABEL;
 						BX.removeClass(items[i].parentNode, 'selected');								
 					}
 				}
-			}
-			
-			var trNode = BX.findParent(element, {
-				tag: 'tr',
-				attribute: 'data-id'
-			});
-			if (BX.type.isDomNode(trNode) && BX.hasClass(trNode, 'main-grid-row-new'))
-			{
-				var id = trNode.getAttribute('data-id');
-				var labels = contentNode.querySelectorAll('label[data-role]');
-				for (var i in labels)
-				{
-					if (labels.hasOwnProperty(i))
-					{
-						labels[i].setAttribute('for', labels[i].getAttribute('for') + id);
-					}
-				}				
 			}
 			
 			popup = BX.Main.PopupManager.create(

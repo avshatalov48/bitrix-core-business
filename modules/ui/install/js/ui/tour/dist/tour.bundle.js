@@ -3,9 +3,7 @@ this.BX.UI = this.BX.UI || {};
 (function (exports,main_core) {
 	'use strict';
 
-	var Step =
-	/*#__PURE__*/
-	function (_Event$EventEmitter) {
+	var Step = /*#__PURE__*/function (_Event$EventEmitter) {
 	  babelHelpers.inherits(Step, _Event$EventEmitter);
 
 	  function Step(options) {
@@ -252,9 +250,7 @@ this.BX.UI = this.BX.UI || {};
 
 	  return data;
 	}
-	var Guide =
-	/*#__PURE__*/
-	function (_Event$EventEmitter) {
+	var Guide = /*#__PURE__*/function (_Event$EventEmitter) {
 	  babelHelpers.inherits(Guide, _Event$EventEmitter);
 
 	  function Guide() {
@@ -1029,9 +1025,7 @@ this.BX.UI = this.BX.UI || {};
 	  return Guide;
 	}(main_core.Event.EventEmitter);
 
-	var Manager =
-	/*#__PURE__*/
-	function () {
+	var Manager = /*#__PURE__*/function () {
 	  function Manager() {
 	    babelHelpers.classCallCheck(this, Manager);
 	    this.guides = new Map();

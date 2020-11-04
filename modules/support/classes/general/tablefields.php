@@ -58,7 +58,7 @@ class CSupportTableFields
 				$res = (intval($value) == floatval($value)) ? intval($value) : floatval($value);
 				break;
 			case self::VT_STRING:
-				$res = ($maxStrLen == 0 ? $value : substr($value, 0, $maxStrLen)) ;
+				$res = ($maxStrLen == 0? $value : mb_substr($value, 0, $maxStrLen)) ;
 				break;
 			case self::VT_Y_N_NULL:
 				$res = ($value == "Y") ? "Y" : ($value === null ? null : "N");
@@ -122,7 +122,7 @@ class CSupportTableFields
 			case self::ID:				return preg_replace("/[^a-zA-Z0-9_]/", "",  $value);
 			case self::HREF_LOCATION:
 				$res = null;
-				foreach($WHITE_LIST as $key => $value) if(substr($value, 0, strlen($value)) == $value) $res = $value;
+				foreach($WHITE_LIST as $key => $value) if(mb_substr($value, 0, mb_strlen($value)) == $value) $res = $value;
 				if($res == null)  $res = "/" . $value;
 				return CUtil::addslashes(htmlspecialcharsbx($res));
 		}

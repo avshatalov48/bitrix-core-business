@@ -1,5 +1,6 @@
 <?
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/tax.php");
+
+require_once __DIR__."/../general/tax.php";
 
 class CSaleTax extends CAllSaleTax
 {

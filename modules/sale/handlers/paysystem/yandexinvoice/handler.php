@@ -421,7 +421,7 @@ class YandexInvoiceHandler extends PaySystem\ServiceHandler
 	private function sign($input, $keyResource)
 	{
 		$signature = null;
-		$signAlgo = version_compare(phpversion(), '5.4.8', '<') ? 'SHA256' : OPENSSL_ALGO_SHA256;
+		$signAlgo = OPENSSL_ALGO_SHA256;
 
 		$r = openssl_sign($input, $signature, $keyResource, $signAlgo);
 

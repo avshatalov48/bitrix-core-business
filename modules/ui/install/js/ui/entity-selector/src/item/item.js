@@ -52,7 +52,7 @@ export default class Item extends EventEmitter
 		super();
 		this.setEventNamespace('BX.UI.EntitySelector.Item');
 
-		const options = Type.isPlainObject(itemOptions) ? itemOptions : {};
+		const options: ItemOptions = Type.isPlainObject(itemOptions) ? itemOptions : {};
 		if (!Type.isStringFilled(options.id) && !Type.isNumber(options.id))
 		{
 			throw new Error('EntitySelector.Item: "id" parameter is required.');

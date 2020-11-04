@@ -71,9 +71,6 @@ if (empty($arParams["PATH_TO_LOG_TAG"]))
 
 CSocNetLogComponent::processDateTimeFormatParams($arParams);
 
-if (isset($arParams["CURRENT_PAGE_DATE"]))
-	$current_page_date = $arParams["CURRENT_PAGE_DATE"];
-
 $bCurrentUserIsAdmin = CSocNetUser::IsCurrentUserModuleAdmin();
 
 $arParams["COMMENT_ID"] = intval($arParams["COMMENT_ID"]);
@@ -102,7 +99,7 @@ $arResult["bTasksAvailable"] = (
 $arResult["Event"] = false;
 $arCurrentUserSubscribe = array("TRANSPORT" => array());
 
-$arEvent = __SLEGetLogRecord($arParams["LOG_ID"], $arParams, $arCurrentUserSubscribe, $current_page_date);
+$arEvent = __SLEGetLogRecord($arParams["LOG_ID"], $arParams, $arCurrentUserSubscribe);
 if ($arEvent)
 {
 	$contentId = Livefeed\Provider::getContentId($arEvent['EVENT']);
@@ -397,6 +394,9 @@ if ($arEvent)
 
 		$handlerManager = new Bitrix\Socialnetwork\CommentAux\HandlerManager();
 
+		$arResult['NEW_COMMENTS_COUNT'] = 0;
+		$arResult['ALL_COMMENTS_COUNT'] = count($arCommentsFullList);
+
 		foreach ($arCommentsFullList as $key => $arCommentTmp)
 		{
 			if ($key === 0)
@@ -452,6 +452,16 @@ if ($arEvent)
 						? $arCommentTmp["EVENT"]["LOG_DATE_TS"]
 						: (MakeTimeStamp($arCommentTmp["EVENT"]["LOG_DATE"]) - intval($arResult["TZ_OFFSET"]))
 				);
+
+				if (
+					$arResult["COUNTER_TYPE"] === '**'
+					&& (int)$arResult['LAST_LOG_TS'] > 0
+					&& $event_date_log_ts >= $arResult['LAST_LOG_TS']
+					&& $arCommentTmp['EVENT']['USER_ID'] != $USER->getID()
+				)
+				{
+					$arResult['NEW_COMMENTS_COUNT']++;
+				}
 
 				if (
 					$arParams["COMMENT_ID"] <= 0

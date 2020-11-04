@@ -7,29 +7,29 @@ if (!CModule::IncludeModule("blog"))
 	return;
 }
 
-$arParams["MESSAGE_COUNT"] = IntVal($arParams["MESSAGE_COUNT"])>0 ? IntVal($arParams["MESSAGE_COUNT"]): 20;
-$arParams["SORT_BY1"] = (strlen($arParams["SORT_BY1"])>0 ? $arParams["SORT_BY1"] : "DATE_PUBLISH");
-$arParams["SORT_ORDER1"] = (strlen($arParams["SORT_ORDER1"])>0 ? $arParams["SORT_ORDER1"] : "DESC");
-$arParams["SORT_BY2"] = (strlen($arParams["SORT_BY2"])>0 ? $arParams["SORT_BY2"] : "ID");
-$arParams["SORT_ORDER2"] = (strlen($arParams["SORT_ORDER2"])>0 ? $arParams["SORT_ORDER2"] : "DESC");
+$arParams["MESSAGE_COUNT"] = intval($arParams["MESSAGE_COUNT"])>0 ? intval($arParams["MESSAGE_COUNT"]): 20;
+$arParams["SORT_BY1"] = ($arParams["SORT_BY1"] <> '' ? $arParams["SORT_BY1"] : "DATE_PUBLISH");
+$arParams["SORT_ORDER1"] = ($arParams["SORT_ORDER1"] <> '' ? $arParams["SORT_ORDER1"] : "DESC");
+$arParams["SORT_BY2"] = ($arParams["SORT_BY2"] <> '' ? $arParams["SORT_BY2"] : "ID");
+$arParams["SORT_ORDER2"] = ($arParams["SORT_ORDER2"] <> '' ? $arParams["SORT_ORDER2"] : "DESC");
 
 $arParams["BLOG_URL"] = preg_replace("/[^a-zA-Z0-9_-]/is", "", Trim($arParams["BLOG_URL"]));
-$arParams["YEAR"] = (IntVal($arParams["YEAR"])>0 ? IntVal($arParams["YEAR"]) : false);
-$arParams["MONTH"] = (IntVal($arParams["MONTH"])>0 ? IntVal($arParams["MONTH"]) : false);
-$arParams["DAY"] = (IntVal($arParams["DAY"])>0 ? IntVal($arParams["DAY"]) : false);
-$arParams["CATEGORY_ID"] = (IntVal($arParams["CATEGORY_ID"])>0 ? IntVal($arParams["CATEGORY_ID"]) : false);
-$arParams["NAV_TEMPLATE"] = (strlen($arParams["NAV_TEMPLATE"])>0 ? $arParams["NAV_TEMPLATE"] : "");
+$arParams["YEAR"] = (intval($arParams["YEAR"])>0 ? intval($arParams["YEAR"]) : false);
+$arParams["MONTH"] = (intval($arParams["MONTH"])>0 ? intval($arParams["MONTH"]) : false);
+$arParams["DAY"] = (intval($arParams["DAY"])>0 ? intval($arParams["DAY"]) : false);
+$arParams["CATEGORY_ID"] = (intval($arParams["CATEGORY_ID"])>0 ? intval($arParams["CATEGORY_ID"]) : false);
+$arParams["NAV_TEMPLATE"] = ($arParams["NAV_TEMPLATE"] <> '' ? $arParams["NAV_TEMPLATE"] : "");
 if(!is_array($arParams["GROUP_ID"]))
 	$arParams["GROUP_ID"] = array($arParams["GROUP_ID"]);
 foreach($arParams["GROUP_ID"] as $k=>$v)
-	if(IntVal($v) <= 0)
+	if(intval($v) <= 0)
 		unset($arParams["GROUP_ID"][$k]);
 
 if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
 {
 	$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
 	$arParams["CACHE_TIME_LONG"] = intval($arParams["CACHE_TIME_LONG"]);
-	if(IntVal($arParams["CACHE_TIME_LONG"]) <= 0 && IntVal($arParams["CACHE_TIME"]) > 0)
+	if(intval($arParams["CACHE_TIME_LONG"]) <= 0 && intval($arParams["CACHE_TIME"]) > 0)
 		$arParams["CACHE_TIME_LONG"] = $arParams["CACHE_TIME"];
 
 }
@@ -50,46 +50,46 @@ CpageOption::SetOptionString("main", "nav_page_in_session", "N");
 if($arParams["SET_TITLE"]=="Y")
 	$APPLICATION->SetTitle(GetMessage("BLOG_BLOG_BLOG_TITLE"));
 
-if(strLen($arParams["BLOG_VAR"])<=0)
+if($arParams["BLOG_VAR"] == '')
 	$arParams["BLOG_VAR"] = "blog";
-if(strLen($arParams["PAGE_VAR"])<=0)
+if($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if(strLen($arParams["USER_VAR"])<=0)
+if($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "id";
-if(strLen($arParams["POST_VAR"])<=0)
+if($arParams["POST_VAR"] == '')
 	$arParams["POST_VAR"] = "id";
 
 $arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"]);
-if(strlen($arParams["PATH_TO_BLOG"])<=0)
+if($arParams["PATH_TO_BLOG"] == '')
 	$arParams["PATH_TO_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
 
 $arParams["PATH_TO_BLOG_CATEGORY"] = trim($arParams["PATH_TO_BLOG_CATEGORY"]);
-if(strlen($arParams["PATH_TO_BLOG_CATEGORY"])<=0)
+if($arParams["PATH_TO_BLOG_CATEGORY"] == '')
 	$arParams["PATH_TO_BLOG_CATEGORY"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#"."&category=#category_id#");
 
 $arParams["PATH_TO_POST"] = trim($arParams["PATH_TO_POST"]);
-if(strlen($arParams["PATH_TO_POST"])<=0)
+if($arParams["PATH_TO_POST"] == '')
 	$arParams["PATH_TO_POST"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
 
 $arParams["PATH_TO_POST_EDIT"] = trim($arParams["PATH_TO_POST_EDIT"]);
-if(strlen($arParams["PATH_TO_POST_EDIT"])<=0)
+if($arParams["PATH_TO_POST_EDIT"] == '')
 	$arParams["PATH_TO_POST_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post_edit&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if(strlen($arParams["PATH_TO_USER"])<=0)
+if($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["PATH_TO_SMILE"] = strlen(trim($arParams["PATH_TO_SMILE"]))<=0 ? false : trim($arParams["PATH_TO_SMILE"]);
+$arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"]) == '' ? false : trim($arParams["PATH_TO_SMILE"]);
 
-$arParams["IMAGE_MAX_WIDTH"] = IntVal($arParams["IMAGE_MAX_WIDTH"]);
-$arParams["IMAGE_MAX_HEIGHT"] = IntVal($arParams["IMAGE_MAX_HEIGHT"]);
+$arParams["IMAGE_MAX_WIDTH"] = intval($arParams["IMAGE_MAX_WIDTH"]);
+$arParams["IMAGE_MAX_HEIGHT"] = intval($arParams["IMAGE_MAX_HEIGHT"]);
 $arParams["ALLOW_POST_CODE"] = $arParams["ALLOW_POST_CODE"] !== "N";
 if(!is_array($arParams["POST_PROPERTY_LIST"]))
 	$arParams["POST_PROPERTY_LIST"] = Array("UF_BLOG_POST_DOC");
 else
 	$arParams["POST_PROPERTY_LIST"][] = "UF_BLOG_POST_DOC";
 
-if(strlen($arParams["FILTER_NAME"])<=0 || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/i", $arParams["FILTER_NAME"]))
+if($arParams["FILTER_NAME"] == '' || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/i", $arParams["FILTER_NAME"]))
 {
 	$arFilter = array();
 }
@@ -106,12 +106,12 @@ $arResult["ERROR_MESSAGE"] = Array();
 $arResultNFCache["OK_MESSAGE"] = Array();
 $arResultNFCache["ERROR_MESSAGE"] = Array();
 
-if(strlen($arParams["BLOG_URL"]) > 0)
+if($arParams["BLOG_URL"] <> '')
 {
-	$user_id = IntVal($USER->GetID());
+	$user_id = intval($USER->GetID());
 
 	//Message delete
-	if (IntVal($_GET["del_id"]) > 0)
+	if (intval($_GET["del_id"]) > 0)
 	{
 		if($arResult["BLOG"] = CBlog::GetByUrl($arParams["BLOG_URL"], $arParams["GROUP_ID"]))
 		{
@@ -121,9 +121,9 @@ if(strlen($arParams["BLOG_URL"]) > 0)
 			}
 			else
 			{
-				if (check_bitrix_sessid() && CBlogPost::CanUserDeletePost(IntVal($_GET["del_id"]), $user_id))
+				if (check_bitrix_sessid() && CBlogPost::CanUserDeletePost(intval($_GET["del_id"]), $user_id))
 				{
-					$DEL_ID = IntVal($_GET["del_id"]);
+					$DEL_ID = intval($_GET["del_id"]);
 					if(CBlogPost::GetByID($DEL_ID))
 					{
 						if (CBlogPost::Delete($DEL_ID))
@@ -161,7 +161,7 @@ if(strlen($arParams["BLOG_URL"]) > 0)
 		}
 
 	}
-	elseif (IntVal($_GET["hide_id"]) > 0)
+	elseif (intval($_GET["hide_id"]) > 0)
 	{
 		if($arResult["BLOG"] = CBlog::GetByUrl($arParams["BLOG_URL"], $arParams["GROUP_ID"]))
 		{
@@ -174,7 +174,7 @@ if(strlen($arParams["BLOG_URL"]) > 0)
 				if (check_bitrix_sessid())
 				{
 					$arResult["PostPerm"] = CBlog::GetBlogUserPostPerms($arResult["BLOG"]["ID"], $user_id);
-					$hide_id = IntVal($_GET["hide_id"]);
+					$hide_id = intval($_GET["hide_id"]);
 					if($arResult["PostPerm"]>=BLOG_PERMS_MODERATE)
 					{
 						if(CBlogPost::GetByID($hide_id))
@@ -217,7 +217,7 @@ if(strlen($arParams["BLOG_URL"]) > 0)
 	}
 
 
-	if(strlen($_GET["become_friend"]) > 0)
+	if($_GET["become_friend"] <> '')
 	{
 		if($USER->IsAuthorized())
 		{
@@ -253,13 +253,13 @@ if(strlen($arParams["BLOG_URL"]) > 0)
 									$AuthorName = CBlogUser::GetUserName($BlogUser["ALIAS"], $arUser["NAME"], $arUser["LAST_NAME"], $arUser["LOGIN"]);
 									$dbUser = CUser::GetByID($arResult["BLOG"]["OWNER_ID"]);
 									$arUserBlog = $dbUser->GetNext();
-									if (strlen($serverName) <=0)
+									if ($serverName == '')
 									{
-										if (defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME)>0)
+										if (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '')
 											$serverName = SITE_SERVER_NAME;
 										else
 											$serverName = COption::GetOptionString("main", "server_name", "");
-										if (strlen($serverName) <=0)
+										if ($serverName == '')
 											$serverName = $_SERVER["SERVER_NAME"];
 									}
 
@@ -312,13 +312,13 @@ if(strlen($arParams["BLOG_URL"]) > 0)
 										$dbUser = CUser::GetByID($user_id);
 										$arUserBlog = $dbUser->GetNext();
 
-										if (strlen($serverName) <=0)
+										if ($serverName == '')
 										{
-											if (defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME)>0)
+											if (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '')
 												$serverName = SITE_SERVER_NAME;
 											else
 												$serverName = COption::GetOptionString("main", "server_name", "");
-											if (strlen($serverName) <=0)
+											if ($serverName == '')
 												$serverName = $_SERVER["SERVER_NAME"];
 										}
 
@@ -365,16 +365,16 @@ if(strlen($arParams["BLOG_URL"]) > 0)
 					CHTTP::SetStatus("404 Not Found");
 				}
 
-				if(IntVal($frnd_er) > 0)
+				if(intval($frnd_er) > 0)
 					LocalRedirect($APPLICATION->GetCurPageParam("frnd_res_er=".$frnd_er, Array("frnd_res_er", "sessid", "frnd_res_ok")));
-				elseif(IntVal($frnd_ok) > 0)
+				elseif(intval($frnd_ok) > 0)
 					LocalRedirect($APPLICATION->GetCurPageParam("frnd_res_ok=".$frnd_ok, Array("frnd_res_er", "sessid", "frnd_res_ok")));
 			}
 			elseif(intval($_GET["frnd_res_er"]) > 0 || intval($_GET["frnd_res_ok"]) > 0)
 			{
 				if(intval($_GET["frnd_res_er"]) > 0)
 				{
-					switch (IntVal($_GET["frnd_res_er"]))
+					switch (intval($_GET["frnd_res_er"]))
 					{
 						case 1:
 							$arResultNFCache["ERROR_MESSAGE"][] = GetMessage("BLOG_BLOG_BLOG_REQUEST_ERROR");
@@ -393,7 +393,7 @@ if(strlen($arParams["BLOG_URL"]) > 0)
 				}
 				if(intval($_GET["frnd_res_ok"]) > 0)
 				{
-					switch (IntVal($_GET["frnd_res_ok"]))
+					switch (intval($_GET["frnd_res_ok"]))
 					{
 						case 1:
 							$arResultNFCache["OK_MESSAGE"][] = GetMessage("BLOG_BLOG_BLOG_REQUEST_ALREADY");
@@ -451,7 +451,7 @@ if(strlen($arParams["BLOG_URL"]) > 0)
 
 	if(empty($arResult["BLOG"]))
 		$arResult["BLOG"] = CBlog::GetByUrl($arParams["BLOG_URL"], $arParams["GROUP_ID"]);
-	if(!empty($arResult["BLOG"]) && strlen($arResult["PostPerm"]) <= 0)
+	if(!empty($arResult["BLOG"]) && $arResult["PostPerm"] == '')
 		$arResult["PostPerm"] = CBlog::GetBlogUserPostPerms($arResult["BLOG"]["ID"], $user_id);
 	$cache = new CPHPCache;
 	$cache_id = "blog_blog_message_".serialize($arParams)."_".CDBResult::NavStringForCache($arParams["MESSAGE_COUNT"])."_".$strUserGroups."_".$arResult["PostPerm"];
@@ -465,7 +465,7 @@ if(strlen($arParams["BLOG_URL"]) > 0)
 		$arBlog = $arResult["BLOG"];
 		if($arBlog["ACTIVE"] == "Y")
 		{
-			if(!isset($_GET["PAGEN_1"]) || IntVal($_GET["PAGEN_1"])<1)
+			if(!isset($_GET["PAGEN_1"]) || intval($_GET["PAGEN_1"])<1)
 			{
 				$CACHE_TIME = $arParams["CACHE_TIME"];
 				$cache_path = "/".SITE_ID."/blog/".$arBlog["URL"]."/first_page/";
@@ -473,7 +473,7 @@ if(strlen($arParams["BLOG_URL"]) > 0)
 			else
 			{
 				$CACHE_TIME = $arParams["CACHE_TIME_LONG"];
-				$cache_path = "/".SITE_ID."/blog/".$arBlog["URL"]."/pages/".IntVal($_GET["PAGEN_1"])."/";
+				$cache_path = "/".SITE_ID."/blog/".$arBlog["URL"]."/pages/".intval($_GET["PAGEN_1"])."/";
 			}
 
 			if ($CACHE_TIME > 0 && $cache->InitCache($CACHE_TIME, $cache_id, $cache_path))
@@ -536,7 +536,7 @@ if(strlen($arParams["BLOG_URL"]) > 0)
 						else
 							$arFilter["<=DATE_PUBLISH"] = ConvertTimeStamp(time()+$tzOffset, "FULL");
 
-						if(IntVal($arParams["CATEGORY_ID"])>0)
+						if(intval($arParams["CATEGORY_ID"])>0)
 						{
 							$arFilter["CATEGORY_ID_F"] = $arParams["CATEGORY_ID"];
 							if($arParams["SET_TITLE"] == "Y")
@@ -673,12 +673,12 @@ if(strlen($arParams["BLOG_URL"]) > 0)
 							if (preg_match("/(\[CUT\])/i",$curPost['DETAIL_TEXT']) || preg_match("/(<CUT>)/i",$curPost['DETAIL_TEXT']))
 								$curPost["CUT"] = "Y";
 
-							if(strlen($curPost["CATEGORY_ID"])>0)
+							if($curPost["CATEGORY_ID"] <> '')
 							{
 								$arCategory = explode(",",$curPost["CATEGORY_ID"]);
 								foreach($arCategory as $v)
 								{
-									if(IntVal($v)>0)
+									if(intval($v)>0)
 									{
 										$arCatTmp = CBlogTools::htmlspecialcharsExArray(CBlogCategory::GetByID($v));
 										$arCatTmp["urlToCategory"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_BLOG_CATEGORY"], array("blog" => $arBlog["URL"], "category_id" => $v));
@@ -698,7 +698,7 @@ if(strlen($arParams["BLOG_URL"]) > 0)
 									{
 										if (!in_array($FIELD_NAME, $arParams["POST_PROPERTY_LIST"]))
 											continue;
-										$arPostField["EDIT_FORM_LABEL"] = strLen($arPostField["EDIT_FORM_LABEL"]) > 0 ? $arPostField["EDIT_FORM_LABEL"] : $arPostField["FIELD_NAME"];
+										$arPostField["EDIT_FORM_LABEL"] = $arPostField["EDIT_FORM_LABEL"] <> '' ? $arPostField["EDIT_FORM_LABEL"] : $arPostField["FIELD_NAME"];
 										$arPostField["EDIT_FORM_LABEL"] = htmlspecialcharsEx($arPostField["EDIT_FORM_LABEL"]);
 										$arPostField["~EDIT_FORM_LABEL"] = $arPostField["EDIT_FORM_LABEL"];
 										$curPost["POST_PROPERTIES"]["DATA"][$FIELD_NAME] = $arPostField;

@@ -19,7 +19,7 @@ class ActionsData
 	 */
 	public static function getAction($actionId)
 	{
-		if(strlen($actionId) <= 0)
+		if($actionId == '')
 			throw new \Bitrix\Main\ArgumentNullException("actionId");
 
 		$actionsDefinitions = static::getList();
@@ -45,7 +45,7 @@ class ActionsData
 	 */
 	public static function getActionObject($actionId, $serverHostname = "", array $userParams = array(), array $freeParams = array(), array $actionParams = array())
 	{
-		if(strlen($actionId) <= 0)
+		if($actionId == '')
 			throw new \Bitrix\Main\ArgumentNullException("actionId");
 
 		if(!is_array($userParams))
@@ -249,7 +249,7 @@ class ActionsData
 			{
 				foreach($arData["params"] as $bid => $actionParams)
 				{
-					if(strpos($bid, 'common_') === 0) // || strpos($bid, 'monitor_') === 0)
+					if(mb_strpos($bid, 'common_') === 0) // || strpos($bid, 'monitor_') === 0)
 						continue;
 
 					if($actionParams["status"] == "running")

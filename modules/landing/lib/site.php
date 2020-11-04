@@ -958,6 +958,18 @@ class Site extends \Bitrix\Landing\Internals\BaseTable
 	}
 
 	/**
+	 * Change modified user and date for the site.
+	 * @param int $id Site id.
+	 * @return void
+	 */
+	public static function touch(int $id): void
+	{
+		self::update($id, [
+			'TOUCH' => 'Y'
+		]);
+	}
+
+	/**
 	 * Event handler for check existing pages of main module's site.
 	 * @param string $siteId Main site id.
 	 * @return bool

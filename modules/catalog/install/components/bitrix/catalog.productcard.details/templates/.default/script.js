@@ -31,9 +31,7 @@
 	  return data;
 	}
 
-	var ProductCard =
-	/*#__PURE__*/
-	function (_EntityCard) {
+	var ProductCard = /*#__PURE__*/function (_EntityCard) {
 	  babelHelpers.inherits(ProductCard, _EntityCard);
 
 	  function ProductCard(id) {

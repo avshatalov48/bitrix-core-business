@@ -334,7 +334,7 @@ class Broadcast
 			$title = truncateText($titleTmp, 100);
 			$titleEmail = ($post['MICRO'] != 'Y' ? truncateText($titleTmp, 255) : '');
 
-			$titleEmpty = (strlen(trim($title, " \t\n\r\0\x0B\xA0" )) <= 0);
+			$titleEmpty = (trim($title, " \t\n\r\0\x0B\xA0" ) == '');
 
 			$message = Loc::getMessage(
 				'BLOG_BROADCAST_PUSH_POST'.($titleEmpty ? 'A' : '').$authorSuffix,
@@ -427,7 +427,7 @@ class Broadcast
 					{
 						$serverName = (
 							defined("SITE_SERVER_NAME")
-							&& strlen(SITE_SERVER_NAME) > 0
+							&& SITE_SERVER_NAME <> ''
 								? SITE_SERVER_NAME
 								: Option::get("main", "server_name", $_SERVER["SERVER_NAME"])
 						);

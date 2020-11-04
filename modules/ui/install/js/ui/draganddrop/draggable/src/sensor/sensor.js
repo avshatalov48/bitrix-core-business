@@ -22,7 +22,7 @@ export default class Sensor extends EventEmitter
 
 	addContainer(...containers: Array<HTMLElement>)
 	{
-		this.container = [...this.containers, ...containers];
+		this.containers = [...this.containers, ...containers];
 	}
 
 	removeContainer(...containers: Array<HTMLElement>)

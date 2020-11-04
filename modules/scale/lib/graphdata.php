@@ -15,7 +15,7 @@ class GraphData
 	 */
 	public static function getGraphs($graphCategory)
 	{
-		if(strlen($graphCategory) <= 0)
+		if($graphCategory == '')
 			throw new \Bitrix\Main\ArgumentNullException("graphCategory");
 
 		$graphics = self::getList();

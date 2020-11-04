@@ -20,9 +20,7 @@ class scale extends CModule
 	function scale()
 	{
 		$arModuleVersion = array();
-		$path = str_replace("\\", "/", __FILE__);
-		$path = substr($path, 0, strlen($path) - strlen("/index.php"));
-		include($path."/version.php");
+		include(__DIR__.'/version.php');
 		$this->MODULE_VERSION = $arModuleVersion["VERSION"];
 		$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
 		$this->MODULE_NAME = Loc::getMessage("SCALE_MODULE_NAME");
@@ -80,7 +78,7 @@ class scale extends CModule
 		global $USER, $APPLICATION, $step;
 		if ($USER->IsAdmin())
 		{
-			$step = IntVal($step);
+			$step = intval($step);
 			if ($step < 2)
 			{
 				$APPLICATION->IncludeAdminFile(Loc::getMessage("SCALE_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/scale/install/step1.php");
@@ -105,7 +103,7 @@ class scale extends CModule
 
 		if ($USER->IsAdmin())
 		{
-			$step = IntVal($step);
+			$step = intval($step);
 			if ($step < 2)
 			{
 				$APPLICATION->IncludeAdminFile(Loc::getMessage("SCALE_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/scale/install/unstep1.php");

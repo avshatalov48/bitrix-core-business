@@ -12,7 +12,7 @@
 			<div class="landing-block-node-subtitle-container js-animation slideInLeft col-md-5 col-lg-5 offset-md-1">
 				<h3 class="landing-block-node-subtitle landing-semantic-subtitle-image-medium text-uppercase g-font-weight-700 g-font-size-26 g-color-white g-mb-5">
 					New album presetnation</h3>
-				<div class="landing-block-node-text landing-semantic-text-image-medium g-font-size-13 g-color-white g-mb-60 g-mb-0--md">
+				<div class="landing-block-node-text landing-semantic-text-image-medium g-font-size-13 g-color-white g-mb-60 g-mb-0--md" data-auto-font-scale>
 					<p>
 						8 Rue de Montpensier 75001, Paris, France, 18:00
 					</p>

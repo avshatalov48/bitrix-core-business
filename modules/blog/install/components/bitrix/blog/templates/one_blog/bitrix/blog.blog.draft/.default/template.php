@@ -65,7 +65,7 @@ if(!empty($arResult["ERROR_MESSAGE"]))
 	</div>
 	<?
 }
-if(strlen($arResult["FATAL_ERROR"])>0)
+if($arResult["FATAL_ERROR"] <> '')
 {
 	?>
 	<div class="blog-errors blog-note-box blog-note-error">
@@ -89,8 +89,8 @@ elseif(count($arResult["POST"])>0)
 		if($ind%2 == 0)
 			$className .= " blog-post-alt";
 		$className .= " blog-post-year-".$CurPost["DATE_PUBLISH_Y"];
-		$className .= " blog-post-month-".IntVal($CurPost["DATE_PUBLISH_M"]);
-		$className .= " blog-post-day-".IntVal($CurPost["DATE_PUBLISH_D"]);
+		$className .= " blog-post-month-".intval($CurPost["DATE_PUBLISH_M"]);
+		$className .= " blog-post-day-".intval($CurPost["DATE_PUBLISH_D"]);
 		?>
 			<script>
 			BX.viewImageBind(
@@ -152,11 +152,11 @@ elseif(count($arResult["POST"])>0)
 						</div>
 					</div>
 					<div class="blog-post-meta-util">
-						<span class="blog-post-views-link"><a href="<?=$CurPost["urlToEdit"]?>"><span class="blog-post-link-caption"><?=GetMessage("BLOG_BLOG_BLOG_VIEWS")?></span><span class="blog-post-link-counter"><?=IntVal($CurPost["VIEWS"]);?></span></a></span>
-						<span class="blog-post-comments-link"><a href="<?=$CurPost["urlToEdit"]?>#comments"><span class="blog-post-link-caption"><?=GetMessage("BLOG_BLOG_BLOG_COMMENTS")?></span><span class="blog-post-link-counter"><?=IntVal($CurPost["NUM_COMMENTS"]);?></span></a></span>
+						<span class="blog-post-views-link"><a href="<?=$CurPost["urlToEdit"]?>"><span class="blog-post-link-caption"><?=GetMessage("BLOG_BLOG_BLOG_VIEWS")?></span><span class="blog-post-link-counter"><?=intval($CurPost["VIEWS"]);?></span></a></span>
+						<span class="blog-post-comments-link"><a href="<?=$CurPost["urlToEdit"]?>#comments"><span class="blog-post-link-caption"><?=GetMessage("BLOG_BLOG_BLOG_COMMENTS")?></span><span class="blog-post-link-counter"><?=intval($CurPost["NUM_COMMENTS"]);?></span></a></span>
 						<span class="blog-post-publish-link"><a href="javascript:if(confirm('<?=GetMessage("BLOG_MES_SHOW_POST_CONFIRM")?>')) window.location='<?=$CurPost["urlToShow"]?>'"><span class="blog-post-link-caption"><?=GetMessage("BLOG_MES_SHOW")?></span></a></span>
 						<span class="blog-post-edit-link"><a href="<?=$CurPost["urlToEdit"]?>"><span class="blog-post-link-caption"><?=GetMessage("BLOG_MES_EDIT")?></span></a></span>
-						<?if(strLen($CurPost["urlToDelete"])>0):?>
+						<?if($CurPost["urlToDelete"] <> ''):?>
 							<span class="blog-post-delete-link"><a href="javascript:if(confirm('<?=GetMessage("BLOG_MES_DELETE_POST_CONFIRM")?>')) window.location='<?=$CurPost["urlToDelete"]?>'"><span class="blog-post-link-caption"><?=GetMessage("BLOG_MES_DELETE")?></span></a></span>
 						<?endif;?>
 					</div>

@@ -7,24 +7,24 @@ if (!CModule::IncludeModule("blog"))
 	return;
 }
 
-$arParams["ID"] = IntVal($arParams["ID"]);
+$arParams["ID"] = intval($arParams["ID"]);
 
 $arParams["BLOG_URL"] = preg_replace("/[^a-zA-Z0-9_-]/is", "", Trim($arParams["BLOG_URL"]));
-$arParams["TB_LENGTH"] = Intval($arParams["TB_LENGTH"]);
+$arParams["TB_LENGTH"] = intval($arParams["TB_LENGTH"]);
 if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
 	$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
 else
 	$arParams["CACHE_TIME"] = 0;	
 
-if(strLen($arParams["BLOG_VAR"])<=0)
+if($arParams["BLOG_VAR"] == '')
 	$arParams["BLOG_VAR"] = "blog";
-if(strLen($arParams["PAGE_VAR"])<=0)
+if($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if(strLen($arParams["POST_VAR"])<=0)
+if($arParams["POST_VAR"] == '')
 	$arParams["POST_VAR"] = "id";
 	
 $arParams["PATH_TO_TRACKBACK"] = trim($arParams["PATH_TO_TRACKBACK"]);
-if(strlen($arParams["PATH_TO_TRACKBACK"])<=0)
+if($arParams["PATH_TO_TRACKBACK"] == '')
 	$arParams["PATH_TO_TRACKBACK"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=trackback&".$arParams["BLOG_VAR"]."=#blog#"."&".$arParams["POST_VAR"]."=#post_id#");
 $arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 
@@ -47,9 +47,9 @@ if(COption::GetOptionString("blog","enable_trackback", "Y") == "Y")
 			{
 				if($arResult["PostPerm"] > BLOG_PERMS_DENY)
 				{
-					if(check_bitrix_sessid() && IntVal($_GET["delete_trackback_id"])>0 && CBlogPost::CanUserDeletePost(IntVal($arPost["ID"]), IntVal($USER->GetID())))
+					if(check_bitrix_sessid() && intval($_GET["delete_trackback_id"])>0 && CBlogPost::CanUserDeletePost(intval($arPost["ID"]), intval($USER->GetID())))
 					{
-						CBlogTrackback::Delete(IntVal($_GET["delete_trackback_id"]));
+						CBlogTrackback::Delete(intval($_GET["delete_trackback_id"]));
 						
 						if (intval($arBlog["SOCNET_GROUP_ID"]) > 0 && CModule::IncludeModule("socialnetwork") && method_exists("CSocNetGroup", "GetSite"))
 						{
@@ -99,9 +99,9 @@ if(COption::GetOptionString("blog","enable_trackback", "Y") == "Y")
 						if ($arSite = $dbSite->Fetch())
 							$serverName = $arSite["SERVER_NAME"];
 
-						if (strlen($serverName) <= 0)
+						if ($serverName == '')
 						{
-							if (defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME) > 0)
+							if (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '')
 								$serverName = SITE_SERVER_NAME;
 							else
 								$serverName = COption::GetOptionString("main", "server_name", "");

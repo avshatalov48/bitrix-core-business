@@ -153,8 +153,8 @@ class CAllTicketReminder
 		if(!is_array($arFilter)) $arFilter = array();
 		foreach($arFilter as $key => $val)
 		{
-			if((is_array($val) && count($val) <= 0) || (!is_array($val) && strlen($val) <= 0)) continue;
-			$key = strtoupper($key);
+			if((is_array($val) && count($val) <= 0) || (!is_array($val) && (string) $val == '')) continue;
+			$key = mb_strtoupper($key);
 			if (is_array($val)) $val = implode(" | ",$val);
 			switch($key)
 			{
@@ -410,8 +410,8 @@ class CAllTicketReminder
 		//$oldMess = $MESS;
 		IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/support/classes/general/messages.php", $arSite["LANGUAGE_ID"]);
 
-		$sourceName = strlen($arTicket["SOURCE_NAME"]) <= 0 ? "" : "[" . $arTicket["SOURCE_NAME"] . "] ";
-		if(intval($arTicket["OWNER_USER_ID"]) > 0 || strlen(trim($arTicket["OWNER_LOGIN"])) > 0)
+		$sourceName = $arTicket["SOURCE_NAME"] == '' ? "" : "[" . $arTicket["SOURCE_NAME"] . "] ";
+		if(intval($arTicket["OWNER_USER_ID"]) > 0 || trim($arTicket["OWNER_LOGIN"]) <> '')
 		{
 			$ownerText = "[" . $arTicket["OWNER_USER_ID"] . "] (" . $arTicket["OWNER_LOGIN"] . ") " . $arTicket["OWNER_NAME"];
 			//if(strlen(trim($OWNER_SID)) > 0 && $OWNER_SID != "null") $ownerText = " / " . $ownerText;
@@ -437,7 +437,7 @@ class CAllTicketReminder
 			foreach($arrEmails as $email)
 			{
 				$email = trim($email);
-				if(strlen($email) > 0)
+				if($email <> '')
 				{
 					preg_match_all("#[<\[\(](.*?)[>\]\)]#i" . BX_UTF_PCRE_MODIFIER, $email, $arr);
 					if(is_array($arr[1]) && count($arr[1]) > 0)
@@ -445,7 +445,7 @@ class CAllTicketReminder
 						foreach($arr[1] as $email)
 						{
 							$email = trim($email);
-							if(strlen($email)>0 && !in_array($email, $arrOwnerEMail) && check_email($email))
+							if($email <> '' && !in_array($email, $arrOwnerEMail) && check_email($email))
 							{
 								$arrOwnerEMail[] = $email;
 							}
@@ -460,9 +460,9 @@ class CAllTicketReminder
 
 		// prepare email to support
 		$support_email = $arTicket["RESPONSIBLE_EMAIL"];
-		if(strlen($support_email) <= 0)
+		if($support_email == '')
 			$support_email = $support_admin_email;
-		if(strlen($support_email) <= 0)
+		if($support_email == '')
 			$support_email = COption::GetOptionString("main", "email_from","");
 
 		$arr = explode(",", $support_email);
@@ -475,7 +475,7 @@ class CAllTicketReminder
 		$support_admin_email = implode(",", $arAdminEMails);
 
 		$createdModuleName = "";
-		if($arTicket["CREATED_MODULE_NAME"] == "support" || !strlen($arTicket["CREATED_MODULE_NAME"]))
+		if($arTicket["CREATED_MODULE_NAME"] == "support" || !mb_strlen($arTicket["CREATED_MODULE_NAME"]))
 		{
 			if(intval($arTicket["CREATED_USER_ID"]) > 0)
 			{

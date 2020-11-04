@@ -34,22 +34,22 @@ function CheckFilter() // проверка введенных полей
 	$str = "";
 	$arMsg = Array();
 
-	if (strlen(trim($find_date1))>0 || strlen(trim($find_date2))>0)
+	if (trim($find_date1) <> '' || trim($find_date2) <> '')
 	{
 		$date_1_ok = false;
 		$date1_stm = MkDateTime(ConvertDateTime($find_date1,"D.M.Y"),"d.m.Y");
 		$date2_stm = MkDateTime(ConvertDateTime($find_date2,"D.M.Y")." 23:59","d.m.Y H:i");
-		if (!$date1_stm && strlen(trim($find_date1))>0) 
+		if (!$date1_stm && trim($find_date1) <> '') 
 			//$str.= GetMessage("SUP_WRONG_DATE_FROM")."<br>";
 			$arMsg[] = array("id"=>"find_date1", "text"=> GetMessage("SUP_WRONG_DATE_FROM"));
 		else
 			$date_1_ok = true;
 
-		if (!$date2_stm && strlen(trim($find_date2))>0) 
+		if (!$date2_stm && trim($find_date2) <> '') 
 			//$str.= GetMessage("SUP_WRONG_DATE_TILL")."<br>";
 			$arMsg[] = array("id"=>"find_date2", "text"=> GetMessage("SUP_WRONG_DATE_TILL"));
 
-		elseif ($date_1_ok && $date2_stm <= $date1_stm && strlen($date2_stm)>0)
+		elseif ($date_1_ok && $date2_stm <= $date1_stm && $date2_stm <> '')
 			$arMsg[] = array("id"=>"find_date2", "text"=> GetMessage("SUP_FROM_TILL_DATE"));
 			//$str.= GetMessage("SUP_FROM_TILL_DATE")."<br>";
 	}
@@ -188,12 +188,12 @@ $arUsersID = array();
 
 while ($arTicket = $rsTickets->Fetch())
 {
-	if ($arTicket["DATE_CREATE_SHORT"]!=$PREV_CREATE && strlen($PREV_CREATE)>0)
+	if ($arTicket["DATE_CREATE_SHORT"]!=$PREV_CREATE && $PREV_CREATE <> '')
 	{
 		$show_graph = "Y";
 	}
 
-	if (strlen($arTicket["DATE_CLOSE"])<=0)
+	if ($arTicket["DATE_CLOSE"] == '')
 	{
 		$OPEN_TICKETS++;
 	}

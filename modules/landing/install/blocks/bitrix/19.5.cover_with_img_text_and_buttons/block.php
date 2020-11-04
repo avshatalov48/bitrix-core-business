@@ -7,7 +7,7 @@
 						We created
 						<br><span style="font-weight: bold;">revolution in app</span></h2>
 					<div class="g-mb-20 g-mb-35--lg">
-						<div class="landing-block-node-text landing-semantic-text-medium">
+						<div class="landing-block-node-text landing-semantic-text-medium" data-auto-font-scale>
 							Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
 							Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis
 							parturient montes, nascetur ridiculus mus.

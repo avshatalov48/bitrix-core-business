@@ -1976,7 +1976,7 @@ if (
 								],
 								'siteId' => SITE_ID,
 								'postUrl' => $postUrl,
-								'socnetRights' => $arFields["SOCNET_RIGHTS"],
+								'socnetRights' => (isset($logId) && (int)$logId > 0 ? \Bitrix\Socialnetwork\Item\LogRight::get($logId) : $arFields["SOCNET_RIGHTS"]),
 								'socnetRightsOld' => (!empty($socnetRightsOld) ? $socnetRightsOld : []),
 								'mentionListOld' => $mentionListOld,
 								'mentionList' => $mentionList,

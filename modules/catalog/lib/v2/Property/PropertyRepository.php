@@ -160,8 +160,8 @@ class PropertyRepository implements PropertyRepositoryContract
 		$result = [];
 
 		$filter = $params['filter'] ?? [];
+		
 		$propertyValuesIterator = \CIBlockElement::getPropertyValues($filter['IBLOCK_ID'], $filter, true);
-
 		while ($propertyValues = $propertyValuesIterator->fetch())
 		{
 			$descriptions = $propertyValues['DESCRIPTION'] ?? [];
@@ -291,20 +291,13 @@ class PropertyRepository implements PropertyRepositoryContract
 	{
 		foreach ($fields as &$field)
 		{
-			if ($settings['PROPERTY_TYPE'] === 'S' && $settings['USER_TYPE'] === 'HTML')
+			if (!empty($settings['USER_TYPE']))
 			{
-				if (!empty($field['VALUE']) && !is_array($field['VALUE']) && CheckSerializedData($fields['VALUE']))
+				$userType = \CIBlockProperty::GetUserType($settings['USER_TYPE']);
+				
+				if (array_key_exists('ConvertFromDB', $userType))
 				{
-					$field['VALUE'] = unserialize($field['VALUE'], [
-						'allowed_classes' => false,
-					]);
-				}
-				else
-				{
-					$field['VALUE'] = [
-						'TEXT' => '',
-						'TYPE' => 'HTML',
-					];
+					$field = call_user_func($userType['ConvertFromDB'], $settings, $field);
 				}
 			}
 		}

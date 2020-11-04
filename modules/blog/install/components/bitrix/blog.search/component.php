@@ -12,11 +12,11 @@ if (!CModule::IncludeModule("search"))
 	return;
 }
 
-$arParams["PAGE_RESULT_COUNT"] = IntVal($arParams["PAGE_RESULT_COUNT"])>0 ? IntVal($arParams["PAGE_RESULT_COUNT"]): 20;
-if(strlen($arParams["SEARCH_PAGE"])<=0)
+$arParams["PAGE_RESULT_COUNT"] = intval($arParams["PAGE_RESULT_COUNT"])>0 ? intval($arParams["PAGE_RESULT_COUNT"]): 20;
+if($arParams["SEARCH_PAGE"] == '')
 	$arParams["SEARCH_PAGE"] = $APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=search";
 $arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
-$arParams["NAV_TEMPLATE"] = (strlen($arParams["NAV_TEMPLATE"])>0 ? $arParams["NAV_TEMPLATE"] : "");
+$arParams["NAV_TEMPLATE"] = ($arParams["NAV_TEMPLATE"] <> '' ? $arParams["NAV_TEMPLATE"] : "");
 
 $arResult["~q"] = trim($_REQUEST["q"]);
 $arResult["~tags"] = trim($_REQUEST["tags"]);
@@ -27,25 +27,25 @@ $arResult["tags"] = htmlspecialcharsbx($arResult["~tags"]);
 $arResult["where"] = htmlspecialcharsbx($arResult["~where"]);
 $arResult["how"] = htmlspecialcharsbx($arResult["~how"]);
 
-if(strLen($arParams["BLOG_VAR"])<=0)
+if($arParams["BLOG_VAR"] == '')
 	$arParams["BLOG_VAR"] = "blog";
-if(strLen($arParams["PAGE_VAR"])<=0)
+if($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if(strLen($arParams["USER_VAR"])<=0)
+if($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "id";
-if(strLen($arParams["POST_VAR"])<=0)
+if($arParams["POST_VAR"] == '')
 	$arParams["POST_VAR"] = "id";
 	
 $arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"]);
-if(strlen($arParams["PATH_TO_BLOG"])<=0)
+if($arParams["PATH_TO_BLOG"] == '')
 	$arParams["PATH_TO_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
 	
 $arParams["PATH_TO_POST"] = trim($arParams["PATH_TO_POST"]);
-if(strlen($arParams["PATH_TO_POST"])<=0)
+if($arParams["PATH_TO_POST"] == '')
 	$arParams["PATH_TO_POST"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if(strlen($arParams["PATH_TO_USER"])<=0)
+if($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 if($arParams["SET_TITLE"]=="Y")
@@ -65,7 +65,7 @@ $arFilter = array(
 	"CHECK_DATES"	=> "Y",
 	"TAGS" => $arResult["~tags"],
 );
-if(strlen($arResult["~where"])>0)
+if($arResult["~where"] <> '')
 	$arFilter["PARAM1"]	= $arResult["~where"];
 if($arResult["~how"]=="d")
 	$aSort=array("DATE_CHANGE"=>"DESC", "CUSTOM_RANK"=>"DESC", "RANK"=>"DESC");
@@ -73,7 +73,7 @@ else
 	$aSort=array("CUSTOM_RANK"=>"DESC", "RANK"=>"DESC", "DATE_CHANGE"=>"DESC");
 
 $arResult["SEARCH_RESULT"] = Array();
-if(strlen($arResult["~q"])>0 || strlen($arResult["~tags"])>0)
+if($arResult["~q"] <> '' || $arResult["~tags"] <> '')
 {
 $obSearch = new CSearch();
 $obSearch->Search($arFilter, $aSort);
@@ -92,7 +92,7 @@ if($obSearch->errorno==0)
 			$arSearch["PARAM2"] = $Blog["OWNER_ID"];
 			$arSearch["BLOG_URL"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_BLOG"], array("blog" => $Blog["URL"]));
 			$arSearch["USER_URL"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $Blog["OWNER_ID"]));
-			$arSearch["URL"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_POST"], array("blog" => $Blog["URL"], "post_id"=>substr($arSearch["ITEM_ID"], 1)));
+			$arSearch["URL"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_POST"], array("blog" => $Blog["URL"], "post_id"=> mb_substr($arSearch["ITEM_ID"], 1)));
 		}
 		elseif($arSearch["PARAM1"]=="USER")
 		{
@@ -100,18 +100,18 @@ if($obSearch->errorno==0)
 		}
 		elseif($arSearch["PARAM1"]=="BLOG")
 		{
-			$Blog = CBlog::GetByID(substr($arSearch["ITEM_ID"], 1));
+			$Blog = CBlog::GetByID(mb_substr($arSearch["ITEM_ID"], 1));
 			$Blog = CBlogTools::htmlspecialcharsExArray($Blog);
 
 			$arSearch["URL"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_BLOG"], array("blog" => $Blog["URL"]));
 		}
 		elseif($arSearch["PARAM1"]=="COMMENT")
 		{
-			$pos = strpos($arSearch["PARAM2"], "|");
-			if(IntVal($pos) > 0)
+			$pos = mb_strpos($arSearch["PARAM2"], "|");
+			if(intval($pos) > 0)
 			{
-				$blogID = substr($arSearch["PARAM2"], 0, $pos);
-				$postID = substr($arSearch["PARAM2"], $pos+1);
+				$blogID = mb_substr($arSearch["PARAM2"], 0, $pos);
+				$postID = mb_substr($arSearch["PARAM2"], $pos + 1);
 		
 				$Blog = CBlog::GetByID($blogID);
 				$Blog = CBlogTools::htmlspecialcharsExArray($Blog);
@@ -120,11 +120,11 @@ if($obSearch->errorno==0)
 				$arSearch["BLOG_URL"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_BLOG"], array("blog" => $Blog["URL"]));
 				$arSearch["USER_URL"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $Blog["OWNER_ID"]));
 				$arSearch["URL"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_POST"], array("blog" => $Blog["URL"], "post_id"=>$postID));
-				if(strpos($arSearch["URL"], "?") !== false)
+				if(mb_strpos($arSearch["URL"], "?") !== false)
 					$arSearch["URL"] .= "&";
 				else
 					$arSearch["URL"] .= "?";
-				$arSearch["URL"] .= "commentId=".substr($arSearch["ITEM_ID"], 1)."#".substr($arSearch["ITEM_ID"], 1);
+				$arSearch["URL"] .= "commentId=".mb_substr($arSearch["ITEM_ID"], 1)."#".mb_substr($arSearch["ITEM_ID"], 1);
 			}
 		}
 		else
@@ -150,7 +150,7 @@ if($obSearch->errorno==0)
 	
 	if(count($arResult["SEARCH_RESULT"])>0)
 	{
-		if(strlen($arResult["~tags"])>0)
+		if($arResult["~tags"] <> '')
 			$arResult["ORDER_LINK"] = $APPLICATION->GetCurPageParam("tags=".urlencode($arResult["tags"])."&where=".urlencode($arResult["where"]), Array("tags", "where", "how"));
 		else
 			$arResult["ORDER_LINK"] = $APPLICATION->GetCurPageParam("q=".urlencode($arResult["q"])."&where=".urlencode($arResult["where"]), Array("q", "where", "how"));

@@ -118,30 +118,113 @@ function __logOnAjaxInsertToNode(params)
 
 function __logShowPostMenu(bindElement, ind, entity_type, entity_id, event_id, fullset_event_id, user_id, log_id, bFavorites, arMenuItemsAdditional)
 {
+	var itemPinned = null;
+	var itemFavorites = null;
+	var menuElement = null;
+
+	if (
+		!BX.type.isDomNode(bindElement)
+		&& BX.type.isPlainObject(bindElement)
+	)
+	{
+		var params = bindElement;
+		bindElement = params.bindElement;
+		menuElement = params.menuElement;
+		ind = params.ind;
+	}
+	else
+	{
+		menuElement = bindElement;
+	}
+
 	BX.PopupMenu.destroy("post-menu-" + ind);
 
-	var itemFavorites = null;
+	var pinnedPostNode = bindElement.closest('[data-livefeed-post-pinned]');
+
+	log_id = (typeof log_id !== 'undefined' ? parseInt(log_id) : 0);
+	if (log_id <= 0)
+	{
+		log_id = parseInt(menuElement.getAttribute('data-log-entry-log-id'));
+	}
+
+	if (log_id <= 0)
+	{
+		return false;
+	}
+
+	if (typeof bFavorites === 'undefined')
+	{
+		bFavorites = (menuElement.getAttribute('data-log-entry-favorites') === 'Y');
+	}
+
+	if (typeof arMenuItemsAdditional === 'undefined')
+	{
+		arMenuItemsAdditional = menuElement.getAttribute('data-bx-items');
+		try
+		{
+			arMenuItemsAdditional = JSON.parse(arMenuItemsAdditional);
+			if (!BX.type.isPlainObject(arMenuItemsAdditional))
+			{
+				arMenuItemsAdditional = {};
+			}
+		}
+		catch(e)
+		{
+			arMenuItemsAdditional = {};
+		}
+	}
+
+	if (pinnedPostNode)
+	{
+		var pinnedState = (pinnedPostNode.getAttribute('data-livefeed-post-pinned') == 'Y');
+
+		itemPinned = {
+			text : (pinnedState ? BX.message('SONET_EXT_LIVEFEED_MENU_TITLE_PINNED_Y') : BX.message('SONET_EXT_LIVEFEED_MENU_TITLE_PINNED_N')),
+			className : "menu-popup-no-icon",
+			onclick : function(e) {
+				BX.Livefeed.PinnedPanelInstance.changePinned({
+					logId: log_id,
+					newState: (pinnedState ? 'N' : 'Y'),
+					event: e,
+					node: bindElement
+				});
+				this.popupWindow.close();
+				e.preventDefault();
+			}
+		};
+	}
 
 	if (BX.message('sonetLbUseFavorites') != 'N')
 	{
 		itemFavorites = { 
-			text : (bFavorites ? BX.message('sonetLMenuFavoritesTitleY') : BX.message('sonetLMenuFavoritesTitleN')), 
+			text : (bFavorites ? BX.message('SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_Y') : BX.message('SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_N')),
 			className : "menu-popup-no-icon", 
-			onclick : function(e) { __logChangeFavorites(log_id, 'log_entry_favorites_' + log_id, (bFavorites ? 'N' : 'Y'), true); return BX.PreventDefault(e); } 
+			onclick : function(e) {
+				__logChangeFavorites(
+					log_id,
+					'log_entry_favorites_' + log_id,
+					(bFavorites ? 'N' : 'Y'),
+					true,
+					e
+				);
+				return BX.PreventDefault(e);
+			}
 		};
 	}
 
 	var arItems = [
+		itemPinned,
+		itemFavorites,
 		(
-			bindElement.getAttribute("data-log-entry-url").length > 0 ?
+			menuElement.getAttribute("data-log-entry-url").length > 0 ?
 			{
 				text : '<span id="post-menu-' + ind + '-href-text">' + BX.message("sonetLMenuHref") + '</span>',
 				className : "menu-popup-no-icon feed-entry-popup-menu feed-entry-popup-menu-href",
-				href : bindElement.getAttribute("data-log-entry-url")
+				href : menuElement.getAttribute("data-log-entry-url")
 			} : null
 		),
 		(
-			bindElement.getAttribute("data-log-entry-url").length > 0
+			menuElement.getAttribute("data-log-entry-url").length > 0
 			? {
 				text : '<span id="post-menu-' + ind + '-link-text">' + BX.message("sonetLMenuLink") + '</span>' +
 					'<span id="post-menu-' + ind + '-link-icon-animate" class="post-menu-link-icon-wrap">' +
@@ -163,7 +246,7 @@ function __logShowPostMenu(bindElement, ind, entity_type, entity_id, event_id, f
 							return;
 						}
 
-						BX.clipboard.copy(bindElement.getAttribute("data-log-entry-url"));
+						BX.clipboard.copy(menuElement.getAttribute("data-log-entry-url"));
 						if (
 							menuItemText
 							&& menuItemIconDone
@@ -231,7 +314,7 @@ function __logShowPostMenu(bindElement, ind, entity_type, entity_id, event_id, f
 															attrs : {
 																id : id + '-input',
 																type : "text",
-																value : bindElement.getAttribute('data-log-entry-url') } ,
+																value : menuElement.getAttribute('data-log-entry-url') } ,
 															style : {
 																height : pos["height"] + 'px',
 																width : (pos3["width"]-21) + 'px'
@@ -275,7 +358,6 @@ function __logShowPostMenu(bindElement, ind, entity_type, entity_id, event_id, f
 			}
 			: null
 		),
-		itemFavorites,
 		(
 			BX.message('sonetLCanDelete') == 'Y' ?
 			{
@@ -291,16 +373,16 @@ function __logShowPostMenu(bindElement, ind, entity_type, entity_id, event_id, f
 			} : null
 		),
 		(
-			bindElement.getAttribute("data-log-entry-createtask") == "Y"
+			menuElement.getAttribute("data-log-entry-createtask") == "Y"
 				? {
 					text : BX.message('sonetLMenuCreateTask'),
 					className : "menu-popup-no-icon",
 					onclick : function(e) {
 						oLF.createTask({
-							entryEntityType: bindElement.getAttribute('data-log-entry-entity-type'),
-							entityType: bindElement.getAttribute('data-log-entry-entity-type'),
-							entityId: bindElement.getAttribute('data-log-entry-entity-id'),
-							logId: parseInt(bindElement.getAttribute('data-log-entry-log-id'))
+							entryEntityType: menuElement.getAttribute('data-log-entry-entity-type'),
+							entityType: menuElement.getAttribute('data-log-entry-entity-type'),
+							entityId: menuElement.getAttribute('data-log-entry-entity-id'),
+							logId: parseInt(menuElement.getAttribute('data-log-entry-log-id'))
 						});
 						this.popupWindow.close();
 						return e.preventDefault();
@@ -338,8 +420,8 @@ function __logShowPostMenu(bindElement, ind, entity_type, entity_id, event_id, f
 						for (var i = 0; i < menuItems.length; i++)
 						{
 							if (
-								menuItems[i].innerHTML == BX.message('sonetLMenuFavoritesTitleY')
-								|| menuItems[i].innerHTML == BX.message('sonetLMenuFavoritesTitleN')
+								menuItems[i].innerHTML == BX.message('SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_Y')
+								|| menuItems[i].innerHTML == BX.message('SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_N')
 							)
 							{
 								var favoritesMenuItem = menuItems[i];
@@ -351,9 +433,9 @@ function __logShowPostMenu(bindElement, ind, entity_type, entity_id, event_id, f
 					if (favoritesMenuItem != undefined)
 					{
 						if (BX.hasClass(BX('log_entry_favorites_' + log_id), 'feed-post-important-switch-active'))
-							BX(favoritesMenuItem).innerHTML = BX.message('sonetLMenuFavoritesTitleY');
+							BX(favoritesMenuItem).innerHTML = BX.message('SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_Y');
 						else
-							BX(favoritesMenuItem).innerHTML = BX.message('sonetLMenuFavoritesTitleN');
+							BX(favoritesMenuItem).innerHTML = BX.message('SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_N');
 					}
 				}
 
@@ -399,92 +481,14 @@ function __logGetNextPageLinkEntities(entities, correspondences)
 	}
 }
 
-function __logChangeFavorites(log_id, node, newState, bFromMenu)
+function __logChangeFavorites(log_id, node, newState, bFromMenu, event)
 {
-	if (
-		!log_id
-		|| !BX(node)
-	)
-	{
-		return;
-	}
-
-	var menuItem = null;
-
-	if (!!bFromMenu)
-	{
-		menuItem = BX.proxy_context;
-		if (!BX.hasClass(BX(menuItem), 'menu-popup-item-text'))
-		{
-			menuItem = BX.findChild(BX(menuItem), {'className': 'menu-popup-item-text'}, true);
-		}
-	}
-
-	var nodeToAdjust = (
-		BX.hasClass(BX(node), 'feed-post-important-switch')
-			? BX(node)
-			: BX.findChild(BX(node), { 'className': 'feed-post-important-switch' })
-	);
-
-	newState = (
-		BX.hasClass(BX(nodeToAdjust), "feed-post-important-switch-active")
-			? 'N'
-			: 'Y'
-	);
-
-	if (newState == "Y")
-	{
-		BX.addClass(BX(nodeToAdjust), "feed-post-important-switch-active");
-		BX(nodeToAdjust).title = BX.message('sonetLMenuFavoritesTitleY');
-		if (menuItem)
-		{
-			BX(menuItem).innerHTML = BX.message('sonetLMenuFavoritesTitleY');
-		}
-	}
-	else
-	{
-		BX.removeClass(BX(nodeToAdjust), "feed-post-important-switch-active");
-		BX(nodeToAdjust).title = BX.message('sonetLMenuFavoritesTitleN');
-		if (menuItem)
-		{
-			BX(menuItem).innerHTML = BX.message('sonetLMenuFavoritesTitleN');
-		}
-	}
-
-	BX.ajax.runAction('socialnetwork.api.livefeed.changeFavorites', {
-		data: {
-			logId: log_id,
-			value: newState
-		},
-		analyticsLabel: {
-			b24statAction: (newState == 'Y' ? 'addFavorites' : 'removeFavorites')
-		}
-	}).then(function(response) {
-		if (
-			BX.type.isNotEmptyString(response.data.newValue)
-			&& BX.util.in_array(response.data.newValue, ['Y', 'N'])
-		)
-		{
-			if (response.data.newValue == "Y")
-			{
-				BX.addClass(BX(nodeToAdjust), "feed-post-important-switch-active");
-				BX(nodeToAdjust).title = BX.message('sonetLMenuFavoritesTitleY');
-				if (menuItem)
-				{
-					BX(menuItem).innerHTML = BX.message('sonetLMenuFavoritesTitleY');
-				}
-			}
-			else
-			{
-				BX.removeClass(BX(nodeToAdjust), "feed-post-important-switch-active");
-				BX(nodeToAdjust).title = BX.message('sonetLMenuFavoritesTitleN');
-				if (menuItem)
-				{
-					BX(menuItem).innerHTML = BX.message('sonetLMenuFavoritesTitleN');
-				}
-			}
-		}
-	}, function(response) {
+	BX.Livefeed.FeedInstance.changeFavorites({
+		logId: log_id,
+		node: node,
+		newState: newState,
+		fromMenu: !!bFromMenu,
+		event: event
 	});
 }
 
@@ -1112,7 +1116,7 @@ BitrixLF.prototype.getNextPage = function()
 		found = key.match(/^PAGEN_(\d+)$/i);
 		if (found)
 		{
-			pageNumber = nextUrlParam[key];
+			pageNumber = parseInt(nextUrlParam[key]);
 		}
 		else if(key == 'pplogid')
 		{
@@ -1139,7 +1143,9 @@ BitrixLF.prototype.getNextPage = function()
 				LAST_LOG_TIMESTAMP: ts,
 				PREV_PAGE_LOG_ID: prevPageLogId,
 				siteTemplateId: BX.message('sonetLSiteTemplateId'),
-				useBXMainFilter: this.useBXMainFilter
+				useBXMainFilter: this.useBXMainFilter,
+				preset_filter_top_id: (BX.type.isNotEmptyString(nextUrlParam['preset_filter_top_id']) && nextUrlParam['preset_filter_top_id'] !== '0' ? nextUrlParam['preset_filter_top_id'] : ''),
+				preset_filter_id: (BX.type.isNotEmptyString(nextUrlParam['preset_filter_id']) && nextUrlParam['preset_filter_id'] !== '0' ? nextUrlParam['preset_filter_id'] : '')
 			}
 		}
 	}).then(function(response) {
@@ -1188,11 +1194,20 @@ BitrixLF.prototype.getNextPage = function()
 			});
 
 			BX('log_internal_container').appendChild(pageNode);
-			BX.Runtime.html(pageNode, responseData.html);
+			BX.Runtime.html(pageNode, responseData.html).then(function() {
+				if (pageNumber > 2)
+				{
+					this.bStopTrackNextPage = false;
+					this.recalcMoreButton();
+					this.registerViewAreaList();
+					this.recalcMoreButtonCommentsList();
+					BX.Livefeed.PinnedPanelInstance.initPosts();
+				}
+			}.bind(this));
 
 			this.clearContainerExternal(false);
 
-			if (this.nextPageFirst)
+			if (pageNumber === 2)
 			{
 				BX('feed-new-message-inf-text-first').style.display = 'block';
 				BX('feed-new-message-inf-loader-first').style.display = 'none';
@@ -1209,6 +1224,8 @@ BitrixLF.prototype.getNextPage = function()
 					this.recalcMoreButton();
 					this.registerViewAreaList();
 					this.recalcMoreButtonCommentsList();
+					BX.onCustomEvent(window, 'BX.Livefeed:recalculateComments', [{ rootNode: BX(contentBlockId) }]);
+					BX.Livefeed.PinnedPanelInstance.initPosts();
 				}.bind(this);
 				BX.bind(BX('sonet_log_more_container_first'), 'click', f);
 			}
@@ -1218,16 +1235,6 @@ BitrixLF.prototype.getNextPage = function()
 				{
 					BX(contentBlockId).style.display = 'block';
 				}
-
-				setTimeout(function() {
-					this.bStopTrackNextPage = false;
-				}.bind(this), 300);
-
-				setTimeout(function() {
-					this.recalcMoreButton();
-					this.registerViewAreaList();
-					this.recalcMoreButtonCommentsList();
-				}.bind(this), 1000);
 			}
 
 			this.nextPageFirst = false;
@@ -1377,13 +1384,13 @@ BitrixLF.prototype.refresh = function(params, filterPromise)
 			});
 
 			BX('log_internal_container').appendChild(pageNode);
-			BX.Runtime.html(pageNode, responseData.html);
-
-			setTimeout(function() {
+			BX.Runtime.html(pageNode, responseData.html).then(function() {
 				this.recalcMoreButton();
 				this.recalcMoreButtonCommentsList();
-			}.bind(this), 1);
-			this.registerViewAreaList();
+				this.registerViewAreaList();
+				BX.Livefeed.PinnedPanelInstance.initPanel();
+				BX.Livefeed.PinnedPanelInstance.initPosts();
+			}.bind(this));
 
 			this.bStopTrackNextPage = false;
 

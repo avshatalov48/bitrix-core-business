@@ -5,14 +5,13 @@ import SearchEngine from '../../search/search-engine';
 import MatchResult from '../../search/match-result';
 import SearchQuery from '../../search/search-query';
 import SearchLoader from './search-loader';
-import Item from '../../item/item';
+import SearchTabFooter from '../footer/search-tab-footer';
 
-import type { BaseEvent } from 'main.core.events';
 import type { ItemOptions } from '../../item/item-options';
 import type { TabOptions } from './tab-options';
-import type { SearchOptions } from '../search-options';
 import type Entity from '../../entity/entity';
-import type ItemNode from '../../item/item-node';
+import type Dialog from '../dialog';
+import type { SearchOptions } from '../search-options';
 
 export default class SearchTab extends Tab
 {
@@ -23,11 +22,8 @@ export default class SearchTab extends Tab
 	searchLoader: SearchLoader = new SearchLoader(this);
 
 	allowCreateItem: boolean = false;
-	draftItem: ?Item = null;
-	draftItemOptions: ItemOptions = {};
-	draftItemRender: ?Function = null;
 
-	constructor(tabOptions: TabOptions, searchOptions: SearchOptions)
+	constructor(dialog: Dialog, tabOptions: TabOptions, searchOptions: SearchOptions)
 	{
 		const defaults = {
 			title: Loc.getMessage('UI_SELECTOR_SEARCH_TAB_TITLE'),
@@ -40,30 +36,26 @@ export default class SearchTab extends Tab
 			}
 		};
 
-		const options = Object.assign({}, defaults, tabOptions);
+		const options: TabOptions = Object.assign({}, defaults, tabOptions);
 		options.id = 'search';
 		options.stubOptions.autoShow = false;
 
-		super(options);
+		super(dialog, options);
 
-		this.handleOnBeforeItemSelect = this.handleOnBeforeItemSelect.bind(this);
 		searchOptions = Type.isPlainObject(searchOptions) ? searchOptions : {};
-
-		this.setAllowCreateItem(searchOptions.allowCreateItem);
-		this.setDraftItemOptions(searchOptions.draftItemOptions);
-		this.setDraftItemRender(searchOptions.draftItemRender);
+		this.setAllowCreateItem(searchOptions.allowCreateItem, searchOptions.footerOptions);
 	}
 
 	search(query: string)
 	{
-		this.getSearchLoader().hide();
-
 		const searchQuery = new SearchQuery(query);
 		const dynamicEntities = this.getDynamicEntities(searchQuery);
 		searchQuery.setDynamicSearchEntities(dynamicEntities);
 
 		if (searchQuery.isEmpty())
 		{
+			this.getSearchLoader().hide();
+
 			return;
 		}
 
@@ -75,20 +67,6 @@ export default class SearchTab extends Tab
 		});
 
 		this.clearResults();
-
-		if (this.canCreateItem())
-		{
-			this.getRootNode().addItem(this.getDraftItem());
-
-			if (this.getDraftItemRender() !== null)
-			{
-				this.getDraftItemRender()(this.getDraftItem(), searchQuery);
-			}
-			else
-			{
-				this.getDraftItem().setTitle(searchQuery.getQuery());
-			}
-		}
 
 		this.appendResults(matchResults);
 
@@ -107,7 +85,10 @@ export default class SearchTab extends Tab
 		}
 		else
 		{
-			this.toggleEmptyResult();
+			if (!this.getSearchLoader().isShown())
+			{
+				this.toggleEmptyResult();
+			}
 		}
 	}
 
@@ -116,112 +97,26 @@ export default class SearchTab extends Tab
 		return this.lastSearchQuery;
 	}
 
-	setAllowCreateItem(flag: boolean): void
+	setAllowCreateItem(flag: boolean, options?: { [option: string]: any }): void
 	{
 		if (Type.isBoolean(flag))
 		{
 			this.allowCreateItem = flag;
 
-			if (this.getDialog())
+			if (flag)
 			{
-				if (flag)
-				{
-					this.createDraftItem();
-				}
-				else
-				{
-					this.removeDraftItem();
-				}
+				this.setFooter(SearchTabFooter, options);
+			}
+			else
+			{
+				this.setFooter(null);
 			}
 		}
-	}
-
-	setDraftItemOptions(draftItemOptions: ItemOptions): void
-	{
-		if (Type.isPlainObject(draftItemOptions))
-		{
-			this.draftItemOptions = draftItemOptions;
-		}
-	}
-
-	setDraftItemRender(fn: ?Function): void
-	{
-		if (Type.isFunction(fn) || fn === null)
-		{
-			this.draftItemRender = fn;
-		}
-	}
-
-	getDraftItemRender(): ?Function
-	{
-		return this.draftItemRender;
-	}
-
-	getDraftItemOptions(): ItemOptions
-	{
-		return this.draftItemOptions;
-	}
-
-	/**
-	 * @internal
-	 */
-	createDraftItem()
-	{
-		if (this.draftItem === null)
-		{
-			const itemOptions = Object.assign(
-				{},
-				this.getDraftItemOptions(),
-				{
-					id: 'draft-item',
-					entityId: 'search-tab',
-					searchable: false,
-					saveable: false,
-					avatar:
-						'data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%2' +
-						'0fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20fill-rule%' +
-						'3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M12%2024c6.627%200%2012-5.373%201' +
-						'2-12S18.627%200%2012%200%200%205.373%200%2012s5.373%2012%2012%2012z%22%20fill%3D%22%23' +
-						'2FC6F6%22/%3E%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22' +
-						'M13%207h-2v4H7v2h4v4h2v-4h4v-2h-4V7z%22%20fill%3D%22%23fff%22/%3E%3C/svg%3E'
-				}
-			);
-
-			this.draftItem = this.getDialog().addItem(itemOptions);
-			this.getDialog().subscribe('Item:onBeforeSelect', this.handleOnBeforeItemSelect);
-		}
-
-		return this.draftItem;
-	}
-
-	/**
-	 * @internal
-	 */
-	removeDraftItem()
-	{
-		if (this.draftItem === null)
-		{
-			return;
-		}
-
-		this.getDialog().removeItem(this.draftItem);
-		this.getDialog().unsubscribe('Item:onBeforeSelect', this.handleOnBeforeItemSelect);
-		this.draftItem = null;
 	}
 
 	canCreateItem(): boolean
 	{
 		return this.allowCreateItem;
-	}
-
-	getDraftItem(): ?Item
-	{
-		if (!this.canCreateItem())
-		{
-			return null;
-		}
-
-		return this.createDraftItem();
 	}
 
 	appendResults(matchResults: MatchResult[]): void
@@ -417,6 +312,8 @@ export default class SearchTab extends Tab
 			.catch((error) => {
 				this.removeCacheQuery(searchQuery);
 				this.getSearchLoader().hide();
+				this.toggleEmptyResult();
+
 				console.error(error);
 			});
 	}
@@ -446,65 +343,5 @@ export default class SearchTab extends Tab
 		{
 			this.getStub().hide();
 		}
-	}
-
-	handleOnBeforeItemSelect(event: BaseEvent): void
-	{
-		const { item } = event.getData();
-		if (item !== this.getDraftItem())
-		{
-			return;
-		}
-
-		const showLoader = () => {
-			if (this.getDraftItem())
-			{
-				this.getDraftItem().getNodes().forEach((node: ItemNode) => {
-					node.showLoader();
-				});
-			}
-		};
-
-		const hideLoader = () => {
-			if (this.getDraftItem())
-			{
-				this.getDraftItem().getNodes().forEach((node: ItemNode) => {
-					node.hideLoader();
-				});
-			}
-		};
-
-		const finalize = () => {
-			hideLoader();
-			if (this.getDialog().getTagSelector())
-			{
-				this.getDialog().getTagSelector().unlock();
-				this.getDialog().focusSearch();
-			}
-		};
-
-		event.preventDefault();
-		showLoader();
-		this.getDialog().getTagSelector().lock();
-
-		this.getDialog()
-			.emitAsync('Search:onItemCreateAsync', {
-				draftItem: this.getDraftItem(),
-				searchQuery: this.getLastSearchQuery()
-			})
-			.then(() => {
-				this.clearResults();
-				this.getDialog().clearSearch();
-				if (this.getDialog().getActiveTab() === this)
-				{
-					this.getDialog().selectFirstTab();
-				}
-
-				finalize();
-			})
-			.catch(() => {
-				finalize();
-			})
-		;
 	}
 }

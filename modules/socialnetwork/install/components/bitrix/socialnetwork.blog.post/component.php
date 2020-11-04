@@ -332,7 +332,7 @@ $a->UpdateCodes();
 if(
 	(
 		!empty($arBlog)
-		&& $arBlog["ACTIVE"] == "Y"
+		&& $arBlog["ACTIVE"] === "Y"
 	)
 	|| $arResult["bFromList"]
 	|| $arResult["bPublicPage"]
@@ -342,18 +342,47 @@ if(
 	{
 		$bNoLogEntry = false;
 
+		$fetchLogEntryNeeded = false;
 		if (
-			(
-				(
-					$arParams["GET_FOLLOW"] == "Y"
-					&& (
-						!array_key_exists("FOLLOW", $arParams)
-						|| $arParams["FOLLOW"] == ''
-					)
-				)
-				|| intval($arParams["LOG_ID"]) <= 0
-				|| $arResult["bPublicPage"]
+			$arParams['GET_FOLLOW'] === 'Y'
+			&& (
+				!array_key_exists('FOLLOW', $arParams)
+				|| $arParams['FOLLOW'] == ''
 			)
+		)
+		{
+			$fetchLogEntryNeeded = true;
+		}
+
+		if (
+			$USER->isAuthorized()
+			&& (
+				!array_key_exists('PINNED', $arParams)
+				|| $arParams['PINNED'] == ''
+			)
+		)
+		{
+			$fetchLogEntryNeeded = true;
+		}
+
+		if (
+			!$fetchLogEntryNeeded
+			&& (int)$arParams['LOG_ID'] <= 0
+		)
+		{
+			$fetchLogEntryNeeded = true;
+		}
+
+		if (
+			!$fetchLogEntryNeeded
+			&& $arResult['bPublicPage']
+		)
+		{
+			$fetchLogEntryNeeded = true;
+		}
+
+		if (
+			$fetchLogEntryNeeded
 			&& CModule::IncludeModule("socialnetwork")
 		)
 		{
@@ -373,13 +402,26 @@ if(
 				$arFilter["SITE_ID"] = array(SITE_ID, false);
 			}
 
+			$listParams = [];
+			$listSelect = [ 'ID', 'FAVORITES_USER_ID' ];
+			if ($arParams['GET_FOLLOW'] === 'Y')
+			{
+				$listParams['USE_FOLLOW'] = 'Y';
+				$listSelect[] = 'FOLLOW';
+			}
+			if ($USER->isAuthorized())
+			{
+				$listParams['USE_PINNED'] = 'Y';
+				$listSelect[] = 'PINNED_USER_ID';
+			}
+
 			$rsLogSrc = CSocNetLog::GetList(
 				array(),
 				$arFilter,
 				false,
 				false,
-				($arParams["GET_FOLLOW"] == "Y" ? array("ID", "FOLLOW", "FAVORITES_USER_ID") : array("ID", "FAVORITES_USER_ID")),
-				($arParams["GET_FOLLOW"] == "Y" ? array("USE_FOLLOW" => "Y") : array())
+				$listSelect,
+				$listParams
 			);
 
 			if ($arLogSrc = $rsLogSrc->Fetch())
@@ -389,6 +431,10 @@ if(
 				if ($arParams["GET_FOLLOW"] == "Y")
 				{
 					$arParams["FOLLOW"] = $arLogSrc["FOLLOW"];
+				}
+				if ($USER->isAuthorized())
+				{
+					$arParams['PINNED'] = ($arLogSrc['PINNED_USER_ID'] ? 'Y' : 'N');
 				}
 			}
 			elseif (!$arResult["bFromList"])
@@ -582,8 +628,6 @@ if(
 				&& $_SERVER["REQUEST_METHOD"] != "POST"
 			)
 			{
-				CBlogPost::counterInc($arPost["ID"]);
-
 				if ($liveFeedEntity = Livefeed\BlogPost::init(array(
 					'ENTITY_TYPE' => Livefeed\Provider::DATA_ENTITY_TYPE_BLOG_POST,
 					'ENTITY_ID' => $arPost["ID"],

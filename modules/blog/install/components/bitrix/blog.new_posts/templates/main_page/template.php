@@ -14,7 +14,7 @@ foreach($arResult as $arPost)
 			<div class="blg-mp-date intranet-date"><?echo $arPost["DATE_PUBLISH_FORMATED"];?></div>
 			<div class="blg-mp-name">
 			<?
-			if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && (strlen($arPost["urlToBlog"]) > 0 || strlen($arPost["urlToAuthor"]) > 0) && array_key_exists("BLOG_USER_ALIAS", $arPost) && strlen($arPost["BLOG_USER_ALIAS"]) > 0)
+			if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && ($arPost["urlToBlog"] <> '' || $arPost["urlToAuthor"] <> '') && array_key_exists("BLOG_USER_ALIAS", $arPost) && $arPost["BLOG_USER_ALIAS"] <> '')
 				$arTmpUser = array(
 					"NAME" => "",
 					"LAST_NAME" => "",
@@ -22,7 +22,7 @@ foreach($arResult as $arPost)
 					"LOGIN" => "",
 					"NAME_LIST_FORMATTED" => $arPost["~BLOG_USER_ALIAS"],
 				);
-			elseif (strlen($arPost["urlToBlog"]) > 0 || strlen($arPost["urlToAuthor"]) > 0)
+			elseif ($arPost["urlToBlog"] <> '' || $arPost["urlToAuthor"] <> '')
 				$arTmpUser = array(
 					"NAME" => $arPost["~AUTHOR_NAME"],
 					"LAST_NAME" => $arPost["~AUTHOR_LAST_NAME"],
@@ -64,10 +64,10 @@ foreach($arResult as $arPost)
 			?>			
 			</div>
 			<div class="blg-mp-post"><a href="<?=$arPost["urlToPost"]?>"><?echo $arPost["TITLE"]?></a></div>
-			<?if(IntVal($arPost["VIEWS"]) > 0):?>
+			<?if(intval($arPost["VIEWS"]) > 0):?>
 				<div class="blg-mp-post"><?=GetMessage("BLOG_BLOG_M_VIEWS")?> <?=$arPost["VIEWS"]?></div>
 			<?endif;?>
-			<?if(IntVal($arPost["NUM_COMMENTS"]) > 0):?>
+			<?if(intval($arPost["NUM_COMMENTS"]) > 0):?>
 				<div class="blg-mp-post"><?=GetMessage("BLOG_BLOG_M_NUM_COMMENTS")?> <?=$arPost["NUM_COMMENTS"]?></div>
 			<?endif;?>
 			<div class="bx-users-delimiter"></div>

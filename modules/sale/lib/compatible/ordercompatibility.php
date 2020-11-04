@@ -3142,33 +3142,6 @@ class OrderCompatibility extends Internals\EntityCompatibility
 	{
 		$result = new Sale\Result();
 
-		$paymentSystemId = false;
-		$deliveryId = false;
-
-		/** @var Sale\PaymentCollection $paymentCollection */
-		if ($paymentCollection = $order->getPaymentCollection())
-		{
-			/** @var Sale\Payment $payment */
-			if ($payment = $paymentCollection->rewind())
-			{
-				$paymentSystemId = $payment->getPaymentSystemId();
-			}
-		}
-
-		/** @var Sale\ShipmentCollection $shipe */
-		if ($shipmentCollection = $order->getShipmentCollection())
-		{
-			/** @var Sale\Shipment $shipment */
-			foreach ($shipmentCollection as $shipment)
-			{
-				if ($shipment->getDeliveryId() > 0)
-				{
-					$deliveryId = $shipment->getDeliveryId();
-					break;
-				}
-			}
-		}
-
 		$fields = array(
 			"SITE_ID" => $order->getSiteId(),
 			"LID" => $order->getSiteId(),
@@ -3176,9 +3149,9 @@ class OrderCompatibility extends Internals\EntityCompatibility
 			"PRICE" => $order->getPrice(),
 			"CURRENCY" => $order->getCurrency(),
 			"USER_ID" => $order->getUserId(),
-			"PAY_SYSTEM_ID" => $paymentSystemId,
+			"PAY_SYSTEM_ID" => (int)$order->getField('PAY_SYSTEM_ID'),
 			"PRICE_DELIVERY" => $order->getDeliveryPrice(),
-			"DELIVERY_ID" => $deliveryId,
+			"DELIVERY_ID" => (int)$order->getField('DELIVERY_ID'),
 			"DISCOUNT_VALUE" => $order->getDiscountPrice(),
 			"TAX_VALUE" => $order->getTaxValue(),
 			"TRACKING_NUMBER" => $order->getField('TRACKING_NUMBER'),

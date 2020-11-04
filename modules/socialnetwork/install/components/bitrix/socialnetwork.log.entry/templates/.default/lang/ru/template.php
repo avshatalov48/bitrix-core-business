@@ -44,8 +44,9 @@ $MESS["SONET_LOG_T_FOLLOW_Y"] = "Не следить";
 $MESS["SONET_LOG_T_FOLLOW_N"] = "Следить";
 $MESS["SONET_COMMENT_ERROR"] = "Ошибка добавления комментария:";
 $MESS["SONET_LOG_T_BUTTON_MORE"] = "Ещё";
-$MESS["SONET_LOG_TITLE_FAVORITES_N"] = "Добавить в избранное";
-$MESS["SONET_LOG_TITLE_FAVORITES_Y"] = "Убрать из избранного";
 $MESS["SONET_C30_PREV_COMMENTS"] = "Смотреть предыдущие комментарии";
 $MESS["SONET_C30_TAGS"] = "Теги:";
+$MESS["SONET_C30_FEED_PINNED_EXPAND"] = "показать полностью";
+$MESS["SONET_C30_FEED_PINNED_COLLAPSE"] = "свернуть";
+$MESS["SONET_C30_PINNED_COMMENTS"] = "Комментарии:";
 ?>

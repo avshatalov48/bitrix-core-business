@@ -999,6 +999,12 @@ class BasketCompatibility extends Internals\EntityCompatibility
 
 			/** @var Sale\Result $r */
 			$r = $basket->save();
+
+			if ($r->isSuccess())
+			{
+				Sale\BasketComponentHelper::clearFUserBasketQuantity($itemDat['FUSER_ID'], $itemDat['LID']);
+				Sale\BasketComponentHelper::clearFUserBasketPrice($itemDat['FUSER_ID'], $itemDat['LID']);
+			}
 		}
 
 		if (!$r->isSuccess())
@@ -1010,7 +1016,7 @@ class BasketCompatibility extends Internals\EntityCompatibility
 	}
 
 	/**
-	 * @internal 
+	 * @internal
 	 * @return array
 	 */
 	public static function getAliasFields()

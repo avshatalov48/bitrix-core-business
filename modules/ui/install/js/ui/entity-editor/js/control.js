@@ -263,6 +263,10 @@ if(typeof BX.UI.EntityEditorControl === "undefined")
 		{
 			return this._schemeElement && this._schemeElement.isRequiredConditionally();
 		},
+		isRequiredByAttribute: function()
+		{
+			return this._schemeElement && this._schemeElement.isRequiredByAttribute();
+		},
 		isHeading: function()
 		{
 			return this._schemeElement && this._schemeElement.isHeading();
@@ -699,7 +703,7 @@ if(typeof BX.UI.EntityEditorControl === "undefined")
 		},
 		createHideButton: function()
 		{
-			var enabled = !this.isRequired() && !this.isRequiredConditionally();
+			var enabled = !this.isRequired() && !this.isRequiredByAttribute() && !this.isRequiredConditionally();
 			var button = BX.create(
 				"div",
 				{
@@ -719,7 +723,7 @@ if(typeof BX.UI.EntityEditorControl === "undefined")
 		},
 		hide: function()
 		{
-			if(this.isRequired() || this.isRequiredConditionally())
+			if(this.isRequired() || this.isRequiredByAttribute() || this.isRequiredConditionally())
 			{
 				return;
 			}
@@ -891,7 +895,7 @@ if(typeof BX.UI.EntityEditorControl === "undefined")
 				return false;
 			}
 
-			return this._schemeElement.isContextMenuEnabled();
+			return this._schemeElement ? this._schemeElement.isContextMenuEnabled() : false;
 		},
 		onContextMenuShow: function()
 		{
@@ -1307,7 +1311,7 @@ if(typeof BX.UI.EntityEditorField === "undefined")
 			return null;
 		}
 
-		if(this.isRequired())
+		if(this.isRequired() || this.isRequiredByAttribute())
 		{
 			return BX.create("span", { style: { color: "#f00" }, text: "*" });
 		}
@@ -1431,11 +1435,11 @@ if(typeof BX.UI.EntityEditorField === "undefined")
 	};
 	BX.UI.EntityEditorField.prototype.isWaitingForInput = function()
 	{
-		return this.isInEditMode() && this.isRequired() && !this.hasValue();
+		return this.isInEditMode() && (this.isRequired() || this.isRequiredByAttribute()) && !this.hasValue();
 	};
 	BX.UI.EntityEditorField.prototype.hide = function()
 	{
-		if(!(this.isRequired() || this.isRequiredConditionally()))
+		if(!(this.isRequired() || this.isRequiredConditionally() || this.isRequiredByAttribute()))
 		{
 			BX.UI.EntityEditorField.superclass.hide.apply(this, arguments);
 		}
@@ -1452,7 +1456,7 @@ if(typeof BX.UI.EntityEditorField === "undefined")
 	BX.UI.EntityEditorField.prototype.getEditPriority = function()
 	{
 		var hasValue = this.hasValue();
-		if(!hasValue && (this.isRequired() || this.isRequiredConditionally()))
+		if(!hasValue && (this.isRequired() || this.isRequiredByAttribute() || this.isRequiredConditionally()))
 		{
 			return BX.UI.EntityEditorPriority.high;
 		}
@@ -3363,7 +3367,7 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 		if (this._schemeElement.getDataBooleanParam("isRemovable", true))
 		{
 			var deleteClassName = "ui-entity-editor-content-remove-lnk";
-			if (this.isRequired() || this.isRequiredConditionally())
+			if (this.isRequired() || this.isRequiredByAttribute() || this.isRequiredConditionally())
 			{
 				deleteClassName = "ui-entity-editor-content-remove-lnk-disabled";
 			}
@@ -3675,6 +3679,13 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 			}
 
 			child.layout(layoutOpts);
+			if (
+				!BX.hasClass(this._contentContainer, "ui-entity-editor-section-content-padding-right") &&
+				child.isContextMenuEnabled()
+			)
+			{
+				BX.addClass(this._contentContainer, "ui-entity-editor-section-content-padding-right");
+			}
 		}
 
 		var scrollIntoView = BX.prop.getBoolean(options, "scrollIntoView", false);
@@ -4160,7 +4171,7 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 		}
 
 		this._fieldConfigurator.setLocked(true);
-		field.setTitle(label);
+		field.getSchemeElement().setTitle(label);
 		if(showAlways !== null && showAlways !== field.checkOptionFlag(BX.UI.EntityEditorControlOptions.showAlways))
 		{
 			field.toggleOptionFlag(BX.UI.EntityEditorControlOptions.showAlways);
@@ -4187,13 +4198,19 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 									this._mandatoryConfigurator.acceptChanges();
 								}
 								var attributeConfig = this._mandatoryConfigurator.getConfiguration();
-								this._editor.getAttributeManager().saveConfiguration(attributeConfig, field.getName());
+								this._editor.getAttributeManager().saveConfiguration(
+									attributeConfig,
+									field.getName()
+								);
 								field.setAttributeConfiguration(attributeConfig);
 							}
 							else
 							{
 								var attributeTypeId = this._mandatoryConfigurator.getTypeId();
-								this._editor.getAttributeManager().removeConfiguration(attributeTypeId, field.getName());
+								this._editor.getAttributeManager().removeConfiguration(
+									attributeTypeId,
+									field.getName()
+								);
 								field.removeAttributeConfiguration(attributeTypeId);
 							}
 						}
@@ -4201,6 +4218,7 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 						this._visibilityConfigurator = null;
 					}
 					this.removeFieldConfigurator();
+					field.setTitle(label);
 				},
 				this
 			)
@@ -4570,7 +4588,7 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 	};
 	BX.UI.EntityEditorSection.prototype.onDeleteSectionBtnClick = function(e)
 	{
-		if(this.isRequired() || this.isRequiredConditionally())
+		if(this.isRequired() || this.isRequiredByAttribute() || this.isRequiredConditionally())
 		{
 			this.showMessageDialog(
 				"operationDenied",
@@ -4888,6 +4906,17 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 		}
 		return false;
 	};
+	BX.UI.EntityEditorSection.prototype.isRequiredByAttribute = function()
+	{
+		for(var i = 0, l = this._fields.length; i < l; i++)
+		{
+			if(this._fields[i].isRequiredByAttribute())
+			{
+				return true;
+			}
+		}
+		return false;
+	};
 	BX.UI.EntityEditorSection.prototype.ensureButtonPanelWrapperCreated = function()
 	{
 		if(!this._hasLayout)
@@ -5116,7 +5145,6 @@ if(typeof BX.UI.EntityEditorText === "undefined")
 			return;
 		}
 
-		var name = this.getName();
 		var title = this.getTitle();
 		var value = this.getValue();
 
@@ -5132,62 +5160,10 @@ if(typeof BX.UI.EntityEditorText === "undefined")
 		if(this._mode === BX.UI.EntityEditorMode.edit)
 		{
 			this._wrapper.appendChild(this.createTitleNode(title));
-
-			var lineCount = this.getLineCount();
-
-			this._inputContainer = BX.create("div",
-				{
-					attrs: { className: "ui-ctl ui-ctl-textbox ui-ctl-w100" }
-				}
-			);
-
-			if(lineCount > 1)
-			{
-				this._input = BX.create("textarea",
-					{
-						props:
-							{
-								className: "ui-entity-editor-field-textarea",
-								name: name,
-								rows: lineCount,
-								value: value
-							}
-					}
-				);
-			}
-			else
-			{
-				this._input = BX.create("input",
-					{
-						attrs:
-							{
-								name: name,
-								className: "ui-ctl-element",
-								type: "text",
-								value: value,
-								id: this._id.toLowerCase() + "_text"
-							}
-					}
-				);
-			}
-
-			this._inputContainer.appendChild(this._input);
-
-			if(this.isNewEntity())
-			{
-				var placeholder = this.getCreationPlaceholder();
-				if(placeholder !== "")
-				{
-					this._input.setAttribute("placeholder", placeholder);
-				}
-			}
-
-			BX.bind(this._input, "input", this._changeHandler);
-
 			this._innerWrapper = BX.create("div",
 			{
 				props: { className: "ui-entity-editor-content-block" },
-				children: [ this._inputContainer ]
+				children: this.getEditModeHtmlNodes()
 			});
 		}
 		else// if(this._mode === BX.UI.EntityEditorMode.view)
@@ -5253,6 +5229,63 @@ if(typeof BX.UI.EntityEditorText === "undefined")
 		this.registerLayout(options);
 		this._hasLayout = true;
 	};
+	BX.UI.EntityEditorText.prototype.getEditModeHtmlNodes = function()
+	{
+		var value = this.getValue();
+		var lineCount = this.getLineCount();
+
+		this._inputContainer = BX.create("div",
+			{
+				attrs: { className: "ui-ctl ui-ctl-textbox ui-ctl-w100" }
+			}
+		);
+
+		if(lineCount > 1)
+		{
+			this._input = BX.create("textarea",
+				{
+					props:
+						{
+							className: "ui-entity-editor-field-textarea",
+							rows: lineCount,
+							value: value
+						}
+				}
+			);
+		}
+		else
+		{
+			this._input = BX.create("input",
+				{
+					attrs:
+						{
+							className: "ui-ctl-element",
+							type: "text",
+							value: value,
+							id: this._id.toLowerCase() + "_text"
+						}
+				}
+			);
+		}
+		if (!this.isVirtual())
+		{
+			this._input.name = this.getName();
+		}
+
+		this._inputContainer.appendChild(this._input);
+
+		if(this.isNewEntity())
+		{
+			var placeholder = this.getCreationPlaceholder();
+			if(placeholder !== "")
+			{
+				this._input.setAttribute("placeholder", placeholder);
+			}
+		}
+
+		BX.bind(this._input, "input", this._changeHandler);
+		return [ this._input ];
+	};
 	BX.UI.EntityEditorText.prototype.doClearLayout = function(options)
 	{
 		this._input = null;
@@ -5301,7 +5334,7 @@ if(typeof BX.UI.EntityEditorText === "undefined")
 			return this.executeValidators(result);
 		}
 
-		var isValid = !this.isRequired() || BX.util.trim(this._input.value) !== "";
+		var isValid = !(this.isRequired() || this.isRequiredByAttribute()) || BX.util.trim(this._input.value) !== "";
 		if(!isValid)
 		{
 			result.addError(BX.UI.EntityValidationError.create({ field: this }));
@@ -6283,7 +6316,7 @@ if(typeof BX.UI.EntityEditorNumber === "undefined")
 			return this.executeValidators(result);
 		}
 
-		var isValid = !this.isRequired() || BX.util.trim(this._input.value) !== "";
+		var isValid = !(this.isRequired() || this.isRequiredByAttribute()) || BX.util.trim(this._input.value) !== "";
 		if(!isValid)
 		{
 			result.addError(BX.UI.EntityValidationError.create({ field: this }));
@@ -6518,7 +6551,7 @@ if(typeof BX.UI.EntityEditorDatetime === "undefined")
 			return this.executeValidators(result);
 		}
 
-		var isValid = !this.isRequired() || BX.util.trim(this._input.value) !== "";
+		var isValid = !(this.isRequired() || this.isRequiredByAttribute()) || BX.util.trim(this._input.value) !== "";
 		if(!isValid)
 		{
 			result.addError(BX.UI.EntityValidationError.create({ field: this }));
@@ -6754,7 +6787,7 @@ if(typeof BX.UI.EntityEditorBoolean === "undefined")
 			return this.executeValidators(result);
 		}
 
-		var isValid = !this.isRequired() || BX.util.trim(this._input.value) !== "";
+		var isValid = !(this.isRequired() || this.isRequiredByAttribute()) || BX.util.trim(this._input.value) !== "";
 		if(!isValid)
 		{
 			result.addError(BX.UI.EntityValidationError.create({ field: this }));
@@ -7036,7 +7069,8 @@ if(typeof BX.UI.EntityEditorList === "undefined")
 			return this.executeValidators(result);
 		}
 
-		var isValid = !this.isRequired() || (this._input && BX.util.trim(this._input.value) !== "");
+		var isValid = !(this.isRequired() || this.isRequiredByAttribute())
+			|| (this._input && BX.util.trim(this._input.value) !== "");
 		if(!isValid)
 		{
 			result.addError(BX.UI.EntityValidationError.create({ field: this }));
@@ -8018,7 +8052,8 @@ if(typeof BX.UI.EntityEditorHtml === "undefined")
 			return this.executeValidators(result);
 		}
 
-		var isValid = !this.isRequired() || BX.UI.EntityEditorHtml.isNotEmptyValue(this._htmlEditor.GetContent());
+		var isValid = !(this.isRequired() || this.isRequiredByAttribute())
+			|| BX.UI.EntityEditorHtml.isNotEmptyValue(this._htmlEditor.GetContent());
 		if(!isValid)
 		{
 			result.addError(BX.UI.EntityValidationError.create({ field: this }));
@@ -8237,6 +8272,24 @@ if(typeof BX.UI.EntityEditorImage === "undefined")
 		}
 
 		this.unbindFileEvents();
+	};
+	BX.UI.EntityEditorImage.prototype.validate = function(result)
+	{
+		var numberOfFiles = 0;
+		var fileControl = BX.MFInput ? BX.MFInput.get(this.getName().toLowerCase() + "_uploader") : null;
+		if(fileControl)
+		{
+			numberOfFiles = fileControl.agent.getItems().length;
+		}
+
+		var isValid = !(this.isRequired() || this.isRequiredByAttribute()) || numberOfFiles > 0;
+		if(!isValid)
+		{
+			result.addError(BX.UI.EntityValidationError.create({ field: this }));
+			this.showRequiredFieldError(this._input);
+		}
+
+		return isValid;
 	};
 	BX.UI.EntityEditorImage.prototype.bindFileEvents = function()
 	{
@@ -8760,6 +8813,23 @@ if(typeof BX.UI.EntityEditorCustom === "undefined")
 		return (this._mode === BX.UI.EntityEditorMode.edit ? this._runtimeValue : "");
 	};
 
+	BX.UI.EntityEditorCustom.prototype.validate = function(result)
+	{
+		if(this._mode !== BX.UI.EntityEditorMode.edit)
+		{
+			throw "BX.UI.EntityEditorCustom. Invalid validation context";
+		}
+
+		this.clearError();
+
+		if(this.hasValidators())
+		{
+			return this.executeValidators(result);
+		}
+
+		return true;
+	};
+
 	BX.UI.EntityEditorCustom.create = function(id, settings)
 	{
 		var self = new BX.UI.EntityEditorCustom();
@@ -9232,7 +9302,7 @@ if(typeof BX.UI.EntityEditorMoney === "undefined")
 			return this.executeValidators(result);
 		}
 
-		var isValid = !this.isRequired() || BX.util.trim(this._amountValue.value) !== "";
+		var isValid = !(this.isRequired() || this.isRequiredByAttribute()) || BX.util.trim(this._amountValue.value) !== "";
 		if(!isValid)
 		{
 			result.addError(BX.UI.EntityValidationError.create({ field: this }));

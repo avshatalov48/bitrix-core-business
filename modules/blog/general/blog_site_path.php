@@ -7,14 +7,7 @@ class CAllBlogSitePath
 	/*************** ADD, UPDATE, DELETE *****************/
 	function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
-/*
-		if ((is_set($arFields, "TYPE") || $ACTION=="ADD") && strlen($arFields["TYPE"]) <= 0)
-		{
-			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("BLG_GSP_EMPTY_TYPE"), "EMPTY_TYPE");
-			return false;
-		}
-*/
-		if ((is_set($arFields, "PATH") || $ACTION=="ADD") && strlen($arFields["PATH"]) <= 0)
+		if ((is_set($arFields, "PATH") || $ACTION=="ADD") && $arFields["PATH"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("BLG_GSP_EMPTY_PATH"), "EMPTY_PATH");
 			return false;
@@ -24,7 +17,7 @@ class CAllBlogSitePath
 			$arFields["PATH"] = trim(str_replace("\\", "/", $arFields["PATH"]));
 		}
 
-		if ((is_set($arFields, "SITE_ID") || $ACTION=="ADD") && strlen($arFields["SITE_ID"]) <= 0)
+		if ((is_set($arFields, "SITE_ID") || $ACTION=="ADD") && $arFields["SITE_ID"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("BLG_GSP_EMPTY_SITE_ID"), "EMPTY_SITE_ID");
 			return false;
@@ -39,7 +32,7 @@ class CAllBlogSitePath
 			}
 		}
 
-		if(is_set($arFields, "SITE_ID") && strlen($arFields["SITE_ID"]) > 0 && is_set($arFields, "TYPE") && strlen($arFields["TYPE"]) > 0)
+		if(is_set($arFields, "SITE_ID") && $arFields["SITE_ID"] <> '' && is_set($arFields, "TYPE") && $arFields["TYPE"] <> '')
 		{
 			$dbPath = CBlogSitePath::GetList(array(), array("SITE_ID" => $arFields["SITE_ID"], "TYPE" => $arFields["TYPE"]));
 			if($dbPath->Fetch())
@@ -57,7 +50,7 @@ class CAllBlogSitePath
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$arPath = CBlogSitePath::GetByID($ID);
 		if ($arPath)
@@ -73,7 +66,7 @@ class CAllBlogSitePath
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		if (isset($GLOBALS["BLOG_SITE_PATH"]["BLOG_SITE_PATH_CACHE_".$ID]) && is_array($GLOBALS["BLOG_SITE_PATH"]["BLOG_SITE_PATH_CACHE_".$ID]) && is_set($GLOBALS["BLOG_SITE_PATH"]["BLOG_SITE_PATH_CACHE_".$ID], "ID"))
 		{
@@ -102,7 +95,7 @@ class CAllBlogSitePath
 		global $DB;
 
 		$siteID = Trim($siteID);
-		if (strlen($siteID) <= 0)
+		if ($siteID == '')
 			return False;
 
 		if (isset($GLOBALS["BLOG_SITE_PATH"]["BLOG_SITE_PATH1_CACHE_".$siteID]) && is_array($GLOBALS["BLOG_SITE_PATH"]["BLOG_SITE_PATH1_CACHE_".$siteID]) && is_set($GLOBALS["BLOG_SITE_PATH"]["BLOG_SITE_PATH1_CACHE_".$siteID], "ID"))
@@ -132,7 +125,7 @@ class CAllBlogSitePath
 		global $DB;
 
 		$siteID = Trim($siteID);
-		if (strlen($siteID) <= 0)
+		if ($siteID == '')
 			return False;
 
 		$dbPath = CBlogSitePath::GetList(Array(), Array("SITE_ID" => $siteID));

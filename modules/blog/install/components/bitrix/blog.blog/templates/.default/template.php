@@ -81,8 +81,8 @@ if(
 		if($ind%2 == 0)
 			$className .= " blog-post-alt";
 		$className .= " blog-post-year-".$CurPost["DATE_PUBLISH_Y"];
-		$className .= " blog-post-month-".IntVal($CurPost["DATE_PUBLISH_M"]);
-		$className .= " blog-post-day-".IntVal($CurPost["DATE_PUBLISH_D"]);
+		$className .= " blog-post-month-".intval($CurPost["DATE_PUBLISH_M"]);
+		$className .= " blog-post-day-".intval($CurPost["DATE_PUBLISH_D"]);
 		?>
 			<script>
 			BX.viewImageBind(
@@ -126,7 +126,7 @@ if(
 						<a class="blog-author-icon" href="<?=$CurPost["urlToAuthor"]?>"></a>
 					<?endif;?>
 					<?
-					if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && array_key_exists("ALIAS", $CurPost["BlogUser"]) && strlen($CurPost["BlogUser"]["ALIAS"]) > 0)
+					if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && array_key_exists("ALIAS", $CurPost["BlogUser"]) && $CurPost["BlogUser"]["ALIAS"] <> '')
 						$arTmpUser = array(
 							"NAME" => "",
 							"LAST_NAME" => "",
@@ -134,7 +134,7 @@ if(
 							"LOGIN" => "",
 							"NAME_LIST_FORMATTED" => $CurPost["BlogUser"]["~ALIAS"],
 						);
-					elseif (strlen($CurPost["urlToBlog"]) > 0 || strlen($CurPost["urlToAuthor"]) > 0)
+					elseif ($CurPost["urlToBlog"] <> '' || $CurPost["urlToAuthor"] <> '')
 						$arTmpUser = array(
 							"NAME" => $CurPost["arUser"]["~NAME"],
 							"LAST_NAME" => $CurPost["arUser"]["~LAST_NAME"],
@@ -308,17 +308,17 @@ if(
 					}
 					?>
 					<div class="blog-post-meta-util">
-						<span class="blog-post-views-link"><a href="<?=$CurPost["urlToPost"]?>"><span class="blog-post-link-caption"><?=GetMessage("BLOG_BLOG_BLOG_VIEWS")?></span><span class="blog-post-link-counter"><?=IntVal($CurPost["VIEWS"]);?></span></a></span>
+						<span class="blog-post-views-link"><a href="<?=$CurPost["urlToPost"]?>"><span class="blog-post-link-caption"><?=GetMessage("BLOG_BLOG_BLOG_VIEWS")?></span><span class="blog-post-link-counter"><?=intval($CurPost["VIEWS"]);?></span></a></span>
 						<?if($CurPost["ENABLE_COMMENTS"] == "Y"):?>
-							<span class="blog-post-comments-link"><a href="<?=$CurPost["urlToPost"]?>#comments"><span class="blog-post-link-caption"><?=GetMessage("BLOG_BLOG_BLOG_COMMENTS")?></span><span class="blog-post-link-counter"><?=IntVal($CurPost["NUM_COMMENTS"]);?></span></a></span>
+							<span class="blog-post-comments-link"><a href="<?=$CurPost["urlToPost"]?>#comments"><span class="blog-post-link-caption"><?=GetMessage("BLOG_BLOG_BLOG_COMMENTS")?></span><span class="blog-post-link-counter"><?=intval($CurPost["NUM_COMMENTS"]);?></span></a></span>
 						<?endif;?>
-						<?if(strLen($CurPost["urlToHide"])>0):?>
+						<?if($CurPost["urlToHide"] <> ''):?>
 							<span class="blog-post-hide-link"><a href="javascript:if(confirm('<?=GetMessage("BLOG_MES_HIDE_POST_CONFIRM")?>')) window.location='<?=$CurPost["urlToHide"]."&".bitrix_sessid_get()?>'"><span class="blog-post-link-caption"><?=GetMessage("BLOG_MES_HIDE")?></span></a></span>
 						<?endif;?>
-						<?if(strLen($CurPost["urlToEdit"])>0):?>
+						<?if($CurPost["urlToEdit"] <> ''):?>
 							<span class="blog-post-edit-link"><a href="<?=$CurPost["urlToEdit"]?>"><span class="blog-post-link-caption"><?=GetMessage("BLOG_MES_EDIT")?></span></a></span>
 						<?endif;?>
-						<?if(strLen($CurPost["urlToDelete"])>0):?>
+						<?if($CurPost["urlToDelete"] <> ''):?>
 							<span class="blog-post-delete-link"><a href="javascript:if(confirm('<?=GetMessage("BLOG_MES_DELETE_POST_CONFIRM")?>')) window.location='<?=$CurPost["urlToDelete"]."&".bitrix_sessid_get()?>'"><span class="blog-post-link-caption"><?=GetMessage("BLOG_MES_DELETE")?></span></a></span>
 						<?endif;?>
 
@@ -369,7 +369,7 @@ if(
 		<?
 	}
 
-	if(strlen($arResult["NAV_STRING"])>0)
+	if($arResult["NAV_STRING"] <> '')
 	{
 		echo $arResult["NAV_STRING"];
 	}

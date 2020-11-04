@@ -17,9 +17,7 @@ Class blog extends CModule
 	{
 		$arModuleVersion = array();
 
-		$path = str_replace("\\", "/", __FILE__);
-		$path = substr($path, 0, strlen($path) - strlen("/index.php"));
-		include($path."/version.php");
+		include(__DIR__.'/version.php');
 
 		if (is_array($arModuleVersion) && array_key_exists("VERSION", $arModuleVersion))
 		{
@@ -568,7 +566,7 @@ Class blog extends CModule
 	function DoInstall()
 	{
 		global $APPLICATION, $step;
-		$step = IntVal($step);
+		$step = intval($step);
 		if ($step < 2)
 			$APPLICATION->IncludeAdminFile(GetMessage("BLOG_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/blog/install/step1.php");
 		elseif($step==2)
@@ -585,7 +583,7 @@ Class blog extends CModule
 	function DoUninstall()
 	{
 		global $APPLICATION, $step;
-		$step = IntVal($step);
+		$step = intval($step);
 		if($step<2)
 			$APPLICATION->IncludeAdminFile(GetMessage("BLOG_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/blog/install/unstep1.php");
 		elseif($step==2)

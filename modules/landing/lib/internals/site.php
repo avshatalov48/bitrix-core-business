@@ -39,6 +39,12 @@ class SiteTable extends Entity\DataManager
 	protected static $disableCallback = false;
 
 	/**
+	 * In current iteration we change date only.
+	 * @var bool
+	 */
+	protected static $touchMode = false;
+
+	/**
 	 * Returns DB table name for entity.
 	 * @return string
 	 */
@@ -402,6 +408,8 @@ class SiteTable extends Entity\DataManager
 		$modifyFields = array();
 		$siteController = self::getSiteController();
 		$deleteMode = false;
+
+		self::$touchMode = isset($fields['TOUCH']) && $fields['TOUCH'] == 'Y';
 
 		if (
 			isset($fields['DOMAIN_ID']) &&
@@ -1300,7 +1308,7 @@ class SiteTable extends Entity\DataManager
 		}
 
 		// for B24 we must update domain
-		if (Manager::isB24())
+		if (Manager::isB24() && !self::$touchMode)
 		{
 			static $domainUpdated = [];
 

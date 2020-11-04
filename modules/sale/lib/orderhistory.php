@@ -195,7 +195,7 @@ class OrderHistory
 					}
 
 					$dataType = static::FIELD_TYPE_TYPE;
-					if (isset($data['RECORD_TYPE']) == static::SALE_ORDER_HISTORY_RECORD_TYPE_FIELD)
+					if (isset($data['RECORD_TYPE']) && $data['RECORD_TYPE'] == static::SALE_ORDER_HISTORY_RECORD_TYPE_FIELD)
 					{
 						$dataType = static::FIELD_TYPE_NAME;
 					}

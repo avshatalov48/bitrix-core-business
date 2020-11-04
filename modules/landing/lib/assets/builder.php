@@ -58,8 +58,10 @@ abstract class Builder
 		{
 			case self::TYPE_STANDART:
 				return new StandartBuilder($resources);
+
 			case self::TYPE_WEBPACK:
 				return new WebpackBuilder($resources);
+
 			default:
 				throw new ArgumentException("Unknown landing asset builder type `$type`.");
 		}

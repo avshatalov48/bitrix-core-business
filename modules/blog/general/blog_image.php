@@ -16,7 +16,7 @@ class CAllBlogImage
 			$arFile = null;
 			if (is_array($arFields['FILE_ID']))
 			{
-				if (strlen($arFields["FILE_ID"]["name"]) <= 0 && strlen($arFields["FILE_ID"]["del"]) <= 0)
+				if ($arFields["FILE_ID"]["name"] == '' && $arFields["FILE_ID"]["del"] == '')
 				{
 					unset($arFields["FILE_ID"]);
 				}
@@ -35,7 +35,7 @@ class CAllBlogImage
 			if ($arFile)
 			{
 				$res = CFile::CheckImageFile($arFile, 0, 0, 0);
-				if (strlen($res) > 0)
+				if ($res <> '')
 				{
 					$APPLICATION->ThrowException($res, "ERROR_ATTACH_IMG");
 					return false;
@@ -44,8 +44,8 @@ class CAllBlogImage
 
 			if(
 				$arFields["IMAGE_SIZE_CHECK"] != "N"
-				&& IntVal($arFields["IMAGE_SIZE"]) > 0
-				&& IntVal($arFields["IMAGE_SIZE"]) > COption::GetOptionString("blog", "image_max_size", 5000000)
+				&& intval($arFields["IMAGE_SIZE"]) > 0
+				&& intval($arFields["IMAGE_SIZE"]) > COption::GetOptionString("blog", "image_max_size", 5000000)
 			)
 			{
 				$APPLICATION->ThrowException(GetMessage("ERROR_ATTACH_IMG_SIZE", Array("#SIZE#" => DoubleVal(COption::GetOptionString("blog", "image_max_size", 5000000)/1000000))), "ERROR_ATTACH_IMG_SIZE");
@@ -142,7 +142,7 @@ class CAllBlogImage
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		unset($GLOBALS["BLOG_IMAGE"]["BLOG_IMAGE_CACHE_".$ID]);
 		if ($res = CBlogImage::GetByID($ID))
 		{
@@ -157,7 +157,7 @@ class CAllBlogImage
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		if (isset($GLOBALS["BLOG_IMAGE"]["BLOG_IMAGE_CACHE_".$ID]) && is_array($GLOBALS["BLOG_IMAGE"]["BLOG_IMAGE_CACHE_".$ID]) && is_set($GLOBALS["BLOG_IMAGE"]["BLOG_IMAGE_CACHE_".$ID], "ID"))
 		{

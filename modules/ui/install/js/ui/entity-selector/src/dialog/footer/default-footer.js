@@ -1,28 +1,26 @@
-import { Cache, Tag, Type } from 'main.core';
+import { Tag, Type } from 'main.core';
 import BaseFooter from './base-footer';
 import type Dialog from '../dialog';
+import type Tab from '../tabs/tab';
 
 export default class DefaultFooter extends BaseFooter
 {
 	content: HTMLElement = null;
-	cache = new Cache.MemoryCache();
 
-	constructor(dialog: Dialog, options: { [option: string]: any })
+	constructor(context: Dialog | Tab, options: { [option: string]: any })
 	{
-		super(dialog, options);
+		super(context, options);
 
 		this.setContent(this.getOption('content'));
 	}
 
-	getContainer()
+	render()
 	{
-		return this.cache.remember('container', () => {
-			return Tag.render`
-				<div class="ui-selector-footer-default">
-					${this.getContent() ? this.getContent() : '' }
-				</div>
-			`;
-		});
+		return Tag.render`
+			<div class="ui-selector-footer-default">
+				${this.getContent() ? this.getContent() : '' }
+			</div>
+		`;
 	}
 
 	getContent(): HTMLElement | HTMLElement[] | string | null
@@ -36,10 +34,5 @@ export default class DefaultFooter extends BaseFooter
 		{
 			this.content = content;
 		}
-	}
-
-	render(): HTMLElement
-	{
-		return this.getContainer();
 	}
 }

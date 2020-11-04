@@ -581,6 +581,34 @@
 
 /*endregion*/
 
+/*region ui-btn-icon-forward*/
+.ui-btn-icon-forward.ui-btn:after,
+.ui-btn-icon-forward.ui-btn-main:after,
+.ui-btn-icon-forward .ui-btn-main:after {
+	top: auto;
+	bottom: 50%;
+	transform: rotate(180deg) translateY(-50%);
+}
+.ui-btn-icon-forward.ui-btn,
+.ui-btn-icon-forward.ui-btn-split,
+.ui-btn-icon-forward.ui-btn-double,
+.ui-btn-icon-forward.ui-btn-danger,
+.ui-btn-icon-forward.ui-btn-primary,
+.ui-btn-icon-forward.ui-btn-default,
+.ui-btn-icon-forward.ui-btn-danger-dark,
+.ui-btn-icon-forward.ui-btn-success-dark,
+.ui-btn-icon-forward.ui-btn-primary-dark,
+.bitrix24-light-theme .ui-btn-icon-forward.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-back-white.svg?v=1.2); }
+
+.ui-btn-icon-forward.ui-btn-link,
+.ui-btn-icon-forward.ui-btn-light,
+.ui-btn-icon-forward.ui-btn-success,
+.ui-btn-icon-forward.ui-btn-secondary,
+.ui-btn-icon-forward.ui-btn-light-border,
+.bitrix24-dark-theme .ui-btn-icon-forward.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-back-black.svg?v=1.2); }
+
+/*endregion*/
+
 /*region ui-btn-icon-angle-up*/
 .ui-btn-icon-angle-up.ui-btn,
 .ui-btn-icon-angle-up.ui-btn-split,
@@ -843,6 +871,27 @@
 .ui-btn-icon-fail.ui-btn-success,
 .ui-btn-icon-fail.ui-btn-secondary,
 .ui-btn-icon-fail.ui-btn-light-border { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-fail.svg?v=1.2); }
+
+/*endregion*/
+
+/*region ui-btn-icon-chat*/
+.ui-btn-icon-plan.ui-btn,
+.ui-btn-icon-plan.ui-btn-split,
+.ui-btn-icon-plan.ui-btn-double,
+.ui-btn-icon-plan.ui-btn-danger,
+.ui-btn-icon-plan.ui-btn-primary,
+.ui-btn-icon-plan.ui-btn-default,
+.ui-btn-icon-plan.ui-btn-danger-dark,
+.ui-btn-icon-plan.ui-btn-success-dark,
+.ui-btn-icon-plan.ui-btn-primary-dark,
+.bitrix24-light-theme .ui-btn-icon-plan.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-plan-white.svg?v=1.2); }
+
+.ui-btn-icon-plan.ui-btn-link,
+.ui-btn-icon-plan.ui-btn-light,
+.ui-btn-icon-plan.ui-btn-success,
+.ui-btn-icon-plan.ui-btn-secondary,
+.ui-btn-icon-plan.ui-btn-light-border,
+.bitrix24-dark-theme .ui-btn-icon-plan.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-plan-black.svg?v=1.2); }
 
 /*endregion*/
 

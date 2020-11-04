@@ -121,7 +121,7 @@ class Icon
 		$assetsIcon = [];
 		$iconVendors = (array) $iconVendors;
 		$found = preg_match_all(
-			'/[\s"](' . implode('|', $iconVendors) . ')-([^\s"\/\\\]+)/s',
+			'/(?<=[\s"])(' . implode('|', $iconVendors) . ')-([^\s"\/\\\]+)/s',
 			$blockContent,
 			$matches
 		);

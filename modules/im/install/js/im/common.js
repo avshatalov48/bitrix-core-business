@@ -137,7 +137,7 @@
 			vInitedCall: BX.localStorage.get('vInitedCall') ? 'Y' : 'N',
 			desktopStatus: this.BXIM.desktopStatus ? 'Y' : 'N',
 			hasActiveCall: BX.MessengerCalls.hasActiveCall() ? 'Y' : 'N',
-			hasActiveCallTab: this.BXIM.callController.hasActiveCall() ? 'Y' : 'N',
+			hasActiveCallTab: this.BXIM.callController && this.BXIM.callController.hasActiveCall() ? 'Y' : 'N',
 			appVersion: navigator.appVersion
 		}
 	}
@@ -2163,7 +2163,7 @@
 		else
 		{
 			this.BXIM.messenger.openMessenger(BX.proxy_context.getAttribute('data-userId'));
-			if (this.BXIM.callController.hasActiveCall())
+			if (this.BXIM.callController && this.BXIM.callController.hasActiveCall())
 			{
 				this.BXIM.callController.fold();
 			}
@@ -2437,7 +2437,7 @@
 				if (this.BXIM.messenger.contactListSearchText <= 0 && !this.BXIM.messenger.chatList)
 				{
 					this.BXIM.messenger.popupContactListSearchInput.value = "";
-					if (!this.isMobile() && this.BXIM.messenger.popupMessenger && !this.BXIM.messenger.desktop.ready() && !this.BXIM.callController.hasActiveCall())
+					if (!this.isMobile() && this.BXIM.messenger.popupMessenger && !this.BXIM.messenger.desktop.ready() && this.BXIM.callController && !this.BXIM.callController.hasActiveCall())
 					{
 						this.BXIM.messenger.popupMessenger.destroy();
 						return true;
@@ -7850,7 +7850,8 @@
 					this.leaveFromChat(params.chatId, false);
 
 					if (
-						this.BXIM.callController.hasActiveCall()
+						this.BXIM.callController
+						&& this.BXIM.callController.hasActiveCall()
 						&& this.BXIM.callController.currentCall.associatedEntity.id == 'chat'+params.chatId
 					)
 					{
@@ -8818,7 +8819,11 @@
 			return false;
 		}
 
-		if (this.BXIM.callController.hasActiveCall() && this.BXIM.callController.hasVisibleCall())
+		if (
+			this.BXIM.callController
+			&& this.BXIM.callController.hasActiveCall()
+			&& this.BXIM.callController.hasVisibleCall()
+		)
 		{
 			return false;
 		}
@@ -10339,7 +10344,7 @@
 		if (extraClose)
 			this.BXIM.messenger.extraClose();
 
-		if (callToggle && this.BXIM.callController.hasActiveCall())
+		if (callToggle && this.BXIM.callController && this.BXIM.callController.hasActiveCall())
 			this.BXIM.callController.showChat();
 
 		if (this.isMobile())
@@ -12999,7 +13004,7 @@
 				if(!this.BXIM.webrtc.phoneSupport())
 					return false;
 
-				if (this.BXIM.callController.hasActiveCall())
+				if (this.BXIM.callController && this.BXIM.callController.hasActiveCall())
 				{
 					// todo: set and proceed busy status in b_voximplant_queue
 					/*BX.MessengerCommon.phoneCommand('busy', {'CALL_ID' : params.callId});*/
@@ -13430,7 +13435,7 @@
 				if (this.isMobile())
 					return false;
 
-				if (this.BXIM.callController.hasActiveCall())
+				if (this.BXIM.callController && this.BXIM.callController.hasActiveCall())
 					return false;
 
 				if ( BX.localStorage.get('viInitedCall') || BX.localStorage.get('viExternalCard'))

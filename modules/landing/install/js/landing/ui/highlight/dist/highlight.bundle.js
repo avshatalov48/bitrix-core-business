@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
-(function (exports, main_core, landing_pageobject) {
+(function (exports,main_core,landing_pageobject) {
 	'use strict';
 
 	/**
@@ -9,9 +9,7 @@ this.BX.Landing = this.BX.Landing || {};
 	 * @memberOf BX.Landing.UI
 	 */
 
-	var Highlight =
-	/*#__PURE__*/
-	function () {
+	var Highlight = /*#__PURE__*/function () {
 	  function Highlight() {
 	    babelHelpers.classCallCheck(this, Highlight);
 	    this.layout = main_core.Dom.create('div');
@@ -139,5 +137,5 @@ this.BX.Landing = this.BX.Landing || {};
 
 	exports.Highlight = Highlight;
 
-}(this.BX.Landing.UI = this.BX.Landing.UI || {}, BX, BX.Landing));
+}((this.BX.Landing.UI = this.BX.Landing.UI || {}),BX,BX.Landing));
 //# sourceMappingURL=highlight.bundle.js.map

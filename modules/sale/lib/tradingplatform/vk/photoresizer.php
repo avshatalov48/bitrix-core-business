@@ -571,10 +571,6 @@ class PhotoResizer
 			}
 		}
 		
-		if (\CFile::isEnabledTrackingResizeImage())
-		{
-			header("X-Bitrix-Resize-Image: {$arSize["width"]}_{$arSize["height"]}_{$resizeType}");
-		}
 //		imagemagick was be here. I delete them to simplification
 		
 		if ($io->Copy($sourceFile, $destinationFile))

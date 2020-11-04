@@ -17,7 +17,7 @@ $arTemplateParameters = array(
 		"VALUES" => CComponentUtil::GetDefaultNameTemplates(),
 		"MULTIPLE" => "N",
 		"ADDITIONAL_VALUES" => "Y",
-		"DEFAULT" => GetMessage("BC_NAME_TEMPLATE_DEFAULT"),
+		"DEFAULT" => "",
 	),
 	"SHOW_LOGIN" => Array(
 		"NAME" => GetMessage("BC_SHOW_LOGIN"),
@@ -54,7 +54,7 @@ if ($arCurrentValues["USE_SHARE"] == "Y")
 		"REFRESH"=> "Y",
 	);
 	
-	if (strlen(trim($arCurrentValues["SHARE_TEMPLATE"])) <= 0)
+	if (trim($arCurrentValues["SHARE_TEMPLATE"]) == '')
 		$shareComponentTemlate = false;
 	else
 		$shareComponentTemlate = trim($arCurrentValues["SHARE_TEMPLATE"]);

@@ -187,31 +187,13 @@ class Bot
 		{
 			if (\Bitrix\Main\Loader::includeModule('pull'))
 			{
-				$botForJs = self::getListForJs();
-
 				if ($color)
 				{
 					\CIMStatus::SetColor($botId, $color);
 				}
 
-				$userData = \CIMContactList::GetUserData(array(
-						'ID' => $botId,
-						'DEPARTMENT' => 'Y',
-						'USE_CACHE' => 'N',
-						'SHOW_ONLINE' => 'N',
-						'PHONES' => 'N'
-					)
-				);
-				\CPullStack::AddShared(Array(
-					'module_id' => 'im',
-					'command' => 'addBot',
-					'params' => Array(
-						'bot' => $botForJs[$botId],
-						'user' => $userData['users'][$botId],
-						'userInGroup' => $userData['userInGroup'],
-					),
-					'extra' => \Bitrix\Im\Common::getPullExtra()
-				));
+				self::sendPullNotify($botId, 'addBot');
+
 				if ($installType != self::INSTALL_TYPE_SILENT)
 				{
 					$message = '';
@@ -313,17 +295,7 @@ class Bot
 			\Bitrix\Im\App::unRegister(Array('ID' => $row['ID'], 'FORCE' => 'Y'));
 		}
 
-		if (\Bitrix\Main\Loader::includeModule('pull'))
-		{
-			\CPullStack::AddShared(Array(
-				'module_id' => 'im',
-				'command' => 'deleteBot',
-				'params' => Array(
-					'botId' => $botId
-				),
-				'extra' => \Bitrix\Im\Common::getPullExtra()
-			));
-		}
+		self::sendPullNotify($botId, 'deleteBot');
 
 		\Bitrix\Main\Application::getInstance()->getTaggedCache()->clearByTag("IM_CONTACT_LIST");
 
@@ -373,14 +345,42 @@ class Bot
 				$update['WORK_POSITION'] = Loc::getMessage('BOT_DEFAULT_WORK_POSITION');
 			}
 
+			$botAvatar = false;
+			$previousBotAvatar = false;
+			if (isset($update['PERSONAL_PHOTO']))
+			{
+				$previousBotAvatar = (int)\Bitrix\Im\User::getInstance($botId)->getAvatarId();
+
+				if (is_numeric($update['PERSONAL_PHOTO']) && (int)$update['PERSONAL_PHOTO'] > 0)
+				{
+					$botAvatar = (int)$update['PERSONAL_PHOTO'];
+					unset($update['PERSONAL_PHOTO']);
+				}
+			}
+
 			$user = new \CUser;
 			$user->Update($botId, $update);
+
+			if ($botAvatar > 0 && $botAvatar !== $previousBotAvatar)
+			{
+				$connection = Main\Application::getConnection();
+				$connection->query("UPDATE b_user SET PERSONAL_PHOTO = ".(int)$botAvatar." WHERE ID = ".(int)$botId);
+			}
+
+			if ($previousBotAvatar > 0)
+			{
+				\CFile::Delete($previousBotAvatar);
+			}
 		}
 
 		$update = Array();
 		if (isset($updateFields['CLASS']) && !empty($updateFields['CLASS']))
 		{
 			$update['CLASS'] = $updateFields['CLASS'];
+		}
+		if (isset($updateFields['TYPE']) && !empty($updateFields['TYPE']))
+		{
+			$update['TYPE'] = $updateFields['TYPE'];
 		}
 		if (isset($updateFields['CODE']) && !empty($updateFields['CODE']))
 		{
@@ -434,33 +434,57 @@ class Bot
 			$cache->cleanDir(self::CACHE_PATH);
 		}
 
+		self::sendPullNotify($botId, 'updateBot');
+
+		\Bitrix\Main\Application::getInstance()->getTaggedCache()->clearByTag("IM_CONTACT_LIST");
+
+		return true;
+	}
+
+	/**
+	 * @param int $botId Bot Id.
+	 * @param string $messageType Notify type - addBot|updateBot|deleteBot
+	 *
+	 * @return void
+	 */
+	public static function sendPullNotify($botId, $messageType)
+	{
 		if (\Bitrix\Main\Loader::includeModule('pull'))
 		{
-			$botForJs = self::getListForJs();
+			if ($messageType === 'addBot' || $messageType === 'updateBot')
+			{
+				$botForJs = self::getListForJs();
 
-			$userData = \CIMContactList::GetUserData(array(
+				$userData = \CIMContactList::GetUserData([
 					'ID' => $botId,
 					'DEPARTMENT' => 'Y',
 					'USE_CACHE' => 'N',
 					'SHOW_ONLINE' => 'N',
 					'PHONES' => 'N'
-				)
-			);
-			\CPullStack::AddShared(Array(
-				'module_id' => 'im',
-				'command' => 'updateBot',
-				'params' => Array(
-					'bot' => $botForJs[$botId],
-					'user' => $userData['users'][$botId],
-					'userInGroup' => $userData['userInGroup'],
-				),
-				'extra' => \Bitrix\Im\Common::getPullExtra()
-			));
+				]);
+				\CPullStack::AddShared([
+					'module_id' => 'im',
+					'command' => $messageType,
+					'params' => [
+						'bot' => $botForJs[$botId],
+						'user' => $userData['users'][$botId],
+						'userInGroup' => $userData['userInGroup'],
+					],
+					'extra' => \Bitrix\Im\Common::getPullExtra()
+				]);
+			}
+			elseif ($messageType === 'deleteBot')
+			{
+				\CPullStack::AddShared([
+					'module_id' => 'im',
+					'command' => $messageType,
+					'params' => [
+						'botId' => $botId
+					],
+					'extra' => \Bitrix\Im\Common::getPullExtra()
+				]);
+			}
 		}
-
-		\Bitrix\Main\Application::getInstance()->getTaggedCache()->clearByTag("IM_CONTACT_LIST");
-
-		return true;
 	}
 
 	public static function onMessageAdd($messageId, $messageFields)

@@ -1,7 +1,7 @@
 <?
 
-use Bitrix\Main\Application;
 use Bitrix\Mail\Helper\MailContact;
+use Bitrix\Main\Application;
 use Bitrix\Main\Text\BinaryString;
 
 IncludeModuleLangFile(__FILE__);
@@ -1610,7 +1610,7 @@ class CAllMailMessage
 		{
 			$bodyPart = CMailMessage::decodeMessageBody($header, $body, $charset);
 
-			if (!$bodyPart['FILENAME'] && mb_strpos(mb_strtolower($bodyPart['CONTENT-TYPE']), 'text/') === 0)
+			if (!$bodyPart['FILENAME'] && mb_strpos(mb_strtolower($bodyPart['CONTENT-TYPE']), 'text/') === 0 && mb_strtolower($bodyPart['CONTENT-TYPE']) !== 'text/calendar')
 			{
 				if (mb_strtolower($bodyPart['CONTENT-TYPE']) == 'text/html')
 				{
@@ -1890,6 +1890,13 @@ class CAllMailMessage
 				\CMailFilter::filter($arFields, 'R');
 
 				\Bitrix\Main\EventManager::getInstance()->removeEventHandler('mail', 'onBeforeUserFieldSave', $eventKey);
+
+				$event = new \Bitrix\Main\Event('mail', 'onMailMessageNew', [
+					'message'     => $arFields,
+					'attachments' => $arMessageParts,
+					'userId'      => isset($mailbox['USER_ID']) ? $mailbox['USER_ID'] : null,
+				]);
+				$event->send();
 
 				addEventToStatFile(
 					'mail',

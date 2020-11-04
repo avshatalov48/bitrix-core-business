@@ -568,7 +568,7 @@ $tabControl->BeginNextTab();
 	foreach ($arFormMenuLang as $arrL):
 	?>
 		<tr>
-			<td style="white-space: nowrap;"><?=$arrL["NAME"]?></td>
+			<td style="white-space: nowrap;"><?=htmlspecialcharsbx($arrL["NAME"]);?></td>
 			<td><input type="text" name="MENU_<?=htmlspecialcharsbx($arrL["LID"], ENT_QUOTES)?>" size="30" value="<?=htmlspecialcharsex(${"MENU_".htmlspecialcharsbx($arrL["LID"], ENT_QUOTES)})?>"></td>
 		</tr>
 	<? endforeach; ?>

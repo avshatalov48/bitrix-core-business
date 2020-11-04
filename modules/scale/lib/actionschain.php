@@ -15,7 +15,7 @@ class ActionsChain
 
 	protected $serverHostname = "";
 
-	public $results = "";
+	public $results = [];
 
 	/**
 	 * @param string $actionId
@@ -28,7 +28,7 @@ class ActionsChain
 	 */
 	public function __construct($actionId, $actionParams, $serverHostname = "", $userParams = array(), $freeParams = array())
 	{
-		if(strlen($actionId) <= 0)
+		if($actionId == '')
 			throw new \Bitrix\Main\ArgumentNullException("actionId");
 
 		if(!is_array($actionParams) || empty($actionParams))

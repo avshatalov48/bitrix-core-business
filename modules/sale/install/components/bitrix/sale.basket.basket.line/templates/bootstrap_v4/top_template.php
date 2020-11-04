@@ -16,7 +16,7 @@ $compositeStub = (isset($arResult['COMPOSITE_STUB']) && $arResult['COMPOSITE_STU
 				$name = trim($USER->GetLogin());
 			?>
 			<a class="basket-line-block-icon-profile" href="<?=$arParams['PATH_TO_PROFILE']?>"><?=htmlspecialcharsbx($name)?></a>
-			<a style='margin-right: 0;' href="?logout=yes"><?=GetMessage('TSB1_LOGOUT')?></a>
+			<a style='margin-right: 0;' href="?logout=yes&<?=bitrix_sessid_get()?>"><?=GetMessage('TSB1_LOGOUT')?></a>
 		<?else:
 			$arParamsToDelete = array(
 				"login",

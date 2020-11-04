@@ -213,12 +213,12 @@ class CAllRatingsComponentsBlog
 	{
 		if ($arParams['ENTITY_TYPE_ID'] == 'BLOG_POST')
 		{
-			$arPost = CBlogPost::GetByID(IntVal($arParams['ENTITY_ID']));
+			$arPost = CBlogPost::GetByID(intval($arParams['ENTITY_ID']));
 			return $arPost['AUTHOR_ID'];
 		}
 		elseif ($arParams['ENTITY_TYPE_ID'] == 'BLOG_COMMENT')
 		{
-			$arComment = CBlogComment::GetByID(IntVal($arParams['ENTITY_ID']));
+			$arComment = CBlogComment::GetByID(intval($arParams['ENTITY_ID']));
 			return $arComment['AUTHOR_ID'];
 		} 
 		return false;

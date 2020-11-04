@@ -667,6 +667,10 @@ this.BX.UI = this.BX.UI || {};
 	        child.removeChild(child.getFirstChild());
 	      }
 
+	      if (child.isFocused()) {
+	        child.unfocus();
+	      }
+
 	      child.setParentNode(null);
 	      child.getItem().removeNode(child);
 	      this.getChildren().delete(child);
@@ -2122,9 +2126,9 @@ this.BX.UI = this.BX.UI || {};
 	babelHelpers.defineProperty(Entity, "extensions", null);
 	babelHelpers.defineProperty(Entity, "defaultOptions", null);
 
-	function _createForOfIteratorHelper(o) { if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (o = _unsupportedIterableToArray(o))) { var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var it, normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+	function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
 
-	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(n); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
 	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
@@ -2921,7 +2925,7 @@ this.BX.UI = this.BX.UI || {};
 	}
 
 	function _templateObject$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tab-default-stub\">\n\t\t\t\t\t<div class=\"ui-selector-tab-default-stub-icon\"", "></div>\n\t\t\t\t\t<div class=\"ui-selector-tab-default-stub-title\">", "</div>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tab-default-stub\">\n\t\t\t\t\t<div class=\"ui-selector-tab-default-stub-icon\"", "></div>\n\t\t\t\t\t<div class=\"ui-selector-tab-default-stub-titles\">\n\t\t\t\t\t\t<div class=\"ui-selector-tab-default-stub-title\">", "</div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
 
 	  _templateObject$3 = function _templateObject() {
 	    return data;
@@ -2961,7 +2965,7 @@ this.BX.UI = this.BX.UI || {};
 	        }
 
 	        var iconStyle = main_core.Type.isStringFilled(icon) ? "style=\"background-image: url('".concat(icon, "'); opacity: ").concat(iconOpacity / 100, ";\"") : '';
-	        var arrow = _this2.getOption('arrow', false) && _this2.getTab().getDialog().getFooter() !== null;
+	        var arrow = _this2.getOption('arrow', false) && _this2.getTab().getDialog().getActiveFooter() !== null;
 	        return main_core.Tag.render(_templateObject$3(), iconStyle, title, subtitle ? main_core.Tag.render(_templateObject2$1(), subtitle) : '', arrow ? main_core.Tag.render(_templateObject3$1()) : '');
 	      });
 	    }
@@ -2979,6 +2983,91 @@ this.BX.UI = this.BX.UI || {};
 	  }]);
 	  return DefaultStub;
 	}(BaseStub);
+
+	function _templateObject$4() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-footer\">", "</div>\n\t\t\t"]);
+
+	  _templateObject$4 = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	var BaseFooter = /*#__PURE__*/function () {
+	  function BaseFooter(context, options) {
+	    babelHelpers.classCallCheck(this, BaseFooter);
+	    babelHelpers.defineProperty(this, "dialog", null);
+	    babelHelpers.defineProperty(this, "tab", null);
+	    babelHelpers.defineProperty(this, "container", null);
+	    babelHelpers.defineProperty(this, "cache", new main_core.Cache.MemoryCache());
+	    this.options = main_core.Type.isPlainObject(options) ? options : {};
+
+	    if (context instanceof Dialog) {
+	      this.dialog = context;
+	    } else {
+	      this.tab = context;
+	      this.dialog = this.tab.getDialog();
+	    }
+	  }
+
+	  babelHelpers.createClass(BaseFooter, [{
+	    key: "getDialog",
+	    value: function getDialog() {
+	      return this.dialog;
+	    }
+	  }, {
+	    key: "getTab",
+	    value: function getTab() {
+	      return this.tab;
+	    }
+	  }, {
+	    key: "show",
+	    value: function show() {
+	      main_core.Dom.addClass(this.getContainer(), 'ui-selector-footer--show');
+	    }
+	  }, {
+	    key: "hide",
+	    value: function hide() {
+	      main_core.Dom.removeClass(this.getContainer(), 'ui-selector-footer--show');
+	    }
+	  }, {
+	    key: "getOptions",
+	    value: function getOptions() {
+	      return this.options;
+	    }
+	  }, {
+	    key: "getOption",
+	    value: function getOption(option, defaultValue) {
+	      if (!main_core.Type.isUndefined(this.options[option])) {
+	        return this.options[option];
+	      } else if (!main_core.Type.isUndefined(defaultValue)) {
+	        return defaultValue;
+	      }
+
+	      return null;
+	    }
+	  }, {
+	    key: "getContainer",
+	    value: function getContainer() {
+	      if (this.container === null) {
+	        this.container = main_core.Tag.render(_templateObject$4(), this.render());
+	      }
+
+	      return this.container;
+	    }
+	    /**
+	     * @abstract
+	     */
+
+	  }, {
+	    key: "render",
+	    value: function render() {
+	      throw new Error('You must implement render() method.');
+	    }
+	  }]);
+	  return BaseFooter;
+	}();
 
 	function _templateObject5$1() {
 	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-items\"></div>\n\t\t\t"]);
@@ -3020,23 +3109,23 @@ this.BX.UI = this.BX.UI || {};
 	  return data;
 	}
 
-	function _templateObject$4() {
+	function _templateObject$5() {
 	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tab-content\">", "</div>\n\t\t\t"]);
 
-	  _templateObject$4 = function _templateObject() {
+	  _templateObject$5 = function _templateObject() {
 	    return data;
 	  };
 
 	  return data;
 	}
+
 	/**
 	 * @memberof BX.UI.EntitySelector
 	 */
-
 	var Tab = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(Tab, _EventEmitter);
 
-	  function Tab(tabOptions) {
+	  function Tab(dialog, tabOptions) {
 	    var _this;
 
 	    babelHelpers.classCallCheck(this, Tab);
@@ -3055,6 +3144,8 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "textColor", {});
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "bgColor", {});
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "itemMaxDepth", 3);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "footer", null);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "showDefaultFooter", true);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "cache", new main_core.Cache.MemoryCache());
 
 	    _this.setEventNamespace('BX.UI.EntitySelector.Tab');
@@ -3065,7 +3156,10 @@ this.BX.UI = this.BX.UI || {};
 	      throw new Error('EntitySelector.Tab: "id" parameter is required.');
 	    }
 
+	    _this.setDialog(dialog);
+
 	    _this.id = options.id;
+	    _this.showDefaultFooter = options.showDefaultFooter !== false;
 	    _this.rootNode = new ItemNode(null, {
 	      itemOrder: options.itemOrder
 	    });
@@ -3085,6 +3179,8 @@ this.BX.UI = this.BX.UI || {};
 	    _this.setBgColor(options.bgColor);
 
 	    _this.setStub(options.stub, options.stubOptions);
+
+	    _this.setFooter(options.footer, options.footerOptions);
 
 	    return _this;
 	  }
@@ -3137,6 +3233,54 @@ this.BX.UI = this.BX.UI || {};
 	      }
 
 	      this.stub = instance;
+	    }
+	  }, {
+	    key: "getFooter",
+	    value: function getFooter() {
+	      return this.footer;
+	    }
+	  }, {
+	    key: "setFooter",
+	    value: function setFooter(footerContent, footerOptions) {
+	      /** @var {BaseFooter} */
+	      var footer = null;
+
+	      if (footerContent !== null) {
+	        footer = Dialog.createFooter(this, footerContent, footerOptions);
+
+	        if (footer === null) {
+	          return;
+	        }
+	      }
+
+	      if (this.isRendered() && this.getFooter() !== null) {
+	        main_core.Dom.remove(this.getFooter().getContainer());
+	        this.getDialog().adjustFooter();
+	      }
+
+	      this.footer = footer;
+
+	      if (this.isRendered()) {
+	        this.getDialog().appendFooter(footer);
+	        this.getDialog().adjustFooter();
+	      }
+	    }
+	  }, {
+	    key: "canShowDefaultFooter",
+	    value: function canShowDefaultFooter() {
+	      return this.showDefaultFooter;
+	    }
+	  }, {
+	    key: "enableDefaultFooter",
+	    value: function enableDefaultFooter() {
+	      this.showDefaultFooter = true;
+	      this.getDialog().adjustFooter();
+	    }
+	  }, {
+	    key: "disableDefaultFooter",
+	    value: function disableDefaultFooter() {
+	      this.showDefaultFooter = false;
+	      this.getDialog().adjustFooter();
 	    }
 	  }, {
 	    key: "getRootNode",
@@ -3259,7 +3403,7 @@ this.BX.UI = this.BX.UI || {};
 	      var _this2 = this;
 
 	      return this.cache.remember('container', function () {
-	        return main_core.Tag.render(_templateObject$4(), _this2.getItemsContainer());
+	        return main_core.Tag.render(_templateObject$5(), _this2.getItemsContainer());
 	      });
 	    }
 	  }, {
@@ -3356,6 +3500,10 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.isVisible()) {
 	        this.renderLabel();
 	      }
+
+	      if (this.getFooter()) {
+	        this.getFooter().show();
+	      }
 	    }
 	  }, {
 	    key: "deselect",
@@ -3377,6 +3525,10 @@ this.BX.UI = this.BX.UI || {};
 
 	      if (this.isVisible()) {
 	        this.renderLabel();
+	      }
+
+	      if (this.getFooter()) {
+	        this.getFooter().hide();
 	      }
 	    }
 	  }, {
@@ -3541,10 +3693,10 @@ this.BX.UI = this.BX.UI || {};
 	  return data;
 	}
 
-	function _templateObject$5() {
+	function _templateObject$6() {
 	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-item ui-tag-selector-tag\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>"]);
 
-	  _templateObject$5 = function _templateObject() {
+	  _templateObject$6 = function _templateObject() {
 	    return data;
 	  };
 
@@ -3798,7 +3950,7 @@ this.BX.UI = this.BX.UI || {};
 	      var _this = this;
 
 	      return this.cache.remember('container', function () {
-	        return main_core.Tag.render(_templateObject$5(), _this.getContentContainer(), _this.getRemoveIcon());
+	        return main_core.Tag.render(_templateObject$6(), _this.getContentContainer(), _this.getRemoveIcon());
 	      });
 	    }
 	  }, {
@@ -3959,10 +4111,10 @@ this.BX.UI = this.BX.UI || {};
 	  return data;
 	}
 
-	function _templateObject$6() {
+	function _templateObject$7() {
 	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-outer-container", "\">", "</div>\n\t\t\t"]);
 
-	  _templateObject$6 = function _templateObject() {
+	  _templateObject$7 = function _templateObject() {
 	    return data;
 	  };
 
@@ -4331,7 +4483,7 @@ this.BX.UI = this.BX.UI || {};
 	      return this.cache.remember('outer-container', function () {
 	        var className = _this6.isReadonly() ? ' ui-tag-selector-container-readonly' : '';
 	        className += _this6.isLocked() ? ' ui-tag-selector-container-locked' : '';
-	        return main_core.Tag.render(_templateObject$6(), className, _this6.getContainer());
+	        return main_core.Tag.render(_templateObject$7(), className, _this6.getContainer());
 	      });
 	    }
 	  }, {
@@ -4717,6 +4869,13 @@ this.BX.UI = this.BX.UI || {};
 	      if (event.key === 'Enter') {
 	        // prevent a form submit
 	        event.preventDefault();
+
+	        if (main_core.Browser.isMac() && event.metaKey || event.ctrlKey) {
+	          this.emit('onMetaEnter', {
+	            selector: this,
+	            event: event
+	          });
+	        }
 	      }
 
 	      this.emit('onKeyDown', {
@@ -4892,8 +5051,10 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "focusOnNode",
 	    value: function focusOnNode(node) {
-	      node.focus();
-	      node.scrollIntoView();
+	      if (node) {
+	        node.focus();
+	        node.scrollIntoView();
+	      }
 	    }
 	  }, {
 	    key: "lockTab",
@@ -4946,6 +5107,10 @@ this.BX.UI = this.BX.UI || {};
 	    value: function handleDocumentKeyDown(event) {
 	      if (!this.getDialog().isOpen()) {
 	        this.unbindEvents();
+	        return;
+	      }
+
+	      if (event.metaKey || event.ctrlKey || event.altKey) {
 	        return;
 	      }
 
@@ -5132,12 +5297,14 @@ this.BX.UI = this.BX.UI || {};
 	    value: function handleDialogHide() {
 	      this.sliders.clear();
 	      this.unbindEvents();
+	      this.getDialog().unfreeze();
 	    }
 	  }, {
 	    key: "handleDialogDestroy",
 	    value: function handleDialogDestroy() {
 	      this.sliders.clear();
 	      this.unbindEvents();
+	      this.getDialog().unfreeze();
 	    }
 	  }, {
 	    key: "handleSliderOpen",
@@ -5168,48 +5335,10 @@ this.BX.UI = this.BX.UI || {};
 	  return SliderIntegration;
 	}();
 
-	var BaseFooter = /*#__PURE__*/function () {
-	  function BaseFooter(dialog, options) {
-	    babelHelpers.classCallCheck(this, BaseFooter);
-	    babelHelpers.defineProperty(this, "dialog", null);
-	    this.options = main_core.Type.isPlainObject(options) ? options : {};
-	    this.dialog = dialog;
-	  }
+	function _templateObject$8() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-selector-footer-default\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"]);
 
-	  babelHelpers.createClass(BaseFooter, [{
-	    key: "getDialog",
-	    value: function getDialog() {
-	      return this.dialog;
-	    }
-	  }, {
-	    key: "getOptions",
-	    value: function getOptions() {
-	      return this.options;
-	    }
-	  }, {
-	    key: "getOption",
-	    value: function getOption(option, defaultValue) {
-	      if (!main_core.Type.isUndefined(this.options[option])) {
-	        return this.options[option];
-	      } else if (!main_core.Type.isUndefined(defaultValue)) {
-	        return defaultValue;
-	      }
-
-	      return null;
-	    }
-	  }, {
-	    key: "render",
-	    value: function render() {
-	      throw new Error('You must implement render() method.');
-	    }
-	  }]);
-	  return BaseFooter;
-	}();
-
-	function _templateObject$7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-footer-default\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject$7 = function _templateObject() {
+	  _templateObject$8 = function _templateObject() {
 	    return data;
 	  };
 
@@ -5219,13 +5348,12 @@ this.BX.UI = this.BX.UI || {};
 	var DefaultFooter = /*#__PURE__*/function (_BaseFooter) {
 	  babelHelpers.inherits(DefaultFooter, _BaseFooter);
 
-	  function DefaultFooter(dialog, options) {
+	  function DefaultFooter(context, options) {
 	    var _this;
 
 	    babelHelpers.classCallCheck(this, DefaultFooter);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(DefaultFooter).call(this, dialog, options));
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(DefaultFooter).call(this, context, options));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "content", null);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "cache", new main_core.Cache.MemoryCache());
 
 	    _this.setContent(_this.getOption('content'));
 
@@ -5233,13 +5361,9 @@ this.BX.UI = this.BX.UI || {};
 	  }
 
 	  babelHelpers.createClass(DefaultFooter, [{
-	    key: "getContainer",
-	    value: function getContainer() {
-	      var _this2 = this;
-
-	      return this.cache.remember('container', function () {
-	        return main_core.Tag.render(_templateObject$7(), _this2.getContent() ? _this2.getContent() : '');
-	      });
+	    key: "render",
+	    value: function render() {
+	      return main_core.Tag.render(_templateObject$8(), this.getContent() ? this.getContent() : '');
 	    }
 	  }, {
 	    key: "getContent",
@@ -5253,11 +5377,6 @@ this.BX.UI = this.BX.UI || {};
 	        this.content = content;
 	      }
 	    }
-	  }, {
-	    key: "render",
-	    value: function render() {
-	      return this.getContainer();
-	    }
 	  }]);
 	  return DefaultFooter;
 	}(BaseFooter);
@@ -5265,7 +5384,7 @@ this.BX.UI = this.BX.UI || {};
 	var RecentTab = /*#__PURE__*/function (_Tab) {
 	  babelHelpers.inherits(RecentTab, _Tab);
 
-	  function RecentTab(tabOptions) {
+	  function RecentTab(dialog, tabOptions) {
 	    babelHelpers.classCallCheck(this, RecentTab);
 	    var icon = 'data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2219%22%20height%3D%2219%22%20fill%3D' + '%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M12.43%2011.985a.96.' + '96%200%2000-.959-.96H6.504a.96.96%200%20000%201.92h4.967c.53%200%20.96-.43.96-.96zM12.43%209.' + '009a.96.96%200%2000-.959-.96H6.504a.96.96%200%20000%201.92h4.967c.53%200%20.96-.43.96-.96zM12.' + '43%206.033a.96.96%200%2000-.959-.96H6.504a.96.96%200%20000%201.92h4.967c.53%200%20.96-.43.96-' + '.96z%22%20fill%3D%22%23ACB2B8%22/%3E%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22' + 'evenodd%22%20d%3D%22M8.988%2017.52c1.799%200%203.468-.558%204.843-1.51l2.205%202.204a1.525%201.' + '525%200%20102.157-2.157l-2.205-2.205a8.512%208.512%200%2010-7%203.668zm0-2.403a6.108%206.108%200%2' + '0100-12.216%206.108%206.108%200%20000%2012.216z%22%20fill%3D%22%23ACB2B8%22/%3E%3C/svg%3E';
 	    var defaults = {
@@ -5282,7 +5401,7 @@ this.BX.UI = this.BX.UI || {};
 	    };
 	    var options = Object.assign({}, defaults, tabOptions);
 	    options.id = 'recents';
-	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(RecentTab).call(this, options));
+	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(RecentTab).call(this, dialog, options));
 	  }
 
 	  return RecentTab;
@@ -5580,10 +5699,10 @@ this.BX.UI = this.BX.UI || {};
 	  return data;
 	}
 
-	function _templateObject$8() {
+	function _templateObject$9() {
 	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-search-loader\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
 
-	  _templateObject$8 = function _templateObject() {
+	  _templateObject$9 = function _templateObject() {
 	    return data;
 	  };
 
@@ -5622,7 +5741,7 @@ this.BX.UI = this.BX.UI || {};
 	      var _this = this;
 
 	      return this.cache.remember('container', function () {
-	        return main_core.Tag.render(_templateObject$8(), _this.getBoxContainer(), _this.getSpacerContainer());
+	        return main_core.Tag.render(_templateObject$9(), _this.getBoxContainer(), _this.getSpacerContainer());
 	      });
 	    }
 	  }, {
@@ -5664,7 +5783,7 @@ this.BX.UI = this.BX.UI || {};
 	        main_core.Dom.append(this.getContainer(), this.getTab().getContainer());
 	      }
 
-	      this.getLoader().show();
+	      void this.getLoader().show();
 	      main_core.Dom.addClass(this.getContainer(), 'ui-selector-search-loader--show');
 	      requestAnimationFrame(function () {
 	        main_core.Dom.addClass(_this3.getContainer(), 'ui-selector-search-loader--animate');
@@ -5678,16 +5797,204 @@ this.BX.UI = this.BX.UI || {};
 	      }
 
 	      main_core.Dom.removeClass(this.getContainer(), ['ui-selector-search-loader--show', 'ui-selector-search-loader--animate']);
-	      this.getLoader().hide();
+	      void this.getLoader().hide();
+	    }
+	  }, {
+	    key: "isShown",
+	    value: function isShown() {
+	      return this.loader !== null && this.loader.isShown();
 	    }
 	  }]);
 	  return SearchLoader;
 	}();
 
+	function _templateObject4$5() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-search-footer-loader\"></div>\n\t\t\t"]);
+
+	  _templateObject4$5 = function _templateObject4() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject3$6() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-selector-search-footer-query\"></span>\n\t\t\t"]);
+
+	  _templateObject3$6 = function _templateObject3() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject2$6() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-selector-search-footer-label\">", "</span>\n\t\t\t"]);
+
+	  _templateObject2$6 = function _templateObject2() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject$a() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-selector-search-footer\" onclick=\"", "\">\n\t\t\t\t<div class=\"ui-selector-search-footer-box\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t<div class=\"ui-selector-search-footer-cmd\">", "</div>\n\t\t\t</div>\n\t\t"]);
+
+	  _templateObject$a = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	var SearchTabFooter = /*#__PURE__*/function (_BaseFooter) {
+	  babelHelpers.inherits(SearchTabFooter, _BaseFooter);
+
+	  function SearchTabFooter(tab, options) {
+	    var _this;
+
+	    babelHelpers.classCallCheck(this, SearchTabFooter);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(SearchTabFooter).call(this, tab, options));
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "loader", null);
+
+	    _this.getDialog().subscribe('onSearch', _this.handleOnSearch.bind(babelHelpers.assertThisInitialized(_this)));
+
+	    var tagSelector = _this.getDialog().getTagSelector();
+
+	    if (tagSelector) {
+	      tagSelector.subscribe('onMetaEnter', _this.handleMetaEnter.bind(babelHelpers.assertThisInitialized(_this)));
+	    }
+
+	    return _this;
+	  }
+
+	  babelHelpers.createClass(SearchTabFooter, [{
+	    key: "render",
+	    value: function render() {
+	      return main_core.Tag.render(_templateObject$a(), this.handleClick.bind(this), this.getLabelContainer(), this.getQueryContainer(), this.getLoaderContainer(), main_core.Browser.isMac() ? '&#8984;+Enter' : 'Ctrl+Enter');
+	    }
+	  }, {
+	    key: "getLoader",
+	    value: function getLoader() {
+	      if (this.loader === null) {
+	        this.loader = new main_loader.Loader({
+	          target: this.getLoaderContainer(),
+	          size: 17,
+	          color: 'rgba(82, 92, 105, 0.9)'
+	        });
+	      }
+
+	      return this.loader;
+	    }
+	  }, {
+	    key: "showLoader",
+	    value: function showLoader() {
+	      this.getLoader().show();
+	    }
+	  }, {
+	    key: "hideLoader",
+	    value: function hideLoader() {
+	      this.getLoader().hide();
+	    }
+	  }, {
+	    key: "setLabel",
+	    value: function setLabel(label) {
+	      if (main_core.Type.isString(label)) {
+	        this.getLabelContainer().textContent = label;
+	      }
+	    }
+	  }, {
+	    key: "getLabelContainer",
+	    value: function getLabelContainer() {
+	      var _this2 = this;
+
+	      return this.cache.remember('label', function () {
+	        return main_core.Tag.render(_templateObject2$6(), _this2.getOption('label', main_core.Loc.getMessage('UI_SELECTOR_CREATE_ITEM_LABEL')));
+	      });
+	    }
+	  }, {
+	    key: "getQueryContainer",
+	    value: function getQueryContainer() {
+	      return this.cache.remember('name-container', function () {
+	        return main_core.Tag.render(_templateObject3$6());
+	      });
+	    }
+	  }, {
+	    key: "getLoaderContainer",
+	    value: function getLoaderContainer() {
+	      return this.cache.remember('loader', function () {
+	        return main_core.Tag.render(_templateObject4$5());
+	      });
+	    }
+	  }, {
+	    key: "createItem",
+	    value: function createItem() {
+	      var _this3 = this;
+
+	      if (this.getDialog().getTagSelector().isLocked()) {
+	        return;
+	      }
+
+	      var finalize = function finalize() {
+	        _this3.hideLoader();
+
+	        if (_this3.getDialog().getTagSelector()) {
+	          _this3.getDialog().getTagSelector().unlock();
+
+	          _this3.getDialog().focusSearch();
+	        }
+	      };
+
+	      event.preventDefault();
+	      this.showLoader();
+	      this.getDialog().getTagSelector().lock();
+	      this.getDialog().emitAsync('Search:onItemCreateAsync', {
+	        searchQuery: this.getTab().getLastSearchQuery()
+	      }).then(function () {
+	        _this3.getTab().clearResults();
+
+	        _this3.getDialog().clearSearch();
+
+	        if (_this3.getDialog().getActiveTab() === _this3.getTab()) {
+	          _this3.getDialog().selectFirstTab();
+	        }
+
+	        finalize();
+	      }).catch(function () {
+	        finalize();
+	      });
+	    }
+	  }, {
+	    key: "handleClick",
+	    value: function handleClick() {
+	      this.createItem();
+	    }
+	  }, {
+	    key: "handleMetaEnter",
+	    value: function handleMetaEnter(event) {
+	      if (this.getDialog().getActiveTab() !== this.getTab()) {
+	        return;
+	      }
+
+	      this.handleClick();
+	    }
+	  }, {
+	    key: "handleOnSearch",
+	    value: function handleOnSearch(event) {
+	      var _event$getData = event.getData(),
+	          query = _event$getData.query;
+
+	      this.getQueryContainer().textContent = query;
+	    }
+	  }]);
+	  return SearchTabFooter;
+	}(BaseFooter);
+
 	var SearchTab = /*#__PURE__*/function (_Tab) {
 	  babelHelpers.inherits(SearchTab, _Tab);
 
-	  function SearchTab(tabOptions, searchOptions) {
+	  function SearchTab(dialog, tabOptions, searchOptions) {
 	    var _this;
 
 	    babelHelpers.classCallCheck(this, SearchTab);
@@ -5704,24 +6011,16 @@ this.BX.UI = this.BX.UI || {};
 	    var options = Object.assign({}, defaults, tabOptions);
 	    options.id = 'search';
 	    options.stubOptions.autoShow = false;
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(SearchTab).call(this, options));
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(SearchTab).call(this, dialog, options));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "lastSearchQuery", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "loadWithDebounce", main_core.Runtime.debounce(_this.load, 500, babelHelpers.assertThisInitialized(_this)));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "queryCache", new Set());
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "queryXhr", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "searchLoader", new SearchLoader(babelHelpers.assertThisInitialized(_this)));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "allowCreateItem", false);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "draftItem", null);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "draftItemOptions", {});
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "draftItemRender", null);
-	    _this.handleOnBeforeItemSelect = _this.handleOnBeforeItemSelect.bind(babelHelpers.assertThisInitialized(_this));
 	    searchOptions = main_core.Type.isPlainObject(searchOptions) ? searchOptions : {};
 
-	    _this.setAllowCreateItem(searchOptions.allowCreateItem);
-
-	    _this.setDraftItemOptions(searchOptions.draftItemOptions);
-
-	    _this.setDraftItemRender(searchOptions.draftItemRender);
+	    _this.setAllowCreateItem(searchOptions.allowCreateItem, searchOptions.footerOptions);
 
 	    return _this;
 	  }
@@ -5729,12 +6028,12 @@ this.BX.UI = this.BX.UI || {};
 	  babelHelpers.createClass(SearchTab, [{
 	    key: "search",
 	    value: function search(query) {
-	      this.getSearchLoader().hide();
 	      var searchQuery = new SearchQuery(query);
 	      var dynamicEntities = this.getDynamicEntities(searchQuery);
 	      searchQuery.setDynamicSearchEntities(dynamicEntities);
 
 	      if (searchQuery.isEmpty()) {
+	        this.getSearchLoader().hide();
 	        return;
 	      }
 
@@ -5744,17 +6043,6 @@ this.BX.UI = this.BX.UI || {};
 	        matchResults = matchResults.concat(SearchEngine.matchItems(items, searchQuery));
 	      });
 	      this.clearResults();
-
-	      if (this.canCreateItem()) {
-	        this.getRootNode().addItem(this.getDraftItem());
-
-	        if (this.getDraftItemRender() !== null) {
-	          this.getDraftItemRender()(this.getDraftItem(), searchQuery);
-	        } else {
-	          this.getDraftItem().setTitle(searchQuery.getQuery());
-	        }
-	      }
-
 	      this.appendResults(matchResults);
 
 	      if (this.getDialog().shouldFocusOnFirst()) {
@@ -5768,7 +6056,9 @@ this.BX.UI = this.BX.UI || {};
 	          this.getStub().hide();
 	        }
 	      } else {
-	        this.toggleEmptyResult();
+	        if (!this.getSearchLoader().isShown()) {
+	          this.toggleEmptyResult();
+	        }
 	      }
 	    }
 	  }, {
@@ -5778,92 +6068,21 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	  }, {
 	    key: "setAllowCreateItem",
-	    value: function setAllowCreateItem(flag) {
+	    value: function setAllowCreateItem(flag, options) {
 	      if (main_core.Type.isBoolean(flag)) {
 	        this.allowCreateItem = flag;
 
-	        if (this.getDialog()) {
-	          if (flag) {
-	            this.createDraftItem();
-	          } else {
-	            this.removeDraftItem();
-	          }
+	        if (flag) {
+	          this.setFooter(SearchTabFooter, options);
+	        } else {
+	          this.setFooter(null);
 	        }
 	      }
-	    }
-	  }, {
-	    key: "setDraftItemOptions",
-	    value: function setDraftItemOptions(draftItemOptions) {
-	      if (main_core.Type.isPlainObject(draftItemOptions)) {
-	        this.draftItemOptions = draftItemOptions;
-	      }
-	    }
-	  }, {
-	    key: "setDraftItemRender",
-	    value: function setDraftItemRender(fn) {
-	      if (main_core.Type.isFunction(fn) || fn === null) {
-	        this.draftItemRender = fn;
-	      }
-	    }
-	  }, {
-	    key: "getDraftItemRender",
-	    value: function getDraftItemRender() {
-	      return this.draftItemRender;
-	    }
-	  }, {
-	    key: "getDraftItemOptions",
-	    value: function getDraftItemOptions() {
-	      return this.draftItemOptions;
-	    }
-	    /**
-	     * @internal
-	     */
-
-	  }, {
-	    key: "createDraftItem",
-	    value: function createDraftItem() {
-	      if (this.draftItem === null) {
-	        var itemOptions = Object.assign({}, this.getDraftItemOptions(), {
-	          id: 'draft-item',
-	          entityId: 'search-tab',
-	          searchable: false,
-	          saveable: false,
-	          avatar: 'data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%2' + '0fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20fill-rule%' + '3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M12%2024c6.627%200%2012-5.373%201' + '2-12S18.627%200%2012%200%200%205.373%200%2012s5.373%2012%2012%2012z%22%20fill%3D%22%23' + '2FC6F6%22/%3E%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22' + 'M13%207h-2v4H7v2h4v4h2v-4h4v-2h-4V7z%22%20fill%3D%22%23fff%22/%3E%3C/svg%3E'
-	        });
-	        this.draftItem = this.getDialog().addItem(itemOptions);
-	        this.getDialog().subscribe('Item:onBeforeSelect', this.handleOnBeforeItemSelect);
-	      }
-
-	      return this.draftItem;
-	    }
-	    /**
-	     * @internal
-	     */
-
-	  }, {
-	    key: "removeDraftItem",
-	    value: function removeDraftItem() {
-	      if (this.draftItem === null) {
-	        return;
-	      }
-
-	      this.getDialog().removeItem(this.draftItem);
-	      this.getDialog().unsubscribe('Item:onBeforeSelect', this.handleOnBeforeItemSelect);
-	      this.draftItem = null;
 	    }
 	  }, {
 	    key: "canCreateItem",
 	    value: function canCreateItem() {
 	      return this.allowCreateItem;
-	    }
-	  }, {
-	    key: "getDraftItem",
-	    value: function getDraftItem() {
-	      if (!this.canCreateItem()) {
-	        return null;
-	      }
-
-	      return this.createDraftItem();
 	    }
 	  }, {
 	    key: "appendResults",
@@ -6037,6 +6256,8 @@ this.BX.UI = this.BX.UI || {};
 
 	        _this3.getSearchLoader().hide();
 
+	        _this3.toggleEmptyResult();
+
 	        console.error(error);
 	      });
 	    }
@@ -6064,70 +6285,12 @@ this.BX.UI = this.BX.UI || {};
 	        this.getStub().hide();
 	      }
 	    }
-	  }, {
-	    key: "handleOnBeforeItemSelect",
-	    value: function handleOnBeforeItemSelect(event) {
-	      var _this4 = this;
-
-	      var _event$getData = event.getData(),
-	          item = _event$getData.item;
-
-	      if (item !== this.getDraftItem()) {
-	        return;
-	      }
-
-	      var showLoader = function showLoader() {
-	        if (_this4.getDraftItem()) {
-	          _this4.getDraftItem().getNodes().forEach(function (node) {
-	            node.showLoader();
-	          });
-	        }
-	      };
-
-	      var hideLoader = function hideLoader() {
-	        if (_this4.getDraftItem()) {
-	          _this4.getDraftItem().getNodes().forEach(function (node) {
-	            node.hideLoader();
-	          });
-	        }
-	      };
-
-	      var finalize = function finalize() {
-	        hideLoader();
-
-	        if (_this4.getDialog().getTagSelector()) {
-	          _this4.getDialog().getTagSelector().unlock();
-
-	          _this4.getDialog().focusSearch();
-	        }
-	      };
-
-	      event.preventDefault();
-	      showLoader();
-	      this.getDialog().getTagSelector().lock();
-	      this.getDialog().emitAsync('Search:onItemCreateAsync', {
-	        draftItem: this.getDraftItem(),
-	        searchQuery: this.getLastSearchQuery()
-	      }).then(function () {
-	        _this4.clearResults();
-
-	        _this4.getDialog().clearSearch();
-
-	        if (_this4.getDialog().getActiveTab() === _this4) {
-	          _this4.getDialog().selectFirstTab();
-	        }
-
-	        finalize();
-	      }).catch(function () {
-	        finalize();
-	      });
-	    }
 	  }]);
 	  return SearchTab;
 	}(Tab);
 
 	function _templateObject6$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-footer\">", "</div>\n\t\t\t"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-footer-container\">", "</div>\n\t\t\t"]);
 
 	  _templateObject6$3 = function _templateObject6() {
 	    return data;
@@ -6146,40 +6309,40 @@ this.BX.UI = this.BX.UI || {};
 	  return data;
 	}
 
-	function _templateObject4$5() {
+	function _templateObject4$6() {
 	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-tab-contents\"></div>"]);
 
-	  _templateObject4$5 = function _templateObject4() {
+	  _templateObject4$6 = function _templateObject4() {
 	    return data;
 	  };
 
 	  return data;
 	}
 
-	function _templateObject3$6() {
+	function _templateObject3$7() {
 	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tabs\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
 
-	  _templateObject3$6 = function _templateObject3() {
+	  _templateObject3$7 = function _templateObject3() {
 	    return data;
 	  };
 
 	  return data;
 	}
 
-	function _templateObject2$6() {
+	function _templateObject2$7() {
 	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-dialog\" style=\"width:", "px; height:", "px;\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
 
-	  _templateObject2$6 = function _templateObject2() {
+	  _templateObject2$7 = function _templateObject2() {
 	    return data;
 	  };
 
 	  return data;
 	}
 
-	function _templateObject$9() {
+	function _templateObject$b() {
 	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-search\"></div>"]);
 
-	  _templateObject$9 = function _templateObject() {
+	  _templateObject$b = function _templateObject() {
 	    return data;
 	  };
 
@@ -6262,6 +6425,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "popupOptions", {});
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "focusOnFirst", true);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "focusedNode", null);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "clearUnavailableItems", false);
 
 	    _this.setEventNamespace('BX.UI.EntitySelector.Dialog');
 
@@ -6269,6 +6433,7 @@ this.BX.UI = this.BX.UI || {};
 	    _this.id = main_core.Type.isStringFilled(options.id) ? options.id : "ui-selector-".concat(main_core.Text.getRandom().toLowerCase());
 	    _this.multiple = main_core.Type.isBoolean(options.multiple) ? options.multiple : true;
 	    _this.context = main_core.Type.isStringFilled(options.context) ? options.context : null;
+	    _this.clearUnavailableItems = options.clearUnavailableItems === true;
 
 	    if (main_core.Type.isArray(options.entities)) {
 	      options.entities.forEach(function (entity) {
@@ -6325,8 +6490,8 @@ this.BX.UI = this.BX.UI || {};
 
 	    _this.setFocusOnFirst(options.focusOnFirst);
 
-	    _this.recentTab = new RecentTab(options.recentTabOptions);
-	    _this.searchTab = new SearchTab(options.searchTabOptions, options.searchOptions);
+	    _this.recentTab = new RecentTab(babelHelpers.assertThisInitialized(_this), options.recentTabOptions);
+	    _this.searchTab = new SearchTab(babelHelpers.assertThisInitialized(_this), options.searchTabOptions, options.searchOptions);
 
 	    _this.addTab(_this.recentTab);
 
@@ -6421,49 +6586,79 @@ this.BX.UI = this.BX.UI || {};
 	      return this.footer;
 	    }
 	  }, {
-	    key: "setFooter",
-	    value: function setFooter(footer, footerOptions) {
-	      if (!main_core.Type.isStringFilled(footer) && !main_core.Type.isArrayFilled(footer) && !main_core.Type.isDomNode(footer) && footer !== null) {
+	    key: "getActiveFooter",
+	    value: function getActiveFooter() {
+	      if (!this.getActiveTab()) {
+	        return null;
+	      }
+
+	      if (this.getActiveTab().getFooter()) {
+	        return this.getActiveTab().getFooter();
+	      }
+
+	      return this.getFooter() && this.getActiveTab().canShowDefaultFooter() ? this.getFooter() : null;
+	    }
+	  }, {
+	    key: "adjustFooter",
+	    value: function adjustFooter() {
+	      if (!this.getActiveTab()) {
 	        return;
 	      }
 
-	      var instance = null;
-	      var options = main_core.Type.isPlainObject(footerOptions) ? footerOptions : {};
+	      if (this.getActiveTab().getFooter()) {
+	        if (this.getFooter()) {
+	          this.getFooter().hide();
+	        }
 
-	      if (main_core.Type.isString(footer)) {
-	        var className = main_core.Reflection.getClass(footer);
-
-	        if (main_core.Type.isFunction(className)) {
-	          instance = new className(this, options);
-
-	          if (!(instance instanceof BaseFooter)) {
-	            console.error('EntitySelector: footer is not an instance of BaseFooter.');
-	            instance = null;
+	        this.getActiveTab().getFooter().show();
+	      } else {
+	        if (this.getFooter()) {
+	          if (this.getActiveTab().canShowDefaultFooter()) {
+	            this.getFooter().show();
+	          } else {
+	            this.getFooter().hide();
 	          }
 	        }
 	      }
+	    }
+	  }, {
+	    key: "setFooter",
+	    value: function setFooter(footerContent, footerOptions) {
+	      /** @var {BaseFooter} */
+	      var footer = null;
 
-	      if (footer !== null && !instance) {
-	        instance = new DefaultFooter(this, Object.assign({}, options, {
-	          content: footer
-	        }));
+	      if (footerContent !== null) {
+	        footer = this.constructor.createFooter(this, footerContent, footerOptions);
+
+	        if (footer === null) {
+	          return;
+	        }
 	      }
 
-	      this.footer = instance;
+	      if (this.isRendered() && this.getFooter() !== null) {
+	        main_core.Dom.remove(this.getFooter().getContainer());
+	        this.adjustFooter();
+	      }
+
+	      this.footer = footer;
 
 	      if (this.isRendered()) {
-	        main_core.Dom.clean(this.getFooterContainer());
-
-	        if (this.footer) {
-	          main_core.Dom.append(this.footer.render(), this.getFooterContainer());
-	        }
+	        this.appendFooter(footer);
+	        this.adjustFooter();
+	      }
+	    }
+	  }, {
+	    key: "appendFooter",
+	    value: function appendFooter(footer) {
+	      if (footer instanceof BaseFooter) {
+	        main_core.Dom.append(footer.getContainer(), this.getFooterContainer());
 	      }
 	    }
 	  }, {
 	    key: "addTab",
 	    value: function addTab(tab) {
 	      if (main_core.Type.isPlainObject(tab)) {
-	        tab = new Tab(tab);
+	        tab = new Tab(this, tab);
 	      }
 
 	      if (!(tab instanceof Tab)) {
@@ -6532,13 +6727,13 @@ this.BX.UI = this.BX.UI || {};
 	      }
 
 	      this.focusSearch();
+	      this.clearNodeFocus();
 
 	      if (this.shouldFocusOnFirst()) {
 	        this.focusOnFirstNode();
-	      } else {
-	        this.clearNodeFocus();
 	      }
 
+	      this.adjustFooter();
 	      return newActiveTab;
 	    }
 	    /**
@@ -6551,6 +6746,10 @@ this.BX.UI = this.BX.UI || {};
 	      tab.renderLabel();
 	      main_core.Dom.append(tab.getLabelContainer(), this.getLabelsContainer());
 	      main_core.Dom.append(tab.getContainer(), this.getTabContentsContainer());
+
+	      if (tab.getFooter()) {
+	        main_core.Dom.append(tab.getFooter().getContainer(), this.getFooterContainer());
+	      }
 	    }
 	  }, {
 	    key: "selectFirstTab",
@@ -6658,6 +6857,11 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	      main_core.Dom.remove(tab.getLabelContainer(), this.getLabelsContainer());
 	      main_core.Dom.remove(tab.getContainer(), this.getTabContentsContainer());
+
+	      if (tab.getFooter()) {
+	        main_core.Dom.remove(tab.getFooter().getContainer(), this.getFooterContainer());
+	      }
+
 	      this.selectFirstTab();
 	    }
 	  }, {
@@ -7541,12 +7745,12 @@ this.BX.UI = this.BX.UI || {};
 	        var searchContainer = '';
 
 	        if (_this10.getTagSelectorMode() === TagSelectorMode.INSIDE) {
-	          searchContainer = main_core.Tag.render(_templateObject$9());
+	          searchContainer = main_core.Tag.render(_templateObject$b());
 
 	          _this10.getTagSelector().renderTo(searchContainer);
 	        }
 
-	        return main_core.Tag.render(_templateObject2$6(), _this10.getWidth(), _this10.getHeight(), searchContainer, _this10.getTabsContainer(), _this10.getFooterContainer());
+	        return main_core.Tag.render(_templateObject2$7(), _this10.getWidth(), _this10.getHeight(), searchContainer, _this10.getTabsContainer(), _this10.getFooterContainer());
 	      });
 	    }
 	  }, {
@@ -7555,14 +7759,14 @@ this.BX.UI = this.BX.UI || {};
 	      var _this11 = this;
 
 	      return this.cache.remember('tabs-container', function () {
-	        return main_core.Tag.render(_templateObject3$6(), _this11.getTabContentsContainer(), _this11.getLabelsContainer());
+	        return main_core.Tag.render(_templateObject3$7(), _this11.getTabContentsContainer(), _this11.getLabelsContainer());
 	      });
 	    }
 	  }, {
 	    key: "getTabContentsContainer",
 	    value: function getTabContentsContainer() {
 	      return this.cache.remember('tab-contents', function () {
-	        return main_core.Tag.render(_templateObject4$5());
+	        return main_core.Tag.render(_templateObject4$6());
 	      });
 	    }
 	  }, {
@@ -7580,7 +7784,7 @@ this.BX.UI = this.BX.UI || {};
 	      var _this13 = this;
 
 	      return this.cache.remember('footer', function () {
-	        var footer = _this13.getFooter() && _this13.getFooter().render();
+	        var footer = _this13.getFooter() && _this13.getFooter().getContainer();
 
 	        return main_core.Tag.render(_templateObject6$3(), footer ? footer : '');
 	      });
@@ -7786,6 +7990,11 @@ this.BX.UI = this.BX.UI || {};
 	      return null;
 	    }
 	  }, {
+	    key: "shouldClearUnavailableItems",
+	    value: function shouldClearUnavailableItems() {
+	      return this.clearUnavailableItems;
+	    }
+	  }, {
 	    key: "handleItemNodeFocus",
 	    value: function handleItemNodeFocus(event) {
 	      var _event$getData2 = event.getData(),
@@ -7810,8 +8019,42 @@ this.BX.UI = this.BX.UI || {};
 	        id: this.getId(),
 	        context: this.getContext(),
 	        entities: this.getEntities(),
-	        preselectedItems: this.getPreselectedItems()
+	        preselectedItems: this.getPreselectedItems(),
+	        clearUnavailableItems: this.shouldClearUnavailableItems()
 	      };
+	    }
+	  }], [{
+	    key: "createFooter",
+	    value: function createFooter(context, footerContent, footerOptions) {
+	      if (!main_core.Type.isStringFilled(footerContent) && !main_core.Type.isArrayFilled(footerContent) && !main_core.Type.isDomNode(footerContent) && !main_core.Type.isFunction(footerContent)) {
+	        return null;
+	      }
+	      /** @var {BaseFooter} */
+
+
+	      var footer = null;
+	      var options = main_core.Type.isPlainObject(footerOptions) ? footerOptions : {};
+
+	      if (main_core.Type.isFunction(footerContent) || main_core.Type.isString(footerContent)) {
+	        var className = main_core.Type.isString(footerContent) ? main_core.Reflection.getClass(footerContent) : footerContent;
+
+	        if (main_core.Type.isFunction(className)) {
+	          footer = new className(context, options);
+
+	          if (!(footer instanceof BaseFooter)) {
+	            console.error('EntitySelector: footer is not an instance of BaseFooter.');
+	            footer = null;
+	          }
+	        }
+	      }
+
+	      if (footerContent !== null && !footer) {
+	        footer = new DefaultFooter(context, Object.assign({}, options, {
+	          content: footerContent
+	        }));
+	      }
+
+	      return footer;
 	    }
 	  }]);
 	  return Dialog;

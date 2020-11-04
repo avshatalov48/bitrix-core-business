@@ -4354,8 +4354,9 @@ abstract class DiscountBase
 			'COUPON_LIST' => []
 		];
 		$this->clearCurrentApplyBlock();
-		$this->discountStoredActionData = array();
-		$this->basketItemsData = array();
+		$this->discountStoredActionData = [];
+		$this->basketItemsData = [];
+		$this->entityResultCache = [];
 	}
 
 	/**

@@ -200,8 +200,8 @@ if (!function_exists('set_valign'))
 }
 
 $arAllOptionsCommon = array(
-	array("follow_default_type", GetMessage("SONET_LOG_FOLLOW_DEFAULT_TYPE"), "Y", Array("checkbox")),
-	array("allow_livefeed_toall", GetMessage("SONET_LOG_ALLOW_TOALL"), "Y", Array("checkbox")),
+	array("follow_default_type", GetMessage($bIntranet ? "SONET_LOG_FOLLOW_DEFAULT_TYPE2" : "SONET_LOG_FOLLOW_DEFAULT_TYPE"), "Y", Array("checkbox")),
+	array("allow_livefeed_toall", GetMessage($bIntranet ? "SONET_LOG_ALLOW_TOALL2" : "SONET_LOG_ALLOW_TOALL"), "Y", Array("checkbox")),
 	array("livefeed_toall_rights", GetMessage("SONET_LOG_TOALL_RIGHTS"), 'a:1:{i:0;s:2:"AU";}', Array("hidden")),
 	array("default_livefeed_toall", GetMessage("SONET_LOG_DEFAULT_TOALL"), "Y", Array("checkbox")),
 	array("email_users_all", GetMessage("SONET_LOG_EMAIL_USERS_ALL"), "N", Array("checkbox")),
@@ -209,7 +209,7 @@ $arAllOptionsCommon = array(
 
 if (!IsModuleInstalled("intranet"))
 {
-	$arAllOptionsCommon[] = array("sonet_log_smart_filter", GetMessage("SONET_LOG_SMART_FILTER"), "N", Array("checkbox"));
+	$arAllOptionsCommon[] = array("sonet_log_smart_filter", GetMessage($bIntranet ? "SONET_LOG_SMART_FILTER2" : "SONET_LOG_SMART_FILTER"), "N", Array("checkbox"));
 }
 
 if (IsModuleInstalled("im"))
@@ -217,11 +217,8 @@ if (IsModuleInstalled("im"))
 	$arAllOptionsCommon[] = array("use_workgroup_chat", GetMessage("SONET_USE_WORKGROUP_CHAT"), "Y", Array("checkbox"));
 }
 
-if($DB->type == 'MYSQL')
-{
-	$fulltextIndexExists = $DB->IndexExists("b_sonet_log_index", array("CONTENT"));
-	$arAllOptionsCommon[] = array("use_lf_fulltext_index", GetMessage("SONET_USE_LF_FULLTEXT_INDEX"), ($fulltextIndexExists ? "Y" : "N"), array("checkbox"));
-}
+$fulltextIndexExists = $DB->IndexExists("b_sonet_log_index", array("CONTENT"));
+$arAllOptionsCommon[] = array("use_lf_fulltext_index", GetMessage($bIntranet ? "SONET_USE_LF_FULLTEXT_INDEX2" : "SONET_USE_LF_FULLTEXT_INDEX"), ($fulltextIndexExists ? "Y" : "N"), array("checkbox"));
 
 $arAllOptions = array(
 	array("allow_frields", GetMessage("SONET_ALLOW_FRIELDS"), "Y", Array("checkbox")),

@@ -385,7 +385,15 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 
 	private function getFeatureTitle($featureId)
 	{
-		return Loc::getMessage("SOCNET_GROUP_COPY_FEATURE_".mb_strtoupper($featureId));
+		$featureId = mb_strtoupper($featureId);
+		if (
+			$featureId === 'BLOG'
+			&& ModuleManager::isModuleInstalled('intranet')
+		)
+		{
+			$featureId = 'BLOG2';
+		}
+		return Loc::getMessage("SOCNET_GROUP_COPY_FEATURE_".$featureId);
 	}
 
 	private function getFeaturesFromRequest(array $features)

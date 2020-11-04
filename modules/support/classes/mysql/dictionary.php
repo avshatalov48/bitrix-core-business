@@ -26,10 +26,10 @@ class CTicketDictionary extends CAllTicketDictionary
 			{
 				$key = $filterKeys[$i];
 				$val = $arFilter[$filterKeys[$i]];
-				if ((is_array($val) && count($val)<=0) || (!is_array($val) && (strlen($val)<=0 || $val==='NOT_REF')))
+				if ((is_array($val) && count($val)<=0) || (!is_array($val) && ((string) $val == '' || $val==='NOT_REF')))
 					continue;
 				$match_value_set = (in_array($key."_EXACT_MATCH", $filterKeys)) ? true : false;
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "ID":

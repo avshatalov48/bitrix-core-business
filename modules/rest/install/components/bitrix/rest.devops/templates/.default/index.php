@@ -18,6 +18,8 @@ if ($arResult['TOOLBAR'])
 {
 	Toolbar::addButton($arResult['TOOLBAR']);
 }
+Toolbar::deleteFavoriteStar();
+
 $APPLICATION->IncludeComponent(
 	'bitrix:ui.sidepanel.wrapper',
 	'',

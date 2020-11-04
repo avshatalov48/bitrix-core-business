@@ -212,6 +212,12 @@ class Landing extends \CModule
 			'N',
 			3600
 		);
+		\CAgent::addAgent(
+			'Bitrix\Landing\Agent::sendRestStatistic();',
+			$this->MODULE_ID,
+			'N',
+			86400
+		);
 
 		// rights
 		$this->InstallTasks();

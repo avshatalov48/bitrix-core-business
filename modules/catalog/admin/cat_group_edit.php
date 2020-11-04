@@ -272,16 +272,29 @@ $aMenu = array(
 
 if ($ID > 0 && !$bReadOnly)
 {
-	if (Catalog\Config\Feature::isMultiPriceTypesEnabled())
+	$aMenu[] = ["SEPARATOR" => "Y"];
+	if (Catalog\Config\State::isAllowedNewPriceType())
 	{
-		$aMenu[] = array("SEPARATOR" => "Y");
 		$addUrl = $selfFolderUrl."cat_group_edit.php?lang=".LANGUAGE_ID;
 		$addUrl = $adminSidePanelHelper->editUrlToPublicPage($addUrl);
-		$aMenu[] = array(
+		$aMenu[] = [
 			"TEXT" => GetMessage("CGEN_NEW_GROUP"),
 			"ICON" => "btn_new",
 			"LINK" => $addUrl
-		);
+		];
+	}
+	else
+	{
+		$helpLink = Catalog\Config\Feature::getMultiPriceTypesHelpLink();
+		if (!empty($helpLink))
+		{
+			$aMenu[] = [
+				"TEXT" => GetMessage("CGEN_NEW_GROUP"),
+				"ICON" => "btn_lock",
+				$helpLink['TYPE'] => $helpLink['LINK'],
+			];
+		}
+		unset($helpLink);
 	}
 
 	if (Catalog\Config\Feature::isMultiPriceTypesEnabled() || !$boolRealBase)
@@ -426,4 +439,7 @@ $tabControl->Buttons(array("disabled" => $bReadOnly, "back_url" => $listUrl));
 $tabControl->End();
 ?>
 </form>
+<?
+Catalog\Config\Feature::initUiHelpScope();
+?>
 <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");?>

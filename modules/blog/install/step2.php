@@ -2,7 +2,7 @@
 <?
 global $errors;
 
-if(strlen($errors)<=0):
+if($errors == ''):
 	echo CAdminMessage::ShowNote(GetMessage("MOD_INST_OK"));
 else:
 	for($i=0; $i<count($errors); $i++)
@@ -49,7 +49,7 @@ if ($public_installed) :
 			?>
 			<tr>
 				<td width="0%"><p>[<?=$fSite["SITE_ID"]?>] <?=$fSite["NAME"]?></p></td>
-				<td width="0%"><p><a href="<?if(strlen($fSite["SERVER_NAME"])>0) echo "http://".$fSite["SERVER_NAME"];?><?=$fSite["DIR"].${"public_path_".$fSite["SITE_ID"]}?>/"><?=$fSite["DIR"].${"public_path_".$fSite["SITE_ID"]}?>/</a></p></td>
+				<td width="0%"><p><a href="<?if($fSite["SERVER_NAME"] <> '') echo "http://".$fSite["SERVER_NAME"];?><?=$fSite["DIR"].${"public_path_".$fSite["SITE_ID"]}?>/"><?=$fSite["DIR"].${"public_path_".$fSite["SITE_ID"]}?>/</a></p></td>
 			</tr>
 			<?
 		}

@@ -32,6 +32,7 @@ class LandingCookiesComponent extends LandingBaseComponent
 	{
 		$init = $this->init();
 		$this->checkParam('SITE_ID', $this->getLandingSiteId());
+		$this->checkParam('AGREEMENT_ID', 0);
 		$this->checkParam('USE', '');
 		$this->checkParam('COLOR_BG', '');
 		$this->checkParam('COLOR_TEXT', '');
@@ -42,7 +43,9 @@ class LandingCookiesComponent extends LandingBaseComponent
 
 		if ($init && $this->arParams['SITE_ID'])
 		{
-			$this->arResult['AGREEMENT'] = Cookies::getMainAgreement();
+			$this->arResult['AGREEMENT'] = Cookies::getMainAgreement(
+				$this->arParams['AGREEMENT_ID']
+			);
 			if (!$this->arResult['AGREEMENT'])
 			{
 				$init = false;

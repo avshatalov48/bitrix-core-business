@@ -394,7 +394,7 @@ final class CheckManager
 		return $result;
 	}
 
-	private function addStatisticOnSuccessCheckPrint($checkId)
+	private static function addStatisticOnSuccessCheckPrint($checkId)
 	{
 		$check = self::getObjectById($checkId);
 

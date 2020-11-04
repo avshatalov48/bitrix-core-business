@@ -26,7 +26,7 @@ foreach($arResult as $arPost)
 		<a class="blog-author-icon" href="<?=$arPost["urlToAuthor"]?>" title="<?=GetMessage("BLOG_BLOG_M_TITLE_BLOG")?>"></a>
 	<?endif;?>
 	<?
-	if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && (strlen($arPost["urlToBlog"]) > 0 || strlen($arPost["urlToAuthor"]) > 0) && array_key_exists("BLOG_USER_ALIAS", $arPost) && strlen($arPost["BLOG_USER_ALIAS"]) > 0)
+	if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && ($arPost["urlToBlog"] <> '' || $arPost["urlToAuthor"] <> '') && array_key_exists("BLOG_USER_ALIAS", $arPost) && $arPost["BLOG_USER_ALIAS"] <> '')
 		$arTmpUser = array(
 			"NAME" => "",
 			"LAST_NAME" => "",
@@ -34,7 +34,7 @@ foreach($arResult as $arPost)
 			"LOGIN" => "",
 			"NAME_LIST_FORMATTED" => $arPost["~BLOG_USER_ALIAS"],
 		);
-	elseif (strlen($arPost["urlToBlog"]) > 0 || strlen($arPost["urlToAuthor"]) > 0)
+	elseif ($arPost["urlToBlog"] <> '' || $arPost["urlToAuthor"] <> '')
 		$arTmpUser = array(
 			"NAME" => $arPost["~AUTHOR_NAME"],
 			"LAST_NAME" => $arPost["~AUTHOR_LAST_NAME"],
@@ -82,10 +82,10 @@ foreach($arResult as $arPost)
 	</div>
 	<div class="blog-mainpage-meta">
 		<a href="<?=$arPost["urlToPost"]?>" title="<?=GetMessage("BLOG_BLOG_M_DATE")?>"><?=$arPost["DATE_PUBLISH_FORMATED"]?></a>
-		<?if(IntVal($arPost["VIEWS"]) > 0):?>
+		<?if(intval($arPost["VIEWS"]) > 0):?>
 			<span class="blog-vert-separator"></span> <a href="<?=$arPost["urlToPost"]?>" title="<?=GetMessage("BLOG_BLOG_M_VIEWS")?>"><?=GetMessage("BLOG_BLOG_M_VIEWS")?>:&nbsp;<?=$arPost["VIEWS"]?></a>
 		<?endif;?>
-		<?if(IntVal($arPost["NUM_COMMENTS"]) > 0):?>
+		<?if(intval($arPost["NUM_COMMENTS"]) > 0):?>
 			<span class="blog-vert-separator"></span> <a href="<?=$arPost["urlToPost"]?>#comments" title="<?=GetMessage("BLOG_BLOG_M_NUM_COMMENTS")?>"><?=GetMessage("BLOG_BLOG_M_NUM_COMMENTS")?>:&nbsp;<?=$arPost["NUM_COMMENTS"]?></a>
 		<?endif;?>
 		<?if ($arParams["SHOW_RATING"] == "Y"):?>

@@ -551,7 +551,8 @@ a.landing-item-link:hover {
 	transition: border-color 0.15s;
 }
 
-.landing-item-add-new .landing-item-inner {
+.landing-item-add-new .landing-item-inner,
+.landing-item-dev .landing-item-inner {
 	border: 2px dashed rgba(82,92,105,.3);
 }
 
@@ -605,7 +606,8 @@ a.landing-item-link:hover {
 	background-color: #b0b8c0;
 }
 
-.landing-item-add-new:hover .landing-item-inner {
+.landing-item-add-new:hover .landing-item-inner,
+.landing-item-dev:hover .landing-item-inner {
 	border-color: rgba(82,92,105,.5);
 }
 
@@ -620,12 +622,18 @@ a.landing-item-link:hover {
 
 /*===================== landing bitrix24-light-theme view ======================*/
 
-.bitrix24-light-theme .landing-item-add-new .landing-item-inner {
+.bitrix24-light-theme .landing-item-add-new .landing-item-inner,
+.bitrix24-light-theme .landing-item-dev .landing-item-inner {
 	border-color: rgba(255,255,255, .53);
 }
 
-.bitrix24-light-theme .landing-item-add-new:hover .landing-item-inner {
+.bitrix24-light-theme .landing-item-add-new:hover .landing-item-inner,
+.bitrix24-light-theme .landing-item-dev:hover .landing-item-inner {
 	border-color: rgba(255,255,255, 1);
+}
+
+.bitrix24-light-theme .landing-item-dev {
+	color: #fff;
 }
 
 .bitrix24-light-theme .landing-item-add-icon {
@@ -975,6 +983,7 @@ body > a[style*="background: highlight"] {
 	background: #42cbf6;
 	color: #fff;
 	text-align: center;
+	cursor: pointer;
 }
 
 .landing-item-contact .landing-item-inner {
@@ -1010,4 +1019,36 @@ body > a[style*="background: highlight"] {
 	color: #525c69;
 	border: #fff;
 	margin-bottom: 10px;
+}
+
+.landing-item-dev {
+	background-color: rgba(255,255,255, .15);
+	box-shadow: none;
+	font-size: 16px;
+	line-height: 20px;
+	color: #535b69;
+	cursor: pointer;
+}
+
+.landing-item-dev:hover {
+	box-shadow: none;
+	transform: none;
+}
+
+.landing-item-dev .landing-item-inner {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+.landing-item-dev-title {
+	margin-bottom: 15px;
+	font-family: 'OpenSans-SemiBold', Helvetica, Arial, sans-serif;
+}
+
+.landing-item-dev-subtitle {
+	margin-bottom: 40px;
+	max-width: 280px;
+	text-align: center;
 }

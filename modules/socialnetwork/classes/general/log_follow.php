@@ -612,7 +612,7 @@ class CSocNetLogFollow
 							"NOTIFY_EVENT" => "sonet_auto_unfollow_btn",
 							"NOTIFY_TAG" => "SONET|UNFOLLOW|".$userId,
 							"TO_USER_ID" => $userId,
-							"NOTIFY_MESSAGE" => GetMessage("SONET_LF_UNFOLLOW_IM_MESSAGE"),
+							"NOTIFY_MESSAGE" => GetMessage(\Bitrix\Main\ModuleManager::isModuleInstalled('intranet' ? "SONET_LF_UNFOLLOW_IM_MESSAGE2" : "SONET_LF_UNFOLLOW_IM_MESSAGE")),
 							"NOTIFY_MESSAGE_OUT" => IM_MAIL_SKIP,
 							"NOTIFY_BUTTONS" => Array(
 								Array("TITLE" => GetMessage("SONET_LF_UNFOLLOW_IM_BUTTON_Y"), "VALUE" => "Y", "TYPE" => "accept"),

@@ -41,12 +41,12 @@ if(count($arResult["POST"])>0)
 						<span class="blog-post-date"><?=$CurPost["DATE_PUBLISH_FORMATED"]?></span><br />
 						<span class="blog-author"><b><a href="<?=$CurPost["urlToPost"]?>"><?=$CurPost["TITLE"]?></a></b></span>
 					</td>
-					<?if(strLen($CurPost["urlToEdit"])>0):?>
+					<?if($CurPost["urlToEdit"] <> ''):?>
 						<td>
 							<a href="<?=$CurPost["urlToEdit"]?>" class="blog-post-edit"></a>
 						</td>
 					<?endif;?>
-					<?if(strLen($CurPost["urlToDelete"])>0):?>
+					<?if($CurPost["urlToDelete"] <> ''):?>
 						<td>
 							<a href="javascript:if(confirm('<?=GetMessage("BLOG_MES_DELETE_POST_CONFIRM")?>')) window.location='<?=$CurPost["urlToDelete"]."&".bitrix_sessid_get()?>'" class="blog-post-delete"></a>
 						</td>
@@ -93,7 +93,7 @@ if(count($arResult["POST"])>0)
 					<br /><br />
 					<table cellpadding="0" cellspacing="0" border="0" class="blog-table-post-table" style="width:0%;">
 					<?foreach ($CurPost["POST_PROPERTIES"]["DATA"] as $FIELD_NAME => $arPostField):?>
-					<?if(strlen($arPostField["VALUE"])>0):?>
+					<?if($arPostField["VALUE"] <> ''):?>
 					<tr>
 						<td><b><?=$arPostField["EDIT_FORM_LABEL"]?>:</b></td>
 						<td>
@@ -132,7 +132,7 @@ if(count($arResult["POST"])>0)
 					<?if($arResult["enable_trackback"] == "Y" && $CurPost["ENABLE_TRACKBACK"]=="Y"):?>
 						<a href="<?=$CurPost["urlToPost"]?>#trackback">Trackbacks: <?=$CurPost["NUM_TRACKBACKS"];?></a>&nbsp;|&nbsp;
 					<?endif;?>
-					<a href="<?=$CurPost["urlToPost"]?>"><?=GetMessage("BLOG_BLOG_BLOG_VIEWS")?> <?=IntVal($CurPost["VIEWS"]);?></a>&nbsp;|&nbsp;
+					<a href="<?=$CurPost["urlToPost"]?>"><?=GetMessage("BLOG_BLOG_BLOG_VIEWS")?> <?=intval($CurPost["VIEWS"]);?></a>&nbsp;|&nbsp;
 					<a href="<?=$CurPost["urlToPost"]?>#comments"><?=GetMessage("BLOG_BLOG_BLOG_COMMENTS")?> <?=$CurPost["NUM_COMMENTS"];?></a></td>
 
 				</tr>
@@ -143,7 +143,7 @@ if(count($arResult["POST"])>0)
 		<br />
 		<?
 	}
-	if(strlen($arResult["NAV_STRING"])>0)
+	if($arResult["NAV_STRING"] <> '')
 		echo $arResult["NAV_STRING"];
 }
 elseif(!empty($arResult["BLOG"]))

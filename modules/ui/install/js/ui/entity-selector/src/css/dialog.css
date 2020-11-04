@@ -51,8 +51,18 @@
 	}
 }
 
-.ui-selector-footer {
 
+.ui-selector-footer-container {
+
+}
+
+
+.ui-selector-footer {
+	display: none;
+}
+
+.ui-selector-footer--show {
+	display: block;
 }
 
 .ui-selector-footer-default {
@@ -63,7 +73,7 @@
 	padding: 0 18px;
 	overflow: hidden;
 	white-space: nowrap;
-	color: rgba(82, 92, 105, 0.5);
+	color: #525c69;
 }
 
 .ui-selector-footer-conjunction {

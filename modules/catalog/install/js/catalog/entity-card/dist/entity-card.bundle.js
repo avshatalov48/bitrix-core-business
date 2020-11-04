@@ -3,9 +3,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 (function (exports,ui_entityEditor,ui_notification,main_core_events,translit,main_core) {
 	'use strict';
 
-	var LazyLoader =
-	/*#__PURE__*/
-	function () {
+	var LazyLoader = /*#__PURE__*/function () {
 	  function LazyLoader(id, settings) {
 	    babelHelpers.classCallCheck(this, LazyLoader);
 	    this.id = main_core.Type.isStringFilled(id) ? id : main_core.Text.getRandom();
@@ -85,9 +83,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return LazyLoader;
 	}();
 
-	var Tab =
-	/*#__PURE__*/
-	function () {
+	var Tab = /*#__PURE__*/function () {
 	  function Tab(id, settings) {
 	    babelHelpers.classCallCheck(this, Tab);
 	    this.id = main_core.Type.isStringFilled(id) ? id : main_core.Text.getRandom();
@@ -215,9 +211,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return Tab;
 	}();
 
-	var Manager =
-	/*#__PURE__*/
-	function () {
+	var Manager = /*#__PURE__*/function () {
 	  function Manager(id, settings) {
 	    var _this = this;
 
@@ -308,9 +302,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return data;
 	}
 
-	var IblockSectionField =
-	/*#__PURE__*/
-	function (_BX$UI$EntityEditorFi) {
+	var IblockSectionField = /*#__PURE__*/function (_BX$UI$EntityEditorFi) {
 	  babelHelpers.inherits(IblockSectionField, _BX$UI$EntityEditorFi);
 
 	  function IblockSectionField(id, settings) {
@@ -635,9 +627,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return IblockSectionField;
 	}(BX.UI.EntityEditorField);
 
-	var FieldsFactory =
-	/*#__PURE__*/
-	function () {
+	var FieldsFactory = /*#__PURE__*/function () {
 	  function FieldsFactory() {
 	    var _this = this;
 
@@ -667,9 +657,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	var PROPERTY_PREFIX = 'PROPERTY_';
 	var PROPERTY_BLOCK_NAME = 'properties';
 
-	var IblockSectionController =
-	/*#__PURE__*/
-	function (_BX$UI$EntityEditorCo) {
+	var IblockSectionController = /*#__PURE__*/function (_BX$UI$EntityEditorCo) {
 	  babelHelpers.inherits(IblockSectionController, _BX$UI$EntityEditorCo);
 
 	  function IblockSectionController(id, settings) {
@@ -833,10 +821,9 @@ this.BX.Catalog = this.BX.Catalog || {};
 	          } else if (currentField instanceof BX.UI.EntityEditorMultiText) {
 	            newType = 'text';
 	          }
-
-	          schemeElement = currentField.getSchemeElement();
 	        }
 
+	        schemeElement = currentField.getSchemeElement();
 	        var property = response.data.PROPERTY_FIELDS;
 
 	        if ((currentField instanceof BX.UI.EntityEditorList || currentField instanceof BX.UI.EntityEditorMultiList) && property) {
@@ -1145,9 +1132,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return IblockSectionController;
 	}(BX.UI.EntityEditorController);
 
-	var VariationGridController =
-	/*#__PURE__*/
-	function (_BX$UI$EntityEditorCo) {
+	var VariationGridController = /*#__PURE__*/function (_BX$UI$EntityEditorCo) {
 	  babelHelpers.inherits(VariationGridController, _BX$UI$EntityEditorCo);
 
 	  function VariationGridController(id, settings) {
@@ -1213,7 +1198,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "onAfterSave",
 	    value: function onAfterSave() {
-	      if (this.isChanged()) {
+	      if (this.isChanged() || this._editor.isChanged()) {
 	        this.setGridControlCache(null);
 	      }
 
@@ -1421,9 +1406,98 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return VariationGridController;
 	}(BX.UI.EntityEditorController);
 
-	var ControllersFactory =
-	/*#__PURE__*/
-	function () {
+	var GoogleMapController = /*#__PURE__*/function (_BX$UI$EntityEditorCo) {
+	  babelHelpers.inherits(GoogleMapController, _BX$UI$EntityEditorCo);
+
+	  function GoogleMapController(id, settings) {
+	    var _this;
+
+	    babelHelpers.classCallCheck(this, GoogleMapController);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(GoogleMapController).call(this));
+
+	    _this.initialize(id, settings);
+
+	    main_core_events.EventEmitter.subscribe('onAddGoogleMapPoint', _this.markAsChanged.bind(babelHelpers.assertThisInitialized(_this)));
+	    return _this;
+	  }
+
+	  babelHelpers.createClass(GoogleMapController, [{
+	    key: "rollback",
+	    value: function rollback() {
+	      babelHelpers.get(babelHelpers.getPrototypeOf(GoogleMapController.prototype), "rollback", this).call(this);
+
+	      if (this._isChanged) {
+	        this._isChanged = false;
+	      }
+	    }
+	  }]);
+	  return GoogleMapController;
+	}(BX.UI.EntityEditorController);
+
+	var EmployeeController = /*#__PURE__*/function (_BX$UI$EntityEditorCo) {
+	  babelHelpers.inherits(EmployeeController, _BX$UI$EntityEditorCo);
+
+	  function EmployeeController(id, settings) {
+	    var _this;
+
+	    babelHelpers.classCallCheck(this, EmployeeController);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(EmployeeController).call(this));
+
+	    _this.initialize(id, settings);
+
+	    main_core_events.EventEmitter.subscribe('onChangeEmployee', _this.markAsChanged.bind(babelHelpers.assertThisInitialized(_this)));
+	    return _this;
+	  }
+
+	  babelHelpers.createClass(EmployeeController, [{
+	    key: "rollback",
+	    value: function rollback() {
+	      babelHelpers.get(babelHelpers.getPrototypeOf(EmployeeController.prototype), "rollback", this).call(this);
+
+	      if (this._isChanged) {
+	        this._isChanged = false;
+	      }
+	    }
+	  }]);
+	  return EmployeeController;
+	}(BX.UI.EntityEditorController);
+
+	var BindingToCrmElementController = /*#__PURE__*/function (_BX$UI$EntityEditorCo) {
+	  babelHelpers.inherits(BindingToCrmElementController, _BX$UI$EntityEditorCo);
+
+	  function BindingToCrmElementController(id, settings) {
+	    var _this;
+
+	    babelHelpers.classCallCheck(this, BindingToCrmElementController);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(BindingToCrmElementController).call(this));
+
+	    _this.initialize(id, settings);
+
+	    return _this;
+	  }
+
+	  babelHelpers.createClass(BindingToCrmElementController, [{
+	    key: "rollback",
+	    value: function rollback() {
+	      babelHelpers.get(babelHelpers.getPrototypeOf(BindingToCrmElementController.prototype), "rollback", this).call(this);
+
+	      if (this._isChanged) {
+	        this._isChanged = false;
+	      }
+
+	      main_core_events.EventEmitter.unsubscribeAll('BX.Main.User.SelectorController::open');
+	    }
+	  }, {
+	    key: "onBeforeSubmit",
+	    value: function onBeforeSubmit() {
+	      babelHelpers.get(babelHelpers.getPrototypeOf(BindingToCrmElementController.prototype), "onBeforeSubmit", this).call(this);
+	      main_core_events.EventEmitter.unsubscribeAll('BX.Main.User.SelectorController::open');
+	    }
+	  }]);
+	  return BindingToCrmElementController;
+	}(BX.UI.EntityEditorController);
+
+	var ControllersFactory = /*#__PURE__*/function () {
 	  function ControllersFactory() {
 	    var _this = this;
 
@@ -1446,6 +1520,18 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	      if (type === 'variation_grid') {
 	        return new VariationGridController(controlId, settings);
+	      }
+
+	      if (type === 'google_map') {
+	        return new GoogleMapController(controlId, settings);
+	      }
+
+	      if (type === 'employee') {
+	        return new EmployeeController(controlId, settings);
+	      }
+
+	      if (type === 'binding_to_crm_element') {
+	        return new BindingToCrmElementController(controlId, settings);
 	      }
 
 	      return null;
@@ -1504,9 +1590,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return data;
 	}
 
-	var IblockDirectoryFieldItem =
-	/*#__PURE__*/
-	function (_BX$UI$EntityEditorUs) {
+	var IblockDirectoryFieldItem = /*#__PURE__*/function (_BX$UI$EntityEditorUs) {
 	  babelHelpers.inherits(IblockDirectoryFieldItem, _BX$UI$EntityEditorUs);
 
 	  function IblockDirectoryFieldItem() {
@@ -1699,9 +1783,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return data;
 	}
 
-	var IblockFieldConfigurator =
-	/*#__PURE__*/
-	function (_BX$UI$EntityEditorFi) {
+	var IblockFieldConfigurator = /*#__PURE__*/function (_BX$UI$EntityEditorFi) {
 	  babelHelpers.inherits(IblockFieldConfigurator, _BX$UI$EntityEditorFi);
 
 	  function IblockFieldConfigurator() {
@@ -2013,9 +2095,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	}(BX.UI.EntityEditorFieldConfigurator);
 	main_core.Reflection.namespace('BX.Catalog').IblockFieldConfigurator = IblockFieldConfigurator;
 
-	var IblockFieldConfigurationManager =
-	/*#__PURE__*/
-	function (_BX$UI$EntityConfigur) {
+	var IblockFieldConfigurationManager = /*#__PURE__*/function (_BX$UI$EntityConfigur) {
 	  babelHelpers.inherits(IblockFieldConfigurationManager, _BX$UI$EntityConfigur);
 
 	  function IblockFieldConfigurationManager() {
@@ -2207,9 +2287,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return data;
 	}
 
-	var GridFieldConfigurator =
-	/*#__PURE__*/
-	function (_BX$UI$EntityEditorFi) {
+	var GridFieldConfigurator = /*#__PURE__*/function (_BX$UI$EntityEditorFi) {
 	  babelHelpers.inherits(GridFieldConfigurator, _BX$UI$EntityEditorFi);
 
 	  function GridFieldConfigurator() {
@@ -2428,9 +2506,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return GridFieldConfigurator;
 	}(BX.UI.EntityEditorFieldConfigurator);
 
-	var GridFieldConfigurationManager =
-	/*#__PURE__*/
-	function (_BX$UI$EntityConfigur) {
+	var GridFieldConfigurationManager = /*#__PURE__*/function (_BX$UI$EntityConfigur) {
 	  babelHelpers.inherits(GridFieldConfigurationManager, _BX$UI$EntityConfigur);
 
 	  function GridFieldConfigurationManager() {
@@ -2579,9 +2655,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	  return data;
 	}
-	var EntityCard =
-	/*#__PURE__*/
-	function () {
+	var EntityCard = /*#__PURE__*/function () {
 	  function EntityCard(id) {
 	    var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	    babelHelpers.classCallCheck(this, EntityCard);

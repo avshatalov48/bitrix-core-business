@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports, main_core) {
+(function (exports,main_core) {
 	'use strict';
 
 	var defaultOptions = {
@@ -13,9 +13,7 @@ this.BX = this.BX || {};
 	 * @memberOf BX.Landing
 	 */
 
-	var Env =
-	/*#__PURE__*/
-	function () {
+	var Env = /*#__PURE__*/function () {
 	  babelHelpers.createClass(Env, null, [{
 	    key: "getInstance",
 	    value: function getInstance() {
@@ -78,5 +76,5 @@ this.BX = this.BX || {};
 
 	exports.Env = Env;
 
-}(this.BX.Landing = this.BX.Landing || {}, BX));
+}((this.BX.Landing = this.BX.Landing || {}),BX));
 //# sourceMappingURL=env.bundle.js.map

@@ -384,3 +384,29 @@ CREATE TABLE `b_sender_posting_thread`
 	`EXPIRE_AT`   DATETIME     NOT NULL,
 	CONSTRAINT `IX_SENDER_THREAD_INFO_POSTING_ID_THREAD_ID` UNIQUE (`THREAD_ID`, `POSTING_ID`)
 );
+
+CREATE TABLE `b_sender_message_utm`
+	(
+		`MESSAGE_ID`  INT UNSIGNED NOT NULL,
+		`CODE`      VARCHAR(70)   NOT NULL,
+		`VALUE`     VARCHAR(512)  NOT NULL,
+		CONSTRAINT `IX_SENDER_MESSAGE_UTM_MESSAGE_ID_CODE` UNIQUE
+			(`MESSAGE_ID`, `CODE`)
+	);
+
+
+create table b_sender_timeline_queue
+(
+	ID              int unsigned auto_increment
+		primary key,
+	POSTING_ID      int unsigned           not null,
+	RECIPIENT_ID    int unsigned           null,
+	FIELDS          longtext               null,
+	ENTITY_ID       int unsigned           null,
+	CONTACT_TYPE_ID int unsigned           null,
+	CONTACT_CODE    varchar(255)           not null,
+	STATUS          varchar(1) default 'N' not null,
+	DATE_INSERT     datetime               not null
+);
+CREATE INDEX IX_SENDER_TIMELINE_QUEUE_STATUS_POSTING_ID on b_sender_timeline_queue (POSTING_ID, STATUS)
+

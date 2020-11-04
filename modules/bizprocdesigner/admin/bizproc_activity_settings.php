@@ -216,7 +216,7 @@ function HideShowId(id)
 	<td align="right" width="25%"><?echo GetMessage("BP_ACT_SET_ID_ROW")?></td>
 	<td width="75%"><input type="text" name="activity_id" value="<?=htmlspecialcharsbx($activity_id)?>" size="50"></td>
 </tr>
-<tr style="display:none" id="id_activity_comment">
+<tr <?if(empty($editorComment)):?>style="display:none"<?endif?> id="id_activity_comment">
 	<td align="right" width="25%"><?echo GetMessage("BP_ACT_SET_COMMENT_ROW")?></td>
 	<td width="75%"><textarea cols="70" rows="3" name="activity_editor_comment"><?=htmlspecialcharsbx($editorComment)?></textarea></td>
 </tr>

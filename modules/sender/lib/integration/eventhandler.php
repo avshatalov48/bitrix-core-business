@@ -87,6 +87,30 @@ class EventHandler
 	}
 
 	/**
+	 * Handler of event sender/OnAfterPostingSendRecipientMultiple.
+	 *
+	 * @param array $eventDataArray Event[].
+	 * @param Entity\Letter $letter Letter.
+	 * @return void
+	 */
+	public static function onAfterPostingSendRecipientMultiple(array $eventDataArray, Entity\Letter $letter)
+	{
+		if (ModuleManager::isModuleInstalled('crm'))
+		{
+			Crm\EventHandler::onAfterPostingSendRecipientMultiple($eventDataArray, $letter);
+		}
+
+		foreach($eventDataArray as $eventData)
+		{
+
+			if (Bitrix24\Service::isCloud() && $eventData['SEND_RESULT'] && $letter->getMessage()->getCode() === Message\iBase::CODE_MAIL)
+			{
+				Bitrix24\Limitation\DailyLimit::increment();
+			}
+		}
+	}
+
+	/**
 	 * Handler of event sender/onAfterPostingRecipientUnsubscribe.
 	 *
 	 * @param array $eventData Event.

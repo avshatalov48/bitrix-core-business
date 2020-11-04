@@ -196,6 +196,7 @@
 	transition: width .2s linear;
 	padding: 0 4px 0 6px;
 	width: 27px;
+	z-index: 11;
 }
 
 .bx-landing-cookies-popup-notice-text-wrap {

@@ -34,8 +34,8 @@ class CSupportEMail
 		for($i=0; $i<$countAr; $i++)
 		{
 			$v = $arActionVars[$i];
-			if($pos = strpos($v, "="))
-				${substr($v, 0, $pos)} = urldecode(substr($v, $pos+1));
+			if($pos = mb_strpos($v, "="))
+				${mb_substr($v, 0, $pos)} = urldecode(mb_substr($v, $pos + 1));
 		}
 		return true;
 	}
@@ -47,19 +47,19 @@ class CSupportEMail
 		for($i=0; $i<$countAr; $i++)
 		{
 			$v = $arActionVars[$i];
-			if($pos = strpos($v, "="))
-				${substr($v, 0, $pos)} = urldecode(substr($v, $pos+1));
+			if($pos = mb_strpos($v, "="))
+				${mb_substr($v, 0, $pos)} = urldecode(mb_substr($v, $pos + 1));
 		}
 
 		if(!CModule::IncludeModule("support"))
 			return false;
 
-		if (strlen($W_SUPPORT_SITE_ID)>0)
+		if ($W_SUPPORT_SITE_ID <> '')
 		{
 			$rs = CSite::GetByID($W_SUPPORT_SITE_ID);
 			if ($ar = $rs->Fetch()) $SITE_ID = $ar["LID"];
 		}
-		if (strlen($SITE_ID)<=0)
+		if ($SITE_ID == '')
 		{
 			$SITE_ID = $arMessageFields["LID"];
 		}
@@ -71,8 +71,8 @@ class CSupportEMail
 
 		$TICKET_SOURCE_ID = $ar["ID"];
 		$ID = $arMessageFields["ID"];
-		$message_email = (strlen($arMessageFields["FIELD_REPLY_TO"])>0) ? $arMessageFields["FIELD_REPLY_TO"] : $arMessageFields["FIELD_FROM"];
-		$message_email_addr = strtolower(CMailUtil::ExtractMailAddress($message_email));
+		$message_email = ($arMessageFields["FIELD_REPLY_TO"] <> '') ? $arMessageFields["FIELD_REPLY_TO"] : $arMessageFields["FIELD_FROM"];
+		$message_email_addr = mb_strtolower(CMailUtil::ExtractMailAddress($message_email));
 
 		$TID = 0;
 		$arSubjects = explode("\n", trim($W_SUPPORT_SUBJECT));
@@ -80,11 +80,11 @@ class CSupportEMail
 		for($i=0; $i<$countAr; $i++)
 		{
 			$arSubjects[$i] = Trim($arSubjects[$i]);
-			if(strlen($arSubjects[$i])>0)
+			if($arSubjects[$i] <> '')
 			{
 				if(preg_match("/".$arSubjects[$i]."/".BX_UTF_PCRE_MODIFIER, $arMessageFields["SUBJECT"], $regs))
 				{
-					$TID = IntVal($regs[1]);
+					$TID = intval($regs[1]);
 					break;
 				}
 			}
@@ -101,11 +101,11 @@ class CSupportEMail
 					$bEMailOK = false;
 					if($TICKET_SOURCE_ID == $ar_ticket["SOURCE_ID"])
 					{
-						$ticket_email = strtolower(CMailUtil::ExtractMailAddress($ar_ticket["OWNER_SID"]));
+						$ticket_email = mb_strtolower(CMailUtil::ExtractMailAddress($ar_ticket["OWNER_SID"]));
 						if($W_SUPPORT_SEC == "domain")
-							$ticket_email = substr($ticket_email, strpos($ticket_email, "@"));
+							$ticket_email = mb_substr($ticket_email, mb_strpos($ticket_email, "@"));
 
-						if(strpos($message_email_addr, $ticket_email)!==false)
+						if(mb_strpos($message_email_addr, $ticket_email) !== false)
 							$bEMailOK = true;
 					}
 
@@ -114,11 +114,11 @@ class CSupportEMail
 						$db_user = CUser::GetByID($ar_ticket["OWNER_USER_ID"]);
 						if($arUser = $db_user->Fetch())
 						{
-							$ticket_email = strtolower(CMailUtil::ExtractMailAddress($arUser["EMAIL"]));
+							$ticket_email = mb_strtolower(CMailUtil::ExtractMailAddress($arUser["EMAIL"]));
 							if($check_type == "domain")
-								$ticket_email = substr($ticket_email, strpos($ticket_email, "@"));
+								$ticket_email = mb_substr($ticket_email, mb_strpos($ticket_email, "@"));
 
-							if(strpos($message_email_addr, $ticket_email)!==false)
+							if(mb_strpos($message_email_addr, $ticket_email) !== false)
 								$bEMailOK = true;
 						}
 					}
@@ -130,11 +130,11 @@ class CSupportEMail
 
 		//when message subject is empty - generate it from message body
 		$title = trim($arMessageFields["SUBJECT"]);
-		if(strlen($title)<=0)
+		if($title == '')
 		{
 			$title = trim($arMessageFields["BODY"]);
 			$title = preg_replace("/[\n\r\t ]+/s".BX_UTF_PCRE_MODIFIER, " ", $title);
-			$title = substr($title, 0, 50);
+			$title = mb_substr($title, 0, 50);
 		}
 
 		$arFieldsTicket = array(
@@ -152,7 +152,7 @@ class CSupportEMail
 		{
 			$o = "LAST_LOGIN"; $b = "DESC";
 			$res = CUser::GetList($o, $b, Array("ACTIVE" => "Y", "=EMAIL"=>$message_email_addr));
-			if(($arr = $res->Fetch()) && strtolower(CMailUtil::ExtractMailAddress($arr["EMAIL"]))==$message_email_addr)
+			if(($arr = $res->Fetch()) && mb_strtolower(CMailUtil::ExtractMailAddress($arr["EMAIL"])) == $message_email_addr)
 			{
 				$AUTHOR_USER_ID = $arr["ID"];
 			}
@@ -213,11 +213,11 @@ class CSupportEMail
 			if ($W_SUPPORT_CATEGORY>0)			$arFieldsTicket["CATEGORY_ID"] = $W_SUPPORT_CATEGORY;
 			if ($W_SUPPORT_CRITICALITY>0)		$arFieldsTicket["CRITICALITY_ID"] = $W_SUPPORT_CRITICALITY;
 
-			if (strlen(trim($arFieldsTicket["TITLE"]))<=0)
+			if (trim($arFieldsTicket["TITLE"]) == '')
 			{
 				$arFieldsTicket["TITLE"] = " ";
 			}
-			if (strlen(trim($arFieldsTicket["MESSAGE"]))<=0)
+			if (trim($arFieldsTicket["MESSAGE"]) == '')
 			{
 				$arFieldsTicket["MESSAGE"] = " ";
 			}

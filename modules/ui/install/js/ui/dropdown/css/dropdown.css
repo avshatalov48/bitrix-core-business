@@ -37,7 +37,7 @@
 }
 
 .ui-dropdown-item {
-	padding: 8px 22px 13px 22px;
+	padding: 13px 22px;
 	border-bottom: 1px solid rgba(151,151,151,.12);
 	font-size: 0;
 	transition: background .3s;
@@ -55,7 +55,6 @@
 
 .ui-dropdown-item-name {
 	display: block;
-	margin: 0 0 5px 0;
 	font: 15px "Helvetica Neue", Helvetica, Arial, sans-serif;
 	color: #424956;
 	white-space: nowrap;
@@ -65,12 +64,16 @@
 
 .ui-dropdown-item-subname {
 	display: block;
-	margin: 0 0 5px 0;
+	margin: 3px 0 2px 0;
 	font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
 	color: rgba(66,73,86,.3);
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+}
+
+.ui-dropdown-item-subname:empty {
+	display: none;
 }
 
 .ui-dropdown-item-phone,

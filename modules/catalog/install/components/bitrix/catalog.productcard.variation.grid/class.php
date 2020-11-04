@@ -122,11 +122,11 @@ class CatalogProductVariationGridComponent
 								{
 									if ($property->isFileType())
 									{
-										$propertyValues[$property->getIndex()] = [];
+										$propertyValues[$property->getId()] = [];
 									}
 									else
 									{
-										$propertyValues[$property->getIndex()] = $property->getPropertyValueCollection()->toArray();
+										$propertyValues[$property->getId()] = $property->getPropertyValueCollection()->toArray();
 									}
 								}
 								$sku->getPropertyCollection()->setValues($propertyValues);
@@ -434,8 +434,8 @@ class CatalogProductVariationGridComponent
 		{
 			$skuRowForm = new GridVariationForm($sku);
 
-			$item = $skuRowForm->getValues();
-			$columns = $skuRowForm->getColumnValues();
+			$item = $skuRowForm->getValues($sku->isNew());
+			$columns = $skuRowForm->getColumnValues($sku->isNew());
 
 			$actions = [];
 
@@ -476,7 +476,7 @@ class CatalogProductVariationGridComponent
 		$defaultForm = $this->getDefaultVariationRowForm();
 		if ($defaultForm)
 		{
-			$editData['template_0'] = $defaultForm->getValues();
+			$editData['template_0'] = $defaultForm->getValues(false);
 		}
 
 		$isSimpleProduct = $this->getProduct()->isSimple();

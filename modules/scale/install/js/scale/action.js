@@ -408,7 +408,7 @@
 									BX.message("SCALE_PANEL_JS_PASS_MUST_BE_CHANGED"),
 									BX.message("SCALE_PANEL_JS_WARNING"),
 									function(){
-										BX.Scale.actionsCollection.getObject("CHANGE_PASSWD_FIRST").start(sendPrams.serverHostname, sendPrams.userParams);
+										BX.Scale.actionsCollection.getObject("CHANGE_PASSWD_FIRST_ALL").start(sendPrams.serverHostname, sendPrams.userParams);
 										BX.Scale.AdminFrame.nextActionId = "NEW_SERVER_CHAIN";
 									}
 								);

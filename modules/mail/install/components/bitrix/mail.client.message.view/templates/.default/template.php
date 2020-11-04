@@ -1,7 +1,6 @@
 <?php
 
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Mail\Internals\MessageAccessTable;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
@@ -172,6 +171,26 @@ $renderBindLink = function ($item)
 	?>
 
 	<div style="display: none; "></div>
+	<?php if (isset($arResult['iCalEvent'])): ?>
+	 <div class="mail-msg-view-header-set ical-event-container">
+		<div class="mail-msg-view-header-set-info">
+			<div class="mail-msg-view-header-set-icon"></div>
+			<div class="mail-msg-view-header-set-param">
+				<div class="mail-msg-view-header-set-title">
+					<?php echo Loc::getMessage('MAIL_MESSAGE_ICAL_INVITATION'), ': ', $arResult['iCalEvent']['NAME']; ?>
+				</div>
+				<div class="mail-msg-view-header-set-prev">
+					<?php echo FormatDateFromDB($arResult['iCalEvent']['DATE_FROM'], 'D, d F Y'); ?>
+				</div>
+			</div>
+		</div>
+		<div
+			class="mail-msg-view-header-set-controls ical-event-control"
+			data-messageid="<?php echo intval($message['ID']) ?>"
+		>
+		</div>
+	</div>
+	<?php endif ?>
 	<div class="mail-msg-view-details" data-id="<?=intval($message['ID']) ?>"
 		id="mail-msg-view-details-<?=intval($message['ID']) ?>">
 		<? include __DIR__ . '/__body.php'; ?>
@@ -214,7 +233,43 @@ BX.message({
 	MAIL_MESSAGE_SEND_SUCCESS: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_SEND_SUCCESS')) ?>',
 	MAIL_MESSAGE_LIST_NOTIFY_ADDED_TO_CRM: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_NOTIFY_ADDED_TO_CRM')) ?>',
 	MAIL_MESSAGE_LIST_NOTIFY_ADD_TO_CRM_ERROR: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_NOTIFY_ADD_TO_CRM_ERROR')) ?>',
-	MAIL_MESSAGE_LIST_NOTIFY_EXCLUDED_FROM_CRM: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_NOTIFY_EXCLUDED_FROM_CRM')) ?>'
+	MAIL_MESSAGE_LIST_NOTIFY_EXCLUDED_FROM_CRM: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_NOTIFY_EXCLUDED_FROM_CRM')) ?>',
+	MAIL_MESSAGE_ICAL_NOTIFY_ACCEPT: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_ICAL_NOTIFY_ACCEPT')) ?>',
+	MAIL_MESSAGE_ICAL_NOTIFY_REJECT: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_ICAL_NOTIFY_REJECT')) ?>',
+	MAIL_MESSAGE_ICAL_NOTIFY_ERROR: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_ICAL_NOTIFY_ERROR')) ?>'
 });
+
+BX.bindDelegate(document.body, 'click', {className: 'ical-event-control-button'}, function ()
+{
+	var messageId = this.parentNode.dataset.messageid;
+	var action = this.dataset.action;
+	var button = this;
+
+	button.classList.add('ui-btn-wait');
+
+	BX.ajax.runComponentAction('bitrix:mail.client', 'ical', {
+		mode: 'ajax',
+		data: {messageId, action}
+	}).then(
+		function ()
+		{
+			button.classList.remove('ui-btn-wait');
+			notify(BX.message(action === 'cancelled' ? 'MAIL_MESSAGE_ICAL_NOTIFY_REJECT' : 'MAIL_MESSAGE_ICAL_NOTIFY_ACCEPT'));
+		},
+		function ()
+		{
+			button.classList.remove('ui-btn-wait');
+			notify(BX.message('MAIL_MESSAGE_ICAL_NOTIFY_ERROR'));
+		}
+	);
+});
+
+function notify(message)
+{
+	top.BX.UI.Notification.Center.notify({
+		autoHideDelay: 2000,
+		content: message
+	});
+}
 
 </script>

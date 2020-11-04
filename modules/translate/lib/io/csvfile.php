@@ -2,7 +2,6 @@
 
 namespace Bitrix\Translate\IO;
 
-use Bitrix\Main\Text\BinaryString;
 use Bitrix\Main;
 use Bitrix\Translate;
 
@@ -177,13 +176,23 @@ class CsvFile
 	}
 
 	/**
+	 * Measures byte length of the string.
+	 * @param string $data
+	 * @return int
+	 */
+	protected function getStringByteLength(string $data): int
+	{
+		return mb_strlen($data, '8bit');
+	}
+
+	/**
 	 * Check UTF-8 Byte-Order Mark
 	 * @return bool
 	 */
 	public function checkUtf8Bom(): bool
 	{
 		$this->seek(0);
-		$bom = $this->read(BinaryString::getLength($this->bomMark));
+		$bom = $this->read($this->getStringByteLength($this->bomMark));
 		if($bom === $this->bomMark)
 		{
 			$this->hasBom = true;
@@ -191,7 +200,7 @@ class CsvFile
 
 		if ($this->hasBom)
 		{
-			$this->seek(BinaryString::getLength($this->bomMark));
+			$this->seek($this->getStringByteLength($this->bomMark));
 		}
 		else
 		{
@@ -355,7 +364,7 @@ class CsvFile
 			if ($this->bufferPosition >= $this->bufferSize)
 			{
 				$this->buffer = $this->read(1024 * 1024);
-				$this->bufferSize = BinaryString::getLength($this->buffer);
+				$this->bufferSize = $this->getStringByteLength($this->buffer);
 				$this->bufferPosition = 0;
 			}
 
@@ -430,7 +439,7 @@ class CsvFile
 			if($this->bufferPosition >= $this->bufferSize)
 			{
 				$this->buffer = $this->read( 1024 * 1024);
-				$this->bufferSize = BinaryString::getLength($this->buffer);
+				$this->bufferSize = $this->getStringByteLength($this->buffer);
 				$this->bufferPosition = 0;
 			}
 
@@ -488,7 +497,7 @@ class CsvFile
 		if ($this->bufferPosition >= $this->bufferSize)
 		{
 			$this->buffer = $this->read( 1024 * 1024);
-			$this->bufferSize = BinaryString::getLength($this->buffer);
+			$this->bufferSize = $this->getStringByteLength($this->buffer);
 			$this->bufferPosition = 0;
 		}
 	}
@@ -540,7 +549,7 @@ class CsvFile
 
 		$this->buffer = $this->read(1024 * 1024);
 
-		$this->bufferSize = BinaryString::getLength($this->buffer);
+		$this->bufferSize = $this->getStringByteLength($this->buffer);
 		$this->bufferPosition = 0;
 	}
 
@@ -583,7 +592,7 @@ class CsvFile
 				$content .= "\"";
 
 				// ms excel las limitation with total number of characters that a cell can contain 32767 characters
-				if ($throw32KWarning !== true && mb_strlen($fields[$i]) > 32767)
+				if ($throw32KWarning !== true && $this->getStringByteLength($fields[$i]) > 32767)
 				{
 					$throw32KWarning = true;
 				}

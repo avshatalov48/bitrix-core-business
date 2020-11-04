@@ -41,7 +41,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 			}
 
 			menuItems.push({
-				text: documentFields[fieldId]['Name'],
+				text: BX.util.htmlspecialchars(documentFields[fieldId]['Name']),
 				fieldId: fieldId,
 				onclick: function(e, item)
 				{

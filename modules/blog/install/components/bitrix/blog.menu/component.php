@@ -12,60 +12,60 @@ $arParams["BLOG_URL"] = preg_replace("/[^a-zA-Z0-9_-]/is", "", Trim($arParams["B
 if(!is_array($arParams["GROUP_ID"]))
 	$arParams["GROUP_ID"] = array($arParams["GROUP_ID"]);
 foreach($arParams["GROUP_ID"] as $k=>$v)
-	if(IntVal($v) <= 0)
+	if(intval($v) <= 0)
 		unset($arParams["GROUP_ID"][$k]);
 
-if(strLen($arParams["BLOG_VAR"])<=0)
+if($arParams["BLOG_VAR"] == '')
 	$arParams["BLOG_VAR"] = "blog";
-if(strLen($arParams["PAGE_VAR"])<=0)
+if($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if(strLen($arParams["POST_VAR"])<=0)
+if($arParams["POST_VAR"] == '')
 	$arParams["POST_VAR"] = "id";
-if(strLen($arParams["USER_VAR"])<=0)
+if($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "id";
 
 $arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"]);
-if(strlen($arParams["PATH_TO_BLOG"])<=0)
+if($arParams["PATH_TO_BLOG"] == '')
 	$arParams["PATH_TO_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
 	
 $arParams["PATH_TO_BLOG_INDEX"] = trim($arParams["PATH_TO_BLOG_INDEX"]);
-if(strlen($arParams["PATH_TO_BLOG_INDEX"])<=0)
+if($arParams["PATH_TO_BLOG_INDEX"] == '')
 	$arParams["PATH_TO_BLOG_INDEX"] = htmlspecialcharsbx($APPLICATION->GetCurPage());
 	
 $arParams["PATH_TO_DRAFT"] = trim($arParams["PATH_TO_DRAFT"]);
-if(strlen($arParams["PATH_TO_DRAFT"])<=0)
+if($arParams["PATH_TO_DRAFT"] == '')
 	$arParams["PATH_TO_DRAFT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=draft&".$arParams["BLOG_VAR"]."=#blog#");
 	
 $arParams["PATH_TO_POST_EDIT"] = trim($arParams["PATH_TO_POST_EDIT"]);
-if(strlen($arParams["PATH_TO_POST_EDIT"])<=0)
+if($arParams["PATH_TO_POST_EDIT"] == '')
 	$arParams["PATH_TO_POST_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post_edit&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if(strlen($arParams["PATH_TO_USER"])<=0)
+if($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_USER_FRIENDS"] = trim($arParams["PATH_TO_USER_FRIENDS"]);
-if(strlen($arParams["PATH_TO_USER_FRIENDS"])<=0)
+if($arParams["PATH_TO_USER_FRIENDS"] == '')
 	$arParams["PATH_TO_USER_FRIENDS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_friends&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_USER_SETTINGS"] = trim($arParams["PATH_TO_USER_SETTINGS"]);
-if(strlen($arParams["PATH_TO_USER_SETTINGS"])<=0)
+if($arParams["PATH_TO_USER_SETTINGS"] == '')
 	$arParams["PATH_TO_USER_SETTINGS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_settings&".$arParams["BLOG_VAR"]."=#blog#");
 
 $arParams["PATH_TO_GROUP_EDIT"] = trim($arParams["PATH_TO_GROUP_EDIT"]);
-if(strlen($arParams["PATH_TO_GROUP_EDIT"])<=0)
+if($arParams["PATH_TO_GROUP_EDIT"] == '')
 	$arParams["PATH_TO_GROUP_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_edit&".$arParams["BLOG_VAR"]."=#blog#");
 	
 $arParams["PATH_TO_BLOG_EDIT"] = trim($arParams["PATH_TO_BLOG_EDIT"]);
-if(strlen($arParams["PATH_TO_BLOG_EDIT"])<=0)
+if($arParams["PATH_TO_BLOG_EDIT"] == '')
 	$arParams["PATH_TO_BLOG_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog_edit&".$arParams["BLOG_VAR"]."=#blog#");
 	
 $arParams["PATH_TO_CATEGORY_EDIT"] = trim($arParams["PATH_TO_CATEGORY_EDIT"]);
-if(strlen($arParams["PATH_TO_CATEGORY_EDIT"])<=0)
+if($arParams["PATH_TO_CATEGORY_EDIT"] == '')
 	$arParams["PATH_TO_CATEGORY_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=category_edit&".$arParams["BLOG_VAR"]."=#blog#");
 	
 $arParams["PATH_TO_MODERATION"] = trim($arParams["PATH_TO_MODERATION"]);
-if(strlen($arParams["PATH_TO_MODERATION"])<=0)
+if($arParams["PATH_TO_MODERATION"] == '')
 	$arParams["PATH_TO_MODERATION"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=moderation&".$arParams["BLOG_VAR"]."=#blog#");
 
 if(!($USER->IsAuthorized()))
@@ -77,12 +77,12 @@ if(!($USER->IsAuthorized()))
 }
 else
 {
-	$arResult["urlToLogout"] = $APPLICATION->GetCurPageParam("logout=yes", array("login", "logout", "register", "forgot_password", "change_password", "backurl"));
+	$arResult["urlToLogout"] = $APPLICATION->GetCurPageParam("logout=yes&".bitrix_sessid_get(), array("login", "logout", "register", "forgot_password", "change_password", "backurl", "sessid"));
 }
 
 $user_id = $USER->GetID();
 
-if(IntVal($user_id)>0)
+if(intval($user_id)>0)
 {
 	CBlogUser::SetLastVisit();
 	$arResult["urlToUser"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $user_id));
@@ -111,7 +111,7 @@ if(IntVal($user_id)>0)
 
 }
 
-if(strlen($arParams["BLOG_URL"])>0)
+if($arParams["BLOG_URL"] <> '')
 {
 	if($arOwnBlog["URL"] != $arParams["BLOG_URL"])
 	{
@@ -138,7 +138,7 @@ if(strlen($arParams["BLOG_URL"])>0)
 	if(!empty($arBlog))
 	{
 		
-		if(IntVal($user_id)>0)
+		if(intval($user_id)>0)
 		{
 			$perm = CBlog::GetBlogUserPostPerms($arBlog["ID"], $user_id);
 
@@ -198,11 +198,11 @@ if(strlen($arParams["BLOG_URL"])>0)
 		
 		if(empty($arOwnBlog) || $arOwnBlog["URL"] != $arBlog["URL"])
 		{
-			if(IntVal($user_id)>0)
+			if(intval($user_id)>0)
 			{
 				if (!CBlog::IsFriend($arBlog["ID"], $user_id))
 				{
-					$arResult["urlToBecomeFriend"] = $arResult["urlToCurrentBlog"].(strpos($arResult["urlToCurrentBlog"], "?") === false ? "?" : "&")."become_friend=Y&".bitrix_sessid_get();
+					$arResult["urlToBecomeFriend"] = $arResult["urlToCurrentBlog"].(mb_strpos($arResult["urlToCurrentBlog"], "?") === false ? "?" : "&")."become_friend=Y&".bitrix_sessid_get();
 					$arResult["SecondLine"] = "Y";
 				}
 
@@ -212,7 +212,7 @@ if(strlen($arParams["BLOG_URL"])>0)
 					{
 						$tmpUrl = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER_SETTINGS"], array("blog" => $arOwnBlog["URL"]));
 						
-						$arResult["urlToAddFriend"] = $tmpUrl.(strpos($tmpUrl, "?") === false ? "?" : "&")."add_friend[]=".UrlEncode($arBlog["URL"])."&".bitrix_sessid_get();
+						$arResult["urlToAddFriend"] = $tmpUrl.(mb_strpos($tmpUrl, "?") === false ? "?" : "&")."add_friend[]=".UrlEncode($arBlog["URL"])."&".bitrix_sessid_get();
 						$arResult["SecondLine"] = "Y";
 					}
 				}

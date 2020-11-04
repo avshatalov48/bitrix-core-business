@@ -8,14 +8,14 @@ foreach($arResult["POST"] as $arPost)
 	}
 	?>
 	<span class="blog-post-date"><b><a href="<?=$arPost["urlToPost"]?>"><?
-	if(strlen($arPost["TITLE"])>0) 
+	if($arPost["TITLE"] <> '') 
 		echo $arPost["TITLE"]; 
 	else 
 		echo GetMessage("BLOG_MAIN_MES_NO_SUBJECT"); 
 	?></a></b>
 	</span><br />
 	<?
-	if(strlen($arPost["IMG"]) > 0)
+	if($arPost["IMG"] <> '')
 		echo $arPost["IMG"];
 	?>
 	<small><?=$arPost["TEXT_FORMATED"]?></small><br clear="left"/>
@@ -23,10 +23,10 @@ foreach($arResult["POST"] as $arPost)
 		<br />
 		<nobr>
 		<a href="<?=$arPost["urlToPost"]?>" class="blog-clock" title="<?=GetMessage("BLOG_BLOG_M_DATE")?>"><?=$arPost["DATE_PUBLISH_FORMATED"]?></a>
-		<?if(IntVal($arPost["VIEWS"]) > 0):?>
+		<?if(intval($arPost["VIEWS"]) > 0):?>
 			&nbsp;&nbsp;<a href="<?=$arPost["urlToPost"]?>" class="blog-eye" title="<?=GetMessage("BLOG_BLOG_M_VIEWS")?>"><?=$arPost["VIEWS"]?></a>
 		<?endif;?>
-		<?if(IntVal($arPost["NUM_COMMENTS"]) > 0):?>
+		<?if(intval($arPost["NUM_COMMENTS"]) > 0):?>
 			&nbsp;&nbsp;<a href="<?=$arPost["urlToPost"]?>" class="blog-comment-num" title="<?=GetMessage("BLOG_BLOG_M_NUM_COMMENTS")?>"><?=$arPost["NUM_COMMENTS"]?></a>
 		<?endif;?>
 		</nobr>

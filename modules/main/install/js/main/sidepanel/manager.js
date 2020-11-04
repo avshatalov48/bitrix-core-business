@@ -99,6 +99,8 @@ BX.SidePanel.Manager = function(options)
 	this.pageTitle = this.getCurrentTitle();
 	this.titleChanged = false;
 
+	this.fullScreenSlider = null;
+
 	this.handleAnchorClick = this.handleAnchorClick.bind(this);
 	this.handleDocumentKeyDown = this.handleDocumentKeyDown.bind(this);
 	this.handleWindowResize = BX.throttle(this.handleWindowResize, 300, this);
@@ -112,6 +114,7 @@ BX.SidePanel.Manager = function(options)
 	this.handleSliderLoad = this.handleSliderLoad.bind(this);
 	this.handleSliderDestroy = this.handleSliderDestroy.bind(this);
 	this.handleEscapePress = this.handleEscapePress.bind(this);
+	this.handleFullScreenChange = this.handleFullScreenChange.bind(this);
 
 	BX.addCustomEvent("SidePanel:open", this.open.bind(this));
 	BX.addCustomEvent("SidePanel:close", this.close.bind(this));
@@ -629,6 +632,111 @@ BX.SidePanel.Manager.prototype =
 		return title;
 	},
 
+	enterFullScreen: function()
+	{
+		if (!this.getTopSlider() || this.getFullScreenSlider())
+		{
+			return;
+		}
+
+		var container = document.body;
+		if (container.requestFullscreen)
+		{
+			BX.bind(document, "fullscreenchange", this.handleFullScreenChange);
+			container.requestFullscreen();
+		}
+		else if (container.webkitRequestFullScreen)
+		{
+			BX.bind(document, "webkitfullscreenchange", this.handleFullScreenChange);
+			container.webkitRequestFullScreen();
+		}
+		else if (container.msRequestFullscreen)
+		{
+			BX.bind(document, "MSFullscreenChange", this.handleFullScreenChange);
+			container.msRequestFullscreen();
+		}
+		else if (container.mozRequestFullScreen)
+		{
+			BX.bind(document, "mozfullscreenchange", this.handleFullScreenChange);
+			container.mozRequestFullScreen();
+		}
+		else
+		{
+			console.log("Slider: Full Screen mode is not supported.");
+		}
+	},
+
+	exitFullScreen: function()
+	{
+		if (!this.getFullScreenSlider())
+		{
+			return;
+		}
+
+		if (document.exitFullscreen)
+		{
+			document.exitFullscreen();
+		}
+		else if (document.webkitExitFullscreen)
+		{
+			document.webkitExitFullscreen();
+		}
+		else if (document.msExitFullscreen)
+		{
+			document.msExitFullscreen();
+		}
+		else if (document.mozCancelFullScreen)
+		{
+			document.mozCancelFullScreen();
+		}
+	},
+
+	getFullScreenElement: function()
+	{
+		return (
+			document.fullscreenElement ||
+			document.webkitFullscreenElement ||
+			document.mozFullScreenElement ||
+			document.msFullscreenElement ||
+			null
+		);
+	},
+
+	getFullScreenSlider: function()
+	{
+		return this.fullScreenSlider;
+	},
+
+	handleFullScreenChange: function(event)
+	{
+		if (this.getFullScreenElement())
+		{
+			this.fullScreenSlider = this.getTopSlider();
+			BX.addClass(this.fullScreenSlider.getOverlay(), "side-panel-fullscreen");
+
+			this.fullScreenSlider.fireEvent("onFullScreenEnter");
+		}
+		else
+		{
+			if (this.getFullScreenSlider())
+			{
+				BX.removeClass(this.getFullScreenSlider().getOverlay(), "side-panel-fullscreen");
+				this.fullScreenSlider.fireEvent("onFullScreenExit");
+				this.fullScreenSlider = null;
+			}
+
+			BX.unbind(document, event.type, this.handleFullScreenChange);
+			window.scrollTo(0, this.pageScrollTop);
+
+			setTimeout(function() {
+				this.adjustLayout();
+				var event = document.createEvent("Event");
+				event.initEvent("resize", true, true);
+				window.dispatchEvent(event);
+			}.bind(this), 1000);
+		}
+	},
+
 	/**
 	 * @public
 	 * @param {string|Window|BX.SidePanel.Slider} source
@@ -855,6 +963,8 @@ BX.SidePanel.Manager.prototype =
 
 		if (this.getTopSlider())
 		{
+			this.exitFullScreen();
+
 			this.getTopSlider().hideOverlay();
 
 			var sameWidth = (
@@ -923,6 +1033,8 @@ BX.SidePanel.Manager.prototype =
 
 		var previousSlider = this.getPreviousSlider();
 		var topSlider = this.getTopSlider();
+
+		this.exitFullScreen();
 
 		this.getOpenSliders().forEach(function(slider, index, openSliders) {
 			slider.getLabel().moveAt(openSliders.length - index - 2); //move up

@@ -6,18 +6,18 @@ if (!$this->__component->__parent || empty($this->__component->__parent->__name)
 endif;
 ?>
 <?
-if(strlen($arResult["urlToBlogEdit"])>0)
+if($arResult["urlToBlogEdit"] <> '')
 {?>
 <div class="blog-settings-menu-box">
 	<?
-	if(strlen($arResult["urlToUserSettings"])>0)
+	if($arResult["urlToUserSettings"] <> '')
 	{
 		?>
 		<span class="blog-menu-user-settings"><a href="<?=$arResult["urlToUserSettings"]?>" title="<?=GetMessage("BLOG_MENU_USER_SETTINGS_TITLE")?>"><?=GetMessage("BLOG_MENU_USER_SETTINGS")?></a></span>
 		<span class="blog-vert-separator"></span>
 		<?
 	}
-	if(strlen($arResult["urlToBlogEdit"])>0)
+	if($arResult["urlToBlogEdit"] <> '')
 	{
 		?>
 		<span class="blog-menu-blog-edit"><a href="<?=$arResult["urlToBlogEdit"]?>" title="<?=GetMessage("BLOG_MENU_BLOG_EDIT_TITLE")?>"><?=GetMessage("BLOG_MENU_BLOG_EDIT")?></a></span>

@@ -49,7 +49,7 @@ $arrTime["6_7"] = 0;
 $arrTime["7"] = 0;
 while ($arTicket = $rsTickets->Fetch())
 {
-	if (strlen($arTicket["DATE_CLOSE"])>0)
+	if ($arTicket["DATE_CLOSE"] <> '')
 	{
 		// запоминаем время обработки тикетов
 		$day_sec = 86400;

@@ -112,142 +112,14 @@ class CDeliveryEMS
 
 	function JsObjectToPhp($data)
 	{
-		$arResult = array();
+		$data = $GLOBALS['APPLICATION']->ConvertCharset($data, LANG_CHARSET, 'utf-8');
 
-		if (function_exists('json_decode')) // php > 5.2.0 + php_json
+		// json_decode recognize only UTF strings
+		$arResult = json_decode($data, true);
+
+		if (is_array($arResult))
 		{
-			$data = $GLOBALS['APPLICATION']->ConvertCharset($data, LANG_CHARSET, 'utf-8');
-
-			// json_decode recognize only UTF strings
-			$arResult = json_decode($data, true);
-
-			if (is_array($arResult))
-			{
-				$arResult = CDeliveryEMS::ConvertCharsetArray($arResult, 'utf-8', LANG_CHARSET);
-			}
-		}
-		elseif (mb_substr($data, 0, 1) == '{') // object
-		{
-			$arResult = array();
-
-			$depth = 0;
-			$end_pos = 0;
-			$arCommaPos = array();
-			for ($i = 1, $len = mb_strlen($data); $i < $len; $i++)
-			{
-				$cur_symbol = mb_substr($data, $i, 1);
-				if ($cur_symbol == '{' || $cur_symbol == '[')
-					$depth++;
-				elseif ($cur_symbol == ']')
-					$depth--;
-				elseif ($cur_symbol == '}')
-				{
-					if ($depth == 0)
-					{
-						$end_pos = $i;
-						break;
-					}
-					else
-					{
-						$depth--;
-					}
-				}
-				elseif ($cur_symbol == ',' && $depth == 0)
-				{
-					$arCommaPos[] = $i;
-				}
-			}
-
-			if ($end_pos == 0)
-				return false;
-
-			$token = mb_substr($data, 1, $end_pos - 1);
-
-			$arTokens = array();
-			if (count($arCommaPos) > 0)
-			{
-				$prev_index = 0;
-				foreach ($arCommaPos as $pos)
-				{
-					$arTokens[] = mb_substr($token, $prev_index, $pos - $prev_index - 1);
-					$prev_index = $pos;
-				}
-				$arTokens[] = mb_substr($token, $prev_index);
-			}
-			else
-			{
-				$arTokens[] = $token;
-			}
-
-			foreach ($arTokens as $token)
-			{
-				$arTokenData = explode(":", $token, 2);
-
-				if (mb_substr($arTokenData[0], 0, 1) == '"')
-					$arTokenData[0] = mb_substr($arTokenData[0], 1, -1);
-
-				$arResult[$arTokenData[0]] = CDeliveryEMS::JsObjectToPhp($arTokenData[1]);
-			}
-		}
-		elseif (mb_substr($data, 0, 1) == '[') // array
-		{
-			$arResult = array();
-
-			$depth = 0;
-			$end_pos = 0;
-			$arCommaPos = array();
-
-			for ($i = 1, $len = mb_strlen($data); $i < $len; $i++)
-			{
-				$cur_symbol = mb_substr($data, $i, 1);
-				if ($cur_symbol == '{' || $cur_symbol == '[')
-					$depth++;
-				elseif ($cur_symbol == '}')
-					$depth--;
-				elseif ($cur_symbol == ']')
-				{
-					if ($depth == 0)
-					{
-						$end_pos = $i;
-						break;
-					}
-					else
-					{
-						$depth--;
-					}
-				}
-				elseif ($cur_symbol == ',' && $depth == 0)
-				{
-					$arCommaPos[] = $i;
-				}
-			}
-
-			if ($end_pos == 0)
-				return false;
-
-			$token = mb_substr($data, 1, $end_pos - 1);
-
-			if (count($arCommaPos) > 0)
-			{
-				$prev_index = 0;
-				foreach ($arCommaPos as $pos)
-				{
-					$arResult[] = CDeliveryEMS::JsObjectToPhp(mb_substr($token, $prev_index, $pos - $prev_index - 1));
-					$prev_index = $pos;
-				}
-				$arResult[] = CDeliveryEMS::JsObjectToPhp(mb_substr($token, $prev_index));
-			}
-			else
-			{
-				$arResult[] = CDeliveryEMS::JsObjectToPhp($token);
-			}
-		}
-		else // scalar
-		{
-			if (mb_substr($data, 0, 1) == '"')
-				$data = mb_substr($data, 1, -1);
-
-			$arResult = $data;
+			$arResult = CDeliveryEMS::ConvertCharsetArray($arResult, 'utf-8', LANG_CHARSET);
 		}
 
 		return $arResult;

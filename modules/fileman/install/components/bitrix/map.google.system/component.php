@@ -28,7 +28,7 @@ if (!defined('BX_GMAP_SCRIPT_LOADED'))
 			$language = $languageReplaces[$language];
 		}
 
-		$APPLICATION->AddHeadString('<script src="'.$scheme.'://maps.google.com/maps/api/js?key='.$arParams['API_KEY'].'&language='.$language.'" charset="utf-8"></script>');
+		$APPLICATION->AddHeadString('<script src="'.$scheme.'://maps.google.com/maps/api/js?key='.htmlspecialcharsbx($arParams['API_KEY']).'&language='.$language.'" charset="utf-8"></script>');
 
 		define('BX_GMAP_SCRIPT_LOADED', 1);
 	}

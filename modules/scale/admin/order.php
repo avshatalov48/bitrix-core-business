@@ -34,12 +34,12 @@ if(($orderIds = $adminList->GroupAction()))
 {
 	foreach($orderIds as $orderId)
 	{
-		if(strlen($orderId) <= 0)
+		if($orderId == '')
 			continue;
 
 		$ids = explode("::", $orderId);
 
-		if(!isset($ids[0]) || !isset($ids[1]) || strlen($ids[0]) <= 0 || strlen($ids[1]) <= 0)
+		if(!isset($ids[0]) || !isset($ids[1]) || $ids[0] == '' || $ids[1] == '')
 			continue;
 
 		$providerId = $ids[0];

@@ -206,7 +206,7 @@ class RestClient
 		{
 			$jsonResult = Json::decode($postResult);
 		}
-		catch(Exception $e)
+		catch(\Exception $e)
 		{
 			$result->addError(new Error($e->getMessage()));
 			return $result;

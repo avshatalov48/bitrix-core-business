@@ -361,8 +361,8 @@ else
 						type: 'EXPERT_MODE',
 						reload: true,
 						title: '<?=GetMessageJS("SONET_C30_F_EXPERT_MODE_POPUP_TITLE")?>',
-						description1: '<?=GetMessageJS("SONET_C30_F_EXPERT_MODE_POPUP_TEXT1")?>',
-						description2: '<?=GetMessageJS("SONET_C30_F_EXPERT_MODE_POPUP_TEXT2")?>',
+						description1: '<?=GetMessageJS("SONET_C30_F_EXPERT_MODE_POPUP_TEXT1A")?>',
+						description2: '<?=GetMessageJS("SONET_C30_F_EXPERT_MODE_POPUP_TEXT2A")?>',
 						descriptionImage: {
 							src: '<?=CUtil::JSEscape($this->GetFolder())?>/images/expert_mode/<?=GetMessageJS("SONET_C30_F_EXPERT_MODE_IMAGENAME")?>.png',
 							width: 354,
@@ -587,7 +587,7 @@ else
 		unset($_SESSION["SL_EXPERT_MODE_HINT"]);
 		?><div id="feed_filter_hint_expert" class="feed-smart-follow-hint-wrap"><?
 		?><div class="feed-smart-follow-hint"><?
-			?><?=GetMessage("SONET_C30_EXPERT_MODE_HINT");?><?
+			?><?=GetMessage("SONET_C30_EXPERT_MODE_HINTA");?><?
 			?><span class="popup-window-close-icon feed-smart-follow-hint-close" id="feed_filter_hint_expert_close"></span><?
 		?></div><?
 		?></div><?

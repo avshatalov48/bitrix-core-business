@@ -56,14 +56,14 @@ if ($arResult['IS_FREE_DOMAIN'] != 'Y')
 				</div>
 			</div>
 		</div>
+		<?if ($arResult['AGREEMENTS_URL']):?>
 		<div class="landing-domain-edit-agreement">
-			<?if (Manager::getZone() != 'ua'):?>
 			<?= Loc::getMessage('LANDING_TPL_AGREE_BY_SUBMIT', [
-				'#LINK1#' => '<a href="https://www.bitrix24.ru/about/domainfree.php" target="_blank">',
+				'#LINK1#' => '<a href="' . $arResult['AGREEMENTS_URL'] . '" target="_blank">',
 				'#LINK2#' => '</a>'
 			]);?>
-			<?endif;?>
 		</div>
+		<?endif;?>
 	</div>
 </div>
 <button type="submit" class="ui-btn ui-btn-primary" id="domain-edit-submit">
@@ -87,7 +87,7 @@ if ($arResult['IS_FREE_DOMAIN'] != 'Y')
 				<?= \Bitrix\Landing\Restriction\Manager::getActionCode('limit_free_domen');?>
 			},
 			maxVisibleSuggested: 10,
-			tld: <?= \CUtil::PhpToJSObject($arResult['TLD'])?>,
+			tld: <?= \CUtil::phpToJSObject($arResult['TLD'])?>,
 			promoBlock: BX('landing-domain-block-info'),
 			promoCloseIcon: BX('landing-domain-block-info-close-icon'),
 			promoCloseLink: BX('landing-domain-block-info-close-link')

@@ -1,19 +1,47 @@
-import { Type } from 'main.core';
-import type Dialog from '../dialog';
+import { Tag, Type, Dom, Cache } from 'main.core';
+import Dialog from '../dialog';
+import type Tab from '../tabs/tab';
 
 export default class BaseFooter
 {
 	dialog: Dialog = null;
+	tab: Tab = null;
+	container: ?HTMLElement = null;
+	cache = new Cache.MemoryCache();
 
-	constructor(dialog: Dialog, options: { [option: string]: any })
+	constructor(context: Dialog | Tab, options: { [option: string]: any })
 	{
 		this.options = Type.isPlainObject(options) ? options : {};
-		this.dialog = dialog;
+
+		if (context instanceof Dialog)
+		{
+			this.dialog = context;
+		}
+		else
+		{
+			this.tab = context;
+			this.dialog = this.tab.getDialog();
+		}
 	}
 
 	getDialog(): Dialog
 	{
 		return this.dialog;
+	}
+
+	getTab(): ?Tab
+	{
+		return this.tab;
+	}
+
+	show(): void
+	{
+		Dom.addClass(this.getContainer(), 'ui-selector-footer--show');
+	}
+
+	hide(): void
+	{
+		Dom.removeClass(this.getContainer(), 'ui-selector-footer--show');
 	}
 
 	getOptions(): { [option: string]: any }
@@ -35,6 +63,21 @@ export default class BaseFooter
 		return null;
 	}
 
+	getContainer()
+	{
+		if (this.container === null)
+		{
+			this.container = Tag.render`
+				<div class="ui-selector-footer">${this.render()}</div>
+			`;
+		}
+
+		return this.container;
+	}
+
+	/**
+	 * @abstract
+	 */
 	render(): HTMLElement
 	{
 		throw new Error('You must implement render() method.');

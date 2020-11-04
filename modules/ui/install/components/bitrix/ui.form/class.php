@@ -189,7 +189,10 @@ class UIFormComponent extends \CBitrixComponent
 		$config = null;
 		if (!$isForceDefaultConfig)
 		{
-			if($configScope === UI\Form\EntityEditorConfigScope::CUSTOM)
+			if(
+				$configScope === UI\Form\EntityEditorConfigScope::CUSTOM
+				&& array_key_exists($userScopeId, $userScopes)
+			)
 			{
 				$config = Scope::getInstance()->getScopeById($userScopeId);
 				if(!$config)
@@ -217,7 +220,10 @@ class UIFormComponent extends \CBitrixComponent
 			}
 		}
 
-		if($configScope === UI\Form\EntityEditorConfigScope::UNDEFINED)
+		if(
+			(!$config && $configScope === UI\Form\EntityEditorConfigScope::CUSTOM)
+			|| $configScope === UI\Form\EntityEditorConfigScope::UNDEFINED
+		)
 		{
 			$configScope = is_array($configuration->get($this->configID, UI\Form\EntityEditorConfigScope::PERSONAL))
 				? UI\Form\EntityEditorConfigScope::PERSONAL
@@ -510,7 +516,7 @@ class UIFormComponent extends \CBitrixComponent
 		$this->arResult['USER_SCOPES'] = $userScopes;
 		$this->arResult['USER_SCOPE_ID'] = $userScopeId;
 
-		$config = $config ?? [];
+		$config = (array) $config;
 
 		[$config, $defaultConfig] = $this->processParamsConfig($config, $this->arResult['FORCE_DEFAULT_SECTION_NAME'], $this->arResult['ENTITY_CONFIG']);
 
@@ -532,7 +538,11 @@ class UIFormComponent extends \CBitrixComponent
 	{
 		$languages = [];
 
-		$dbResultLangs = \CLanguage::GetList($by = '', $order = '');
+		$by = '';
+		$order = '';
+		$dbResultLangs = \CLanguage::GetList($by, $order);
+		unset($by, $order);
+
 		while($lang = $dbResultLangs->Fetch())
 		{
 			$languages[] = ['LID' => $lang['LID'], 'NAME' => $lang['NAME']];

@@ -37,3 +37,6 @@ $MESS['LANDING_TPL_TTL_DELETE'] = 'До окончательного удале�
 $MESS['LANDING_TPL_TTL_DELETE_D'] = 'д.';
 $MESS['LANDING_TPL_ACTION_DELETE_CONFIRM'] = 'Действительно удалить?';
 $MESS['LANDING_TPL_PUBLIC_URL'] = 'Опубликован в домене #LINK#';
+$MESS['LANDING_TPL_DEV_HELP'] = 'Нужна помощь в разработке сайта?';
+$MESS['LANDING_TPL_DEV_ORDER'] = 'Закажите внедрение у наших партнеров';
+$MESS['LANDING_TPL_DEV_BTN'] = 'Заказать';

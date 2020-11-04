@@ -9,9 +9,7 @@
 	 * @copyright 2001-2019 Bitrix
 	 */
 
-	var BitrixVue =
-	/*#__PURE__*/
-	function () {
+	var BitrixVue = /*#__PURE__*/function () {
 	  function BitrixVue() {
 	    babelHelpers.classCallCheck(this, BitrixVue);
 	    this._components = {};
@@ -131,7 +129,7 @@
 	      return ui_vue_vendor_v2.VueVendorV2.extend(options);
 	    }
 	    /**
-	     *	Defer the callback to be executed after the next DOM update cycle. Use it immediately after you’ve changed some data to wait for the DOM update.
+	     *	Defer the callback to be executed after the next DOM update cycle. Use it immediately after you have changed some data to wait for the DOM update.
 	     *
 	     * @param {Function} callback
 	     * @param {Object} context

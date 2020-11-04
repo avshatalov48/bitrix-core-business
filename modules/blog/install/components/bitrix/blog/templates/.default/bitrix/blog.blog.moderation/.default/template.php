@@ -65,7 +65,7 @@ if(!empty($arResult["ERROR_MESSAGE"]))
 	</div>
 	<?
 }
-if(strlen($arResult["FATAL_ERROR"])>0)
+if($arResult["FATAL_ERROR"] <> '')
 {
 	?>
 	<div class="blog-errors">
@@ -112,7 +112,7 @@ elseif(count($arResult["POST"])>0)
 						<a class="blog-author-icon" href="<?=$CurPost["urlToAuthor"]?>"></a>
 					<?endif;?>
 					<?
-					if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && array_key_exists("ALIAS", $CurPost["BlogUser"]) && strlen($CurPost["BlogUser"]["ALIAS"]) > 0)
+					if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && array_key_exists("ALIAS", $CurPost["BlogUser"]) && $CurPost["BlogUser"]["ALIAS"] <> '')
 						$arTmpUser = array(
 							"NAME" => "",
 							"LAST_NAME" => "",
@@ -120,7 +120,7 @@ elseif(count($arResult["POST"])>0)
 							"LOGIN" => "",
 							"NAME_LIST_FORMATTED" => $CurPost["BlogUser"]["~ALIAS"],
 						);
-					elseif (strlen($CurPost["urlToBlog"]) > 0 || strlen($CurPost["urlToAuthor"]) > 0)
+					elseif ($CurPost["urlToBlog"] <> '' || $CurPost["urlToAuthor"] <> '')
 						$arTmpUser = array(
 							"NAME" => $CurPost["arUser"]["~NAME"],
 							"LAST_NAME" => $CurPost["arUser"]["~LAST_NAME"],
@@ -263,15 +263,15 @@ elseif(count($arResult["POST"])>0)
 						</div>
 					</div>
 					<div class="blog-post-meta-util">
-						<span class="blog-post-views-link"><?=GetMessage("BLOG_BLOG_BLOG_VIEWS")?> <?=IntVal($CurPost["VIEWS"]);?></span>
-						<span class="blog-post-comments-link"><?=GetMessage("BLOG_BLOG_BLOG_COMMENTS")?> <?=IntVal($CurPost["NUM_COMMENTS"]);?></span>
-						<?if(strLen($CurPost["urlToShow"])>0):?>
+						<span class="blog-post-views-link"><?=GetMessage("BLOG_BLOG_BLOG_VIEWS")?> <?=intval($CurPost["VIEWS"]);?></span>
+						<span class="blog-post-comments-link"><?=GetMessage("BLOG_BLOG_BLOG_COMMENTS")?> <?=intval($CurPost["NUM_COMMENTS"]);?></span>
+						<?if($CurPost["urlToShow"] <> ''):?>
 							<span class="blog-post-show-link"><a href="javascript:if(confirm('<?=GetMessage("BLOG_MES_SHOW_POST_CONFIRM")?>')) window.location='<?=$CurPost["urlToShow"]?>'"><?=GetMessage("BLOG_MES_SHOW")?></a></span>
 						<?endif;?>
-						<?if(strLen($CurPost["urlToEdit"])>0):?>
+						<?if($CurPost["urlToEdit"] <> ''):?>
 							<span class="blog-post-edit-link"><a href="<?=$CurPost["urlToEdit"]?>"><?=GetMessage("BLOG_MES_EDIT")?></a></span>
 						<?endif;?>
-						<?if(strLen($CurPost["urlToDelete"])>0):?>
+						<?if($CurPost["urlToDelete"] <> ''):?>
 							<span class="blog-post-delete-link"><a href="javascript:if(confirm('<?=GetMessage("BLOG_MES_DELETE_POST_CONFIRM")?>')) window.location='<?=$CurPost["urlToDelete"]."&".bitrix_sessid_get()?>'"><?=GetMessage("BLOG_MES_DELETE")?></a></span>
 						<?endif;?>
 					</div>

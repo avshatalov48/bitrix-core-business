@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports, main_core, landing_loc, landing_env, landing_ui_field_basefield) {
+(function (exports,landing_env,landing_ui_field_basefield,landing_loc,main_core) {
 	'use strict';
 
 	function getFilterStub() {
@@ -147,9 +147,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	 * @memberOf BX.Landing.UI.Field
 	 */
 
-	var SourceField =
-	/*#__PURE__*/
-	function (_BaseField) {
+	var SourceField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(SourceField, _BaseField);
 
 	  function SourceField(options) {
@@ -498,5 +496,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.SourceField = SourceField;
 
-}(this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}, BX, BX.Landing, BX.Landing, BX.Landing.UI.Field));
+}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX.Landing,BX.Landing.UI.Field,BX.Landing,BX));
 //# sourceMappingURL=sourcefield.bundle.js.map

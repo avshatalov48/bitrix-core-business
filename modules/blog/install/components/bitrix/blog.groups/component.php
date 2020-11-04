@@ -12,26 +12,26 @@ if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption
 else
 	$arParams["CACHE_TIME"] = 0;	
 $arParams["GROUPS_COUNT"] = intval($arParams["GROUPS_COUNT"]);
-$arParams["COLS_COUNT"] = (IntVal($arParams["COLS_COUNT"])>0 ? IntVal($arParams["COLS_COUNT"]) : 2);
+$arParams["COLS_COUNT"] = (intval($arParams["COLS_COUNT"])>0 ? intval($arParams["COLS_COUNT"]) : 2);
 
-$arParams["SORT_BY1"] = (strlen($arParams["SORT_BY1"])>0 ? $arParams["SORT_BY1"] : "DATE_CREATE");
-$arParams["SORT_ORDER1"] = (strlen($arParams["SORT_ORDER1"])>0 ? $arParams["SORT_ORDER1"] : "DESC");
-$arParams["SORT_BY2"] = (strlen($arParams["SORT_BY2"])>0 ? $arParams["SORT_BY2"] : "ID");
-$arParams["SORT_ORDER2"] = (strlen($arParams["SORT_ORDER2"])>0 ? $arParams["SORT_ORDER2"] : "DESC");
+$arParams["SORT_BY1"] = ($arParams["SORT_BY1"] <> '' ? $arParams["SORT_BY1"] : "DATE_CREATE");
+$arParams["SORT_ORDER1"] = ($arParams["SORT_ORDER1"] <> '' ? $arParams["SORT_ORDER1"] : "DESC");
+$arParams["SORT_BY2"] = ($arParams["SORT_BY2"] <> '' ? $arParams["SORT_BY2"] : "ID");
+$arParams["SORT_ORDER2"] = ($arParams["SORT_ORDER2"] <> '' ? $arParams["SORT_ORDER2"] : "DESC");
 
 if(!is_array($arParams["GROUP_ID"]))
 	$arParams["GROUP_ID"] = array($arParams["GROUP_ID"]);
 foreach($arParams["GROUP_ID"] as $k=>$v)
-	if(IntVal($v) <= 0)
+	if(intval($v) <= 0)
 		unset($arParams["GROUP_ID"][$k]);
 	
-if(strLen($arParams["GROUP_VAR"])<=0)
+if($arParams["GROUP_VAR"] == '')
 	$arParams["GROUP_VAR"] = "id";
-if(strLen($arParams["PAGE_VAR"])<=0)
+if($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
 	
 $arParams["PATH_TO_GROUP"] = trim($arParams["PATH_TO_GROUP"]);
-if(strlen($arParams["PATH_TO_GROUP"])<=0)
+if($arParams["PATH_TO_GROUP"] == '')
 	$arParams["PATH_TO_GROUP"] = htmlspecialcharsbx($APPLICATION->GetCurPageParam($arParams["PAGE_VAR"]."=group&".$arParams["GROUP_VAR"]."=#group_id#", Array($arParams["PAGE_VAR"], $arParams["GROUP_VAR"])));
 
 $cache = new CPHPCache;

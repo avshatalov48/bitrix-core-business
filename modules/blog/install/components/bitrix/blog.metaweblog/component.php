@@ -6,32 +6,27 @@ if (!CModule::IncludeModule("blog"))
 	ShowError(GetMessage("BLOG_MODULE_NOT_INSTALL"));
 	return;
 }
-if(strLen($arParams["BLOG_VAR"])<=0)
+if($arParams["BLOG_VAR"] == '')
 	$arParams["BLOG_VAR"] = "blog";
-if(strLen($arParams["PAGE_VAR"])<=0)
+if($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if(strLen($arParams["POST_VAR"])<=0)
+if($arParams["POST_VAR"] == '')
 	$arParams["POST_VAR"] = "id";
 	
 $arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"]);
-if(strlen($arParams["PATH_TO_BLOG"])<=0)
+if($arParams["PATH_TO_BLOG"] == '')
 	$arParams["PATH_TO_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
 	
 $arParams["PATH_TO_POST"] = trim($arParams["PATH_TO_POST"]);
-if(strlen($arParams["PATH_TO_POST"])<=0)
+if($arParams["PATH_TO_POST"] == '')
 	$arParams["PATH_TO_POST"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
 	
-if(function_exists("file_get_contents"))
-	$DATA = file_get_contents("php://input");
-elseif(isset($GLOBALS["HTTP_RAW_POST_DATA"]))
-	$DATA = &$GLOBALS["HTTP_RAW_POST_DATA"];
-else
-	$DATA = false;
+$DATA = file_get_contents("php://input");
 
 if(toUpper(LANG_CHARSET) != "UTF-8")
 	$DATA = $APPLICATION->ConvertCharset($DATA, "UTF-8", LANG_CHARSET);
 
-if(strlen($DATA) > 0)
+if($DATA <> '')
 {
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/xml.php");
 	$objXML = new CDataXML();
@@ -153,7 +148,7 @@ if(!$bDesignMode)
 	$APPLICATION->RestartBuffer();
 	header("Pragma: no-cache");
 	header("Content-type: text/xml; charset=".LANG_CHARSET);
-	header("Content-Length: ".strlen($content));
+	header("Content-Length: ".mb_strlen($content));
 	echo $content;
 	die();
 }

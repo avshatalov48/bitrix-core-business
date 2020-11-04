@@ -198,7 +198,7 @@ class CTicket extends CAllTicket
 				"EXTERNAL_ID"		=> (intval($arFields["EXTERNAL_ID"])>0 ? intval($arFields["EXTERNAL_ID"]) : "null"),
 				"TASK_TIME"		=> (intval($arFields["TASK_TIME"])>0 ? intval($arFields["TASK_TIME"]) : "null"),
 				"EXTERNAL_FIELD_1"	=> "'".$DB->ForSql($arFields["EXTERNAL_FIELD_1"])."'",
-				"IS_SPAM"			=> (strlen($arFields["IS_SPAM"])>0 ? "'".$arFields["IS_SPAM"]."'" : "null"),
+				"IS_SPAM"			=> ($arFields["IS_SPAM"] <> '' ? "'".$arFields["IS_SPAM"]."'" : "null"),
 				"IS_HIDDEN"			=> ($arFields["IS_HIDDEN"]=="Y" ? "'Y'" : "'N'"),
 				"IS_LOG"			=> ($arFields["IS_LOG"]=="Y" ? "'Y'" : "'N'"),
 				"IS_OVERDUE"		=> ($arFields["IS_OVERDUE"]=="Y" ? "'Y'" : "'N'"),
@@ -230,7 +230,7 @@ class CTicket extends CAllTicket
 					{
 						foreach ($arrFiles as $arFile)
 						{
-							if (strlen($arFile["name"])>0 || $arFile["del"]=="Y")
+							if ($arFile["name"] <> '' || $arFile["del"]=="Y")
 							{
 								if ($bSupportTeam!="Y" && $bAdmin!="Y") $max_file_size = intval($max_size)*1024;
 								$fes = "";
@@ -242,7 +242,7 @@ class CTicket extends CAllTicket
 									$upload_dir = $not_image_upload_dir;
 								}
 
-								if (!array_key_exists("MODULE_ID", $arFile) || strlen($arFile["MODULE_ID"]) <= 0)
+								if (!array_key_exists("MODULE_ID", $arFile) || $arFile["MODULE_ID"] == '')
 									$arFile["MODULE_ID"] = "support";
 
 								$fid = intval(CFile::SaveFile($arFile, $upload_dir, $max_file_size));
@@ -273,7 +273,7 @@ class CTicket extends CAllTicket
 											"MESSAGE_ID"		=> $MESSAGE_ID,
 											"FILE_ID"			=> $fid,
 											"TICKET_ID"			=> $ticketID,
-											"EXTENSION_SUFFIX"	=> (strlen($fes)>0) ? "'".$DB->ForSql($fes, 255)."'" : "null"
+											"EXTENSION_SUFFIX"	=> ($fes <> '') ? "'".$DB->ForSql($fes, 255)."'" : "null"
 											);
 										$DB->Insert("b_ticket_message_2_file",$arFields_fi, $err_mess.__LINE__);
 									}
@@ -282,7 +282,7 @@ class CTicket extends CAllTicket
 										// обновим связку
 										$arFields_fu = array(
 											"FILE_ID"			=> $fid,
-											"EXTENSION_SUFFIX"	=> (strlen($fes)>0) ? "'".$DB->ForSql($fes, 255)."'" : "null"
+											"EXTENSION_SUFFIX"	=> ($fes <> '') ? "'".$DB->ForSql($fes, 255)."'" : "null"
 											);
 										$DB->Update("b_ticket_message_2_file", $arFields_fu, "WHERE FILE_ID = ".intval($arFile["old_file"]),$err_mess.__LINE__);
 									}
@@ -312,7 +312,7 @@ class CTicket extends CAllTicket
 
 	public static function AddMessage($ticketID, $arFields, &$arrFILES, $checkRights="Y")
 	{
-		if (strlen($arFields["MESSAGE"])>0 || (is_array($arFields["FILES"]) && count($arFields["FILES"])>0))
+		if ($arFields["MESSAGE"] <> '' || (is_array($arFields["FILES"]) && count($arFields["FILES"])>0))
 		{
 			$err_mess = (CTicket::err_mess())."<br>Function: AddMessage<br>Line: ";
 			global $DB, $USER;
@@ -358,7 +358,7 @@ class CTicket extends CAllTicket
 			$zr = $z->Fetch();
 			$maxNumber = intval($zr['MAX_NUMBER']);
 
-			if ((strlen(trim($arFields["MESSAGE_AUTHOR_SID"]))>0 || intval($arFields["MESSAGE_AUTHOR_USER_ID"])>0 || intval($arFields["MESSAGE_CREATED_USER_ID"])>0) && ($bSupportTeam=="Y" || $bAdmin=="Y"))
+			if ((trim($arFields["MESSAGE_AUTHOR_SID"]) <> '' || intval($arFields["MESSAGE_AUTHOR_USER_ID"])>0 || intval($arFields["MESSAGE_CREATED_USER_ID"])>0) && ($bSupportTeam=="Y" || $bAdmin=="Y"))
 			{
 				$ownerUserID = intval($arFields["MESSAGE_AUTHOR_USER_ID"]);
 				$ownerSid = "'".$DB->ForSql($arFields["MESSAGE_AUTHOR_SID"],2000)."'";
@@ -405,7 +405,7 @@ class CTicket extends CAllTicket
 				$createdGuestID = "null";
 			}
 
-			$createdModuleName = (strlen($arFields["MESSAGE_CREATED_MODULE_NAME"])>0) ? "'".$DB->ForSql($arFields["MESSAGE_CREATED_MODULE_NAME"],255)."'" : "'support'";
+			$createdModuleName = ($arFields["MESSAGE_CREATED_MODULE_NAME"] <> '') ? "'".$DB->ForSql($arFields["MESSAGE_CREATED_MODULE_NAME"],255)."'" : "'support'";
 
 			$externalID = intval($arFields["EXTERNAL_ID"])>0 ? intval($arFields["EXTERNAL_ID"]) : "null";
 			$externalField1 = $arFields["EXTERNAL_FIELD_1"];
@@ -465,7 +465,7 @@ class CTicket extends CAllTicket
 				"MESSAGE"						=> "'".$DB->ForSql($arFields["MESSAGE"])."'",
 				"MESSAGE_SEARCH"				=> "'".$DB->ForSql(ToUpper($arFields["MESSAGE"]))."'",
 				"EXTERNAL_ID"					=> $externalID,
-				"EXTERNAL_FIELD_1"				=> (strlen($externalField1)>0 ? "'".$DB->ForSql($externalField1)."'" : "null"),
+				"EXTERNAL_FIELD_1"				=> ($externalField1 <> '' ? "'".$DB->ForSql($externalField1)."'" : "null"),
 				"OWNER_USER_ID"					=> $ownerUserID,
 				"OWNER_GUEST_ID"				=> $ownerGuestID,
 				"OWNER_SID"						=> $ownerSid,
@@ -512,7 +512,7 @@ class CTicket extends CAllTicket
 				{
 					while (list($key, $arFILE) = each($arFILES))
 					{
-						if (strlen($arFILE["name"])>0)
+						if ($arFILE["name"] <> '')
 						{
 							if ($bSupportTeam!="Y" && $bAdmin!="Y")
 							{
@@ -527,7 +527,7 @@ class CTicket extends CAllTicket
 								$upload_dir = $not_image_upload_dir;
 							}
 
-							if (!array_key_exists("MODULE_ID", $arFILE) || strlen($arFILE["MODULE_ID"]) <= 0)
+							if (!array_key_exists("MODULE_ID", $arFILE) || $arFILE["MODULE_ID"] == '')
 							{
 								$arFILE["MODULE_ID"] = "support";
 							}
@@ -546,7 +546,7 @@ class CTicket extends CAllTicket
 									"MESSAGE_ID"		=> $mid,
 									"FILE_ID"			=> $fid,
 									"TICKET_ID"			=> $ticketID,
-									"EXTENSION_SUFFIX"	=> (strlen($fes)>0) ? "'".$DB->ForSql($fes, 255)."'" : "null"
+									"EXTENSION_SUFFIX"	=> ($fes <> '') ? "'".$DB->ForSql($fes, 255)."'" : "null"
 									);
 								$link_id = $DB->Insert("b_ticket_message_2_file",$arFields_fi, $err_mess.__LINE__);
 								if (intval($link_id)>0)
@@ -704,10 +704,10 @@ class CTicket extends CAllTicket
 			{
 				$key = $filterKeys[$i];
 				$val = $arFilter[$filterKeys[$i]];
-				if ((is_array($val) && count($val)<=0) || (!is_array($val) && (strlen($val)<=0 || $val==='NOT_REF')))
+				if ((is_array($val) && count($val)<=0) || (!is_array($val) && ((string) $val == '' || $val==='NOT_REF')))
 					continue;
 				$matchValueSet = (in_array($key."_EXACT_MATCH", $filterKeys)) ? true : false;
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -739,7 +739,7 @@ class CTicket extends CAllTicket
 								$arSqlSearch[] = " ".$lamp." in (".$str.")";
 							}
 						}
-						elseif (strlen($val)>0)
+						elseif ($val <> '')
 						{
 							$arSqlSearch[] = " ".$lamp." = '".$DB->ForSQL($val)."'";
 						}
@@ -818,7 +818,7 @@ class CTicket extends CAllTicket
 					case "OWNER":
 						$getUserName = "Y";
 						$match = ($arFilter[$key."_EXACT_MATCH"]=="Y" && $matchValueSet) ? "N" : "Y";
-						$arSqlSearch[] = GetFilterQuery("UO.ID, UO.LOGIN, UO.LAST_NAME, UO.NAME", $val, $match, array("@", ".")); //T.OWNER_USER_ID,
+						$arSqlSearch[] = GetFilterQuery("UO.ID, UO.LOGIN, UO.LAST_NAME, UO.NAME, T.OWNER_SID", $val, $match, array("@", ".")); //T.OWNER_USER_ID,
 						break;
 					case "OWNER_USER_ID":
 					case "OWNER_SID":
@@ -911,7 +911,7 @@ class CTicket extends CAllTicket
 						break;
 					case "MESSAGE":
 						global $strError;
-						if( strlen( $val ) <= 0 ) break;
+						if( $val == '' ) break;
 
 						if(CSupportSearch::CheckModule() && CSupportSearch::isIndexExists())
 						{
@@ -948,7 +948,7 @@ class CTicket extends CAllTicket
 							$f = new CFilterQuery("OR", "yes", $match, array(), "N", "Y", "N");
 							$query = $f->GetQueryString( "T.TITLE,M.MESSAGE_SEARCH", $val );
 							$error = $f->error;
-							if (strlen(trim($error))>0)
+							if (trim($error) <> '')
 							{
 								$strError .= $error."<br>";
 								$query = "0";
@@ -1129,7 +1129,7 @@ class CTicket extends CAllTicket
 		}
 		elseif( $s = $obUserFieldsSql->GetOrder($by) )
 		{
-			$strSqlOrder = "ORDER BY ".strtoupper($s);
+			$strSqlOrder = "ORDER BY ".mb_strtoupper($s);
 		}
 		else
 		{
@@ -1209,7 +1209,7 @@ class CTicket extends CAllTicket
 			LEFT JOIN b_ticket_sla SLA ON (SLA.ID = T.SLA_ID)
 			";
 		}
-		if (strlen($siteID)>0)
+		if ($siteID <> '')
 		{
 			$dates_select = "
 				".$DB->DateToCharFunction("T.DATE_CREATE","FULL",$siteID,true)."	DATE_CREATE,
@@ -1488,10 +1488,10 @@ class CTicket extends CAllTicket
 			{
 				$key = $filterKeys[$i];
 				$val = $arFilter[$filterKeys[$i]];
-				if ((is_array($val) && count($val)<=0) || (!is_array($val) && (strlen($val)<=0 || $val==='NOT_REF')))
+				if ((is_array($val) && count($val)<=0) || (!is_array($val) && ((string) $val == '' || $val==='NOT_REF')))
 					continue;
 				$matchValueSet = (in_array($key."_EXACT_MATCH", $filterKeys)) ? true : false;
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -1606,10 +1606,10 @@ class CTicket extends CAllTicket
 			{
 				$key = $filterKeys[$i];
 				$val = $arFilter[$filterKeys[$i]];
-				if ((is_array($val) && count($val)<=0) || (!is_array($val) && (strlen($val)<=0 || $val==='NOT_REF')))
+				if ((is_array($val) && count($val)<=0) || (!is_array($val) && ((string) $val == '' || $val==='NOT_REF')))
 					continue;
 				$matchValueSet = (in_array($key."_EXACT_MATCH", $filterKeys)) ? true : false;
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "DATE_CREATE_1":
@@ -1715,10 +1715,10 @@ class CTicket extends CAllTicket
 			{
 				$key = $filterKeys[$i];
 				$val = $arFilter[$filterKeys[$i]];
-				if ((is_array($val) && count($val)<=0) || (!is_array($val) && (strlen($val)<=0 || $val==='NOT_REF')))
+				if ((is_array($val) && count($val)<=0) || (!is_array($val) && ((string) $val == '' || $val==='NOT_REF')))
 					continue;
 				$matchValueSet = (in_array($key."_EXACT_MATCH", $filterKeys)) ? true : false;
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "SITE":

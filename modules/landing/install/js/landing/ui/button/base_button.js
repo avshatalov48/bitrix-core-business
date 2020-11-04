@@ -197,7 +197,7 @@
 		 */
 		isEnabled: function()
 		{
-			return !hasClass(this.layout, "landing-ui-disable");
+			return !hasClass(this.layout, "landing-ui-disabled");
 		},
 
 

@@ -1,19 +1,19 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <a name="trackback"></a>
 <?
-if(strlen($arResult["MESSAGE"])>0)
+if($arResult["MESSAGE"] <> '')
 {
 	?>
 	<?=$arResult["MESSAGE"]?><br /><br />
 	<?
 }
-if(strlen($arResult["ERROR_MESSAGE"])>0)
+if($arResult["ERROR_MESSAGE"] <> '')
 {
 	?>
 	<span class='errortext'><?=$arResult["ERROR_MESSAGE"]?></span><br /><br />
 	<?
 }
-if(strlen($arResult["FATAL_MESSAGE"])>0)
+if($arResult["FATAL_MESSAGE"] <> '')
 {
 	?>
 	<span class='errortext'><?=$arResult["FATAL_MESSAGE"]?></span><br /><br />
@@ -45,7 +45,7 @@ else
 				<a href="<?=$arTrack["URL"]?>"><?=$arTrack["TITLE"]?></a>
 					</td>
 					<?
-					if(strlen($arTrack["urlToDelete"])>0)
+					if($arTrack["urlToDelete"] <> '')
 					{
 						?>
 						<td align="right" valign="top"><a href="<?=$arTrack["urlToDelete"]."&".bitrix_sessid_get()?>" class="blog-post-delete"></a></td>

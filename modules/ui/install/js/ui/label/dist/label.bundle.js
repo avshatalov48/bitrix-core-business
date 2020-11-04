@@ -60,9 +60,7 @@ this.BX = this.BX || {};
 	  return data;
 	}
 
-	var Label =
-	/*#__PURE__*/
-	function () {
+	var Label = /*#__PURE__*/function () {
 	  function Label(options) {
 	    babelHelpers.classCallCheck(this, Label);
 	    this.text = options.text;

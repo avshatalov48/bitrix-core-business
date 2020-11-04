@@ -169,10 +169,8 @@ export default class IblockSectionController extends BX.UI.EntityEditorControlle
 				{
 					newType = 'text';
 				}
-
-				schemeElement = currentField.getSchemeElement();
 			}
-
+			schemeElement = currentField.getSchemeElement();
 			const property = response.data.PROPERTY_FIELDS;
 			if (
 				((currentField instanceof BX.UI.EntityEditorList) || (currentField instanceof BX.UI.EntityEditorMultiList))

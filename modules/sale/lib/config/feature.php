@@ -9,31 +9,87 @@ Loc::loadMessages(__FILE__);
 
 final class Feature
 {
+	private const DISCOUNT_CONSTRUCTOR = 'sale_discount_constructor';
+	private const CUMULATIVE_DISCOUNTS = 'sale_cumulative_discounts';
+
 	private static $bitrix24Included = null;
 
 	private static $featureList = [];
 
 	private static $tranferList = [
-		'sale_cumulative_discounts' => 'CatDiscountSave'
+		self::CUMULATIVE_DISCOUNTS => 'CatDiscountSave'
 	];
 
 	private static $retailExist = [
-		'sale_cumulative_discounts' => true
+		self::CUMULATIVE_DISCOUNTS => true
 	];
 
 	private static $bitrix24exist = [
-		'sale_cumulative_discounts' => true,
-		'sale_discount_constructor' => true
+		self::CUMULATIVE_DISCOUNTS => true,
+		self::DISCOUNT_CONSTRUCTOR => true
 	];
+
+	/** @var array bitrix24 articles about tarif features */
+	private static $bitrix24helpCodes = [
+		self::DISCOUNT_CONSTRUCTOR => 'limit_shop_discount_builder',
+		self::CUMULATIVE_DISCOUNTS => 'limit_shop_cumulative_discounts'
+	];
+
+	private static $helpCodesCounter = 0;
+	private static $initUi = false;
 
 	public static function isCumulativeDiscountsEnabled()
 	{
-		return self::isFeatureEnabled('sale_cumulative_discounts');
+		return self::isFeatureEnabled(self::CUMULATIVE_DISCOUNTS);
 	}
 
 	public static function isDiscountConstructorEnabled()
 	{
-		return self::isFeatureEnabled('sale_discount_constructor');
+		return self::isFeatureEnabled(self::DISCOUNT_CONSTRUCTOR);
+	}
+
+	/**
+	 * Returns url description for help article about cumulative discounts.
+	 *
+	 * @return array|null
+	 */
+	public static function getCumulativeDiscountsHelpLink(): ?array
+	{
+		return self::getHelpLink(self::CUMULATIVE_DISCOUNTS);
+	}
+
+	/**
+	 * Returns url description for help article about cumulative discounts.
+	 *
+	 * @return array|null
+	 */
+	public static function getDiscountConstructorHelpLink(): ?array
+	{
+		return self::getHelpLink(self::DISCOUNT_CONSTRUCTOR);
+	}
+
+	/**
+	 * Init ui scope for show help links on internal pages.
+	 *
+	 * @return void
+	 */
+	public static function initUiHelpScope(): void
+	{
+		global $APPLICATION;
+		if (!self::isBitrix24())
+		{
+			return;
+		}
+		if (self::$helpCodesCounter <= 0 || self::$initUi)
+		{
+			return;
+		}
+		self::$initUi = true;
+		$APPLICATION->IncludeComponent(
+			'bitrix:ui.info.helper',
+			'',
+			[]
+		);
 	}
 
 	private static function isFeatureEnabled($featureId)
@@ -59,6 +115,29 @@ final class Feature
 			}
 		}
 		return self::$featureList[$featureId];
+	}
+
+	/**
+	 * Returns javascript link to bitrx24 feature help article.
+	 *
+	 * @param string $featureId
+	 * @return array|null
+	 */
+	private static function getHelpLink(string $featureId): ?array
+	{
+		if (!self::isBitrix24())
+		{
+			return null;
+		}
+		if (!isset(self::$bitrix24helpCodes[$featureId]))
+		{
+			return null;
+		}
+		self::$helpCodesCounter++;
+		return [
+			'TYPE' => 'ONCLICK',
+			'LINK' => 'BX.UI.InfoHelper.show(\''.self::$bitrix24helpCodes[$featureId].'\');'
+		];
 	}
 
 	private static function isBitrix24()

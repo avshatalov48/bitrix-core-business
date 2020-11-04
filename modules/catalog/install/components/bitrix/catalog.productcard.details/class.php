@@ -232,11 +232,11 @@ class CatalogProductDetailsComponent
 				{
 					if ($property->isFileType())
 					{
-						$propertyValues[$property->getIndex()] = [];
+						$propertyValues[$property->getId()] = [];
 					}
 					else
 					{
-						$propertyValues[$property->getIndex()] = $property->getPropertyValueCollection()->toArray();
+						$propertyValues[$property->getId()] = $property->getPropertyValueCollection()->toArray();
 					}
 				}
 				$product->getPropertyCollection()->setValues($propertyValues);
@@ -327,7 +327,9 @@ class CatalogProductDetailsComponent
 
 		$this->arResult['UI_ENTITY_FIELDS'] = $this->getForm()->getDescriptions();
 		$this->arResult['UI_ENTITY_CONFIG'] = $this->getForm()->getConfig();
-		$this->arResult['UI_ENTITY_DATA'] = $this->getForm()->getValues();
+
+		$this->arResult['UI_ENTITY_DATA'] = $this->getForm()->getValues($product->isNew());
+
 		$this->arResult['UI_ENTITY_CONTROLLERS'] = $this->getForm()->getControllers();
 		$this->arResult['UI_CREATION_PROPERTY_URL'] = $this->getCreationPropertyUrl();
 		$this->arResult['UI_CREATION_SKU_PROPERTY_URL'] = $this->getCreationSkuPropertyLink();
@@ -595,6 +597,23 @@ class CatalogProductDetailsComponent
 		}
 	}
 
+	private function prepareProductCode(&$fields): void
+	{
+		$productName = $fields['NAME'] ?? '';
+
+		if ($productName !== '')
+		{
+			$fields['CODE'] = mb_strtolower(CUtil::translit(
+					$productName,
+					LANGUAGE_ID,
+					[
+						'replace_space' => '_',
+						'replace_other' => '',
+					]
+				)).'_'.random_int(0, 1000);
+		}
+	}
+
 	private function prepareDetailPictureFromGrid($propertyFields)
 	{
 		$fileProp = [];
@@ -749,6 +768,15 @@ class CatalogProductDetailsComponent
 				{
 					$this->prepareDescriptionFields($fields);
 					$this->preparePictureFields($fields);
+
+					if (
+						(!isset($fields['CODE']) || $fields['CODE'] === '')
+						&& $product->isNew()
+					)
+					{
+						$this->prepareProductCode($fields);
+					}
+
 					$product->setFields($fields);
 				}
 
@@ -780,6 +808,8 @@ class CatalogProductDetailsComponent
 
 						if (is_numeric($skuId))
 						{
+							$skuId = (int)$skuId;
+
 							// probably simple sku came with product id
 							if ($convertedSku)
 							{
@@ -798,7 +828,10 @@ class CatalogProductDetailsComponent
 
 						if ($sku === null)
 						{
-							$sku = $product->getSkuCollection()->create();
+							$sku = $product->getSkuCollection()
+								->create()
+								->setActive(true)
+							;
 							$notifyAboutNewVariation = true;
 						}
 
@@ -820,6 +853,18 @@ class CatalogProductDetailsComponent
 
 						if (!empty($skuPropertyFields))
 						{
+							// fix: two MORE_PHOTO fields overwrite each other (editor and grid)
+							if (
+								isset($propertyFields[BaseForm::MORE_PHOTO], $skuPropertyFields[BaseForm::MORE_PHOTO])
+								&& $product->isSimple()
+							)
+							{
+								$skuPropertyFields[BaseForm::MORE_PHOTO] = array_merge(
+									$propertyFields[BaseForm::MORE_PHOTO],
+									$skuPropertyFields[BaseForm::MORE_PHOTO]
+								);
+							}
+
 							$sku->getPropertyCollection()->setValues($skuPropertyFields);
 						}
 
@@ -844,7 +889,7 @@ class CatalogProductDetailsComponent
 
 					$response = [
 						'ENTITY_ID' => $product->getId(),
-						'ENTITY_DATA' => $this->getForm()->getValues(),
+						'ENTITY_DATA' => $this->getForm()->getValues(false),
 						'NOTIFY_ABOUT_NEW_VARIATION' => $redirect ? false : $notifyAboutNewVariation,
 						'IS_SIMPLE_PRODUCT' => $product->isSimple(),
 					];
@@ -948,7 +993,7 @@ class CatalogProductDetailsComponent
 		$resultFields = [];
 		if ($this->checkModules() && $this->checkPermissions() && $this->checkRequiredParameters())
 		{
-			$id = (int)str_replace(\Bitrix\Catalog\Component\ProductForm::PROPERTY_FIELD_PREFIX, '', $fields['CODE']);
+			$id = str_replace(\Bitrix\Catalog\Component\ProductForm::PROPERTY_FIELD_PREFIX, '', $fields['CODE']);
 			$result = self::updateProperty($id, $fields);
 			if (!$result->isSuccess())
 			{
@@ -957,10 +1002,11 @@ class CatalogProductDetailsComponent
 				return [];
 			}
 
+			$id = (int)$result->getData()['ID'];
 			$descriptions = $this->getForm()->getIblockPropertiesDescriptions();
 			foreach ($descriptions as $property)
 			{
-				if ((int)$property['propertyId'] === $id)
+				if ($property['propertyId'] === $id)
 				{
 					$resultFields = $property;
 					break;
@@ -973,17 +1019,20 @@ class CatalogProductDetailsComponent
 		];
 	}
 
-	public static function updateProperty($id, array $fields = []): \Bitrix\Main\Result
+	public static function updateProperty($code, array $fields = []): \Bitrix\Main\Result
 	{
 		$result = new \Bitrix\Main\Result();
 
-		$propertyRaw = \CIBlockProperty::GetByID($id);
-		if (!($property = $propertyRaw->Fetch()))
+		$property = self::getPropertyByCode($code);
+		if (empty($property))
 		{
 			$result->addError(new \Bitrix\Main\Error('Property not found.'));
 
 			return $result;
 		}
+
+		$result->setData($property);
+		$id = $property['ID'];
 
 		if (!CIBlockRights::UserHasRightTo($property['IBLOCK_ID'], $property['IBLOCK_ID'], 'iblock_edit'))
 		{
@@ -1042,6 +1091,26 @@ class CatalogProductDetailsComponent
 		}
 
 		return $result;
+	}
+
+	private static function getPropertyByCode($code): array
+	{
+		if (is_numeric($code))
+		{
+			$propertyRaw = \CIBlockProperty::GetByID($code);
+			if ($property = $propertyRaw->Fetch())
+			{
+				return $property;
+			}
+		}
+
+		$propertyRaw = \CIBlockProperty::GetList([], ['CODE' => $code]);
+		if ($property = $propertyRaw->Fetch())
+		{
+			return $property;
+		}
+
+		return [];
 	}
 
 	private static function updateDirectoryValues($tableName, array $values = [])
@@ -1172,11 +1241,31 @@ class CatalogProductDetailsComponent
 			];
 		}
 
+		if (!isset($fields['CODE']) || $fields['CODE'] === '')
+		{
+			$fields['CODE'] = CUtil::translit(
+				$fields['NAME'],
+				LANGUAGE_ID,
+				[
+					'replace_space' => '_',
+					'replace_other' => '',
+				]
+			);
+
+			if (isset($fields['CODE'][0]) && is_numeric($fields['CODE'][0]))
+			{
+				$fields['CODE'] = 'PROP_'.$fields['CODE'];
+			}
+
+			$fields['CODE'] .= '_'.\Bitrix\Main\Security\Random::getString(6);
+			$fields['CODE'] = mb_strtoupper($fields['CODE']);
+		}
+
 		$propertyFields = [
 			'IBLOCK_ID' => $fields['IBLOCK_ID'],
 			'NAME' => $fields['NAME'],
 			'SORT' => $fields['SORT'] ?? 500,
-			'CODE' => $fields['CODE'] ?? '',
+			'CODE' => $fields['CODE'],
 			'MULTIPLE' => ($fields['MULTIPLE'] === 'Y') ? 'Y' : 'N',
 			'IS_REQUIRED' => ($fields['IS_REQUIRED'] === 'Y') ? 'Y' : 'N',
 			'PROPERTY_TYPE' => $fields['PROPERTY_TYPE'],
@@ -1204,6 +1293,11 @@ class CatalogProductDetailsComponent
 		if (isset($fields['USER_TYPE_SETTINGS']))
 		{
 			$propertyFields['USER_TYPE_SETTINGS'] = $fields['USER_TYPE_SETTINGS'];
+		}
+
+		if (isset($fields['FEATURES']))
+		{
+			$propertyFields['FEATURES'] = $fields['FEATURES'];
 		}
 
 		$newId = (int)($iblockProperty->Add($propertyFields));

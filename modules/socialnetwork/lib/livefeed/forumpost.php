@@ -375,7 +375,8 @@ final class ForumPost extends Provider
 				return 'LISTS_NEW_ELEMENT';
 			}
 		}
-		return '';
+
+		return '2';
 	}
 
 	public function add($params = array())

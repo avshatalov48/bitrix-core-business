@@ -49,10 +49,13 @@
 				rParams.showMenu = !this.bxInfoError && !this.bxEnvNeedUpdate;
 
 				if(i == "web" && params.roles["mgmt"] !== undefined)
+				{
 					rParams.noActions = true;
-
-				else if(i == "mysql")
+				}
+				else if(i == "mysql" && params.BX_INFO)
+				{
 					rParams.state = params.BX_INFO.mysql_service_status;
+				}
 
 				this.roles[i] =  new BX.Scale.Role(i, hostname, rParams);
 			}

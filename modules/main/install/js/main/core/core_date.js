@@ -336,7 +336,10 @@ BX.JCCalendar = function()
 	{
 		var _layer_onclick = BX.delegate(function(e) {
 			e = e||window.event;
-			this.SetDate(new Date(parseInt(BX.proxy_context.getAttribute('data-date'))), e.type=='dblclick')
+			this.SetDate(
+				new Date(parseInt(BX.proxy_context.getAttribute('data-date'))),
+				(e.type === 'dblclick' || !this.params.bCompatibility)
+			)
 		}, this);
 
 		this.DIV = BX.create('DIV', {
@@ -407,7 +410,7 @@ BX.JCCalendar = function()
 					html: '<a href="javascript:void(0)" data-action="time_show" class="bx-calendar-set-time"><i></i>'+BX.message('CAL_TIME_SET')+'</a><div class="bx-calendar-form-block"><span class="bx-calendar-form-text">'+BX.message('CAL_TIME')+'</span><span class="bx-calendar-form"><input type="text" class="bx-calendar-form-input" maxwidth="2" onkeyup="BX.calendar.get()._check_time()" /><span class="bx-calendar-form-separator"></span><input type="text" class="bx-calendar-form-input" maxwidth="2" onkeyup="BX.calendar.get()._check_time()" />'+(this.bAmPm?'<span class="bx-calendar-AM-PM-block"><span class="bx-calendar-AM-PM-text" data-action="time_ampm"></span><span class="bx-calendar-form-arrow-r"><a href="javascript:void(0)" class="bx-calendar-form-arrow-top" data-action="time_ampm_up"><i></i></a><a href="javascript:void(0)" class="bx-calendar-form-arrow-bottom" data-action="time_ampm_down"><i></i></a></span></span>':'')+'</span><a href="javascript:void(0)" data-action="time_hide" class="bx-calendar-form-close"><i></i></a></div>'
 				})),
 
-				BX.create('DIV', {
+				(this.PARTS.BUTTONS = BX.create('DIV', {
 					props: {className: 'bx-calendar-button-block'},
 					events: {
 						click: BX.delegateEvent(
@@ -416,7 +419,7 @@ BX.JCCalendar = function()
 						)
 					},
 					html: '<a href="javascript:void(0)" class="bx-calendar-button bx-calendar-button-select" data-action="submit"><span class="bx-calendar-button-left"></span><span class="bx-calendar-button-text">'+BX.message('CAL_BUTTON')+'</span><span class="bx-calendar-button-right"></span></a><a href="javascript:void(0)" class="bx-calendar-button bx-calendar-button-cancel" data-action="cancel"><span class="bx-calendar-button-left"></span><span class="bx-calendar-button-text">'+BX.message('JS_CORE_WINDOW_CLOSE')+'</span><span class="bx-calendar-button-right"></span></a>'
-				})
+				}))
 			]
 		});
 
@@ -464,10 +467,18 @@ BX.JCCalendar = function()
 		{
 			case 'time_show':
 				BX.addClass(this.PARTS.TIME, 'bx-calendar-set-time-opened');
+				if (!this.params.bCompatibility)
+				{
+					BX.removeClass(this.PARTS.BUTTONS, 'bx-calendar-buttons-disabled');
+				}
 				this.popup.adjustPosition();
 			break;
 			case 'time_hide':
 				BX.removeClass(this.PARTS.TIME, 'bx-calendar-set-time-opened');
+				if (!this.params.bCompatibility)
+				{
+					BX.addClass(this.PARTS.BUTTONS, 'bx-calendar-buttons-disabled');
+				}
 				this.popup.adjustPosition();
 			break;
 			case 'time_ampm':
@@ -932,6 +943,8 @@ BX.JCCalendar.prototype.Show = function(params)
 
 	this.params = params;
 
+	this.params.bCompatibility = typeof this.params.bCompatibility == 'undefined' ? false : !!this.params.bCompatibility;
+
 	this.params.bTime = typeof this.params.bTime == 'undefined' ? true : !!this.params.bTime;
 	this.params.bHideTime = typeof this.params.bHideTime == 'undefined' ? true : !!this.params.bHideTime;
 	this.params.bUseSecond = typeof this.params.bUseSecond == 'undefined' ? true : !!this.params.bUseSecond;
@@ -970,14 +983,13 @@ BX.JCCalendar.prototype.Show = function(params)
 	}
 
 	if (!!this.params.bTime)
-		BX.removeClass(this.DIV, 'bx-calendar-time-disabled');
+	{
+		this.activateTimeStyle(bHideTime);
+	}
 	else
-		BX.addClass(this.DIV, 'bx-calendar-time-disabled');
-
-	if (!!bHideTime)
-		BX.removeClass(this.PARTS.TIME, 'bx-calendar-set-time-opened');
-	else
-		BX.addClass(this.PARTS.TIME, 'bx-calendar-set-time-opened');
+	{
+		this.activateDateStyle(bHideTime);
+	}
 
 	if (bShow)
 	{
@@ -1006,6 +1018,35 @@ BX.JCCalendar.prototype.Show = function(params)
 	}
 
 	return this;
+};
+
+BX.JCCalendar.prototype.activateDateStyle = function(bHideTime)
+{
+	BX.addClass(this.DIV, 'bx-calendar-time-disabled');
+
+	if (!!bHideTime)
+		BX.removeClass(this.PARTS.TIME, 'bx-calendar-set-time-opened');
+	else
+		BX.addClass(this.PARTS.TIME, 'bx-calendar-set-time-opened');
+};
+
+BX.JCCalendar.prototype.activateTimeStyle = function(bHideTime)
+{
+	if (!!this.params.bCompatibility)
+	{
+		BX.removeClass(this.DIV, 'bx-calendar-time-disabled');
+
+		if (!!bHideTime)
+			BX.removeClass(this.PARTS.TIME, 'bx-calendar-set-time-opened');
+		else
+			BX.addClass(this.PARTS.TIME, 'bx-calendar-set-time-opened');
+	}
+	else
+	{
+		BX.addClass(this.PARTS.BUTTONS, 'bx-calendar-buttons-disabled');
+		BX.addClass(this.PARTS.TIME, 'bx-calendar-set-time-wrap-simple');
+		BX.removeClass(this.PARTS.TIME, 'bx-calendar-set-time-opened');
+	}
 };
 
 BX.JCCalendar.prototype.SetDay = function(d)

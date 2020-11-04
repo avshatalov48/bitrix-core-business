@@ -16,7 +16,7 @@ use Bitrix\Sale\Delivery\Requests;
 Loc::loadMessages(__FILE__);
 
 /* Inputs for deliveries */
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/lib/delivery/inputs.php");
+require_once __DIR__.'/../inputs.php';
 
 /**
  * Class Base (abstract)

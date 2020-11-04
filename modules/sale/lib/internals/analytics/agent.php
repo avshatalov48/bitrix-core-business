@@ -109,12 +109,12 @@ abstract class Agent
 		$optionName = self::LAST_SEND_DATE.static::getProviderCode();
 
 		$date = Option::get('sale', $optionName, null);
-		if ($date)
+		if ($date && Date::isCorrect($date))
 		{
 			return new DateTime($date);
 		}
 
-		$date = (new \DateTime())->modify('first day of this month')->format(Date::getFormat().' 00:00:00');
+		$date = (new \DateTime())->modify('first day of this month midnight')->format(DateTime::getFormat());
 		$date = new DateTime($date);
 
 		Option::set('sale', $optionName, $date);
@@ -132,7 +132,7 @@ abstract class Agent
 		$optionName = self::LAST_ATTEMPT_DATE.static::getProviderCode();
 
 		$date = Option::get('sale', $optionName, null);
-		if ($date)
+		if ($date && Date::isCorrect($date))
 		{
 			return new DateTime($date);
 		}

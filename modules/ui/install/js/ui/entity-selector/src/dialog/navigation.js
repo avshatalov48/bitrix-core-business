@@ -172,8 +172,11 @@ export default class Navigation
 
 	focusOnNode(node: ItemNode): void
 	{
-		node.focus();
-		node.scrollIntoView();
+		if (node)
+		{
+			node.focus();
+			node.scrollIntoView();
+		}
 	}
 
 	lockTab(): void
@@ -232,6 +235,11 @@ export default class Navigation
 		if (!this.getDialog().isOpen())
 		{
 			this.unbindEvents();
+			return;
+		}
+
+		if (event.metaKey || event.ctrlKey || event.altKey)
+		{
 			return;
 		}
 

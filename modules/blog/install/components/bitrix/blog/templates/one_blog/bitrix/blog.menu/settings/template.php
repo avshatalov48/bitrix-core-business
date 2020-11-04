@@ -6,7 +6,7 @@ if (!$this->__component->__parent || empty($this->__component->__parent->__name)
 endif;
 ?>
 <?
-if (strlen($arResult["urlToNewPost"]) > 0 || strlen($arResult["urlToBecomeFriend"]) > 0 || strlen($arResult["urlToAddFriend"]) > 0)
+if ($arResult["urlToNewPost"] <> '' || $arResult["urlToBecomeFriend"] <> '' || $arResult["urlToAddFriend"] <> '')
 {
 ?>
 	<ul>
@@ -14,41 +14,41 @@ if (strlen($arResult["urlToNewPost"]) > 0 || strlen($arResult["urlToBecomeFriend
 	<h3 class="blog-sidebar-title"><?=GetMessage("BLOG_MENU_TITLE")?></h3>
 	<ul>
 		<?
-		if (strlen($arResult["urlToNewPost"])>0)
+		if ($arResult["urlToNewPost"] <> '')
 		{
 			?>
 			<li><a href="<?=$arResult["urlToNewPost"]?>"  title="<?=GetMessage("BLOG_MENU_ADD_MESSAGE_TITLE")?>"><?=GetMessage("BLOG_MENU_ADD_MESSAGE")?></a></li>
 			<?
 		}
 		
-		if(strlen($arResult["urlToDraft"])>0)
+		if($arResult["urlToDraft"] <> '')
 		{
 			?>
-			<li><a href="<?=$arResult["urlToDraft"]?>"  title="<?=GetMessage("BLOG_MENU_DRAFT_MESSAGES_TITLE")?>"><?=GetMessage("BLOG_MENU_DRAFT_MESSAGES")?><?if(IntVal($arResult["CntToDraft"]) > 0 ) echo " (".$arResult["CntToDraft"].")"?></a></li>
+			<li><a href="<?=$arResult["urlToDraft"]?>"  title="<?=GetMessage("BLOG_MENU_DRAFT_MESSAGES_TITLE")?>"><?=GetMessage("BLOG_MENU_DRAFT_MESSAGES")?><?if(intval($arResult["CntToDraft"]) > 0 ) echo " (".$arResult["CntToDraft"].")"?></a></li>
 
 			<?
 		}
-		if(strlen($arResult["urlToModeration"])>0 && IntVal($arResult["CntToModerate"]) > 0)
+		if($arResult["urlToModeration"] <> '' && intval($arResult["CntToModerate"]) > 0)
 		{
 			?>
-			<li><a href="<?=$arResult["urlToModeration"]?>"  title="<?=GetMessage("BLOG_MENU_MODERATION_MESSAGES_TITLE")?>"><?=GetMessage("BLOG_MENU_MODERATION_MESSAGES")?><?if(IntVal($arResult["CntToModerate"]) > 0 ) echo " (".$arResult["CntToModerate"].")"?></a></li>
+			<li><a href="<?=$arResult["urlToModeration"]?>"  title="<?=GetMessage("BLOG_MENU_MODERATION_MESSAGES_TITLE")?>"><?=GetMessage("BLOG_MENU_MODERATION_MESSAGES")?><?if(intval($arResult["CntToModerate"]) > 0 ) echo " (".$arResult["CntToModerate"].")"?></a></li>
 
 			<?
 		}
 
-		if(strlen($arResult["urlToBecomeFriend"])>0)
+		if($arResult["urlToBecomeFriend"] <> '')
 		{
 			?>
 			<li><a href="<?=$arResult["urlToBecomeFriend"]?>" title="<?=GetMessage("BLOG_MENU_FR_B_F")?>"><?=GetMessage("BLOG_MENU_FR_B_F")?></a></li>
 			<?
 		}
-		if(strlen($arResult["urlToAddFriend"])>0)
+		if($arResult["urlToAddFriend"] <> '')
 		{
 			?>
 			<li><a href="<?=$arResult["urlToAddFriend"]?>" title="<?=GetMessage("BLOG_MENU_FR_A_F")?>"><?=GetMessage("BLOG_MENU_FR_A_F")?></a></li>
 			<?
 		}
-		if(strlen($arResult["urlToBlogEdit"])>0)
+		if($arResult["urlToBlogEdit"] <> '')
 		{
 			?>
 			<li><a href="<?=$arResult["urlToBlogEdit"]?>" title="<?=GetMessage("BLOG_MENU_SETTINGS_TITLE")?>"><?=GetMessage("BLOG_MENU_SETTINGS")?></a></li>

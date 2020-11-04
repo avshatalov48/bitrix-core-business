@@ -19,7 +19,7 @@ IncludeModuleLangFile(__FILE__);
 class CSocServZoom extends CSocServAuth
 {
 	public const ID = 'zoom';
-	private const CONTROLLER_URL = 'https://www.bitrix24.ru/controller';
+	private const CONTROLLER_URL = 'https://www.bitrix24.com/controller';
 	private const LOGIN_PREFIX = 'zoom_';
 	public const EMPTY_TYPE = "EMPTY";
 
@@ -92,9 +92,9 @@ class CSocServZoom extends CSocServAuth
 		if (defined('BX24_HOST_NAME') && IsModuleInstalled('bitrix24'))
 		{
 			$redirect_uri = static::CONTROLLER_URL . '/redirect.php';
-			$state = $this->getEntityOAuth()->GetRedirectURI() . '?check_key=' . $_SESSION['UNIQUE_KEY'] . '&state=';
 			$backurl = $APPLICATION->GetCurPageParam('', ['logout', 'auth_service_error', 'auth_service_id', 'backurl']);
-			$state .= urlencode('state=' . urlencode('backurl=' . urlencode($backurl) . (isset($arParams['BACKURL']) ? '&redirect_url=' . urlencode($arParams['BACKURL']) : '')));
+			$state = $this->getEntityOAuth()->GetRedirectURI() .
+				urlencode('?state=' . JWT::urlsafeB64Encode('backurl=' . $backurl . '&check_key=' . $_SESSION['UNIQUE_KEY']));
 		}
 		else
 		{

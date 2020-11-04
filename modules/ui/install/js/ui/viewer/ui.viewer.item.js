@@ -1064,6 +1064,8 @@
 			}
 			else
 			{
+				maxHeight = window.innerHeight - 250;
+
 				var resultRelativeSize = maxWidth / maxHeight;
 				var videoRelativeSize = videoWidth / videoHeight;
 				var reduceRatio = 1;

@@ -21,7 +21,7 @@
 							<h3 class="landing-block-node-leftblock-title landing-semantic-subtitle-medium d-block g-color-black g-line-height-1_2 g-letter-spacing-minus-2 g-font-size-46">
 								$8 789 576.00
 							</h3>
-							<div class="landing-block-node-leftblock-text landing-semantic-text-medium g-color-black-opacity-0_5 g-mb-35">
+							<div class="landing-block-node-leftblock-text landing-semantic-text-medium g-color-black-opacity-0_5 g-mb-35" data-auto-font-scale>
 								<p>Runc ullamcorper, justo a iaculis
 									elementum,
 									enim orci viverra eros, fringilla porttitor lorem eros vel odio gravida sollicitudin
@@ -43,7 +43,7 @@
 							We make world better</h4>
 						<h2 class="landing-block-node-title landing-semantic-title-image-medium display-5 text-uppercase g-color-white g-font-weight-700 g-font-size-46 g-mb-30">
 							Let's do this together</h2>
-						<div class="landing-block-node-text landing-semantic-text-image-medium">
+						<div class="landing-block-node-text landing-semantic-text-image-medium" data-auto-font-scale>
 							<p class="mb-0">Aenean bibendum purus eu nisi pulvinar venenatis vitae non velit. Sed et
 								eleifend mi. Fusce dictum orci libero, congue scelerisque lectus pulvinar eu.
 								Suspendisse pulvinar facilisis ligula vel pharetra. Vestibulum volutpat porttitor ex a
@@ -68,7 +68,7 @@
 								</div>
 							</div>
 
-							<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-gray-dark-v5">
+							<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-gray-dark-v5" data-auto-font-scale>
 								<p class="mb-0">Quisque rhoncus euismod pulvinar. Nulla non arcu at lectus. Vestibulum
 									fringilla velit rhoncus euismod rhoncus turpis. Mauris molestie ullamcorper nisl
 									eget
@@ -92,7 +92,7 @@
 								</div>
 							</div>
 
-							<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-gray-dark-v5">
+							<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-gray-dark-v5" data-auto-font-scale>
 								<p class="mb-0">Integer accumsan maximus leo, et consectetur metus vestibulum in.
 									Vestibulum
 									viverra justo odio purus a libero luctus. Proin tempor dolor ac dolor feugiat,

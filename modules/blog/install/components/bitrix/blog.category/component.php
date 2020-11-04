@@ -68,14 +68,14 @@ if ($arBlog)
 						'NAME' => $_POST["NAME"],
 					);
 
-					if (IntVal($_POST['ID']) > 0)
+					if (intval($_POST['ID']) > 0)
 					{
-						$res = CBlogCategory::GetList(Array("NAME"=>"ASC"), Array("BLOG_ID" => $arBlog["ID"], "ID" => IntVal($_POST["ID"])));
+						$res = CBlogCategory::GetList(Array("NAME"=>"ASC"), Array("BLOG_ID" => $arBlog["ID"], "ID" => intval($_POST["ID"])));
 						if ($res->Fetch())
 						{
 							if ($_POST["category_del"]=="Y")
 							{
-								CBlogCategory::Delete(IntVal($_POST['ID']));
+								CBlogCategory::Delete(intval($_POST['ID']));
 							}
 							else
 							{
@@ -86,7 +86,7 @@ if ($arBlog)
 									|| ($arFields["NAME"] != $ar["NAME"]) // check different register
 								)
 								{
-									$newID = CBlogCategory::Update(IntVal($_POST["ID"]), $arFields);
+									$newID = CBlogCategory::Update(intval($_POST["ID"]), $arFields);
 								}
 								else
 								{
@@ -111,11 +111,11 @@ if ($arBlog)
 							$arResult["ERROR_MESSAGE"] = GetMessage("BLOG_CATEGORY_EXIST_1")." \"".htmlspecialcharsEx($arFields["NAME"])."\" ".GetMessage("BLOG_CATEGORY_EXIST_2");
 					}
 				
-					if(strlen($arResult["ERROR_MESSAGE"])<=0)
+					if($arResult["ERROR_MESSAGE"] == '')
 						LocalRedirect($_POST["BACK_URL"]);
 				}
 
-				if(strlen($_POST["BACK_URL"])>0)
+				if($_POST["BACK_URL"] <> '')
 					$arResult["BACK_URL"] = htmlspecialcharsbx($_POST["BACK_URL"]);
 				else
 					$arResult["BACK_URL"] = htmlspecialcharsbx($APPLICATION->GetCurPageParam());
@@ -133,7 +133,7 @@ if ($arBlog)
 				$resCnt =CBlogPostCategory::GetList(Array(), Array("BLOG_ID" => $arBlog["ID"], "CATEGORY_ID"=> $toCnt), Array("CATEGORY_ID"), false, array("ID", "BLOG_ID", "CATEGORY_ID", "NAME"));
 				while($arCategoryCount = $resCnt->Fetch())
 				{
-					if(IntVal($arSumCat[$arCategoryCount["CATEGORY_ID"]]["ID"])>0)
+					if(intval($arSumCat[$arCategoryCount["CATEGORY_ID"]]["ID"])>0)
 						$arSumCat[$arCategoryCount["CATEGORY_ID"]]["CNT"] = $arCategoryCount['CNT'];
 				}
 				

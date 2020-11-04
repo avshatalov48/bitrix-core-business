@@ -9,7 +9,7 @@ IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/blog/options.ph
 
 CModule::IncludeModule('blog');
 
-if ($REQUEST_METHOD=="GET" && strlen($RestoreDefaults)>0 && $BLOG_RIGHT=="W" && check_bitrix_sessid())
+if ($REQUEST_METHOD=="GET" && $RestoreDefaults <> '' && $BLOG_RIGHT=="W" && check_bitrix_sessid())
 {
 	COption::RemoveOption("blog");
 	$z = CGroup::GetList($v1="id",$v2="asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
@@ -45,7 +45,7 @@ $arAllOptions = array(
 );
 
 $strWarning = "";
-if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $BLOG_RIGHT=="W" && check_bitrix_sessid() && strlen($use_sonnet_button) <= 0)
+if ($REQUEST_METHOD=="POST" && $Update <> '' && $BLOG_RIGHT=="W" && check_bitrix_sessid() && $use_sonnet_button == '')
 {
 	foreach($arAllOptions as $option)
 	{
@@ -61,7 +61,7 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $BLOG_RIGHT=="W" && check_bi
 	$dbPaths = CBlogSitePath::GetList();
 	while ($arPath = $dbPaths->Fetch())
 	{
-		if(strlen($arPath["TYPE"])>0)
+		if($arPath["TYPE"] <> '')
 			$arPaths[$arPath["SITE_ID"]][$arPath["TYPE"]] = $arPath["ID"];
 		else
 			$arPathsNullType[$arPath["SITE_ID"]] = $arPath["ID"];
@@ -82,9 +82,9 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $BLOG_RIGHT=="W" && check_bi
 
 		foreach($arType as $type)
 		{
-			if (IntVal($arPaths[$arSite["LID"]][$type])>0)
+			if (intval($arPaths[$arSite["LID"]][$type])>0)
 			{
-				if (strlen(${"SITE_PATH_".$arSite["LID"]."_".$type}) > 0)
+				if (${"SITE_PATH_".$arSite["LID"]."_".$type} <> '')
 					CBlogSitePath::Update($arPaths[$arSite["LID"]][$type], array("PATH" => ${"SITE_PATH_".$arSite["LID"]."_".$type}, "TYPE"=>$type));
 				else
 					CBlogSitePath::Delete($arPaths[$arSite["LID"]][$type]);
@@ -102,11 +102,11 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $BLOG_RIGHT=="W" && check_bi
 		}
 		unset($arPaths[$arSite["LID"]]);
 		
-		if(strlen(${"SITE_PATH_".$arSite["LID"]})>0)
+		if(${"SITE_PATH_".$arSite["LID"]} <> '')
 			${"SITE_PATH_".$arSite["LID"]} = "/".trim(str_replace("\\", "/", ${"SITE_PATH_".$arSite["LID"]}), "/");
 		if (array_key_exists($arSite["LID"], $arPathsNullType))
 		{
-			if (strlen(${"SITE_PATH_".$arSite["LID"]}) > 0)
+			if (${"SITE_PATH_".$arSite["LID"]} <> '')
 				CBlogSitePath::Update($arPathsNullType[$arSite["LID"]], array("PATH" => ${"SITE_PATH_".$arSite["LID"]}));
 			else
 				CBlogSitePath::Delete($arPathsNullType[$arSite["LID"]]);
@@ -129,7 +129,7 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $BLOG_RIGHT=="W" && check_bi
 }
 
 
-if (strlen($strWarning) > 0)
+if ($strWarning <> '')
 	CAdminMessage::ShowMessage($strWarning);
 
 $aTabs = array(
@@ -254,7 +254,7 @@ $tabControl->BeginNextTab();
 	$dbPaths = CBlogSitePath::GetList();
 	while ($arPath = $dbPaths->Fetch())
 	{
-		if(strlen($arPath["TYPE"])<=0)
+		if($arPath["TYPE"] == '')
 			$arPaths[$arPath["SITE_ID"]] = $arPath["PATH"];
 	}
 

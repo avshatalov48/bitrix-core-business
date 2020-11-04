@@ -49,6 +49,11 @@ Manager::setPageTitle(
 Asset::getInstance()->addCSS('/bitrix/components/bitrix/landing.site_edit/templates/.default/landing-forms.css');
 Asset::getInstance()->addJS('/bitrix/components/bitrix/landing.site_edit/templates/.default/landing-forms.js');
 
+$bodyClass = $APPLICATION->GetPageProperty('BodyClass');
+$APPLICATION->SetPageProperty(
+	'BodyClass',
+	($bodyClass ? $bodyClass.' ' : '') . 'landing-slider-frame-popup'
+);
 // view-functions
 include 'template_class.php';
 $template = new Template($arResult);
@@ -235,7 +240,7 @@ else
 		</div>
 	</div>
 
-	<div class="<?if (false && $request->get('IFRAME') == 'Y'){?>landing-edit-footer-fixed <?}?>pinable-block">
+	<div class="<?if ($request->get('IFRAME') == 'Y'){?>landing-edit-footer-fixed <?}?>pinable-block">
 		<div class="landing-form-footer-container">
 			<button id="landing-save-btn" type="submit" class="ui-btn ui-btn-success"  name="submit"  value="<?= Loc::getMessage('LANDING_TPL_BUTTON_SAVE')?>" id="" title="<?= Loc::getMessage('LANDING_TPL_BUTTON_SAVE_AND_SHOW')?>" >
 				<?= Loc::getMessage('LANDING_TPL_BUTTON_' . ($arParams['SITE_ID'] ? 'SAVE' : 'ADD'));?>

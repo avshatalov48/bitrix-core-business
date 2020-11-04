@@ -171,3 +171,11 @@ $MESS["MAIL_CLIENT_CANCELATION_WARNING_3"] = "На вашем тарифе си�
 $MESS["MAIL_CLIENT_CONFIG_DIRS_SYNC_EMPTY_WARNING"] = "Выберите пожалуйста папки для синхронизации с почтовым сервисом.";
 
 $MESS["MAIL_CLIENT_BUTTON_LOADING"] = "Загрузка...";
+
+$MESS["MAIL_MESSAGE_ICAL_INVITATION"] = "Приглашение";
+$MESS["MAIL_MESSAGE_ICAL_ACCEPT"] = "Принять";
+$MESS["MAIL_MESSAGE_ICAL_REJECT"] = "Отказаться";
+$MESS["MAIL_MESSAGE_ICAL_MAYBE"] = "Возможно";
+$MESS["MAIL_MESSAGE_ICAL_NOTIFY_ACCEPT"] = "Приглашение принято";
+$MESS["MAIL_MESSAGE_ICAL_NOTIFY_REJECT"] = "Приглашение отклонено";
+$MESS["MAIL_MESSAGE_ICAL_NOTIFY_ERROR"] = "Ошибка при обработке запроса";

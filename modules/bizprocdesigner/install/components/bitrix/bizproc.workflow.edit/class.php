@@ -194,9 +194,9 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 
 			if($_REQUEST['saveuserparams']=='Y')
 			{
-				$d = serialize($_POST['USER_PARAMS']);
+				$d = is_array($_POST['USER_PARAMS']) ? serialize($_POST['USER_PARAMS']) : null;
 				$maxLength = 16777215;//pow(2, 24) - 1; //mysql mediumtext column length
-				if (\Bitrix\Main\Text\BinaryString::getLength($d) > $maxLength)
+				if (!$d || \Bitrix\Main\Text\BinaryString::getLength($d) > $maxLength)
 				{
 				?><!--SUCCESS--><script>
 					alert('<?=GetMessageJS("BIZPROC_USER_PARAMS_SAVE_ERROR")?>');
@@ -416,7 +416,13 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 			$userParamsStr = $defUserParamsStr;
 		}
 
-		$this->arResult["USER_PARAMS"] = unserialize($userParamsStr);
+		$userParams = unserialize($userParamsStr);
+		if (empty($userParams) || !is_array($userParams))
+		{
+			$userParams = ['SNIPPETS' => []];
+		}
+
+		$this->arResult["USER_PARAMS"] = $userParams;
 		$this->arResult["DOCUMENT_TYPE_SIGNED"] = \CBPDocument::signDocumentType([MODULE_ID, ENTITY, $documentType]);
 
 		if ($this->arParams['SET_TITLE'])

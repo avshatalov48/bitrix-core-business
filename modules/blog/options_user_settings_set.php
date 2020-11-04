@@ -17,17 +17,17 @@ if (CModule::IncludeModule("blog") && check_bitrix_sessid()):
 	if ($ar_res)
 	{
 		$arblogFields["AVATAR"]["old_file"] = $ar_res["AVATAR"];
-		$BLOG_USER_ID = IntVal($ar_res["ID"]);
+		$BLOG_USER_ID = intval($ar_res["ID"]);
 
 		$BLOG_USER_ID1 = CBlogUser::Update($BLOG_USER_ID, $arblogFields);
-		$blog_res = (IntVal($BLOG_USER_ID1)>0);
+		$blog_res = (intval($BLOG_USER_ID1)>0);
 	}
 	else
 	{
 		$arblogFields["USER_ID"] = $ID;
 		$arblogFields["~DATE_REG"] = CDatabase::CurrentTimeFunction();
 		$BLOG_USER_ID = CBlogUser::Add($arblogFields);
-		$blog_res = (IntVal($BLOG_USER_ID)>0);
+		$blog_res = (intval($BLOG_USER_ID)>0);
 	}
 endif;
 ?>

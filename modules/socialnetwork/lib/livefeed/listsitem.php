@@ -6,10 +6,10 @@ use Bitrix\Main\Config\Option;
 
 final class ListsItem extends Provider
 {
-	const PROVIDER_ID = 'LISTS_NEW_ELEMENT';
-	const CONTENT_TYPE_ID = 'LISTS_NEW_ELEMENT';
+	public const PROVIDER_ID = 'LISTS_NEW_ELEMENT';
+	public const CONTENT_TYPE_ID = 'LISTS_NEW_ELEMENT';
 
-	public static function getId()
+	public static function getId(): string
 	{
 		return static::PROVIDER_ID;
 	}
@@ -26,39 +26,98 @@ final class ListsItem extends Provider
 
 	public function getCommentProvider()
 	{
-		$provider = new \Bitrix\Socialnetwork\Livefeed\ForumPost();
-		return $provider;
+		return new \Bitrix\Socialnetwork\Livefeed\ForumPost();
 	}
 
 	public function initSourceFields()
 	{
-		$elementId = $this->entityId;
+		static $cache = [];
 
-		if ($elementId > 0)
+		$elementId = (int)$this->entityId;
+
+		if ($elementId <= 0)
 		{
-			$res = LogTable::getList(array(
-				'filter' => array(
+			return;
+		}
+
+		if (isset($cache[$elementId]))
+		{
+			$logEntryFields = $cache[$elementId];
+		}
+		else
+		{
+			$res = LogTable::getList([
+				'filter' => [
 					'SOURCE_ID' => $elementId,
 					'@EVENT_ID' => $this->getEventId(),
-				),
-				'select' => array('ID', 'TITLE', 'MESSAGE', 'TEXT_MESSAGE', 'PARAMS')
-			));
+				],
+				'select' => [ 'ID', 'TITLE', 'MESSAGE', 'TEXT_MESSAGE', 'PARAMS' ]
+			]);
 
-			if ($logEntryFields = $res->fetch())
-			{
-				$this->setLogId($logEntryFields['ID']);
-				$this->setSourceFields($logEntryFields);
-				$this->setSourceTitle($logEntryFields['TITLE']);
-
-
-				$description = $logEntryFields['TEXT_MESSAGE'];
-				$description = preg_replace('/<script(.*?)>(.*?)<\/script>/is', '', $description);
-				$this->setSourceDescription(\CTextParser::clearAllTags($description));
-			}
+			$logEntryFields = $res->fetch();
+			$cache[$elementId] = $logEntryFields;
 		}
+
+		if (empty($logEntryFields))
+		{
+			return;
+		}
+
+		$this->setLogId($logEntryFields['ID']);
+		$this->setSourceFields($logEntryFields);
+		$this->setSourceTitle($logEntryFields['TITLE']);
+
+		$description = $logEntryFields['TEXT_MESSAGE'];
+		$description = preg_replace('/<script(.*?)>(.*?)<\/script>/is', '', $description);
+		$description = \CTextParser::clearAllTags($description);
+		$this->setSourceDescription($description);
 	}
 
-	public function getLiveFeedUrl()
+	public function getPinnedTitle()
+	{
+		$result = '';
+
+		if (empty($this->sourceFields))
+		{
+			$this->initSourceFields();
+		}
+
+		$logEntryFields = $this->getSourceFields();
+		if (empty($logEntryFields))
+		{
+			return $result;
+		}
+
+		$result = $logEntryFields['TITLE'];
+
+		return $result;
+	}
+
+	public function getPinnedDescription()
+	{
+		$result = '';
+
+		if (empty($this->sourceFields))
+		{
+			$this->initSourceFields();
+		}
+
+		$logEntryFields = $this->getSourceFields();
+		if (empty($logEntryFields))
+		{
+			return $result;
+		}
+
+		$description = $logEntryFields['TEXT_MESSAGE'];
+		$description = preg_replace('/<script(.*?)>(.*?)<\/script>/is', '', $description);
+		$description = \CTextParser::clearAllTags($description);
+
+		$result = truncateText(htmlspecialcharsback($description), 100);
+
+		return $result;
+	}
+
+	public function getLiveFeedUrl(): string
 	{
 		$pathToLogEntry = Option::get('socialnetwork', 'log_entry_page', '');
 		if (!empty($pathToLogEntry))

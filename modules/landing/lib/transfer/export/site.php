@@ -89,8 +89,8 @@ class Site
 			$siteId ? ['SITE_ID' => $siteId] : []
 		);
 		$usedApp = array_merge(
-			array_keys($usedApp['blocks']),
-			array_keys($usedApp['pages'])
+			array_keys($usedApp[PublicAction::REST_USAGE_TYPE_BLOCK]),
+			array_keys($usedApp[PublicAction::REST_USAGE_TYPE_PAGE])
 		);
 		$usedApp = array_unique($usedApp);
 		if ($usedApp)

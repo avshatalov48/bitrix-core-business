@@ -1,9 +1,7 @@
 (function (exports,ui_vue_directives_lazyload,ui_vue,rest_client,ui_dexie) {
 	'use strict';
 
-	var SmileManager =
-	/*#__PURE__*/
-	function () {
+	var SmileManager = /*#__PURE__*/function () {
 	  function SmileManager(restClient) {
 	    babelHelpers.classCallCheck(this, SmileManager);
 

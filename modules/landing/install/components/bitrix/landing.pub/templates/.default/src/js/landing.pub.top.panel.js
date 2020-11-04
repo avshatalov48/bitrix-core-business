@@ -2,28 +2,34 @@ import {Event, Cache, Dom, Type} from 'main.core';
 import {SliderHacks} from 'landing.sliderhacks';
 
 const onEditButtonClick = Symbol('onEditButtonClick');
+const onBackButtonClick = Symbol('onBackButtonClick');
+const onForwardButtonClick = Symbol('onForwardButtonClick');
 
 export class TopPanel
 {
+	static cache = new Cache.MemoryCache();
+
 	constructor()
 	{
-		this.cache = new Cache.MemoryCache();
-		this[onEditButtonClick] = this[onEditButtonClick].bind(this);
+		Event.bind(TopPanel.getEditButton(), 'click', this[onEditButtonClick]);
+		Event.bind(TopPanel.getBackButton(), 'click', this[onBackButtonClick]);
+		Event.bind(TopPanel.getForwardButton(), 'click', this[onForwardButtonClick]);
 
-		Event.bind(this.getEditButton(), 'click', this[onEditButtonClick]);
+		TopPanel.pushHistory(window.location.toString());
+		TopPanel.checkNavButtonsActivity();
 	}
 
-	getLayout(): HTMLDivElement
+	static getLayout(): HTMLDivElement
 	{
-		return this.cache.remember('layout', () => {
+		return TopPanel.cache.remember('layout', () => {
 			return document.querySelector('.landing-pub-top-panel');
 		});
 	}
 
-	getEditButton(): HTMLAnchorElement
+	static getEditButton(): HTMLAnchorElement
 	{
-		return this.cache.remember('editButton', () => {
-			return this.getLayout().querySelector('.landing-pub-top-panel-edit-button');
+		return TopPanel.cache.remember('editButton', () => {
+			return TopPanel.getLayout().querySelector('.landing-pub-top-panel-edit-button');
 		});
 	}
 
@@ -35,11 +41,11 @@ export class TopPanel
 
 		if (Type.isString(href) && href !== '')
 		{
-			this.openSlider(href);
+			TopPanel.openSlider(href);
 		}
 	}
 
-	openSlider(url)
+	static openSlider(url)
 	{
 		BX.SidePanel.Instance.open(url, {
 			cacheable: false,
@@ -51,5 +57,97 @@ export class TopPanel
 				},
 			},
 		});
+	}
+
+	// HISTORY save
+	static history = [];
+	static historyState;
+
+	static pushHistory(url)
+	{
+		if (!Type.isNumber(TopPanel.historyState))
+		{
+			TopPanel.historyState = -1; // will increase later
+		}
+
+		if (TopPanel.historyState < TopPanel.history.length - 1)
+		{
+			TopPanel.history.splice(TopPanel.historyState + 1);
+		}
+
+		TopPanel.history.push(url);
+		TopPanel.historyState++;
+	}
+
+	static checkNavButtonsActivity()
+	{
+		Dom.removeClass(TopPanel.getForwardButton(), 'ui-btn-disabled');
+		Dom.removeClass(TopPanel.getBackButton(), 'ui-btn-disabled');
+
+		if (
+			!Type.isArrayFilled(TopPanel.history)
+			|| !Type.isNumber(TopPanel.historyState)
+			|| TopPanel.history.length === 1
+		)
+		{
+			Dom.addClass(TopPanel.getForwardButton(), 'ui-btn-disabled');
+			Dom.addClass(TopPanel.getBackButton(), 'ui-btn-disabled');
+			return;
+		}
+
+		if (TopPanel.historyState === 0)
+		{
+			Dom.addClass(TopPanel.getBackButton(), 'ui-btn-disabled');
+		}
+
+		if (TopPanel.historyState >= TopPanel.history.length - 1)
+		{
+			Dom.addClass(TopPanel.getForwardButton(), 'ui-btn-disabled');
+		}
+	}
+
+	static getBackButton(): HTMLAnchorElement
+	{
+		return TopPanel.cache.remember('backButton', () => {
+			const layout = TopPanel.getLayout();
+			return layout ? layout.querySelector('.landing-pub-top-panel-back') : null;
+		});
+	}
+
+	static getForwardButton(): HTMLAnchorElement
+	{
+		return TopPanel.cache.remember('forwardButton', () => {
+			const layout = TopPanel.getLayout();
+			return layout ? layout.querySelector('.landing-pub-top-panel-forward') : null;
+		});
+	}
+
+	[onBackButtonClick](event)
+	{
+		event.preventDefault();
+		if (
+			Type.isArrayFilled(TopPanel.history)
+			&& Type.isNumber(TopPanel.historyState)
+			&& TopPanel.historyState > 0
+		)
+		{
+			void SliderHacks.reloadSlider(TopPanel.history[--TopPanel.historyState]);
+			TopPanel.checkNavButtonsActivity();
+		}
+	}
+
+	[onForwardButtonClick](event)
+	{
+		event.preventDefault();
+
+		if (
+			Type.isArrayFilled(TopPanel.history)
+			&& Type.isNumber(TopPanel.historyState)
+			&& (TopPanel.historyState < TopPanel.history.length - 1)
+		)
+		{
+			void SliderHacks.reloadSlider(TopPanel.history[++TopPanel.historyState]);
+			TopPanel.checkNavButtonsActivity();
+		}
 	}
 }

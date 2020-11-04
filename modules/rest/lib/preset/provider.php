@@ -390,7 +390,15 @@ class Provider
 		if ($id > 0 || $result['status'])
 		{
 			EventController::disableEvents();
-			$title = Loc::getMessage('INTEGRATION_PRESET_PROVIDER_TITLE_PREFIX', ['#ID#' => $id]);
+			if (!empty($saveData['TITLE']))
+			{
+				$title = $saveData['TITLE'];
+			}
+			else
+			{
+				$title = Loc::getMessage('INTEGRATION_PRESET_PROVIDER_TITLE_PREFIX', ['#ID#' => $id]);
+			}
+
 			if (!$isAdd)
 			{
 				$resIntegration = IntegrationTable::getList(
@@ -1096,6 +1104,7 @@ class Provider
 					'select' => [
 						'PASSWORD',
 						'USER_ID',
+						'TITLE',
 						'ID'
 					],
 					'limit' => 1
@@ -1135,6 +1144,17 @@ class Provider
 						PermissionTable::delete($scopeIdList[$scope]);
 					}
 				}
+
+				if ($title !== '' && $passwordData['TITLE'] !== $title)
+				{
+					PasswordTable::update(
+						$passwordData['ID'],
+						[
+							'TITLE' => $title
+						]
+					);
+				}
+
 				$password = $passwordData;
 			}
 		}

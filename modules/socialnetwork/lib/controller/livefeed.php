@@ -122,10 +122,7 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 			}
 		}
 
-		if ($provider->getType() == \Bitrix\Socialnetwork\Livefeed\Provider::TYPE_COMMENT)
-		{
-			$result['SUFFIX'] = $provider->getSuffix();
-		}
+		$result['SUFFIX'] = $provider->getSuffix();
 
 		if (($logId = $provider->getLogId()))
 		{
@@ -363,11 +360,13 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 		$componentParameters = $this->getUnsignedParameters();
 		$requestParameters = [
 			'TARGET' => 'page',
-			'PAGE_NUMBER' => (isset($params['PAGE_NUMBER']) && intval($params['PAGE_NUMBER']) >= 1 ? intval($params['PAGE_NUMBER']) : 1),
-			'LAST_LOG_TIMESTAMP' => (isset($params['LAST_LOG_TIMESTAMP']) && intval($params['LAST_LOG_TIMESTAMP']) > 0 ? intval($params['LAST_LOG_TIMESTAMP']) : 0),
+			'PAGE_NUMBER' => (isset($params['PAGE_NUMBER']) && (int)$params['PAGE_NUMBER'] >= 1 ? (int)$params['PAGE_NUMBER'] : 1),
+			'LAST_LOG_TIMESTAMP' => (isset($params['LAST_LOG_TIMESTAMP']) && (int)$params['LAST_LOG_TIMESTAMP'] > 0 ? (int)$params['LAST_LOG_TIMESTAMP'] : 0),
 			'PREV_PAGE_LOG_ID' => (isset($params['PREV_PAGE_LOG_ID']) ? $params['PREV_PAGE_LOG_ID'] : ''),
 			'useBXMainFilter' =>  (isset($params['useBXMainFilter']) ? $params['useBXMainFilter'] : 'N'),
-			'siteTemplateId' =>  (isset($params['siteTemplateId']) ? $params['siteTemplateId'] : 'bitrix24')
+			'siteTemplateId' =>  (isset($params['siteTemplateId']) ? $params['siteTemplateId'] : 'bitrix24'),
+			'preset_filter_top_id' =>  (isset($params['preset_filter_top_id']) ? $params['preset_filter_top_id'] : ''),
+			'preset_filter_id' =>  (isset($params['preset_filter_id']) ? $params['preset_filter_id'] : '')
 		];
 
 		$componentResponse = new \Bitrix\Main\Engine\Response\Component('bitrix:socialnetwork.log.ex', '', array_merge($componentParameters, $requestParameters), [], $this->getComponentReturnWhiteList());

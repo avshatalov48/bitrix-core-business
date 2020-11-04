@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports, main_core) {
+(function (exports,main_core) {
 	'use strict';
 
 	function _templateObject4() {
@@ -47,9 +47,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	 * @memberOf BX.Landing.UI.Field
 	 */
 
-	var BaseField =
-	/*#__PURE__*/
-	function (_Event$EventEmitter) {
+	var BaseField = /*#__PURE__*/function (_Event$EventEmitter) {
 	  babelHelpers.inherits(BaseField, _Event$EventEmitter);
 	  babelHelpers.createClass(BaseField, null, [{
 	    key: "createLayout",
@@ -218,5 +216,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.BaseField = BaseField;
 
-}(this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}, BX));
+}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX));
 //# sourceMappingURL=basefield.bundle.js.map

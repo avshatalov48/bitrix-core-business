@@ -11,9 +11,9 @@ class CBlogImage extends CAllBlogImage
 		$arFields1 = array();
 		foreach ($arFields as $key => $value)
 		{
-			if (substr($key, 0, 1) == "=")
+			if (mb_substr($key, 0, 1) == "=")
 			{
-				$arFields1[substr($key, 1)] = $value;
+				$arFields1[mb_substr($key, 1)] = $value;
 				unset($arFields[$key]);
 			}
 		}
@@ -28,13 +28,13 @@ class CBlogImage extends CAllBlogImage
 				&& is_array($arFields["FILE_ID"])
 				&& (
 					!array_key_exists("MODULE_ID", $arFields["FILE_ID"])
-					|| strlen($arFields["FILE_ID"]["MODULE_ID"]) <= 0
+					|| $arFields["FILE_ID"]["MODULE_ID"] == ''
 				)
 			)
 				$arFields["FILE_ID"]["MODULE_ID"] = "blog";
 
 			$prefix = "blog";
-			if(strlen($arFields["URL"]) > 0)
+			if($arFields["URL"] <> '')
 				$prefix .= "/".$arFields["URL"];
 
 			CFile::SaveForDB($arFields, "FILE_ID", $prefix);
@@ -49,22 +49,22 @@ class CBlogImage extends CAllBlogImage
 
 			foreach ($arFields1 as $key => $value)
 			{
-				if (strlen($arInsert[0]) > 0)
+				if ($arInsert[0] <> '')
 					$arInsert[0] .= ", ";
 				$arInsert[0] .= $key;
-				if (strlen($arInsert[1]) > 0)
+				if ($arInsert[1] <> '')
 					$arInsert[1] .= ", ";
 				$arInsert[1] .= $value;
 			}
 
-			if (strlen($arInsert[0]) > 0)
+			if ($arInsert[0] <> '')
 			{
 				$strSql =
 					"INSERT INTO b_blog_image(".$arInsert[0].") ".
 					"VALUES(".$arInsert[1].")";
 				$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
 
-				$ID = IntVal($DB->LastID());
+				$ID = intval($DB->LastID());
 
 				return $ID;
 			}
@@ -82,13 +82,13 @@ class CBlogImage extends CAllBlogImage
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$arFields1 = array();
 		foreach ($arFields as $key => $value)
 		{
-			if (substr($key, 0, 1) == "=")
+			if (mb_substr($key, 0, 1) == "=")
 			{
-				$arFields1[substr($key, 1)] = $value;
+				$arFields1[mb_substr($key, 1)] = $value;
 				unset($arFields[$key]);
 			}
 		}
@@ -98,11 +98,11 @@ class CBlogImage extends CAllBlogImage
 
 		foreach ($arFields1 as $key => $value)
 		{
-			if (strlen($strUpdate) > 0)
+			if ($strUpdate <> '')
 				$strUpdate .= ", ";
 			$strUpdate .= $key."=".$value." ";
 		}
-		if (strlen($strUpdate) > 0)
+		if ($strUpdate <> '')
 		{
 			$strSql =
 				"UPDATE b_blog_image SET ".
@@ -151,9 +151,9 @@ class CBlogImage extends CAllBlogImage
 				"SELECT ".$arSqls["SELECT"]." ".
 				"FROM b_blog_image G ".
 				"	".$arSqls["FROM"]." ";
-			if (strlen($arSqls["WHERE"]) > 0)
+			if ($arSqls["WHERE"] <> '')
 				$strSql .= "WHERE ".$arSqls["WHERE"]." ";
-			if (strlen($arSqls["GROUPBY"]) > 0)
+			if ($arSqls["GROUPBY"] <> '')
 				$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
 			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
@@ -169,29 +169,29 @@ class CBlogImage extends CAllBlogImage
 			"SELECT ".$arSqls["SELECT"]." ".
 			"FROM b_blog_image G ".
 			"	".$arSqls["FROM"]." ";
-		if (strlen($arSqls["WHERE"]) > 0)
+		if ($arSqls["WHERE"] <> '')
 			$strSql .= "WHERE ".$arSqls["WHERE"]." ";
-		if (strlen($arSqls["GROUPBY"]) > 0)
+		if ($arSqls["GROUPBY"] <> '')
 			$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
-		if (strlen($arSqls["ORDERBY"]) > 0)
+		if ($arSqls["ORDERBY"] <> '')
 			$strSql .= "ORDER BY ".$arSqls["ORDERBY"]." ";
 
-		if (is_array($arNavStartParams) && IntVal($arNavStartParams["nTopCount"])<=0)
+		if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"])<=0)
 		{
 			$strSql_tmp =
 				"SELECT COUNT('x') as CNT ".
 				"FROM b_blog_image G ".
 				"	".$arSqls["FROM"]." ";
-			if (strlen($arSqls["WHERE"]) > 0)
+			if ($arSqls["WHERE"] <> '')
 				$strSql_tmp .= "WHERE ".$arSqls["WHERE"]." ";
-			if (strlen($arSqls["GROUPBY"]) > 0)
+			if ($arSqls["GROUPBY"] <> '')
 				$strSql_tmp .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
 			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
 			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			$cnt = 0;
-			if (strlen($arSqls["GROUPBY"]) <= 0)
+			if ($arSqls["GROUPBY"] == '')
 			{
 				if ($arRes = $dbRes->Fetch())
 					$cnt = $arRes["CNT"];
@@ -206,8 +206,8 @@ class CBlogImage extends CAllBlogImage
 		}
 		else
 		{
-			if (is_array($arNavStartParams) && IntVal($arNavStartParams["nTopCount"]) > 0)
-				$strSql .= "LIMIT ".IntVal($arNavStartParams["nTopCount"]);
+			if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"]) > 0)
+				$strSql .= "LIMIT ".intval($arNavStartParams["nTopCount"]);
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 

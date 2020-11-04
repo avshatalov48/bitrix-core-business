@@ -18,7 +18,7 @@
 				<div class="landing-block-node-text-container col-md-4 col-lg-4 ml-lg-auto">
 					<h3 class="landing-block-node-text-title text-uppercase g-font-weight-700 g-font-size-26 g-color-white g-mb-5">
 						Nam enim eros rhoncus</h3>
-					<p class="landing-block-node-text g-font-size-13 g-color-white g-mb-60 g-mb-0--md">8 Rue de
+					<p class="landing-block-node-text g-font-size-13 g-color-white g-mb-60 g-mb-0--md" data-auto-font-scale>8 Rue de
 						Montpensier 75001, Paris, France, 18:00</p>
 				</div>
 

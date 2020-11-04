@@ -18,11 +18,6 @@ class Conference
 
 	public static function isAvailable(): bool
 	{
-		if (\Bitrix\Main\Config\Option::get('socialservices', 'zoom_cloud_enabled', 'N') === 'N')
-		{
-			return false;
-		}
-
 		if (!Loader::includeModule('bitrix24'))
 		{
 			return false;
@@ -176,20 +171,33 @@ class Conference
 			'JOINED' => true,
 		];
 
-		$meeting = ZoomMeetingTable::getRowByExternalId($conferenceId);
-		if ($meeting !== null)
+		$getListResult = ZoomMeetingTable::getList([
+			'filter' => [
+				'=CONFERENCE_EXTERNAL_ID' => $conferenceId,
+				'!=JOINED' => 'Y',
+			],
+			'select' => ['ENTITY_ID','ENTITY_TYPE_ID','ID']
+		]);
+
+		if ($meeting = $getListResult->fetch())
 		{
 			$updateResult = ZoomMeetingTable::update($meeting['ID'], $params);
 			if (!$updateResult->isSuccess())
 			{
 				$result->addError(new Error('Error while update join status.'));
 			}
+			if ($updateResult->isSuccess() && $updateResult->getAffectedRowsCount() === 0)
+			{
+				$result->addError(new Error('Error: status has already been updated.'));
+			}
+
 			$result->setData($meeting);
 		}
 		else
 		{
 			$result->addError(new Error('No conference to update'));
 		}
+
 
 		return $result;
 	}

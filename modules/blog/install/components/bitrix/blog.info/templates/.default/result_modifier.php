@@ -1,8 +1,8 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 $period = 0; $time = 0;
 // ********************************************************************************
-$arParams["FONT_MIN"] = intVal($arParams["FONT_MIN"]) > 0 ? $arParams["FONT_MIN"] : 10;
-$arParams["FONT_MAX"] = intVal($arParams["FONT_MAX"]) > 0 ? $arParams["FONT_MAX"] : 20;
+$arParams["FONT_MIN"] = intval($arParams["FONT_MIN"]) > 0 ? $arParams["FONT_MIN"] : 10;
+$arParams["FONT_MAX"] = intval($arParams["FONT_MAX"]) > 0 ? $arParams["FONT_MAX"] : 20;
 $arParams["FONT_RANGE"] = $arParams["FONT_MAX"] - $arParams["FONT_MIN"];
 
 $arParams["ANGULARITY"] = 0;
@@ -27,7 +27,7 @@ if (is_array($arResult["CATEGORY"]))
 			pow(($cnt-$arResult["CNT_MIN"])/max(1, $arResult["CNT_MAX"]-$arResult["CNT_MIN"]), 0.8) *
 			($arParams["FONT_RANGE"] * (1 - $arParams["ANGULARITY"]));
 
-		$font_size = min($arParams["FONT_MAX"], intVal($font_size + $arParams["FONT_MIN"]));
+		$font_size = min($arParams["FONT_MAX"], intval($font_size + $arParams["FONT_MIN"]));
 		$arResult["CATEGORY"][$key]["FONT_SIZE"] = $font_size;
 	}
 }

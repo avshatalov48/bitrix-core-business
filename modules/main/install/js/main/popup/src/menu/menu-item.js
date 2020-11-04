@@ -8,6 +8,25 @@ const aliases = {
 	onSubMenuClose: { namespace: 'BX.Main.Menu.Item', eventName: 'SubMenu:onClose' }
 };
 
+const reEscape = /[<>'"]/g;
+const escapeEntities = {
+	'&': '&amp;',
+	'<': '&lt;',
+	'>': '&gt;',
+	"'": '&#39;',
+	'"': '&quot;',
+};
+
+function encodeSafe(value: string): string
+{
+	if (Type.isString(value))
+	{
+		return value.replace(reEscape, item => escapeEntities[item]);
+	}
+
+	return value;
+}
+
 EventEmitter.registerAliases(aliases);
 
 export default class MenuItem extends EventEmitter
@@ -21,7 +40,22 @@ export default class MenuItem extends EventEmitter
 		this.options = options;
 
 		this.id = options.id || Text.getRandom();
-		this.text = Type.isStringFilled(options.text) ? options.text : '';
+
+		this.text = '';
+		this.allowHtml = true;
+		if (Type.isStringFilled(options.html))
+		{
+			this.text = options.html;
+		}
+		else if (Type.isStringFilled(options.text))
+		{
+			this.text = options.text;
+			if (this.text.match(/<[^>]+>/))
+			{
+				console.warn('BX.Main.MenuItem: use "html" option for the html item content.', this.getText());
+			}
+		}
+
 		this.title = Type.isStringFilled(options.title) ? options.title : '';
 		this.delimiter = options.delimiter === true;
 		this.href = Type.isStringFilled(options.href) ? options.href : null;
@@ -91,7 +125,7 @@ export default class MenuItem extends EventEmitter
 
 		if (this.delimiter)
 		{
-			if (Type.isStringFilled(this.text))
+			if (Type.isStringFilled(this.getText()))
 			{
 				this.layout.item = Dom.create('span', {
 					props: {
@@ -102,7 +136,7 @@ export default class MenuItem extends EventEmitter
 							props: {
 								className: 'popup-window-delimiter-text'
 							},
-							html: this.text
+							html: this.allowHtml ? this.getText() : encodeSafe(this.getText())
 						}))
 					]
 				});
@@ -144,7 +178,7 @@ export default class MenuItem extends EventEmitter
 						props: {
 							className: 'menu-popup-item-text'
 						},
-						html: this.text
+						html: this.allowHtml ? this.getText() : encodeSafe(this.getText())
 					}))
 				]
 			});

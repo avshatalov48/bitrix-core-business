@@ -32,8 +32,23 @@
 	padding: 0;
 }
 
-.landing-pub-top-panel-actions {
-	padding-right: 19px;
+.landing-pub-top-panel-separator
+{
+	width: 1px;
+	height: 20px;
+	background: #D8D8D8;
+	border: none;
+	margin: 0 16px;
+}
+.landing-pub-top-panel-back,
+.landing-pub-top-panel-forward
+{
+	--ui-btn-min-width: 0;
+	margin-left: 0 !important;
+}
+.landing-pub-top-panel-forward
+{
+	transform: rotate(180deg);
 }
 
 .landing-pub-top-panel-chain-link {

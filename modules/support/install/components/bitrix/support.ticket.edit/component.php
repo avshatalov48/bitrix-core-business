@@ -20,20 +20,20 @@ $arrUF = $USER_FIELD_MANAGER->GetUserFields( "SUPPORT", 0, LANGUAGE_ID );
 $strError = "";
 
 $arParams["TICKET_EDIT_TEMPLATE"] = trim($arParams["TICKET_EDIT_TEMPLATE"]);
-$arParams["TICKET_EDIT_TEMPLATE"] = (strlen($arParams["TICKET_EDIT_TEMPLATE"]) > 0 ? htmlspecialcharsbx($arParams["TICKET_EDIT_TEMPLATE"]) : "ticket_edit.php?ID=#ID#");
+$arParams["TICKET_EDIT_TEMPLATE"] = ($arParams["TICKET_EDIT_TEMPLATE"] <> '' ? htmlspecialcharsbx($arParams["TICKET_EDIT_TEMPLATE"]) : "ticket_edit.php?ID=#ID#");
 
 $arParams['SHOW_COUPON_FIELD'] = (array_key_exists('SHOW_COUPON_FIELD', $arParams) && $arParams['SHOW_COUPON_FIELD'] == 'Y') ? 'Y' : 'N';
 
-if ((strlen($_REQUEST["save"])>0 || strlen($_REQUEST["apply"])>0) && $_SERVER["REQUEST_METHOD"]=="POST" && check_bitrix_sessid())
+if (($_REQUEST["save"] <> '' || $_REQUEST["apply"] <> '') && $_SERVER["REQUEST_METHOD"]=="POST" && check_bitrix_sessid())
 {
 	$ID = intval($_REQUEST["ID"]);
 
 	if ($ID <=0)
 	{
-		if (strlen(trim($_REQUEST["TITLE"]))<=0) 
+		if (trim($_REQUEST["TITLE"]) == '')
 			$strError .= GetMessage("SUP_FORGOT_TITLE")."<br>";
 
-		if (strlen(trim($_REQUEST["MESSAGE"]))<=0) 
+		if (trim($_REQUEST["MESSAGE"]) == '')
 			$strError .= GetMessage("SUP_FORGOT_MESSAGE")."<br>";
 	}
 
@@ -42,7 +42,7 @@ if ((strlen($_REQUEST["save"])>0 || strlen($_REQUEST["apply"])>0) && $_SERVER["R
 	{
 		foreach ($_FILES as $key => $arFILE)
 		{
-			if (strlen($arFILE["name"])>0)
+			if ($arFILE["name"] <> '')
 			{
 				$arFILE["MODULE_ID"] = "support";
 				$arFILES[] = $arFILE;
@@ -63,7 +63,7 @@ if ((strlen($_REQUEST["save"])>0 || strlen($_REQUEST["apply"])>0) && $_SERVER["R
 	}
 
 	$arParams["TICKET_LIST_URL"] = trim($arParams["TICKET_LIST_URL"]);
-	$arParams["TICKET_LIST_URL"] = (strlen($arParams["TICKET_LIST_URL"]) > 0 ? htmlspecialcharsbx($arParams["TICKET_LIST_URL"]) : "ticket_list.php");
+	$arParams["TICKET_LIST_URL"] = ($arParams["TICKET_LIST_URL"] <> '' ? htmlspecialcharsbx($arParams["TICKET_LIST_URL"]) : "ticket_list.php");
 
 	if ($strError == "")
 	{
@@ -117,11 +117,11 @@ if ((strlen($_REQUEST["save"])>0 || strlen($_REQUEST["apply"])>0) && $_SERVER["R
 			$ID = CTicket::SetTicket($arFields, $ID, "Y", $NOTIFY = "Y");
 			if (intval($ID)>0)
 			{
-				if (strlen($_REQUEST["save"])>0)
+				if ($_REQUEST["save"] <> '')
 				{
 					LocalRedirect($arParams["TICKET_LIST_URL"]);
 				}
-				elseif (strlen($_REQUEST["apply"])>0)
+				elseif ($_REQUEST["apply"] <> '')
 				{
 					LocalRedirect(
 						CComponentEngine::MakePathFromTemplate(
@@ -166,7 +166,7 @@ $arResult = Array(
 		"CATEGORY_DEFAULT" => "",
 	),
 	"ERROR_MESSAGE" => $strError,
-	"REAL_FILE_PATH" => (strlen($_SERVER["REAL_FILE_PATH"]) > 0 ? htmlspecialcharsbx($_SERVER["REAL_FILE_PATH"]) : htmlspecialcharsbx($APPLICATION->GetCurPage())),
+	"REAL_FILE_PATH" => ($_SERVER["REAL_FILE_PATH"] <> '' ? htmlspecialcharsbx($_SERVER["REAL_FILE_PATH"]) : htmlspecialcharsbx($APPLICATION->GetCurPage())),
 	"NAV_STRING" => "",
 	"NAV_RESULT" => null,
 	"OPTIONS" => Array(
@@ -184,7 +184,7 @@ if( isset( $arParams["SET_SHOW_USER_FIELD"] ) )
 {
 	foreach( $arParams["SET_SHOW_USER_FIELD"] as $k => $v )
 	{
-		if( strlen( trim( $v ) ) > 0 )
+		if( trim( $v ) <> '' )
 		{
 			$UFAT[$v] = array(
 							"NAME_C" => $arrUF[$v]["LIST_COLUMN_LABEL"],
@@ -240,11 +240,11 @@ if ($arTicket = $rsTicket->GetNext())
 	{
 		while ($arFile = $rsFiles->Fetch())
 		{
-			$name = strlen($arFile["ORIGINAL_NAME"])>0 ? $arFile["ORIGINAL_NAME"] : $arFile["FILE_NAME"];
-			if (strlen($arFile["EXTENSION_SUFFIX"]) > 0)
+			$name = $arFile["ORIGINAL_NAME"] <> '' ? $arFile["ORIGINAL_NAME"] : $arFile["FILE_NAME"];
+			if ($arFile["EXTENSION_SUFFIX"] <> '')
 			{
-				$suffix_length = strlen($arFile["EXTENSION_SUFFIX"]);
-				$name = substr($name, 0, strlen($name)-$suffix_length);
+				$suffix_length = mb_strlen($arFile["EXTENSION_SUFFIX"]);
+				$name = mb_substr($name, 0, mb_strlen($name) - $suffix_length);
 			}
 			$arMessagesFiles[$arFile["MESSAGE_ID"]][] = array("ID" => $arFile["ID"], "HASH" => $arFile["HASH"], "NAME" => htmlspecialcharsbx($name), "FILE_SIZE" => $arFile["FILE_SIZE"]);
 		}

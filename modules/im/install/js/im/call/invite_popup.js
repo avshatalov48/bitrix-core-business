@@ -133,7 +133,14 @@
 				BX.CallEngine.getRestClient().callMethod("im.recent.get", {"SKIP_OPENLINES": "Y", "SKIP_CHAT": "Y"}).then(function(response)
 				{
 					var answer = response.answer;
-					self.recentUsers = Object.values(answer.result).map(function(r){return r.user});
+					self.recentUsers = Object.values(answer.result).map(function(r){return r.user}).filter(function(user) {
+						if (user.bot || user.network)
+						{
+							return false;
+						}
+
+						return true;
+					});
 					resolve();
 				});
 			});
@@ -144,9 +151,17 @@
 			var self = this;
 			return new Promise(function(resolve, reject)
 			{
-				self.searchResult = [];
+				self.searchResult = self.recentUsers.filter(function(element) {
+					return element.name.toString().toLowerCase().includes(self.searchPhrase.toLowerCase());
+				});
+				self.searchTotalCount = self.searchResult.length;
 				self.searchNext = 0;
-				self.searchTotalCount = 0;
+
+				if (self.searchPhrase.length < 3)
+				{
+					resolve();
+					return;
+				}
 
 				BX.CallEngine.getRestClient().callMethod("im.search.user.list", {"FIND": self.searchPhrase}).then(function(response)
 				{
@@ -155,7 +170,21 @@
 					self.searchTotalCount = answer.total;
 					self.searchNext = answer.next;
 
-					self.searchResult = self.searchResult.concat(Object.values(answer.result));
+					var existsUserId = self.searchResult.map(function (element) {
+						return parseInt(element.id);
+					});
+
+					var result = Object.values(answer.result).filter(function(element) {
+						if (element.bot || element.network)
+						{
+							return false;
+						}
+						return !existsUserId.includes(parseInt(element.id));
+					});
+
+					self.searchResult = self.searchResult.concat(result);
+					self.searchTotalCount = self.searchResult.length;
+
 					resolve();
 				});
 			});
@@ -173,9 +202,22 @@
 					self.searchTotalCount = answer.total;
 					self.searchNext = answer.next;
 
-					var newUsers = Object.values(answer.result);
-					self.searchResult = self.searchResult.concat(newUsers);
-					resolve(newUsers);
+					var existsUserId = self.searchResult.map(function (element) {
+						return parseInt(element.id);
+					});
+
+					var result = Object.values(answer.result).filter(function(element) {
+						if (element.bot || element.network)
+						{
+							return false;
+						}
+						return !existsUserId.includes(parseInt(element.id));
+					});
+
+					self.searchResult = self.searchResult.concat(result);
+					self.searchTotalCount = self.searchResult.length;
+					
+					resolve(result);
 				});
 			})
 		},

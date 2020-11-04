@@ -37,6 +37,9 @@ class Dialog implements \JsonSerializable
 	/** @var array */
 	protected $footerOptions;
 
+	/** @var boolean */
+	protected $clearUnavailableItems = false;
+
 	public function __construct(array $options)
 	{
 		if (isset($options['entities']) && is_array($options['entities']))
@@ -59,6 +62,11 @@ class Dialog implements \JsonSerializable
 		if (isset($options['context']) && is_string($options['context']) && strlen($options['context']) > 0)
 		{
 			$this->context = $options['context'];
+		}
+
+		if (isset($options['clearUnavailableItems']) && is_bool($options['clearUnavailableItems']))
+		{
+			$this->clearUnavailableItems = $options['clearUnavailableItems'];
 		}
 
 		$this->itemCollection = new ItemCollection();
@@ -372,6 +380,11 @@ class Dialog implements \JsonSerializable
 		}
 	}
 
+	public function shouldClearUnavailableItems(): bool
+	{
+		return $this->clearUnavailableItems;
+	}
+
 	public static function createHiddenItem($id, $entityId): Item
 	{
 		return new Item([
@@ -631,7 +644,7 @@ class Dialog implements \JsonSerializable
 				}
 			}
 
-			if ($this->getContext() !== null && !empty($unavailableIds))
+			if ($this->getContext() !== null && $this->shouldClearUnavailableItems() && !empty($unavailableIds))
 			{
 				EntityUsageTable::deleteByFilter([
 					'=USER_ID' => $this->getCurrentUserId(),

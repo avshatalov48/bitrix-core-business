@@ -78,12 +78,12 @@ class CSupportUser2UserGroup
 			{
 				if (array_key_exists($k, $arFields))
 				{
-					$v = strtoupper($v);
+					$v = mb_strtoupper($v);
 					if($v != 'DESC')
 					{
 						$v  ='ASC';
 					}
-					if (strlen($strOrder) > 0)
+					if ($strOrder <> '')
 					{
 						$strOrder .= ', ';
 					}
@@ -109,11 +109,11 @@ class CSupportUser2UserGroup
 			'INNER JOIN b_ticket_ugroups G ON (UG.GROUP_ID=G.ID) ' .
 			'INNER JOIN b_user U ON (UG.USER_ID=U.ID) ';
 
-		if (strlen($where) > 0)
+		if ($where <> '')
 		{
 			$strQuery .= ' WHERE ' . $where;
 		}
-		if (strlen($strOrder) > 0)
+		if ($strOrder <> '')
 		{
 			$strQuery .= ' ORDER BY ' . $strOrder;
 		}
@@ -144,7 +144,7 @@ class CSupportUser2UserGroup
 			$userID = intval($userID);
 
 			$strUpdate = $DB->PrepareUpdate('b_ticket_user_ugroup', $arFields);
-			if (strlen($strUpdate) > 0)
+			if ($strUpdate <> '')
 			{
 				$strSql = "UPDATE b_ticket_user_ugroup SET $strUpdate WHERE USER_ID=$userID AND GROUP_ID=$groupID";
 				return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);

@@ -16,7 +16,7 @@ foreach($arResult as $arBlog)
 	?>
 	
 	<div class="blog-mainpage-item">
-	<?if(IntVal($arBlog["SOCNET_GROUP_ID"]) <= 0):?>
+	<?if(intval($arBlog["SOCNET_GROUP_ID"]) <= 0):?>
 	<div class="blog-author">
 		<?if($arParams["SEO_USER"] == "Y"):?>
 			<noindex>
@@ -26,7 +26,7 @@ foreach($arResult as $arBlog)
 			<a class="blog-author-icon" href="<?=$arBlog["urlToAuthor"]?>"></a>
 		<?endif;?>
 		<?
-		if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && (strlen($arBlog["urlToBlog"]) > 0 || strlen($arBlog["urlToAuthor"]) > 0) && array_key_exists("BLOG_USER_ALIAS", $arBlog) && strlen($arBlog["BLOG_USER_ALIAS"]) > 0)
+		if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && ($arBlog["urlToBlog"] <> '' || $arBlog["urlToAuthor"] <> '') && array_key_exists("BLOG_USER_ALIAS", $arBlog) && $arBlog["BLOG_USER_ALIAS"] <> '')
 			$arTmpUser = array(
 				"NAME" => "",
 				"LAST_NAME" => "",
@@ -34,7 +34,7 @@ foreach($arResult as $arBlog)
 				"LOGIN" => "",
 				"NAME_LIST_FORMATTED" => $arBlog["~BLOG_USER_ALIAS"],
 				);
-		elseif (strlen($arBlog["urlToBlog"]) > 0 || strlen($arBlog["urlToAuthor"]) > 0)
+		elseif ($arBlog["urlToBlog"] <> '' || $arBlog["urlToAuthor"] <> '')
 			$arTmpUser = array(
 				"NAME" => $arBlog["~OWNER_NAME"],
 				"LAST_NAME" => $arBlog["~OWNER_LAST_NAME"],
@@ -78,7 +78,7 @@ foreach($arResult as $arBlog)
 	<div class="blog-clear-float"></div>
 	<?endif;?>
 	<div class="blog-mainpage-title"><a href="<?=$arBlog["urlToBlog"]?>"><?echo $arBlog["NAME"]; ?></a></div>
-	<?if($arParams["SHOW_DESCRIPTION"] == "Y" && strlen($arBlog["DESCRIPTION"]) > 0)
+	<?if($arParams["SHOW_DESCRIPTION"] == "Y" && $arBlog["DESCRIPTION"] <> '')
 	{
 		?>
 		<div class="blog-mainpage-content">

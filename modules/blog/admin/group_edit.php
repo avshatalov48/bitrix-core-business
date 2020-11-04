@@ -11,9 +11,9 @@ IncludeModuleLangFile(__FILE__);
 $errorMessage = "";
 $bVarsFromForm = false;
 
-$ID = IntVal($ID);
+$ID = intval($ID);
 
-if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $blogModulePermissions>="W" && check_bitrix_sessid())
+if ($REQUEST_METHOD=="POST" && $Update <> '' && $blogModulePermissions>="W" && check_bitrix_sessid())
 {
 	$arFields = array(
 		"NAME" => $NAME,
@@ -35,7 +35,7 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $blogModulePermissions>="W" 
 	else
 	{
 		$ID = CBlogGroup::Add($arFields);
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if ($ID <= 0)
 		{
 			if ($ex = $APPLICATION->GetException())
@@ -45,7 +45,7 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $blogModulePermissions>="W" 
 		}
 	}
 
-	if (strlen($errorMessage) <= 0)
+	if ($errorMessage == '')
 	{
 		$arBlogGroupTmp = CBlogGroup::GetByID($ID);
 		BXClearCache(True, "/".$arBlogGroupTmp["SITE_ID"]."/blog/");
@@ -55,7 +55,7 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $blogModulePermissions>="W" 
 		}
 
 
-		if (strlen($apply) <= 0)
+		if ($apply == '')
 			LocalRedirect("/bitrix/admin/blog_group.php?lang=".LANG."&".GetFilterParams("filter_", false));
 	}
 	else

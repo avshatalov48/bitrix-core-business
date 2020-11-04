@@ -12,40 +12,40 @@ if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption
 else
 	$arParams["CACHE_TIME"] = 0;	
 $arParams["BLOG_COUNT"] = intval($arParams["BLOG_COUNT"]);
-if(Intval($arParams["BLOG_COUNT"])<=0)
+if(intval($arParams["BLOG_COUNT"])<=0)
 	$arParams["BLOG_COUNT"] = 6;
-if(Intval($arParams["PERIOD_DAYS"])<=0)
+if(intval($arParams["PERIOD_DAYS"])<=0)
 	$arParams["PERIOD_DAYS"] = 30;
 
-$arParams["SORT_BY1"] = (strlen($arParams["SORT_BY1"])>0 ? $arParams["SORT_BY1"] : "DATE_CREATE");
-$arParams["SORT_ORDER1"] = (strlen($arParams["SORT_ORDER1"])>0 ? $arParams["SORT_ORDER1"] : "DESC");
-$arParams["SORT_BY2"] = (strlen($arParams["SORT_BY2"])>0 ? $arParams["SORT_BY2"] : "ID");
-$arParams["SORT_ORDER2"] = (strlen($arParams["SORT_ORDER2"])>0 ? $arParams["SORT_ORDER2"] : "DESC");
+$arParams["SORT_BY1"] = ($arParams["SORT_BY1"] <> '' ? $arParams["SORT_BY1"] : "DATE_CREATE");
+$arParams["SORT_ORDER1"] = ($arParams["SORT_ORDER1"] <> '' ? $arParams["SORT_ORDER1"] : "DESC");
+$arParams["SORT_BY2"] = ($arParams["SORT_BY2"] <> '' ? $arParams["SORT_BY2"] : "ID");
+$arParams["SORT_ORDER2"] = ($arParams["SORT_ORDER2"] <> '' ? $arParams["SORT_ORDER2"] : "DESC");
 $arParams["SHOW_DESCRIPTION"] = ($arParams["SHOW_DESCRIPTION"]=="N") ? "N" : "Y";
 $arParams["USE_SOCNET"] = ($arParams["USE_SOCNET"] == "Y") ? "Y" : "N";
 if(!is_array($arParams["GROUP_ID"]))
 	$arParams["GROUP_ID"] = array($arParams["GROUP_ID"]);
 foreach($arParams["GROUP_ID"] as $k=>$v)
-	if(IntVal($v) <= 0)
+	if(intval($v) <= 0)
 		unset($arParams["GROUP_ID"][$k]);
 		
 $arParams["BLOG_VAR"] = trim($arParams["BLOG_VAR"]);
 $arParams["PAGE_VAR"] = trim($arParams["PAGE_VAR"]);
 $arParams["USER_VAR"] = trim($arParams["USER_VAR"]);
 
-if(strLen($arParams["BLOG_VAR"])<=0)
+if($arParams["BLOG_VAR"] == '')
 	$arParams["BLOG_VAR"] = "blog";
-if(strLen($arParams["PAGE_VAR"])<=0)
+if($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if(strLen($arParams["USER_VAR"])<=0)
+if($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "id";
 	
 $arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"]);
-if(strlen($arParams["PATH_TO_BLOG"])<=0)
+if($arParams["PATH_TO_BLOG"] == '')
 	$arParams["PATH_TO_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
 	
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if(strlen($arParams["PATH_TO_USER"])<=0)
+if($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $SORT = Array($arParams["SORT_BY1"]=>$arParams["SORT_ORDER1"], $arParams["SORT_BY2"]=>$arParams["SORT_ORDER2"]);
@@ -102,7 +102,7 @@ else
 		$i = 0;
 		foreach($arBlogs as $blogID => $info)
 		{
-			if($i >= $arParams["BLOG_COUNT"] && IntVal($arParams["BLOG_COUNT"]) > 0)
+			if($i >= $arParams["BLOG_COUNT"] && intval($arParams["BLOG_COUNT"]) > 0)
 				continue;
 			$arBlog = CBlog::GetByID($blogID);
 			$arBlog = CBlogTools::htmlspecialcharsExArray($arBlog);
@@ -112,7 +112,7 @@ else
 			$arBlog["arUser"] = $dbUser->GetNext();
 			$arBlog["AuthorName"] = CBlogUser::GetUserName($arBlog["BlogUser"]["ALIAS"], $arBlog["arUser"]["NAME"], $arBlog["arUser"]["LAST_NAME"], $arBlog["arUser"]["LOGIN"]);
 
-			if(IntVal($arBlog["SOCNET_GROUP_ID"]) > 0)
+			if(intval($arBlog["SOCNET_GROUP_ID"]) > 0)
 			{
 				$arBlog["urlToBlog"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP_BLOG"], array("blog" => $arBlog["URL"], "group_id" => $arBlog["SOCNET_GROUP_ID"]));
 				$arBlog["urlToAuthor"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP"], array("group_id" => $arBlog["SOCNET_GROUP_ID"]));

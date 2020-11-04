@@ -37,7 +37,7 @@ function CheckFields() // проверка на наличие обязательных полей
 
 	$arMsg = Array();
 
-	if (strlen(trim($NAME))<=0)
+	if (trim($NAME) == '')
 		//$str .= GetMessage("SUP_FORGOT_NAME")."<br>";
 		$arMsg[] = array("id"=>"NAME", "text"=> GetMessage("SUP_FORGOT_NAME"));
 
@@ -45,7 +45,7 @@ function CheckFields() // проверка на наличие обязательных полей
 		//$str .= GetMessage("SUP_INCORRECT_SID")."<br>";
 		$arMsg[] = array("id"=>"SID", "text"=> GetMessage("SUP_INCORRECT_SID"));
 
-	elseif (strlen($SID)>0 && is_array($arrSITE) && count($arrSITE)>0)
+	elseif ($SID <> '' && is_array($arrSITE) && count($arrSITE)>0)
 	{
 		$arFilter = array(
 			"ID"	=> "~".$ID,
@@ -58,7 +58,7 @@ function CheckFields() // проверка на наличие обязательных полей
 		if ($zr = $z->Fetch())
 		{
 			$s = str_replace("#TYPE#", CTicketDictionary::GetTypeNameByID($str_C_TYPE), GetMessage("SUP_SID_ALREADY_IN_USE"));
-			$s = str_replace("#LANG#", strlen($zr['LID']) > 0? $zr['LID']: strtolower($zr['SITE_ID']), $s);
+			$s = str_replace("#LANG#", $zr['LID'] <> ''? $zr['LID'] : mb_strtolower($zr['SITE_ID']), $s);
 			$s = str_replace("#RECORD_ID#",$zr["ID"],$s);
 			//$str .= $s."<br>";
 			$arMsg[] = array("id"=>"SID", "text"=> $s);
@@ -90,7 +90,7 @@ InitBVar($SET_AS_DEFAULT);
 
 
 // если была нажата кнопка "save" на текущей странице
-if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $bAdmin=="Y" && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $bAdmin=="Y" && check_bitrix_sessid())
 {
 	$arFields = array(
 		'C_TYPE'				=> symbolsAndNumbers($_REQUEST['C_TYPE']),
@@ -132,7 +132,7 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $bAdmin=
 
 	if ($bOK)
 	{
-		if (strlen($save)>0) LocalRedirect("/bitrix/admin/ticket_dict_list.php?lang=".LANGUAGE_ID. "&find_type=".symbolsAndNumbers($_REQUEST['C_TYPE']));
+		if ($save <> '') LocalRedirect("/bitrix/admin/ticket_dict_list.php?lang=".LANGUAGE_ID. "&find_type=".symbolsAndNumbers($_REQUEST['C_TYPE']));
 		elseif ($new) LocalRedirect("/bitrix/admin/ticket_dict_edit.php?ID=".$ID. "&lang=".LANGUAGE_ID."&find_type=".symbolsAndNumbers($_REQUEST['C_TYPE'])."&tabControl_active_tab=".urlencode($tabControl_active_tab));
 	}
 	else
@@ -223,7 +223,7 @@ if (!($tdic && $tdic->ExtractFields()))
 	$str_C_SORT="100";
 	$arrSite = $_SESSION["SESS_TICKET_DIC_SITE"];
 	$str_C_TYPE = symbolsAndNumbers($find_type);
-	if (strlen($str_C_TYPE)>0) $str_C_SORT = CTicketDictionary::GetNextSort($TYPE_ID);
+	if ($str_C_TYPE <> '') $str_C_SORT = CTicketDictionary::GetNextSort($TYPE_ID);
 	//$str_EVENT1 = "ticket";
 	$str_EVENT1 = "";
 }

@@ -10,7 +10,7 @@ export default class ItemBadge
 
 	constructor(badgeOptions: ItemBadgeOptions)
 	{
-		const options = Type.isPlainObject(badgeOptions) ? badgeOptions : {};
+		const options: ItemBadgeOptions = Type.isPlainObject(badgeOptions) ? badgeOptions : {};
 
 		this.setTitle(options.title);
 		this.setTextColor(options.textColor);

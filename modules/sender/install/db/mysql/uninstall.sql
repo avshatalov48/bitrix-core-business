@@ -32,3 +32,5 @@ DROP TABLE if exists b_sender_counter;
 DROP TABLE if exists b_sender_permission;
 DROP TABLE if exists b_sender_role_relation;
 DROP TABLE if exists b_sender_posting_thread;
+DROP TABLE if exists b_sender_message_utm;
+DROP TABLE if exists b_sender_timeline_queue;

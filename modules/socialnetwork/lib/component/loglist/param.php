@@ -23,7 +23,7 @@ class Param
 		}
 		else
 		{
-			$this->request = Util::getRequest();;
+			$this->request = Util::getRequest();
 		}
 	}
 
@@ -269,25 +269,6 @@ class Param
 
 		$componentParams['TAG'] = ($request->get('TAG') ? trim($request->get('TAG')) : '');
 		$componentParams['FIND'] = ($request->get('FIND') ? trim($request->get('FIND')) : '');
-	}
-
-	public function prepareNameTemplateParams(&$componentParams)
-	{
-		Util::checkEmptyParamString($componentParams, 'NAME_TEMPLATE', \CSite::getNameFormat());
-
-		$componentParams['NAME_TEMPLATE_WO_NOBR'] = str_replace(
-			[ '#NOBR#', '#/NOBR#' ],
-			'',
-			$componentParams['NAME_TEMPLATE']
-		);
-		$componentParams['NAME_TEMPLATE'] = $componentParams['NAME_TEMPLATE_WO_NOBR'];
-	}
-
-	public function prepareAvatarParams(&$componentParams)
-	{
-		Util::checkEmptyParamInteger($componentParams, 'AVATAR_SIZE_COMMON', 100);
-		Util::checkEmptyParamInteger($componentParams, 'AVATAR_SIZE', 100);
-		Util::checkEmptyParamInteger($componentParams, 'AVATAR_SIZE_COMMENT', 100);
 	}
 
 	public function prepareCommentsParams(&$componentParams)
@@ -570,17 +551,34 @@ class Param
 
 		if(
 			$request->get('preset_filter_top_id') <> ''
-			&& $request->get('preset_filter_top_id') != 'clearall'
+			&& $request->get('preset_filter_top_id') !== 'clearall'
 		)
 		{
 			$presetFilterTopId = $request->get('preset_filter_top_id');
 		}
+		elseif (
+			isset($componentParams['preset_filter_top_id'])
+			&& $componentParams['preset_filter_top_id'] <> ''
+			&& $componentParams['preset_filter_top_id'] !== 'clearall'
+		) // from nextPage ajax request
+		{
+			$presetFilterTopId = $componentParams['preset_filter_top_id'];
+		}
+
 		if(
 			$request->get('preset_filter_id') <> ''
 			&& $request->get('preset_filter_id') != 'clearall'
 		)
 		{
 			$presetFilterId = $request->get('preset_filter_id');
+		}
+		elseif (
+			isset($componentParams['preset_filter_id'])
+			&& $componentParams['preset_filter_id'] <> ''
+			&& $componentParams['preset_filter_id'] !== 'clearall'
+		) // from nextPage ajax request
+		{
+			$presetFilterId = $componentParams['preset_filter_id'];
 		}
 
 		$presetFiltersOptions = $presetFiltersList = false;
@@ -616,6 +614,16 @@ class Param
 			AddEventHandler('socialnetwork', 'OnBeforeSonetLogFilterFill', [ $livefeedFilterHandler, 'OnBeforeSonetLogFilterFill' ]);
 		}
 
+		if (
+			$componentParams['IS_CRM'] === 'Y'
+			&& Loader::includeModule('crm')
+			&& isset($componentParams['CRM_ENTITY_TYPE'])
+		)
+		{
+			$liveFeedFilter = new \CCrmLiveFeedFilter([ 'EntityTypeID' => \CCrmLiveFeedEntity::resolveEntityTypeID($componentParams['CRM_ENTITY_TYPE']) ]);
+			AddEventHandler('socialnetwork', 'OnSonetLogFilterProcess', [ $liveFeedFilter, 'OnSonetLogFilterProcess' ]);
+		}
+
 		$presetTopFiltersList = [];
 		if (!is_array($presetFiltersList))
 		{
@@ -642,7 +650,7 @@ class Param
 			}
 		}
 
-		if ($componentParams['SHOW_EVENT_ID_FILTER'] != 'N')
+		if ($componentParams['SHOW_EVENT_ID_FILTER'] !== 'N')
 		{
 			$eventResult = \CSocNetLogComponent::onSonetLogFilterProcess($presetFilterTopId, $presetFilterId, $presetTopFiltersList, $presetFiltersList);
 			if (is_array($eventResult))
@@ -728,5 +736,23 @@ class Param
 		}
 	}
 
+	public function prepareAvatarParams(&$componentParams)
+	{
+		Util::checkEmptyParamInteger($componentParams, 'AVATAR_SIZE_COMMON', 100);
+		Util::checkEmptyParamInteger($componentParams, 'AVATAR_SIZE', 100);
+		Util::checkEmptyParamInteger($componentParams, 'AVATAR_SIZE_COMMENT', 100);
+	}
+
+	public function prepareNameTemplateParams(&$componentParams)
+	{
+		Util::checkEmptyParamString($componentParams, 'NAME_TEMPLATE', \CSite::getNameFormat());
+
+		$componentParams['NAME_TEMPLATE_WO_NOBR'] = str_replace(
+			[ '#NOBR#', '#/NOBR#' ],
+			'',
+			$componentParams['NAME_TEMPLATE']
+		);
+		$componentParams['NAME_TEMPLATE'] = $componentParams['NAME_TEMPLATE_WO_NOBR'];
+	}
 }
 ?>

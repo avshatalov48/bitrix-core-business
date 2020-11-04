@@ -209,7 +209,7 @@
 						BX.create(
 							"span",
 							{
-								html: this.state,
+								html: this.getStateHtml(),
 								props:{
 									className:'adm-scale-item-role-state'
 					}}));
@@ -230,11 +230,16 @@
 			}
 			else
 			{
-				BX.debug("Error! Role "+this.id+ " not defined");
+				BX.debug("Error! Role " + this.id + " not defined");
 			}
 		}
 
 		return this.domObj;
+	};
+
+	BX.Scale.Role.prototype.getStateHtml = function()
+	{
+		return this.state === 'active' ? 'Active' : 'Not active';
 	};
 
 	BX.Scale.Role.prototype.getMonitoringCategories = function(hostname)

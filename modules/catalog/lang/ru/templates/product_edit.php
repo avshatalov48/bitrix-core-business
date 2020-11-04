@@ -59,6 +59,7 @@ $MESS["C2IT_NO_ACTIVE_DISCOUNTS"] = "Активные скидки для дан
 $MESS["C2IT_DISCOUNT_HINT"] = "Показаны только активные общие скидки. Неактивные скидки, а так же скидки по купонам смотрите в форме управления скидками.";
 $MESS["C2IT_PRICES_D"] = "Управление ценами";
 $MESS["C2IT_PRICES_EXT_D"] = "Расширенные цены";
+$MESS["C2IT_PRICES_EXT_TARIFF_ENABLE"] = "Включить";
 $MESS["C2IT_PARAMS_D"] = "Дополнительные параметры";
 $MESS["C2IT_GROUPS_D"] = "Группы пользователей";
 $MESS["C2IT_DISCOUNTS_D"] = "Управление скидками";

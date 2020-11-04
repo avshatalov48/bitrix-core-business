@@ -11,7 +11,7 @@ foreach($arResult as $arPost)
 	?>
 	<span class="blog-profile-post-date"><?=$arPost["DATE_PUBLISH_FORMATED"]?></span><br />
 	<?
-	if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && (strlen($arPost["urlToBlog"]) > 0 || strlen($arPost["urlToAuthor"]) > 0) && array_key_exists("BLOG_USER_ALIAS", $arPost) && strlen($arPost["BLOG_USER_ALIAS"]) > 0)
+	if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && ($arPost["urlToBlog"] <> '' || $arPost["urlToAuthor"] <> '') && array_key_exists("BLOG_USER_ALIAS", $arPost) && $arPost["BLOG_USER_ALIAS"] <> '')
 		$arTmpUser = array(
 			"NAME" => "",
 			"LAST_NAME" => "",
@@ -19,7 +19,7 @@ foreach($arResult as $arPost)
 			"LOGIN" => "",
 			"NAME_LIST_FORMATTED" => $arPost["~BLOG_USER_ALIAS"],
 		);
-	elseif (strlen($arPost["urlToBlog"]) > 0 || strlen($arPost["urlToAuthor"]) > 0)
+	elseif ($arPost["urlToBlog"] <> '' || $arPost["urlToAuthor"] <> '')
 		$arTmpUser = array(
 			"NAME" => $arPost["~AUTHOR_NAME"],
 			"LAST_NAME" => $arPost["~AUTHOR_LAST_NAME"],
@@ -62,16 +62,16 @@ foreach($arResult as $arPost)
 	<br />
 	<b><a href="<?=$arPost["urlToPost"]?>"><?echo $arPost["TITLE"]; ?></a></b><br /><br />
 	<?
-	if(strlen($arPost["IMG"]) > 0)
+	if($arPost["IMG"] <> '')
 		echo $arPost["IMG"];
 	?>
 	<?=$arPost["TEXT_FORMATED"]?><br clear="left"/><br />
 
 	<span class="blog-profile-post-info">
-		<?if(IntVal($arPost["VIEWS"]) > 0):?>
+		<?if(intval($arPost["VIEWS"]) > 0):?>
 			<span class="blog-eye"><?=GetMessage("SONET_BLOG_LM_VIEWS")?></span>:&nbsp;<?=$arPost["VIEWS"]?>&nbsp;
 		<?endif;?>
-		<?if(IntVal($arPost["NUM_COMMENTS"]) > 0):?>
+		<?if(intval($arPost["NUM_COMMENTS"]) > 0):?>
 			<span class="blog-comment-num"><?=GetMessage("SONET_BLOG_LM_NUM_COMMENTS")?></span>:&nbsp;<?=$arPost["NUM_COMMENTS"]?>
 		<?endif;?>
 	</span>

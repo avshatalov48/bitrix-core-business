@@ -96,9 +96,7 @@ this.BX = this.BX || {};
 	  return data;
 	}
 
-	var BaseButton =
-	/*#__PURE__*/
-	function () {
+	var BaseButton = /*#__PURE__*/function () {
 	  function BaseButton(options) {
 	    babelHelpers.classCallCheck(this, BaseButton);
 	    options = main_core.Type.isPlainObject(options) ? options : {};
@@ -147,8 +145,8 @@ this.BX = this.BX || {};
 
 	  babelHelpers.createClass(BaseButton, [{
 	    key: "init",
-	    value: function init() {} // needs to initialize private properties in derived classes.
-
+	    value: function init() {// needs to initialize private properties in derived classes.
+	    }
 	    /**
 	     * @protected
 	     */
@@ -737,9 +735,7 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var Button =
-	/*#__PURE__*/
-	function (_BaseButton) {
+	var Button = /*#__PURE__*/function (_BaseButton) {
 	  babelHelpers.inherits(Button, _BaseButton);
 
 	  function Button(options) {
@@ -1299,9 +1295,7 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var SplitSubButton =
-	/*#__PURE__*/
-	function (_BaseButton) {
+	var SplitSubButton = /*#__PURE__*/function (_BaseButton) {
 	  babelHelpers.inherits(SplitSubButton, _BaseButton);
 
 	  function SplitSubButton(options) {
@@ -1490,9 +1484,7 @@ this.BX = this.BX || {};
 	 * @namespace {BX.UI}
 	 */
 
-	var SplitButton =
-	/*#__PURE__*/
-	function (_Button) {
+	var SplitButton = /*#__PURE__*/function (_Button) {
 	  babelHelpers.inherits(SplitButton, _Button);
 
 	  function SplitButton(options) {
@@ -1772,9 +1764,7 @@ this.BX = this.BX || {};
 
 	function _classStaticPrivateMethodGet(receiver, classConstructor, method) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } return method; }
 
-	var ButtonManager =
-	/*#__PURE__*/
-	function () {
+	var ButtonManager = /*#__PURE__*/function () {
 	  function ButtonManager() {
 	    babelHelpers.classCallCheck(this, ButtonManager);
 	  }
@@ -2135,9 +2125,7 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var IButton =
-	/*#__PURE__*/
-	function () {
+	var IButton = /*#__PURE__*/function () {
 	  function IButton() {
 	    babelHelpers.classCallCheck(this, IButton);
 	  }
@@ -2155,9 +2143,7 @@ this.BX = this.BX || {};
 	 * @namespace {BX.UI}
 	 */
 
-	var AddButton =
-	/*#__PURE__*/
-	function (_Button) {
+	var AddButton = /*#__PURE__*/function (_Button) {
 	  babelHelpers.inherits(AddButton, _Button);
 
 	  function AddButton() {
@@ -2181,9 +2167,7 @@ this.BX = this.BX || {};
 	 * @namespace {BX.UI}
 	 */
 
-	var ApplyButton =
-	/*#__PURE__*/
-	function (_Button) {
+	var ApplyButton = /*#__PURE__*/function (_Button) {
 	  babelHelpers.inherits(ApplyButton, _Button);
 
 	  function ApplyButton() {
@@ -2207,9 +2191,7 @@ this.BX = this.BX || {};
 	 * @namespace {BX.UI}
 	 */
 
-	var CancelButton =
-	/*#__PURE__*/
-	function (_Button) {
+	var CancelButton = /*#__PURE__*/function (_Button) {
 	  babelHelpers.inherits(CancelButton, _Button);
 
 	  function CancelButton() {
@@ -2233,9 +2215,7 @@ this.BX = this.BX || {};
 	 * @namespace {BX.UI}
 	 */
 
-	var CloseButton =
-	/*#__PURE__*/
-	function (_Button) {
+	var CloseButton = /*#__PURE__*/function (_Button) {
 	  babelHelpers.inherits(CloseButton, _Button);
 
 	  function CloseButton() {
@@ -2259,9 +2239,7 @@ this.BX = this.BX || {};
 	 * @namespace {BX.UI}
 	 */
 
-	var CreateButton =
-	/*#__PURE__*/
-	function (_Button) {
+	var CreateButton = /*#__PURE__*/function (_Button) {
 	  babelHelpers.inherits(CreateButton, _Button);
 
 	  function CreateButton() {
@@ -2285,9 +2263,7 @@ this.BX = this.BX || {};
 	 * @namespace {BX.UI}
 	 */
 
-	var SaveButton =
-	/*#__PURE__*/
-	function (_Button) {
+	var SaveButton = /*#__PURE__*/function (_Button) {
 	  babelHelpers.inherits(SaveButton, _Button);
 
 	  function SaveButton() {
@@ -2311,9 +2287,7 @@ this.BX = this.BX || {};
 	 * @namespace {BX.UI}
 	 */
 
-	var SendButton =
-	/*#__PURE__*/
-	function (_Button) {
+	var SendButton = /*#__PURE__*/function (_Button) {
 	  babelHelpers.inherits(SendButton, _Button);
 
 	  function SendButton() {
@@ -2337,9 +2311,7 @@ this.BX = this.BX || {};
 	 * @namespace {BX.UI}
 	 */
 
-	var SettingsButton =
-	/*#__PURE__*/
-	function (_Button) {
+	var SettingsButton = /*#__PURE__*/function (_Button) {
 	  babelHelpers.inherits(SettingsButton, _Button);
 
 	  function SettingsButton() {
@@ -2364,9 +2336,7 @@ this.BX = this.BX || {};
 	 * @namespace {BX.UI}
 	 */
 
-	var AddSplitButton =
-	/*#__PURE__*/
-	function (_SplitButton) {
+	var AddSplitButton = /*#__PURE__*/function (_SplitButton) {
 	  babelHelpers.inherits(AddSplitButton, _SplitButton);
 
 	  function AddSplitButton() {
@@ -2390,9 +2360,7 @@ this.BX = this.BX || {};
 	 * @namespace {BX.UI}
 	 */
 
-	var ApplySplitButton =
-	/*#__PURE__*/
-	function (_SplitButton) {
+	var ApplySplitButton = /*#__PURE__*/function (_SplitButton) {
 	  babelHelpers.inherits(ApplySplitButton, _SplitButton);
 
 	  function ApplySplitButton() {
@@ -2416,9 +2384,7 @@ this.BX = this.BX || {};
 	 * @namespace {BX.UI}
 	 */
 
-	var CancelSplitButton =
-	/*#__PURE__*/
-	function (_SplitButton) {
+	var CancelSplitButton = /*#__PURE__*/function (_SplitButton) {
 	  babelHelpers.inherits(CancelSplitButton, _SplitButton);
 
 	  function CancelSplitButton() {
@@ -2442,9 +2408,7 @@ this.BX = this.BX || {};
 	 * @namespace {BX.UI}
 	 */
 
-	var CloseSplitButton =
-	/*#__PURE__*/
-	function (_SplitButton) {
+	var CloseSplitButton = /*#__PURE__*/function (_SplitButton) {
 	  babelHelpers.inherits(CloseSplitButton, _SplitButton);
 
 	  function CloseSplitButton() {
@@ -2468,9 +2432,7 @@ this.BX = this.BX || {};
 	 * @namespace {BX.UI}
 	 */
 
-	var CreateSplitButton =
-	/*#__PURE__*/
-	function (_SplitButton) {
+	var CreateSplitButton = /*#__PURE__*/function (_SplitButton) {
 	  babelHelpers.inherits(CreateSplitButton, _SplitButton);
 
 	  function CreateSplitButton() {
@@ -2494,9 +2456,7 @@ this.BX = this.BX || {};
 	 * @namespace {BX.UI}
 	 */
 
-	var SaveSplitButton =
-	/*#__PURE__*/
-	function (_SplitButton) {
+	var SaveSplitButton = /*#__PURE__*/function (_SplitButton) {
 	  babelHelpers.inherits(SaveSplitButton, _SplitButton);
 
 	  function SaveSplitButton() {
@@ -2520,9 +2480,7 @@ this.BX = this.BX || {};
 	 * @namespace {BX.UI}
 	 */
 
-	var SendSplitButton =
-	/*#__PURE__*/
-	function (_SplitButton) {
+	var SendSplitButton = /*#__PURE__*/function (_SplitButton) {
 	  babelHelpers.inherits(SendSplitButton, _SplitButton);
 
 	  function SendSplitButton() {

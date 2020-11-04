@@ -279,6 +279,11 @@ class CSocNetLogRestService extends IRestService
 
 				if ($arPost = $dbPost->Fetch())
 				{
+					if (!empty($arPost['DETAIL_TEXT']))
+					{
+						$arPost['DETAIL_TEXT'] = \Bitrix\Main\Text\Emoji::decode($arPost['DETAIL_TEXT']);
+					}
+
 					if ($arPost["PUBLISH_STATUS"] != BLOG_PUBLISH_STATUS_PUBLISH)
 					{
 						unset($arPost);
@@ -1611,7 +1616,7 @@ class CSocNetLogRestService extends IRestService
 
 	private static function getBlogPostFields($postId)
 	{
-		return \Bitrix\Socialnetwork\Item\Helper::getBlogPostPerm($postId);
+		return \Bitrix\Socialnetwork\Item\Helper::getBlogPostFields($postId);
 	}
 
 	private static function getBlogCommentFields($commentId)

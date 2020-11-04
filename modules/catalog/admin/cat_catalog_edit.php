@@ -651,5 +651,6 @@ $tabControl->BeginCustomField("SECTION_PROPERTY", GetMessage("CAT_CEDIT_SECTION_
 	<?
 $tabControl->EndCustomField("SECTION_PROPERTY", '');
 $tabControl->Buttons(array("ajaxMode" => false, "disabled" => false));
+$tabControl->SetShowSettings(false);
 $tabControl->Show();
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

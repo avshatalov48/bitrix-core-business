@@ -1,6 +1,6 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
-if(strlen($arResult["FATAL_ERROR"])>0)
+if($arResult["FATAL_ERROR"] <> '')
 {
 	?>
 	<span class='errortext'><?=$arResult["FATAL_ERROR"]?></span><br /><br />
@@ -8,7 +8,7 @@ if(strlen($arResult["FATAL_ERROR"])>0)
 }
 else
 {
-	if(strlen($arResult["ERROR_MESSAGE"])>0)
+	if($arResult["ERROR_MESSAGE"] <> '')
 	{
 		?>
 		<span class='errortext'><?=$arResult["ERROR_MESSAGE"]?></span><br /><br />
@@ -144,7 +144,7 @@ else
 	}
 	else
 	{
-		if(strlen($arResult["urlToEdit"])>0)
+		if($arResult["urlToEdit"] <> '')
 		{
 			?>
 			<span class="blogtext">
@@ -160,7 +160,7 @@ else
 			<small><?=$arResult["User"]["DESCRIPTION"]?></small>
 			</td>
 		</tr>
-		<?if(strlen($arResult["Blog"]["urlToBlog"])>0):?>
+		<?if($arResult["Blog"]["urlToBlog"] <> ''):?>
 		<tr>
 			<td class="head" nowrap><b><?=GetMessage("B_B_USER_BLOG")?></b></td>
 			<td><a href="<?=$arResult["Blog"]["urlToBlog"]?>"><?=$arResult["Blog"]["NAME"]?></a><br />
@@ -168,25 +168,25 @@ else
 			</td>
 		</tr>
 		<?endif;?>
-		<?if(strlen($arResult["User"]["PERSONAL_WWW"])>0):?>
+		<?if($arResult["User"]["PERSONAL_WWW"] <> ''):?>
 		<tr>
 			<td class="head" nowrap><b><?=GetMessage("B_B_USER_SITE")?></b></td>
 			<td><a target="blank" href="<?=$arResult["User"]["PERSONAL_WWW"]?>"><?=$arResult["User"]["PERSONAL_WWW"]?></a></td>
 		</tr>
 		<?endif;?>
-		<?if(strlen($arResult["User"]["PERSONAL_GENDER"])>0):?>
+		<?if($arResult["User"]["PERSONAL_GENDER"] <> ''):?>
 		<tr>
 			<td class="head" nowrap><b><?=GetMessage("B_B_USER_SEX")?></b></td>
 			<td><?=$arResult["arSex"][$arResult["User"]["PERSONAL_GENDER"]]?>&nbsp;</td>
 		</tr>
 		<?endif;?>
-		<?if(strlen($arResult["User"]["PERSONAL_BIRTHDAY"])>0):?>
+		<?if($arResult["User"]["PERSONAL_BIRTHDAY"] <> ''):?>
 		<tr>
 			<td class="head" nowrap><b><?=GetMessage("B_B_USER_BIRTHDAY")?></b></td>
 			<td><?=$arResult["User"]["PERSONAL_BIRTHDAY"]?>&nbsp;</td>
 		</tr>
 		<?endif;?>
-		<?if(IntVal($arResult["User"]["AVATAR"])>0):?>
+		<?if(intval($arResult["User"]["AVATAR"])>0):?>
 		<tr>
 			<td class="head" nowrap><b><?=GetMessage("B_B_USER_AVATAR")?></b></td>
 			<td><?=$arResult["User"]["AVATAR_IMG"]?>&nbsp;</td>

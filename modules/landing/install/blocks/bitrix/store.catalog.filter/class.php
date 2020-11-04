@@ -19,26 +19,20 @@ class StoreCatalogFilterBlock extends \Bitrix\Landing\LandingBlock
 
 		$editMode = \Bitrix\Landing\Landing::getEditMode();
 		$isSearch = isset($_REQUEST['q']) && trim($_REQUEST['q']);
-		$sectionId = 0;
 
 		if (!$isSearch)
 		{
 			$variables = \Bitrix\Landing\Landing::getVariables();
 			$sectionCode = isset($variables['sef'][0]) ? $variables['sef'][0] : '';
-			if (\Bitrix\Main\Loader::includeModule('iblock'))
+			if ($sectionCode != '' && \Bitrix\Main\Loader::includeModule('iblock'))
 			{
-				$sectionId = \CIBlockFindTools::GetSectionIDByCodePath(
+				$this->params['SECTION_ID'] = \CIBlockFindTools::getSectionIDByCodePath(
 					$this->params['IBLOCK_ID'],
 					$sectionCode
 				);
 			}
-			if (!$sectionId)
-			{
-				$sectionId = $this->params['SECTION_ID'];
-			}
 		}
 
-		$this->params['SECTION_ID'] = $sectionId;
-		$this->params['SHOW_FILTER'] = $sectionId || $editMode;
+		$this->params['SHOW_FILTER'] = $this->params['SECTION_ID'] || $editMode;
 	}
 }

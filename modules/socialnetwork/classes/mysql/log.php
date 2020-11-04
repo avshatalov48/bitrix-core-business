@@ -388,7 +388,7 @@ class CSocNetLog extends CAllSocNetLog
 
 			if (
 				!isset($arParams["USE_FAVORITES"])
-				|| $arParams["USE_FAVORITES"] != "N"
+				|| $arParams["USE_FAVORITES"] !== "N"
 			)
 			{
 				$join_type = "LEFT";
@@ -405,6 +405,32 @@ class CSocNetLog extends CAllSocNetLog
 				}
 
 				$arFields["FAVORITES_USER_ID"] = Array("FIELD" => $field_value, "TYPE" => "double", "FROM" => $join_type." JOIN b_sonet_log_favorites SLF ON L.ID = SLF.LOG_ID AND SLF.USER_ID = ".intval($USER->GetID()));
+			}
+
+			if (
+				isset($arParams["USE_PINNED"])
+				&& $arParams["USE_PINNED"] === "Y"
+			)
+			{
+				$join_type = "LEFT";
+				$field_value = $DB->IsNull("SLP.USER_ID", "0");
+
+				foreach($arFilter as $key => $value)
+				{
+					if (
+						strpos($key, "PINNED_USER_ID") !== false
+						&& $value
+					)
+					{
+						$join_type = "INNER";
+						$field_value = "SLP.USER_ID";
+						$arOrder['PINNED_DATE'] = 'DESC';
+						break;
+					}
+				}
+
+				$arFields["PINNED_USER_ID"] = Array("FIELD" => $field_value, "TYPE" => "double", "FROM" => $join_type." JOIN b_sonet_log_pinned SLP ON L.ID = SLP.LOG_ID AND SLP.USER_ID = ".intval($USER->GetID()));
+				$arFields["PINNED_DATE"] = Array("FIELD" => "SLP.PINNED_DATE", "TYPE" => "datetime", "FROM" => $join_type." JOIN b_sonet_log_pinned SLP ON L.ID = SLP.LOG_ID AND SLP.USER_ID = ".intval($USER->GetID()));
 			}
 		}
 

@@ -127,7 +127,7 @@ class LandingSiteDomainComponent extends LandingBaseComponent
 				}
 			}
 		}
-		
+
 		return true;
 	}
 
@@ -266,6 +266,7 @@ class LandingSiteDomainComponent extends LandingBaseComponent
 		{
 			$this->arResult['REGISTER'] = Register::getInstance();
 			$this->arResult['TLD'] = $this->arResult['REGISTER']->getTld();
+			$this->arResult['AGREEMENTS_URL'] = $this->arResult['REGISTER']->getAgreementURL();
 			$this->arResult['DOMAIN_PROVIDER'] = $currentSite['DOMAIN_PROVIDER'];
 			$this->arResult['~DOMAIN_NAME'] = $currentSite['DOMAIN_NAME'];
 			$this->arResult['DOMAIN_NAME'] = $puny->decode($currentSite['DOMAIN_NAME']);

@@ -175,10 +175,12 @@ class Dialog
 				{
 					return false;
 				}
+				else
+				{
+					return true;
+				}
 			}
 		}
-
-		return false;
 	}
 
 	public static function read($dialogId, $messageId = null, $userId = null)

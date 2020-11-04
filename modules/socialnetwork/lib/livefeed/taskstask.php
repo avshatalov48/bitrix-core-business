@@ -3,20 +3,26 @@ namespace Bitrix\Socialnetwork\Livefeed;
 
 use Bitrix\Main\Loader;
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\Localization\Loc;
+
+Loc::loadMessages(__FILE__);
 
 final class TasksTask extends Provider
 {
 	const PROVIDER_ID = 'TASK';
 	const CONTENT_TYPE_ID = 'TASK';
 
-	public static function getId()
+	public static function getId(): string
 	{
 		return static::PROVIDER_ID;
 	}
 
 	public function getEventId()
 	{
-		return array('tasks');
+		return [
+			'tasks',
+			'crm_activity_add'
+		];
 	}
 
 	public function getType()
@@ -26,29 +32,95 @@ final class TasksTask extends Provider
 
 	public function getCommentProvider()
 	{
-		$provider = new \Bitrix\Socialnetwork\Livefeed\ForumPost();
-		return $provider;
+		return new ForumPost();
 	}
 
 	public function initSourceFields()
 	{
-		$taskId = $this->entityId;
+		static $cache = [];
 
-		if (
-			$taskId > 0
-			&& Loader::includeModule('tasks')
-		)
+		$taskId = (int)$this->entityId;
+
+		if ($taskId <= 0)
 		{
-			$res = \CTasks::getByID(intval($taskId), true);
-			if ($task = $res->fetch())
-			{
-				$this->setSourceFields($task);
-				$this->setSourceDescription($task['DESCRIPTION']);
-				$this->setSourceTitle($task['TITLE']);
-				$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects());
-				$this->setSourceDiskObjects($this->getDiskObjects($taskId, $this->cloneDiskObjects));
-			}
+			return;
 		}
+
+		if (isset($cache[$taskId]))
+		{
+			$task = $cache[$taskId];
+		}
+		elseif (Loader::includeModule('tasks'))
+		{
+			$res = \CTasks::getByID($taskId, true);
+			$task = $res->fetch();
+			$cache[$taskId] = $task;
+		}
+
+		if (empty($task))
+		{
+			return;
+		}
+
+		$this->setSourceFields($task);
+		$this->setSourceDescription($task['DESCRIPTION']);
+		$this->setSourceTitle($task['TITLE']);
+		$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects());
+		$this->setSourceDiskObjects($this->getDiskObjects($taskId, $this->cloneDiskObjects));
+
+	}
+
+	public function getPinnedTitle()
+	{
+		$result = '';
+
+		if (empty($this->sourceFields))
+		{
+			$this->initSourceFields();
+		}
+
+		$task = $this->getSourceFields();
+		if (empty($task))
+		{
+			return $result;
+		}
+
+		$result = Loc::getMessage('SONET_LIVEFEED_TASKS_TASK_PINNED_TITLE', [
+			'#TITLE#' => $task['TITLE']
+		]);
+
+		return $result;
+	}
+
+	public function getPinnedDescription()
+	{
+		$result = '';
+
+		if (empty($this->sourceFields))
+		{
+			$this->initSourceFields();
+		}
+
+		$task = $this->getSourceFields();
+		if (empty($task))
+		{
+			return $result;
+		}
+
+		$result = Loc::getMessage('SONET_LIVEFEED_TASKS_TASK_PINNED_DESCRIPTION', [
+			'#RESPONSIBLE#' => \CUser::formatName(
+				\CSite::getNameFormat(),
+				[
+					'NAME' => $task['RESPONSIBLE_NAME'],
+					'LAST_NAME' => $task['RESPONSIBLE_LAST_NAME'],
+					'SECOND_NAME' => $task['RESPONSIBLE_SECOND_NAME']
+				],
+				true,
+				false
+			)
+		]);
+
+		return $result;
 	}
 
 	protected function getAttachedDiskObjects($clone = false)
@@ -89,19 +161,17 @@ final class TasksTask extends Provider
 		return $result;
 	}
 
-	public static function canRead($params)
+	public static function canRead($params): bool
 	{
 		return true;
 	}
 
-	protected function getPermissions(array $post)
+	protected function getPermissions(array $post): string
 	{
-		$result = self::PERMISSION_READ;
-
-		return $result;
+		return self::PERMISSION_READ;
 	}
 
-	public function getLiveFeedUrl()
+	public function getLiveFeedUrl(): string
 	{
 		$pathToTask = '';
 		$userPage = Option::get('socialnetwork', 'user_page', '', SITE_ID);

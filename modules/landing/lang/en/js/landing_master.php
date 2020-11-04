@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["ACTION_BUTTON_ACTIONS"] = "actions";
 $MESS["ACTION_BUTTON_ACTIONS_COPY"] = "Copy";
 $MESS["ACTION_BUTTON_ACTIONS_CUT"] = "Cut";
@@ -17,7 +17,7 @@ $MESS["ACTION_BUTTON_STYLE"] = "Design";
 $MESS["ACTION_BUTTON_UP"] = "&nbsp;";
 $MESS["BLOCK_CANCEL"] = "Cancel";
 $MESS["BLOCK_CONTINUE"] = "Continue";
-$MESS["BLOCK_ELEMENTS"] = " Block items";
+$MESS["BLOCK_ELEMENTS"] = "Block items";
 $MESS["BLOCK_SAVE"] = "Save";
 $MESS["BLOCK_SETTINGS"] = "Settings";
 $MESS["BLOCK_SETTINGS_ANCHOR_FIELD"] = "Block anchor";
@@ -350,4 +350,3 @@ $MESS["SEARCH_FIELD_PLACEHOLDER"] = "search...";
 $MESS["UNSPLASH_SEARCH_FIELD_LABEL"] = "Search Unsplash";
 $MESS["UNSPLASH_SEARCH_FIELD_LOADER"] = "Loading";
 $MESS["UNSPLASH_SEARCH_FIELD_PLACEHOLDER"] = "search...";
-?>

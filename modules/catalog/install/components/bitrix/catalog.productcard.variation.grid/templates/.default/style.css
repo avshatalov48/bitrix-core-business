@@ -19,11 +19,13 @@
 .catalog-product-variation-grid .main-grid-control-panel-input-text,
 .catalog-product-variation-grid .main-grid-editor-text, .main-grid-editor-textarea {
 	height: 40px;
+	font-size: 14px;
 }
 
-.catalog-product-variation-grid .main-dropdown {
+.catalog-product-variation-grid .main-grid-editor.main-dropdown {
 	height: 40px;
 	line-height: 38px;
+	font-size: 14px;
 }
 
 .brandblock-block-wrapper {
@@ -68,7 +70,7 @@
 }
 
 .catalog-productcard-select .catalog-productcard-select-text {
-	font-size: 13px;
+	font-size: 14px;
 	line-height: 38px;
 	overflow: hidden;
 	max-width: 100%;
@@ -137,7 +139,7 @@
 }
 
 .catalog-productcard-popup-select-label {
-	font-size: 15px;
+	font-size: 14px;
 	line-height: 55px;
 	display: block;
 	overflow: hidden;
@@ -350,6 +352,7 @@
 
 .catalog-productcard-popup-list .menu-popup {
 	padding-bottom: 0;
+	font-size: 14px;
 }
 
 .catalog-productcard-popup-list .menu-popup-items {
@@ -438,4 +441,11 @@
 
 .catalog-dropdown-currency-inner:hover {
 	border-color: #a7aaad;
+}
+
+.catalog-product-variation-grid .main-grid-cell-content,
+.catalog-product-variation-grid .main-grid-editor-container {
+	margin-top: 19px;
+	margin-bottom: 21px;
+	font-size: 14px;
 }

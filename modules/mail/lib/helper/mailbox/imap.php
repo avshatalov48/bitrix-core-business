@@ -256,7 +256,7 @@ class Imap extends Mail\Helper\Mailbox
 						return;
 					}
 
-					$isTextItem = $item->isText() && !$item->isAttachment();
+					$isTextItem = $item->isBodyText();
 					if ($flags & ($isTextItem ? Imap::MESSAGE_PARTS_TEXT : Imap::MESSAGE_PARTS_ATTACHMENT))
 					{
 						// due to yandex bug
@@ -1366,7 +1366,7 @@ class Imap extends Mail\Helper\Mailbox
 		$message['__bodystructure']->traverse(
 			function (Mail\Imap\BodyStructure $item) use (&$parts, &$attachments)
 			{
-				if ($item->isMultipart() || $item->isText() && !$item->isAttachment())
+				if ($item->isMultipart() || $item->isBodyText())
 				{
 					return;
 				}
@@ -1492,10 +1492,19 @@ class Imap extends Mail\Helper\Mailbox
 							$this->mailbox['LANG_CHARSET']
 						);
 					}
-
-					if (!$item->isText() || $item->isAttachment())
+					else
 					{
-						$attachments[] = empty($part) ? $item->getNumber() : $part;
+						$part = [
+							'CONTENT-TYPE' => $item->getType() . '/' . $item->getSubtype(),
+							'CONTENT-ID'   => $item->getId(),
+							'BODY'         => '',
+							'FILENAME'     => $item->getParams()['name']
+						];
+					}
+
+					if (!$item->isBodyText())
+					{
+						$attachments[] = $part;
 					}
 					elseif (!empty($part))
 					{

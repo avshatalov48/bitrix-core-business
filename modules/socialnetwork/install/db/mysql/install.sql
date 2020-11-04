@@ -456,3 +456,12 @@ create table b_sonet_user_welltory_disclaimer (
 	PRIMARY KEY (`ID`),
 	index IX_SONET_USER_STRESSLEVEL_DISCLAIMER_1(`USER_ID`)
 );
+
+create table b_sonet_log_pinned
+(
+	LOG_ID int(11) not null,
+	USER_ID int(11) not null,
+	PINNED_DATE datetime default null,
+	primary key (LOG_ID, USER_ID),
+	index IX_SONET_LOG_PINNED_1(`PINNED_DATE`)
+);

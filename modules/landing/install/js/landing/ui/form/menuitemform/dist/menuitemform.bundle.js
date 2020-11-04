@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports, main_core, landing_ui_form_baseform) {
+(function (exports,main_core,landing_ui_form_baseform) {
 	'use strict';
 
 	function _templateObject5() {
@@ -60,9 +60,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	 * @memberOf BX.Landing.UI.Form
 	 */
 
-	var MenuItemForm =
-	/*#__PURE__*/
-	function (_BaseForm) {
+	var MenuItemForm = /*#__PURE__*/function (_BaseForm) {
 	  babelHelpers.inherits(MenuItemForm, _BaseForm);
 
 	  function MenuItemForm() {
@@ -229,5 +227,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.MenuItemForm = MenuItemForm;
 
-}(this.BX.Landing.UI.Form = this.BX.Landing.UI.Form || {}, BX, BX.Landing.UI.Form));
+}((this.BX.Landing.UI.Form = this.BX.Landing.UI.Form || {}),BX,BX.Landing.UI.Form));
 //# sourceMappingURL=menuitemform.bundle.js.map

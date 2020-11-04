@@ -64,7 +64,7 @@
 				{
 					children: [
 						BX.create("div", {
-							props: {className: "g-landing-alert-v3 m-auto"},
+							props: {className: "g-landing-alert-v3"},
 							html: BX.message("LANDING_NAVBAR_MODAL_ALERT"),
 						})
 					]

@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports, main_core, main_loader, landing_ui_panel_content, landing_loc, landing_backend, landing_env, landing_sliderhacks) {
+(function (exports,main_core,main_loader,landing_ui_panel_content,landing_loc,landing_backend,landing_env,landing_sliderhacks) {
 	'use strict';
 
 	function _templateObject2() {
@@ -27,9 +27,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	 * @memberOf BX.Landing.UI.Panel
 	 */
 
-	var CreatePage =
-	/*#__PURE__*/
-	function (_Content) {
+	var CreatePage = /*#__PURE__*/function (_Content) {
 	  babelHelpers.inherits(CreatePage, _Content);
 	  babelHelpers.createClass(CreatePage, null, [{
 	    key: "getInstance",
@@ -234,5 +232,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.CreatePage = CreatePage;
 
-}(this.BX.Landing.UI.Panel = this.BX.Landing.UI.Panel || {}, BX, BX, BX.Landing.UI.Panel, BX.Landing, BX.Landing, BX.Landing, BX.Landing));
+}((this.BX.Landing.UI.Panel = this.BX.Landing.UI.Panel || {}),BX,BX,BX.Landing.UI.Panel,BX.Landing,BX.Landing,BX.Landing,BX.Landing));
 //# sourceMappingURL=createpage.bundle.js.map

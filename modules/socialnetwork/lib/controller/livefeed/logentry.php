@@ -3,8 +3,9 @@ namespace Bitrix\Socialnetwork\Controller\Livefeed;
 
 use Bitrix\Main\Loader;
 use Bitrix\Main\Error;
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Socialnetwork\LogPinnedTable;
+use Bitrix\Socialnetwork\LogTable;
 
 class LogEntry extends \Bitrix\Socialnetwork\Controller\Base
 {
@@ -12,7 +13,7 @@ class LogEntry extends \Bitrix\Socialnetwork\Controller\Base
 	{
 		$logId = (isset($params['logId']) ? intval($params['logId']) : 0);
 		$createdById = (isset($params['createdById']) ? intval($params['createdById']) : 0);
-		$destinationLimit = (isset($params['destinationLimit']) ? intval($params['destinationLimit']) : 0);
+		$destinationLimit = (isset($params['destinationLimit']) ? intval($params['destinationLimit']) : 100);
 
 		$pathToUser = (isset($params['pathToUser']) ? $params['pathToUser'] : '');
 		$pathToWorkgroup = (isset($params['pathToWorkgroup']) ? $params['pathToWorkgroup'] : '');
@@ -22,18 +23,17 @@ class LogEntry extends \Bitrix\Socialnetwork\Controller\Base
 
 		if ($logId <= 0)
 		{
-			$this->addError(new Error(Loc::getMessage('SONET_CONTROLLER_LIVEFEED_LOGENTRY_EMPTY'), 'SONET_CONTROLLER_LIVEFEED_LOGENTRY_EMPTY'));
+			$this->addError(new Error('Empty Log ID.', 'SONET_CONTROLLER_LIVEFEED_LOGENTRY_EMPTY_LOG_ID'));
 			return null;
 		}
 
 		if (!Loader::includeModule('socialnetwork'))
 		{
-			$this->addError(new Error(Loc::getMessage('SONET_CONTROLLER_LIVEFEED_LOGENTRY_MODULE_NOT_INSTALLED'), 'SONET_CONTROLLER_LIVEFEED_LOGENTRY_MODULE_NOT_INSTALLED'));
+			$this->addError(new Error('Cannot include Socialnetwork module.', 'SONET_CONTROLLER_LIVEFEED_LOGENTRY_MODULE_NOT_INSTALLED'));
 			return null;
 		}
 
 		\CSocNetTools::initGlobalExtranetArrays();
-		$currentUserAdmin = \CSocNetUser::isCurrentUserModuleAdmin();
 
 		$extranetInstalled = Loader::includeModule("extranet");
 		$currentExtranetUser = ($extranetInstalled && !\CExtranet::isIntranetUser());
@@ -51,8 +51,6 @@ class LogEntry extends \Bitrix\Socialnetwork\Controller\Base
 		{
 			$availableExtranetUserIdList = \CExtranet::getMyGroupsUsersSimple(\CExtranet::getExtranetSiteID());
 		}
-
-		$destinationList = [];
 
 		$rightsList = [];
 		$skipGetRights = false;
@@ -147,8 +145,115 @@ class LogEntry extends \Bitrix\Socialnetwork\Controller\Base
 		}
 
 		return [
-			'destinationList' => $destinationList,
+			'destinationList' => array_slice($destinationList, $destinationLimit),
 			'hiddenDestinationsCount' => $hiddenDestinationsCount
+		];
+	}
+
+	public function pinAction(array $params = [])
+	{
+		$logId = (isset($params['logId']) ? intval($params['logId']) : 0);
+		$userId = (isset($params['userId']) ? intval($params['userId']) : $this->getCurrentUser()->getId());
+
+		if ($logId <= 0)
+		{
+			$this->addError(new Error('Empty Log ID.', 'SONET_CONTROLLER_LIVEFEED_LOGENTRY_EMPTY_LOG_ID'));
+			return null;
+		}
+
+		if (!Loader::includeModule('socialnetwork'))
+		{
+			$this->addError(new Error('Cannot include Socialnetwork module.', 'SONET_CONTROLLER_LIVEFEED_LOGENTRY_MODULE_NOT_INSTALLED'));
+			return null;
+		}
+
+		LogPinnedTable::set([
+			'logId' => $logId,
+			'userId' => $userId
+		]);
+
+		return [
+			'success' => true
+		];
+	}
+
+	public function unpinAction(array $params = [])
+	{
+		$logId = (isset($params['logId']) ? intval($params['logId']) : 0);
+		$userId = (isset($params['userId']) ? intval($params['userId']) : $this->getCurrentUser()->getId());
+
+		if ($logId <= 0)
+		{
+			$this->addError(new Error('Empty Log ID.', 'SONET_CONTROLLER_LIVEFEED_LOGENTRY_EMPTY_LOG_ID'));
+			return null;
+		}
+
+		if ($userId <= 0)
+		{
+			$this->addError(new Error('Empty User ID.', 'SONET_CONTROLLER_LIVEFEED_LOGENTRY_EMPTY_USER_ID'));
+			return null;
+		}
+
+		if (!Loader::includeModule('socialnetwork'))
+		{
+			$this->addError(new Error('Cannot include Socialnetwork module.', 'SONET_CONTROLLER_LIVEFEED_LOGENTRY_MODULE_NOT_INSTALLED'));
+			return null;
+		}
+
+		LogPinnedTable::delete([
+			'LOG_ID' => $logId,
+			'USER_ID' => $userId
+		]);
+
+		return [
+			'success' => true
+		];
+	}
+
+	public function getPinDataAction(array $params = [])
+	{
+		$logId = (isset($params['logId']) ? (int)$params['logId'] : 0);
+
+		if ($logId <= 0)
+		{
+			$this->addError(new Error('Empty Log ID.', 'SONET_CONTROLLER_LIVEFEED_LOGENTRY_EMPTY_LOG_ID'));
+			return null;
+		}
+
+		$res = LogTable::getList([
+			'filter' => [
+				'=ID' => $logId
+			],
+			'select' => [ 'ID', 'EVENT_ID', 'SOURCE_ID', 'RATING_TYPE_ID', 'RATING_ENTITY_ID' ]
+		]);
+		if (!($logEntryFields = $res->fetch()))
+		{
+			$this->addError(new Error('Log entry not found.', 'SONET_CONTROLLER_LIVEFEED_LOGENTRY_NOT_FOUND'));
+			return null;
+		}
+
+		$contentId = \Bitrix\Socialnetwork\Livefeed\Provider::getContentId($logEntryFields);
+		if (!$contentId)
+		{
+			$this->addError(new Error('Content entity not found.', 'SONET_CONTROLLER_LIVEFEED_CONTENT_NOT_FOUND'));
+			return null;
+		}
+
+		if (empty($contentId['ENTITY_TYPE']))
+		{
+			$this->addError(new Error('Content entity not found.', 'SONET_CONTROLLER_LIVEFEED_CONTENT_NOT_FOUND'));
+			return null;
+		}
+
+		$postProvider = \Bitrix\Socialnetwork\Livefeed\Provider::init([
+			'ENTITY_TYPE' => $contentId['ENTITY_TYPE'],
+			'ENTITY_ID' => $contentId['ENTITY_ID'],
+			'LOG_ID' => $logEntryFields['ID']
+		]);
+
+		return [
+			'TITLE' => htmlspecialcharsEx($postProvider->getPinnedTitle()),
+			'DESCRIPTION' => htmlspecialcharsEx($postProvider->getPinnedDescription())
 		];
 	}
 }

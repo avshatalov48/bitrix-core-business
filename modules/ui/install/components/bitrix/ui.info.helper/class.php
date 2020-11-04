@@ -13,7 +13,7 @@ class CUiInfoHelperComponent extends \CBitrixComponent
 {
 	private function getHostName()
 	{
-		if (ModuleManager::isModuleInstalled("bitrix24"))
+		if (ModuleManager::isModuleInstalled("bitrix24") && defined('BX24_HOST_NAME'))
 		{
 			return BX24_HOST_NAME;
 		}

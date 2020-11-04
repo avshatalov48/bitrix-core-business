@@ -78,7 +78,7 @@
 				var menuItemNode = menuItem.getLayout().item;
 				var loader = new BX.Loader({
 					target: menuItemNode,
-					size: 30
+					size: 25
 				});
 
 				menuItem.closeSubMenu();

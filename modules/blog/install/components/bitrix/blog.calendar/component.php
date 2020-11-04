@@ -8,9 +8,9 @@ if (!CModule::IncludeModule("blog"))
 }
 
 $arParams["BLOG_URL"] = preg_replace("/[^a-zA-Z0-9_-]/is", "", Trim($arParams["BLOG_URL"]));
-$arParams["YEAR"] = (IntVal($arParams["YEAR"])>0 ? IntVal($arParams["YEAR"]) : false);
-$arParams["MONTH"] = (IntVal($arParams["MONTH"])>0 ? IntVal($arParams["MONTH"]) : false);
-$arParams["DAY"] = (IntVal($arParams["DAY"])>0 ? IntVal($arParams["DAY"]) : false);
+$arParams["YEAR"] = (intval($arParams["YEAR"])>0 ? intval($arParams["YEAR"]) : false);
+$arParams["MONTH"] = (intval($arParams["MONTH"])>0 ? intval($arParams["MONTH"]) : false);
+$arParams["DAY"] = (intval($arParams["DAY"])>0 ? intval($arParams["DAY"]) : false);
 if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
 	$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
 else
@@ -18,18 +18,18 @@ else
 if(!is_array($arParams["GROUP_ID"]))
 	$arParams["GROUP_ID"] = array($arParams["GROUP_ID"]);
 foreach($arParams["GROUP_ID"] as $k=>$v)
-	if(IntVal($v) <= 0)
+	if(intval($v) <= 0)
 		unset($arParams["GROUP_ID"][$k]);
 
-if(strLen($arParams["BLOG_VAR"])<=0)
+if($arParams["BLOG_VAR"] == '')
 	$arParams["BLOG_VAR"] = "blog";
-if(strLen($arParams["PAGE_VAR"])<=0)
+if($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
 	
 $arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"]);
-if(strlen($arParams["PATH_TO_BLOG"])<=0)
+if($arParams["PATH_TO_BLOG"] == '')
 	$arParams["PATH_TO_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
-if(strpos($arParams["PATH_TO_BLOG"], "?")===false)
+if(mb_strpos($arParams["PATH_TO_BLOG"], "?") === false)
 {
 	$arParams["PATH_TO_BLOG"] .= "?";
 }
@@ -39,19 +39,19 @@ else
 }
 
 $today = time();
-$todayYear = IntVal(date("Y", $today));
-$todayMonth = IntVal(date("n", $today));
-$todayDay = IntVal(date("j", $today));
+$todayYear = intval(date("Y", $today));
+$todayMonth = intval(date("n", $today));
+$todayDay = intval(date("j", $today));
 
-$arParams["MONTH"] = IntVal($arParams["MONTH"]);
+$arParams["MONTH"] = intval($arParams["MONTH"]);
 if ($arParams["MONTH"] < 1 || $arParams["MONTH"] > 12)
 	$arParams["MONTH"] = $todayMonth;
 
-$arParams["YEAR"] = IntVal($arParams["YEAR"]);
+$arParams["YEAR"] = intval($arParams["YEAR"]);
 if ($arParams["YEAR"] < 1990 || $arParams["YEAR"] > 2020)
 	$arParams["YEAR"] = $todayYear;
 
-$arParams["DAY"] = IntVal($arParams["DAY"]);
+$arParams["DAY"] = intval($arParams["DAY"]);
 $bSelectDay = (($arParams["DAY"] > 0) ? True : False);
 if ($arParams["DAY"] < 1 || $arParams["DAY"] > 31)
 	$arParams["DAY"] = $todayDay;
@@ -63,7 +63,7 @@ if ($arParams["YEAR"] > $todayYear || $arParams["YEAR"] == $todayYear && $arPara
 }
 
 $arResult["CALENDAR"] = Array();
-if (StrLen($arParams["BLOG_URL"]) > 0)
+if ($arParams["BLOG_URL"] <> '')
 {
 	if($GLOBALS["USER"]->IsAuthorized())
 		$arUserGroups = CBlogUser::GetUserGroups($USER->GetID(), $arBlog["ID"], "Y", BLOG_BY_USER_ID);
@@ -130,8 +130,11 @@ if (StrLen($arParams["BLOG_URL"]) > 0)
 					$arDates = CBlogPost::GetListCalendar($arBlog["ID"], $arParams["YEAR"], $arParams["MONTH"], false);
 
 					$arDays = array();
-					for ($i = 0; $i < count($arDates); $i++)
-						$arDays[IntVal($arDates[$i]["DAY"])] = true;
+					$datesCount = count($arDates);
+					for ($i = 0; $i < $datesCount; $i++)
+					{
+						$arDays[intval($arDates[$i]["DAY"])] = true;
+					}
 
 					$currentYear = $arParams["YEAR"];
 					$currentMonth = $arParams["MONTH"];
@@ -174,7 +177,7 @@ if (StrLen($arParams["BLOG_URL"]) > 0)
 					}
 					
 					$firstDate = mktime(0, 0, 0, $currentMonth, 1, $currentYear);
-					$firstDay = IntVal(date("w", $firstDate) - 1);
+					$firstDay = intval(date("w", $firstDate) - 1);
 					if ($firstDay == -1)
 						$firstDay = 6;
 

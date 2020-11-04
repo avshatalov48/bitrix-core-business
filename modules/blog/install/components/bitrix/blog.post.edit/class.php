@@ -21,63 +21,63 @@ class CBlogPostEdit extends CBitrixComponent
 		
 		global $APPLICATION, $DB;
 		
-		$arParams["ID"] = IntVal($arParams["ID"]);
+		$arParams["ID"] = intval($arParams["ID"]);
 		$arParams["BLOG_URL"] = preg_replace("/[^a-zA-Z0-9_-]/is", "", Trim($arParams["BLOG_URL"]));
 		if (!is_array($arParams["GROUP_ID"]))
 			$arParams["GROUP_ID"] = array($arParams["GROUP_ID"]);
 		foreach ($arParams["GROUP_ID"] as $k => $v)
-			if (IntVal($v) <= 0)
+			if (intval($v) <= 0)
 				unset($arParams["GROUP_ID"][$k]);
 		
-		if (strLen($arParams["BLOG_VAR"]) <= 0)
+		if ($arParams["BLOG_VAR"] == '')
 			$arParams["BLOG_VAR"] = "blog";
-		if (strLen($arParams["PAGE_VAR"]) <= 0)
+		if ($arParams["PAGE_VAR"] == '')
 			$arParams["PAGE_VAR"] = "page";
-		if (strLen($arParams["USER_VAR"]) <= 0)
+		if ($arParams["USER_VAR"] == '')
 			$arParams["USER_VAR"] = "id";
-		if (strLen($arParams["POST_VAR"]) <= 0)
+		if ($arParams["POST_VAR"] == '')
 			$arParams["POST_VAR"] = "id";
 		
 		$arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"]);
-		if (strlen($arParams["PATH_TO_BLOG"]) <= 0)
+		if ($arParams["PATH_TO_BLOG"] == '')
 			$arParams["PATH_TO_BLOG"] = $APPLICATION->GetCurPage() . "?" . htmlspecialcharsbx($arParams["PAGE_VAR"]) . "=blog&" . htmlspecialcharsbx($arParams["BLOG_VAR"]) . "=#blog#";
 		
 		$arParams["PATH_TO_POST"] = trim($arParams["PATH_TO_POST"]);
-		if (strlen($arParams["PATH_TO_POST"]) <= 0)
+		if ($arParams["PATH_TO_POST"] == '')
 			$arParams["PATH_TO_POST"] = $APPLICATION->GetCurPage() . "?" . htmlspecialcharsbx($arParams["PAGE_VAR"]) . "=post&" . htmlspecialcharsbx($arParams["BLOG_VAR"]) . "=#blog#&" . htmlspecialcharsbx($arParams["POST_VAR"]) . "=#post_id#";
 		
 		$arParams["PATH_TO_POST_EDIT"] = trim($arParams["PATH_TO_POST_EDIT"]);
-		if (strlen($arParams["PATH_TO_POST_EDIT"]) <= 0)
+		if ($arParams["PATH_TO_POST_EDIT"] == '')
 			$arParams["PATH_TO_POST_EDIT"] = $APPLICATION->GetCurPage() . "?" . htmlspecialcharsbx($arParams["PAGE_VAR"]) . "=post_edit&" . htmlspecialcharsbx($arParams["BLOG_VAR"]) . "=#blog#&" . htmlspecialcharsbx($arParams["POST_VAR"]) . "=#post_id#";
 		
 		$arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-		if (strlen($arParams["PATH_TO_USER"]) <= 0)
+		if ($arParams["PATH_TO_USER"] == '')
 			$arParams["PATH_TO_USER"] = $APPLICATION->GetCurPage() . "?" . htmlspecialcharsbx($arParams["PAGE_VAR"]) . "=user&" . htmlspecialcharsbx($arParams["USER_VAR"]) . "=#user_id#";
 		
 		$arParams["PATH_TO_DRAFT"] = trim($arParams["PATH_TO_DRAFT"]);
-		if (strlen($arParams["PATH_TO_DRAFT"]) <= 0)
+		if ($arParams["PATH_TO_DRAFT"] == '')
 			$arParams["PATH_TO_DRAFT"] = $APPLICATION->GetCurPage() . "?" . htmlspecialcharsbx($arParams["PAGE_VAR"]) . "=draft&" . htmlspecialcharsbx($arParams["BLOG_VAR"]) . "=#blog#";
 		
 		$arParams["PATH_TO_GROUP_BLOG"] = trim($arParams["PATH_TO_GROUP_BLOG"]);
-		if (strlen($arParams["PATH_TO_GROUP_BLOG"]) <= 0)
+		if ($arParams["PATH_TO_GROUP_BLOG"] == '')
 		{
 			$arParams["PATH_TO_GROUP_BLOG"] = "/workgroups/group/#group_id#/blog/";
 			if ($arParams["MICROBLOG"])
 				$arParams["PATH_TO_GROUP_BLOG"] = "/workgroups/group/#group_id#/microblog/";
 		}
-		if (strlen($arParams["PATH_TO_GROUP_POST"]) <= 0)
+		if ($arParams["PATH_TO_GROUP_POST"] == '')
 		{
 			$arParams["PATH_TO_GROUP_POST"] = "/workgroups/group/#group_id#/blog/#post_id#/";
 			if ($arParams["MICROBLOG"])
 				$arParams["PATH_TO_GROUP_POST"] = "/workgroups/group/#group_id#/microblog/#post_id#/";
 		}
-		if (strlen($arParams["PATH_TO_GROUP_POST_EDIT"]) <= 0)
+		if ($arParams["PATH_TO_GROUP_POST_EDIT"] == '')
 		{
 			$arParams["PATH_TO_GROUP_POST_EDIT"] = "/workgroups/group/#group_id#/blog/edit/#post_id#/";
 			if ($arParams["MICROBLOG"])
 				$arParams["PATH_TO_GROUP_POST_EDIT"] = "/workgroups/group/#group_id#/microblog/edit/#post_id#/?microblog=Y";
 		}
-		if (strlen($arParams["PATH_TO_GROUP_DRAFT"]) <= 0)
+		if ($arParams["PATH_TO_GROUP_DRAFT"] == '')
 			$arParams["PATH_TO_GROUP_DRAFT"] = "/workgroups/group/#group_id#/blog/draft/";
 
 		if (!is_array($arParams["POST_PROPERTY"]))
@@ -85,27 +85,27 @@ class CBlogPostEdit extends CBitrixComponent
 		else
 			$arParams["POST_PROPERTY"][] = CBlogPost::UF_NAME;
 		
-		$arParams["PATH_TO_SMILE"] = strlen(trim($arParams["PATH_TO_SMILE"])) <= 0 ? false : trim($arParams["PATH_TO_SMILE"]);
+		$arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"]) == '' ? false : trim($arParams["PATH_TO_SMILE"]);
 		$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 		
-		$arParams["SMILES_COUNT"] = IntVal($arParams["SMILES_COUNT"]);
-		if (IntVal($arParams["SMILES_COUNT"]) <= 0)
+		$arParams["SMILES_COUNT"] = intval($arParams["SMILES_COUNT"]);
+		if (intval($arParams["SMILES_COUNT"]) <= 0)
 			$arParams["SMILES_COUNT"] = 5;
 		
 		$arParams["ALLOW_POST_MOVE"] = ($arParams["ALLOW_POST_MOVE"] == "Y") ? "Y" : "N";
 		
 		$arParams["IMAGE_MAX_WIDTH"] = $arParams["IMAGE_MAX_WIDTH"] ?
-			IntVal($arParams["IMAGE_MAX_WIDTH"]) :
+			intval($arParams["IMAGE_MAX_WIDTH"]) :
 			COption::GetOptionString("blog", "image_max_width", 500);
 		$arParams["IMAGE_MAX_HEIGHT"] = $arParams["IMAGE_MAX_HEIGHT"] ?
-			IntVal($arParams["IMAGE_MAX_HEIGHT"]) :
+			intval($arParams["IMAGE_MAX_HEIGHT"]) :
 			COption::GetOptionString("blog", " image_max_height", 500);
 //		$arParams["IMAGE_MAX_HEIGHT"] = IntVal($arParams["IMAGE_MAX_HEIGHT"]);
 		
 		$arParams["EDITOR_RESIZABLE"] = $arParams["EDITOR_RESIZABLE"] !== "N";
 		$arParams["EDITOR_CODE_DEFAULT"] = $arParams["EDITOR_CODE_DEFAULT"] === "Y";
-		$arParams["EDITOR_DEFAULT_HEIGHT"] = intVal($arParams["EDITOR_DEFAULT_HEIGHT"]);
-		if (IntVal($arParams["EDITOR_DEFAULT_HEIGHT"]) <= 0)
+		$arParams["EDITOR_DEFAULT_HEIGHT"] = intval($arParams["EDITOR_DEFAULT_HEIGHT"]);
+		if (intval($arParams["EDITOR_DEFAULT_HEIGHT"]) <= 0)
 			$arParams["EDITOR_DEFAULT_HEIGHT"] = 300;
 		
 		$arParams["ALLOW_POST_CODE"] = $arParams["ALLOW_POST_CODE"] !== "N";
@@ -132,10 +132,10 @@ class CBlogPostEdit extends CBitrixComponent
 		$this->arResult["allowVideo"] = COption::GetOptionString("blog", "allow_video", "Y");
 		$blogModulePermissions = $APPLICATION->GetGroupRight("blog");
 		
-		$this->arResult["preview"] = (strlen($_POST["preview"]) > 0) ? "Y" : "N";
+		$this->arResult["preview"] = ($_POST["preview"] <> '') ? "Y" : "N";
 		
 		$arBlog = CBlog::GetByUrl($this->arParams["BLOG_URL"], $this->arParams["GROUP_ID"]);
-		if (IntVal($this->arParams["ID"]) > 0)
+		if (intval($this->arParams["ID"]) > 0)
 			$this->arResult["perms"] = CBlogPost::GetBlogUserPostPerms($this->arParams["ID"], $this->arResult["UserID"]);
 		else
 			$this->arResult["perms"] = CBlog::GetBlogUserPostPerms($arBlog["ID"], $this->arResult["UserID"]);
@@ -157,7 +157,7 @@ class CBlogPostEdit extends CBitrixComponent
 				$this->arResult["USE_NEW_EDITOR"] = isset($_POST["USE_NEW_EDITOR"]) && $_POST["USE_NEW_EDITOR"] == "Y";
 
 //				change title and ID by CREATE or EDIT post
-				if (IntVal($this->arParams["ID"]) > 0 && $arPost = CBlogPost::GetByID($this->arParams["ID"]))
+				if (intval($this->arParams["ID"]) > 0 && $arPost = CBlogPost::GetByID($this->arParams["ID"]))
 				{
 					$arPost = CBlogTools::htmlspecialcharsExArray($arPost);
 					$this->arResult["Post"] = $arPost;
@@ -171,9 +171,9 @@ class CBlogPostEdit extends CBitrixComponent
 						$APPLICATION->SetTitle(str_replace("#BLOG#", $arBlog["NAME"], "" . Loc::GetMessage("BLOG_NEW_MESSAGE") . ""));
 				}
 				
-				if (($this->arResult["perms"] >= BLOG_PERMS_MODERATE || ($this->arResult["perms"] >= BLOG_PERMS_PREMODERATE && ($this->arParams["ID"] == 0 || $arPost["AUTHOR_ID"] == $this->arResult["UserID"]))) && (IntVal($this->arParams["ID"]) <= 0 || $arPost["BLOG_ID"] == $arBlog["ID"]))
+				if (($this->arResult["perms"] >= BLOG_PERMS_MODERATE || ($this->arResult["perms"] >= BLOG_PERMS_PREMODERATE && ($this->arParams["ID"] == 0 || $arPost["AUTHOR_ID"] == $this->arResult["UserID"]))) && (intval($this->arParams["ID"]) <= 0 || $arPost["BLOG_ID"] == $arBlog["ID"]))
 				{
-					if (IntVal($this->arParams["ID"]) > 0 && $arPost["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_READY && $this->arResult["perms"] == BLOG_PERMS_PREMODERATE)
+					if (intval($this->arParams["ID"]) > 0 && $arPost["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_READY && $this->arResult["perms"] == BLOG_PERMS_PREMODERATE)
 					{
 						$this->arResult["MESSAGE"] = Loc::GetMessage("BPE_HIDDEN_POSTED");
 					}
@@ -193,16 +193,16 @@ class CBlogPostEdit extends CBitrixComponent
 						$APPLICATION->RestartBuffer();
 						header("Pragma: no-cache");
 						
-						if (check_bitrix_sessid() || strlen($_REQUEST["sessid"]) <= 0)
+						if (check_bitrix_sessid() || $_REQUEST["sessid"] == '')
 						{
 //					delete image and file by click X
-							if (IntVal($_GET["del_image_id"]) > 0)
+							if (intval($_GET["del_image_id"]) > 0)
 							{
-								$del_image_id = IntVal($_GET["del_image_id"]);
+								$del_image_id = intval($_GET["del_image_id"]);
 								$aImg = CBlogImage::GetByID($del_image_id);
 								if (
 									$aImg["BLOG_ID"] == $arBlog["ID"]
-									&& $aImg["POST_ID"] == IntVal($this->arParams["ID"])
+									&& $aImg["POST_ID"] == intval($this->arParams["ID"])
 								)
 								{
 									CBlogImage::Delete($del_image_id);
@@ -300,7 +300,7 @@ class CBlogPostEdit extends CBitrixComponent
 						{
 							if (check_bitrix_sessid())
 							{
-								if (strlen($this->arResult["ERROR_MESSAGE"]) <= 0)
+								if ($this->arResult["ERROR_MESSAGE"] == '')
 								{
 									$TRACKBACK = trim($_POST["TRACKBACK"]);
 									InitBVar($_POST["ENABLE_TRACKBACK"]);
@@ -319,7 +319,7 @@ class CBlogPostEdit extends CBitrixComponent
 										"ENABLE_TRACKBACK" => $_POST["ENABLE_TRACKBACK"],
 										"ENABLE_COMMENTS" => ($_POST["ENABLE_COMMENTS"] == "N") ? "N" : "Y",
 										"CATEGORY_ID" => implode(",", $categoriesIds),
-										"FAVORITE_SORT" => (IntVal($_POST["FAVORITE_SORT"]) > 0) ? IntVal($_POST["FAVORITE_SORT"]) : 0,
+										"FAVORITE_SORT" => (intval($_POST["FAVORITE_SORT"]) > 0) ? intval($_POST["FAVORITE_SORT"]) : 0,
 										"ATTACH_IMG" => "",
 										"PATH" => CComponentEngine::MakePathFromTemplate(htmlspecialcharsBack($this->arParams["PATH_TO_POST"]), array("blog" => $arBlog["URL"], "post_id" => "#post_id#", "user_id" => $arBlog["OWNER_ID"])),
 										"URL" => $arBlog["URL"],
@@ -330,7 +330,7 @@ class CBlogPostEdit extends CBitrixComponent
 									$arFields = array_merge($arFields, $this->setPermsFields());
 									$arFields = array_merge($arFields, $this->setMicroblogFields($arFields["DETAIL_TEXT"], Loc::GetMessage("BLOG_EMPTY_TITLE_PLACEHOLDER")));
 									
-									if ($_POST["POST_MESSAGE_TYPE"] == "html" && strlen($_POST["POST_MESSAGE_HTML"]) <= 0)
+									if ($_POST["POST_MESSAGE_TYPE"] == "html" && $_POST["POST_MESSAGE_HTML"] == '')
 										$arFields["DETAIL_TEXT"] = $_POST["POST_MESSAGE"];
 									
 //									update or delete images to OLD EDITOR (by POST fields)
@@ -368,11 +368,11 @@ class CBlogPostEdit extends CBitrixComponent
 									$arFields = $saveOrUpdateResult['FIELDS'];
 									$bAdd = $saveOrUpdateResult['ADD_RESULT'];
 									$arOldPost = $saveOrUpdateResult['OLD_POST'];
-									$this->arResult["ERROR_MESSAGE"] = strlen($saveOrUpdateResult['ERROR_MSG']) > 0 ?
+									$this->arResult["ERROR_MESSAGE"] = $saveOrUpdateResult['ERROR_MSG'] <> '' ?
 										$saveOrUpdateResult['ERROR_MSG'] :
 										$this->arResult["ERROR_MESSAGE"];
 									
-									if (IntVal($newID) > 0)
+									if (intval($newID) > 0)
 									{
 										CBlogPostCategory::DeleteByPostID($newID);
 										foreach ($categoriesIds as $v)
@@ -385,7 +385,7 @@ class CBlogPostEdit extends CBitrixComponent
 												CBlogImage::Update($imageId, array("POST_ID" => $newID, "BLOG_ID" => $arBlog["ID"]));
 										}
 										
-										if (strlen($TRACKBACK) > 0)
+										if ($TRACKBACK <> '')
 										{
 											$arPingUrls = explode("\n", $TRACKBACK);
 											CBlogTrackback::SendPing($newID, $arPingUrls);
@@ -393,10 +393,10 @@ class CBlogPostEdit extends CBitrixComponent
 									}
 									
 //									move/copy post to another blog
-									if (IntVal($newID) > 0 && IntVal($_POST["move2blog"]) > 0 && $this->arParams["ALLOW_POST_MOVE"] == "Y")
+									if (intval($newID) > 0 && intval($_POST["move2blog"]) > 0 && $this->arParams["ALLOW_POST_MOVE"] == "Y")
 									{
 										$copyOrMoveResult = $this->copyOrMovePost($arBlog);
-										$this->arResult["ERROR_MESSAGE"] = strlen($copyOrMoveResult['ERROR_MSG']) > 0 ?
+										$this->arResult["ERROR_MESSAGE"] = $copyOrMoveResult['ERROR_MSG'] <> '' ?
 											$copyOrMoveResult['ERROR_MSG'] :
 											$this->arResult["ERROR_MESSAGE"];
 										
@@ -417,8 +417,8 @@ class CBlogPostEdit extends CBitrixComponent
 											|| ($arOldPost["PUBLISH_STATUS"] != BLOG_PUBLISH_STATUS_PUBLISH && $arFields["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_PUBLISH)
 										)
 										&& (
-											IntVal($copyID) <= 0
-											|| (IntVal($copyID) > 0 && $_POST["move2blogcopy"] == "Y")
+											intval($copyID) <= 0
+											|| (intval($copyID) > 0 && $_POST["move2blogcopy"] == "Y")
 										)
 									)
 									{
@@ -439,10 +439,10 @@ class CBlogPostEdit extends CBitrixComponent
 										
 										if (COption::GetOptionString("blog", "send_blog_ping", "N") == "Y")
 										{
-											if (!isset($serverName) || strlen($serverName) <= 0)
+											if (!isset($serverName) || $serverName == '')
 											{
-												$serverName = ((defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME) > 0) ? SITE_SERVER_NAME : COption::GetOptionString("main", "server_name", ""));
-												if (strlen($serverName) <= 0)
+												$serverName = ((defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '') ? SITE_SERVER_NAME : COption::GetOptionString("main", "server_name", ""));
+												if ($serverName == '')
 													$serverName = $_SERVER["SERVER_NAME"];
 											}
 											
@@ -452,7 +452,7 @@ class CBlogPostEdit extends CBitrixComponent
 									}
 
 //									NOTIFY for COPY post
-									if (isset($copyID) && IntVal($copyID) > 0 && $arCopyPost["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_PUBLISH)
+									if (isset($copyID) && intval($copyID) > 0 && $arCopyPost["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_PUBLISH)
 									{
 										$arCopyPost["ID"] = $copyID;
 										$arParamsNotify = Array(
@@ -470,10 +470,10 @@ class CBlogPostEdit extends CBitrixComponent
 										
 										if (COption::GetOptionString("blog", "send_blog_ping", "N") == "Y")
 										{
-											if (strlen($serverName) <= 0)
+											if ($serverName == '')
 											{
-												$serverName = ((defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME) > 0) ? SITE_SERVER_NAME : COption::GetOptionString("main", "server_name", ""));
-												if (strlen($serverName) <= 0)
+												$serverName = ((defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '') ? SITE_SERVER_NAME : COption::GetOptionString("main", "server_name", ""));
+												if ($serverName == '')
 													$serverName = $_SERVER["SERVER_NAME"];
 											}
 											
@@ -483,16 +483,16 @@ class CBlogPostEdit extends CBitrixComponent
 									}
 
 //									SAVE success - redirect
-									if ($newID > 0 && strlen($this->arResult["ERROR_MESSAGE"]) <= 0) // Record saved successfully
+									if ($newID > 0 && $this->arResult["ERROR_MESSAGE"] == '') // Record saved successfully
 									{
 										$this->arParams["ID"] = $newID;
 										$this->clearBlogCache($arBlog);
 										
-										if (IntVal($copyID) > 0 && $_POST["move2blogcopy"] != "Y")
+										if (intval($copyID) > 0 && $_POST["move2blogcopy"] != "Y")
 										{
-											if (strlen($_POST["apply"]) <= 0)
+											if ($_POST["apply"] == '')
 											{
-												if ($arCopyPost["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_DRAFT || strlen($_POST["draft"]) > 0)
+												if ($arCopyPost["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_DRAFT || $_POST["draft"] <> '')
 													$redirectUrl = CComponentEngine::MakePathFromTemplate($pathTemplateDraft, array("blog" => $arCopyBlog["URL"], "user_id" => $arCopyBlog["OWNER_ID"]));
 												elseif ($arCopyPost["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_READY)
 													$redirectUrl = CComponentEngine::MakePathFromTemplate($pathTemplateEdit, array("blog" => $arCopyBlog["URL"], "post_id" => $copyID, "user_id" => $arCopyBlog["OWNER_ID"]));
@@ -504,9 +504,9 @@ class CBlogPostEdit extends CBitrixComponent
 										}
 										else
 										{
-											if (strlen($_POST["apply"]) <= 0)
+											if ($_POST["apply"] == '')
 											{
-												if ($arFields["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_DRAFT || strlen($_POST["draft"]) > 0)
+												if ($arFields["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_DRAFT || $_POST["draft"] <> '')
 													$redirectUrl = CComponentEngine::MakePathFromTemplate($this->arParams["PATH_TO_DRAFT"], array("blog" => $arBlog["URL"], "user_id" => $arBlog["OWNER_ID"]));
 												elseif ($arFields["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_READY)
 													$redirectUrl = CComponentEngine::MakePathFromTemplate($this->arParams["PATH_TO_POST_EDIT"], array("blog" => $arBlog["URL"], "post_id" => $newID, "user_id" => $arBlog["OWNER_ID"]));
@@ -522,7 +522,7 @@ class CBlogPostEdit extends CBitrixComponent
 									}
 									else
 									{
-										if (strlen($this->arResult["ERROR_MESSAGE"]) <= 0)
+										if ($this->arResult["ERROR_MESSAGE"] == '')
 										{
 											if ($ex = $APPLICATION->GetException())
 												$this->arResult["ERROR_MESSAGE"] = $ex->GetString() . "<br />";
@@ -544,7 +544,7 @@ class CBlogPostEdit extends CBitrixComponent
 						}
 
 //						SHOW
-						if ($this->arParams["ID"] > 0 && strlen($this->arResult["ERROR_MESSAGE"]) <= 0 && $this->arResult["preview"] != "Y") // Edit post
+						if ($this->arParams["ID"] > 0 && $this->arResult["ERROR_MESSAGE"] == '' && $this->arResult["preview"] != "Y") // Edit post
 						{
 							$postToShowParams = $this->initPostToShowExistPost($arPost, $arBlog);
 							$this->arResult["PostToShow"] = is_array($this->arResult["PostToShow"]) ?
@@ -584,21 +584,21 @@ class CBlogPostEdit extends CBitrixComponent
 							
 							foreach ($this->arResult["BLOG_POST_PERMS"] as $v)
 							{
-								if (strlen($this->arResult["post_everyone_max_rights"]) > 0 && $v <= $this->arResult["post_everyone_max_rights"])
+								if ($this->arResult["post_everyone_max_rights"] <> '' && $v <= $this->arResult["post_everyone_max_rights"])
 									$this->arResult["ar_post_everyone_rights"][] = $v;
-								if (strlen($this->arResult["post_auth_user_max_rights"]) > 0 && $v <= $this->arResult["post_auth_user_max_rights"])
+								if ($this->arResult["post_auth_user_max_rights"] <> '' && $v <= $this->arResult["post_auth_user_max_rights"])
 									$this->arResult["ar_post_auth_user_rights"][] = $v;
-								if (strlen($this->arResult["post_group_user_max_rights"]) > 0 && $v <= $this->arResult["post_group_user_max_rights"])
+								if ($this->arResult["post_group_user_max_rights"] <> '' && $v <= $this->arResult["post_group_user_max_rights"])
 									$this->arResult["ar_post_group_user_rights"][] = $v;
 							}
 							
 							foreach ($this->arResult["BLOG_COMMENT_PERMS"] as $v)
 							{
-								if (strlen($this->arResult["comment_everyone_max_rights"]) > 0 && $v <= $this->arResult["comment_everyone_max_rights"])
+								if ($this->arResult["comment_everyone_max_rights"] <> '' && $v <= $this->arResult["comment_everyone_max_rights"])
 									$this->arResult["ar_comment_everyone_rights"][] = $v;
-								if (strlen($this->arResult["comment_auth_user_max_rights"]) > 0 && $v <= $this->arResult["comment_auth_user_max_rights"])
+								if ($this->arResult["comment_auth_user_max_rights"] <> '' && $v <= $this->arResult["comment_auth_user_max_rights"])
 									$this->arResult["ar_comment_auth_user_rights"][] = $v;
-								if (strlen($this->arResult["comment_group_user_max_rights"]) > 0 && $v <= $this->arResult["comment_group_user_max_rights"])
+								if ($this->arResult["comment_group_user_max_rights"] <> '' && $v <= $this->arResult["comment_group_user_max_rights"])
 									$this->arResult["ar_comment_group_user_rights"][] = $v;
 							}
 						}
@@ -668,10 +668,10 @@ class CBlogPostEdit extends CBitrixComponent
 						}
 
 //						prapare CATEGORIES TEXT
-						if (strpos($this->arResult["PostToShow"]["CATEGORY_ID"], ",") !== false)
+						if (mb_strpos($this->arResult["PostToShow"]["CATEGORY_ID"], ",") !== false)
 							$this->arResult["PostToShow"]["CATEGORY_ID"] = explode(",", trim($this->arResult["PostToShow"]["CATEGORY_ID"]));
 						$this->arResult["Category"] = Array();
-						if (strlen($this->arResult["PostToShow"]["CategoryText"]) <= 0)
+						if ($this->arResult["PostToShow"]["CategoryText"] == '')
 						{
 							$res = CBlogCategory::GetList(array("NAME" => "ASC"), array("BLOG_ID" => $arBlog["ID"]));
 							while ($arCategory = $res->GetNext())
@@ -683,7 +683,7 @@ class CBlogPostEdit extends CBitrixComponent
 								}
 								else
 								{
-									if (IntVal($arCategory["ID"]) == IntVal($this->arResult["PostToShow"]["CATEGORY_ID"]))
+									if (intval($arCategory["ID"]) == intval($this->arResult["PostToShow"]["CATEGORY_ID"]))
 										$arCategory["Selected"] = "Y";
 								}
 								if ($arCategory["Selected"] == "Y")
@@ -691,7 +691,7 @@ class CBlogPostEdit extends CBitrixComponent
 								
 								$this->arResult["Category"][$arCategory["ID"]] = $arCategory;
 							}
-							$this->arResult["PostToShow"]["CategoryText"] = substr($this->arResult["PostToShow"]["CategoryText"], 0, strlen($this->arResult["PostToShow"]["CategoryText"]) - 2);
+							$this->arResult["PostToShow"]["CategoryText"] = mb_substr($this->arResult["PostToShow"]["CategoryText"], 0, mb_strlen($this->arResult["PostToShow"]["CategoryText"]) - 2);
 						}
 						
 //						set PROPERTIES from user fields
@@ -706,10 +706,10 @@ class CBlogPostEdit extends CBitrixComponent
 								{
 									if (!in_array($FIELD_NAME, $this->arParams["POST_PROPERTY"]))
 										continue;
-									$arPostField["EDIT_FORM_LABEL"] = strLen($arPostField["EDIT_FORM_LABEL"]) > 0 ? $arPostField["EDIT_FORM_LABEL"] : $arPostField["FIELD_NAME"];
+									$arPostField["EDIT_FORM_LABEL"] = $arPostField["EDIT_FORM_LABEL"] <> '' ? $arPostField["EDIT_FORM_LABEL"] : $arPostField["FIELD_NAME"];
 									$arPostField["EDIT_FORM_LABEL"] = htmlspecialcharsEx($arPostField["EDIT_FORM_LABEL"]);
 									$arPostField["~EDIT_FORM_LABEL"] = $arPostField["EDIT_FORM_LABEL"];
-									if (strlen($this->arResult["ERROR_MESSAGE"]) > 0 && !empty($_POST[$FIELD_NAME]))
+									if ($this->arResult["ERROR_MESSAGE"] <> '' && !empty($_POST[$FIELD_NAME]))
 									{
 										$arPostField["VALUE"] = $_POST[$FIELD_NAME];
 									}
@@ -727,14 +727,14 @@ class CBlogPostEdit extends CBitrixComponent
 						
 						$this->arResult["CUR_PAGE"] = htmlspecialcharsbx(urlencode($APPLICATION->GetCurPageParam()));
 						
-						$serverName = ((defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME) > 0) ? SITE_SERVER_NAME : COption::GetOptionString("main", "server_name", ""));
-						if (strLen($serverName) <= 0)
+						$serverName = ((defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '') ? SITE_SERVER_NAME : COption::GetOptionString("main", "server_name", ""));
+						if ($serverName == '')
 							$serverName = $_SERVER["HTTP_HOST"];
 						$serverName = "http://" . $serverName;
 						
 						$this->arResult["PATH_TO_POST"] = CComponentEngine::MakePathFromTemplate(htmlspecialcharsBack($this->arParams["PATH_TO_POST"]), array("blog" => $arBlog["URL"], "post_id" => "#post_id#", "user_id" => $arBlog["OWNER_ID"]));
-						$this->arResult["PATH_TO_POST1"] = $serverName . substr($this->arResult["PATH_TO_POST"], 0, strpos($this->arResult["PATH_TO_POST"], "#post_id#"));
-						$this->arResult["PATH_TO_POST2"] = substr($this->arResult["PATH_TO_POST"], strpos($this->arResult["PATH_TO_POST"], "#post_id#") + strlen("#post_id#"));
+						$this->arResult["PATH_TO_POST1"] = $serverName.mb_substr($this->arResult["PATH_TO_POST"], 0, mb_strpos($this->arResult["PATH_TO_POST"], "#post_id#"));
+						$this->arResult["PATH_TO_POST2"] = mb_substr($this->arResult["PATH_TO_POST"], mb_strpos($this->arResult["PATH_TO_POST"], "#post_id#") + mb_strlen("#post_id#"));
 						
 						if ($this->arResult["preview"] == "Y")
 						{
@@ -752,7 +752,7 @@ class CBlogPostEdit extends CBitrixComponent
 								$this->arResult["postPreview"]["DATE_PUBLISH_M"] = ConvertDateTime($this->arResult["postPreview"]["DATE_PUBLISH"], "MM");
 								$this->arResult["postPreview"]["DATE_PUBLISH_Y"] = ConvertDateTime($this->arResult["postPreview"]["DATE_PUBLISH"], "YYYY");
 								$this->arResult["postPreview"]["FAVORITE_SORT"] = htmlspecialcharsEx($this->arResult["FAVORITE_SORT"]);
-								if ($_POST["POST_MESSAGE_TYPE"] == "html" && strlen($_POST["POST_MESSAGE_HTML"]) <= 0)
+								if ($_POST["POST_MESSAGE_TYPE"] == "html" && $_POST["POST_MESSAGE_HTML"] == '')
 								{
 									$this->arResult["postPreview"]["DETAIL_TEXT"] = htmlspecialcharsEx($_POST["POST_MESSAGE"]);
 									$this->arResult["postPreview"]["~DETAIL_TEXT"] = $_POST["POST_MESSAGE"];
@@ -763,8 +763,8 @@ class CBlogPostEdit extends CBitrixComponent
 									foreach ($_POST["CATEGORY_ID"] as $v)
 									{
 										
-										if (substr($v, 0, 4) == "new_")
-											$this->arResult["Category"][$v] = Array("ID" => $v, "NAME" => substr($v, 4), "Selected" => "Y");
+										if (mb_substr($v, 0, 4) == "new_")
+											$this->arResult["Category"][$v] = Array("ID" => $v, "NAME" => mb_substr($v, 4), "Selected" => "Y");
 									}
 								}
 								
@@ -813,7 +813,7 @@ class CBlogPostEdit extends CBitrixComponent
 									$this->arResult["postPreview"]["BlogUser"]["AVATAR_img"] = CFile::ShowImage($this->arResult["postPreview"]["BlogUser"]["Avatar_resized"]["src"], 100, 100, "border=0 align='right'");
 								}
 								
-								if (strlen($this->arResult["PostToShow"]["CategoryText"]) > 0)
+								if ($this->arResult["PostToShow"]["CategoryText"] <> '')
 								{
 									$arCatTmp = explode(",", $this->arResult["PostToShow"]["CategoryText"]);
 									if (is_array($arCatTmp))
@@ -822,11 +822,11 @@ class CBlogPostEdit extends CBitrixComponent
 											$this->arResult["postPreview"]["Category"][] = Array("NAME" => htmlspecialcharsbx(trim($v)));
 									}
 								}
-								elseif (strlen($this->arResult["postPreview"]["CATEGORY_ID"]) > 0)
+								elseif ($this->arResult["postPreview"]["CATEGORY_ID"] <> '')
 								{
 									foreach ($this->arResult["postPreview"]["CATEGORY_ID"] as $v)
 									{
-										if (strlen($v) > 0)
+										if ($v <> '')
 										{
 											$this->arResult["postPreview"]["Category"][] = $this->arResult["Category"][$v];
 										}
@@ -899,7 +899,7 @@ class CBlogPostEdit extends CBitrixComponent
 	private function parseFilesArray()
 	{
 		$existingFiles = array();
-		if ($this->arParams["ID"] > 0 && strlen($_POST["blog_upload_cid"]) <= 0)
+		if ($this->arParams["ID"] > 0 && $_POST["blog_upload_cid"] == '')
 		{
 			$dbP = CBlogPost::GetList(array(), array("ID" => $this->arParams["ID"]), false, false, array("ID", "UF_BLOG_POST_DOC"));
 			if ($arP = $dbP->Fetch())
@@ -1007,7 +1007,7 @@ class CBlogPostEdit extends CBitrixComponent
 			$tg = trim($tg);
 			if (!in_array($arCatBlog[ToLower($tg)], $categoriesIds))
 			{
-				if (IntVal($arCatBlog[ToLower($tg)]) > 0)
+				if (intval($arCatBlog[ToLower($tg)]) > 0)
 				{
 					$categoriesIds[] = $arCatBlog[ToLower($tg)];
 				}
@@ -1027,9 +1027,9 @@ class CBlogPostEdit extends CBitrixComponent
 		$categoriesIds = array();
 		foreach ($_POST["CATEGORY_ID"] as $v)
 		{
-			if (substr($v, 0, 4) == "new_")
+			if (mb_substr($v, 0, 4) == "new_")
 			{
-				$categoriesIds[] = CBlogCategory::Add(array("BLOG_ID" => $blogParams["ID"], "NAME" => substr($v, 4)));
+				$categoriesIds[] = CBlogCategory::Add(array("BLOG_ID" => $blogParams["ID"], "NAME" => mb_substr($v, 4)));
 				BXClearCache(true, "/" . SITE_ID . "/blog/" . $blogParams["URL"] . "/category/");
 			}
 			else
@@ -1052,9 +1052,9 @@ class CBlogPostEdit extends CBitrixComponent
 	
 	private function getDatePublish()
 	{
-		if (strlen($_POST["DATE_PUBLISH_DEF"]) > 0)
+		if ($_POST["DATE_PUBLISH_DEF"] <> '')
 			$DATE_PUBLISH = $_POST["DATE_PUBLISH_DEF"];
-		elseif (strlen($_POST["DATE_PUBLISH"]) <= 0)
+		elseif ($_POST["DATE_PUBLISH"] == '')
 			$DATE_PUBLISH = ConvertTimeStamp(time() + CTimeZone::GetOffset(), "FULL");
 		else
 			$DATE_PUBLISH = $_POST["DATE_PUBLISH"];
@@ -1067,11 +1067,11 @@ class CBlogPostEdit extends CBitrixComponent
 //		default - draft
 		$PUBLISH_STATUS = BLOG_PUBLISH_STATUS_DRAFT;
 		
-		if (strlen($_POST["draft"]) > 0 || $_POST["PUBLISH_STATUS"] == "D")
+		if ($_POST["draft"] <> '' || $_POST["PUBLISH_STATUS"] == "D")
 			$PUBLISH_STATUS = BLOG_PUBLISH_STATUS_DRAFT;
 		elseif ($perms == BLOG_PERMS_PREMODERATE)
 			$PUBLISH_STATUS = BLOG_PUBLISH_STATUS_READY;
-		elseif (strlen($_POST["PUBLISH_STATUS"]) <= 0 || $_POST["PUBLISH_STATUS"] == "P")
+		elseif ($_POST["PUBLISH_STATUS"] == '' || $_POST["PUBLISH_STATUS"] == "P")
 			$PUBLISH_STATUS = BLOG_PUBLISH_STATUS_PUBLISH;
 		
 		return $PUBLISH_STATUS;
@@ -1093,11 +1093,11 @@ class CBlogPostEdit extends CBitrixComponent
 	private function setCodeFields($blogParams)
 	{
 		$arFields = array();
-		if ($this->arParams["ALLOW_POST_CODE"] && strlen(trim($_POST["CODE"])) > 0)
+		if ($this->arParams["ALLOW_POST_CODE"] && trim($_POST["CODE"]) <> '')
 		{
 			$arFields["CODE"] = trim($_POST["CODE"]);
 			$arPCFilter = array("BLOG_ID" => $blogParams["ID"], "CODE" => $arFields["CODE"]);
-			if (IntVal($this->arParams["ID"]) > 0)
+			if (intval($this->arParams["ID"]) > 0)
 				$arPCFilter["!ID"] = $this->arParams["ID"];
 			$db = CBlogPost::GetList(Array(), $arPCFilter, false, Array("nTopCount" => 1), Array("ID", "CODE", "BLOG_ID"));
 			if ($db->Fetch())
@@ -1142,7 +1142,7 @@ class CBlogPostEdit extends CBitrixComponent
 		{
 			$arFields["MICRO"] = "Y";
 			$arFields["TITLE"] = trim(blogTextParser::killAllTags($title1));
-			if (strlen($arFields["TITLE"]) <= 0)
+			if ($arFields["TITLE"] == '')
 				$arFields["TITLE"] = $title2;
 		}
 		
@@ -1160,9 +1160,9 @@ class CBlogPostEdit extends CBitrixComponent
 		if ($this->arParams["ID"] > 0)
 		{
 			$arOldPost = CBlogPost::GetByID($this->arParams["ID"]);
-			if ($_POST["apply"] && strlen($_POST["PUBLISH_STATUS"]) <= 0)
+			if ($_POST["apply"] && $_POST["PUBLISH_STATUS"] == '')
 				$fields["PUBLISH_STATUS"] = $arOldPost["PUBLISH_STATUS"];
-			if (strlen($_POST["DATE_PUBLISH"]) <= 0)
+			if ($_POST["DATE_PUBLISH"] == '')
 				unset($fields["DATE_PUBLISH"]);
 			$newID = CBlogPost::Update($this->arParams["ID"], $fields);
 		}
@@ -1172,19 +1172,19 @@ class CBlogPostEdit extends CBitrixComponent
 			$fields["AUTHOR_ID"] = $this->userId;
 			$fields["BLOG_ID"] = $blogParams["ID"];
 			
-			if ($_POST["apply"] && strlen($_POST["PUBLISH_STATUS"]) <= 0)
+			if ($_POST["apply"] && $_POST["PUBLISH_STATUS"] == '')
 				$fields["PUBLISH_STATUS"] = BLOG_PUBLISH_STATUS_DRAFT;
 			
 			$dbDuplPost = CBlogPost::GetList(array("ID" => "DESC"), array("BLOG_ID" => $blogParams["ID"]), false, array("nTopCount" => 1), array("ID", "BLOG_ID", "AUTHOR_ID", "DETAIL_TEXT", "TITLE"));
 			if ($arDuplPost = $dbDuplPost->Fetch())
 			{
-				if ($arDuplPost["BLOG_ID"] == $fields["BLOG_ID"] && IntVal($arDuplPost["AUTHOR_ID"]) == IntVal($fields["AUTHOR_ID"]) && md5($arDuplPost["DETAIL_TEXT"]) == md5($fields["DETAIL_TEXT"]) && md5($arDuplPost["TITLE"]) == md5($fields["TITLE"]))
+				if ($arDuplPost["BLOG_ID"] == $fields["BLOG_ID"] && intval($arDuplPost["AUTHOR_ID"]) == intval($fields["AUTHOR_ID"]) && md5($arDuplPost["DETAIL_TEXT"]) == md5($fields["DETAIL_TEXT"]) && md5($arDuplPost["TITLE"]) == md5($fields["TITLE"]))
 				{
 					$errorMsg = Loc::GetMessage("B_B_PC_DUPLICATE_POST");
 				}
 			}
 			
-			if (strlen($errorMsg) <= 0)
+			if ($errorMsg == '')
 			{
 				$newID = CBlogPost::Add($fields);
 				$bAdd = true;
@@ -1419,7 +1419,7 @@ class CBlogPostEdit extends CBitrixComponent
 		$postToShowParams["TRACKBACK"] = htmlspecialcharsEx($_POST["TRACKBACK"]);
 		$postToShowParams["DATE_PUBLISH"] = $_POST["DATE_PUBLISH"] ? htmlspecialcharsEx($_POST["DATE_PUBLISH"]) : ConvertTimeStamp(time() + CTimeZone::GetOffset(), "FULL");
 		$postToShowParams["FAVORITE_SORT"] = htmlspecialcharsEx($_POST["FAVORITE_SORT"]);
-		if ($_POST["POST_MESSAGE_TYPE"] == "html" && strlen($_POST["POST_MESSAGE_HTML"]) <= 0)
+		if ($_POST["POST_MESSAGE_TYPE"] == "html" && $_POST["POST_MESSAGE_HTML"] == '')
 		{
 			$postToShowParams["DETAIL_TEXT"] = htmlspecialcharsEx($_POST["POST_MESSAGE"]);
 			$postToShowParams["~DETAIL_TEXT"] = $_POST["POST_MESSAGE"];
@@ -1440,7 +1440,7 @@ class CBlogPostEdit extends CBitrixComponent
 		{
 			$postToShowParams["arUGperms_p"] = $_POST["perms_p"];
 			$postToShowParams["arUGperms_c"] = $_POST["perms_c"];
-			$postToShowParams["ExtendedPerms"] = (IntVal($_POST["blog_perms"]) == 1 ? "Y" : "N");
+			$postToShowParams["ExtendedPerms"] = (intval($_POST["blog_perms"]) == 1 ? "Y" : "N");
 		}
 		else
 		{

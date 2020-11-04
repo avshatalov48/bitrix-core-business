@@ -184,6 +184,7 @@ input.ui-entity-editor-header-title-text {
 	opacity: .5;
 	cursor: pointer;
 	transition: 300ms all ease;
+	order:2;
 }
 
 .ui-entity-editor-header-edit-lnk:hover {
@@ -379,7 +380,7 @@ input.ui-entity-editor-header-title-text {
 /*region Context menu*/
 .ui-entity-editor-block-context-menu {
 	position: absolute;
-	right: -4px;
+	right: -9px;
 	top: -4px;
 	box-sizing: border-box;
 	width: 22px;
@@ -444,7 +445,8 @@ input.ui-entity-editor-header-title-text {
 }
 
 .ui-entity-editor-section-content-padding-right > div > .ui-entity-editor-block-title {padding-right: 12px; }
-.ui-entity-editor-section-content-padding-right > .ui-entity-editor-content-block {padding-right: 24px; }
+
+.ui-entity-editor-section-content-padding-right > .ui-entity-editor-content-block {padding-right: 16px; }
 
 .ui-entity-editor-content-block-padding-left { margin-left: 40px; }
 

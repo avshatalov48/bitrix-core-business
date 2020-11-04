@@ -34,6 +34,8 @@ class Access
 
 	private static $instance;
 
+	protected const ACTION_VIEW = 'VIEW';
+
 	/**
 	 * Get Access instance for current user.
 	 *
@@ -379,12 +381,10 @@ class Access
 			return true;
 		}
 
-		return Role\Permission::check(
-			$this->permissions,
-			$entityCode,
-			$actionCode,
-			$minPerm
-		);
+		if($actionCode === self::ACTION_VIEW)
+			return $this->user->canView();
+
+		return false;
 	}
 
 	private static function getSectionAndAction($action)

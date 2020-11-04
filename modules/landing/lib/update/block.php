@@ -62,7 +62,7 @@ class Block extends \Bitrix\Main\Update\Stepper
 
 		// reg stepper
 		\Bitrix\Main\Update\Stepper::bindClass(
-			'Bitrix\Landing\Update\Block', 'landing', 300
+			'Bitrix\Landing\Update\Block', 'landing', 600
 		);
 	}
 
@@ -358,17 +358,17 @@ class Block extends \Bitrix\Main\Update\Stepper
 				]
 			]
 		);
-		if ($row = $res->fetch())
-		{
-			$result['count'] = $row['CNT'];
-		}
-		else
+
+		// skip blocks that not exists
+		$row = $res->fetch();
+		if(!$row || (int) $row['CNT'] === 0)
 		{
 			UpdateBlock::delete(
 				$rowUpdate['ID']
 			);
 			return $this->execute($result);
 		}
+		$result['count'] = $row['CNT'];
 
 		// gets finished count
 		$res = BlockTable::getList([

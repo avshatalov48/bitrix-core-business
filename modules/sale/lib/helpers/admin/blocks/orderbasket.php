@@ -17,7 +17,7 @@ use Bitrix\Iblock,
 
 Loc::loadMessages(__FILE__);
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/admin_tool.php");
+require_once __DIR__.'/../../../../general/admin_tool.php';
 
 class OrderBasket
 {

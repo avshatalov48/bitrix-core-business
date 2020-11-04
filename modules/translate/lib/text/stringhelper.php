@@ -40,7 +40,7 @@ class StringHelper
 			return mb_strlen($str, $encoding);
 		}
 
-		return Main\Text\BinaryString::getLength($str);
+		return strlen($str);
 	}
 
 	/**
@@ -62,7 +62,7 @@ class StringHelper
 			return mb_substr($str, $start, $length, $encoding);
 		}
 
-		return Main\Text\BinaryString::getSubstring($str, $start, $length);
+		return substr($str, $start, $length);
 	}
 
 	/**
@@ -84,7 +84,7 @@ class StringHelper
 			return mb_strpos($haystack, $needle, $offset, $encoding);
 		}
 
-		return Main\Text\BinaryString::getPosition($haystack, $needle, $offset);
+		return strpos($haystack, $needle, $offset);
 	}
 
 	/**

@@ -6,6 +6,8 @@ use Bitrix\Main\Localization\Loc;
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
 Main\UI\Extension::load(['ui.buttons', 'ui.buttons.icons', 'ui.alerts', 'ui.dialogs.messagebox', 'ui.hint']);
+Main\UI\Extension::load("ui.icons.service");
+$APPLICATION->SetAdditionalCSS("/bitrix/css/main/font-awesome.css");
 
 Main\Page\Asset::getInstance()->addJS('/bitrix/components/bitrix/mail.client.message.list/templates/.default/user-interface-manager.js');
 
@@ -633,6 +635,7 @@ $APPLICATION->includeComponent(
 			array('id' => 'SUBJECT', 'name' => Loc::getMessage('MAIL_MESSAGE_LIST_COLUMN_SUBJECT'), 'class' => 'mail-msg-list-subject-cell-head', 'default' => true, 'editable' => false, 'showname' => false),
 			array('id' => 'DATE', 'name' => Loc::getMessage('MAIL_MESSAGE_LIST_COLUMN_DATE'), 'class' => 'mail-msg-list-date-cell-head', 'default' => true, 'editable' => false, 'showname' => false),
 			array('id' => 'BIND', 'name' => Loc::getMessage('MAIL_MESSAGE_LIST_COLUMN_BIND'), 'class' => 'mail-msg-list-bind-cell-head', 'default' => true, 'editable' => false, 'showname' => false),
+			array('id' => 'ICAL', 'name' => 'ICal', 'class' => 'mail-msg-list-ical-cell-head', 'default' => true, 'editable' => false, 'showname' => false),
 		),
 
 		'ROWS' => $arResult['ROWS'],
@@ -716,7 +719,10 @@ $APPLICATION->includeComponent(
 			MAIL_MESSAGE_LIST_CONFIRM_MOVE_ALL: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_CONFIRM_MOVE_ALL')) ?>',
 			MAIL_MESSAGE_LIST_CONFIRM_SPAM_ALL: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_CONFIRM_SPAM_ALL')) ?>',
 			MAIL_MESSAGE_LIST_CONFIRM_TRASH_ALL: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_CONFIRM_TRASH_ALL')) ?>',
-			MAIL_MESSAGE_LIST_CONFIRM_DELETE_ALL: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_CONFIRM_DELETE_ALL')) ?>'
+			MAIL_MESSAGE_LIST_CONFIRM_DELETE_ALL: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_CONFIRM_DELETE_ALL')) ?>',
+			MAIL_MESSAGE_ICAL_NOTIFY_ACCEPT: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_ICAL_NOTIFY_ACCEPT')) ?>',
+			MAIL_MESSAGE_ICAL_NOTIFY_REJECT: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_ICAL_NOTIFY_REJECT')) ?>',
+			MAIL_MESSAGE_ICAL_NOTIFY_ERROR: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_ICAL_NOTIFY_ERROR')) ?>'
 		});
 
 		var mailboxData = <?=Main\Web\Json::encode(array(

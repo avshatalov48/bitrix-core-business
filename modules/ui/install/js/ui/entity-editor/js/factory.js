@@ -10,7 +10,11 @@ if(typeof BX.UI.EntityEditorValidatorFactory === "undefined")
 			{
 				return BX.UI.EntityPersonValidator.create(settings);
 			}
-
+			else if(type === "trackingSource")
+			{
+				return BX.UI.EntityTrackingSourceValidator.create(settings);
+			}
+			
 			return null;
 		}
 	}

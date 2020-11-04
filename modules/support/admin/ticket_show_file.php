@@ -8,7 +8,7 @@
 ##############################################
 */
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
-if(CModule::IncludeModule("support") && strlen($hash) > 0 && preg_match('/^[a-z0-9]{32}$/i', $hash))
+if(CModule::IncludeModule("support") && $hash <> '' && preg_match('/^[a-z0-9]{32}$/i', $hash))
 {
 	$rsFiles = CTicket::GetFileList($v1="s_id", $v2="asc", array("HASH"=>$hash), 'Y');
 	if ($rsFiles && $arFile = $rsFiles->Fetch())

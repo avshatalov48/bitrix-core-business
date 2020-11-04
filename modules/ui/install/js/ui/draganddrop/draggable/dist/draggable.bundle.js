@@ -58,7 +58,7 @@ this.BX.UI = this.BX.UI || {};
 	        containers[_key] = arguments[_key];
 	      }
 
-	      this.container = [].concat(babelHelpers.toConsumableArray(this.containers), containers);
+	      this.containers = [].concat(babelHelpers.toConsumableArray(this.containers), containers);
 	    }
 	  }, {
 	    key: "removeContainer",

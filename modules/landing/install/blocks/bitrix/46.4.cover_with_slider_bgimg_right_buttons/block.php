@@ -11,7 +11,7 @@
 						Company24 new album</h3>
 					<h2 class="landing-block-node-card-title landing-semantic-title-image-medium u-heading-v4__title text-uppercase g-line-height-1 g-font-weight-700 g-font-size-65 g-color-white g-mb-15">
 						Reincarnation</h2>
-					<div class="landing-block-node-card-text landing-semantic-text-image-medium mb-0">
+					<div class="landing-block-node-card-text landing-semantic-text-image-medium mb-0" data-auto-font-scale>
 						<p>Donec erat urna, tincidunt at leo non, blandit finibus ante. Nunc venenatis risus in
 							finibus dapibus. Ut ac massa sodales, mattis enim id, efficitur tortor. Nullam faucibus
 							iaculis laoreet.
@@ -29,7 +29,7 @@
 						Company24 new album</h3>
 					<h2 class="landing-block-node-card-title landing-semantic-title-image-medium u-heading-v4__title text-uppercase g-line-height-1 g-font-weight-700 g-font-size-65 g-color-white g-mb-15">
 						Umbrella</h2>
-					<div class="landing-block-node-card-text landing-semantic-text-image-medium mb-0">
+					<div class="landing-block-node-card-text landing-semantic-text-image-medium mb-0" data-auto-font-scale>
 						<p>Donec erat urna, tincidunt at leo non, blandit finibus ante. Nunc venenatis risus in
 							finibus dapibus. Ut ac massa sodales, mattis enim id, efficitur tortor. Nullam faucibus
 							iaculis laoreet.

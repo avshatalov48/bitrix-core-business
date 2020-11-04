@@ -36,18 +36,8 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(AlertIcon, "WARNING", 'ui-alert-icon-warning');
 	babelHelpers.defineProperty(AlertIcon, "DANGER", 'ui-alert-icon-danger');
 
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\">", "</div>"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
 	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-alert-message\">", "</span>"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\">", "</div>"]);
 
 	  _templateObject = function _templateObject() {
 	    return data;
@@ -56,9 +46,7 @@ this.BX = this.BX || {};
 	  return data;
 	}
 
-	var Alert =
-	/*#__PURE__*/
-	function () {
+	var Alert = /*#__PURE__*/function () {
 	  function Alert(options) {
 	    babelHelpers.classCallCheck(this, Alert);
 	    this.text = options.text;
@@ -122,7 +110,7 @@ this.BX = this.BX || {};
 	      this.text = text;
 
 	      if (main_core.Type.isStringFilled(text)) {
-	        this.getTextContainer().textContent = text;
+	        this.getTextContainer().innerHTML = text;
 	      }
 	    }
 	  }, {
@@ -134,7 +122,12 @@ this.BX = this.BX || {};
 	    key: "getTextContainer",
 	    value: function getTextContainer() {
 	      if (!this.textContainer) {
-	        this.textContainer = main_core.Tag.render(_templateObject(), this.getText());
+	        this.textContainer = BX.create('span', {
+	          props: {
+	            className: 'ui-alert-message'
+	          },
+	          html: this.getText()
+	        });
 	      }
 
 	      return this.textContainer;
@@ -271,7 +264,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
-	      this.container = main_core.Tag.render(_templateObject2(), this.getClassList(), this.getTextContainer());
+	      this.container = main_core.Tag.render(_templateObject(), this.getClassList(), this.getTextContainer());
 
 	      if (this.animated === true) {
 	        this.animateOpening();

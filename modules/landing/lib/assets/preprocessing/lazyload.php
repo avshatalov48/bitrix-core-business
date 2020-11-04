@@ -22,8 +22,9 @@ class Lazyload
 	{
 		$this->block = $block;
 		$this->manifest = $block->getManifest();
+		$this->content = $block->getContent();
 		$this->dom = new Dom\Document();
-		$this->dom->loadHTML($block->getContent());
+		$this->dom->loadHTML($this->content);
 	}
 
 	/**
@@ -36,6 +37,10 @@ class Lazyload
 
 	protected function parse(): void
 	{
+		if(!$this->content)
+		{
+			return;
+		}
 		// tmp skip dynamic
 		if($this->skipDynamic && !empty($this->block->getDynamicParams()))
 		{

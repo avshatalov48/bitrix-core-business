@@ -51,7 +51,7 @@ class VariationGridController extends \Bitrix\Main\Engine\Controller
 		$errorCollection = new ErrorCollection();
 		$errorCollection->setError(new Error($message));
 
-		return Response\HtmlContent::createError($errorCollection);
+		return Response\AjaxJson::createError($errorCollection);
 	}
 
 	/**

@@ -34,7 +34,7 @@ final class MailHandler
 		$attachments = $event->getParameter('attachments');
 
 		if (
-			strlen($message) <= 0
+			$message == ''
 			&& count($attachments) > 0
 		)
 		{
@@ -44,7 +44,7 @@ final class MailHandler
 		if (
 			$postId <= 0
 			|| $userId <= 0
-			|| strlen($message) <= 0
+			|| $message == ''
 		)
 		{
 			return false;
@@ -185,7 +185,7 @@ final class MailHandler
 		$siteId = $event->getParameter('site_id');
 
 		if (
-			strlen($message) <= 0
+			$message == ''
 			&& count($attachments) > 0
 		)
 		{
@@ -194,8 +194,8 @@ final class MailHandler
 
 		if (
 			$userId <= 0
-			|| strlen($message) <= 0
-			|| strlen($siteId) <= 0
+			|| $message == ''
+			|| $siteId == ''
 		)
 		{
 			return false;
@@ -237,12 +237,12 @@ final class MailHandler
 				"SOCNET_RIGHTS" => array("U".$userId)
 			);
 
-			if (strlen($fields["TITLE"]) <= 0)
+			if ($fields["TITLE"] == '')
 			{
 				$fields["MICRO"] = "Y";
 				$fields["TITLE"] = preg_replace("/\[ATTACHMENT\s*=\s*[^\]]*\]/is".BX_UTF_PCRE_MODIFIER, "", \blogTextParser::killAllTags($fields["DETAIL_TEXT"]));
 				$fields["TITLE"] = TruncateText(trim(preg_replace(array("/\n+/is".BX_UTF_PCRE_MODIFIER, "/\s+/is".BX_UTF_PCRE_MODIFIER), " ", $fields["TITLE"])), 100);
-				if(strlen($fields["TITLE"]) <= 0)
+				if($fields["TITLE"] == '')
 				{
 					$fields["TITLE"] = Loc::getMessage("BLOG_MAILHANDLER_EMPTY_TITLE_PLACEHOLDER");
 				}

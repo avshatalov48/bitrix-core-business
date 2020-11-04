@@ -2,6 +2,7 @@
 $MESS['LANDING_TPL_CREATE_FOLDER'] = 'Создать папку';
 $MESS['LANDING_TPL_CREATE_FOLDER_ACTION'] = 'Создать';
 $MESS['LANDING_TPL_FLT_DELETED'] = 'В корзине';
+$MESS['LANDING_TPL_FLT_IS_AREA'] = 'Включаемая область';
 $MESS['LANDING_TPL_FLT_CREATED_BY_ID'] = 'Кем создан';
 $MESS['LANDING_TPL_FLT_MODIFIED_BY_ID'] = 'Кем изменен';
 $MESS['LANDING_TPL_FLT_DATE_CREATE'] = 'Дата создания';

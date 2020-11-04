@@ -7,6 +7,7 @@ import type { BaseEvent } from 'main.core.events';
 import type { ItemId } from '../item/item-id';
 import type { SearchOptions } from './search-options';
 import type TagSelector from '../tag-selector/tag-selector';
+import type { FooterContent, FooterOptions } from './footer/footer-content';
 
 export type DialogOptions = {
 	targetNode: HTMLElement,
@@ -40,6 +41,7 @@ export type DialogOptions = {
 	zIndex?: number,
 	cacheable?: boolean,
 	focusOnFirst?: boolean,
-	footer?: string | HTMLElement | HTMLElement[],
-	footerOptions?: { [option: string]: any },
+	footer?: FooterContent,
+	footerOptions?: FooterOptions,
+	clearUnavailableItems?: boolean
 };

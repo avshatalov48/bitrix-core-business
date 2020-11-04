@@ -5,6 +5,7 @@ $MESS["SONET_GLC_EMPTY_ENTITY_ID"] = "Не указан код сущности"
 $MESS["SONET_GLC_ERROR_CALC_ENTITY_TYPE"] = "Ошибка вычисления типа сущности";
 $MESS["SONET_GLC_ERROR_NO_ENTITY_ID"] = "Код сущности не верен";
 $MESS["SONET_GLC_EMPTY_LOG_ID"] = "Код события живой ленты не верен";
+$MESS["SONET_GLC_EMPTY_LOG_ID2"] = "Код события ленты новостей не верен";
 $MESS["SONET_GLC_ERROR_NO_USER_ID"] = "Код пользователя не верен";
 $MESS["SONET_GLC_EMPTY_EVENT_ID"] = "Не указано событие";
 $MESS["SONET_GLC_ERROR_NO_FEATURE_ID"] = "Событие указано не верно";

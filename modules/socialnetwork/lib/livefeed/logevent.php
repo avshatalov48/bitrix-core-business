@@ -2,15 +2,18 @@
 namespace Bitrix\Socialnetwork\Livefeed;
 
 use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Socialnetwork\LogTable;
 use Bitrix\Main\Config\Option;
 
+Loc::loadMessages(__FILE__);
+
 final class LogEvent extends Provider
 {
-	const PROVIDER_ID = 'SONET_LOG';
-	const CONTENT_TYPE_ID = 'LOG_ENTRY';
+	public const PROVIDER_ID = 'SONET_LOG';
+	public const CONTENT_TYPE_ID = 'LOG_ENTRY';
 
-	public static function getId()
+	public static function getId(): string
 	{
 		return static::PROVIDER_ID;
 	}
@@ -25,92 +28,191 @@ final class LogEvent extends Provider
 		return Provider::TYPE_POST;
 	}
 
-	public static function canRead($params)
+	public static function canRead($params): bool
 	{
 		return true;
 	}
 
-	protected function getPermissions(array $post)
+	protected function getPermissions(array $post): string
 	{
-		$result = self::PERMISSION_READ;
-		return $result;
+		return self::PERMISSION_READ;
 	}
 
 	public function getCommentProvider()
 	{
-		$provider = new \Bitrix\Socialnetwork\Livefeed\LogComment();
-		return $provider;
+		return new LogComment();
 	}
 
 	public function initSourceFields()
 	{
-		$logId = $this->entityId;
+		static $cache = [];
+		static $schemeCache = [];
 
-		if ($logId > 0)
+		$logId = (int)$this->entityId;
+
+		if ($logId <= 0)
 		{
-			$res = LogTable::getList(array(
-				'filter' => array(
+			return;
+		}
+
+		if (isset($cache[$logId]))
+		{
+			$logEntryFields = $cache[$logId];
+		}
+		else
+		{
+			$res = LogTable::getList([
+				'filter' => [
 					'=ID' => $logId,
 					'@EVENT_ID' => $this->getEventId(),
-				),
-				'select' => array('ID', 'TITLE', 'MESSAGE', 'PARAMS')
-			));
+				],
+				'select' => [ 'ID', 'TITLE', 'MESSAGE', 'PARAMS' ]
+			]);
 
-			if ($logEntryFields = $res->fetch())
+			$logEntryFields = $res->fetch();
+			$cache[$logId] = $logEntryFields;
+		}
+
+		if (empty($logEntryFields))
+		{
+			return;
+		}
+
+		$entryParams = unserialize($logEntryFields['PARAMS'], [ 'allowed_classes' => false ]);
+
+		if (
+			!is_array($entryParams)
+			&& !empty($logEntryFields['PARAMS'])
+		)
+		{
+			$tmp = explode("&", $logEntryFields['PARAMS']);
+			if (is_array($tmp) && count($tmp) > 0)
 			{
-				$this->setLogId($logEntryFields['ID']);
-				$this->setSourceFields($logEntryFields);
-				$this->setSourceTitle($logEntryFields['TITLE']);
-
-				$html = false;
-
-				$entryParams = unserialize($logEntryFields['PARAMS']);
-
-				if (
-					!is_array($entryParams)
-					&& !empty($logEntryFields['PARAMS'])
-				)
+				$entryParams = array();
+				foreach($tmp as $pair)
 				{
-					$tmp = explode("&", $logEntryFields['PARAMS']);
-					if (is_array($tmp) && count($tmp) > 0)
-					{
-						$entryParams = array();
-						foreach($tmp as $pair)
-						{
-							list ($key, $value) = explode("=", $pair);
-							$entryParams[$key] = $value;
-						}
-					}
-				}
-
-				if (
-					!empty($entryParams["SCHEME_ID"])
-					&& Loader::includeModule('xdimport')
-				)
-				{
-					$res = \CXDILFScheme::getById($entryParams["SCHEME_ID"]);
-					if ($schemeFields = $res->fetch())
-					{
-						$html = ($schemeFields["IS_HTML"] == "Y");
-					}
-				}
-
-				if ($html)
-				{
-					$sanitizer = new \CBXSanitizer();
-					$sanitizer->applyDoubleEncode(false);
-					$sanitizer->setLevel(\CBXSanitizer::SECURE_LEVEL_LOW);
-					$this->setSourceDescription($sanitizer->sanitizeHtml(htmlspecialcharsback($logEntryFields['MESSAGE'])));
-				}
-				else
-				{
-					$this->setSourceDescription(htmlspecialcharsEx($logEntryFields["MESSAGE"]));
+					[$key, $value] = explode("=", $pair);
+					$entryParams[$key] = $value;
 				}
 			}
 		}
+
+		$html = false;
+		$logEntryFields['SCHEME_FIELDS'] = [];
+
+		$schemeId = (is_array($entryParams) && isset($entryParams['SCHEME_ID']) ? (int)$entryParams['SCHEME_ID'] : 0);
+		if ($schemeId > 0)
+		{
+			$schemeFields = [];
+			if (isset($schemeCache[$schemeId]))
+			{
+				$schemeFields = $schemeCache[$schemeId];
+			}
+			elseif (Loader::includeModule('xdimport'))
+			{
+				$res = \CXDILFScheme::getById($schemeId);
+				$schemeFields = $res->fetch();
+				$schemeCache[$schemeId] = $schemeFields;
+			}
+
+			$logEntryFields['SCHEME_FIELDS'] = $schemeFields;
+		}
+
+		$this->setLogId($logEntryFields['ID']);
+		$this->setSourceFields($logEntryFields);
+		$this->setSourceTitle($logEntryFields['TITLE']);
+
+		if (
+			!empty($logEntryFields['SCHEME_FIELDS'])
+			&& isset($logEntryFields['SCHEME_FIELDS']['IS_HTML'])
+		)
+		{
+			$html = ($logEntryFields['SCHEME_FIELDS']['IS_HTML'] === "Y");
+		}
+
+		if ($html)
+		{
+			$description = htmlspecialcharsback($logEntryFields['MESSAGE']);
+			$sanitizer = new \CBXSanitizer();
+			$sanitizer->applyDoubleEncode(false);
+			$sanitizer->setLevel(\CBXSanitizer::SECURE_LEVEL_LOW);
+			$this->setSourceDescription($sanitizer->sanitizeHtml($description));
+		}
+		else
+		{
+			$this->setSourceDescription(htmlspecialcharsEx($logEntryFields['MESSAGE']));
+		}
 	}
 
-	public function getLiveFeedUrl()
+	public function getPinnedTitle(): string
+	{
+		$result = '';
+
+		if (empty($this->sourceFields))
+		{
+			$this->initSourceFields();
+		}
+
+		$logEntryFields = $this->getSourceFields();
+		if (empty($logEntryFields))
+		{
+			return $result;
+		}
+
+		$result = Loc::getMessage('SONET_LIVEFEED_LOG_DATA_PINNED_TITLE');
+
+		if (
+			!empty($logEntryFields['SCHEME_FIELDS'])
+			&& isset($logEntryFields['SCHEME_FIELDS']['NAME'])
+		)
+		{
+			$result = Loc::getMessage('SONET_LIVEFEED_LOG_DATA_PINNED_TITLE2', [
+				'#TITLE#' => $logEntryFields['SCHEME_FIELDS']['NAME']
+			]);
+		}
+
+		return $result;
+	}
+
+	public function getPinnedDescription()
+	{
+		$result = '';
+
+		if (empty($this->sourceFields))
+		{
+			$this->initSourceFields();
+		}
+
+		$logEntryFields = $this->getSourceFields();
+		if (empty($logEntryFields))
+		{
+			return $result;
+		}
+
+		$html = false;
+
+		if (
+			!empty($logEntryFields['SCHEME_FIELDS'])
+			&& isset($logEntryFields['SCHEME_FIELDS']['IS_HTML'])
+		)
+		{
+			$html = ($logEntryFields['SCHEME_FIELDS']['IS_HTML'] === "Y");
+		}
+
+		if ($html)
+		{
+			$result = htmlspecialcharsback($logEntryFields['MESSAGE']);
+			$result = truncateText(\CTextParser::clearAllTags($result), 100);
+		}
+		else
+		{
+			$result = truncateText(htmlspecialcharsEx($logEntryFields['MESSAGE']), 100);
+		}
+
+		return $result;
+	}
+
+	public function getLiveFeedUrl(): string
 	{
 		$pathToLogEntry = '';
 
@@ -123,6 +225,12 @@ final class LogEvent extends Provider
 				$pathToLogEntry = \CComponentEngine::makePathFromTemplate($pathToLogEntry, array("log_id" => $logId));
 			}
 		}
+
 		return $pathToLogEntry;
+	}
+
+	public function getSuffix()
+	{
+		return '2';
 	}
 }

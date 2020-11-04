@@ -9,13 +9,13 @@
 $APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/socialnetwork.log.ex/templates/.default/style.css');
 $APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/socialnetwork.blog.blog/templates/.default/style.css');
 
-if(strlen($arResult["FATAL_ERROR_MESSAGE"])>0)
+if($arResult["FATAL_ERROR_MESSAGE"] <> '')
 {
 	?><span class='errortext'><?=$arResult["FATAL_ERROR_MESSAGE"]?></span><br /><br /><?
 }
 else
 {
-	if(strlen($arResult["ERROR_MESSAGE"])>0)
+	if($arResult["ERROR_MESSAGE"] <> '')
 	{
 		?><span class='errortext'><?=$arResult["ERROR_MESSAGE"]?></span><br /><br /><?
 	}
@@ -34,7 +34,7 @@ else
 	<table border=0 cellspacing=1 cellpadding=3 class="blog-category" width=300>
 	<?foreach($arResult["CATEGORY"] as $v)
 	{
-		if(IntVal($v["CNT"])<=0)
+		if(intval($v["CNT"])<=0)
 			$v["CNT"] = 0;
 		?>
 		<input type="hidden" id="count_<?=$v["ID"]?>" value="<?=$v["CNT"]?>">

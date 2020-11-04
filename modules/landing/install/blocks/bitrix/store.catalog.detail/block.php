@@ -258,7 +258,8 @@ $elementCode = $classBlock->get('ELEMENT_CODE');
 						'BRAND_PROPERTY' => $classBlock->get('BRAND_PROPERTY'),
 						'CUSTOM_SITE_ID' => $classBlock->get('SITE_ID'),
 						'CONTEXT_SITE_ID' => $classBlock->get('SITE_ID'),
-						'SECTIONS_CHAIN_START_FROM' => 1
+						'SECTIONS_CHAIN_START_FROM' => 1,
+						'ALLOW_SEO_DATA' => 'N'
 					),
 					false
 				);?>

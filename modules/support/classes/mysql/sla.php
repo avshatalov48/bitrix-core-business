@@ -32,12 +32,12 @@ class CTicketSLA extends CAllTicketSLA
 
 					$key = $filterKeys[$i];
 					$val = $arFilter[$filterKeys[$i]];
-					if ((is_array($val) && count($val)<=0) || (!is_array($val) && (strlen($val)<=0 || $val==='NOT_REF')))
+					if ((is_array($val) && count($val)<=0) || (!is_array($val) && ((string) $val == '' || $val==='NOT_REF')))
 					{
 						continue;
 					}
 					$matchValueSet = (in_array($key."_EXACT_MATCH", $filterKeys)) ? true : false;
-					$key = strtoupper($key);
+					$key = mb_strtoupper($key);
 					if (is_array($val))
 					{
 						$val = implode(" | ",$val);
@@ -90,7 +90,7 @@ class CTicketSLA extends CAllTicketSLA
 		}
 		while(list($by, $order) = each($arSort))
 		{
-			if( strtoupper( $order ) != "DESC" )
+			if(mb_strtoupper($order) != "DESC" )
 			{
 				$order="ASC";
 			}

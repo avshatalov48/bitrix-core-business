@@ -95,7 +95,7 @@ export default class Alert {
 		this.text = text;
 		if (Type.isStringFilled(text))
 		{
-			this.getTextContainer().textContent = text;
+			this.getTextContainer().innerHTML = text;
 		}
 	}
 
@@ -108,7 +108,12 @@ export default class Alert {
 	{
 		if (!this.textContainer)
 		{
-			this.textContainer = Tag.render`<span class="ui-alert-message">${this.getText()}</span>`;
+			this.textContainer =  BX.create('span', {
+				props: {
+					className: 'ui-alert-message'
+				},
+				html: this.getText()
+			});
 		}
 
 		return this.textContainer;

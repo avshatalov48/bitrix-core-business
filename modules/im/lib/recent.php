@@ -105,7 +105,7 @@ class Recent
 			$isIntranet = \Bitrix\Intranet\Util::isIntranetUser($userId);
 		}
 
-		if ($isIntranet)
+		if ($isIntranet && !$options['IS_RECENT_GET'])
 		{
 			$filter = ['=USER_ID' => [$userId, 0]];
 		}
@@ -337,8 +337,9 @@ class Recent
 				$item['OPTIONS']['DEFAULT_USER_RECORD'] = true;
 			}
 
-			$result[] = $item;
+			$result[$id] = $item;
 		}
+		$result = array_values($result);
 
 		\Bitrix\Main\Type\Collection::sortByColumn(
 			$result,

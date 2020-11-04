@@ -87,11 +87,11 @@ class Helper
 
 	public static function modifyDbconn($DBHost, $DBName, $DBLogin, $DBPassword)
 	{
-		if(strlen($DBHost) <= 0)
+		if($DBHost == '')
 			throw new \Bitrix\Main\ArgumentNullException("DBHost");
-		if(strlen($DBName) <= 0)
+		if($DBName == '')
 			throw new \Bitrix\Main\ArgumentNullException("DBName");
-		if(strlen($DBLogin) <= 0)
+		if($DBLogin == '')
 			throw new \Bitrix\Main\ArgumentNullException("DBLogin");
 
 		$filename = \Bitrix\Main\Application::getDocumentRoot()."/bitrix/php_interface/dbconn.php";
@@ -102,7 +102,7 @@ class Helper
 
 		$content = file_get_contents($filename);
 
-		if(strlen($content) <=0)
+		if($content == '')
 			return false;
 
 		file_put_contents(\Bitrix\Main\Application::getDocumentRoot()."/bitrix/php_interface/dbconn.php.bak", $content);
@@ -148,11 +148,11 @@ class Helper
 	public static function generatePass($length = 20)
 	{
 		$chars="abcdefghiknrstyzABCDEFGHKNQRSTYZ1234567890";
-		$charsCount=strlen($chars);
+		$charsCount = mb_strlen($chars);
 		$result="";
 
 		for($i=0; $i<$length; $i++)
-			$result .= substr($chars, rand(1, $charsCount) - 1, 1);
+			$result .= mb_substr($chars, rand(1, $charsCount) - 1, 1);
 
 		return $result;
 	}
@@ -208,15 +208,15 @@ class Helper
 		global $DB;
 
 		return getenv('BITRIX_VA_VER')
-			&& stristr(php_uname('s'), 'linux')
-			&& strtolower($DB->type) == 'mysql'
+			&& mb_stristr(php_uname('s'), 'linux')
+			&& $DB->type == 'MYSQL'
 			&& self::checkBxEnvVersion();
 	}
 
 	public static function getTmpDir()
 	{
 		$path = '/home/bitrix/.webdir';
-		$permissionsForOwnerOnly = '0600';
+		$permissionsForOwnerOnly = 0700;
 		$res = true;
 
 		if(!file_exists($path))

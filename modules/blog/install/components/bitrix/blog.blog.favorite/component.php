@@ -21,37 +21,37 @@ $arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB-
 
 $SORT = Array("FAVORITE_SORT" => "ASC", "DATE_PUBLISH" => "DESC");
 
-$arParams["MESSAGE_COUNT"] = IntVal($arParams["MESSAGE_COUNT"])>0 ? IntVal($arParams["MESSAGE_COUNT"]): 6;
-$arParams["PREVIEW_WIDTH"] = IntVal($arParams["PREVIEW_WIDTH"])>0 ? IntVal($arParams["PREVIEW_WIDTH"]): 100;
-$arParams["PREVIEW_HEIGHT"] = IntVal($arParams["PREVIEW_HEIGHT"])>0 ? IntVal($arParams["PREVIEW_HEIGHT"]): 100;
-$arParams["MESSAGE_LENGTH"] = (IntVal($arParams["MESSAGE_LENGTH"])>0)?$arParams["MESSAGE_LENGTH"]:100;
+$arParams["MESSAGE_COUNT"] = intval($arParams["MESSAGE_COUNT"])>0 ? intval($arParams["MESSAGE_COUNT"]): 6;
+$arParams["PREVIEW_WIDTH"] = intval($arParams["PREVIEW_WIDTH"])>0 ? intval($arParams["PREVIEW_WIDTH"]): 100;
+$arParams["PREVIEW_HEIGHT"] = intval($arParams["PREVIEW_HEIGHT"])>0 ? intval($arParams["PREVIEW_HEIGHT"]): 100;
+$arParams["MESSAGE_LENGTH"] = (intval($arParams["MESSAGE_LENGTH"])>0)?$arParams["MESSAGE_LENGTH"]:100;
 if(!is_array($arParams["GROUP_ID"]))
 	$arParams["GROUP_ID"] = array($arParams["GROUP_ID"]);
 foreach($arParams["GROUP_ID"] as $k=>$v)
-	if(IntVal($v) <= 0)
+	if(intval($v) <= 0)
 		unset($arParams["GROUP_ID"][$k]);
 
-if(strLen($arParams["BLOG_VAR"])<=0)
+if($arParams["BLOG_VAR"] == '')
 	$arParams["BLOG_VAR"] = "blog";
-if(strLen($arParams["PAGE_VAR"])<=0)
+if($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if(strLen($arParams["POST_VAR"])<=0)
+if($arParams["POST_VAR"] == '')
 	$arParams["POST_VAR"] = "id";
 
 $arParams["PATH_TO_POST"] = trim($arParams["PATH_TO_POST"]);
-if(strlen($arParams["PATH_TO_POST"])<=0)
+if($arParams["PATH_TO_POST"] == '')
 	$arParams["PATH_TO_POST"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
 
-$arParams["PATH_TO_SMILE"] = strlen(trim($arParams["PATH_TO_SMILE"]))<=0 ? false : trim($arParams["PATH_TO_SMILE"]);
+$arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"]) == '' ? false : trim($arParams["PATH_TO_SMILE"]);
 $arParams["ALLOW_POST_CODE"] = $arParams["ALLOW_POST_CODE"] !== "N";
 
 $arResult["ERROR_MESSAGE"] = Array();
 $arResultNFCache["ERROR_MESSAGE"] = Array();
 $arResult["POST"] = Array();
 
-if(strlen($arParams["BLOG_URL"]) > 0)
+if($arParams["BLOG_URL"] <> '')
 {
-	$user_id = IntVal($USER->GetID());
+	$user_id = intval($USER->GetID());
 
 	if($GLOBALS["USER"]->IsAuthorized())
 		$arUserGroups = CBlogUser::GetUserGroups($user_id, $arParams["BLOG_URL"], "Y", BLOG_BY_USER_ID, "URL");
@@ -139,7 +139,7 @@ if(strlen($arParams["BLOG_URL"]) > 0)
 
 							$CurPost["urlToPost"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_POST"], array("blog" => $arBlog["URL"], "post_id"=>CBlogPost::GetPostID($CurPost["ID"], $CurPost["CODE"], $arParams["ALLOW_POST_CODE"])));
 
-							if(IntVal($CurPost["ATTACH_IMG"]) <= 0)
+							if(intval($CurPost["ATTACH_IMG"]) <= 0)
 							{
 								$dbImage = CBlogImage::GetList(Array("ID" => "ASC"), Array("BLOG_ID" => $CurPost["BLOG_ID"], "POST_ID" => $CurPost["ID"], "IS_COMMENT" => "N"));
 								if($arImage = $dbImage -> Fetch())

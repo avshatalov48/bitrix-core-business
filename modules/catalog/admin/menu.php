@@ -324,7 +324,7 @@ if ($boolRead)
 if (empty($arSubItems))
 	return false;
 
-$aMenu = array(
+return array(
 	"parent_menu" => "global_menu_store",
 	"section" => "catalog",
 	"sort" => 200,
@@ -335,4 +335,3 @@ $aMenu = array(
 	"items_id" => "mnu_catalog",
 	"items" => $arSubItems,
 );
-return $aMenu;

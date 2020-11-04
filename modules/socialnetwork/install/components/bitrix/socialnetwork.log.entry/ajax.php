@@ -1183,7 +1183,7 @@ if(CModule::IncludeModule("socialnetwork"))
 			$arResult["bResult"] = (CSocNetLog::Delete($log_id) ? "Y" : "N");
 		}
 	}
-	elseif ($action == "get_more_destination")
+	elseif ($action == "get_more_destination") // deprecated, todo: create method from \Bitrix\Socialnetwork\Controller\Livefeed\LogEntry::getHiddenDestinationsAction()
 	{
 		$isExtranetInstalled = (CModule::IncludeModule("extranet") ? "Y" : "N");
 		$isExtranetSite = ($isExtranetInstalled == "Y" && CExtranet::IsExtranetSite() ? "Y" : "N");

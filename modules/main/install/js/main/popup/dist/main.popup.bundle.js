@@ -2102,6 +2102,25 @@ this.BX = this.BX || {};
 	    eventName: 'SubMenu:onClose'
 	  }
 	};
+	var reEscape = /[<>'"]/g;
+	var escapeEntities = {
+	  '&': '&amp;',
+	  '<': '&lt;',
+	  '>': '&gt;',
+	  "'": '&#39;',
+	  '"': '&quot;'
+	};
+
+	function encodeSafe(value) {
+	  if (main_core.Type.isString(value)) {
+	    return value.replace(reEscape, function (item) {
+	      return escapeEntities[item];
+	    });
+	  }
+
+	  return value;
+	}
+
 	main_core_events.EventEmitter.registerAliases(aliases$1);
 
 	var MenuItem = /*#__PURE__*/function (_EventEmitter) {
@@ -2118,7 +2137,19 @@ this.BX = this.BX || {};
 	    options = options || {};
 	    _this.options = options;
 	    _this.id = options.id || main_core.Text.getRandom();
-	    _this.text = main_core.Type.isStringFilled(options.text) ? options.text : '';
+	    _this.text = '';
+	    _this.allowHtml = true;
+
+	    if (main_core.Type.isStringFilled(options.html)) {
+	      _this.text = options.html;
+	    } else if (main_core.Type.isStringFilled(options.text)) {
+	      _this.text = options.text;
+
+	      if (_this.text.match(/<[^>]+>/)) {
+	        console.warn('BX.Main.MenuItem: use "html" option for the html item content.', _this.getText());
+	      }
+	    }
+
 	    _this.title = main_core.Type.isStringFilled(options.title) ? options.title : '';
 	    _this.delimiter = options.delimiter === true;
 	    _this.href = main_core.Type.isStringFilled(options.href) ? options.href : null;
@@ -2186,7 +2217,7 @@ this.BX = this.BX || {};
 	      }
 
 	      if (this.delimiter) {
-	        if (main_core.Type.isStringFilled(this.text)) {
+	        if (main_core.Type.isStringFilled(this.getText())) {
 	          this.layout.item = main_core.Dom.create('span', {
 	            props: {
 	              className: 'popup-window-delimiter-section'
@@ -2195,7 +2226,7 @@ this.BX = this.BX || {};
 	              props: {
 	                className: 'popup-window-delimiter-text'
 	              },
-	              html: this.text
+	              html: this.allowHtml ? this.getText() : encodeSafe(this.getText())
 	            })]
 	          });
 	        } else {
@@ -2224,7 +2255,7 @@ this.BX = this.BX || {};
 	            props: {
 	              className: 'menu-popup-item-text'
 	            },
-	            html: this.text
+	            html: this.allowHtml ? this.getText() : encodeSafe(this.getText())
 	          })]
 	        });
 
@@ -2848,7 +2879,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "addMenuItemInternal",
 	    value: function addMenuItemInternal(menuItemJson, targetItemId) {
-	      if (!menuItemJson || !menuItemJson.delimiter && !main_core.Type.isStringFilled(menuItemJson.text) || menuItemJson.id && this.getMenuItem(menuItemJson.id) !== null) {
+	      if (!menuItemJson || !menuItemJson.delimiter && !main_core.Type.isStringFilled(menuItemJson.text) && !main_core.Type.isStringFilled(menuItemJson.html) || menuItemJson.id && this.getMenuItem(menuItemJson.id) !== null) {
 	        return null;
 	      }
 

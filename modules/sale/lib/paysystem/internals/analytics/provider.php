@@ -55,6 +55,7 @@ final class Provider extends Analytics\Provider
 	{
 		return [
 			\Sale\Handlers\PaySystem\YandexCheckoutHandler::class,
+			\Sale\Handlers\PaySystem\WooppayHandler::class,
 		];
 	}
 

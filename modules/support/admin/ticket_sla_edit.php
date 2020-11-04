@@ -35,7 +35,7 @@ $EDIT_URL = $APPLICATION->GetCurPage();
 
 function CheckTime($minute_from, $minute_till)
 {
-	if (strlen($_POST["MINUTE_FROM_".$i."_".$j]) < 0 && strlen($_POST["MINUTE_TILL_".$i."_".$j]) < 0)
+	if (mb_strlen($_POST["MINUTE_FROM_".$i."_".$j]) < 0 && mb_strlen($_POST["MINUTE_TILL_".$i."_".$j]) < 0)
 		return false;
 		
 	$arFrom = explode(':', $minute_from);
@@ -80,7 +80,7 @@ function CheckShedule($shedule)
 $arrUSER = array();
 $message = false;
 
-if ((strlen($save)>0 || strlen($apply)>0) && $bAdmin=="Y" && $_SERVER["REQUEST_METHOD"]=="POST" && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $bAdmin=="Y" && $_SERVER["REQUEST_METHOD"]=="POST" && check_bitrix_sessid())
 {
 	$arFields = array("arSITES"=>Array(), "arGROUPS"=>Array(), "arMARKS"=>Array(), "arCATEGORIES"=>Array(), "arCRITICALITIES"=>Array());
 	reset($_POST);
@@ -99,7 +99,7 @@ if ((strlen($save)>0 || strlen($apply)>0) && $bAdmin=="Y" && $_SERVER["REQUEST_M
 					$bExist = false;
 					for($j=0; $j<=${"custom_time_".$i."_counter"}; $j++)
 					{
-						// провер€ем что бы врем€ окончани€ было позже начала
+						// провер€ем, чтобы врем€ окончани€ было позже начала
 						if(CheckTime($_POST["MINUTE_FROM_".$i."_".$j], $_POST["MINUTE_TILL_".$i."_".$j]))
 						{
 							$bExist = true;
@@ -140,7 +140,7 @@ if ((strlen($save)>0 || strlen($apply)>0) && $bAdmin=="Y" && $_SERVER["REQUEST_M
 	}
 	else
 	{
-		if (strlen($save)>0)
+		if ($save <> '')
 		{
 			LocalRedirect($LIST_URL."?lang=".LANGUAGE_ID);
 		}
@@ -379,7 +379,7 @@ function OnSiteClick()
 ?>
 
 	<?if ($ID>0):?>
-	<?if (strlen($str_DATE_CREATE)>0):?>
+	<?if ($str_DATE_CREATE <> ''):?>
 	<tr valign="top"> 
 		<td align="right"><?=GetMessage("SUP_CREATED")?>:</td>
 		<td><?=$str_DATE_CREATE_F?><?
@@ -398,7 +398,7 @@ function OnSiteClick()
 		?></td>
 	</tr>
 	<?endif;?>
-	<?if (strlen($str_DATE_MODIFY)>0):?>
+	<?if ($str_DATE_MODIFY <> ''):?>
 	<tr valign="top"> 
 		<td align="right"><?=GetMessage("SUP_MODIFIED")?>:</td>
 		<td><?=$str_DATE_MODIFY_F?><?

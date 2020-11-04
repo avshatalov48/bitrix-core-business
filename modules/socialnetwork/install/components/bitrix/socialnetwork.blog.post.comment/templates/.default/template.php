@@ -134,7 +134,11 @@ if (
 	$blockClassName .= " feed-comments-block-nav";
 }
 
-?><div class="<?=$blockClassName?>" id="blg-comment-<?=$arParams["ID"]?>"><?
+?><div
+ class="<?=$blockClassName?>" id="blg-comment-<?=$arParams["ID"]?>"
+ data-bx-comments-entity-xml-id="<?=\Bitrix\Main\Text\HtmlFilter::encode($arParams['ENTITY_XML_ID'])?>"
+ data-bx-follow="<?=($arParams['FOLLOW'] === 'Y' ? 'Y' : 'N')?>"
+><?
 	?><a name="comments"></a><?
 	?><?=$arResult["OUTPUT_LIST"]["HTML"]?><?
 ?></div><?

@@ -18,7 +18,7 @@ if ( !($USER->IsAuthorized() && (CTicket::IsSupportClient() || CTicket::IsAdmin(
 $bADS = $bDemo == 'Y' || $bAdmin == 'Y' || $bSupportTeam == 'Y';
 
 //TICKET_EDIT_TEMPLATE
-$arParams["TICKET_EDIT_TEMPLATE"] = (strlen($arParams["TICKET_EDIT_TEMPLATE"]) > 0 ? $arParams["TICKET_EDIT_TEMPLATE"] : "ticket_edit.php?ID=#ID#");
+$arParams["TICKET_EDIT_TEMPLATE"] = ($arParams["TICKET_EDIT_TEMPLATE"] <> '' ? $arParams["TICKET_EDIT_TEMPLATE"] : "ticket_edit.php?ID=#ID#");
 
 //Get Tickets
 CPageOption::SetOptionString("main", "nav_page_in_session", "N");
@@ -31,7 +31,7 @@ if (isset($arParams["SET_SHOW_USER_FIELD"]) && is_array($arParams["SET_SHOW_USER
 {
 	foreach( $arParams["SET_SHOW_USER_FIELD"] as $k => $v )
 	{
-		if( strlen( trim( $v ) ) > 0 )
+		if( trim( $v ) <> '' )
 		{
 			$UFAT[$v] = array(
 							"NAME_C" => $arrUF[$v]["LIST_COLUMN_LABEL"],
@@ -85,9 +85,9 @@ foreach ($_REQUEST as $k => $v)
 
 foreach ($_REQUEST as $k => $v)
 {
-	if (substr($k, 0 , 5) === 'find_')
+	if (mb_substr($k, 0, 5) === 'find_')
 	{
-		$fName = strtoupper(substr($k, 5));
+		$fName = mb_strtoupper(mb_substr($k, 5));
 		$_REQUEST[$fName] = $v;
 	}
 }
@@ -117,7 +117,7 @@ $sort_order = current($aSortVal);
 $sort_by = key($aSortVal);
 
 
-if (strlen($arParams["SITE_ID"]) > 0)
+if ($arParams["SITE_ID"] <> '')
 	$aFilter["LID"] = $arParams["SITE_ID"];
 
 $rsTickets = CTicket::GetList(
@@ -223,7 +223,7 @@ foreach ($arResult["TICKETS"] as &$arTicket)
 		$arGuestIDs[] = $arTicket[$cgp . "_GUEST_ID"];
 	}
 
-	if (strlen($arTicket["MODIFIED_MODULE_NAME"])<=0 || $arTicket["MODIFIED_MODULE_NAME"]=="support")
+	if ($arTicket["MODIFIED_MODULE_NAME"] == '' || $arTicket["MODIFIED_MODULE_NAME"]=="support")
 	{
 		if(intval($arTicket["MODIFIED_USER_ID"]) > 0)
 		{
@@ -265,7 +265,7 @@ foreach ($arResult["TICKETS"] as &$arTicket)
 	}
 
 	$aCols = array(
-		'LAMP' => '<div class="support-lamp-'.str_replace("_","-",$arTicket["LAMP"]).'" title="'.GetMessage("SUP_".strtoupper($arTicket["LAMP"]).($bADS ? "_ALT_SUP" : "_ALT")).'"></div>',
+		'LAMP' => '<div class="support-lamp-'.str_replace("_","-",$arTicket["LAMP"]).'" title="'.GetMessage("SUP_".mb_strtoupper($arTicket["LAMP"]).($bADS ? "_ALT_SUP" : "_ALT")).'"></div>',
 		'TIMESTAMP_X' => FormatDate($DB->DateFormatToPHP(CSite::GetDateFormat('FULL')), MakeTimeStamp($arTicket["TIMESTAMP_X"]))
 	);
 
@@ -298,7 +298,7 @@ if (!empty($_SESSION["main.interface.grid"][$arResult["GRID_ID"]]["filter"]))
 {
 	foreach ($_SESSION["main.interface.grid"][$arResult["GRID_ID"]]["filter"] as $k => $v)
 	{
-		$_REQUEST['find_'.strtolower($k)] = $v;
+		$_REQUEST['find_'.mb_strtolower($k)] = $v;
 	}
 }
 

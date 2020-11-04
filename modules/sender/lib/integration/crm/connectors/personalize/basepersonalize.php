@@ -228,6 +228,11 @@ abstract class BasePersonalize
 		string $sortOrder = 'asc'
 	)
 	{
+		if(empty($usedFields))
+		{
+			return [];
+		}
+
 		\Bitrix\Main\Localization\Loc::loadMessages(
 			$_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/modules/crm/classes/general/crm_fields.php'
 		);
@@ -525,17 +530,21 @@ abstract class BasePersonalize
 				);
 				$objDocument['BANKING_DETAILS'] = '';
 				$tmpDetails = [];
-				foreach ($details[$requisites['ID']] as $detail)
+				if($details[$requisites['ID']])
 				{
-					foreach ($titleMap as $key => $title)
+					foreach ($details[$requisites['ID']] as $detail)
 					{
-						if(isset($title[$detail['COUNTRY_ID']]))
+						foreach ($titleMap as $key => $title)
 						{
-							$tmpDetails[] =
-								$title[$detail['COUNTRY_ID']] . ': ' . $detail[$key];
+							if(isset($title[$detail['COUNTRY_ID']]))
+							{
+								$tmpDetails[] =
+									$title[$detail['COUNTRY_ID']] . ': ' . $detail[$key];
+							}
 						}
 					}
 				}
+
 				$objDocument['BANKING_DETAILS'] = implode(self::COMMA, $tmpDetails);
 				break;
 			case 'MODIFY_BY_ID':

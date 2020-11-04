@@ -6,26 +6,26 @@ if (!CModule::IncludeModule("blog"))
 	ShowError(GetMessage("BLOG_MODULE_NOT_INSTALL"));
 	return;
 }
-$arParams["SOCNET_GROUP_ID"] = IntVal($arParams["SOCNET_GROUP_ID"]);
-$arParams["USER_ID"] = IntVal($arParams["USER_ID"]);
+$arParams["SOCNET_GROUP_ID"] = intval($arParams["SOCNET_GROUP_ID"]);
+$arParams["USER_ID"] = intval($arParams["USER_ID"]);
 
 $arParams["POST_ID"] = trim($arParams["POST_ID"]);
 $bIDbyCode = false;
-if(!is_numeric($arParams["POST_ID"]) || strlen(IntVal($arParams["POST_ID"])) != strlen($arParams["POST_ID"]))
+if(!is_numeric($arParams["POST_ID"]) || mb_strlen(intval($arParams["POST_ID"])) != mb_strlen($arParams["POST_ID"]))
 {
 	$arParams["POST_ID"] = preg_replace("/[^a-zA-Z0-9_-]/is", "", Trim($arParams["~POST_ID"]));
 	$bIDbyCode = true;
 }
 else
-	$arParams["POST_ID"] = IntVal($arParams["POST_ID"]);
+	$arParams["POST_ID"] = intval($arParams["POST_ID"]);
 
 $bSoNet = false;
 $bGroupMode = false;
-if (CModule::IncludeModule("socialnetwork") && (IntVal($arParams["SOCNET_GROUP_ID"]) > 0 || IntVal($arParams["USER_ID"]) > 0))
+if (CModule::IncludeModule("socialnetwork") && (intval($arParams["SOCNET_GROUP_ID"]) > 0 || intval($arParams["USER_ID"]) > 0))
 {
 	$bSoNet = true;
 
-	if(IntVal($arParams["SOCNET_GROUP_ID"]) > 0)
+	if(intval($arParams["SOCNET_GROUP_ID"]) > 0)
 		$bGroupMode = true;
 	
 	if($bGroupMode)
@@ -52,26 +52,26 @@ $arParams["MODE"] = trim($arParams["MODE"]);
 if(!is_array($arParams["PARAM_GROUP_ID"]))
 	$arParams["PARAM_GROUP_ID"] = array($arParams["PARAM_GROUP_ID"]);
 foreach($arParams["PARAM_GROUP_ID"] as $k=>$v)
-	if(IntVal($v) <= 0)
+	if(intval($v) <= 0)
 		unset($arParams["PARAM_GROUP_ID"][$k]);
 
-if(strLen($arParams["BLOG_VAR"])<=0)
+if($arParams["BLOG_VAR"] == '')
 	$arParams["BLOG_VAR"] = "blog";
-if(strLen($arParams["PAGE_VAR"])<=0)
+if($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if(strLen($arParams["GROUP_VAR"])<=0)
+if($arParams["GROUP_VAR"] == '')
 	$arParams["GROUP_VAR"] = "id";
-if(strLen($arParams["POST_VAR"])<=0)
+if($arParams["POST_VAR"] == '')
 	$arParams["POST_VAR"] = "post_id";
 
 $arParams["PATH_TO_RSS"] = trim($arParams["PATH_TO_RSS"]);
-if(strlen($arParams["PATH_TO_RSS"])<=0)
+if($arParams["PATH_TO_RSS"] == '')
 	$arParams["PATH_TO_RSS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=rss&".$arParams["BLOG_VAR"]."=#blog#"."&type=#type#");
-if(strlen($arParams["PATH_TO_POST_RSS"])<=0)
+if($arParams["PATH_TO_POST_RSS"] == '')
 	$arParams["PATH_TO_POST_RSS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post_rss&".$arParams["BLOG_VAR"]."=#blog#"."&type=#type#&".$arParams["POST_VAR"]."=#post_id#");
 	
 $arParams["PATH_TO_RSS_ALL"] = trim($arParams["PATH_TO_RSS_ALL"]);
-if(strlen($arParams["PATH_TO_RSS_ALL"])<=0)
+if($arParams["PATH_TO_RSS_ALL"] == '')
 	$arParams["PATH_TO_RSS_ALL"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=rss_all&type=#type#&".$arParams["GROUP_VAR"]."=#group_id#");
 $arParams["ALLOW_POST_CODE"] = $arParams["ALLOW_POST_CODE"] !== "N";
 

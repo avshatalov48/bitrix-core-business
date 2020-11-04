@@ -5,6 +5,8 @@ namespace Bitrix\Sale\Exchange\Internals;
 
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Type\DateTime;
+use Bitrix\Sale\Exchange\Logger\Exchange;
+use Bitrix\Sale\Exchange\Logger\ProviderType;
 use Bitrix\Sale\Internals\Fields;
 
 class Logger
@@ -65,11 +67,12 @@ class Logger
 
 	/**
 	 * @param array $params
-	 * @return \Bitrix\Main\Entity\AddResult|null
+	 * @return \Bitrix\Main\ORM\Data\AddResult
+	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	static public function log(array $params)
 	{
-		$result = ExchangeLogTable::add($params);
+		$result = (new Exchange(ProviderType::ONEC_NAME))->add($params);
 		return $result;
 	}
 }

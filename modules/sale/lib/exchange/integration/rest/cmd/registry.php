@@ -18,6 +18,9 @@ class Registry
 	const APP_OPTIONS_ADD_NAME = 'APP_OPTIONS_ADD';
 	const APP_PLACEMENT_BIND_NAME = 'APP_PLACEMENT_BIND';
 	const APP_PLACEMENT_UNBIND_NAME = 'APP_PLACEMENT_UNBIND';
+	const SALE_INTEGRATION_STATISTIC_PROVIDER_LIST_NAME = 'SALE_INTEGRATION_STATISTIC_PROVIDER_LIST';
+	const SALE_INTEGRATION_STATISTIC_PROVIDER_ADD_NAME = 'SALE_INTEGRATION_STATISTIC_PROVIDER_ADD';
+	const SALE_INTEGRATION_STATISTIC_MODIFY_NAME = 'SALE_INTEGRATION_STATISTIC_MODIFY';
 
 	public static function getRegistry()
 	{
@@ -33,7 +36,10 @@ class Registry
 			Registry::CRM_TIMELINE_ONRECEIVE_NAME => 'crm.api.timeline.onreceive',
 			Registry::APP_OPTIONS_ADD_NAME => 'app.option.set',
 			Registry::APP_PLACEMENT_BIND_NAME => 'placement.bind',
-			Registry::APP_PLACEMENT_UNBIND_NAME => 'placement.unbind'
+			Registry::APP_PLACEMENT_UNBIND_NAME => 'placement.unbind',
+			Registry::SALE_INTEGRATION_STATISTIC_PROVIDER_LIST_NAME => 'sale.integration.statisticprovider.list',
+			Registry::SALE_INTEGRATION_STATISTIC_PROVIDER_ADD_NAME => 'sale.integration.statisticprovider.add',
+			Registry::SALE_INTEGRATION_STATISTIC_MODIFY_NAME => 'sale.integration.statistic.modify'
 		];
 	}
 }

@@ -41,7 +41,10 @@ elseif (
 }
 
 CUtil::InitJSCore(array("ajax", "window", "tooltip", "popup", "fx", "viewer", "content_view", "clipboard"));
-UI\Extension::load("socialnetwork.commentaux");
+UI\Extension::load([
+	'socialnetwork.livefeed',
+	'socialnetwork.commentaux'
+]);
 
 Asset::getInstance()->setUnique('PAGE', 'live_feed_v2'.($arParams["IS_CRM"] != "Y" ? "" : "_crm"));
 Asset::getInstance()->addJs("/bitrix/js/main/rating_like.js");
@@ -144,7 +147,7 @@ if (
 			</div>
 			<div class="feed-notification-block-content">
 				<div class="feed-notification-title"><?=GetMessage("SONET_C30_FEED_NOTIFICATION_NOTASKS_TITLE")?></div>
-				<div class="feed-notification-description"><?=GetMessage("SONET_C30_FEED_NOTIFICATION_NOTASKS_DESC")?></div>
+				<div class="feed-notification-description"><?=GetMessage("SONET_C30_FEED_NOTIFICATION_NOTASKS_DESC2")?></div>
 				<div class="feed-notification-buttons">
 					<a href="javascript:void(0);" class="ui-btn ui-btn-sm ui-btn-primary ui-btn-round" id="feed-notification-notasks-read-btn"><?=Loc::getMessage('SONET_C30_FEED_NOTIFICATION_NOTASKS_BUTTON_OK')?></a>
 					<a onclick="top.BX.Helper.show('redirect=detail&code=11182736');" style="margin-left: 12px;" class="ui-link ui-link-dashed ui-link-secondary"><?=Loc::getMessage('SONET_C30_FEED_NOTIFICATION_NOTASKS_BUTTON_MORE')?></a>
@@ -169,11 +172,14 @@ elseif (
 	$targetHtml .= '<span class="livefeed-empty-block"></span>';
 }
 
+require($_SERVER["DOCUMENT_ROOT"].$templateFolder."/include/pinned.php");
+
 if (
 	!$error
 	&& !$arResult["EMPTY_AJAX_FEED"]
 )
 {
+
 	if ($arResult['PAGE_MODE'] == 'first')
 	{
 		?><div class="feed-wrap"><?
@@ -202,11 +208,9 @@ if (
 				sonetLDialogSubmit: '<?=GetMessageJS("SONET_C30_DIALOG_SUBMIT_BUTTON")?>',
 				sonetLDialogCancel: '<?=GetMessageJS("SONET_C30_DIALOG_CANCEL_BUTTON")?>',
 				sonetLbUseFavorites: '<?=(!isset($arParams["USE_FAVORITES"]) || $arParams["USE_FAVORITES"] != "N" ? "Y" : "N")?>',
-				sonetLMenuFavoritesTitleY: '<?=GetMessageJS("SONET_C30_MENU_TITLE_FAVORITES_Y")?>',
-				sonetLMenuFavoritesTitleN: '<?=GetMessageJS("SONET_C30_MENU_TITLE_FAVORITES_N")?>',
 				sonetLMenuLink: '<?=GetMessageJS("SONET_C30_MENU_TITLE_LINK2")?>',
 				sonetLMenuHref: '<?=GetMessageJS("SONET_C30_MENU_TITLE_HREF")?>',
-				sonetLMenuDelete: '<?=GetMessageJS("SONET_C30_MENU_TITLE_DELETE")?>',
+				sonetLMenuDelete: '<?=GetMessageJS(\Bitrix\Main\ModuleManager::isModuleInstalled('intranet') ? "SONET_C30_MENU_TITLE_DELETE2" : "SONET_C30_MENU_TITLE_DELETE")?>',
 				sonetLMenuDeleteConfirm: '<?=GetMessageJS("SONET_C30_MENU_TITLE_DELETE_CONFIRM")?>',
 				sonetLMenuDeleteSuccess: '<?=GetMessageJS("SONET_C30_MENU_TITLE_DELETE_SUCCESS")?>',
 				sonetLMenuDeleteFailure: '<?=GetMessageJS("SONET_C30_MENU_TITLE_DELETE_FAILURE")?>',
@@ -575,6 +579,10 @@ if (
 		{
 			$uriParams['noblog'] = 'Y';
 		}
+
+		$uriParams['preset_filter_top_id'] = $arResult['presetFilterTopIdValue'];
+		$uriParams['preset_filter_id'] = $arResult['presetFilterIdValue'];
+
 		$uri->addParams($uriParams);
 
 		ob_start();

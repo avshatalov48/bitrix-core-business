@@ -8,7 +8,7 @@ endif;
 ?>
 <div class="blog-post-edit">
 <?
-if(strlen($arResult["MESSAGE"])>0)
+if($arResult["MESSAGE"] <> '')
 {
 	?>
 	<div class="blog-textinfo blog-note-box">
@@ -18,7 +18,7 @@ if(strlen($arResult["MESSAGE"])>0)
 	</div>
 	<?
 }
-if(strlen($arResult["ERROR_MESSAGE"])>0)
+if($arResult["ERROR_MESSAGE"] <> '')
 {
 	?>
 	<div class="blog-errors blog-note-box blog-note-error">
@@ -28,7 +28,7 @@ if(strlen($arResult["ERROR_MESSAGE"])>0)
 	</div>
 	<?
 }
-if(strlen($arResult["FATAL_MESSAGE"])>0)
+if($arResult["FATAL_MESSAGE"] <> '')
 {
 	?>
 	<div class="blog-errors blog-note-box blog-note-error">
@@ -38,7 +38,7 @@ if(strlen($arResult["FATAL_MESSAGE"])>0)
 	</div>
 	<?
 }
-elseif(strlen($arResult["UTIL_MESSAGE"])>0)
+elseif($arResult["UTIL_MESSAGE"] <> '')
 {
 	?>
 	<div class="blog-textinfo blog-note-box">
@@ -57,8 +57,8 @@ else
 			$className .= " blog-post-first";
 			$className .= " blog-post-alt";
 			$className .= " blog-post-year-".$arResult["postPreview"]["DATE_PUBLISH_Y"];
-			$className .= " blog-post-month-".IntVal($arResult["postPreview"]["DATE_PUBLISH_M"]);
-			$className .= " blog-post-day-".IntVal($arResult["postPreview"]["DATE_PUBLISH_D"]);
+			$className .= " blog-post-month-".intval($arResult["postPreview"]["DATE_PUBLISH_M"]);
+			$className .= " blog-post-day-".intval($arResult["postPreview"]["DATE_PUBLISH_D"]);
 			?>
 			<div class="<?=$className?>">
 				<h2 class="blog-post-title"><span><?=$arResult["postPreview"]["TITLE"]?></span></h2>
@@ -206,7 +206,7 @@ else
 				transliterate();
 				</script>
 				<div class="blog-post-field blog-post-field-code blog-edit-field blog-edit-field-code">
-					<label for="CODE" class="blog-edit-field-caption"><?=GetMessage("BLOG_P_CODE")?>:</label> <?=$arResult["PATH_TO_POST1"]?><a href="javascript:changeCode()" title="<?=GetMessage("BLOG_CHANGE_CODE")?>" id="post-code-text"><?=(strlen($arResult["PostToShow"]["CODE"]) > 0) ? $arResult["PostToShow"]["CODE"] : GetMessage("BLOG_P_CODE");?></a><span id="post-code-input"><input maxlength="255" size="70" tabindex="2" type="text" name="CODE" id="CODE" value="<?=$arResult["PostToShow"]["CODE"]?>"><image id="code_link" title="<?echo GetMessage("BLOG_LINK_TIP")?>" class="linked" src="/bitrix/themes/.default/icons/iblock/<?if($bLinked) echo 'link.gif'; else echo 'unlink.gif';?>" onclick="set_linked()" /> </span><?=$arResult["PATH_TO_POST2"]?>
+					<label for="CODE" class="blog-edit-field-caption"><?=GetMessage("BLOG_P_CODE")?>:</label> <?=$arResult["PATH_TO_POST1"]?><a href="javascript:changeCode()" title="<?=GetMessage("BLOG_CHANGE_CODE")?>" id="post-code-text"><?=($arResult["PostToShow"]["CODE"] <> '') ? $arResult["PostToShow"]["CODE"] : GetMessage("BLOG_P_CODE");?></a><span id="post-code-input"><input maxlength="255" size="70" tabindex="2" type="text" name="CODE" id="CODE" value="<?=$arResult["PostToShow"]["CODE"]?>"><image id="code_link" title="<?echo GetMessage("BLOG_LINK_TIP")?>" class="linked" src="/bitrix/themes/.default/icons/iblock/<?if($bLinked) echo 'link.gif'; else echo 'unlink.gif';?>" onclick="set_linked()" /> </span><?=$arResult["PATH_TO_POST2"]?>
 					
 				</div>
 				<div class="blog-clear-float"></div>
@@ -256,7 +256,7 @@ else
 
 				<?foreach($arResult["Images"] as $image):
 					$image["DEL_URL"] = CUtil::JSEscape($image["DEL_URL"]);
-					$arJSFiles[strVal($image["ID"])] = array(
+					$arJSFiles[strval($image["ID"])] = array(
 						"element_id" => $image["ID"],
 						"element_name" => $image["FILE_NAME"],
 						"element_size" => $image["FILE_SIZE"],
@@ -264,7 +264,7 @@ else
 						"element_content_type" => $image["CONTENT_TYPE"],
 						"element_thumbnail" => $image["SRC"],
 						"element_image" => $image["THUMBNAIL"]["src"],
-						"isImage" => (substr($image["CONTENT_TYPE"], 0, 6) == "image/"),
+						"isImage" => (mb_substr($image["CONTENT_TYPE"], 0, 6) == "image/"),
 						"del_url" => $image["DEL_URL"]
 					);
 				
@@ -315,7 +315,7 @@ else
 		</div>
 		<div class="blog-clear-float"></div>
 		<div class="blog-post-field blog-post-field-favorite blog-edit-field">
-			<span><input name="FAVORITE_SORT" id="FAVORITE_SORT" type="checkbox" value="100"<?if(IntVal($arResult["PostToShow"]["FAVORITE_SORT"]) > 0) echo " checked"?>></span>
+			<span><input name="FAVORITE_SORT" id="FAVORITE_SORT" type="checkbox" value="100"<?if(intval($arResult["PostToShow"]["FAVORITE_SORT"]) > 0) echo " checked"?>></span>
 			<div class="blog-post-field-text"><label for="FAVORITE_SORT"><?=GetMessage("BLOG_FAVORITE_SORT")?></label></div>
 		</div>
 		<div class="blog-clear-float"></div>
@@ -407,7 +407,7 @@ else
 				</div>
 			</div>
 			<?
-			if(!empty($arResult["avBlog"]) && IntVal($arParams["ID"]) > 0)
+			if(!empty($arResult["avBlog"]) && intval($arParams["ID"]) > 0)
 			{
 				?>
 				<br />

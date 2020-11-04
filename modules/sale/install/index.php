@@ -230,6 +230,8 @@ Class sale extends CModule
 		$eventManager->registerEventHandler('report', 'onAnalyticPageCollect', 'sale', '\Bitrix\Sale\Integration\Report\EventHandler', 'onAnalyticPageCollect');
 		$eventManager->registerEventHandler('report', 'onAnalyticPageBatchCollect', 'sale', '\Bitrix\Sale\Integration\Report\EventHandler', 'onAnalyticPageBatchCollect');
 
+		$eventManager->registerEventHandler('documentgenerator', 'onDocumentTransformationComplete', 'sale', '\Bitrix\Sale\DocumentGenerator\CallbackRegistry', 'onDocumentGenerated');
+
 		COption::SetOptionString("sale", "viewed_capability", "N");
 		COption::SetOptionString("sale", "viewed_count", 10);
 		COption::SetOptionString("sale", "viewed_time", 5);
@@ -240,8 +242,6 @@ Class sale extends CModule
 
 		$eventManager->registerEventHandler('sale', 'OnSaleBasketItemEntitySaved', 'sale', '\Bitrix\Sale\Internals\Events', 'onSaleBasketItemEntitySaved');
 		$eventManager->registerEventHandler('sale', 'OnSaleBasketItemDeleted', 'sale', '\Bitrix\Sale\Internals\Events', 'onSaleBasketItemDeleted');
-
-		$eventManager->registerEventHandler('sale', 'OnSaleOrderSaved', 'sale', '\Bitrix\Sale\Delivery\Services\OrderSavedListener', 'onOrderSaved');
 
 		COption::SetOptionString("sale", "p2p_status_list", serialize(array(
 			"N", "P", "F", "F_CANCELED", "F_DELIVERY", "F_PAY", "F_OUT"
@@ -500,7 +500,7 @@ Class sale extends CModule
 		$eventManager->unRegisterEventHandler('report', 'onAnalyticPageCollect', 'sale', '\Bitrix\Sale\Integration\Report\EventHandler', 'onAnalyticPageCollect');
 		$eventManager->unRegisterEventHandler('report', 'onAnalyticPageBatchCollect', 'sale', '\Bitrix\Sale\Integration\Report\EventHandler', 'onAnalyticPageBatchCollect');
 
-		$eventManager->unRegisterEventHandler('sale', 'OnSaleOrderSaved', 'sale', '\Bitrix\Sale\Delivery\Services\OrderSavedListener', 'onOrderSaved');
+		$eventManager->unRegisterEventHandler('documentgenerator', 'onDocumentTransformationComplete', 'sale', '\Bitrix\Sale\DocumentGenerator\CallbackRegistry', 'onDocumentGenerated');
 
 		if (\Bitrix\Main\Loader::includeModule('sale'))
 		{

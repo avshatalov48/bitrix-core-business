@@ -98,31 +98,73 @@ class CAllUser extends CDBResult
 
 	public function GetLogin()
 	{
+		if(!isset($this))
+		{
+			trigger_error("Static call CUser::GetLogin() is deprecated, will be removed soon. Use global \$USER.", E_USER_WARNING);
+
+			global $USER;
+			return $USER->GetLogin();
+		}
 		return $this->GetParam("LOGIN");
 	}
 
 	public function GetEmail()
 	{
+		if(!isset($this))
+		{
+			trigger_error("Static call CUser::GetEmail() is deprecated, will be removed soon. Use global \$USER.", E_USER_WARNING);
+
+			global $USER;
+			return $USER->GetEmail();
+		}
 		return $this->GetParam("EMAIL");
 	}
 
 	public function GetFullName()
 	{
+		if(!isset($this))
+		{
+			trigger_error("Static call CUser::GetFullName() is deprecated, will be removed soon. Use global \$USER.", E_USER_WARNING);
+
+			global $USER;
+			return $USER->GetFullName();
+		}
 		return $this->GetParam("NAME");
 	}
 
 	public function GetFirstName()
 	{
+		if(!isset($this))
+		{
+			trigger_error("Static call CUser::GetFirstName() is deprecated, will be removed soon. Use global \$USER.", E_USER_WARNING);
+
+			global $USER;
+			return $USER->GetFirstName();
+		}
 		return $this->GetParam("FIRST_NAME");
 	}
 
 	public function GetLastName()
 	{
+		if(!isset($this))
+		{
+			trigger_error("Static call CUser::GetLastName() is deprecated, will be removed soon. Use global \$USER.", E_USER_WARNING);
+
+			global $USER;
+			return $USER->GetLastName();
+		}
 		return $this->GetParam("LAST_NAME");
 	}
 
 	public function GetSecondName()
 	{
+		if(!isset($this))
+		{
+			trigger_error("Static call CUser::GetSecondName() is deprecated, will be removed soon. Use global \$USER.", E_USER_WARNING);
+
+			global $USER;
+			return $USER->GetSecondName();
+		}
 		return $this->GetParam("SECOND_NAME");
 	}
 
@@ -1224,6 +1266,7 @@ class CAllUser extends CDBResult
 				"APPLICATION_ID" => $applicationId,
 				"BX_USER_ID" => $arUser["BX_USER_ID"],
 				"GROUPS" => Main\UserTable::getUserGroupIds($arUser["ID"]),
+				"SESSION_HASH" => $this->GetParam("SESSION_HASH"),
 			];
 
 			foreach ($data["GROUPS"] as $groupId)
@@ -1343,21 +1386,21 @@ class CAllUser extends CDBResult
 					{
 						$DB->Query(
 							"UPDATE b_user_stored_auth SET
-								LAST_AUTH=".$DB->CurrentTimeFunction().",
-								".($this->bLoginByHash?"":"TEMP_HASH='".($bSave?"N":"Y")."', ")."
-								IP_ADDR='".sprintf("%u", ip2long($_SERVER["REMOTE_ADDR"]))."'
-							WHERE ID=".$stored_id
+								LAST_AUTH = ".$DB->CurrentTimeFunction().",
+								".($this->bLoginByHash? "" : "TEMP_HASH = '".($bSave? "N" : "Y")."', ")."
+								IP_ADDR = '".sprintf("%u", ip2long($_SERVER["REMOTE_ADDR"]))."'
+							WHERE ID = ".$stored_id
 						);
 					}
 					else
 					{
 						$arFields = array(
-							'USER_ID'=>$arUser["ID"],
-							'~DATE_REG'=>$DB->CurrentTimeFunction(),
-							'~LAST_AUTH'=>$DB->CurrentTimeFunction(),
-							'TEMP_HASH'=>($bSave?"N":"Y"),
-							'~IP_ADDR'=>sprintf("%u", ip2long($_SERVER["REMOTE_ADDR"])),
-							'STORED_HASH'=>$hash
+							'USER_ID' => $arUser["ID"],
+							'~DATE_REG' => $DB->CurrentTimeFunction(),
+							'~LAST_AUTH' => $DB->CurrentTimeFunction(),
+							'TEMP_HASH' => ($bSave? "N" : "Y"),
+							'~IP_ADDR' => sprintf("%u", ip2long($_SERVER["REMOTE_ADDR"])),
+							'STORED_HASH' => $hash
 						);
 						$stored_id = $DB->Add("b_user_stored_auth", $arFields);
 					}
@@ -4067,7 +4110,7 @@ class CAllUser extends CDBResult
 				{
 					$remote_net = ip2long($arPolicy["STORE_IP_MASK"]) & ip2long($_SERVER["REMOTE_ADDR"]);
 					$stored_net = ip2long($arPolicy["STORE_IP_MASK"]) & (float)$ar["IP_ADDR"];
-					if($sHash == $ar["STORED_HASH"] && $remote_net == $stored_net)
+					if($sHash === $ar["STORED_HASH"] && $remote_net == $stored_net)
 						$auth_id = $ar["ID"];
 				}
 			}

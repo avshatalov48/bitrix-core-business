@@ -84,7 +84,7 @@ BX.CommentAux.getLiveText = function(type, params)
 
 			if (this.isSourcePost(params.sourceEntityType))
 			{
-				result = BX.message('SONET_COMMENTAUX_JS_CREATETASK_POST_' + (BX.type.isNotEmptyString(params.sourceEntityType) ? params.sourceEntityType : 'BLOG_POST')).replace(
+				result = BX.message('SONET_COMMENTAUX_JS_CREATETASK_POST_' + (BX.type.isNotEmptyString(params.sourceEntityType) ? params.sourceEntityType : 'BLOG_POST') + (BX.type.isNotEmptyString(params.suffix) ? '_' + params.suffix : '')).replace(
 					'#TASK_NAME#', task
 				).replace(
 					'#A_BEGIN#', (!BX.RenderParts.mobile ? '<a target="_blank" href="' + (BX.type.isNotEmptyString(params.sourceEntityLink) ? params.sourceEntityLink : '') + '">' : '')

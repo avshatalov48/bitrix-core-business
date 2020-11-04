@@ -432,9 +432,18 @@ class CAllCatalogSku
 	 * @param array $fields
 	 * @param array $propertyFilter
 	 * @param array $options
+	 * @param array $order
 	 * @return array|bool
 	 */
-	public static function getOffersList($productID, $iblockID = 0, $skuFilter = array(), $fields = array(), $propertyFilter = array(), $options = array())
+	public static function getOffersList(
+		$productID,
+		$iblockID = 0,
+		$skuFilter = array(),
+		$fields = array(),
+		$propertyFilter = array(),
+		$options = array(),
+		$order = array()
+	)
 	{
 		static $propertyCache = array();
 
@@ -600,6 +609,12 @@ class CAllCatalogSku
 		}
 		unset($offersIblock);
 
+		if (empty($order))
+		{
+			$order = array('ID' => 'ASC');
+		}
+		$orderFields = array_keys($order);
+
 		$result = array_fill_keys($productID, array());
 
 		foreach ($iblockProduct as $iblockID => $productList)
@@ -610,13 +625,14 @@ class CAllCatalogSku
 			$iblockFilter['='.$skuProperty] = $productList;
 			$iblockFields = $fields;
 			$iblockFields[] = $skuProperty;
+			$iblockFields = array_merge($iblockFields, $orderFields);
 			$skuProperty .= '_VALUE';
 			$skuPropertyId = $skuProperty.'_ID';
 			$offersLinks = array();
 			$needProperties = !empty($iblockProperties[$iblockSku[$iblockID]['IBLOCK_ID']]);
 
 			$offersIterator = CIBlockElement::GetList(
-				array('ID' => 'ASC'),
+				$order,
 				$iblockFilter,
 				false,
 				false,

@@ -6,32 +6,32 @@ if (!CModule::IncludeModule("blog"))
 	ShowError(GetMessage("BLOG_MODULE_NOT_INSTALL"));
 	return;
 }
-$arParams["SOCNET_GROUP_ID"] = IntVal($arParams["SOCNET_GROUP_ID"]);
-$arParams["USER_ID"] = IntVal($arParams["USER_ID"]);
+$arParams["SOCNET_GROUP_ID"] = intval($arParams["SOCNET_GROUP_ID"]);
+$arParams["USER_ID"] = intval($arParams["USER_ID"]);
 
 $arParams["POST_ID"] = trim($arParams["POST_ID"]);
 $bIDbyCode = false;
-if(!is_numeric($arParams["POST_ID"]) || strlen(IntVal($arParams["POST_ID"])) != strlen($arParams["POST_ID"]))
+if(!is_numeric($arParams["POST_ID"]) || mb_strlen(intval($arParams["POST_ID"])) != mb_strlen($arParams["POST_ID"]))
 {
 	$arParams["POST_ID"] = preg_replace("/[^a-zA-Z0-9_-]/is", "", Trim($arParams["~POST_ID"]));
 	$bIDbyCode = true;
 }
 else
-	$arParams["POST_ID"] = IntVal($arParams["POST_ID"]);
+	$arParams["POST_ID"] = intval($arParams["POST_ID"]);
 
 if(!is_array($arParams["GROUP_ID"]))
 	$arParams["GROUP_ID"] = array($arParams["GROUP_ID"]);
 foreach($arParams["GROUP_ID"] as $k=>$v)
-	if(IntVal($v) <= 0)
+	if(intval($v) <= 0)
 		unset($arParams["GROUP_ID"][$k]);
 
 $bSoNet = false;
 $bGroupMode = false;
-if (CModule::IncludeModule("socialnetwork") && (IntVal($arParams["SOCNET_GROUP_ID"]) > 0 || IntVal($arParams["USER_ID"]) > 0))
+if (CModule::IncludeModule("socialnetwork") && (intval($arParams["SOCNET_GROUP_ID"]) > 0 || intval($arParams["USER_ID"]) > 0))
 {
 	$bSoNet = true;
 
-	if(IntVal($arParams["SOCNET_GROUP_ID"]) > 0)
+	if(intval($arParams["SOCNET_GROUP_ID"]) > 0)
 		$bGroupMode = true;
 	
 	if($bGroupMode)
@@ -50,39 +50,39 @@ if (CModule::IncludeModule("socialnetwork") && (IntVal($arParams["SOCNET_GROUP_I
 	}
 }
 
-$arParams["MESSAGE_COUNT"] = IntVal($arParams["MESSAGE_COUNT"])>0 ? IntVal($arParams["MESSAGE_COUNT"]): 10;
+$arParams["MESSAGE_COUNT"] = intval($arParams["MESSAGE_COUNT"])>0 ? intval($arParams["MESSAGE_COUNT"]): 10;
 $arParams["BLOG_URL"] = preg_replace("/[^a-zA-Z0-9_-]/is", "", Trim($arParams["BLOG_URL"]));
 if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
 	$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
 else
 	$arParams["CACHE_TIME"] = 0;	
 
-if (strtolower($arParams["TYPE"]) == "rss1")
+if (mb_strtolower($arParams["TYPE"]) == "rss1")
 	$arResult["TYPE"] = "RSS .92";
-if (strtolower($arParams["TYPE"]) == "rss2")
+if (mb_strtolower($arParams["TYPE"]) == "rss2")
 	$arResult["TYPE"] = "RSS 2.0";
-if (strtolower($arParams["TYPE"]) == "atom")
+if (mb_strtolower($arParams["TYPE"]) == "atom")
 	$arResult["TYPE"] = "Atom .03";
 
-if(strLen($arParams["BLOG_VAR"])<=0)
+if($arParams["BLOG_VAR"] == '')
 	$arParams["BLOG_VAR"] = "blog";
-if(strLen($arParams["PAGE_VAR"])<=0)
+if($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if(strLen($arParams["POST_VAR"])<=0)
+if($arParams["POST_VAR"] == '')
 	$arParams["POST_VAR"] = "id";
-if(strLen($arParams["USER_VAR"])<=0)
+if($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "id";
 
 $arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"]);
-if(strlen($arParams["PATH_TO_BLOG"])<=0)
+if($arParams["PATH_TO_BLOG"] == '')
 	$arParams["PATH_TO_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
 
 $arParams["PATH_TO_POST"] = trim($arParams["PATH_TO_POST"]);
-if(strlen($arParams["PATH_TO_POST"])<=0)
+if($arParams["PATH_TO_POST"] == '')
 	$arParams["PATH_TO_POST"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if(strlen($arParams["PATH_TO_USER"])<=0)
+if($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 	
 if($arParams["MODE"] != "C")
@@ -95,12 +95,12 @@ if(is_numeric($arParams["NO_URL_IN_COMMENTS_AUTHORITY"]))
 	$arParams["NO_URL_IN_COMMENTS_AUTHORITY_CHECK"] = "Y";
 }
 
-$arParams["IMAGE_MAX_WIDTH"] = IntVal($arParams["IMAGE_MAX_WIDTH"]);
-$arParams["IMAGE_MAX_HEIGHT"] = IntVal($arParams["IMAGE_MAX_HEIGHT"]);
+$arParams["IMAGE_MAX_WIDTH"] = intval($arParams["IMAGE_MAX_WIDTH"]);
+$arParams["IMAGE_MAX_HEIGHT"] = intval($arParams["IMAGE_MAX_HEIGHT"]);
 
 $arFeedParams = Array("ALLOW_POST_CODE" => $arParams["ALLOW_POST_CODE"], "IMAGE_MAX_WIDTH" => $arParams["IMAGE_MAX_WIDTH"], "IMAGE_MAX_HEIGHT" => $arParams["IMAGE_MAX_HEIGHT"]);
 
-$user_id = IntVal($USER->GetID());
+$user_id = intval($USER->GetID());
 if($bSoNet)
 {
 	$arFeedParams["USE_SOCNET"] = "Y";

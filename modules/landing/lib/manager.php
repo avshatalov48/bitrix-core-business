@@ -206,8 +206,8 @@ class Manager
 	public static function getCurDir()
 	{
 		return Application::getInstance()->getContext()
-										 ->getRequest()
-										 ->getRequestedPageDirectory();
+			->getRequest()
+			->getRequestedPageDirectory();
 	}
 
 	/**
@@ -310,12 +310,12 @@ class Manager
 					'TEMPLATE' => self::getTemplateId($siteId)
 				);
 				$check = \Bitrix\Main\SiteTemplateTable::getList(array(
-					 'filter' => array(
-						 '=SITE_ID' => $fields['SITE_ID'],
-						 '=CONDITION' => $fields['CONDITION'],
-						 '=TEMPLATE' => $fields['TEMPLATE']
-					 )
-				 ))->fetch();
+					'filter' => array(
+						'=SITE_ID' => $fields['SITE_ID'],
+						'=CONDITION' => $fields['CONDITION'],
+						'=TEMPLATE' => $fields['TEMPLATE']
+					)
+				))->fetch();
 				if (!$check)
 				{
 					\Bitrix\Main\SiteTemplateTable::add(
@@ -372,8 +372,8 @@ class Manager
 			return LANDING_PUBLICATION_PATH_CONST;
 		}
 		return self::isB24()
-				? self::PUBLICATION_PATH
-				: self::PUBLICATION_PATH_SITEMAN;
+			? self::PUBLICATION_PATH
+			: self::PUBLICATION_PATH_SITEMAN;
 	}
 
 	/**
@@ -417,10 +417,10 @@ class Manager
 		else
 		{
 			return $subDir . str_replace(
-				'#id#',
-				$siteCode,
-				$basePath . '#id#/'
-			);
+					'#id#',
+					$siteCode,
+					$basePath . '#id#/'
+				);
 		}
 	}
 
@@ -621,7 +621,6 @@ class Manager
 	{
 		$assets = Assets\Manager::getInstance();
 		$tplId = self::getTemplateId(SITE_ID);
-
 		if (self::$themeId)
 		{
 			foreach(self::findThemeFiles(self::$themeId, 'themes', $tplId) as $path)
@@ -650,6 +649,14 @@ class Manager
 		if (!self::$themeId || !in_array(self::$themeId, $themes))
 		{
 			self::setThemeId(array_pop($themes));
+		}
+		if ($request->get('color'))
+		{
+			self::setThemeId('');
+		}
+		if ($request->get('color'))
+		{
+			self::setThemeId('');
 		}
 	}
 
@@ -776,8 +783,8 @@ class Manager
 					$file,
 					$params,
 					isset($params['resize_type'])
-					? intval($params['resize_type'])
-					: BX_RESIZE_IMAGE_PROPORTIONAL);
+						? intval($params['resize_type'])
+						: BX_RESIZE_IMAGE_PROPORTIONAL);
 			}
 			// save
 			$module = 'landing';
@@ -1068,8 +1075,8 @@ class Manager
 		)
 		{
 			return '//' .
-				   self::getHttpHost() .
-				   $file;
+				self::getHttpHost() .
+				$file;
 		}
 		else
 		{
@@ -1102,8 +1109,8 @@ class Manager
 			else
 			{
 				$return = ModuleManager::isModuleInstalled('bitrix24') ||
-							ModuleManager::isModuleInstalled('crm') ||
-							ModuleManager::isModuleInstalled('intranet');
+					ModuleManager::isModuleInstalled('crm') ||
+					ModuleManager::isModuleInstalled('intranet');
 			}
 		}
 
@@ -1163,8 +1170,8 @@ class Manager
 	public static function isStoreEnabled()
 	{
 		return ModuleManager::isModuleInstalled('sale') &&
-			   ModuleManager::isModuleInstalled('catalog') &&
-			   ModuleManager::isModuleInstalled('iblock');
+			ModuleManager::isModuleInstalled('catalog') &&
+			ModuleManager::isModuleInstalled('iblock');
 	}
 
 	/**
@@ -1184,7 +1191,7 @@ class Manager
 	public static function isCloudDisable()
 	{
 		return defined('LANDING_DISABLE_CLOUD') &&
-			   LANDING_DISABLE_CLOUD === true;
+			LANDING_DISABLE_CLOUD === true;
 	}
 
 

@@ -924,7 +924,6 @@
 				else
 					this.error.setText(BX.util.htmlspecialchars(content));
 
-				this.error.getTextNode().innerHTML = this.error.getText();
 				this.errorBlock.style.display = "flex";
 			}
 			else
@@ -932,7 +931,6 @@
 				if (this.errorBlock)
 				{
 					this.error.setText("");
-					this.error.getTextNode().innerHTML = "";
 					this.errorBlock.style.display = "none";
 				}
 			}
@@ -953,7 +951,6 @@
 				else
 					this.warning.setText(BX.util.htmlspecialchars(content));
 
-				this.warning.getTextNode().innerHTML = this.warning.getText();
 				this.warningBlock.style.display = "flex";
 			}
 			else
@@ -961,7 +958,6 @@
 				if (this.warningBlock)
 				{
 					this.warning.setText("");
-					this.warning.getTextNode().innerHTML = "";
 					this.warningBlock.style.display = "none";
 				}
 			}

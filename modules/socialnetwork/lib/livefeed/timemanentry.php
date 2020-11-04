@@ -4,6 +4,7 @@ namespace Bitrix\Socialnetwork\Livefeed;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Timeman\Model\Worktime\Record\WorktimeRecordTable;
 
 Loc::loadMessages(__FILE__);
 
@@ -12,7 +13,7 @@ final class TimemanEntry extends Provider
 	const PROVIDER_ID = 'TIMEMAN_ENTRY';
 	const CONTENT_TYPE_ID = 'TIMEMAN_ENTRY';
 
-	public static function getId()
+	public static function getId(): string
 	{
 		return static::PROVIDER_ID;
 	}
@@ -29,58 +30,91 @@ final class TimemanEntry extends Provider
 
 	public function getCommentProvider()
 	{
-		$provider = new \Bitrix\Socialnetwork\Livefeed\ForumPost();
-		return $provider;
+		return new ForumPost();
 	}
 
 	public function initSourceFields()
 	{
-		$timemanEntryId = $this->entityId;
+		static $cache = [];
 
-		if (
-			$timemanEntryId > 0
-			&& Loader::includeModule('timeman')
-		)
+		$timemanEntryId = (int)$this->entityId;
+
+		if ($timemanEntryId <= 0)
 		{
-			$res = \CTimeManEntry::getById(intval($timemanEntryId));
-			if ($timemanEntry = $res->fetch())
-			{
-				$this->setSourceFields($timemanEntry);
-
-				$userName = '';
-				$res = \CUser::getById($timemanEntry["USER_ID"]);
-				if ($userFields = $res->fetch())
-				{
-					$userName = \CUser::formatName(
-						\CSite::getNameFormat(),
-						$userFields,
-						true,
-						false
-					);
-				}
-
-				$this->setSourceTitle(Loc::getMessage('SONET_LIVEFEED_TIMEMAN_ENTRY_TITLE', array(
-					'#USER_NAME#' => $userName,
-					'#DATE#' => FormatDate('j F', MakeTimeStamp($timemanEntry['DATE_START']))
-				)));
-//				$this->setSourceDescription();
-			}
+			return;
 		}
+
+		if (isset($cache[$timemanEntryId]))
+		{
+			$timemanEntry = $cache[$timemanEntryId];
+		}
+		elseif (Loader::includeModule('timeman'))
+		{
+			$res = WorktimeRecordTable::getList([
+				'filter' => [
+					'ID' => $timemanEntryId
+				],
+				'select' => [ 'ID', 'USER_ID', 'DATE_START', 'APPROVED_BY' ]
+			]);
+			$timemanEntry = $res->fetch();
+			$cache[$timemanEntryId] = $timemanEntry;
+		}
+
+		if (empty($timemanEntry))
+		{
+			return;
+		}
+
+		$this->setSourceFields($timemanEntry);
+
+		$userName = '';
+		$res = \CUser::getById($timemanEntry['USER_ID']);
+		if ($userFields = $res->fetch())
+		{
+			$userName = \CUser::formatName(
+				\CSite::getNameFormat(),
+				$userFields,
+				true,
+				false
+			);
+		}
+
+		$this->setSourceTitle(Loc::getMessage('SONET_LIVEFEED_TIMEMAN_ENTRY_TITLE', [
+			'#USER_NAME#' => $userName,
+			'#DATE#' => FormatDate('j F', makeTimeStamp($timemanEntry['DATE_START']))
+		]));
 	}
 
-	public static function canRead($params)
+	public function getPinnedDescription()
+	{
+		$result = '';
+
+		if (empty($this->sourceFields))
+		{
+			$this->initSourceFields();
+		}
+
+		$timemanEntry = $this->getSourceFields();
+		if (empty($timemanEntry))
+		{
+			return $result;
+		}
+
+		$result = Loc::getMessage((int)$timemanEntry['APPROVED_BY'] <= 0 ? 'SONET_LIVEFEED_TIMEMAN_ENTRY_PINNED_DESCRIPTION' : 'SONET_LIVEFEED_TIMEMAN_ENTRY_PINNED_DESCRIPTION2');
+		return $result;
+	}
+
+	public static function canRead($params): bool
 	{
 		return true;
 	}
 
-	protected function getPermissions(array $post)
+	protected function getPermissions(array $post): string
 	{
-		$result = self::PERMISSION_READ;
-
-		return $result;
+		return self::PERMISSION_READ;
 	}
 
-	public function getLiveFeedUrl()
+	public function getLiveFeedUrl(): string
 	{
 		$pathToLogEntry = '';
 

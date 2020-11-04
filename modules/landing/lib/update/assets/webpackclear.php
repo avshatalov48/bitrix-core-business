@@ -111,6 +111,6 @@ final class WebpackClear extends Stepper
 	 */
 	public static function clearNotBindedFiles(): void
 	{
-		Stepper::bindClass('Bitrix\Landing\Update\Assets\WebpackClear', 'landing', 300);
+		Stepper::bindClass('Bitrix\Landing\Update\Assets\WebpackClear', 'landing', 600);
 	}
 }

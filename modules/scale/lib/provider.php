@@ -57,7 +57,7 @@ class Provider {
 	 */
 	public static function getStatus($providerId)
 	{
-		if(strlen($providerId) <= 0 )
+		if($providerId == '' )
 			throw new ArgumentNullException("providerId");
 
 		$result = array();
@@ -84,7 +84,7 @@ class Provider {
 	 */
 	public static function getConfigs($providerId)
 	{
-		if(strlen($providerId) <= 0 )
+		if($providerId == '' )
 			throw new ArgumentNullException("providerId");
 
 		$result = array();
@@ -111,10 +111,10 @@ class Provider {
 	 */
 	public static function sendOrder($providerId, $configId)
 	{
-		if(strlen($providerId) <= 0 )
+		if($providerId == '' )
 			throw new ArgumentNullException("providerId");
 
-		if(strlen($configId) <= 0 )
+		if($configId == '' )
 			throw new ArgumentNullException("configId");
 
 		$result = "";
@@ -130,7 +130,7 @@ class Provider {
 				$result = $arData["params"]["provider_order"][$providerId]["task_id"];
 		}
 
-		if(strlen($result) > 0)
+		if($result <> '')
 		{
 			$logLevel = Logger::LOG_LEVEL_INFO;
 			$description = Loc::getMessage("SCALE_PROVIDER_SEND_ORDER_SUCCESS");
@@ -165,10 +165,10 @@ class Provider {
 	 */
 	public static function getOrderStatus($providerId, $taskId)
 	{
-		if(strlen($providerId) <= 0 )
+		if($providerId == '' )
 			throw new ArgumentNullException("providerId");
 
-		if(strlen($taskId) <= 0 )
+		if($taskId == '' )
 			throw new ArgumentNullException("taskId");
 
 		$result = array();
@@ -196,7 +196,7 @@ class Provider {
 	{
 		$result = array();
 		$shellAdapter = new ShellAdapter();
-		$execRes = $shellAdapter->syncExec("sudo -u root /opt/webdir/bin/bx-provider -a orders_list".(strlen($providerId) > 0 ? " --provider ".$providerId : "")." -o json");
+		$execRes = $shellAdapter->syncExec("sudo -u root /opt/webdir/bin/bx-provider -a orders_list".($providerId <> '' ? " --provider ".$providerId : "")." -o json");
 		$jsonData = $shellAdapter->getLastOutput();
 
 		if($execRes)
@@ -219,10 +219,10 @@ class Provider {
 	 */
 	public static function addToPullFromOrder($providerId, $taskId)
 	{
-		if(strlen($providerId) <= 0 )
+		if($providerId == '' )
 			throw new ArgumentNullException("providerId");
 
-		if(strlen($taskId) <= 0 )
+		if($taskId == '' )
 			throw new ArgumentNullException("taskId");
 
 		$result = false;

@@ -60,8 +60,6 @@ $MESS["BLOG_READ_M"] = "Я прочитал";
 $MESS["BLOG_USERS_ALREADY_READ"] = "уже подтвердили прочтение";
 $MESS["BLOG_READERS"] = "пользователей";
 $MESS["BLOG_POST_BUTTON_MORE"] = "Ещё";
-$MESS["BLOG_POST_MENU_TITLE_FAVORITES_N"] = "Добавить в избранное";
-$MESS["BLOG_POST_MENU_TITLE_FAVORITES_Y"] = "Убрать из избранного";
 $MESS["BLOG_COMMENTS_ADD"] = "Комментировать";
 $MESS["MPF_DESTINATION_1"] = "Добавить сотрудников, группы или отделы";
 $MESS["MPF_DESTINATION_2"] = "Добавить еще";
@@ -79,4 +77,7 @@ $MESS["BLOG_POST_CREATE_TASK_SUCCESS_DESCRIPTION"] = "Вы можете пере
 $MESS["BLOG_POST_CREATE_TASK_ERROR_GET_DATA"] = "Не удалось получить данные для создания задачи";
 $MESS["BLOG_POST_LINK_COPIED"] = "Ссылка скопирована";
 $MESS["BLOG_POST_LIMITED_VIEW"] = "(получатели увидят пост после конвертации видео)";
+$MESS["BLOG_POST_PINNED_EXPAND"] = "показать полностью";
+$MESS["BLOG_POST_PINNED_COLLAPSE"] = "свернуть";
+$MESS["BLOG_PINNED_COMMENTS"] = "Комментарии:";
 ?>

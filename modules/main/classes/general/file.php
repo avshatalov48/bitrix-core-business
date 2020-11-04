@@ -818,7 +818,7 @@ class CFile
 		if(CACHED_b_file===false)
 		{
 			$strSql = "
-				SELECT f.*, {$DB->DateToCharFunction("f.TIMESTAMP_X")} as TIMESTAMP_X 
+				SELECT f.*, {$DB->DateToCharFunction("f.TIMESTAMP_X")} as TIMESTAMP_X
 				FROM b_file f
 				WHERE f.ID = {$FILE_ID}";
 			$z = $DB->Query($strSql, false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
@@ -1106,9 +1106,9 @@ class CFile
 	{
 		global $DB;
 		$DB->Query(
-			"UPDATE b_file SET 
-				DESCRIPTION = '".$DB->ForSql($desc, 255)."', 
-				TIMESTAMP_X = ".$DB->GetNowFunction()." 
+			"UPDATE b_file SET
+				DESCRIPTION = '".$DB->ForSql($desc, 255)."',
+				TIMESTAMP_X = ".$DB->GetNowFunction()."
 			WHERE ID=".intval($ID)
 		);
 		static::CleanCache($ID);
@@ -1119,9 +1119,9 @@ class CFile
 		global $DB;
 		$external_id = trim($external_id);
 		$DB->Query(
-			"UPDATE b_file SET 
-				EXTERNAL_ID = ".($external_id != ""? "'".$DB->ForSql($external_id, 50)."'": "null").", 
-				TIMESTAMP_X = ".$DB->GetNowFunction()." 
+			"UPDATE b_file SET
+				EXTERNAL_ID = ".($external_id != ""? "'".$DB->ForSql($external_id, 50)."'": "null").",
+				TIMESTAMP_X = ".$DB->GetNowFunction()."
 			WHERE ID=".intval($ID)
 		);
 		static::CleanCache($ID);
@@ -1788,17 +1788,24 @@ function ImgShw(ID, width, height, alt)
 
 			if(!$bExternalStorage)
 			{
-				$urlComponents = parse_url($path);
-				if ($urlComponents && $urlComponents["path"] <> '')
-					$temp_path = static::GetTempName('', bx_basename($urlComponents["path"]));
-				else
-					$temp_path = static::GetTempName('', bx_basename($path));
-
 				$http = new \Bitrix\Main\Web\HttpClient();
 				$http->setPrivateIp(false);
+				$temp_path = static::GetTempName('', 'tmp.'.md5(mt_rand()));
 				if($http->download($path, $temp_path))
 				{
 					$arFile = static::MakeFileArray($temp_path);
+					if($arFile)
+					{
+						$urlComponents = parse_url($path);
+						if($urlComponents && $urlComponents["path"] <> '')
+						{
+							$arFile["name"] = $io->GetLogicalName(bx_basename($urlComponents["path"]));
+						}
+						else
+						{
+							$arFile["name"] = $io->GetLogicalName(bx_basename($path));
+						}
+					}
 				}
 			}
 			elseif($temp_path)
@@ -1812,13 +1819,21 @@ function ImgShw(ID, width, height, alt)
 			{
 				$content = "";
 				while(!feof($fp))
+				{
 					$content .= fgets($fp, 4096);
+				}
 
 				if($content <> '')
 				{
-					$temp_path = static::GetTempName('', bx_basename($path));
-					if (RewriteFile($temp_path, $content))
+					$temp_path = static::GetTempName('', 'tmp.'.md5(mt_rand()));
+					if(RewriteFile($temp_path, $content))
+					{
 						$arFile = static::MakeFileArray($temp_path);
+						if($arFile)
+						{
+							$arFile["name"] = $io->GetLogicalName(bx_basename($path));
+						}
+					}
 				}
 
 				fclose($fp);
@@ -1874,9 +1889,9 @@ function ImgShw(ID, width, height, alt)
 		if ($old_subdir!=$new_subdir)
 		{
 			$strSql = "
-				UPDATE b_file SET 
+				UPDATE b_file SET
 					SUBDIR = REPLACE(SUBDIR,'".$DB->ForSQL($old_subdir)."','".$DB->ForSQL($new_subdir)."'),
-					TIMESTAMP_X = ".$DB->GetNowFunction()." 
+					TIMESTAMP_X = ".$DB->GetNowFunction()."
 				WHERE MODULE_ID='".$DB->ForSQL($module_id)."'
 			";
 

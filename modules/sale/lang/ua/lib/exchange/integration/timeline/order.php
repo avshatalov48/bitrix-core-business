@@ -1,0 +1,3 @@
+<?
+$MESS["SALE_INTEGRATION_B24_TIMELINE_ORDER_NUMBER"] = "Замовлення №";
+?>

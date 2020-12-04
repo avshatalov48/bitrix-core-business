@@ -223,7 +223,7 @@ class ArchiveEntry
 
 		foreach ($parts as $i => $part)
 		{
-			$part = self::getApplication()->convertCharset(
+			$part = Encoding::convertEncoding(
 				$part,
 				LANG_CHARSET,
 				'UTF-8'

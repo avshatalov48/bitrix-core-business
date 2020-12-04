@@ -11,10 +11,10 @@ class CacheStorage implements StorageInterface
 
 	/** @var string */
 	private $baseDir;
-	/** @var ICacheEngine */
+	/** @var CacheEngineInterface */
 	private $cacheEngine;
 
-	public function __construct(ICacheEngine $cacheEngine)
+	public function __construct(CacheEngineInterface $cacheEngine)
 	{
 		$this->cacheEngine = $cacheEngine;
 		$this->baseDir = Application::getPersonalRoot() . '/cache/';

@@ -1,4 +1,10 @@
 <?
+
+/**
+ * Class CSecuritySessionRedis
+ * @deprecated
+ * @see \Bitrix\Main\Session\Handlers\RedisSessionHandler
+ */
 class CSecuritySessionRedis
 {
 	/** @var Redis $connection*/

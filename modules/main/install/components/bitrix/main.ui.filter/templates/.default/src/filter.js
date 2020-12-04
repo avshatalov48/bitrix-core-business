@@ -1,3 +1,5 @@
+import {Type} from "main.core";
+
 ;(function() {
 	'use strict';
 
@@ -61,6 +63,7 @@
 		this.api = null;
 		this.isAddPresetModeState = false;
 		this.firstInit = true;
+		this.analyticsLabel = null;
 		this.emitter = new BX.Event.EventEmitter();
 		this.emitter.setEventNamespace('BX.Filter.Field');
 		this.emitter.subscribe = function(eventName, listener) {
@@ -881,6 +884,9 @@
 		 */
 		backend: function(action, data)
 		{
+			const analyticsLabel = this.analyticsLabel || {};
+			this.analyticsLabel = {};
+
 			return BX.ajax.runComponentAction(
 				'bitrix:main.ui.filter',
 				action,
@@ -889,12 +895,37 @@
 					data: data,
 					analyticsLabel: {
 						FILTER_ID: this.getParam('FILTER_ID'),
-						GRID_ID: this.getParam('GRID_ID')
+						GRID_ID: this.getParam('GRID_ID'),
+						PRESET_ID: data['data']['preset_id'],
+						FIND: data['data'].hasOwnProperty('fields')
+							&& data['data']['fields'].hasOwnProperty('FIND')
+							&& !!data['data']['fields']['FIND'] ? "Y" : "N",
+						ROWS: Type.isObject(data['data']['additional'])
+							&& Object.keys(data['data']['additional']).length == 0 ? "N" : "Y",
+						...analyticsLabel
 					}
 				}
 			);
 		},
 
+		/**
+		 * Sends analytics when limit is enabled
+		 */
+		limitAnalyticsSend: function ()
+		{
+			BX.ajax.runComponentAction(
+				'bitrix:main.ui.filter',
+				'limitAnalytics',
+				{
+					mode: 'ajax',
+					data: {},
+					analyticsLabel: {
+						FILTER_ID: this.getParam('FILTER_ID'),
+						LIMIT: this.getParam('FILTER_ID')
+					}
+				}
+			);
+		},
 
 		/**
 		 * Prepares event.path
@@ -2525,6 +2556,11 @@
 			{
 				this.isOpened = true;
 				var showDelay = this.settings.get('FILTER_SHOW_DELAY');
+
+				if (this.getParam('LIMITS_ENABLED') === true)
+				{
+					this.limitAnalyticsSend();
+				}
 
 				setTimeout(BX.delegate(function() {
 					popup.show();

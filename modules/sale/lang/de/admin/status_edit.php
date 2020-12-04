@@ -39,7 +39,7 @@ $MESS["SSEN_PERM_STATUS"] = "Diesen Status verleihen";
 $MESS["SSEN_PERM_STATUS_FROM"] = "Diesen Status ändern";
 $MESS["SSEN_PERM_UPDATE"] = "Bearbeiten";
 $MESS["SSEN_PERM_DELETE"] = "Löschen";
-$MESS["SSEN_PERM_GROUPS_ABSENT"] = "Es gibt keine Nutzergruppen mit dem Zugriffsrecht [U]  Bestellbearbeitung.";
+$MESS["SSEN_PERM_GROUPS_ABSENT"] = "Es gibt keine Nutzergruppen mit dem Zugriffsrecht [U] - Bestellbearbeitung.";
 $MESS["SSEN_PERM_GROUPS_SET"] = "Benutzen Sie die <a href=\"#LINK#\">Seite der Einstellungen</a> des Moduls Online-Shop, um die Zugriffsrechte zu definieren.";
 $MESS["SSEN_ALL_PERM"] = "Alle Operationen";
 $MESS["SSEN_TYPE_O"] = "Bestellung";

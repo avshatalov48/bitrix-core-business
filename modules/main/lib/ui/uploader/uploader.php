@@ -9,6 +9,7 @@ use \Bitrix\Main\Web\Json;
 use \Bitrix\Main\Context;
 use \Bitrix\Main\Loader;
 use \Bitrix\Main\Localization\Loc;
+use \Bitrix\Main;
 Loc::loadMessages(__FILE__);
 Loader::registerAutoLoadClasses(
 	"main",
@@ -32,18 +33,25 @@ class Log implements \ArrayAccess
 	 */
 	function __construct($path)
 	{
-		$this->file = \CBXVirtualIo::GetInstance()->GetFile($path);
-
-		if ($this->file->IsExists())
+		try
 		{
-			$data = unserialize($this->file->GetContents());
-			foreach($data as $key => $val)
+			$this->file = \CBXVirtualIo::GetInstance()->GetFile($path);
+
+			if ($this->file->IsExists())
 			{
-				if (array_key_exists($key , $this->data) && is_array($this->data[$key]) && is_array($val))
-					$this->data[$key] = array_merge($this->data[$key], $val);
-				else
-					$this->data[$key] = $val;
+				$data = unserialize($this->file->GetContents(), ["allowed_classes" => false]);
+				foreach($data as $key => $val)
+				{
+					if (array_key_exists($key , $this->data) && is_array($this->data[$key]) && is_array($val))
+						$this->data[$key] = array_merge($this->data[$key], $val);
+					else
+						$this->data[$key] = $val;
+				}
 			}
+		}
+		catch (\Throwable $e)
+		{
+			throw new Main\SystemException("Temporary file has wrong structure.", "BXU351.01");
 		}
 	}
 
@@ -78,7 +86,14 @@ class Log implements \ArrayAccess
 	 */
 	public function save()
 	{
-		$this->file->PutContents(serialize($this->data));
+		try
+		{
+			$this->file->PutContents(serialize($this->data));
+		}
+		catch (\Throwable $e)
+		{
+			throw new Main\SystemException("Temporary file was not saved.", "BXU351.02");
+		}
 	}
 
 	/**
@@ -94,8 +109,15 @@ class Log implements \ArrayAccess
 	 */
 	public function unlink()
 	{
-		if ($this->file instanceof \CBXVirtualFileFileSystem && $this->file->IsExists())
-			$this->file->unlink();
+		try
+		{
+			if ($this->file instanceof \CBXVirtualFileFileSystem && $this->file->IsExists())
+				$this->file->unlink();
+		}
+		catch (\Throwable $e)
+		{
+			throw new Main\SystemException("Temporary file was not deleted.", "BXU351.03");
+		}
 	}
 
 	/**
@@ -459,6 +481,13 @@ class Uploader
 				File::viewFile($cid, $this->getRequest("hash"), $this->path);
 			}
 			return true;
+		}
+		catch (Main\IO\IoException $e)
+		{
+			$this->showJsonAnswer(array(
+				"status" => "error",
+				"error" => "Something went wrong with the temporary file."
+			));
 		}
 		catch (\Exception $e)
 		{

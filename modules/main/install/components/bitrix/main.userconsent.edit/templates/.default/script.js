@@ -12,6 +12,9 @@
 
 		this.typeNode = this.container.querySelector('[data-bx-type-input]');
 		this.langNode = this.container.querySelector('[data-bx-lang-input]');
+		this.initialLang = (this.langNode.value && this.typeNode.value === 'C')
+			? this.langNode.value
+			: null;
 
 		this.typeSelectorNode = this.container.querySelector('[data-bx-type-selector]');
 		this.typeViewNode = this.container.querySelector('[data-bx-type-view]');
@@ -160,11 +163,16 @@
 		var option = this.typeSelectorNode.options[this.typeSelectorNode.selectedIndex];
 		var type = option.getAttribute('data-bx-type');
 		var lang = option.getAttribute('data-bx-lang');
-		var isSupportDataProviders = option.getAttribute('data-bx-supp-provider') == 'Y';
+		var isSupportDataProviders = option.getAttribute('data-bx-supp-provider') === 'Y';
 
 		var agreementText = option.getAttribute('data-bx-agreement-text');
 		this.typeViewNode.style.display = agreementText ? '' : 'none';
 		this.typeViewNode.setAttribute('data-bx-text', agreementText);
+
+		if (type === 'C' && !lang && this.initialLang)
+		{
+			lang = this.initialLang;
+		}
 
 		this.typeNode.value = type;
 		this.langNode.value = lang;
@@ -180,7 +188,7 @@
 	{
 		var fieldType = fieldListNode.getAttribute('data-bx-type');
 		var fieldLang = fieldListNode.getAttribute('data-bx-lang');
-		return (this.typeNode.value === fieldType && this.langNode.value === fieldLang);
+		return (this.typeNode.value === fieldType && (!fieldLang || this.langNode.value === fieldLang));
 	};
 
 	BX.Main.UserConsent.Edit.prototype.showAgreementText = function()

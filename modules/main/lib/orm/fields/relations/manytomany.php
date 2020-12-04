@@ -316,7 +316,7 @@ class ManyToMany extends Relation
 	{
 		if (empty($this->localReferenceName))
 		{
-			$this->localReferenceName = mb_strtoupper(StringHelper::camel2snake($this->getEntity()->getName()));
+			$this->localReferenceName = strtoupper(StringHelper::camel2snake($this->getEntity()->getName()));
 		}
 
 		return $this->localReferenceName;
@@ -343,7 +343,7 @@ class ManyToMany extends Relation
 	{
 		if (empty($this->remoteReferenceName))
 		{
-			$this->remoteReferenceName = mb_strtoupper(StringHelper::camel2snake($this->getRefEntity()->getName()));
+			$this->remoteReferenceName = strtoupper(StringHelper::camel2snake($this->getRefEntity()->getName()));
 		}
 
 		return $this->remoteReferenceName;

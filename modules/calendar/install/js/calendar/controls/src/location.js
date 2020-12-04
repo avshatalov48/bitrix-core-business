@@ -1,4 +1,4 @@
-import {Type, Loc, Dom} from 'main.core';
+import {Tag, Type, Loc, Dom, Event, Text} from 'main.core';
 
 export class Location
 {
@@ -17,6 +17,7 @@ export class Location
 
 		this.disabled = !params.richLocationEnabled;
 		this.value = {type: '', text: '', value: ''};
+		this.inlineEditModeEnabled = params.inlineEditModeEnabled;
 
 		this.meetingRooms = params.iblockMeetingRoomList || [];
 		Location.setMeetingRoomList(params.iblockMeetingRoomList);
@@ -29,14 +30,23 @@ export class Location
 	{
 		this.DOM.inputWrap = this.DOM.wrapNode.appendChild(Dom.create('DIV', {props: {className: 'calendar-field-block'}}));
 
+		if (this.inlineEditModeEnabled)
+		{
+			this.DOM.inlineEditLinkWrap = this.DOM.wrapNode.appendChild(Tag.render`
+				<div class="calendar-field-place-link">${this.DOM.inlineEditLink = Tag.render`
+					<span class="calendar-text-link">${Loc.getMessage('EC_REMIND1_ADD')}</span>`}
+				</div>`);
+			this.DOM.inputWrap.style.display = 'none';
+			Event.bind(this.DOM.inlineEditLinkWrap, 'click', this.displayInlineEditControls.bind(this));
+		}
+
 		if (this.disabled)
 		{
 			BX.addClass(this.DOM.wrapNode, 'locked');
 			this.DOM.inputWrap.appendChild(Dom.create('DIV', {
 			props: {className: 'calendar-lock-icon'},
 			events: {
-				click: function()
-				{
+				click: () => {
 					B24.licenseInfoPopup.show('calendar_location', Loc.getMessage('EC_B24_LOCATION_LIMITATION_TITLE'), Loc.getMessage('EC_B24_LOCATION_LIMITATION'));
 				}
 			}
@@ -411,16 +421,14 @@ export class Location
 		})
 			.then(
 				// Success
-				BX.delegate(function(response)
-				{
+				(response) => {
 					Location.setLocationList(response.data.locationList);
 					this.setValues();
-				}, this),
+				},
 				// Failure
-				BX.delegate(function (response)
-				{
+				(response) => {
 					//this.calendar.displayError(response.errors);
-				}, this)
+				}
 			);
 		this.locationEditControlShown = false;
 	}
@@ -464,6 +472,12 @@ export class Location
 		}
 
 		this.setValues();
+
+		if (this.inlineEditModeEnabled)
+		{
+			let textLocation = this.getTextLocation(this.value);
+			this.DOM.inlineEditLink.innerHTML = Text.encode(textLocation || Loc.getMessage('EC_REMIND1_ADD'));
+		}
 	}
 
 	// parseLocation
@@ -575,5 +589,11 @@ export class Location
 	static getMeetingRoomList()
 	{
 		return Location.meetingRoomList;
+	}
+
+	displayInlineEditControls()
+	{
+		this.DOM.inlineEditLinkWrap.style.display = 'none';
+		this.DOM.inputWrap.style.display = '';
 	}
 }

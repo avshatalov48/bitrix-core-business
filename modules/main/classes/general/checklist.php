@@ -240,6 +240,15 @@ class CCheckList
 			if ($f = @fopen($file, "r"))
 				$arHowTo = fread($f, filesize($file));
 		}
+
+		$convertEncoding = \Bitrix\Main\Localization\Translation::needConvertEncoding(LANG);
+		if ($convertEncoding)
+		{
+			$targetEncoding = \Bitrix\Main\Localization\Translation::getCurrentEncoding();
+			$sourceEncoding = \Bitrix\Main\Localization\Translation::getSourceEncoding(LANG);
+			$arHowTo = \Bitrix\Main\Text\Encoding::convertEncoding($arHowTo, $sourceEncoding, $targetEncoding);
+		}
+
 		$arDesc = array(
 			"NAME" => GetMessage("CL_".$ID),
 			"DESC" => GetMessage("CL_".$ID."_DESC", array('#LANG#' => LANG)),
@@ -715,7 +724,7 @@ class CAutoCheck
 							}
 							if (!in_array($dir, array('empty')) && count($arShowTitle) == 0)
 								$arMessage .= GetMessage("NO_SHOWTITLE", array("#template#" => $dir))."\n";
-							if (!in_array($dir, array('mobile_app', 'desktop_app', 'empty', 'learning_10_0_0')) && count($arShowPanel) == 0)
+							if (!in_array($dir, array('mobile_app', 'desktop_app', 'empty', 'learning_10_0_0', 'call_app')) && count($arShowPanel) == 0)
 								$arMessage .= GetMessage("NO_SHOWPANEL", array("#template#" => $dir))."\n";
 						}
 					}

@@ -633,7 +633,6 @@ class CMailClientMessageListComponent extends CBitrixComponent
 					'id' => $this->arResult['gridActionsData']['view']['id'],
 					'text' => $this->arResult['gridActionsData']['view']['text'],
 					'icon' => $this->arResult['gridActionsData']['view']['icon'],
-					'default' => true,
 					'href' => \CComponentEngine::makePathFromTemplate(
 						$this->arParams['PATH_TO_MAIL_MSG_VIEW'],
 						['id' => $item['MID']]
@@ -642,26 +641,30 @@ class CMailClientMessageListComponent extends CBitrixComponent
 				],
 				[
 					'id' => $this->arResult['gridActionsData']['notRead']['id'],
+					'html' => '<span data-role="not-read-action">'.
+							  $this->arResult['gridActionsData']['notRead']['text'].
+							  '</span>',
 					'text' => '<span data-role="not-read-action">'.
 							  $this->arResult['gridActionsData']['notRead']['text'].
 							  '</span>',
 					'icon' => $this->arResult['gridActionsData']['notRead']['icon'],
 					'disabled' => $isDisabled,
 					'className' => "menu-popup-no-icon",
-					'default' => true,
 					'onclick' => "BX.Mail.Client.Message.List['".
 								 CUtil::JSEscape($this->getComponentId()).
 								 "'].onReadClick('{$item['ID']}');",
 				],
 				[
 					'id' => $this->arResult['gridActionsData']['read']['id'],
+					'html' => '<span data-role="read-action">'.
+							  $this->arResult['gridActionsData']['read']['text'].
+							  '</span>',
 					'text' => '<span data-role="read-action">'.
 							  $this->arResult['gridActionsData']['read']['text'].
 							  '</span>',
 					'icon' => $this->arResult['gridActionsData']['read']['icon'],
 					'disabled' => $isDisabled,
 					'className' => "menu-popup-no-icon",
-					'default' => true,
 					'onclick' => "BX.Mail.Client.Message.List['".
 								 CUtil::JSEscape($this->getComponentId()).
 								 "'].onReadClick('{$item['ID']}');",
@@ -678,6 +681,9 @@ class CMailClientMessageListComponent extends CBitrixComponent
 				[
 					'id' => $this->arResult['gridActionsData']['notSpam']['id'],
 					'icon' => $this->arResult['gridActionsData']['notSpam']['icon'],
+					'html' => '<span data-role="not-spam-action">'.
+							  $this->arResult['gridActionsData']['notSpam']['text'].
+							  '</span>',
 					'text' => '<span data-role="not-spam-action">'.
 							  $this->arResult['gridActionsData']['notSpam']['text'].
 							  '</span>',
@@ -689,6 +695,9 @@ class CMailClientMessageListComponent extends CBitrixComponent
 				[
 					'id' => $this->arResult['gridActionsData']['spam']['id'],
 					'icon' => $this->arResult['gridActionsData']['spam']['icon'],
+					'html' => '<span data-role="spam-action">'.
+							  $this->arResult['gridActionsData']['spam']['text'].
+							  '</span>',
 					'text' => '<span data-role="spam-action">'.
 							  $this->arResult['gridActionsData']['spam']['text'].
 							  '</span>',
@@ -726,6 +735,9 @@ class CMailClientMessageListComponent extends CBitrixComponent
 						[
 							'id' => $this->arResult['gridActionsData']['addToCrm']['id'],
 							'icon' => $this->arResult['gridActionsData']['addToCrm']['icon'],
+							'html' => '<span data-role="crm-action">'.
+									  $this->arResult['gridActionsData']['addToCrm']['text'].
+									  '</span>',
 							'text' => '<span data-role="crm-action">'.
 									  $this->arResult['gridActionsData']['addToCrm']['text'].
 									  '</span>',
@@ -736,6 +748,9 @@ class CMailClientMessageListComponent extends CBitrixComponent
 						[
 							'id' => $this->arResult['gridActionsData']['excludeFromCrm']['id'],
 							'icon' => $this->arResult['gridActionsData']['excludeFromCrm']['icon'],
+							'html' => '<span data-role="not-crm-action">'.
+									  $this->arResult['gridActionsData']['excludeFromCrm']['text'].
+									  '</span>',
 							'text' => '<span data-role="not-crm-action">'.
 									  $this->arResult['gridActionsData']['excludeFromCrm']['text'].
 									  '</span>',
@@ -943,6 +958,7 @@ class CMailClientMessageListComponent extends CBitrixComponent
 
 	private function setFilterSettings($dirsForFilter)
 	{
+		$dirsForFilter = array('' => $dirsForFilter['']) + $dirsForFilter;
 
 		$this->arResult['FILTER'] = [
 			[
@@ -1177,7 +1193,7 @@ class CMailClientMessageListComponent extends CBitrixComponent
 				'id' => $path,
 				'order' => $this->mailboxHelper->getDirsHelper()->getOrderByDefault($dir),
 				'delimiter' => $dir->getDelimiter(),
-				'text' => sprintf('<span class="mail-msg-list-menu-item">%s</span>', $dir->getName()),
+				'html' => sprintf('<span class="mail-msg-list-menu-item">%s</span>', $dir->getName()),
 				'dataset' => [
 					'path' => $path,
 					'dirMd5' => $dir->getDirMd5(),
@@ -1266,7 +1282,7 @@ class CMailClientMessageListComponent extends CBitrixComponent
 
 			if ($unseen > 0)
 			{
-				$list[$k]['text'] .= sprintf(
+				$list[$k]['html'] .= sprintf(
 					'&nbsp;<span class="main-buttons-item-counter %s">%u</span>',
 					$item['unseen'] > 0 ? '' : ' mail-msg-list-menu-fake-counter',
 					$unseen

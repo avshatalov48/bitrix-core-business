@@ -119,9 +119,9 @@ class CalendarFilter
 				$userList = array();
 				foreach ($value as $code)
 				{
-					if(substr($code, 0, 1) == 'U')
+					if(mb_substr($code, 0, 1) == 'U')
 					{
-						$userList[] = intVal(substr($code, 1));
+						$userList[] = intval(mb_substr($code, 1));
 					}
 				}
 				$result['fields'][$key] = $userList;

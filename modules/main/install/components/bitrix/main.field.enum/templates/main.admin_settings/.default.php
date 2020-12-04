@@ -81,7 +81,7 @@ $type = $arResult['default_value_type'];
 		<input
 			type="hidden"
 			name="<?= $name ?>[SHOW_NO_VALUE]"
-			value="Y"
+			value="N"
 		>
 		<label class="adm-detail-label">
 			<input

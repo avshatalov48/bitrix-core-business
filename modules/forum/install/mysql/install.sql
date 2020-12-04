@@ -126,6 +126,7 @@ create table b_forum_message (
 	XML_ID varchar(255) NULL,
 	HTML text,
 	MAIL_HEADER text,
+	SERVICE_TYPE tinyint null,
 	primary key (ID),
 	index IX_FORUM_MESSAGE_FORUM(FORUM_ID, APPROVED),
 	index IX_FORUM_MESSAGE_FORUM_TOPIC(FORUM_ID, TOPIC_ID),

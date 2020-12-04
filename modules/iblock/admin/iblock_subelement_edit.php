@@ -490,7 +490,7 @@ do{ //one iteration loop
 	{
 		if(!is_array($PROP))
 			$PROP = array();
-		CAllFile::ConvertFilesToPost($_FILES["PROP"], $PROP);
+		CFile::ConvertFilesToPost($_FILES["PROP"], $PROP);
 	}
 
 	foreach($arFileProps as $k1)

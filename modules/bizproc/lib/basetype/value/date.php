@@ -33,7 +33,10 @@ class Date
 
 			try
 			{
-				$this->timestamp = (new Main\Type\Date($dateFormatted))->getTimestamp() - $offset;
+				$date = new Main\Type\Date($dateFormatted);
+				$this->checkYear($date);
+
+				$this->timestamp = $date->getTimestamp() - $offset;
 			}
 			catch (Main\ObjectException $exception)
 			{
@@ -43,7 +46,7 @@ class Date
 				}
 				catch (Main\ObjectException $exception)
 				{
-					$this->timestamp = 0;
+					$this->timestamp = null;
 				}
 			}
 		}
@@ -88,5 +91,25 @@ class Date
 	public function getFormat()
 	{
 		return Main\Type\Date::getFormat();
+	}
+
+	protected function checkYear(Main\Type\Date $date)
+	{
+		if ($date->getTimestamp() < 0)
+		{
+			$y = (int) $date->format('Y');
+			$m = (int) $date->format('m');
+			$d = (int) $date->format('d');
+			if (0 <= $y && $y <= 69)
+			{
+				$y += 2000;
+				$date->setDate($y, $m, $d);
+			}
+			elseif (70 <= $y && $y <= 100)
+			{
+				$y += 1900;
+				$date->setDate($y, $m, $d);
+			}
+		}
 	}
 }

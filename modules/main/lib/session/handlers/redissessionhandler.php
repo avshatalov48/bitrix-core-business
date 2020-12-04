@@ -2,18 +2,18 @@
 
 namespace Bitrix\Main\Session\Handlers;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Context;
+use Bitrix\Main\Data\RedisConnection;
 
 class RedisSessionHandler extends AbstractSessionHandler
 {
+	public const SESSION_REDIS_CONNECTION = 'session.redis';
+
 	/** @var \Redis $connection */
 	protected $connection;
 	/** @var string */
 	protected $prefix;
-	/** @var int */
-	protected $port;
-	/** @var string */
-	protected $host;
 	/** @var bool */
 	protected $exclusiveLock;
 
@@ -21,9 +21,20 @@ class RedisSessionHandler extends AbstractSessionHandler
 	{
 		$this->readOnly = $options['readOnly'] ?? false; //defined('BX_SECURITY_SESSION_READONLY');
 		$this->prefix = $options['keyPrefix'] ?? 'BX'; //defined("BX_CACHE_SID") ? BX_CACHE_SID : "BX"
-		$this->port = (int)($options['port'] ?? 11211); //defined("BX_SECURITY_SESSION_REDIS_PORT") ? intval(BX_SECURITY_SESSION_REDIS_PORT) : 11211
-		$this->host = $options['host']; //BX_SECURITY_SESSION_REDIS_HOST
 		$this->exclusiveLock = $options['exclusiveLock'] ?? false; //defined('BX_SECURITY_SESSION_REDIS_EXLOCK') && BX_SECURITY_SESSION_REDIS_EXLOCK
+
+		$connectionPool = Application::getInstance()->getConnectionPool();
+		$connectionPool->setConnectionParameters(self::SESSION_REDIS_CONNECTION, [
+			'className' => RedisConnection::class,
+			'host' => $options['host'] ?? '127.0.0.1',
+			'port' => (int)($options['port'] ?? 11211),
+			'servers' => $options['servers'] ?? [],
+			'serializer' => $options['serializer'] ?? null,
+			'failover' => $options['failover'] ?? null,
+			'timeout' => $options['timeout'] ?? null,
+			'readTimeout' => $options['readTimeout'] ?? null,
+			'persistent' => $options['persistent'] ?? null,
+		]);
 	}
 
 	public function open($savePath, $sessionName)
@@ -95,38 +106,12 @@ class RedisSessionHandler extends AbstractSessionHandler
 
 	protected function createConnection(): bool
 	{
-		$exception = null;
-		if (!extension_loaded('redis'))
-		{
-			$result = false;
-			$exception = new \ErrorException("redis extension is not loaded.", 0, E_USER_ERROR, __FILE__, __LINE__);
-		}
-		else
-		{
-			$this->connection = new \Redis();
-			$result = $this->connection->pconnect($this->host, $this->port);
-			if ($result)
-			{
-				$this->connection->setOption(\Redis::OPT_SERIALIZER, \Redis::SERIALIZER_IGBINARY);
-			}
-			else
-			{
-				$error = error_get_last();
-				if ($error && $error["type"] == E_WARNING)
-				{
-					$exception = new \ErrorException($error['message'], 0, $error['type'], $error['file'], $error['line']);
-				}
-			}
-		}
+		$connectionPool = Application::getInstance()->getConnectionPool();
+		/** @var RedisConnection $redisConnection */
+		$redisConnection = $connectionPool->getConnection(self::SESSION_REDIS_CONNECTION);
+		$this->connection = $redisConnection->getResource();
 
-		if ($exception)
-		{
-			$application = \Bitrix\Main\Application::getInstance();
-			$exceptionHandler = $application->getExceptionHandler();
-			$exceptionHandler->writeToLog($exception);
-		}
-
-		return $result;
+		return $this->connection->isConnected();
 	}
 
 	protected function closeConnection(): void

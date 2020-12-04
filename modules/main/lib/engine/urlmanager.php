@@ -47,12 +47,20 @@ final class UrlManager
 	 * @throws \Bitrix\Main\ArgumentNullException
 	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
 	 */
-	public function create($action, $params = array(), $absolute = false)
+	public function create($action, $params = [], $absolute = false)
 	{
 		$uri = $this->getEndPoint($absolute);
-		$uri->addParams(array(
+		$uri->addParams([
 			'action' => $action,
-		));
+		]);
+
+		if (defined('SITE_ID') && !Context::getCurrent()->getRequest()->isAdminSection())
+		{
+			$uri->addParams([
+				'SITE_ID' => SITE_ID,
+			]);
+		}
+
 		$uri->addParams($params);
 
 		return $uri;

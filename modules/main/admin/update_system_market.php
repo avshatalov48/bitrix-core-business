@@ -146,7 +146,7 @@ else
 	if(intval($_REQUEST["PAGEN_1"]) > 0)
 		$arFields["PAGEN_1"] = intval($_REQUEST["PAGEN_1"]);
 	if($_REQUEST["search_mp"] <> '')
-		$arFields["q"] = $APPLICATION->ConvertCharset(htmlspecialcharsbx($_REQUEST["search_mp"]), SITE_CHARSET, "windows-1251");
+		$arFields["q"] = \Bitrix\Main\Text\Encoding::convertEncoding(htmlspecialcharsbx($_REQUEST["search_mp"]), SITE_CHARSET, "windows-1251");
 
 	$getData = "";
 	if (is_array($arFields))
@@ -162,7 +162,6 @@ else
 				$getData .= urlencode($k).'='.urlencode($v)."&";
 		}
 	}
-	// $getData = $APPLICATION->ConvertCharset($getData, SITE_CHARSET, "windows-1251");
 
 	$sectionName = GetMessage("USM_ALL");
 	if($_REQUEST["search_mp"] <> '')
@@ -173,7 +172,7 @@ else
 	{
 		if(in_array($ht->status, array("200")))
 		{
-			$res = $APPLICATION->ConvertCharset($res, "windows-1251", SITE_CHARSET);
+			$res = \Bitrix\Main\Text\Encoding::convertEncoding($res, "windows-1251", SITE_CHARSET);
 
 			require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/xml.php");
 			$objXML = new CDataXML();

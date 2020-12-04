@@ -577,7 +577,7 @@ if($USER->CanDoOperation('install_updates') || (in_array(LANGUAGE_ID, array("ru"
 				{
 					if($ht->getStatus() == "200")
 					{
-						$res = $APPLICATION->ConvertCharset($res, "windows-1251", SITE_CHARSET);
+						$res = \Bitrix\Main\Text\Encoding::convertEncoding($res, "windows-1251", SITE_CHARSET);
 						require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/xml.php");
 
 						$objXML = new CDataXML();

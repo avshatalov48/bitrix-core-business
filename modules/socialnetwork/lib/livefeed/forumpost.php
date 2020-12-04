@@ -51,25 +51,31 @@ final class ForumPost extends Provider
 		)
 		{
 			$res = MessageTable::getList(array(
-				'filter' => array(
+				'filter' => [
 					'=ID' => $messageId
-				),
-				'select' => array('ID', 'POST_MESSAGE')
+				],
+				'select' => [ 'ID', 'POST_MESSAGE', 'SERVICE_TYPE' ]
 			));
 			if ($message = $res->fetch())
 			{
 				$logId = false;
 
 				$res = LogCommentTable::getList(array(
-					'filter' => array(
+					'filter' => [
 						'SOURCE_ID' => $messageId,
 						'@EVENT_ID' => $this->getEventId(),
-					),
-					'select' => array('ID', 'LOG_ID', 'SHARE_DEST')
+					],
+					'select' => [ 'ID', 'LOG_ID', 'SHARE_DEST', 'MESSAGE', 'EVENT_ID' ]
 				));
+				$auxData = [];
 				if ($logComentFields = $res->fetch())
 				{
-					$logId = intval($logComentFields['LOG_ID']);
+					$auxData = [
+						'ID' => (int)$logComentFields['ID'],
+						'LOG_ID' => (int)$logComentFields['LOG_ID'],
+						'SHARE_DEST' => $logComentFields['SHARE_DEST'],
+					];
+					$logId = (int)($logComentFields['LOG_ID']);
 				}
 
 				if ($logId)
@@ -106,8 +112,23 @@ final class ForumPost extends Provider
 						$this->setSourceTitle(truncateText($title, 100));
 						$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects($messageId));
 						$this->setSourceDiskObjects($this->getDiskObjects($messageId, $this->cloneDiskObjects));
-						$this->setSourceOriginalText($message['POST_MESSAGE']);
-						$this->setSourceAuxData($logComentFields);
+
+						if (
+							in_array($message['SERVICE_TYPE'], \Bitrix\Forum\Comments\Service\Manager::getTypesList())
+							&& !empty($logComentFields)
+						)
+						{
+							$this->setSourceOriginalText($logComentFields['MESSAGE']);
+							$auxData['SHARE_DEST'] = '';
+							$auxData['EVENT_ID'] = $logComentFields['EVENT_ID'];
+							$auxData['SOURCE_ID'] = $messageId;
+						}
+						else
+						{
+							$this->setSourceOriginalText($message['POST_MESSAGE']);
+						}
+
+						$this->setSourceAuxData($auxData);
 					}
 				}
 			}

@@ -2,7 +2,6 @@
 namespace Bitrix\Main\Web\DOM;
 
 use \Bitrix\Main\Text\HtmlFilter;
-use \Bitrix\Main\Text\BinaryString;
 
 class HtmlParser extends Parser
 {
@@ -156,10 +155,10 @@ class HtmlParser extends Parser
 		$isCharOpen = true;
 		$buffer = '';
 
-		$textLength = BinaryString::getLength($text);
+		$textLength = strlen($text);
 		for($i = 0; $i < $textLength; $i++)
 		{
-			$char = BinaryString::getSubstring($text, $i, 1);
+			$char = substr($text, $i, 1);
 			if($char === '<')
 			{
 				$node = $this->getNextNode($buffer, $node);

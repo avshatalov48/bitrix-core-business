@@ -40,14 +40,18 @@
 		this.DATE_TIME_FORMAT = (this.params["DATE_TIME_FORMAT"] || null);
 		this.unreadComments = new Map();
 		this.comments = new Map();
+		this.blankComments = new Map();
+		this.blankCommentsForAjax = new Map();
 
 		this.bindEvents = [];
 		this.registerNewComment = this.registerNewComment.bind(this);
+		this.registerBlankComment = this.registerBlankComment.bind(this);
 		this.privateEvents = {
 			onShowActions : function(el, id){
 				fcShowActions(this.node.main, id, el);
 			}.bind(this),
 			OnUCCommentIsInDOM : this.registerNewComment, // this event is written in template
+			OnUCBlankCommentIsInDOM : this.registerBlankComment, // this event is written in template
 			onExpandComment : fcCommentExpand
 		};
 		this.windowEvents = {
@@ -280,6 +284,7 @@
 			}).bind(this), 100)
 		}).bind(this));
 		repo.listById.set(this.exemplarId, this);
+		repo.listByXmlId.set(this.getXmlId(), this);
 		return this;
 	};
 	window.FCList.prototype = {
@@ -311,10 +316,12 @@
 			return false;
 		},
 		initialize : function() {
-			this.checkUnreadComments = this.checkUnreadComments.bind(this);
+			this.checkVisibleComments = this.checkVisibleComments.bind(this);
 			this.recalcMoreButtonComment = this.recalcMoreButtonComment.bind(this);
+			this.sendCommentAsBlank = this.sendCommentAsBlank.bind(this);
 			BX.Event.EventEmitter.incrementMaxListeners(scrSpy, "onRead");
-			BX.addCustomEvent(scrSpy, "onRead", this.checkUnreadComments);
+			BX.addCustomEvent(scrSpy, "onRead", this.checkVisibleComments);
+			scrSpy.watchNode(this.node.main);
 
 			this.initNavigationEvents();
 			if (this.params["SHOW_POST_FORM"] === "Y")
@@ -385,7 +392,7 @@
 			activity : '/bitrix/components/bitrix/main.post.list/activity.php'
 		},
 		destroy : function() {
-			BX.removeCustomEvent(scrSpy, "onRead", this.checkUnreadComments);
+			BX.removeCustomEvent(scrSpy, "onRead", this.checkVisibleComments);
 			var ii, node;
 			while ((node = this.bindEvents.pop()) && node)
 			{
@@ -422,6 +429,10 @@
 			this.comments.clear();
 			BX.onCustomEvent(window, "OnUCHasBeenDestroyed", [this.ENTITY_XML_ID, this]);
 			repo.listById.delete(this.exemplarId);
+			if (repo.listByXmlId.get(this.ENTITY_XML_ID) === this)
+			{
+				repo.listByXmlId.delete(this.ENTITY_XML_ID);
+			}
 		},
 		checkAndDestroy : function(exemplarId) {
 			if (this.exemplarId === exemplarId || !document.body.contains(this.eventNode))
@@ -866,7 +877,7 @@
 							node.style.opacity = state.opacity / 100;
 					},
 					complete : function(){
-						if (node)
+						if (node && node.parentNode)
 						{
 							node.parentNode.removeChild(node);
 						}
@@ -889,7 +900,7 @@
 						}.bind(this),
 						complete : function(){
 							this.node.writersBlock.style.display = "none";
-							if (node)
+							if (node && node.parentNode)
 							{
 								node.parentNode.removeChild(node);
 							}
@@ -1285,30 +1296,63 @@
 				var node = BX.findChild(this.node.main, {attrs : { id : "record-" + [this.ENTITY_XML_ID, ENTITY_ID].join("-") + "-cover"}}, true, false);
 				if (node)
 				{
+					var collapsedBlock = BX.findParent(node, {attrs : {"data-bx-role": "collapsed-block"}}, this.node.main);
+					if (collapsedBlock)
+					{
+						var checkB = collapsedBlock.querySelector("input[type=checkbox]");
+						if (!checkB.checked)
+						{
+							checkB.click(true);
+						}
+					}
 					repo["hashHasBeenFound"] = true;
 					var curPos = BX.pos(node);
 					window.scrollTo(0, curPos["top"]);
-					node = BX.findChild(node, {className: "feed-com-main-content"}, true, false);
-					BX.removeClass(node, "feed-com-block-pointer-to-new feed-com-block-new");
-					BX.addClass(node, "feed-com-block-pointer");
+					var contentBlock = BX.findChild(node, {className: "feed-com-main-content"}, true, false);
+					BX.removeClass(contentBlock, "feed-com-block-pointer-to-new feed-com-block-new");
+					BX.addClass(contentBlock, "feed-com-block-pointer");
 				}
 			}
 		},
 		registerComments : function() {
 			var ii,
-				nodes = BX.findChild(this.node.main, {attrs : { "bx-mpl-xml-id" : this.ENTITY_XML_ID } }, false, true);
+				nodes = BX.findChild(this.node.main, {tag: "DIV", attrs : {
+					"bx-mpl-block" : "main",
+					"bx-mpl-xml-id" : this.ENTITY_XML_ID } }, true, true);
 			for (ii = 0; ii < nodes.length; ii++)
 			{
-				if (nodes[ii].getAttribute("bx-mpl-read-status") === "new")
+				if (nodes[ii].getAttribute("bx-mpl-blank-status") === "blank")
 				{
-					this.unreadComments.set(nodes[ii].getAttribute("bx-mpl-entity-id"), nodes[ii]);
+					this.blankComments.set(nodes[ii].getAttribute("bx-mpl-entity-id"), nodes[ii]);
 					scrSpy.set([this.getXmlId(), nodes[ii].getAttribute("bx-mpl-entity-id")].join("-"));
 				}
-				this.recalcMoreButtonComment(nodes[ii].getAttribute("bx-mpl-entity-id"));
-				this.comments.set(nodes[ii].getAttribute("bx-mpl-entity-id"), []);
+				else
+				{
+					if (nodes[ii].getAttribute("bx-mpl-read-status") === "new")
+					{
+						this.unreadComments.set(nodes[ii].getAttribute("bx-mpl-entity-id"), nodes[ii]);
+						scrSpy.set([this.getXmlId(), nodes[ii].getAttribute("bx-mpl-entity-id")].join("-"));
+					}
+					this.recalcMoreButtonComment(nodes[ii].getAttribute("bx-mpl-entity-id"));
+					this.comments.set(nodes[ii].getAttribute("bx-mpl-entity-id"), []);
+				}
 			}
 		},
-		registerNewComment : function(id, check) {
+		registerBlankComment: function(id, check) {
+			if (check !== true)
+			{
+				setTimeout(this.registerBlankComment, 1000, id, true);
+				return;
+			}
+			var node = this.getCommentNode(id);
+			if (!node || this.comments.has(id) || this.blankComments.has(id))
+			{
+				return;
+			}
+			this.blankComments.set(id, node);
+			scrSpy.set([this.getXmlId(), id].join("-"));
+		},
+		registerNewComment: function(id, check) {
 			if (check !== true)
 			{
 				setTimeout(this.registerNewComment, 1000, id, true);
@@ -1322,7 +1366,7 @@
 			this.comments.set(id, []);
 			if (node.getAttribute("bx-mpl-read-status") === "new")
 			{
-				scrSpy.set([this.getXmlId(), id].join("-"));
+				scrSpy.set([this.getXmlId(), id].join("-"), node);
 				this.unreadComments.set(id, node);
 			}
 			this.recalcMoreButtonComment(id);
@@ -1385,11 +1429,29 @@
 				BX.addCustomEvent(commentNode, "onForumSpoilerToggle", funcOnLoad);
 			}
 		},
-		checkUnreadComments : function(screenPosition) {
-			if (this.unreadComments.size <= 0)
+		checkVisibleComments : function(screenPosition) {
+			var keys = this.getVisibleCommentIds(this.unreadComments, screenPosition);
+			var key;
+			while (key = keys.shift())
 			{
-				return;
+				this.markCommentAsRead(key);
 			}
+			window.fclistdebug = true;
+			keys = this.getVisibleCommentIds(this.blankComments, screenPosition);
+
+			while (key = keys.shift())
+			{
+				this.markCommentAsBlank(key);
+			}
+		},
+		getVisibleCommentIds : function(comments, screenPosition) {
+			var result = [];
+
+			if (comments.size <= 0)
+			{
+				return result;
+			}
+
 
 			var pos = BX.pos(this.node.main);
 			if (
@@ -1398,25 +1460,28 @@
 				|| (pos.top === 0 && pos.bottom === 0)
 			)
 			{
-				return;
+				return result;
 			}
-			var keys = this.unreadComments.keys(), key = keys.next(), node;
+			var keys = comments.keys(), key = keys.next(), node;
 			while (key.done !== true)
 			{
-				node = this.unreadComments.get(key.value);
-				pos = node.pos || BX.pos(node);
-				node.pos = pos;
-
-				if (
-					screenPosition.top <= pos.top
-					&& pos.top <= screenPosition.bottom
-					&& node.offsetParent !== null
-				)
+				node = comments.get(key.value);
+				if (node.offsetWidth || node.offsetHeight || node.getClientRects().length)
 				{
-					this.markCommentAsRead(key.value);
+					pos = node.pos || BX.pos(node);
+					node.pos = pos;
+					if (
+						screenPosition.top <= pos.top
+						&& pos.top <= screenPosition.bottom
+						&& node.offsetParent !== null
+					)
+					{
+						result.push(key.value);
+					}
 				}
 				key = keys.next();
 			}
+			return result;
 		},
 		markCommentAsRead : function(id) {
 			if (!this.unreadComments.has(id))
@@ -1493,6 +1558,78 @@
 				this.sendCommentAsReadData.timeoutId = setTimeout(this.sendCommentAsReadData.func, 6000);
 			}
 		},
+		markCommentAsBlank : function(id) {
+			if (!this.blankComments.has(id))
+			{
+				return;
+			}
+			var node = this.blankComments.get(id);
+			var block = node.parentNode;
+			if (block && !block.bxwaiter)
+			{
+				fcShowWait(block)
+			}
+			this.blankComments.delete(id);
+			scrSpy.unset([this.getXmlId(), id].join("-"));
+			this.blankCommentsForAjax.set(id, node);
+			setTimeout(this.sendCommentAsBlank, 1000);
+		},
+		sendCommentAsBlank : function() {
+			if (this.ajax["getComment"] !== true ||
+				this.blankCommentsForAjax.size <= 0
+			)
+			{
+				return;
+			}
+			var keys = Array.from(this.blankCommentsForAjax.keys());
+			var comments = new Map(this.blankCommentsForAjax);
+			this.blankCommentsForAjax.clear();
+
+			var success = function(data) {
+				comments.forEach(function(node, id) {
+					fcCloseWait(node.parentNode);
+
+					var messageData = data["messageList"][id];
+					if (!messageData)
+					{
+						node.parentNode.removeChild(node);
+					}
+					else
+					{
+						var ob = BX.processHTML(messageData["message"], false);
+						node.innerHTML = ob.HTML;
+						var func = function(cnt) {
+							if (node.childNodes.length > 0)
+							{
+								BX.ajax.processScripts(ob.SCRIPT);
+							}
+							else if (cnt < 100)
+							{
+								setTimeout(func, 500, (cnt + 1));
+							}
+						};
+						func(0);
+					}
+				}.bind(this));
+			}.bind(this);
+			BX.ajax.runComponentAction(this.ajax.componentName, "getComment", {
+				mode: "class",
+				data: {
+					sessid : BX.bitrix_sessid(),
+					MODE : "RECORDS",
+					NOREDIRECT : "Y",
+					AJAX_POST : "Y",
+					FILTER : {ID : keys},
+					ACTION : "GET",
+					ID : keys,
+					ENTITY_XML_ID : this.ENTITY_XML_ID,
+					OPERATION_ID : this.getOperationId(),
+					EXEMPLAR_ID: this.exemplarId,
+					scope: this.scope,
+				},
+				signedParameters: this.ajax.params,
+			}).then(success, success);
+		},
 		getTemplate : function() {
 			return this.template;
 		},
@@ -1506,9 +1643,11 @@
 
 	window.FCList.getQuoteData = function(){ return quoteData; };
 	window.FCList.getInstance = function(params, add) {
-		if (!repo[params["ENTITY_XML_ID"]])
+		if (!repo.listByXmlId.has(params["ENTITY_XML_ID"]) && add !== undefined)
+		{
 			new window.FCList(params, add);
-		return repo[params["ENTITY_XML_ID"]];
+		}
+		return repo.listByXmlId.get(params["ENTITY_XML_ID"]);
 	};
 //region functions with Node
 	var lastWaitElement = null;
@@ -1542,7 +1681,7 @@
 			if (el.bxwaiter && el.bxwaiter.parentNode)
 			{
 				el.bxwaiter.parentNode.removeChild(el.bxwaiter);
-				el.bxwaiter = null;
+				delete el.bxwaiter;
 			}
 
 			el.disabled = false;
@@ -2010,12 +2149,15 @@
 			{
 				authorStyle = " feed-com-name-extranet";
 			}
-			var commentText = (
+			var commentText = res["POST_MESSAGE_TEXT"].replace(/\001/gi, "").replace(/#/gi, "\001");
+
+			if (
 				!!res.AUX
-				&& res.AUX.length > 0
-					? BX.CommentAux.getLiveText(res.AUX, (!!res.AUX_LIVE_PARAMS ? res.AUX_LIVE_PARAMS : {} ))
-					: res["POST_MESSAGE_TEXT"].replace(/\001/gi, "").replace(/#/gi, "\001")
-			);
+				&& BX.util.in_array(res["AUX"], ["createtask", "fileversion"])
+			)
+			{
+				commentText = BX.CommentAux.getLiveText(res.AUX, (!!res.AUX_LIVE_PARAMS ? res.AUX_LIVE_PARAMS : {} ));
+			}
 
 			replacement = {
 				"ID" : res["ID"],
@@ -2291,7 +2433,6 @@
 		}
 		return entities;
 	};
-
 	//endregion
 	/**
 	 * This function is used for binding to the post or calendar event to quote text.
@@ -2462,10 +2603,23 @@
 		this.nodes = new Map();
 		this.timeout = 0;
 		this.ready = true;
+		this.window = BX.GetWindowInnerSize();
+		this.screen = {
+			top : this.window.scrollTop,
+			bottom: (this.window.scrollTop + this.window.innerHeight)
+		};
+		this.watchDimensionNodes = new WeakMap();
 	};
 	ScreenSpy.prototype = {
-		set : function (id) {
-			this.nodes.set(id);
+		watchNode : function(node) {
+			if (!this.watchDimensionNodes.has(node))
+			{
+				this.watchDimensionNodes.set(node, false);
+				BX.bind(node, "click", this.check);
+			}
+		},
+		set : function (id, node) {
+			this.nodes.set(id, node);
 			this.start();
 		},
 		unset : function (id) {
@@ -2481,7 +2635,6 @@
 				return;
 			}
 			this.ready = false;
-			this.window = BX.GetWindowInnerSize();
 			BX.bind(window, "resize", this.change);
 			BX.bind(window, "scroll", this.scroll);
 			this.scroll();
@@ -2497,7 +2650,6 @@
 			this.ready = true;
 		},
 		check : function() {
-
 			this.timeout = 0;
 			var scroll = BX.GetWindowScrollPos();
 			if (this.screen.bottom > scroll.scrollTop)
@@ -2533,7 +2685,7 @@
 	BX.ready(function() {
 		//region for pull events
 		BX.addCustomEvent(window, "onPullEvent-unicomments", function(command, params) {
-			if (params["AUX"] && !BX.util.in_array(params["AUX"], ["createtask", "fileversion"]) ||
+			if (params["AUX"] && !BX.util.in_array(params["AUX"], ["createtask", "fileversion", "TASKINFO"]) ||
 				getActiveEntitiesByXmlId(params["ENTITY_XML_ID"]).size <= 0)
 			{
 				return;

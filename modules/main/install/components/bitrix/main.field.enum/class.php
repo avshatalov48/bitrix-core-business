@@ -23,49 +23,8 @@ class EnumUfComponent extends BaseUfComponent
 	 */
 	protected function getFieldValue(): array
 	{
-		if(
-			!$this->additionalParameters['bVarsFromForm']
-			&&
-			!isset($this->additionalParameters['VALUE'])
-		)
-		{
-			if(
-				isset($this->userField['ENTITY_VALUE_ID'], $this->userField['ENUM'])
-				&&
-				$this->userField['ENTITY_VALUE_ID'] <= 0
-			)
-			{
-				$value = ($this->userField['MULTIPLE'] === 'Y' ? [] : null);
-				foreach($this->userField['ENUM'] as $enum)
-				{
-					if($enum['DEF'] === 'Y')
-					{
-						if($this->userField['MULTIPLE'] === 'Y')
-						{
-							$value[] = $enum['ID'];
-						}
-						else
-						{
-							$value = $enum['ID'];
-							break;
-						}
-					}
-				}
-			}
-			else
-			{
-				$value = $this->userField['VALUE'];
-			}
-		}
-		elseif(isset($this->additionalParameters['VALUE']))
-		{
-			$value = $this->additionalParameters['VALUE'];
-		}
-		else
-		{
-			$value = Context::getCurrent()->getRequest()->get($this->userField['FIELD_NAME']);
-		}
-
-		return self::normalizeFieldValue($value);
+		return self::normalizeFieldValue(
+			EnumType::getFieldValue(($this->userField ?: []), $this->additionalParameters)
+		);
 	}
 }

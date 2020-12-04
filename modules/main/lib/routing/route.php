@@ -88,6 +88,11 @@ class Route
 		return $this->parametersValues;
 	}
 
+	public function getParameterValue($name)
+	{
+		return $this->getParametersValues()->get($name);
+	}
+
 	public function compile()
 	{
 		if ($this->matchUri !== null)

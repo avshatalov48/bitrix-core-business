@@ -183,7 +183,7 @@ if ($arBasket = $dbBasket->Fetch())
 {
 	$arColsCaption = array(
 		1 => CSalePdf::prepareToPdf('#'),
-		CSalePdf::prepareToPdf('Artículo / Descripción'),
+		CSalePdf::prepareToPdf('Art?culo / Descripci?n'),
 		CSalePdf::prepareToPdf('Cant'),
 		CSalePdf::prepareToPdf('Unidades'),
 		CSalePdf::prepareToPdf('Precio unitario'),
@@ -230,7 +230,7 @@ if ($arBasket = $dbBasket->Fetch())
 
 		$productName = $arBasket["NAME"];
 		if ($productName == "OrderDelivery")
-			$productName = "Envío";
+			$productName = "Env?o";
 		else if ($productName == "OrderDiscount")
 			$productName = "Descuento";
 
@@ -270,7 +270,7 @@ if ($arBasket = $dbBasket->Fetch())
 	{
 		$arDelivery_tmp = CSaleDelivery::GetByID($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["DELIVERY_ID"]);
 
-		$sDeliveryItem = "Envío";
+		$sDeliveryItem = "Env?o";
 		if ($arDelivery_tmp["NAME"] <> '')
 			$sDeliveryItem .= sprintf(" (%s)", $arDelivery_tmp["NAME"]);
 		$arCells[++$n] = array(
@@ -606,7 +606,7 @@ $pdf->SetFont($fontFamily, 'B', $fontSize);
 
 if (CSalePaySystemAction::GetParamValue("COMMENT1", false) || CSalePaySystemAction::GetParamValue("COMMENT2", false))
 {
-	$pdf->Write(15, CSalePdf::prepareToPdf('Términos y Condiciones'));
+	$pdf->Write(15, CSalePdf::prepareToPdf('T?rminos y Condiciones'));
 	$pdf->Ln();
 
 	$pdf->SetFont($fontFamily, '', $fontSize);
@@ -691,7 +691,7 @@ if ($bankAccNo && $bankRouteNo && $bankSwift)
 
 	if ($bank || $bankAddr || $bankPhone)
 	{
-		$bankDetails .= CSalePdf::prepareToPdf("Nombre y dirección del banco: ");
+		$bankDetails .= CSalePdf::prepareToPdf("Nombre y direcci?n del banco: ");
 		if ($bank)
 			$bankDetails .= CSalePdf::prepareToPdf($bank);
 		$bankDetails .= CSalePdf::prepareToPdf("\n");
@@ -705,7 +705,7 @@ if ($bankAccNo && $bankRouteNo && $bankSwift)
 		}
 	}
 
-	$bankDetails .= CSalePdf::prepareToPdf(sprintf("Número de enrutamiento del banco: %s\n", $bankRouteNo));
+	$bankDetails .= CSalePdf::prepareToPdf(sprintf("N?mero de enrutamiento del banco: %s\n", $bankRouteNo));
 	$bankDetails .= CSalePdf::prepareToPdf(sprintf("SWIFT del banco: %s\n", $bankSwift));
 
 	$pdf->MultiCell($width/2, 15, $bankDetails, 0, 'L');

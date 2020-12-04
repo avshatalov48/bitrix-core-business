@@ -1,37 +1,49 @@
 
-;(function() {
+;(function()
+{
 
 	if (window.BXMainMailConfirm)
 		return;
 
 	var options = {};
 	var mailboxes = [];
-
 	var listParams = {};
-
+	var action;
 	var BXMainMailConfirm = {
-		init: function (params)
+		init: function(params)
 		{
 			mailboxes = params.mailboxes;
+			action = params.action;
 			delete params.mailboxes;
 
 			options = params;
 		},
-		getMailboxes: function ()
+		getMailboxes: function()
 		{
 			return mailboxes;
 		},
-		showList: function (id, bind, params)
+		showList: function(id, bind, params)
 		{
 			if (!BX.type.isNotEmptyString(params.placeholder))
 			{
 				params.placeholder = BX.message(params.required ? 'MAIN_MAIL_CONFIRM_MENU_UNKNOWN' : 'MAIN_MAIL_CONFIRM_MENU_PLACEHOLDER');
 			}
-
+			if (!(params.settings && params.settings.length))
+			{
+				params.settings = [];
+			}
 			if (!BX.type.isFunction(params.callback))
 			{
-				params.callback = function () {};
+				params.callback = function() {};
 			}
+			if((typeof params.popupSettings) != "object")
+			{
+				params.popupSettings = {};
+			}
+			params.popupSettings.className  = 'main-mail-confirm-menu-content';
+			params.popupSettings.offsetLeft = 40;
+			params.popupSettings.angle = true;
+			params.popupSettings.closeByEsc = true;
 
 			listParams[id] = params;
 
@@ -44,7 +56,7 @@
 				if (event && event.target)
 				{
 					var deleteIconClass = 'main-mail-confirm-menu-delete-icon';
-					if (BX.hasClass(event.target, deleteIconClass) || BX.findParent(event.target, {class: deleteIconClass}, item.layout.item))
+					if (BX.hasClass(event.target, deleteIconClass) || BX.findParent(event.target, { class: deleteIconClass }, item.layout.item))
 					{
 						action = 'delete';
 					}
@@ -53,9 +65,12 @@
 				if ('delete' == action)
 				{
 					BXMainMailConfirm.deleteSender(
-						item.id,
-						function ()
+						item.id, function()
 						{
+							mailboxes = mailboxes.filter(function(value, index)
+							{
+								return item.id !== value.id
+							});
 							item.menuWindow.removeMenuItem(item.id);
 							if (listParams[id].selected == item.title)
 							{
@@ -63,6 +78,7 @@
 							}
 						}
 					);
+
 				}
 				else
 				{
@@ -92,7 +108,7 @@
 					if (mailboxes[i]['can_delete'] && mailboxes[i].id > 0)
 					{
 						itemText += '<span class="main-mail-confirm-menu-delete-icon popup-window-close-icon popup-window-titlebar-close-icon"\
-							title="' + BX.util.htmlspecialchars(BX.message('MAIN_MAIL_CONFIRM_DELETE')) + '"></span>';
+								title="' + BX.util.htmlspecialchars(BX.message('MAIN_MAIL_CONFIRM_DELETE')) + '"></span>';
 						itemClass = 'menu-popup-no-icon menu-popup-right-icon';
 					}
 					items.push({
@@ -112,13 +128,14 @@
 				onclick: function(event, item)
 				{
 					item.menuWindow.close();
-					BXMainMailConfirm.showForm(function (mailbox, formated)
+					BXMainMailConfirm.showForm(function(mailbox, formated)
 					{
 						mailboxes.push({
 							email: mailbox.email,
 							name: mailbox.name,
 							id: mailbox.id,
-							formated: formated
+							formated: formated,
+							can_delete: true
 						});
 
 						listParams[id].callback(formated, BX.util.htmlspecialchars(formated));
@@ -126,20 +143,19 @@
 					});
 				}
 			});
-
+			//additional settings
+			if (params.settings.length > 0)
+			{
+				items = items.concat(params.settings);
+			}
 			BX.PopupMenu.show(
 				id + '-menu',
 				bind,
 				items,
-				{
-					className: 'main-mail-confirm-menu-content',
-					offsetLeft: 40,
-					angle: true,
-					closeByEsc: true
-				}
+				params.popupSettings
 			);
 		},
-		showForm: function (callback, params)
+		showForm: function(callback, params)
 		{
 			var step = 'email';
 			var senderId;
@@ -167,18 +183,18 @@
 									return;
 
 								var emailBlock = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-dialog-email-block', true);
-								var codeBlock  = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-dialog-code-block', true);
+								var codeBlock = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-dialog-code-block', true);
 
-								var nameField   = BX.findChild(emailBlock, {attr: {'data-name': 'name'}}, true);
-								var emailField  = BX.findChild(emailBlock, {attr: {'data-name': 'email'}}, true);
-								var codeField   = BX.findChild(codeBlock, {attr: {'data-name': 'code'}}, true);
-								var publicField = BX.findChild(dlg.contentContainer, {attr: {'data-name': 'public'}}, true);
+								var nameField = BX.findChild(emailBlock, { attr: { 'data-name': 'name' } }, true);
+								var emailField = BX.findChild(emailBlock, { attr: { 'data-name': 'email' } }, true);
+								var codeField = BX.findChild(codeBlock, { attr: { 'data-name': 'code' } }, true);
+								var publicField = BX.findChild(dlg.contentContainer, { attr: { 'data-name': 'public' } }, true);
 
-								var smtpServerField = BX.findChild(emailBlock, {attr: {'data-name': 'smtp-server'}}, true);
-								var smtpPortField   = BX.findChild(emailBlock, {attr: {'data-name': 'smtp-port'}}, true);
-								var smtpSslField    = BX.findChild(emailBlock, {attr: {'data-name': 'smtp-ssl'}}, true);
-								var smtpLoginField  = BX.findChild(emailBlock, {attr: {'data-name': 'smtp-login'}}, true);
-								var smtpPassField   = BX.findChild(emailBlock, {attr: {'data-name': 'smtp-password'}}, true);
+								var smtpServerField = BX.findChild(emailBlock, { attr: { 'data-name': 'smtp-server' } }, true);
+								var smtpPortField = BX.findChild(emailBlock, { attr: { 'data-name': 'smtp-port' } }, true);
+								var smtpSslField = BX.findChild(emailBlock, { attr: { 'data-name': 'smtp-ssl' } }, true);
+								var smtpLoginField = BX.findChild(emailBlock, { attr: { 'data-name': 'smtp-login' } }, true);
+								var smtpPassField = BX.findChild(emailBlock, { attr: { 'data-name': 'smtp-password' } }, true);
 
 								dlg.formFieldHint(smtpPassField);
 
@@ -187,7 +203,7 @@
 									codeField.value = '';
 
 									var atom = "[=a-z0-9_+~'!$&*^`|#%/?{}-]";
-									var pattern = new RegExp('^'+atom+'+(\\.'+atom+'+)*@([a-z0-9-]+\\.)+[a-z0-9-]{2,20}$', 'i');
+									var pattern = new RegExp('^' + atom + '+(\\.' + atom + '+)*@([a-z0-9-]+\\.)+[a-z0-9-]{2,20}$', 'i');
 									if (!emailField.value.match(pattern))
 									{
 										dlg.showNotify(BX.message(emailField.value.length > 0
@@ -296,7 +312,9 @@
 								}
 
 								BX.ajax({
-									'url': '/bitrix/components/bitrix/main.mail.confirm/ajax.php?act=add',
+									'url': BX.util.add_url_param(action, {
+										'act': 'add'
+									}),
 									'method': 'POST',
 									'dataType': 'json',
 									'data': data,
@@ -304,7 +322,7 @@
 									{
 										BX.removeClass(btn.buttonNode, 'popup-window-button-wait');
 
-										if(data.senderId)
+										if (data.senderId)
 										{
 											senderId = data.senderId;
 										}
@@ -334,7 +352,7 @@
 														email: emailField.value,
 														id: senderId
 													},
-													mailboxName.length > 0 ? mailboxName+' <'+emailField.value+'>' : emailField.value
+													mailboxName.length > 0 ? mailboxName + ' <' + emailField.value + '>' : emailField.value
 												);
 											}
 										}
@@ -370,14 +388,14 @@
 				]
 			});
 
-			dlg.formFieldHint = function (field, type, text)
+			dlg.formFieldHint = function(field, type, text)
 			{
 				if (!field)
 				{
 					return;
 				}
 
-				var container = BX.findParent(field, {'class': 'new-from-email-dialog-cell'});
+				var container = BX.findParent(field, { 'class': 'new-from-email-dialog-cell' });
 				var hint = BX.findChildByClassName(container, 'new-from-email-dialog-field-hint', true);
 
 				BX.removeClass(container, 'new-from-email-dialog-field-error');
@@ -395,7 +413,7 @@
 
 				if (typeof text != 'undefined' && text.length > 0)
 				{
-					BX.adjust(hint, {'html': text});
+					BX.adjust(hint, { 'html': text });
 					BX.show(hint, 'block');
 				}
 				else
@@ -406,12 +424,12 @@
 
 			dlg.hideNotify = function()
 			{
-				var error = BX.findChild(dlg.contentContainer, {class: 'new-from-email-dialog-error'}, true);
+				var error = BX.findChild(dlg.contentContainer, { class: 'new-from-email-dialog-error' }, true);
 				BX.hide(error, 'block');
 			};
 			dlg.showNotify = function(text)
 			{
-				var error = BX.findChild(dlg.contentContainer, {class: 'new-from-email-dialog-error'}, true);
+				var error = BX.findChild(dlg.contentContainer, { class: 'new-from-email-dialog-error' }, true);
 
 				error.innerHTML = text;
 				BX.show(error, 'block');
@@ -420,7 +438,7 @@
 			dlg.switchBlock = function(block, immediately)
 			{
 				var emailBlock = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-dialog-email-block', true);
-				var codeBlock  = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-dialog-code-block', true);
+				var codeBlock = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-dialog-code-block', true);
 
 				var hideBlock, showBlock;
 				if ('code' != step && 'code' == block)
@@ -458,7 +476,7 @@
 					}
 					else
 					{
-						hideBlock.style.height = hideBlock.offsetHeight+'px';
+						hideBlock.style.height = hideBlock.offsetHeight + 'px';
 						hideBlock.offsetHeight;
 						hideBlock.style.height = '0px';
 
@@ -469,7 +487,7 @@
 						showBlock.style.height = '0px';
 						showBlock.style.position = '';
 						showBlock.offsetHeight;
-						showBlock.style.height = showBlockHeight+'px';
+						showBlock.style.height = showBlockHeight + 'px';
 					}
 				}
 			};
@@ -482,7 +500,7 @@
 				BX.bind(
 					smtpLink,
 					'click',
-					function (event)
+					function(event)
 					{
 						var emailBlock = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-dialog-email-block', true);
 
@@ -520,8 +538,8 @@
 
 			var emailBlock = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-dialog-email-block', true);
 
-			var nameField   = BX.findChild(emailBlock, {attr: {'data-name': 'name'}}, true);
-			var emailField  = BX.findChild(emailBlock, {attr: {'data-name': 'email'}}, true);
+			var nameField = BX.findChild(emailBlock, { attr: { 'data-name': 'name' } }, true);
+			var emailField = BX.findChild(emailBlock, { attr: { 'data-name': 'email' } }, true);
 
 			if (nameField.value.length > 0)
 			{
@@ -532,47 +550,107 @@
 				nameField.focus();
 			}
 		},
-		deleteSender: function (senderId, callback)
+		updateListCanDel: function(id)
 		{
-			if(senderId > 0)
-			{
-				if(confirm(BX.message('MAIN_MAIL_CONFIRM_DELETE_SENDER_CONFIRM')))
+			BX.ajax({
+				'url':BX.util.add_url_param(action, {
+					'act': 'sendersListCanDel',
+				}),
+				'method': 'POST',
+				'dataType': 'json',
+				'data': {},
+				onsuccess: function(data)
 				{
-					BX.ajax({
-						'url': '/bitrix/components/bitrix/main.mail.confirm/ajax.php?act=delete',
-						'method': 'POST',
-						'dataType': 'json',
-						'data': {
-							senderId: senderId
-						},
-						onsuccess: function(data)
+					if (data.result == 'error')
+					{
+						BX.UI.Notification.Center.notify({
+							content: BX.message('MAIN_MAIL_DELETE_SENDER_ERROR')
+						});
+					}
+					else
+					{
+						mailboxes = mailboxes.filter(function(value, index)
 						{
-							if(data.result == 'error')
+							if (!value.can_delete)
 							{
-								BX.UI.Notification.Center.notify({
-									content: BX.message('MAIN_MAIL_DELETE_SENDER_ERROR')
-								});
+								return true;
 							}
-							else
+							for (var i in data.mailboxes)
 							{
-								if (BX.type.isFunction(callback))
+								if (data.mailboxes[i].id == value.id)
 								{
-									callback();
+									return true;
 								}
 							}
-						},
-						onfailure: function(data)
-						{
-							BX.UI.Notification.Center.notify({
-								content: BX.message('MAIN_MAIL_DELETE_SENDER_ERROR')
-							});
-						}
+							return false;
+						});
+						BX.PopupMenu.destroy(id + '-menu');
+					}
+				},
+				onfailure: function(data)
+				{
+					BX.UI.Notification.Center.notify({
+						content: BX.message('MAIN_MAIL_DELETE_SENDER_ERROR')
 					});
 				}
-			}
+			});
+		},
+		deleteSender: function(senderId, callback)
+		{
+			BX.UI.Dialogs.MessageBox.show({
+				message: BX.message('MAIN_MAIL_CONFIRM_DELETE_SENDER_CONFIRM'),
+				modal: true,
+				buttons: BX.UI.Dialogs.MessageBoxButtons.OK_CANCEL,
+				onOk: function(messageBox)
+				{
+					return new Promise(
+						function(resolve,reject)
+						{
+							BX.ajax({
+								'url': BX.util.add_url_param(action, {
+									'act': 'delete',
+								}),
+								'method': 'POST',
+								'dataType': 'json',
+								'data': {
+									senderId: senderId
+								},
+								onsuccess: function(data)
+								{
+									if (data.result == 'error')
+									{
+										BX.UI.Notification.Center.notify({
+											content: BX.message('MAIN_MAIL_DELETE_SENDER_ERROR')
+										});
+										reject(data);
+									}
+									else
+									{
+										if (BX.type.isFunction(callback))
+										{
+											callback();
+										}
+										resolve(data);
+									}
+								},
+								onfailure: function(data)
+								{
+									BX.UI.Notification.Center.notify({
+										content: BX.message('MAIN_MAIL_DELETE_SENDER_ERROR')
+									});
+									reject(data);
+								}
+							});
+						}
+					);
+				},
+				onCancel: function(messageBox)
+				{
+					messageBox.close();
+				}
+			});
 		}
 	};
-
 	window.BXMainMailConfirm = BXMainMailConfirm;
 
 })();

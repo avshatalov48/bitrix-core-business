@@ -405,4 +405,11 @@ class EventTable extends Main\Entity\DataManager
 			new Main\Entity\Validator\Length(null, 255),
 		);
 	}
+
+	public static function validateMeetingStatus()
+	{
+		return [
+			new Main\Entity\Validator\Length(null, 1),
+		];
+	}
 }

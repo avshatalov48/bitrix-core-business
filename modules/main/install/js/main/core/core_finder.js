@@ -178,7 +178,7 @@ BX.Finder.onAddItem = function(provider, type, element)
 	if (type == 'structure-checkbox')
 		elementText = elementTextBox.getAttribute('rel');
 	else
-		elementText = elementTextBox.innerHTML;
+		elementText = elementTextBox.textContent;
 
 	if (BX.Finder.context == 'access')
 		BX.Access.AddSelection({'provider': provider, 'id': elementId, 'name': elementText});
@@ -210,6 +210,7 @@ BX.Finder.onAfterPopupShow = function()
 
 		BX.Finder.onUnDisableItem();
 
+		BX.removeCustomEvent(BX.Access, "onDeleteItem", BX.Finder.onDeleteItem);
 		BX.addCustomEvent(BX.Access, "onDeleteItem", BX.Finder.onDeleteItem);
 	}
 };
@@ -460,7 +461,7 @@ BX.Finder.checkInitFinderDb = function(obDestination, name, version, entities, o
 		scheme: BX.Finder.dBScheme.stores,
 		version: BX.Finder.dBScheme.version
 	}).then(BX.delegate(function (dbObject) {
-	
+
 		obDestination.obClientDb = dbObject;
 
 		if (!BX.FinderManager.checkInitHandlerAdded)
@@ -507,7 +508,7 @@ BX.Finder.checkInitFinderDb = function(obDestination, name, version, entities, o
 		setTimeout(function() {
 			BX.Finder.initFinderDb(obDestination, entitiesToInit, oContext, version);
 		}, 1000);
-		
+
 	}, { entities: entities }));
 };
 

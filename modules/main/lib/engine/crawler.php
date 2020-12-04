@@ -93,7 +93,7 @@ final class Crawler
 	private function getFilesUnderNamespace($namespace)
 	{
 		$path = ltrim($namespace, "\\");    // fix web env
-		$path = strtr($path, Loader::ALPHA_UPPER, Loader::ALPHA_LOWER);
+		$path = strtolower($path);
 
 		$documentRoot = Context::getCurrent()->getServer()->getDocumentRoot();
 

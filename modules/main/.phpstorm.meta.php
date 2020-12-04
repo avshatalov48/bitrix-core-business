@@ -10,4 +10,8 @@ namespace PHPSTORM_META
 	override(\Bitrix\Main\DI\ServiceLocator::get(0), map([
         'exceptionHandler' => \Bitrix\Main\Diag\ExceptionHandler::class,
     ]));
+
+	exitPoint(\Bitrix\Main\Application::end());
+	exitPoint(\Bitrix\Main\Application::terminate());
+	exitPoint(\CAllMain::FinalActions());
 }

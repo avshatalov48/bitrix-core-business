@@ -145,7 +145,7 @@ class UserConditionControl extends \CSaleCondCtrlComplex
 				'LOGIC' => static::getLogic(array(BT_COND_LOGIC_EQ, BT_COND_LOGIC_NOT_EQ)),
 				'JS_VALUE' => array(
 					'type' => 'userPopup',
-					'popup_url' => '/bitrix/admin/user_search.php',
+					'popup_url' => self::getAdminSection().'user_search.php',
 					'popup_params' => array(
 						'lang' => LANGUAGE_ID,
 					),
@@ -307,5 +307,14 @@ class UserConditionControl extends \CSaleCondCtrlComplex
 		}
 
 		return $result;
+	}
+
+	/**
+	 * @return string
+	 */
+	private static function getAdminSection()
+	{
+		//TODO: need use \CAdminPage::getSelfFolderUrl, but in general it is impossible now
+		return (defined('SELF_FOLDER_URL') ? SELF_FOLDER_URL : '/bitrix/admin/');
 	}
 }

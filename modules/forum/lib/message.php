@@ -126,6 +126,7 @@ class MessageTable extends Main\Entity\DataManager
 
 			(new TextField("HTML")),
 			(new TextField("MAIL_HEADER")),
+			(new IntegerField("SERVICE_TYPE")),
 
 			(new Reference("TOPIC", TopicTable::class, Join::on("this.TOPIC_ID", "ref.ID")))
 		);
@@ -715,6 +716,11 @@ class Message extends Internals\Entity
 			"AUTHOR_REAL_IP" => "<no address>",
 			"GUEST_ID" => $_SESSION["SESS_GUEST_ID"]
 		];
+
+		if (isset($fields['SERVICE_TYPE']))
+		{
+			$data['SERVICE_TYPE'] = $fields['SERVICE_TYPE'];
+		}
 
 		if ($realIp = \Bitrix\Main\Service\GeoIp\Manager::getRealIp())
 		{

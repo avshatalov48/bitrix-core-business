@@ -144,14 +144,14 @@ abstract class EntityObject implements ArrayAccess
 	/**
 	 * Returns all objects values as an array
 	 *
-	 * @param int $valuesType
-	 * @param int $fieldsMask
+	 * @param int  $valuesType
+	 * @param int  $fieldsMask
+	 * @param bool $recursive
 	 *
 	 * @return array
 	 * @throws ArgumentException
-	 * @throws SystemException
 	 */
-	final public function collectValues($valuesType = Values::ALL, $fieldsMask = FieldTypeMask::ALL)
+	final public function collectValues($valuesType = Values::ALL, $fieldsMask = FieldTypeMask::ALL, $recursive = false)
 	{
 		switch ($valuesType)
 		{
@@ -174,6 +174,27 @@ abstract class EntityObject implements ArrayAccess
 				if (!($fieldsMask & $fieldMask))
 				{
 					unset($objectValues[$fieldName]);
+				}
+			}
+		}
+
+		// recursive convert object to array
+		if ($recursive)
+		{
+			foreach ($objectValues as $fieldName => $value)
+			{
+				if ($value instanceof EntityObject)
+				{
+					$objectValues[$fieldName] = $value->collectValues($valuesType, $fieldsMask, $recursive);
+				}
+				elseif ($value instanceof Collection)
+				{
+					$arrayCollection = [];
+					foreach ($value as $relationObject)
+					{
+						$arrayCollection[] = $relationObject->collectValues($valuesType, $fieldsMask, $recursive);
+					}
+					$objectValues[$fieldName] = $arrayCollection;
 				}
 			}
 		}
@@ -807,12 +828,12 @@ abstract class EntityObject implements ArrayAccess
 	 */
 	public function __call($name, $arguments)
 	{
-		$first3 = mb_substr($name, 0, 3);
+		$first3 = substr($name, 0, 3);
 
 		// regular getter
 		if ($first3 == 'get')
 		{
-			$fieldName = self::sysMethodToFieldCase(mb_substr($name, 3));
+			$fieldName = self::sysMethodToFieldCase(substr($name, 3));
 
 			if ($fieldName == '')
 			{
@@ -846,7 +867,7 @@ abstract class EntityObject implements ArrayAccess
 		// regular setter
 		if ($first3 == 'set')
 		{
-			$fieldName = self::sysMethodToFieldCase(mb_substr($name, 3));
+			$fieldName = self::sysMethodToFieldCase(substr($name, 3));
 			$value = $arguments[0];
 
 			if ($fieldName == '')
@@ -891,7 +912,7 @@ abstract class EntityObject implements ArrayAccess
 
 		if ($first3 == 'has')
 		{
-			$fieldName = self::sysMethodToFieldCase(mb_substr($name, 3));
+			$fieldName = self::sysMethodToFieldCase(substr($name, 3));
 
 			if ($fieldName == '')
 			{
@@ -915,12 +936,12 @@ abstract class EntityObject implements ArrayAccess
 			}
 		}
 
-		$first4 = mb_substr($name, 0, 4);
+		$first4 = substr($name, 0, 4);
 
 		// filler
 		if ($first4 == 'fill')
 		{
-			$fieldName = self::sysMethodToFieldCase(mb_substr($name, 4));
+			$fieldName = self::sysMethodToFieldCase(substr($name, 4));
 
 			// no custom/personal method for fill
 
@@ -931,12 +952,12 @@ abstract class EntityObject implements ArrayAccess
 			}
 		}
 
-		$first5 = mb_substr($name, 0, 5);
+		$first5 = substr($name, 0, 5);
 
 		// relation adder
 		if ($first5 == 'addTo')
 		{
-			$fieldName = self::sysMethodToFieldCase(mb_substr($name, 5));
+			$fieldName = self::sysMethodToFieldCase(substr($name, 5));
 			$value = $arguments[0];
 
 			if ($fieldName == '')
@@ -965,7 +986,7 @@ abstract class EntityObject implements ArrayAccess
 		// unsetter
 		if ($first5 == 'unset')
 		{
-			$fieldName = self::sysMethodToFieldCase(mb_substr($name, 5));
+			$fieldName = self::sysMethodToFieldCase(substr($name, 5));
 
 			if ($fieldName == '')
 			{
@@ -992,7 +1013,7 @@ abstract class EntityObject implements ArrayAccess
 		// resetter
 		if ($first5 == 'reset')
 		{
-			$fieldName = self::sysMethodToFieldCase(mb_substr($name, 5));
+			$fieldName = self::sysMethodToFieldCase(substr($name, 5));
 
 			if ($fieldName == '')
 			{
@@ -1025,12 +1046,12 @@ abstract class EntityObject implements ArrayAccess
 			}
 		}
 
-		$first9 = mb_substr($name, 0, 9);
+		$first9 = substr($name, 0, 9);
 
 		// relation mass remover
 		if ($first9 == 'removeAll')
 		{
-			$fieldName = self::sysMethodToFieldCase(mb_substr($name, 9));
+			$fieldName = self::sysMethodToFieldCase(substr($name, 9));
 
 			if ($fieldName == '')
 			{
@@ -1054,12 +1075,12 @@ abstract class EntityObject implements ArrayAccess
 			}
 		}
 
-		$first10 = mb_substr($name, 0, 10);
+		$first10 = substr($name, 0, 10);
 
 		// relation remover
 		if ($first10 == 'removeFrom')
 		{
-			$fieldName = self::sysMethodToFieldCase(mb_substr($name, 10));
+			$fieldName = self::sysMethodToFieldCase(substr($name, 10));
 			$value = $arguments[0];
 
 			if ($fieldName == '')
@@ -1085,12 +1106,12 @@ abstract class EntityObject implements ArrayAccess
 			}
 		}
 
-		$first12 = mb_substr($name, 0, 12);
+		$first12 = substr($name, 0, 12);
 
 		// actual value getter
 		if ($first12 == 'remindActual')
 		{
-			$fieldName = self::sysMethodToFieldCase(mb_substr($name, 12));
+			$fieldName = self::sysMethodToFieldCase(substr($name, 12));
 
 			if ($fieldName == '')
 			{
@@ -1115,12 +1136,12 @@ abstract class EntityObject implements ArrayAccess
 			}
 		}
 
-		$first7 = mb_substr($name, 0, 7);
+		$first7 = substr($name, 0, 7);
 
 		// strict getter
 		if ($first7 == 'require')
 		{
-			$fieldName = self::sysMethodToFieldCase(mb_substr($name, 7));
+			$fieldName = self::sysMethodToFieldCase(substr($name, 7));
 
 			if ($fieldName == '')
 			{
@@ -1145,13 +1166,13 @@ abstract class EntityObject implements ArrayAccess
 			}
 		}
 
-		$first2 = mb_substr($name, 0, 2);
-		$last6 = mb_substr($name, -6);
+		$first2 = substr($name, 0, 2);
+		$last6 = substr($name, -6);
 
 		// actual value checker
 		if ($first2 == 'is' && $last6 =='Filled')
 		{
-			$fieldName = self::sysMethodToFieldCase(mb_substr($name, 2, -6));
+			$fieldName = self::sysMethodToFieldCase(substr($name, 2, -6));
 
 			if ($fieldName == '')
 			{
@@ -1184,12 +1205,12 @@ abstract class EntityObject implements ArrayAccess
 			}
 		}
 
-		$last7 = mb_substr($name, -7);
+		$last7 = substr($name, -7);
 
 		// runtime value checker
 		if ($first2 == 'is' && $last7 == 'Changed')
 		{
-			$fieldName = self::sysMethodToFieldCase(mb_substr($name, 2, -7));
+			$fieldName = self::sysMethodToFieldCase(substr($name, 2, -7));
 
 			if ($fieldName == '')
 			{

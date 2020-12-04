@@ -517,9 +517,12 @@ function __blogPostSetFollow(log_id)
 					});
 				}
 
-				if (typeof BX.Landing.UI.Note.Menu.getMenuItem !== 'undefined')
+				if (typeof BX.Landing !== 'undefined')
 				{
-					menuItems.push(BX.Landing.UI.Note.Menu.getMenuItem('blog', postId));
+					if (typeof BX.Landing.UI.Note.Menu.getMenuItem !== 'undefined')
+					{
+						menuItems.push(BX.Landing.UI.Note.Menu.getMenuItem('blog', postId));
+					}
 				}
 
 				if (postData.urlToVoteExport.length > 0)

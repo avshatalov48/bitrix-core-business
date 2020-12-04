@@ -132,7 +132,7 @@ class CUndo
 			$by = mb_strtoupper($by);
 			if (isset($arFields[$by]))
 			{
-				$strOrderBy .= $arFields[$by]["FIELD_NAME"].' '.(mb_strtolower($order) == 'desc'? 'desc'.($DB->type == "ORACLE"? " NULLS LAST": ""): 'asc'.($DB->type == "ORACLE"? " NULLS FIRST": "")).',';
+				$strOrderBy .= $arFields[$by]["FIELD_NAME"].' '.(mb_strtolower($order) == 'desc'? 'desc': 'asc').',';
 			}
 		}
 

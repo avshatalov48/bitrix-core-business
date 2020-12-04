@@ -80,7 +80,7 @@ $event['REMIND'] = CCalendarReminder::GetTextReminders($event['REMIND']);
 $curUserStatus = '';
 $userId = CCalendar::GetCurUserId();
 
-$viewComments = CCalendar::IsPersonal($event['CAL_TYPE'], $event['OWNER_ID'], $userId) || CCalendarSect::CanDo('calendar_view_full', $event['SECT_ID'], $userId);
+$viewComments = Bitrix\Main\Loader::includeModule('forum') && (CCalendar::IsPersonal($event['CAL_TYPE'], $event['OWNER_ID'], $userId) || CCalendarSect::CanDo('calendar_view_full', $event['SECT_ID'], $userId));
 
 if ($event['EVENT_TYPE'] === '#resourcebooking#')
 {
@@ -107,8 +107,8 @@ if ($event['IS_MEETING'])
 				$viewComments = true;
 			}
 
-			$status = (strtolower($attendee['status']) == 'h' || $attendee['status'] == '') ? 'y' : $attendee['status'];
-			$attendees[strtolower($status)][] = $userIndex[$attendee['id']];
+			$status = (mb_strtolower($attendee['status']) == 'h' || $attendee['status'] == '') ? 'y' : $attendee['status'];
+			$attendees[mb_strtolower($status)][] = $userIndex[$attendee['id']];
 			if ($attendee['status'] == 'H')
 			{
 				$meetingHost = $userIndex[$attendee['id']];
@@ -446,7 +446,7 @@ $arParams['UF'] = $UF;
 							<?if ($event['ACCESSIBILITY'] != '' && $arParams['bIntranet']):?>
 								<div class="calendar-slider-detail-option-block">
 									<div class="calendar-slider-detail-option-name"><?= Loc::getMessage('EC_ACCESSIBILITY_TITLE')?>:</div>
-									<div class="calendar-slider-detail-option-value"><?= Loc::getMessage("EC_ACCESSIBILITY_".strtoupper($event['ACCESSIBILITY']))?></div>
+									<div class="calendar-slider-detail-option-value"><?= Loc::getMessage("EC_ACCESSIBILITY_".mb_strtoupper($event['ACCESSIBILITY']))?></div>
 								</div>
 							<?endif;?>
 							<?if ($arParams['sectionName'] != ''):?>
@@ -476,8 +476,17 @@ $arParams['UF'] = $UF;
 							<div id="<?=$id?>_buttonset" class="calendar-slider-view-buttonset-inner">
 								<input type="hidden" id="<?=$id?>_current_status" value="<?= $curUserStatus?>"/>
 								<span id="<?=$id?>_status_buttonset"></span>
-								<button id="<?=$id?>_but_edit" class="ui-btn ui-btn-light-border"><?= Loc::getMessage('EC_VIEW_SLIDER_EDIT')?></button>
-								<button id="<?=$id?>_but_del" class="ui-btn ui-btn-light-border"><?= Loc::getMessage('EC_VIEW_SLIDER_DEL')?></button>
+
+								<?
+									$parentSectionId = CCalendarSect::GetSectionIdByEventId($event['PARENT_ID']);
+									if(CCalendarSect::CanDo('calendar_edit', $parentSectionId['SECTION_ID'], $userId)):
+								?>
+									<button id="<?=$id?>_but_edit" class="ui-btn ui-btn-light-border"><?= Loc::getMessage('EC_VIEW_SLIDER_EDIT')?></button>
+									<button id="<?=$id?>_but_del" class="ui-btn ui-btn-light-border"><?= Loc::getMessage('EC_VIEW_SLIDER_DEL')?></button>
+								<?endif;?>
+
+
+								<button id="<?=$id?>_but_chat" class="ui-btn ui-btn-light-border" style="display: none;"><?= Loc::getMessage('EC_VIEW_SLIDER_CHAT_LINK')?></button>
 
 						</div>
 					</div>

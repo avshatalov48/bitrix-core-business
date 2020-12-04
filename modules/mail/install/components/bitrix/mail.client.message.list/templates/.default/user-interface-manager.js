@@ -253,7 +253,8 @@
 				{
 					'props': {
 						'type': 'checkbox',
-						'disabled': gridInstance.getRows().getCountDisplayed() == 0
+						'disabled': gridInstance.getRows().getCountDisplayed() == 0,
+						title: BX.message('INTERFACE_MAIL_CHECK_ALL'),
 					},
 					'style': {
 						'verticalAlign': 'middle'
@@ -802,7 +803,7 @@
 
 			for (var i = 0; i < this.mailboxMenu.length; i++)
 			{
-				if (this.mailboxMenu[i] && this.mailboxMenu[i].text && this.mailboxMenu[i].dataset
+				if (this.mailboxMenu[i] && this.mailboxMenu[i].html && this.mailboxMenu[i].dataset
 					&& this.mailboxMenu[i].dataset.mailboxId == currentMailboxId)
 				{
 					this.mailboxMenu[i] = this.updateMailboxMenuItemUnseenCounter(
@@ -912,16 +913,16 @@
 			var find = /<span class="(main-buttons-item-counter)[\w -]*">[0-9]+<\/span>/g;
 			var replace = '<span class="main-buttons-item-counter ' + className + '">' + count + '</span>';
 
-			if (mailboxMenu.text.match(find))
+			if (mailboxMenu.html.match(find))
 			{
-				mailboxMenu.text = mailboxMenu.text.replace(
+				mailboxMenu.html = mailboxMenu.html.replace(
 					find,
 					replace
 				);
 			}
 			else
 			{
-				mailboxMenu.text += '&nbsp;' + replace;
+				mailboxMenu.html += '&nbsp;' + replace;
 			}
 
 			mailboxMenu.dataset.unseen = count;

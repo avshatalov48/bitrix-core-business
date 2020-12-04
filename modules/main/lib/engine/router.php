@@ -168,13 +168,12 @@ final class Router
 		{
 			$ajaxClass = $this->includeComponentAjaxClass($this->component);
 
-			/** @var Controller $controller */
-			/** @see \Bitrix\Main\Engine\Controller::__construct */
-			$controller = new $ajaxClass();
-			$controller->setScope(Controller::SCOPE_AJAX);
-			$controller->setCurrentUser(CurrentUser::get());
+			$controller = ControllerBuilder::build($ajaxClass, [
+				'scope' => Controller::SCOPE_AJAX,
+				'currentUser' => CurrentUser::get(),
+			]);
 
-			return array($controller, $this->action);
+			return [$controller, $this->action];
 		}
 		else
 		{
@@ -232,18 +231,30 @@ final class Router
 		include_once($filename);
 		$afterClasses = get_declared_classes();
 		$afterClassesCount = count($afterClasses);
+		$furthestClass = null;
 		for ($i = $afterClassesCount - 1; $i >= $beforeClassesCount; $i--)
 		{
-			if (
-				is_subclass_of($afterClasses[$i], Controller::className()) ||
-				in_array(Controller::className(), class_parents($afterClasses[$i])) //5.3.9
-			)
+			if (PHP_VERSION_ID < 70400)
 			{
-				return $afterClasses[$i];
+				if (is_subclass_of($afterClasses[$i], Controller::class))
+				{
+					return $afterClasses[$i];
+				}
+			}
+			else
+			{
+				if (
+					is_subclass_of($afterClasses[$i], Controller::class) ||
+					($furthestClass && is_subclass_of($afterClasses[$i], $furthestClass))
+				)
+				{
+					$furthestClass = $afterClasses[$i];
+				}
+
 			}
 		}
 
-		return null;
+		return $furthestClass;
 	}
 
 	/**

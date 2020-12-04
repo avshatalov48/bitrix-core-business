@@ -20,8 +20,10 @@ export class Api
 		}
 	}
 
-	setFilter(filter)
+	setFilter(filter, analyticsLabel = null)
 	{
+		this.setAnalyticsLabel(analyticsLabel);
+
 		if (Type.isObject(filter))
 		{
 			this.parent.updateParams(filter);
@@ -60,8 +62,10 @@ export class Api
 	 * @param {Object.<String, *>} fields
 	 * @param {boolean} [force = false]
 	 */
-	extendFilter(fields, force = false)
+	extendFilter(fields, force = false, analyticsLabel= null)
 	{
+		this.setAnalyticsLabel(analyticsLabel);
+
 		if (Type.isObject(fields))
 		{
 			Object.keys(fields).forEach((key) => {
@@ -103,8 +107,10 @@ export class Api
 		}
 	}
 
-	apply()
+	apply(analyticsLabel= null)
 	{
+		this.setAnalyticsLabel(analyticsLabel);
+
 		if (!this.parent.isEditEnabled())
 		{
 			if (!this.parent.isEditEnabled())
@@ -124,5 +130,13 @@ export class Api
 	getEmitter(): Event.EventEmitter
 	{
 		return this.parent.emitter;
+	}
+
+	setAnalyticsLabel(analyticsLabel = null)
+	{
+		if (Type.isObject(analyticsLabel))
+		{
+			this.parent.analyticsLabel = analyticsLabel;
+		}
 	}
 }

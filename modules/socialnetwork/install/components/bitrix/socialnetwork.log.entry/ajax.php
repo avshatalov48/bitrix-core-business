@@ -960,7 +960,9 @@ if(CModule::IncludeModule("socialnetwork"))
 					$commentAuxProvider = \Bitrix\Socialnetwork\CommentAux\Base::findProvider(
 						array(
 							'POST_TEXT' => $arComment['EVENT_FORMATTED']['MESSAGE'],
-							'SHARE_DEST' => $arComment['EVENT']['SHARE_DEST']
+							'SHARE_DEST' => $arComment['EVENT']['SHARE_DEST'],
+							'SOURCE_ID' => (int)$arComment['EVENT']['SOURCE_ID'],
+							'EVENT_ID' => $arComment['EVENT']['EVENT_ID'],
 						),
 						array(
 							'eventId' => $arComment['EVENT']['EVENT_ID']

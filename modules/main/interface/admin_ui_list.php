@@ -445,39 +445,44 @@ class CAdminUiList extends CAdminList
 		$this->contextSettings = $settings;
 	}
 
-	public function AddAdminContextMenu($aContext=array(), $bShowExcel=true, $bShowSettings=true)
+	protected function GetSystemContextMenu(array $config = []): array
 	{
+		$result = [];
 		/** @global CMain $APPLICATION */
 		global $APPLICATION;
 
-		$aAdditionalMenu = array();
-
-		if ($bShowExcel)
+		if (isset($config['excel']))
 		{
 			if ($this->contextSettings["pagePath"])
 			{
 				$pageParam = (!empty($_GET) ? http_build_query($_GET, "", "&") : "");
 				$pagePath = $this->contextSettings["pagePath"]."?".$pageParam;
-				$pageParams = array("mode" => "excel");
+				$pageParams = ["mode" => "excel"];
 				if ($this->isPublicMode)
 					$pageParams["public"] = "y";
 				$link = CHTTP::urlAddParams($pagePath, $pageParams);
 			}
 			else
 			{
-				$link = CHTTP::urlAddParams($APPLICATION->GetCurPageParam(), array("mode" => "excel"));
+				$link = CHTTP::urlAddParams($APPLICATION->GetCurPageParam(), ["mode" => "excel"]);
 			}
 			$link = CHTTP::urlDeleteParams($link, ["apply_filter"]);
-			$aAdditionalMenu[] = array(
+			$result[] = [
 				"TEXT" => "Excel",
 				"TITLE" => GetMessage("admin_lib_excel"),
 				"LINK" => $link,
 				"GLOBAL_ICON"=>"adm-menu-excel",
-			);
+			];
 		}
+		return $result;
+	}
 
-		if (count($aContext) > 0 || count($aAdditionalMenu) > 0)
-			$this->context = new CAdminUiContextMenu($aContext, $aAdditionalMenu);
+	protected function InitContextMenu(array $menu = [], array $additional = []): void
+	{
+		if (!empty($menu) || !empty($additional))
+		{
+			$this->context = new CAdminUiContextMenu($menu, $additional);
+		}
 	}
 
 	private function GetGroupAction()

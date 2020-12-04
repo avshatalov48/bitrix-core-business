@@ -12,6 +12,10 @@ use Bitrix\Main\Text\HtmlFilter;
 		?>
 		<span class="fields file field-item">
 			<?php
+			if (!is_array($fileInfo))
+			{
+				continue;
+			}
 			if(\CFile::IsImage($fileInfo['SRC'], $fileInfo['CONTENT_TYPE']))
 			{
 				print CFile::ShowImage(
@@ -51,5 +55,7 @@ use Bitrix\Main\Text\HtmlFilter;
 			}
 			?>
 		</span>
-	<?php } ?>
+	<?php
+	}
+	?>
 </span>

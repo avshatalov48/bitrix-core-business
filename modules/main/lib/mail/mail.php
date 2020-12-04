@@ -12,7 +12,6 @@ use Bitrix\Main\Config as Config;
 use Bitrix\Main\IO\File;
 use Bitrix\Main\Application;
 use Bitrix\Main\Web\Uri;
-use Bitrix\Main\Text\BinaryString;
 
 class Mail
 {
@@ -467,7 +466,7 @@ class Mail
 				}
 
 				$isLimitExceeded = $this->isFileLimitExceeded(
-					BinaryString::getLength($fileContent),
+					strlen($fileContent),
 					$summarySize
 				);
 				if ($isLimitExceeded)

@@ -656,7 +656,8 @@ class Field
 						'unSelect' => '',
 						'openDialog' => 'BX.Filter.DestinationSelectorManager.onDialogOpen',
 						'closeDialog' => 'BX.Filter.DestinationSelectorManager.onDialogClose',
-						'openSearch' => ''
+						'openSearch' => '',
+						'closeSearch' => 'BX.Filter.DestinationSelectorManager.onDialogClose',
 					),
 					'OPTIONS' => $optionsList,
 					'LOAD_JS' => true

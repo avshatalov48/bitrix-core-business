@@ -15,17 +15,18 @@ class Session implements SessionInterface, \ArrayAccess
 	protected $sessionHandler;
 	/** @var bool */
 	protected $lazyStartEnabled = false;
-	/** @var string */
-	protected $previousSessionId;
 	/** @var bool */
 	protected $debug = false;
+	/** @var Debugger */
+	protected $debugger;
 
 	/**
-	 * Session constructor
+	 * Session constructor.
 	 */
 	public function __construct(\SessionHandlerInterface $sessionHandler = null)
 	{
 		$this->sessionHandler = $sessionHandler;
+		$this->debugger = new Debugger();
 
 		session_register_shutdown();
 		if ($this->sessionHandler)
@@ -82,16 +83,6 @@ class Session implements SessionInterface, \ArrayAccess
 		session_id($id);
 	}
 
-	public function getPreviousId(): ?string
-	{
-		return $this->previousSessionId;
-	}
-
-	public function resetPreviousId(): void
-	{
-		$this->previousSessionId = null;
-	}
-
 	public function getName(): string
 	{
 		return session_name();
@@ -109,14 +100,14 @@ class Session implements SessionInterface, \ArrayAccess
 
 	public function start(): bool
 	{
-		if ($this->started)
+		if ($this->isStarted())
 		{
 			return true;
 		}
 
 		if (session_status() === \PHP_SESSION_ACTIVE)
 		{
-			throw new \RuntimeException('Could not start session by PHP.');
+			throw new \RuntimeException('Could not start session by PHP because session is active.');
 		}
 
 		if (filter_var(ini_get('session.use_cookies'), FILTER_VALIDATE_BOOLEAN) && headers_sent($file, $line))
@@ -127,9 +118,24 @@ class Session implements SessionInterface, \ArrayAccess
 		}
 
 		$this->debug('Session tries to start at');
-		if (!session_start())
+		$this->detectFirstUsage();
+
+		try
 		{
-			throw new \RuntimeException('Could not start session by PHP.');
+			if (!session_start())
+			{
+				throw new \RuntimeException('Could not start session by PHP.');
+			}
+		}
+		catch (\Error $error)
+		{
+			Application::getInstance()->getExceptionHandler()->writeToLog($error);
+			if ($error->getPrevious())
+			{
+				Application::getInstance()->getExceptionHandler()->writeToLog($error->getPrevious());
+			}
+
+			throw $error->getPrevious() ?: $error;
 		}
 		$this->debug('Session started at');
 
@@ -143,10 +149,9 @@ class Session implements SessionInterface, \ArrayAccess
 			{
 				$this->clear();
 			}
-			elseif ($this->has('newSid'))
+			else
 			{
 				$newSessionId = $this->get('newSid');
-				$this->remove('newSid');
 				$this->save();
 
 				$this->setId($newSessionId);
@@ -173,13 +178,15 @@ class Session implements SessionInterface, \ArrayAccess
 		$backup = $this->sessionData;
 		$this->save();
 
-		$this->previousSessionId = $this->getId();
 		$prevStrictMode = ini_set('session.use_strict_mode', 0);
 		$this->setId($newSessionId);
-		if ($prevStrictMode !== false)
-		{
-			ini_set('session.use_strict_mode', $prevStrictMode);
-		}
+// Idea to switch on strict mode after setId is good. But in that case
+// session_start will invoke validateId for one time more. So behavior in
+// 7.1, 7.2 & 7.4 is different and now it's way to avoid that.
+//		if ($prevStrictMode !== false)
+//		{
+//			ini_set('session.use_strict_mode', $prevStrictMode);
+//		}
 
 		$this->start();
 		$_SESSION = $backup;
@@ -260,14 +267,31 @@ class Session implements SessionInterface, \ArrayAccess
 		return (bool)$this->started;
 	}
 
-	private function debug(string $text)
+	/**
+	 * @return Debugger
+	 */
+	public function getDebugger(): Debugger
+	{
+		return $this->debugger;
+	}
+
+	private function debug(string $text): void
 	{
 		if (!$this->debug)
 		{
 			return;
 		}
 
-		$requestUri = Application::getInstance()->getContext()->getServer()->getRequestUri();
-		AddMessage2Log($text . ' ' . $requestUri, 'main', 20);
+		$this->getDebugger()->logToFile($text);
+	}
+
+	private function detectFirstUsage(): void
+	{
+		if (!$this->debug)
+		{
+			return;
+		}
+
+		$this->getDebugger()->detectFirstUsage();
 	}
 }

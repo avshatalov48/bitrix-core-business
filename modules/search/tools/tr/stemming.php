@@ -3,10 +3,10 @@
 
 function stemming_letter_tr()
 {
-	return "abcÃ§defgÄŸhÄ±ijklmnoÃ¶prsÅŸtuÃ¼vyz"."ABCÃ‡DEFGÄHIIJKLMNOÃ–PRSÅTUÃœVYZ"."Ã¢Ã®Ã»Ä°iIÄ±";
+	return "abcçdefgğhıijklmnoöprsştuüvyz"."ABCÇDEFGĞHIIJKLMNOÖPRSŞTUÜVYZ"."âîûİiIı";
 }
 
 function stemming_upper_tr($sText)
 {
-	return str_replace(array("Ä°"), array("I"), ToUpper($sText));
+	return str_replace(array("İ"), array("I"), ToUpper($sText));
 }

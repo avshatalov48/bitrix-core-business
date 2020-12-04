@@ -413,7 +413,7 @@ class Date extends Base
 
 			if ($documentId)
 			{
-				$userId = \CBPHelper::ExtractUsers('author', $documentId, true);
+				$userId = \CBPHelper::ExtractUsers(['author', 'responsible'], $documentId, true);
 				$offset = $userId ? \CTimeZone::GetOffset($userId, true) : 0;
 
 				$value = new Value\DateTime($value->getTimestamp(), $offset);
@@ -436,7 +436,7 @@ class Date extends Base
 					? new Value\Date($value, $offset)
 					: new Value\DateTime($value, $offset);
 				//set value if everything is ok
-				if ($obj->getTimestamp() > 0)
+				if ($obj->getTimestamp() !== null)
 				{
 					$value = $obj;
 				}

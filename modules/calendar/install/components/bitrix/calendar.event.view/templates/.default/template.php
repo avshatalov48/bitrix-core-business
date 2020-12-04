@@ -103,8 +103,8 @@ if ($event['IS_MEETING'])
 			}
 			$att['AVATAR_SRC'] = CCalendar::GetUserAvatarSrc($att);
 			$att['URL'] = CCalendar::GetUserUrl($att["USER_ID"], $arParams["PATH_TO_USER"]);
-			$status = (strtolower($att['STATUS']) == 'h' || $att['STATUS'] == '') ? 'y' : $att['STATUS']; // ?
-			$attendees[strtolower($status)]['users'][] = $att;
+			$status = (mb_strtolower($att['STATUS']) == 'h' || $att['STATUS'] == '') ? 'y' : $att['STATUS']; // ?
+			$attendees[mb_strtolower($status)]['users'][] = $att;
 		}
 	}
 }
@@ -145,8 +145,8 @@ $arTabs = array(
 				<?
 				if (
 					$event['DT_SKIP_TIME'] != 'Y' &&
-					(intVal($event['~USER_OFFSET_FROM']) !== 0 ||
-					intVal($event['~USER_OFFSET_TO']) !== 0 ||
+					(intval($event['~USER_OFFSET_FROM']) !== 0 ||
+					intval($event['~USER_OFFSET_TO']) !== 0 ||
 					$event['TZ_FROM'] != $event['TZ_TO'] ||
 					$event['TZ_FROM'] !== CCalendar::GetUserTimezoneName($userId))
 				)
@@ -339,13 +339,13 @@ $arTabs = array(
 			<?if ($event['IMPORTANCE'] != ''):?>
 				<tr>
 					<td class="bx-cal-view-text-cell-l"><?=GetMessage('EC_IMPORTANCE_TITLE')?>:</td>
-					<td class="bx-cal-view-text-cell-r"><?= GetMessage("EC_IMPORTANCE_".strtoupper($event['IMPORTANCE']))?></td>
+					<td class="bx-cal-view-text-cell-r"><?= GetMessage("EC_IMPORTANCE_".mb_strtoupper($event['IMPORTANCE']))?></td>
 				</tr>
 			<?endif;?>
 			<?if ($event['ACCESSIBILITY'] != '' && $arParams['bIntranet']):?>
 				<tr>
 					<td class="bx-cal-view-text-cell-l"><?=GetMessage('EC_ACCESSIBILITY_TITLE')?>:</td>
-					<td class="bx-cal-view-text-cell-r"><?= GetMessage("EC_ACCESSIBILITY_".strtoupper($event['ACCESSIBILITY']))
+					<td class="bx-cal-view-text-cell-r"><?= GetMessage("EC_ACCESSIBILITY_".mb_strtoupper($event['ACCESSIBILITY']))
 						?></td>
 				</tr>
 			<?endif;?>

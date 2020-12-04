@@ -34,53 +34,70 @@ export class MeetingStatusControl extends Event.EventEmitter
 
 	create()
 	{
-		this.DOM.selectorButton = this.DOM.wrap.appendChild(Dom.create("SPAN", {
-			props: {className: "webform-small-button webform-small-button-transparent webform-small-button-dropdown"},
-			events: {click: this.showPopup.bind(this)}
-		}));
-
-		this.DOM.selectorButtonText = this.DOM.selectorButton.appendChild(Dom.create("SPAN", {
-			props: {className: "webform-small-button-text"}
-		}));
-		this.DOM.selectorButtonIcon = this.DOM.selectorButton.appendChild(Dom.create("SPAN", {
-			props: {className: "webform-small-button-icon"}
-		}));
-
-		this.DOM.buttonY = this.DOM.wrap.appendChild(Dom.create("SPAN", {
-			props: {className: "webform-small-button webform-small-button-accept"},
-			events: {click: this.accept.bind(this)},
-			html: Loc.getMessage('EC_VIEW_DESIDE_BUT_Y')
-		}));
-		// this.buttonI = this.DOM.wrap.appendChild(Dom.create("SPAN", {
-		// 	props: {className: "webform-small-button webform-small-button-transparent"},
-		// 	style: {display: 'none'},
-		// 	events: {click: BX.proxy(function(){this.setStatus('I');}, this)},
-		// 	html: Loc.getMessage('EC_VIEW_DESIDE_BUT_I')
+		// this.DOM.selectorButton = this.DOM.wrap.appendChild(Dom.create("button", {
+		// 	props: {className: "webform-small-button webform-small-button-transparent webform-small-button-dropdown"},
+		// 	events: {click: this.showPopup.bind(this)}
+		// }));
+		//
+		// this.DOM.selectorButtonText = this.DOM.selectorButton.appendChild(Dom.create("button", {
+		// 	props: {className: "webform-small-button-text"}
+		// }));
+		// this.DOM.selectorButtonIcon = this.DOM.selectorButton.appendChild(Dom.create("button", {
+		// 	props: {className: "webform-small-button-icon"}
 		// }));
 
-		this.DOM.buttonN = this.DOM.wrap.appendChild(Dom.create("SPAN", {
-			props: {className: "webform-small-button webform-small-button-transparent"},
-			events: {click: this.decline.bind(this)},
-			html: Loc.getMessage('EC_VIEW_DESIDE_BUT_N')
-		}));
+		this.acceptBtn = new BX.UI.Button({
+			text: Loc.getMessage('EC_VIEW_DESIDE_BUT_Y'),
+			className: 'ui-btn ui-btn-primary',
+			events: {click: this.accept.bind(this)}
+		});
+		this.acceptBtn.renderTo(this.DOM.wrap);
+
+		this.declineBtn = new BX.UI.Button({
+			text: Loc.getMessage('EC_VIEW_DESIDE_BUT_N'),
+			className: 'ui-btn ui-btn-light-border',
+			events: {click: this.decline.bind(this)}
+		});
+		this.declineBtn.renderTo(this.DOM.wrap);
+
+		// this.DOM.buttonY = this.DOM.wrap.appendChild(Dom.create("button", {
+		// 	props: {className: "webform-small-button webform-small-button-accept"},
+		// 	events: {click: this.accept.bind(this)},
+		// 	html: Loc.getMessage('EC_VIEW_DESIDE_BUT_Y')
+		// }));
+		//
+		// this.DOM.buttonN = this.DOM.wrap.appendChild(Dom.create("button", {
+		// 	props: {className: "webform-small-button webform-small-button-transparent"},
+		// 	events: {click: this.decline.bind(this)},
+		// 	html: Loc.getMessage('EC_VIEW_DESIDE_BUT_N')
+		// }));
 	}
 
 	updateStatus()
 	{
-		if (this.status === 'Q')
+		if (this.status === 'H')
 		{
-			this.DOM.selectorButton.style.display = 'none';
-			this.DOM.buttonY.style.display = '';
-			this.DOM.buttonN.style.display = '';
+			this.acceptBtn.getContainer().style.display = 'none';
+			this.declineBtn.getContainer().style.display = '';
+			this.declineBtn.setText(Loc.getMessage('EC_VIEW_DESIDE_BUT_OWNER_N'));
 		}
 		else
 		{
-			this.DOM.selectorButton.style.display = '';
-			this.DOM.selectorButtonText.innerHTML = Loc.getMessage('EC_VIEW_STATUS_BUT_' + this.status);
-
-			this.DOM.buttonY.style.display = 'none';
-			//this.DOM.buttonI.style.display = 'none';
-			this.DOM.buttonN.style.display = 'none';
+			if (this.status === 'Y')
+			{
+				this.acceptBtn.getContainer().style.display = 'none';
+				this.declineBtn.getContainer().style.display = '';
+			}
+			else if (this.status === 'N')
+			{
+				this.acceptBtn.getContainer().style.display = '';
+				this.declineBtn.getContainer().style.display = 'none';
+			}
+			else
+			{
+				this.acceptBtn.getContainer().style.display = '';
+				this.declineBtn.getContainer().style.display = '';
+			}
 		}
 	}
 
@@ -94,84 +111,20 @@ export class MeetingStatusControl extends Event.EventEmitter
 		this.setStatus('N');
 	}
 
-	setStatus(value)
+	setStatus(value, emitEvent = true)
 	{
 		this.status = value;
+
 		if (this.menuPopup)
 		{
 			this.menuPopup.close();
 		}
 
-		let res = true;
-		if (Type.isFunction(this.changeStatusCallback))
+		if (emitEvent)
 		{
-			res = this.changeStatusCallback(this.status);
+			this.emit('onSetStatus', new Event.BaseEvent({data: {status: value}}));
 		}
 
-		this.emit('onSetStatus', new Event.BaseEvent({data: {status: value}}));
-
-		if (res)
-		{
-			this.updateStatus();
-		}
-	}
-
-	showPopup()
-	{
-		if (this.menuPopup && this.menuPopup.popupWindow && this.menuPopup.popupWindow.isShown())
-		{
-			return this.menuPopup.close();
-		}
-
-		let menuItems;
-
-		if (this.status === 'Y' || this.status === 'H')
-		{
-			menuItems = [
-				{
-					text: Loc.getMessage('EC_VIEW_DESIDE_BUT_N'),
-					onclick: this.decline.bind(this)
-				}
-			];
-		}
-		else if(this.status === 'N')
-		{
-			menuItems = [
-				{
-					text: Loc.getMessage('EC_VIEW_DESIDE_BUT_Y'),
-					onclick: this.accept.bind(this)
-				}
-			];
-		}
-		else if(this.status === 'I')
-		{
-			menuItems =[
-				{
-					text: Loc.getMessage('EC_VIEW_DESIDE_BUT_Y'),
-					onclick: this.accept.bind(this)
-				},
-				{
-					text: Loc.getMessage('EC_VIEW_DESIDE_BUT_N'),
-					onclick: this.decline.bind(this)
-				}
-			];
-		}
-
-		this.menuPopup = this.BX.PopupMenu.create(
-			this.id,
-			this.DOM.selectorButtonIcon,
-			menuItems,
-			{
-				closeByEsc : true,
-				autoHide : true,
-				zIndex: this.zIndex,
-				offsetTop: 15,
-				offsetLeft: 5,
-				angle: true,
-				cacheable: false
-			}
-		);
-
-		this.menuPopup.show();
+		this.updateStatus();
 	}
 }

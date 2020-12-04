@@ -118,6 +118,11 @@ $popupWindow->ShowTitlebar(GetMessage("BIZPROC_AS_TITLE_TOOLBAR"));
 <style>
 .dialogt {width:100% !important; }
 .adm-workarea .dialogt option {padding: 0px;}
+.bizproc-selector-optgroup {margin-left: 20px; position: relative}
+/*.bizproc-selector-optgroup::before {content: '[+] '; position: absolute; top 0; left: -20px}*/
+/*.bizproc-selector-optgroup.bizproc-selector-optgroup-expand::before {content: '[-] '; position: absolute; top 0; left: -20px}*/
+.bizproc-selector-optgroup option {display: none}
+.bizproc-selector-optgroup.bizproc-selector-optgroup-expand option {display: block}
 </style>
 <?
 $popupWindow->StartDescription("");
@@ -129,6 +134,7 @@ $popupWindow->StartContent();
 ?>
 <script>
 var BPSLastId = false;
+var BPSLastResult = false;
 function BPSHideShow(id)
 {
 	if(BPSLastId)
@@ -255,9 +261,10 @@ function BPSHideShow(id)
 $runtime = CBPRuntime::GetRuntime();
 $arAllActivities = $runtime->SearchActivitiesByType("activity", $documentType);
 
-function _RecFindParams($act, $arFilter, &$arResult)
+function _RecFindParams($act, $arFilter)
 {
 	global $arAllActivities;
+	$result = [];
 	foreach($act as $key => $value)
 	{
 		$value["Type"] = mb_strtolower($value["Type"]);
@@ -272,17 +279,17 @@ function _RecFindParams($act, $arFilter, &$arResult)
 				$arResultTmp[] = Array(
 						'ID' => '{='.$value["Name"].':'.$return_name.'}',
 						'NAME'	=>	'...'.$return_props['NAME'],
-						'TYPE' => $return_props['TYPE']
+						'TYPE' => $return_props['TYPE'],
 					);
 			}
 
 			if(count($arResultTmp)>0)
 			{
-				$arResult[] = Array(
+				$result[] = Array(
 					'ID' => $value["Name"], 
-					'NAME'=>$value['Properties']['Title']
+					'NAME'=>$value['Properties']['Title'],
+					'ITEMS' => $arResultTmp,
 				);
-				$arResult = array_merge($arResult, $arResultTmp);
 			}
 		}
 		elseif(is_array($arAllActivities[$value['Type']]['ADDITIONAL_RESULT']))
@@ -301,40 +308,72 @@ function _RecFindParams($act, $arFilter, &$arResult)
 					$resultTmp[] = array(
 						'ID' => '{='.$value['Name'].':'.$fieldId.'}',
 						'NAME' => '...'.$fieldData['Name'],
-						'TYPE' => $fieldData['Type']
+						'TYPE' => $fieldData['Type'],
 					);
 				}
 			}
 
 			if(count($resultTmp) > 0)
 			{
-				$arResult[] = array(
+				$result[] = array(
 					'ID' => $value['Name'],
-					'NAME' => $value['Properties']['Title']
+					'NAME' => $value['Properties']['Title'],
+					'ITEMS' => $resultTmp,
 				);
-				$arResult = array_merge($arResult, $resultTmp);
 			}
 		}
 
-		if(is_array($value["Children"]))
-			_RecFindParams($value["Children"], $arFilter, $arResult);
+		if (is_array($value["Children"]))
+		{
+			$result = array_merge($result, _RecFindParams($value["Children"], $arFilter));
+		}
 	}
+	return $result;
 }
 
-$arReturns = Array();
-_RecFindParams($arWorkflowTemplate, $arFilter, $arReturns);
-?>
-			<select id="BPSId4S" size="13" style="width:100%" ondblclick="BPSVInsert(this.value)">
-				<?foreach($arReturns as $val):?>
-					<?if($val['TYPE']):?>
-						<?if($arFilter===false || in_array($val['TYPE'], $arFilter)):?>
-							<option value="<?=htmlspecialcharsbx($val['ID'])?>"><?=htmlspecialcharsbx($val['NAME'])?></option>
-						<?endif?>
-					<?else:?>
-						<option value="<?=htmlspecialcharsbx($val['ID'])?>"><?=htmlspecialcharsbx($val['NAME'])?></option>
-					<?endif?>
+$renderSelect = function($arReturns, $open = true, $title = null) use ($arFilter)
+{
+	static $id = 0;
+	$selectId = 'BPSId4S-'.(++$id);
+
+	if ($title):?>
+		&nbsp;&nbsp;<a href="javascript:void(0)" onclick="BX.toggle(BX('<?=$selectId?>'))"><b><?=htmlspecialcharsbx($title)?></b></a></br>
+	<?endif?>
+			<select id="<?=$selectId?>" size="13" style="width:100%; <?=$open?'':'display:none'?>" ondblclick="BPSVInsert(this.value)">
+				<?
+				foreach($arReturns as $val):?>
+					<optgroup label="&bull; <?=htmlspecialcharsbx($val['NAME'])?>" class="bizproc-selector-optgroup" onclick="this.classList.toggle('bizproc-selector-optgroup-expand')">
+						<?foreach ($val['ITEMS'] as $item):
+							if ($item['TYPE'] && $arFilter && !in_array($item['TYPE'], $arFilter))
+							{
+								continue;
+							}
+							?>
+							<option value="<?=htmlspecialcharsbx($item['ID'])?>" onclick="event.stopPropagation(); BPSLastResult = this.value;">
+								<?=htmlspecialcharsbx($item['NAME'])?>
+							</option>
+						<?endforeach;?>
+					</optgroup>
 				<?endforeach?>
 			</select>
+<?
+};
+
+	if ($arWorkflowTemplate[0]['Type'] === 'StateMachineWorkflowActivity')
+	{
+		foreach ($arWorkflowTemplate[0]['Children'] as $state)
+		{
+			if ($returns = _RecFindParams($state['Children'], $arFilter))
+			{
+				$renderSelect($returns, false, $state['Properties']['Title']);
+			}
+		}
+	}
+	else
+	{
+		$renderSelect(_RecFindParams($arWorkflowTemplate, $arFilter));
+	}
+?>
 		</td>
 	</tr>
 <?endif?>
@@ -454,7 +493,13 @@ function BPSVInsert(v, isUser)
 		{
 			var s = document.getElementById(BPSLastId+'S');
 			if(s)
+			{
 				v = s.value;
+			}
+			else if (BPSLastId === 'BPSId4')
+			{
+				v = BPSLastResult;
+			}
 		}
 	}
 

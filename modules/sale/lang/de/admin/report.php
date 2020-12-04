@@ -16,5 +16,5 @@ $MESS["SALE_REPORT_LIST_ROW_ACTIONS_EDIT_TEXT"] = "Bericht bearbeiten";
 $MESS["SALE_REPORT_LIST_ROW_ACTIONS_COPY_TEXT"] = "Bericht kopieren";
 $MESS["SALE_REPORT_LIST_ROW_ACTIONS_VIEW_TEXT"] = "Bericht erstellen";
 $MESS["REPORT_DELETE_CONFIRM"] = "Löschen bestätigen";
-$MESS["REPORT_UPDATE_14_5_2_MESSAGE"] = "Beachten Sie bitte, dass die Standardvorlagen nicht bearbeitet werden können, aber mit der Schaltfläche Kopieren können Sie aufgrund einer Standardvorlage einen eigenen Bericht erstellen. Alternativ können Sie auch einen neuen Bericht hinzufügen.";
+$MESS["REPORT_UPDATE_14_5_2_MESSAGE"] = "Beachten Sie bitte, dass die Standardvorlagen nicht bearbeitet werden können, aber mit der Schaltfläche \"Kopieren\" können Sie aufgrund einer Standardvorlage einen eigenen Bericht erstellen. Alternativ können Sie auch einen neuen Bericht hinzufügen.";
 ?>

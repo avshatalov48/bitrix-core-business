@@ -393,8 +393,6 @@ abstract class CAllDatabase
 	{
 		if(mb_strtolower($this->type) == "mysql")
 			$delimiter = ";";
-		elseif(mb_strtolower($this->type) == "mssql")
-			$delimiter = "\nGO";
 		else
 			$delimiter = "(?<!\\*)/(?!\\*)";
 

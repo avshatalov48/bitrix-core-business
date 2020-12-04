@@ -14,7 +14,7 @@ class CCalendarPlanner
 
 		// Config
 		if (!$config['id'])
-			$config['id'] = (isset($config['id']) && strlen($config['id']) > 0) ? $config['id'] : 'bx_calendar_planner'.substr(uniqid(mt_rand(), true), 0, 4);
+			$config['id'] = (isset($config['id']) && $config['id'] <> '') ? $config['id'] : 'bx_calendar_planner'.mb_substr(uniqid(mt_rand(), true), 0, 4);
 
 		$APPLICATION->AddHeadScript('/bitrix/js/calendar/planner.js');
 		$APPLICATION->SetAdditionalCSS("/bitrix/js/calendar/planner.css");
@@ -58,9 +58,9 @@ class CCalendarPlanner
 
 	public static function prepareData($params = [])
 	{
-		$curEventId = intVal($params['entry_id']);
-		$curUserId = intVal($params['user_id']);
-		$hostUserId = intVal($params['host_id']);
+		$curEventId = intval($params['entry_id']);
+		$curUserId = intval($params['user_id']);
+		$hostUserId = intval($params['host_id']);
 		$skipEntryList = (isset($params['skipEntryList']) && is_array($params['skipEntryList'])) ? $params['skipEntryList'] : [];
 		$resourceIdList = [];
 
@@ -70,12 +70,16 @@ class CCalendarPlanner
 			'accessibility' => []
 		);
 		$userIds = [];
+		$users = [];
 
 		if (isset($params['codes']) && is_array($params['codes']))
 		{
 			$params['codes'] = array_unique($params['codes']);
 			$users = CCalendar::GetDestinationUsers($params['codes'], true);
+		}
 
+		if (!empty($users))
+		{
 			foreach($users as $user)
 			{
 				$userIds[] = $user['USER_ID'];
@@ -94,7 +98,8 @@ class CCalendarPlanner
 					'status' => $status,
 					'url' => CCalendar::GetUserUrl($user['USER_ID']),
 					'avatar' => CCalendar::GetUserAvatarSrc($user),
-					'strictStatus' => $userSettings['denyBusyInvitation']
+					'strictStatus' => $userSettings['denyBusyInvitation'],
+					'emailUser' => $user['EXTERNAL_AUTH_ID'] === 'email'
 				);
 			}
 		}
@@ -110,7 +115,7 @@ class CCalendarPlanner
 		{
 			foreach($params['resources'] as $resource)
 			{
-				$resourceId = intVal($resource['id']);
+				$resourceId = intval($resource['id']);
 				$resourceIdList[] = $resourceId;
 				$resource['type'] = preg_replace("/[^a-zA-Z0-9_]/i", "", $resource['type']);
 				$result['entries'][] = array(
@@ -153,7 +158,7 @@ class CCalendarPlanner
 				if (isset($entry['DT_FROM']) && !isset($entry['DATE_FROM']))
 				{
 					$dateFrom = $entry['DT_FROM'];
-					$dateTo = $entry['DT_FROM'];
+					$dateTo = $entry['DT_TO'];
 				}
 				else
 				{

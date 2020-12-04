@@ -209,6 +209,7 @@
 	width: 13px;
 	border-radius: 50%;
 	background: url(../../images/calendar/calendar-planner-sprite.svg) #fff;
+	z-index: 2;
 }
 
 .calendar-planner-user-status-icon.user-status-h {
@@ -233,7 +234,7 @@
 	width: 24px;
 	margin: -1px 5px 0 0;
 	border-radius: 50%;
-	background: url(../../images/calendar/calendar-planner-sprite.svg) 25px -107px;
+	/*background: url(../../images/calendar/calendar-planner-sprite.svg) 25px -107px;*/
 	/*background-size: contain;*/
 	vertical-align: middle;
 }
@@ -1115,8 +1116,20 @@
 	left: 15px;
 }
 
+.calendar-planner-entry-icons-only .calendar-planner-user-container {
+	width: 50px!important;
+}
+.calendar-planner-entry-icons-only .calendar-planner-user-container .calendar-planner-header{
+	display: none;
+}
+
 .calendar-planner-main-loader {
 	position: absolute !important;
 	top: 62px;
 	left: 140px;
+}
+
+.calendar-planner-user .ui-icon-common-user-mail > i
+{
+	background-color: #f7a700;
 }

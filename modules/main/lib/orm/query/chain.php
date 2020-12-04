@@ -283,11 +283,11 @@ class Chain
 					array($ref_entity, $field)
 				));
 			}
-			elseif ( ($pos_wh = mb_strpos($def_element, ':')) > 0 )
+			elseif ( ($pos_wh = strpos($def_element, ':')) > 0 )
 			{
-				$ref_entity_name = mb_substr($def_element, 0, $pos_wh);
+				$ref_entity_name = substr($def_element, 0, $pos_wh);
 
-				if (mb_strpos($ref_entity_name, '\\') === false)
+				if (strpos($ref_entity_name, '\\') === false)
 				{
 					// if reference has no namespace, then it'is in the namespace of previous entity
 					$ref_entity_name = $prev_entity->getNamespace().$ref_entity_name;
@@ -295,7 +295,7 @@ class Chain
 
 				if (
 					Entity::isExists($ref_entity_name)
-					&& Entity::getInstance($ref_entity_name)->hasField($ref_field_name = mb_substr($def_element, $pos_wh + 1))
+					&& Entity::getInstance($ref_entity_name)->hasField($ref_field_name = substr($def_element, $pos_wh + 1))
 					&& Entity::getInstance($ref_entity_name)->getField($ref_field_name) instanceof Reference
 				)
 				{
@@ -378,6 +378,16 @@ class Chain
 		}
 
 		return $def;
+	}
+
+	public static function appendDefinition($currentDefinition, $newDefinitionPart)
+	{
+		if ($currentDefinition !== '')
+		{
+			$currentDefinition .= '.';
+		}
+
+		return $currentDefinition.$newDefinitionPart;
 	}
 
 	public static function getAliasByChain(Chain $chain)

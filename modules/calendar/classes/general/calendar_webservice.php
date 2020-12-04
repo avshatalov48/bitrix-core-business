@@ -95,10 +95,10 @@ class CCalendarWebService extends IWebService
 		if (null === $datetime)
 			return time();
 
-		if (intval(substr($datetime, 0, 4)) >= 2037)
-			$datetime = '2037'.substr($datetime, 4);
+		if (intval(mb_substr($datetime, 0, 4)) >= 2037)
+			$datetime = '2037'.mb_substr($datetime, 4);
 
-		return MakeTimeStamp(substr($datetime, 0, 10).' '.substr($datetime, 11, -1), 'YYYY-MM-DD HH:MI:SS');
+		return MakeTimeStamp(mb_substr($datetime, 0, 10).' '.mb_substr($datetime, 11, -1), 'YYYY-MM-DD HH:MI:SS');
 	}
 
 	function GetList($listName)
@@ -114,7 +114,7 @@ class CCalendarWebService extends IWebService
 		$listName = ToUpper(CIntranetUtils::makeGUID($listName_original));
 		$arSections = CCalendarSect::GetList(
 			array(
-				'arFilter' => array('XML_ID' => strtolower($listName_original))
+				'arFilter' => array('XML_ID' => mb_strtolower($listName_original))
 			)
 		);
 
@@ -167,7 +167,7 @@ class CCalendarWebService extends IWebService
 		$arPriorityValues = $this->arPriorityValues;
 
 		$first_week_day = COption::GetOptionString('calendar', 'week_start', 'MO');
-		$first_week_day = strtolower($first_week_day);
+		$first_week_day = mb_strtolower($first_week_day);
 
 		$change = MakeTimeStamp($event['TIMESTAMP_X']);
 		if ($last_change < $change)
@@ -269,7 +269,7 @@ class CCalendarWebService extends IWebService
 				case 'WEEKLY':
 					$days = '';
 					foreach ($rrule['BYDAY'] as $day)
-						$days .= strtolower($day).'="TRUE" ';
+						$days .= mb_strtolower($day).'="TRUE" ';
 					$recurence_data .= '<weekly '.$days.'weekFrequency="'.$rrule['INTERVAL'].'" />';
 				break;
 
@@ -409,7 +409,7 @@ class CCalendarWebService extends IWebService
 		if ($last_change > 0)
 			$obChanges->setAttribute('LastChangeToken', $last_change);
 
-		CCalendar::SaveSyncDate($userId, 'outlook');
+		CCalendar::SaveMultipleSyncDate($userId, 'outlook', $arSection['ID']);
 		return array('GetListItemChangesSinceTokenResult' => $data);
 	}
 
@@ -508,7 +508,7 @@ class CCalendarWebService extends IWebService
 						'Event type unsupported'
 					);
 
-				$id = $arData['_command'] == 'New' ? 0 : intVal($arData['ID']);
+				$id = $arData['_command'] == 'New' ? 0 : intval($arData['ID']);
 
 				$arData['fRecurrence'] = intval($arData['fRecurrence']);
 				$arData['RRULE'] = '';
@@ -587,7 +587,7 @@ class CCalendarWebService extends IWebService
 							{
 								if ($obNode->getAttribute($value))
 								{
-									$arData['RRULE']['BYDAY'][] = strtoupper($value);
+									$arData['RRULE']['BYDAY'][] = mb_strtoupper($value);
 								}
 							}
 
@@ -794,21 +794,21 @@ class CCalendarWebService extends IWebService
 	public static function ClearOutlookHtml($html)
 	{
 		$q = tolower($html);
-		if (($pos = strrpos($q, '</head>')) !== false)
+		if (($pos = mb_strrpos($q, '</head>')) !== false)
 		{
-			$html = substr($html, $pos + 7);
+			$html = mb_substr($html, $pos + 7);
 			$q = tolower($html);
 		}
 
-		if (strpos($q, '<body') !== false)
+		if (mb_strpos($q, '<body') !== false)
 		{
 			$html = preg_replace("/((\s|\S)*)<body[^>]*>((\s|\S)*)/is", "$3", $html);
 			$q = tolower($html);
 		}
 
-		if (($pos = strrpos($q, '</body>')) !== false)
+		if (($pos = mb_strrpos($q, '</body>')) !== false)
 		{
-			$html = substr($html, 0, $pos);
+			$html = mb_substr($html, 0, $pos);
 		}
 
 		$html = str_replace('</DIV>', "\r\n</DIV>", $html);

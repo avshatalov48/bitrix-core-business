@@ -45,10 +45,7 @@ class Queue
 			return "";
 		}
 
-		if (!\CMain::forkActions([get_called_class(), "sendMessages"]))
-		{
-			static::sendMessages();
-		}
+		Application::getInstance()->addBackgroundJob([get_called_class(), "sendMessages"]);
 
 		return "";
 	}

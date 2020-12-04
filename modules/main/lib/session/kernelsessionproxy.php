@@ -27,16 +27,6 @@ final class KernelSessionProxy extends KernelSession
 		$this->session->setId($id);
 	}
 
-	public function getPreviousId(): ?string
-	{
-		return $this->session->getPreviousId();
-	}
-
-	public function resetPreviousId(): void
-	{
-		$this->session->resetPreviousId();
-	}
-
 	public function getName(): string
 	{
 		return $this->session->getName();

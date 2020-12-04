@@ -56,7 +56,7 @@ if (empty($arResult['WORKFLOW_ID'])):?>
 				<a href="javascript:void(0)" class="bp-short-process-step <?if ($face['STATUS'] == CBPTaskUserStatus::Ok || $face['STATUS'] == CBPTaskUserStatus::Yes) echo 'bp-short-process-step-ready'?><?if ($face['STATUS'] == CBPTaskUserStatus::No || $face['STATUS'] == CBPTaskUserStatus::Cancel) echo 'bp-short-process-step-cancel'?> <?if ($task['USERS_CNT'] > 1) echo 'bp-short-process-step-more'?>" title="<?=$task['NAME']?>"><?
 					if ($face['PHOTO_SRC'])
 					{
-//						?>
+						?>
 						<div class="bp-short-process-step-inner ui-icon ui-icon-common-user">
 							<i style="background-image: url('<?=htmlspecialcharsbx($face['PHOTO_SRC'])?>')" border="0" bx-tooltip-user-id="<?=(int)$face['USER_ID']?>" bx-tooltip-classname="intrantet-user-selector-tooltip"></i>
 						</div>
@@ -65,7 +65,7 @@ if (empty($arResult['WORKFLOW_ID'])):?>
 					else
 					{
 						?><div class="bp-short-process-step-inner ui-icon ui-icon-common-user" bx-tooltip-user-id="<?=(int)$face['USER_ID']?>" bx-tooltip-classname="intrantet-user-selector-tooltip">
-							<i></i>
+							<i bx-tooltip-user-id="<?=(int)$face['USER_ID']?>" bx-tooltip-classname="intrantet-user-selector-tooltip"></i>
 						</div><?
 					}
 				?></a>
@@ -147,7 +147,12 @@ if (empty($arResult['WORKFLOW_ID'])):?>
 
 				if (displayedUser['PHOTO_SRC'])
 				{
-					BX('<?=$cmpId?>_face_3_photo_src').src = displayedUser['PHOTO_SRC'];
+					var face3Element = BX('<?=$cmpId?>_face_3_photo_src');
+					if (face3Element)
+					{
+						face3Element.src = displayedUser['PHOTO_SRC'];
+						face3Element.setAttribute('bx-tooltip-user-id', displayedUser['USER_ID']);
+					}
 				}
 			});
 		</script>

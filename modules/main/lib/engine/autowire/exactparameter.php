@@ -4,7 +4,6 @@ namespace Bitrix\Main\Engine\AutoWire;
 
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
-use http\Exception\InvalidArgumentException;
 
 class ExactParameter extends Parameter
 {
@@ -15,7 +14,7 @@ class ExactParameter extends Parameter
 	{
 		if (!$this->validateConstructor($constructor))
 		{
-			throw new InvalidArgumentException('$constructor closure must have more than one argument');
+			throw new BinderArgumentException('$constructor closure must have more than one argument');
 		}
 
 		parent::__construct($className, $constructor);

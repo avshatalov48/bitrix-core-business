@@ -1,5 +1,9 @@
 <?
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+/** @var \Bitrix\Bizproc\Activity\PropertiesDialog $dialog */
+/** @var bool $canSetModifiedBy */
+/** @var mixed $modifiedBy */
+$mergeMultipleFields = $dialog->getMap()['MergeMultipleFields'];
 ?>
 
 <?= $javascriptFunctions ?>
@@ -360,6 +364,12 @@ try{
 	document.getElementById('sfa_pd_list_form').style.display = 'inline';
 }
 </script>
+	<tr>
+		<td align="right" width="40%" class="adm-detail-content-cell-l"><?=htmlspecialcharsbx($mergeMultipleFields['Name'])?>:</td>
+		<td width="60%" class="adm-detail-content-cell-r">
+			<?=CBPDocument::ShowParameterField("bool", $mergeMultipleFields['FieldName'], $dialog->getCurrentValue($mergeMultipleFields))?>
+		</td>
+	</tr>
 <?if ($canSetModifiedBy):?>
 	<tr>
 		<td align="right" width="40%" class="adm-detail-content-cell-l"><?= GetMessage("BPSFA_PD_MODIFIED_BY") ?>:</td>

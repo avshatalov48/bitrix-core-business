@@ -2,6 +2,8 @@
 <?
 use \Bitrix\Main\Localization\Loc;
 
+Bitrix\Main\UI\Extension::load("ui.icons.b24");
+
 $APPLICATION->SetPageProperty('BodyClass', $APPLICATION->GetPageProperty('BodyClass').' pagetitle-toolbar-field-view calendar-pagetitle-view');
 
 $isBitrix24Template = (SITE_TEMPLATE_ID == "bitrix24");
@@ -53,6 +55,7 @@ if($isBitrix24Template)
 	<? endif;?>
 </div>
 
+<div id="<?= $arResult['ID']?>-sync-container" class="calendar-view-switcher pagetitle-align-right-container"></div>
 <?
 if($isBitrix24Template)
 {
@@ -99,7 +102,7 @@ else
 	{
 		$feature = "calendar";
 		$arEntityActiveFeatures = CSocNetFeatures::GetActiveFeaturesNames((($arParams['CALENDAR_TYPE'] == "group") ? SONET_ENTITY_GROUP : SONET_ENTITY_USER), $arParams['OWNER_ID']);
-		$strFeatureTitle = ((array_key_exists($feature, $arEntityActiveFeatures) && StrLen($arEntityActiveFeatures[$feature]) > 0) ? $arEntityActiveFeatures[$feature] : GetMessage("EC_SONET_CALENDAR"));
+		$strFeatureTitle = ((array_key_exists($feature, $arEntityActiveFeatures) && $arEntityActiveFeatures[$feature] <> '') ? $arEntityActiveFeatures[$feature] : GetMessage("EC_SONET_CALENDAR"));
 		$arParams["STR_TITLE"] = $strFeatureTitle;
 	}
 	else

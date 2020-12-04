@@ -17,7 +17,7 @@ if (!empty($event_feed_action) && check_bitrix_sessid())
 {
 	$GLOBALS["APPLICATION"]->ShowAjaxHead();
 	$userId = $GLOBALS["USER"]->GetId();
-	$eventId = intVal($_REQUEST['event_id']);
+	$eventId = intval($_REQUEST['event_id']);
 
 	if ($event_feed_action == 'delete_event')
 	{
@@ -38,7 +38,7 @@ if (!empty($event_feed_action) && check_bitrix_sessid())
 			CCalendarEvent::SetMeetingStatusEx(array(
 				'attendeeId' => $userId,
 				'eventId' => $eventId,
-				'parentId' => intVal($_REQUEST['parent_id']),
+				'parentId' => intval($_REQUEST['parent_id']),
 				'status' => $status,
 				'reccurentMode' => in_array($_REQUEST['reccurent_mode'], array('this', 'next', 'all')) ? $_REQUEST['reccurent_mode'] : false,
 				'currentDateFrom' => CCalendar::Date(CCalendar::Timestamp($_REQUEST['current_date_from']), false)

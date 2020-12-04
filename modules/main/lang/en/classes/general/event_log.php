@@ -29,5 +29,6 @@ $MESS["MAIN_EVENTLOG_USER_LOGIN"] = "Logon errors";
 $MESS["MAIN_EVENTLOG_USER_LOGINBYHASH_FAILED"] = "Login with stored authorization failed";
 $MESS["MAIN_EVENTLOG_USER_LOGOUT"] = "Logoff";
 $MESS["MAIN_EVENTLOG_USER_PASSWORD_CHANGED"] = "User password change";
+$MESS["MAIN_EVENTLOG_USER_PERMISSIONS_FAIL"] = "File access error";
 $MESS["MAIN_EVENTLOG_USER_REGISTER"] = "New user registration";
 $MESS["MAIN_EVENTLOG_USER_REGISTER_FAIL"] = "Registration error";

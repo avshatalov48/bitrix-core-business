@@ -8,7 +8,7 @@
 
 use Bitrix\Main\DB\SqlExpression;
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/database.php");
+require_once __DIR__."/../general/database.php";
 
 /********************************************************************
 *	MySQL database classes
@@ -1003,9 +1003,9 @@ abstract class CDBResultMysql extends CAllDBResult
 
 if(defined("BX_USE_MYSQLI") && BX_USE_MYSQLI === true)
 {
-	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/mysql/database_mysqli.php");
+	require_once __DIR__."/database_mysqli.php";
 }
 else
 {
-	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/mysql/database_mysql.php");
+	require_once __DIR__."/database_mysql.php";
 }

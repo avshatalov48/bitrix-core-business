@@ -20,7 +20,6 @@
 		}
 
 		BX.addCustomEvent("BXCalendar:onSectionDelete", BX.proxy(this.unsetSectionHandler, this));
-
 		this.sortSections();
 	}
 
@@ -116,8 +115,6 @@
 			}
 			return result;
 		},
-
-
 
 		getSuperposedSectionList: function()
 		{
@@ -487,15 +484,35 @@
 				})
 				.then(
 					// Success
-					BX.delegate(function (response)
+					function(response)
 					{
-						this.calendar.reload();
-					}, this),
+						var reload = true;
+						var section;
+						for (var i = 0; i < this.calendar.sectionController.sections.length; i++)
+						{
+							section = this.calendar.sectionController.sections[i];
+							if (section.belongsToView())
+							{
+								reload = false;
+								break;
+							}
+						}
+
+						if (reload)
+						{
+							BX.reload();
+						}
+						else
+						{
+							BX.Calendar.CalendarSectionManager.setNewEntrySectionId(this.calendar.sectionController.getCurrentSection().id);
+							this.calendar.reload();
+						}
+					}.bind(this),
 					// Failure
-					BX.delegate(function (response)
+					function(response)
 					{
 						this.calendar.displayError(response.errors);
-					}, this)
+					}.bind(this)
 				);
 			}
 		},
@@ -604,7 +621,8 @@
 		isVirtual: function()
 		{
 			return (this.data.CAL_DAV_CAL && this.data.CAL_DAV_CAL.indexOf('@virtual/events/') !== -1)
-				|| (this.data.GAPI_CALENDAR_ID && this.data.GAPI_CALENDAR_ID.indexOf('@group.v.calendar.google.com') !== -1);
+				|| (this.data.GAPI_CALENDAR_ID && this.data.GAPI_CALENDAR_ID.indexOf('@group.v.calendar.google.com') !== -1)
+				|| (this.data.GAPI_CALENDAR_ID && this.data.GAPI_CALENDAR_ID.indexOf('@group.calendar.google.com') !== -1)
 		},
 
 		isGoogle: function()

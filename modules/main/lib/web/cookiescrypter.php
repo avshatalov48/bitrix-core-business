@@ -6,13 +6,13 @@ use Bitrix\Main\Config;
 use Bitrix\Main\Security\Cipher;
 use Bitrix\Main\Security\SecurityException;
 use Bitrix\Main\SystemException;
-use Bitrix\Main\Text\BinaryString;
 
 final class CookiesCrypter
 {
 	public const COOKIE_MAX_SIZE              = 4096;
 	public const COOKIE_RESERVED_SUFFIX_BYTES = 3;
 
+	private const SIGN_PREFIX       = '-crpt-';
 	private const CIPHER_KEY_SUFFIX = 'cookiecrypter';
 
 	/** @var string */
@@ -22,11 +22,6 @@ final class CookiesCrypter
 
 	public function __construct()
 	{}
-
-	public function hasEncryptedCookiesInSettings(): bool
-	{
-		return !empty($this->getListToProcess());
-	}
 
 	protected function buildCipher(): self
 	{
@@ -53,62 +48,50 @@ final class CookiesCrypter
 		return $key . self::CIPHER_KEY_SUFFIX;
 	}
 
-	public function encrypt(Cookie ...$cookies): iterable
+	/**
+	 * @param CryptoCookie $cookie
+	 * @return iterable|Cookie[]
+	 */
+	public function encrypt(CryptoCookie $cookie): iterable
 	{
 		$result = [];
-		foreach ($cookies as $cookie)
+		$encryptedValue = $this->encryptValue($cookie->getValue());
+		foreach ($this->packCookie($cookie, $encryptedValue) as $partCookie)
 		{
-			if ($this->shouldEncrypt($cookie->getOriginalName()))
-			{
-				foreach($this->packCookie($cookie) as $partCookie)
-				{
-					$result[] = $partCookie;
-				}
-			}
-			else
-			{
-				$result[] = $cookie;
-			}
+			$result[] = $partCookie;
 		}
 
 		return $result;
 	}
 
-	public function decrypt(iterable $cookies): iterable
+	public function decrypt(string $name, string $value, iterable $cookies): string
 	{
-		$result = [];
-		foreach ($cookies as $name => $value)
+		if (!$this->shouldDecrypt($name, $value))
 		{
-			if ($this->shouldDecrypt($name))
-			{
-				try
-				{
-					$result[$name] = $this->unpackCookie($value, $cookies);
-				}
-				catch (SecurityException $e)
-				{
-					//just skip cookies which we can't decrypt.
-				}
-
-			}
-			else
-			{
-				$result[$name] = $value;
-			}
+			return $value;
 		}
 
-		return $result;
+		try
+		{
+			return $this->unpackCookie($value, $cookies);
+		}
+		catch (SecurityException $e)
+		{
+			//just skip cookies which we can't decrypt.
+		}
+
+		return '';
 	}
 
 	/**
-	 * @param Cookie $cookie
+	 * @param CryptoCookie $cookie
+	 * @param string       $encryptedValue
 	 * @return iterable|Cookie[]
 	 */
-	protected function packCookie(Cookie $cookie): iterable
+	protected function packCookie(CryptoCookie $cookie, string $encryptedValue): iterable
 	{
-		$encryptedValue = $this->encryptValue($cookie->getValue());
-		$length = BinaryString::getLength($encryptedValue);
-		$maxContentLength = static::COOKIE_MAX_SIZE - static::COOKIE_RESERVED_SUFFIX_BYTES - BinaryString::getLength($cookie->getName());
+		$length = strlen($encryptedValue);
+		$maxContentLength = static::COOKIE_MAX_SIZE - static::COOKIE_RESERVED_SUFFIX_BYTES - strlen($cookie->getName());
 
 		$i = 0;
 		$parts = ($length / $maxContentLength);
@@ -116,17 +99,16 @@ final class CookiesCrypter
 		do
 		{
 			$startPosition = $i * $maxContentLength;
-			$partCookie = clone $cookie;
-			$partCookie->setName("{$cookie->getName()}_{$i}");
-			$partCookie->setValue(BinaryString::getSubstring($encryptedValue, $startPosition, $maxContentLength));
+			$partCookie = new Cookie("{$cookie->getName()}_{$i}", substr($encryptedValue, $startPosition, $maxContentLength));
+			$cookie->copyAttributesTo($partCookie);
 			$pack["{$cookie->getOriginalName()}_{$i}"] = $partCookie;
 
 			$i++;
 		}
 		while($parts > $i);
 
-		$mainCookie = clone $cookie;
-		$mainCookie->setValue(implode(',', array_keys($pack)));
+		$mainCookie = new Cookie($cookie->getName(), $this->prependSign(implode(',', array_keys($pack))));
+		$cookie->copyAttributesTo($mainCookie);
 
 		array_unshift($pack, $mainCookie);
 
@@ -135,6 +117,7 @@ final class CookiesCrypter
 
 	protected function unpackCookie(string $mainCookie, iterable $cookies): string
 	{
+		$mainCookie = $this->removeSign($mainCookie);
 		$packedNames = array_flip(array_filter(explode(',', $mainCookie)));
 		$parts = [];
 
@@ -194,25 +177,28 @@ final class CookiesCrypter
 		return str_replace('=', '', strtr(base64_encode($input), '+/', '-_'));
 	}
 
-	public function shouldEncrypt($cookieName): bool
+	public function shouldEncrypt(Cookie $cookie): bool
 	{
-		return in_array($cookieName, $this->getListToProcess(), true);
+		return $cookie instanceof CryptoCookie;
 	}
 
-	public function shouldDecrypt($cookieName): bool
+	public function shouldDecrypt(string $cookieName, string $cookieValue): bool
 	{
-		return $this->shouldEncrypt($cookieName);
+		return strpos($cookieValue, self::SIGN_PREFIX) === 0;
+	}
+
+	protected function prependSign(string $value): string
+	{
+		return self::SIGN_PREFIX . $value;
+	}
+
+	protected function removeSign(string $value): string
+	{
+		return substr($value, strlen(self::SIGN_PREFIX));
 	}
 
 	public function getCipherKey(): string
 	{
 		return $this->cipherKey;
-	}
-
-	public function getListToProcess(): array
-	{
-		$configuration = Config\Configuration::getInstance();
-
-		return $configuration->get('cookies')['encrypted'] ?? [];
 	}
 }

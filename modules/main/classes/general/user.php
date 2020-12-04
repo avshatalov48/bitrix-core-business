@@ -1304,6 +1304,12 @@ class CAllUser extends CDBResult
 
 		if($arUser !== false)
 		{
+			$regenerateIdAfterLogin = Main\Config\Configuration::getInstance()->get('session')['regenerateIdAfterLogin'] ?? false;
+			if ($regenerateIdAfterLogin === true)
+			{
+				Main\Application::getInstance()->getCompositeSessionManager()->regenerateId();
+			}
+
 			self::$CURRENT_USER = false;
 			$this->justAuthorized = true;
 			$this->SetControllerAdmin(false);
@@ -2051,7 +2057,7 @@ class CAllUser extends CDBResult
 
 			if(!($res = $db_check->Fetch()))
 			{
-				return array("MESSAGE"=>preg_replace("/#LOGIN#/i", htmlspecialcharsbx($arParams["LOGIN"]), GetMessage('LOGIN_NOT_FOUND')), "TYPE"=>"ERROR", "FIELD" => "LOGIN");
+				return array("MESSAGE" => GetMessage('LOGIN_NOT_FOUND1'), "TYPE"=>"ERROR", "FIELD" => "LOGIN");
 			}
 
 			$userId = $res["ID"];
@@ -2072,13 +2078,13 @@ class CAllUser extends CDBResult
 				//change the password using the checkword
 				if($res["CHECKWORD"] == '' || !Password::equals($res["CHECKWORD"], $arParams["CHECKWORD"]))
 				{
-					return array("MESSAGE"=>preg_replace("/#LOGIN#/i", htmlspecialcharsbx($arParams["LOGIN"]), GetMessage("CHECKWORD_INCORRECT"))."<br>", "TYPE"=>"ERROR", "FIELD"=>"CHECKWORD");
+					return array("MESSAGE" => GetMessage("CHECKWORD_INCORRECT1")."<br>", "TYPE"=>"ERROR", "FIELD"=>"CHECKWORD");
 				}
 
 				$site_format = CSite::GetDateFormat();
 				if(time()-$arPolicy["CHECKWORD_TIMEOUT"]*60 > MakeTimeStamp($res["CHECKWORD_TIME"], $site_format))
 				{
-					return array("MESSAGE"=>preg_replace("/#LOGIN#/i", htmlspecialcharsbx($arParams["LOGIN"]), GetMessage("CHECKWORD_EXPIRE"))."<br>", "TYPE"=>"ERROR", "FIELD"=>"CHECKWORD_EXPIRE");
+					return array("MESSAGE" => GetMessage("CHECKWORD_EXPIRE")."<br>", "TYPE"=>"ERROR", "FIELD"=>"CHECKWORD_EXPIRE");
 				}
 			}
 			else
@@ -2891,6 +2897,30 @@ class CAllUser extends CDBResult
 		$this->SetParam("CONTROLLER_ADMIN", (bool)$isAdmin);
 	}
 
+	/**
+	 * @param array|true $deleteParms Parameters to delete; if true, delete all
+	 * @return string
+	 */
+	public static function getLogoutParams($deleteParms = [])
+	{
+		$logout = 'logout=yes';
+
+		if(Main\Config\Option::get("main", "secure_logout", "N") == "Y")
+		{
+			$logout .= '&'.bitrix_sessid_get();
+		}
+
+		if($deleteParms !== true)
+		{
+			if(($s = DeleteParam(array_merge($deleteParms, ["logout", "sessid"]))) <> '')
+			{
+				$logout .= '&'.$s;
+			}
+		}
+
+		return $logout;
+	}
+
 	public function Logout()
 	{
 		/** @global CMain $APPLICATION */
@@ -2939,16 +2969,9 @@ class CAllUser extends CDBResult
 			unset(static::$kernelSession['fixed_session_id']);
 
 			//change session id for security reason after logout
-			if(COption::GetOptionString("security", "session", "N") === "Y" && CModule::IncludeModule("security"))
-			{
-				CSecuritySession::UpdateSessID();
-			}
-			else
-			{
-				$compositeSessionManager = Main\Application::getInstance()->getCompositeSessionManager();
-				//todo here was session_regenerate_id(true). Should we delete old?
-				$compositeSessionManager->regenerateId();
-			}
+			$compositeSessionManager = Main\Application::getInstance()->getCompositeSessionManager();
+			//todo here was session_regenerate_id(true). Should we delete old?
+			$compositeSessionManager->regenerateId();
 
 			$response = Main\Context::getCurrent()->getResponse();
 			$spread = (COption::GetOptionString("main", "auth_multisite", "N") == "Y"? (Main\Web\Cookie::SPREAD_SITES | Main\Web\Cookie::SPREAD_DOMAIN) : Main\Web\Cookie::SPREAD_DOMAIN);
@@ -3003,7 +3026,7 @@ class CAllUser extends CDBResult
 				and ((UG.DATE_ACTIVE_FROM IS NULL) OR (UG.DATE_ACTIVE_FROM <= ".$DB->CurrentTimeFunction()."))
 				and ((UG.DATE_ACTIVE_TO IS NULL) OR (UG.DATE_ACTIVE_TO >= ".$DB->CurrentTimeFunction()."))
 				and G.ACTIVE = 'Y'
-			UNION SELECT 2, 'everyone', NULL, NULL ".($DB->type == "ORACLE"? " FROM dual " : "");
+			UNION SELECT 2, 'everyone', NULL, NULL ";
 
 		$res = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 
@@ -3023,7 +3046,7 @@ class CAllUser extends CDBResult
 				b_user_group UG
 			WHERE
 				UG.USER_ID = ".intval($ID)."
-			UNION SELECT 2, NULL, NULL ".($DB->type == "ORACLE"? " FROM dual " : "");
+			UNION SELECT 2, NULL, NULL ";
 
 		$res = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 
@@ -3952,107 +3975,134 @@ class CAllUser extends CDBResult
 
 	public static function GetGroupPolicy($iUserId)
 	{
-		global $DB;
-		static $arPOLICY_CACHE;
-		if(!is_array($arPOLICY_CACHE))
-			$arPOLICY_CACHE = array();
+		global $DB, $CACHE_MANAGER, $BX_GROUP_POLICY;
+		static $arPOLICY_CACHE = array();
+
 		$CACHE_ID = md5(serialize($iUserId));
-		if(array_key_exists($CACHE_ID, $arPOLICY_CACHE))
+		if (array_key_exists($CACHE_ID, $arPOLICY_CACHE))
 			return $arPOLICY_CACHE[$CACHE_ID];
 
-		global $BX_GROUP_POLICY;
+		$arPolicies = array();
+
+		/* Group 2 managed cache */
+		$sql = "SELECT G.SECURITY_POLICY FROM b_group G WHERE G.ID=2";
+		if (CACHED_b_group === false)
+		{
+			$res = $DB->Query($sql);
+			$group2Policy = $res->Fetch();
+		}
+		elseif ($CACHE_MANAGER->Read(CACHED_b_group, "b_group2", "b_group"))
+		{
+			$group2Policy = $CACHE_MANAGER->Get("b_group2");
+		}
+		else
+		{
+			$rs = $DB->Query($sql);
+			$group2Policy = $rs->Fetch();
+			$CACHE_MANAGER->Set("b_group2", $group2Policy);
+		}
+
+		if ($group2Policy)
+		{
+			$arPolicies[] = $group2Policy;
+		}
+
+		if (is_array($iUserId))
+		{
+			$arGroups = array();
+			foreach ($iUserId as $value)
+			{
+				$value = intval($value);
+				if ($value > 0 && $value != 2)
+					$arGroups[$value] = $value;
+			}
+			if ($arGroups)
+			{
+				$sql =
+					"SELECT G.ID GROUP_ID, G.SECURITY_POLICY ".
+					"FROM b_group G ".
+					"WHERE G.ID in (".implode(", ", $arGroups).")"
+				;
+				$rs = $DB->Query($sql);
+				while ($ar = $rs->Fetch())
+				{
+					$arPolicies[] = $ar;
+				}
+			}
+		}
+		elseif (intval($iUserId) > 0)
+		{
+			$sql =
+				"SELECT UG.GROUP_ID, G.SECURITY_POLICY ".
+				"FROM b_user_group UG, b_group G ".
+				"WHERE UG.USER_ID = ".intval($iUserId)." ".
+				"AND UG.GROUP_ID = G.ID ".
+				"AND ((UG.DATE_ACTIVE_FROM IS NULL) OR (UG.DATE_ACTIVE_FROM <= ".$DB->CurrentTimeFunction().")) ".
+				"AND ((UG.DATE_ACTIVE_TO IS NULL) OR (UG.DATE_ACTIVE_TO >= ".$DB->CurrentTimeFunction().")) "
+			;
+			$rs = $DB->Query($sql);
+			while ($ar = $rs->Fetch())
+			{
+				$arPolicies[] = $ar;
+			}
+		}
+
 		$arPolicy = $BX_GROUP_POLICY;
 		if($arPolicy["SESSION_TIMEOUT"]<=0)
 			$arPolicy["SESSION_TIMEOUT"] = ini_get("session.gc_maxlifetime")/60;
 
-		$arSql = array();
-		$arSql[] =
-			"SELECT G.SECURITY_POLICY ".
-			"FROM b_group G ".
-			"WHERE G.ID=2";
-
-		if(is_array($iUserId))
+		foreach($arPolicies as $ar)
 		{
-			$arGroups = array();
-			foreach($iUserId as $value)
-			{
-				$value = intval($value);
-				if($value > 0 && $value != 2)
-					$arGroups[$value] = $value;
-			}
-			if(count($arGroups) > 0)
-			{
-				$arSql[] =
-					"SELECT G.ID GROUP_ID, G.SECURITY_POLICY ".
-					"FROM b_group G ".
-					"WHERE G.ID in (".implode(", ", $arGroups).")";
-			}
-		}
-		elseif(intval($iUserId) > 0)
-		{
-			$arSql[] =
-				"SELECT UG.GROUP_ID, G.SECURITY_POLICY ".
-				"FROM b_user_group UG, b_group G ".
-				"WHERE UG.USER_ID = ".intval($iUserId)." ".
-				"	AND UG.GROUP_ID = G.ID ".
-				"	AND ((UG.DATE_ACTIVE_FROM IS NULL) OR (UG.DATE_ACTIVE_FROM <= ".$DB->CurrentTimeFunction().")) ".
-				"	AND ((UG.DATE_ACTIVE_TO IS NULL) OR (UG.DATE_ACTIVE_TO >= ".$DB->CurrentTimeFunction().")) ";
-		}
+			if($ar["SECURITY_POLICY"])
+				$arGroupPolicy = unserialize($ar["SECURITY_POLICY"]);
+			else
+				continue;
 
-		foreach($arSql as $strSql)
-		{
-			$res = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
-			while($ar = $res->Fetch())
+			if(!is_array($arGroupPolicy))
+				continue;
+
+			foreach($arGroupPolicy as $key=>$val)
 			{
-				if($ar["SECURITY_POLICY"])
-					$arGroupPolicy = unserialize($ar["SECURITY_POLICY"]);
-				else
-					continue;
-
-				if(!is_array($arGroupPolicy))
-					continue;
-
-				foreach($arGroupPolicy as $key=>$val)
+				switch($key)
 				{
-					switch($key)
-					{
-					case "STORE_IP_MASK":
-					case "SESSION_IP_MASK":
-					case "BLOCK_TIME":
-					case "PASSWORD_UNIQUE_COUNT":
-						if($arPolicy[$key]<$val)
-							$arPolicy[$key] = $val;
-						break;
-					case "SESSION_TIMEOUT":
-						if($arPolicy[$key]<=0 || $arPolicy[$key]>$val)
-							$arPolicy[$key] = $val;
-						break;
-					case "PASSWORD_LENGTH":
-						if($arPolicy[$key]<=0 || $arPolicy[$key] < $val)
-							$arPolicy[$key] = $val;
-						break;
-					case "PASSWORD_UPPERCASE":
-					case "PASSWORD_LOWERCASE":
-					case "PASSWORD_DIGITS":
-					case "PASSWORD_PUNCTUATION":
-						if($val === "Y")
-							$arPolicy[$key] = "Y";
-						break;
-					case "LOGIN_ATTEMPTS":
-					case "BLOCK_LOGIN_ATTEMPTS":
-					case "PASSWORD_CHANGE_DAYS":
-						if($val > 0 && ($arPolicy[$key] <= 0 || $arPolicy[$key] > $val))
-							$arPolicy[$key] = $val;
-						break;
-					default:
-						if($arPolicy[$key]>$val)
-							$arPolicy[$key] = $val;
-					}
+				case "STORE_IP_MASK":
+				case "SESSION_IP_MASK":
+				case "BLOCK_TIME":
+				case "PASSWORD_UNIQUE_COUNT":
+					if($arPolicy[$key]<$val)
+						$arPolicy[$key] = $val;
+					break;
+				case "SESSION_TIMEOUT":
+					if($arPolicy[$key]<=0 || $arPolicy[$key]>$val)
+						$arPolicy[$key] = $val;
+					break;
+				case "PASSWORD_LENGTH":
+					if($arPolicy[$key]<=0 || $arPolicy[$key] < $val)
+						$arPolicy[$key] = $val;
+					break;
+				case "PASSWORD_UPPERCASE":
+				case "PASSWORD_LOWERCASE":
+				case "PASSWORD_DIGITS":
+				case "PASSWORD_PUNCTUATION":
+					if($val === "Y")
+						$arPolicy[$key] = "Y";
+					break;
+				case "LOGIN_ATTEMPTS":
+				case "BLOCK_LOGIN_ATTEMPTS":
+				case "PASSWORD_CHANGE_DAYS":
+					if($val > 0 && ($arPolicy[$key] <= 0 || $arPolicy[$key] > $val))
+						$arPolicy[$key] = $val;
+					break;
+				default:
+					if($arPolicy[$key]>$val)
+						$arPolicy[$key] = $val;
 				}
 			}
+
 			if($arPolicy["PASSWORD_LENGTH"] === false)
 				$arPolicy["PASSWORD_LENGTH"] = 6;
 		}
+
 		$ar = array(
 			GetMessage("MAIN_GP_PASSWORD_LENGTH", array("#LENGTH#" => intval($arPolicy["PASSWORD_LENGTH"])))
 		);
@@ -4449,7 +4499,7 @@ class CAllUser extends CDBResult
 			return false;
 
 		$strSqlPrefix = "UPDATE b_user SET ".
-			"TIMESTAMP_X = ".($DB->type == "ORACLE"? "NULL":"TIMESTAMP_X").", ".
+			"TIMESTAMP_X = TIMESTAMP_X, ".
 			"LAST_ACTIVITY_DATE = ".$DB->CurrentTimeFunction()." WHERE ID IN (";
 		$strSqlPostfix = ")";
 		$maxValuesLen = 2048;

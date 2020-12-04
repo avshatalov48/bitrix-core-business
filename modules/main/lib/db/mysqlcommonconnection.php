@@ -97,7 +97,7 @@ abstract class MysqlCommonConnection extends Connection
 		{
 			$this->connectInternal();
 
-			$sqlTableName = ($tableName{0} === '(')
+			$sqlTableName = ($tableName[0] === '(')
 				? $sqlTableName = $tableName.' AS xyz' // subquery
 				: $sqlTableName = $this->getSqlHelper()->quote($tableName); // regular table name
 

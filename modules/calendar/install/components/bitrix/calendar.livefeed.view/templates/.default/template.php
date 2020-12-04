@@ -22,8 +22,8 @@ $emptyAvatarSrc = "/bitrix/images/1.gif";
 				<?
 				if (
 					$event['DT_SKIP_TIME'] != 'Y' &&
-					(intVal($event['~USER_OFFSET_FROM']) != 0 ||
-					intVal($event['~USER_OFFSET_TO']) != 0 ||
+					(intval($event['~USER_OFFSET_FROM']) != 0 ||
+					intval($event['~USER_OFFSET_TO']) != 0 ||
 					$event['TZ_FROM'] != $event['TZ_TO'])
 				)
 				{

@@ -456,7 +456,7 @@ if (!empty($errors))
 										row.cells[0].style.textAlign = 'right';
 										row.cells[0].style.verticalAlign = 'middle';
 										row.cells[0].innerHTML = BX.Access.GetProviderName(provider) + ' ' +
-																	obSelected[provider][id].name + ':' +
+																	BX.util.htmlspecialchars(obSelected[provider][id].name) + ':' +
 																	'<input type="hidden" name="' + name + '[RIGHT_ID][]" value="">'+
 																	'<input type="hidden" name="' + name + '[ACCESS_CODE][]" value="' + id + '">';
 										row.cells[1].align = 'left';

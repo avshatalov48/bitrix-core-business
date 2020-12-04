@@ -1085,7 +1085,7 @@
 			this.dom.cont.style.top = startTop + 'px';
 			this.dom.cont.style.left = startLeft + 'px';
 
-			var content = this.GetContent();
+			var content = this.content;
 
 			this.expandAnimation = new BX.easing({
 				duration : 300,

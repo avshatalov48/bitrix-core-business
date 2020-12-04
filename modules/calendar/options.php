@@ -77,9 +77,9 @@ if ($REQUEST_METHOD == "POST" && isset($_REQUEST['save_type']) && $_REQUEST['sav
 	die();
 }
 
-if($REQUEST_METHOD=="POST" && strlen($Update.$Apply.$RestoreDefaults)>0 && check_bitrix_sessid())
+if($REQUEST_METHOD=="POST" && $Update.$Apply.$RestoreDefaults <> '' && check_bitrix_sessid())
 {
-	if(strlen($RestoreDefaults) > 0)
+	if($RestoreDefaults <> '')
 	{
 		COption::RemoveOption("calendar");
 	}
@@ -118,7 +118,7 @@ if($REQUEST_METHOD=="POST" && strlen($Update.$Apply.$RestoreDefaults)>0 && check
 			'pathes_for_sites' => isset($_REQUEST['pathes_for_sites']),
 			'pathes' => $_REQUEST['pathes'],
 			'dep_manager_sub' => isset($_REQUEST['dep_manager_sub']),
-			'forum_id' => intVal($_REQUEST['calendar_forum_id']),
+			'forum_id' => intval($_REQUEST['calendar_forum_id']),
 
 			'rm_iblock_type' => $_REQUEST['rm_iblock_type'],
 			'rm_iblock_id' => $_REQUEST['rm_iblock_id'],
@@ -156,7 +156,7 @@ if($REQUEST_METHOD=="POST" && strlen($Update.$Apply.$RestoreDefaults)>0 && check
 		CCalendar::SetSettings($SET);
 	}
 
-	if(strlen($Update)>0 && strlen($_REQUEST["back_url_settings"]) > 0)
+	if($Update <> '' && $_REQUEST["back_url_settings"] <> '')
 		LocalRedirect($_REQUEST["back_url_settings"]);
 	else
 		LocalRedirect($APPLICATION->GetCurPage()."?mid=".urlencode($mid)."&lang=".urlencode(LANGUAGE_ID)."&back_url_settings=".urlencode($_REQUEST["back_url_settings"])."&".$tabControl->ActiveTabParam());
@@ -329,10 +329,10 @@ BX.ready(function(){
 				if (!isset($val) || empty($val))
 					$val = $SET[$pathName];
 
-				$title = GetMessage("CAL_".strtoupper($pathName));
-				if($title == '' && substr($pathName, 0, strlen('path_to_type_')) == 'path_to_type_')
+				$title = GetMessage("CAL_".mb_strtoupper($pathName));
+				if($title == '' && mb_substr($pathName, 0, mb_strlen('path_to_type_')) == 'path_to_type_')
 				{
-					$typeXmlId = substr($pathName, strlen('path_to_type_'));
+					$typeXmlId = mb_substr($pathName, mb_strlen('path_to_type_'));
 					foreach($arTypes as $type)
 					{
 						if ($type['XML_ID'] == $typeXmlId)
@@ -364,10 +364,10 @@ BX.ready(function(){
 
 	foreach($arPathes as $pathName)
 	{
-		$title = GetMessage("CAL_".strtoupper($pathName));
-		if($title == '' && substr($pathName, 0, strlen('path_to_type_')) == 'path_to_type_')
+		$title = GetMessage("CAL_".mb_strtoupper($pathName));
+		if($title == '' && mb_substr($pathName, 0, mb_strlen('path_to_type_')) == 'path_to_type_')
 		{
-			$typeXmlId = substr($pathName, strlen('path_to_type_'));
+			$typeXmlId = mb_substr($pathName, mb_strlen('path_to_type_'));
 			foreach($arTypes as $type)
 			{
 				if ($type['XML_ID'] == $typeXmlId)
@@ -545,7 +545,7 @@ $GLOBALS['APPLICATION']->AddHeadScript("/bitrix/js/calendar/cal-controlls.js");
 <?$tabControl->Buttons();?>
 	<input type="submit" class="adm-btn-save" name="Update" value="<?=GetMessage("MAIN_SAVE")?>" title="<?=GetMessage("MAIN_OPT_SAVE_TITLE")?>" />
 	<input type="submit" name="Apply" value="<?=GetMessage("MAIN_APPLY")?>" title="<?=GetMessage("MAIN_OPT_APPLY_TITLE")?>">
-	<?if(strlen($_REQUEST["back_url_settings"])>0):?>
+	<?if($_REQUEST["back_url_settings"] <> ''):?>
 		<input type="button" name="Cancel" value="<?=GetMessage("MAIN_OPT_CANCEL")?>" title="<?=GetMessage("MAIN_OPT_CANCEL_TITLE")?>" onclick="window.location='<?= htmlspecialcharsbx(CUtil::addslashes($_REQUEST["back_url_settings"]))?>'">
 		<input type="hidden" name="back_url_settings" value="<?=htmlspecialcharsbx($_REQUEST["back_url_settings"])?>">
 	<?endif?>
@@ -722,7 +722,7 @@ function OutputTypeHtml($type)
 			<a href="javascript:void(0);" onclick="delType('<?= $XML_ID?>'); return false;"><?= GetMessage('CAL_DELETE')?></a>
 			<a href="javascript:void(0);" onclick="addType(<?= htmlspecialcharsbx(CUtil::PhpToJsObject($type))?>); return false;"><?= GetMessage('CAL_CHANGE')?></a>
 		</div>
-		<? if(strlen($type['DESCRIPTION']) > 0):?>
+		<? if($type['DESCRIPTION'] <> ''):?>
 			<span class="bxcopt-type-desc"><?= htmlspecialcharsbx($type['DESCRIPTION'])?></span>
 		<? endif;?>
 		<div class="bxcopt-type-access-cont">

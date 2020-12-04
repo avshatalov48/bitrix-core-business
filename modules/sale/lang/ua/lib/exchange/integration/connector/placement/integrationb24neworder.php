@@ -1,0 +1,4 @@
+<?
+$MESS["SALE_INTEGRATIONB24_NEWORDER_GROUPNAME"] = "Інтеграція з БУС";
+$MESS["SALE_INTEGRATIONB24_NEWORDER_TITLE"] = "Нове замовлення";
+?>

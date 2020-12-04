@@ -595,7 +595,7 @@ do{ //one iteration loop
 		{
 			if(!is_array($PROP))
 				$PROP = array();
-			CAllFile::ConvertFilesToPost($_FILES["PROP"], $PROP);
+			CFile::ConvertFilesToPost($_FILES["PROP"], $PROP);
 		}
 
 		foreach($arFileProps as $k1)
@@ -1265,7 +1265,7 @@ do{ //one iteration loop
 						{
 							?><script type="text/javascript">
 							var currentWindow = top.window;
-							if (top.BX.SidePanel.Instance && top.BX.SidePanel.Instance.getTopSlider())
+							if (top.BX.SidePanel && top.BX.SidePanel.Instance && top.BX.SidePanel.Instance.getTopSlider())
 							{
 								currentWindow = top.BX.SidePanel.Instance.getTopSlider().getWindow();
 							}
@@ -1402,7 +1402,7 @@ do{ //one iteration loop
 				{
 					echo '<script type="text/javascript">
 						var currentWindow = top.window;
-						if (top.BX.SidePanel.Instance && top.BX.SidePanel.Instance.getTopSlider())
+						if (top.BX.SidePanel && top.BX.SidePanel.Instance && top.BX.SidePanel.Instance.getTopSlider())
 						{
 							currentWindow = top.BX.SidePanel.Instance.getTopSlider().getWindow();
 						}

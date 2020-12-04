@@ -186,7 +186,7 @@ if ($arBasket = $dbBasket->Fetch())
 
 		$productName = $arBasket["NAME"];
 		if ($productName == "OrderDelivery")
-			$productName = "Envío";
+			$productName = "Env?o";
 		else if ($productName == "OrderDiscount")
 			$productName = "Descuento";
 
@@ -223,7 +223,7 @@ if ($arBasket = $dbBasket->Fetch())
 	{
 		$arDelivery_tmp = CSaleDelivery::GetByID($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["DELIVERY_ID"]);
 
-		$sDeliveryItem = "Envío";
+		$sDeliveryItem = "Env?o";
 		if ($arDelivery_tmp["NAME"] <> '')
 			$sDeliveryItem .= sprintf(" (%s)", $arDelivery_tmp["NAME"]);
 		$arCells[++$n] = array(
@@ -399,7 +399,7 @@ if ($arBasket = $dbBasket->Fetch())
 <table class="it" width="100%">
 	<tr>
 		<td><nobr>#</nobr></td>
-		<td><nobr>Artículo / Descripción</nobr></td>
+		<td><nobr>Art?culo / Descripci?n</nobr></td>
 		<td><nobr>Cant</nobr></td>
 		<td><nobr>Unidades</nobr></td>
 		<td><nobr>Precio unitario</nobr></td>
@@ -465,7 +465,7 @@ for ($n = 1; $n <= $rowsCnt; $n++)
 <br>
 
 <? if (CSalePaySystemAction::GetParamValue("COMMENT1", false) || CSalePaySystemAction::GetParamValue("COMMENT2", false)) { ?>
-<b>Términos y Condiciones</b>
+<b>T?rminos y Condiciones</b>
 <br>
 	<? if (CSalePaySystemAction::GetParamValue("COMMENT1", false)) { ?>
 	<?=nl2br(HTMLToTxt(preg_replace(
@@ -515,7 +515,7 @@ for ($n = 1; $n <= $rowsCnt; $n++)
 			<? $bankPhone = CSalePaySystemAction::GetParamValue("SELLER_BANK_PHONE", false); ?>
 
 			<? if ($bank || $bankAddr || $bankPhone) { ?>
-				Nombre y dirección del banco: <? if ($bank) { ?><?=$bank; ?><? } ?>
+				Nombre y direcci?n del banco: <? if ($bank) { ?><?=$bank; ?><? } ?>
 				<br>
 
 				<? if ($bankAddr) { ?>
@@ -529,7 +529,7 @@ for ($n = 1; $n <= $rowsCnt; $n++)
 				<? } ?>
 			<? } ?>
 
-			Número de enrutamiento del banco: <?=$bankRouteNo; ?>
+			N?mero de enrutamiento del banco: <?=$bankRouteNo; ?>
 			<br>
 
 			SWIFT del banco: <?=$bankSwift; ?>

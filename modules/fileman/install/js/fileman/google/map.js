@@ -154,17 +154,19 @@
 		}
 		else
 		{
-			if(BX.type.isDomNode(content))
-			{
-				BX.cleanNode(this.infoWindowContent);
-				this.infoWindowContent.appendChild(content);
-			}
-			else
-			{
-				BX.adjust(this.infoWindowContent, {
-					text: content
-				});
-			}
+			setTimeout(function(){
+				if(BX.type.isDomNode(content))
+				{
+					BX.cleanNode(this.infoWindowContent);
+					this.infoWindowContent.appendChild(content);
+				}
+				else
+					{
+						BX.adjust(this.infoWindowContent, {
+							text: content
+						});
+					}
+			}.bind(this));
 		}
 
 		this.infoWindow.open(this.map.getGoogleMap(), this.marker);

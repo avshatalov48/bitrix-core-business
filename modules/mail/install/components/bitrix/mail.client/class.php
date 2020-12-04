@@ -1,18 +1,23 @@
 <?php
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
 Loc::loadMessages(__FILE__);
-
-\Bitrix\Main\Loader::includeModule('mail');
 
 class CMailClientComponent extends CBitrixComponent
 {
 
 	public function executeComponent()
 	{
+		if (!Main\Loader::includeModule('mail'))
+		{
+			ShowError(Loc::getMessage('MAIL_MODULE_NOT_INSTALLED'));
+			return;
+		}
+
 		global $USER, $APPLICATION;
 
 		$userPage = \Bitrix\Main\Config\Option::get('socialnetwork', 'user_page', '/company/personal/', SITE_ID);

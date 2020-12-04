@@ -60,6 +60,7 @@ class Manager
 		if(self::$availableComponents == null)
 		{
 			self::$availableComponents = [];
+			$rawComponentList = [];
 			$workspaces = self::getWorkspaces();
 			foreach ($workspaces as $path)
 			{
@@ -81,23 +82,20 @@ class Manager
 						{
 							$component = new Component($item->getPath());
 							$name = $item->getName();
-							if($namespace == "bitrix")
-							{
-								self::$availableComponents[$name] =$component->getInfo();
-							}
-							else
-							{
-								self::$availableComponents[$namespace . ':' . $name] = $component->getInfo();
-							}
+							$name = ($namespace == "bitrix" ? $name : $namespace . ':' . $name);
+							$rawComponentList[$name] = $component;
 						}
 						catch (\Exception $e)
 						{
 
 						}
-
 					}
 				}
 			}
+
+			self::$availableComponents = array_map(function($component) {
+				return $component->getInfo();
+			}, $rawComponentList);
 
 		}
 
@@ -201,35 +199,16 @@ class Manager
 	 */
 	public static function getComponentByName($name)
 	{
-		$workspaces = self::getWorkspaces();
-		foreach ($workspaces as $path)
+		$components = self::fetchComponents();
+		if (array_key_exists($name, $components))
 		{
-			$componentDir = new Directory(Application::getDocumentRoot() . $path . "/components/");
-			if(!$componentDir->isExists())
-				continue;
-
-			$namespaces = $componentDir->getChildren();
-			foreach ($namespaces as $NSDir)
+			try
 			{
-				if (!$NSDir->isDirectory())
-					continue;
-
-				$namespaceItems = $NSDir->getChildren();
-				$namespace = $NSDir->getName();
-				foreach ($namespaceItems as $item)
-				{
-					try
-					{
-						if($name === $item->getName() || $namespace . ':' . $name === $item->getName())
-						{
-							return new Component($item->getPath());
-						}
-					}
-					catch (\Exception $e)
-					{
-						$a = $e;
-					}
-				}
+				return new Component(Application::getDocumentRoot().$components[$name]["path"]);
+			}
+			catch (\Exception $e)
+			{
+				//do nothing
 			}
 		}
 

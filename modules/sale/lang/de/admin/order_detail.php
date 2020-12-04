@@ -188,11 +188,11 @@ $MESS["SALE_F_BASKET_DISCOUNT_COUPON"] = "Rabattgutschein";
 $MESS["SOD_ORDER_ID"] = "ID";
 $MESS["SOD_ORDER_DATE_CREATE"] = "Bestellt am";
 $MESS["SOD_CANCEL_N"] = "Stornierung der Bestellung aufheben...";
-$MESS["SOD_CANCEL_Y"] = "Bestellung stornieren";
+$MESS["SOD_CANCEL_Y"] = "Bestellung stornieren...";
 $MESS["SOD_PAYED_N"] = "Bezahlung der Bestellung stornieren";
-$MESS["SOD_PAYED_Y"] = "Bezahlen";
+$MESS["SOD_PAYED_Y"] = "Bezahlen...";
 $MESS["SOD_ALLOW_DELIVERY_N"] = "Versand verweigern...";
-$MESS["SOD_ALLOW_DELIVERY_Y"] = "Versand freigegeben";
+$MESS["SOD_ALLOW_DELIVERY_Y"] = "Versand freigegeben...";
 $MESS["SOD_COMMENTS_N"] = "Kommentar bearbeiten...";
 $MESS["SOD_COMMENTS_Y"] = "Kommentar hinzufügen...";
 $MESS["SOD_OK_OK"] = "Die Bestellung wurde erfolgreich geändert";

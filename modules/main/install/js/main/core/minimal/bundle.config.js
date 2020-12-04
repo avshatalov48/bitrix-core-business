@@ -4,5 +4,12 @@ module.exports = {
 	namespace: 'BX',
 	namespaceFunction: null,
 	adjustConfigPhp: false,
-	protected: true,
+	concat: {
+		js: [
+			'../src/internal/wrap-start.js',
+			'../../polyfill/core/dist/polyfill.bundle.js',
+			'./dist/main.core.minimal.bundle.js',
+			'../src/internal/wrap-end.js',
+		],
+	},
 };

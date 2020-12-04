@@ -1591,7 +1591,7 @@ class CMainUIGrid extends CBitrixComponent
 	 */
 	protected function prepareAlign($headerItem)
 	{
-		return "left";
+		return $headerItem['align'] ?? "left";
 	}
 
 

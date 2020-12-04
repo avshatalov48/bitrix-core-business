@@ -74,7 +74,8 @@ class Router
 			if ($matchResult = $route->match($path))
 			{
 				// check method
-				if (!in_array($request->getRequestMethod(), $route->getOptions()->getMethods(), true))
+				if (!empty($route->getOptions()->getMethods())
+					&& !in_array($request->getRequestMethod(), $route->getOptions()->getMethods(), true))
 				{
 					continue;
 				}

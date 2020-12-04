@@ -1,6 +1,7 @@
 import {Type, Loc, Dom, Tag} from "main.core";
 import "ui.notification";
 import "../../../../../../main/install/js/main/date/main.date";
+import {PopupManager} from 'main.popup';
 
 export class Util
 {
@@ -199,14 +200,15 @@ export class Util
 		return BX.date.format(Util.getDateTimeFormat(), timestamp / 1000);
 	}
 
-	static formatDateUsable(date, showYear)
+	static formatDateUsable(date, showYear = true, showDayOfWeek = false)
 	{
 		let
 			lang = Loc.getMessage('LANGUAGE_ID'),
 			format = Util.getDateFormat();
 		if (lang === 'ru' || lang  === 'ua')
 		{
-			format = 'j F';
+			format = showDayOfWeek ? 'l, j F' : 'j F';
+
 			if (date.getFullYear
 				&& date.getFullYear() !== new Date().getFullYear()
 				&& showYear !== false
@@ -512,17 +514,13 @@ export class Util
 
 	static closeAllPopups()
 	{
-		if (BX.PopupMenu && BX.PopupMenu.Data)
+		if (PopupManager.isAnyPopupShown())
 		{
-			for(let id in BX.PopupMenu.Data)
+			for (let i = 0, length = PopupManager._popups.length; i < length; i++)
 			{
-				if (BX.PopupMenu.Data.hasOwnProperty(id)
-					&& BX.type.isObject(BX.PopupMenu.Data[id])
-					&& BX.PopupMenu.Data[id].popupWindow
-					&& BX.PopupMenu.Data[id].popupWindow.isShown()
-				)
+				if (PopupManager._popups[i].isShown())
 				{
-					BX.PopupMenu.Data[id].popupWindow.close();
+					PopupManager._popups[i].close();
 				}
 			}
 		}
@@ -531,5 +529,71 @@ export class Util
 	static sendAnalyticLabel(label)
 	{
 		BX.ajax.runAction('calendar.api.calendarajax.sendAnalyticsLabel', {analyticsLabel: label});
+	}
+
+	static setOptions(config, additionalParams)
+	{
+		Util.config = config;
+		Util.additionalParams = additionalParams;
+	}
+
+	static setUserSettings(userSettings)
+	{
+		Util.userSettings = userSettings;
+	}
+
+	static getUserSettings()
+	{
+		return Util.userSettings || {};
+	}
+
+	static setCalendarContext(calendarContext)
+	{
+		Util.calendarContext = calendarContext;
+	}
+
+	static getCalendarContext()
+	{
+		return Util.calendarContext || null;
+	}
+
+	static getMeetingStatusList()
+	{
+		return ['Y', 'N', 'Q', 'H'];
+	}
+
+	static checkEmailLimitationPopup()
+	{
+		const emailGuestAmount = Util.getEventWithEmailGuestAmount();
+		const emailGuestLimit = Util.getEventWithEmailGuestLimit();
+		return emailGuestLimit > 0
+			&& (emailGuestAmount === 8
+			|| emailGuestAmount === 4
+			|| emailGuestAmount >= emailGuestLimit);
+	}
+
+	static isEventWithEmailGuestAllowed()
+	{
+		return Util.getEventWithEmailGuestLimit() === -1
+			|| Util.getEventWithEmailGuestAmount() < Util.getEventWithEmailGuestLimit();
+	}
+
+	static setEventWithEmailGuestAmount(value)
+	{
+		Util.countEventWithEmailGuestAmount = value;
+	}
+	static setEventWithEmailGuestLimit(value)
+	{
+		Util.eventWithEmailGuestLimit = value;
+	}
+
+	static getEventWithEmailGuestAmount()
+	{
+		return Util.countEventWithEmailGuestAmount;
+	}
+
+	static getEventWithEmailGuestLimit()
+	{
+		return Util.eventWithEmailGuestLimit;
 	}
 }

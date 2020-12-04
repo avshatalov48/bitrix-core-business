@@ -2,16 +2,21 @@ import {Entry} from "calendar.entry";
 import {CalendarSectionManager} from "calendar.calendarsection";
 import {Util} from "calendar.util";
 import {Loc, Type, Event} from "main.core";
-import {ConfirmStatusDialog, ConfirmEditDialog} from "calendar.controls";
+import {EventEmitter} from 'main.core.events';
+import {ConfirmStatusDialog, ConfirmEditDialog, ReinviteUserDialog, ConfirmedEmailDialog, EmailLimitationDialog} from "calendar.controls";
 import {CompactEventForm} from "calendar.compacteventform";
+
 
 export class EntryManager {
 	static newEntryName = '';
+	static userIndex = {};
 
 	static getNewEntry(options)
 	{
-		let newEntryData = {};
-		let dateTime = EntryManager.getNewEntryTime(new Date());
+		const newEntryData = {};
+		const dateTime = EntryManager.getNewEntryTime(new Date());
+		const userSettings = Util.getUserSettings();
+		const userId = Util.getCurrentUserId();
 
 		newEntryData.ID = null;
 		newEntryData.NAME = EntryManager.getNewEntryName();
@@ -19,8 +24,25 @@ export class EntryManager {
 		newEntryData.dateTo = dateTime.to;
 		newEntryData.SECT_ID = CalendarSectionManager.getNewEntrySectionId();
 		newEntryData.REMIND = [{type: 'min', count: 15}];
-		newEntryData.ATTENDEES_CODES = ['U' + Util.getCurrentUserId()];
-		//newEntryData.TIMEZONE_FROM = userSettings.timezoneName || userSettings.timezoneDefaultName || null;
+
+		newEntryData.attendeesEntityList = [{entityId: 'user', id: userId}];
+		newEntryData.ATTENDEE_LIST = [{id: Util.getCurrentUserId(), status: "H"}];
+
+		if (options.type === 'user' && userId !== options.ownerId)
+		{
+			newEntryData.attendeesEntityList.push({entityId: 'user', id: options.ownerId});
+			newEntryData.ATTENDEE_LIST = [
+				{id: options.ownerId, status: "H"},
+				{id: Util.getCurrentUserId(), status: "Y"}
+			];
+		}
+		else if (options.type === 'group')
+		{
+			newEntryData.attendeesEntityList.push({entityId: 'project', id: options.ownerId});
+		}
+
+		newEntryData.TZ_FROM = userSettings.timezoneName || userSettings.timezoneDefaultName || '';
+		newEntryData.TZ_TO = userSettings.timezoneName || userSettings.timezoneDefaultName || '';
 
 		return new Entry({data: newEntryData});
 	}
@@ -90,7 +112,8 @@ export class EntryManager {
 					entry: options.entry || null,
 					type: options.type,
 					ownerId: options.ownerId,
-					userId: options.userId
+					userId: options.userId,
+					formDataValue: options.formDataValue || null
 				}
 			).show();
 		}
@@ -115,14 +138,22 @@ export class EntryManager {
 	{
 		if (entry instanceof Entry)
 		{
-			BX.addCustomEvent('BX.Calendar.Entry:beforeDelete', ()=>{
+			EventEmitter.subscribe('BX.Calendar.Entry:beforeDelete', ()=>{
 				if (Util.getBX().SidePanel.Instance)
 				{
 					Util.getBX().SidePanel.Instance.close();
 				}
 			});
-			BX.addCustomEvent('BX.Calendar.Entry:delete', ()=>{
-				Util.getBX().reload();
+			EventEmitter.subscribe('BX.Calendar.Entry:delete', (optins = {})=> {
+				const calendar = Util.getCalendarContext();
+				if (calendar)
+				{
+					calendar.reload();
+				}
+				else
+				{
+					Util.getBX().reload();
+				}
 			});
 			entry.delete();
 		}
@@ -130,49 +161,62 @@ export class EntryManager {
 
 	static setMeetingStatus(entry, status, params = {})
 	{
-		if (!Type.isPlainObject(params))
-		{
-			params = {};
-		}
-		params.recursionMode = params.recursionMode || false;
+		return new Promise(resolve => {
+			if (!Type.isPlainObject(params))
+			{
+				params = {};
+			}
+			params.recursionMode = params.recursionMode || false;
 
-		if (status === 'N' && !params.confirmed)
-		{
-			if (entry.isRecursive())
+			if (status === 'N' && !params.confirmed)
 			{
-				this.showConfirmStatusDialog(entry);
-				return false;
+				if (entry.isRecursive())
+				{
+					this.showConfirmStatusDialog(entry);
+					return false;
+				}
+				else if (!confirm(Loc.getMessage('EC_DECLINE_MEETING_CONFIRM')))
+				{
+					return false;
+				}
 			}
-			else if (!confirm(Loc.getMessage('EC_DECLINE_MEETING_CONFIRM')))
-			{
-				return false;
-			}
-		}
 
-		BX.ajax.runAction('calendar.api.calendarajax.setMeetingStatus', {
-			data: {
-				entryId: entry.id,
-				entryParentId: entry.parentId,
-				status: status,
-				recursionMode: params.recursionMode,
-				currentDateDrom: Util.formatDate(entry.from)
-			}
-		}).then(
-			function (response)
-			{
-				BX.Event.EventEmitter.emit(
-					'BX.Calendar.Entry:onChangeMeetingStatus',
-					new Event.BaseEvent({
-						data: {
-							entry: entry,
-							status: status,
-							recursionMode: params.recursionMode,
-							currentDateDrom: entry.from
-						}
-					})
-				);
-			}.bind(this)
-		);
+			BX.ajax.runAction('calendar.api.calendarajax.setMeetingStatus', {
+				data: {
+					entryId: entry.id,
+					entryParentId: entry.parentId,
+					status: status,
+					recursionMode: params.recursionMode,
+					currentDateDrom: Util.formatDate(entry.from)
+				}
+			}).then(
+				(response) => {
+					BX.Event.EventEmitter.emit(
+						'BX.Calendar.Entry:onChangeMeetingStatus',
+						new Event.BaseEvent({
+							data: {
+								entry: entry,
+								status: status,
+								recursionMode: params.recursionMode,
+								currentDateDrom: entry.from
+							}
+						})
+					);
+
+					if (entry instanceof Entry)
+					{
+						entry.setCurrentStatus(status);
+					}
+
+					resolve({
+						entry: entry,
+						status: status,
+						recursionMode: params.recursionMode,
+						currentDateDrom: entry.from
+					});
+				}
+			);
+		});
 	}
 
 	static showConfirmStatusDialog(entry)
@@ -218,26 +262,99 @@ export class EntryManager {
 		}
 	}
 
-	static getCompactViewForm()
+	static showReInviteUsersDialog(options)
 	{
-		if (!EntryManager.compactEntryForm)
+		if (!this.reinviteUsersDialog)
+		{
+			this.reinviteUsersDialog = new ReinviteUserDialog();
+		}
+		this.reinviteUsersDialog.show();
+
+		if (Type.isFunction(options.callback))
+		{
+			this.reinviteUsersDialog.unsubscribeAll('onSelect');
+			this.reinviteUsersDialog.subscribe('onSelect', function(event)
+			{
+				if (event instanceof Event.BaseEvent)
+				{
+					options.callback(event.getData());
+				}
+			});
+		}
+	}
+
+	static showConfirmedEmailDialog(options = {})
+	{
+		if (!this.confirmedEmailDialog)
+		{
+			this.confirmedEmailDialog = new ConfirmedEmailDialog();
+		}
+		this.confirmedEmailDialog.show();
+
+		if (Type.isFunction(options.callback))
+		{
+			this.confirmedEmailDialog.unsubscribeAll('onSelect');
+			this.confirmedEmailDialog.subscribe('onSelect', function(event)
+			{
+				if (event instanceof Event.BaseEvent)
+				{
+					options.callback(event.getData());
+				}
+			});
+		}
+	}
+
+	static showEmailLimitationDialog(options = {})
+	{
+		const confirmedEmailDialog = new EmailLimitationDialog();
+		confirmedEmailDialog.subscribe('onClose', ()=>{
+			if (Type.isFunction(options.callback))
+			{
+				options.callback();
+			}
+		});
+		confirmedEmailDialog.show();
+	}
+
+	static getCompactViewForm(create = true)
+	{
+		if (!EntryManager.compactEntryForm && create)
 		{
 			EntryManager.compactEntryForm = new CompactEventForm();
 		}
+
 		return EntryManager.compactEntryForm;
 	}
 
 	static openCompactViewForm(options = {})
 	{
-		EntryManager.getCompactViewForm().showInViewMode(options);
+		const compactForm = EntryManager.getCompactViewForm();
+		if (!compactForm.isShown())
+		{
+			compactForm.unsubscribeAll('onClose');
+			if (Type.isFunction(options.closeCallback))
+			{
+				compactForm.subscribe('onClose', options.closeCallback);
+			}
+			compactForm.showInViewMode(options);
+		}
 	}
 
 	static openCompactEditForm(options = {})
 	{
-		EntryManager.getCompactViewForm().showInEditMode(options);
+		const compactForm = EntryManager.getCompactViewForm();
+		if (!compactForm.isShown())
+		{
+			compactForm.unsubscribeAll('onClose');
+			if (Type.isFunction(options.closeCallback))
+			{
+				compactForm.subscribe('onClose', options.closeCallback);
+			}
+			compactForm.showInEditMode(options);
+		}
 	}
 
-	static getEntryInstance(entry, userIndex)
+	static getEntryInstance(entry, userIndex, options = {})
 	{
 		let entryInstance = null;
 		if (entry instanceof Entry)
@@ -256,10 +373,44 @@ export class EntryManager {
 			}
 			else
 			{
-				entryInstance = EntryManager.getNewEntry();
+				entryInstance = EntryManager.getNewEntry(options);
 			}
 		}
 
 		return entryInstance;
+	}
+
+	static getUserIndex(options = {})
+	{
+		return EntryManager.userIndex
+	}
+
+	static setUserIndex(userIndex)
+	{
+		EntryManager.userIndex = userIndex;
+	}
+
+
+	static openChatForEntry({entryId, entry})
+	{
+		if (window.BXIM && entry && entry.data.MEETING && parseInt(entry.data.MEETING.CHAT_ID))
+		{
+			BXIM.openMessenger('chat' + parseInt(entry.data.MEETING.CHAT_ID));
+		}
+		else
+		{
+			BX.ajax.runAction('calendar.api.calendarajax.createEventChat', {
+				data: {
+					entryId: entryId
+				}
+			})
+			.then((response) => {
+					if (window.BXIM && response.data && response.data.chatId > 0)
+					{
+						BXIM.openMessenger('chat' + response.data.chatId);
+					}
+				}
+			);
+		}
 	}
 }

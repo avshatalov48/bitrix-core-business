@@ -126,6 +126,8 @@ $APPLICATION->IncludeComponent(
 	'bitrix:main.ui.grid',
 	'',
 	[
+		'NAV_OBJECT' => $arResult['NAV_OBJECT'],
+		'~NAV_PARAMS' => ['SHOW_ALWAYS' => false],
 		'AJAX_MODE' => 'Y',
 		'AJAX_OPTION_HISTORY' => 'N',
 		'AJAX_OPTION_JUMP' => 'N',

@@ -1,6 +1,9 @@
 import {Util} from "calendar.util";
+import {Type} from 'main.core';
 
 export class TimeSelector {
+	Z_INDEX = 4000;
+	MIN_WIDTH = 102;
 	static valueList = null;
 
 	constructor(params)
@@ -10,8 +13,7 @@ export class TimeSelector {
 			input: params.input
 		};
 
-		this.onChangeCallback = BX.type.isFunction(params.onChangeCallback) ? params.onChangeCallback : null;
-
+		this.onChangeCallback = Type.isFunction(params.onChangeCallback) ? params.onChangeCallback : null;
 		this.create();
 	}
 
@@ -19,15 +21,15 @@ export class TimeSelector {
 	{
 		this.selectContol = new BX.Calendar.Controls.SelectInput({
 			input: this.DOM.input,
-			zIndex: 4000,
+			zIndex: this.Z_INDEX,
 			values: TimeSelector.getValueList(),
-			onChangeCallback: function()
-			{
+			minWidth: this.MIN_WIDTH,
+			onChangeCallback: () => {
 				if (this.onChangeCallback)
 				{
 					this.onChangeCallback(this.selectContol.getInputValue());
 				}
-			}.bind(this)
+			}
 		});
 	}
 
@@ -74,7 +76,7 @@ export class TimeSelector {
 	setValue(value)
 	{
 		let time;
-		if (BX.type.isDate(value))
+		if (Type.isDate(value))
 		{
 			time = {
 				h: value.getHours(),
@@ -86,7 +88,7 @@ export class TimeSelector {
 			time = Util.parseTime(value);
 		}
 
-		let adaptedValue = TimeSelector.adaptTimeValue(time);
+		const adaptedValue = TimeSelector.adaptTimeValue(time);
 
 		this.selectContol.setValue({value: adaptedValue.value});
 

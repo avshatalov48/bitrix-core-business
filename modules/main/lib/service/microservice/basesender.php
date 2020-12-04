@@ -41,25 +41,36 @@ abstract class BaseSender
 		$request["SERVER_NAME"] = Client::getServerName();
 		$request["BX_HASH"] = Client::signRequest($request);
 
-		$queryResult = $httpClient->query(HttpClient::HTTP_POST, $url, $request);
+		$result = $httpClient->query(HttpClient::HTTP_POST, $url, $request);
+
+		return $this->createAnswer(
+			$result,
+			$httpClient->getResult(),
+			$httpClient->getError(),
+			$httpClient->getStatus()
+		);
+	}
+
+	protected function createAnswer($queryResult, $response, $errors, $status)
+	{
+		$result = new Result();
 
 		if(!$queryResult)
 		{
-			$errors = $httpClient->getError();
 			foreach ($errors as $code => $message)
 			{
 				$result->addError(new Error($message, $code));
 			}
-			return $result;
-		}
-		$returnCode = $httpClient->getStatus();
-		if($returnCode != 200)
-		{
-			$result->addError(new Error("Server returned " . $returnCode . " code", "WRONG_SERVER_RESPONSE"));
+
 			return $result;
 		}
 
-		$response = $httpClient->getResult();
+		if($status != 200)
+		{
+			$result->addError(new Error("Server returned " . $status . " code", "WRONG_SERVER_RESPONSE"));
+			return $result;
+		}
+
 		if($response == "")
 		{
 			$result->addError(new Error("Empty server response", "EMPTY_SERVER_RESPONSE"));

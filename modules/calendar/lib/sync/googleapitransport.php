@@ -12,7 +12,7 @@ use Bitrix\Main\Web;
  *
  * @package Bitrix\Calendar\Sync
  */
-final class GoogleApiTransport //implements IErrorable
+final class GoogleApiTransport
 {
 	const API_BASE_URL = "https://www.googleapis.com/calendar/v3/";
 	private $client;
@@ -108,9 +108,9 @@ final class GoogleApiTransport //implements IErrorable
 	 */
 	private function doRequest($type, $url, $requestParams = '')
 	{
-		$this->errors = $response = array();
+		$this->errors = $response = [];
 
-		if (!in_array($type, array(Web\HttpClient::HTTP_PATCH, Web\HttpClient::HTTP_PUT, Web\HttpClient::HTTP_DELETE, Web\HttpClient::HTTP_GET, Web\HttpClient::HTTP_POST)))
+		if (!in_array($type, [Web\HttpClient::HTTP_PATCH, Web\HttpClient::HTTP_PUT, Web\HttpClient::HTTP_DELETE, Web\HttpClient::HTTP_GET, Web\HttpClient::HTTP_POST]))
 		{
 			throw new ArgumentException('Bad request type');
 		}
@@ -136,13 +136,13 @@ final class GoogleApiTransport //implements IErrorable
 			try
 			{
 				$error = Web\Json::decode($this->client->getResult());
-				$this->errors[] = array("code" => "CONNECTION", "message" => "[" . $error['error']['code'] . "] " . $error['error']['message']);
+				$this->errors[] = ["code" => "CONNECTION", "message" => "[" . $error['error']['code'] . "] " . $error['error']['message']];
 			}
 			catch (\Bitrix\Main\ArgumentException $exception)
 			{
 				foreach($this->client->getError() as $code => $error)
 				{
-					$this->errors[] = array("code" => $code, "message" => $error);
+					$this->errors[] = ["code" => $code, "message" => $error];
 				}
 			}
 		}
@@ -449,10 +449,10 @@ final class GoogleApiTransport //implements IErrorable
 					$data['status'] = intval($find[1]);
 				}
 			}
-			elseif(strpos($header, ':') !== false)
+			elseif(mb_strpos($header, ':') !== false)
 			{
 				list($headerName, $headerValue) = explode(':', $header, 2);
-				if(strtolower($headerName) == 'etag')
+				if(mb_strtolower($headerName) == 'etag')
 				{
 					$data['etag'] = trim($headerValue);
 				}
@@ -466,10 +466,10 @@ final class GoogleApiTransport //implements IErrorable
 	{
 		foreach (explode("\n", $headers) as $k => $header)
 		{
-			if(strpos($header, ':') !== false)
+			if(mb_strpos($header, ':') !== false)
 			{
 				list($headerName, $headerValue) = explode(':', $header, 2);
-				if(strtolower($headerName) == 'content-id')
+				if(mb_strtolower($headerName) == 'content-id')
 				{
 					$part = explode(':', $headerValue);
 					$id = rtrim($part[1], ">");

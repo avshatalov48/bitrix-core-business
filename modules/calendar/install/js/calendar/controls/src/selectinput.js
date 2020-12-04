@@ -13,6 +13,7 @@ export class SelectInput
 		this.onChangeCallback = params.onChangeCallback || null;
 		this.zIndex = params.zIndex || 1200;
 		this.disabled = params.disabled;
+		this.minWidth = params.minWidth || 0;
 
 		this.setValue({
 			value: params.value,
@@ -110,7 +111,8 @@ export class SelectInput
 				offsetLeft: -1
 			}
 		);
-		this.popupMenu.popupWindow.setWidth(this.input.offsetWidth + 2);
+
+		this.popupMenu.popupWindow.setWidth(Math.max(this.input.offsetWidth + 2, this.minWidth));
 
 		let menuContainer = this.popupMenu.layout.menuContainer;
 		BX.addClass(this.popupMenu.layout.menuContainer, 'calendar-select-popup');

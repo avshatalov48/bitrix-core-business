@@ -6,6 +6,11 @@
 * @copyright 2001-2013 Bitrix
 */
 
+/**
+ * Class CSecuritySessionVirtual
+ * @deprecated
+ * @see \Bitrix\Main\Session\Handlers\NullSessionHandler
+ */
 class CSecuritySessionVirtual
 {
 	/**

@@ -222,13 +222,13 @@ if (Loader::includeModule('replica'))
 
 				$this->fileHandler->replaceGuidsWithFiles($newRecord);
 
-				$fixed = preg_replace("/\\[USER=[0-9]+\\](.*?)\\[\\/USER\\]/", "\\1", $newRecord["POST_MESSAGE"]);
+				$fixed = $this->clearUserBbCodes($newRecord['POST_MESSAGE']);
 				if ($fixed != null)
 				{
 					$newRecord["POST_MESSAGE"] = $fixed;
 				}
 
-				$fixed = preg_replace("/\\[USER=[0-9]+\\](.*?)\\[\\/USER\\]/", "\\1", $newRecord["POST_MESSAGE_HTML"]);
+				$fixed = $this->clearUserBbCodes($newRecord['POST_MESSAGE_HTML']);
 				if ($fixed != null)
 				{
 					$newRecord["POST_MESSAGE_HTML"] = $fixed;
@@ -406,13 +406,13 @@ if (Loader::includeModule('replica'))
 					}
 				}
 
-				$fixed = preg_replace("/\\[USER=[0-9]+\\](.*?)\\[\\/USER\\]/", "\\1", $newRecord["POST_MESSAGE"]);
+				$fixed = $this->clearUserBbCodes($newRecord['POST_MESSAGE']);
 				if ($fixed != null)
 				{
 					$newRecord["POST_MESSAGE"] = $fixed;
 				}
 
-				$fixed = preg_replace("/\\[USER=[0-9]+\\](.*?)\\[\\/USER\\]/", "\\1", $newRecord["POST_MESSAGE_HTML"]);
+				$fixed = $this->clearUserBbCodes($newRecord['POST_MESSAGE_HTML']);
 				if ($fixed != null)
 				{
 					$newRecord["POST_MESSAGE_HTML"] = $fixed;
@@ -480,6 +480,18 @@ if (Loader::includeModule('replica'))
 					}
 				}
 			}
+		}
+
+		/**
+		 * @param string $string
+		 * @return string
+		 */
+		private function clearUserBbCodes(string $string): string
+		{
+			// (\\/|\\\\\\/)
+			// \\/ if for usual messages with bb-code [USER=*]name[/USER]
+			// \\\\\\/ is for service messages with bb-code [USER=*]name[\/USER]
+			return preg_replace("/\\[USER=[0-9]+\\](.*?)\\[(\\/|\\\\\\/)USER\\]/", "\\1", $string);
 		}
 	}
 }

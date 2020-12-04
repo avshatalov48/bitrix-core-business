@@ -46,8 +46,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["save"].$_REQUEST["apply"].
 	COption::SetOptionString("security", "hotp_user_window", $hotp_user_window);
 
 	COption::SetOptionString("security", "otp_allow_remember", $_POST["otp_allow_remember"]==="Y"? "Y": "N");
-
 	COption::SetOptionString("security", "otp_allow_recovery_codes", $_POST["otp_allow_recovery_codes"]==="Y"? "Y": "N");
+	COption::SetOptionString("security", "otp_log", ($_POST["otp_log"] === "Y"? "Y": "N"));
 
 	if ($_POST['otp_default_type'])
 		Bitrix\Security\Mfa\Otp::setDefaultType($_POST['otp_default_type']);
@@ -236,6 +236,17 @@ $tabControl->BeginNextTab();
 				<?endforeach;?>
 			</div>
 			<a href="javascript:void(0)" class="bx-action-href" id="add_access" data-role="add-access"><?=GetMessage("SEC_OTP_MANDATORY_RIGHTS_SELECT")?></a>
+		</td>
+	</tr>
+	<tr class="heading">
+		<td colspan="2"><?echo GetMessage("SEC_OTP_LOG")?></td>
+	</tr>
+	<tr>
+		<td>
+			<?echo GetMessage("SEC_OTP_LOG_ENABLE")?>
+		</td>
+		<td>
+			<input type="checkbox" name="otp_log" value="Y" <?=(COption::GetOptionString("security", "otp_log") <> "N")? "checked": "";?>>
 		</td>
 	</tr>
 <?

@@ -177,11 +177,16 @@ class currency extends CModule
 			return;
 
 		$baseCurrency = '';
+		$b24Area = null;
 		if ($bitrix24 && Loader::includeModule('bitrix24'))
 		{
 			$bitrix24Zone = CBitrix24::getCurrentAreaConfig();
 			if (!empty($bitrix24Zone) && is_array($bitrix24Zone))
+			{
 				$baseCurrency = $bitrix24Zone['CURRENCY'];
+				$b24Area = $bitrix24Zone['ID'];
+			}
+			unset($bitrix24Zone);
 		}
 		if ($baseCurrency == '')
 		{
@@ -281,7 +286,7 @@ class currency extends CModule
 			];
 			foreach($currencyList as $oneCurrency)
 			{
-				$data = CurrencyClassifier::getCurrency($oneCurrency, array_keys($languages));
+				$data = CurrencyClassifier::getCurrency($oneCurrency, array_keys($languages), $b24Area);
 				if (empty($data))
 					continue;
 				foreach ($languages as $languageId => $upperLanguageId)
@@ -472,6 +477,27 @@ class currency extends CModule
 					['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 0.46, 'AMOUNT_CNT' => 1, 'SORT' => 600, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.46]
 				];
 				break;
+			case 'GBP':
+				$result = [
+					['CURRENCY' => 'GBP', 'NUMCODE' => '826', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 0.91, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.91],
+					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 0.77, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.77],
+				];
+				break;
+			case 'MXN':
+				$result = [
+					['CURRENCY' => 'MXN', 'NUMCODE' => '484', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 21.57, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 21.57],
+					['CURRENCY' => 'COP', 'NUMCODE' => '170', 'AMOUNT' => 5.68, 'AMOUNT_CNT' => 1000, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.00568],
+				];
+				break;
+			case 'COP':
+				$result = [
+					['CURRENCY' => 'COP', 'NUMCODE' => '170', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 3797.1, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 3797.1],
+					['CURRENCY' => 'MXN', 'NUMCODE' => '484', 'AMOUNT' => 176.21, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 176.21],
+				];
+				break;
 			case 'USD':
 			default:
 				$result = [
@@ -484,5 +510,5 @@ class currency extends CModule
 				break;
 		}
 		return $result;
-	}	
+	}
 }

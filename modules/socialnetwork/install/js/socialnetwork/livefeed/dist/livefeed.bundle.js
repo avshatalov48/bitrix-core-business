@@ -5,10 +5,19 @@ this.BX = this.BX || {};
 	var PinnedPanel = /*#__PURE__*/function () {
 	  function PinnedPanel() {
 	    babelHelpers.classCallCheck(this, PinnedPanel);
+	    this.panelInitialized = false;
+	    this.postsInitialized = false;
+	    this.handlePostClick = this.handlePostClick.bind(this);
 	    this.init();
 	  }
 
 	  babelHelpers.createClass(PinnedPanel, [{
+	    key: "resetFlags",
+	    value: function resetFlags() {
+	      this.panelInitialized = false;
+	      this.postsInitialized = false;
+	    }
+	  }, {
 	    key: "init",
 	    value: function init() {
 	      var _this = this;
@@ -25,12 +34,17 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "initPanel",
 	    value: function initPanel() {
+	      if (this.panelInitialized) {
+	        return;
+	      }
+
 	      var pinnedPanelNode = this.getPanelNode();
 
 	      if (!pinnedPanelNode) {
 	        return;
 	      }
 
+	      this.panelInitialized = true;
 	      main_core.Event.bind(pinnedPanelNode, 'click', function (event) {
 	        var likeClicked = event.target.classList.contains('feed-inform-ilike') || event.target.closest('.feed-inform-ilike') !== null;
 	        var followClicked = event.target.classList.contains('feed-inform-follow') || event.target.closest('.feed-inform-follow') !== null;
@@ -95,32 +109,45 @@ this.BX = this.BX || {};
 	    value: function initPosts() {
 	      var _this2 = this;
 
+	      if (this.postsInitialized) {
+	        return;
+	      }
+
 	      var postList = document.querySelectorAll('[data-livefeed-post-pinned]');
-	      postList.forEach(function (post) {
-	        main_core.Event.bind(post, 'click', function (event) {
-	          if (!event.target.classList.contains('feed-post-pin')) {
-	            return;
-	          }
 
-	          var post = event.target.closest('[data-livefeed-id]');
+	      if (postList.length > 0) {
+	        this.postsInitialized = true;
+	      }
 
-	          if (!post) {
-	            return;
-	          }
+	      Array.from(postList).forEach(function (post) {
+	        main_core.Event.unbind(post, 'click', _this2.handlePostClick);
+	        main_core.Event.bind(post, 'click', _this2.handlePostClick);
+	      });
+	    }
+	  }, {
+	    key: "handlePostClick",
+	    value: function handlePostClick(event) {
+	      if (!event.target.classList.contains('feed-post-pin')) {
+	        return;
+	      }
 
-	          var newState = post.getAttribute('data-livefeed-post-pinned') === 'Y' ? 'N' : 'Y';
-	          var logId = parseInt(post.getAttribute('data-livefeed-id'));
+	      var post = event.target.closest('[data-livefeed-id]');
 
-	          if (logId <= 0) {
-	            return;
-	          }
+	      if (!post) {
+	        return;
+	      }
 
-	          _this2.changePinned({
-	            logId: logId,
-	            newState: newState,
-	            event: event
-	          });
-	        });
+	      var newState = post.getAttribute('data-livefeed-post-pinned') === 'Y' ? 'N' : 'Y';
+	      var logId = parseInt(post.getAttribute('data-livefeed-id'));
+
+	      if (logId <= 0) {
+	        return;
+	      }
+
+	      this.changePinned({
+	        logId: logId,
+	        newState: newState,
+	        event: event
 	      });
 	    }
 	  }, {

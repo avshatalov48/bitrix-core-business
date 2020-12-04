@@ -80,7 +80,7 @@ class CCalendarLiveFeed
 
 		$calendarUrl = CCalendar::GetPath('user', $arFields["USER_ID"]);
 
-		$arResult["EVENT_FORMATTED"]["URL"] = $calendarUrl.((strpos($calendarUrl, "?") === false) ? '?' : '&').'EVENT_ID='.$eventId;
+		$arResult["EVENT_FORMATTED"]["URL"] = $calendarUrl.((mb_strpos($calendarUrl, "?") === false) ? '?' : '&').'EVENT_ID='.$eventId;
 
 		$arRights = [];
 		$dbRight = CSocNetLogRights::GetList([], array("LOG_ID" => $arFields["ID"]));
@@ -123,7 +123,7 @@ class CCalendarLiveFeed
 			{
 				$eventId = $arLogEvent["FIELDS_FORMATTED"]["EVENT"]["SOURCE_ID"];
 				$editUrl = CCalendar::GetPath('user', $arLogEvent["FIELDS_FORMATTED"]["EVENT"]['USER_ID']);
-				$editUrl = $editUrl.((strpos($editUrl, "?") === false) ? '?' : '&').'EVENT_ID=EDIT'.$eventId;
+				$editUrl = $editUrl.((mb_strpos($editUrl, "?") === false) ? '?' : '&').'EVENT_ID=EDIT'.$eventId;
 
 				return array(
 					array(
@@ -283,7 +283,7 @@ class CCalendarLiveFeed
 		)
 		{
 			$messageUrl = CCalendar::GetPath("user", $arFields["ENTRY_USER_ID"]);
-			$messageUrl = $messageUrl.((strpos($messageUrl, "?") === false) ? "?" : "&")."EVENT_ID=".$arFields["ENTRY_ID"]."&MID=#ID#";
+			$messageUrl = $messageUrl.((mb_strpos($messageUrl, "?") === false) ? "?" : "&")."EVENT_ID=".$arFields["ENTRY_ID"]."&MID=#ID#";
 
 			if (!empty($arFields["COMMENT_ID"]))
 			{
@@ -346,7 +346,7 @@ class CCalendarLiveFeed
 		)
 		{
 			$comment["URL"] = CCalendar::GetPath("user", $calendarEvent["OWNER_ID"], true);
-			$comment["URL"] .= ((strpos($comment["URL"], "?") === false) ? "?" : "&")."EVENT_ID=".$calendarEvent["ID"]."&MID=".intval($comment["MESSAGE_ID"]);
+			$comment["URL"] .= ((mb_strpos($comment["URL"], "?") === false) ? "?" : "&")."EVENT_ID=".$calendarEvent["ID"]."&MID=".intval($comment["MESSAGE_ID"]);
 		}
 
 		CCalendarNotify::NotifyComment($eventId, $comment);
@@ -593,7 +593,7 @@ class CCalendarLiveFeed
 			$codes = [];
 			foreach($accessCodes as $value)
 			{
-				if (substr($value, 0, 2) === 'SG')
+				if (mb_substr($value, 0, 2) === 'SG')
 					$codes[] = $value.'_K';
 				$codes[] = $value;
 			}
@@ -655,7 +655,7 @@ class CCalendarLiveFeed
 		}
 		if (empty($attendeesCodes) && $arFields['CREATED_BY'])
 		{
-			$attendeesCodes[] = 'U'.intVal($arFields['CREATED_BY']);
+			$attendeesCodes[] = 'U'.intval($arFields['CREATED_BY']);
 		}
 		if (!is_array($attendeesCodes))
 		{
@@ -681,7 +681,7 @@ class CCalendarLiveFeed
 		}
 		else
 		{
-			$folowersList[] = intVal($arFields['CREATED_BY']);
+			$folowersList[] = intval($arFields['CREATED_BY']);
 		}
 
 		$newlogId = false;
@@ -718,9 +718,9 @@ class CCalendarLiveFeed
 			$arCodes = [];
 			foreach($arAccessCodes as $value)
 			{
-				if (substr($value, 0, 1) === 'U')
+				if (mb_substr($value, 0, 1) === 'U')
 				{
-					$attendeeId = intval(substr($value, 1));
+					$attendeeId = intval(mb_substr($value, 1));
 					if (in_array($attendeeId, $folowersList))
 					{
 						$arCodes[] = $value;
@@ -728,7 +728,7 @@ class CCalendarLiveFeed
 				}
 				else
 				{
-					if (substr($value, 0, 2) === 'SG')
+					if (mb_substr($value, 0, 2) === 'SG')
 						$arCodes[] = $value.'_K';
 					$arCodes[] = $value;
 				}
@@ -908,7 +908,7 @@ class CCalendarLiveFeed
 				&& $eventID > 0
 				&& !empty($arCalendarSettings["pathes"])
 				&& ($arCalendarEvent = CCalendarEvent::GetById($eventID))
-				&& strlen($arCalendarEvent["CAL_TYPE"]) > 0
+				&& $arCalendarEvent["CAL_TYPE"] <> ''
 				&& in_array($arCalendarEvent["CAL_TYPE"], array("user", "group"))
 				&& intval($arCalendarEvent["OWNER_ID"]) > 0
 			)
@@ -991,9 +991,9 @@ class CCalendarLiveFeed
 
 			foreach($params['event']['ATTENDEES_CODES'] as $code)
 			{
-				if (substr($code, 0, 1) === 'U')
+				if (mb_substr($code, 0, 1) === 'U')
 				{
-					$attendeeId = intval(substr($code, 1));
+					$attendeeId = intval(mb_substr($code, 1));
 					if (!in_array($attendeeId, $unfolowersList))
 					{
 						$codesList[] = $code;
@@ -1001,7 +1001,7 @@ class CCalendarLiveFeed
 				}
 				else
 				{
-					if(substr($code, 0, 2) === 'SG')
+					if(mb_substr($code, 0, 2) === 'SG')
 					{
 						$codesList[] = $code.'_K';
 					}

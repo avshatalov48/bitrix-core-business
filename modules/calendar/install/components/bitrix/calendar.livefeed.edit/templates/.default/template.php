@@ -180,7 +180,7 @@ $APPLICATION->IncludeComponent(
 				"API_VERSION" => 3,
 				"SELECTOR_OPTIONS" => array(
 					'lazyLoad' => 'Y',
-					'context' => 'CALENDAR',
+					'context' => \Bitrix\Calendar\Util::getUserSelectorContext(),
 					'contextCode' => '',
 					'enableSonetgroups' => 'Y',
 					'departmentSelectDisable' => 'N',

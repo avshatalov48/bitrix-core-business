@@ -124,6 +124,20 @@ $showPersonalTitle = $showGeneralSettings && $isPersonal;
 					</div>
 				</div>
 
+				<?$APPLICATION->IncludeComponent('bitrix:main.mail.confirm', '', []);?>
+				<div class="calendar-settings-control">
+					<div class="calendar-settings-control-name"><label for="<?=$id?>_send_from_email"><?=Loc::getMessage('EC_SEND_FROM_EMAIL')?></label>
+					<div class="ui-icon ui-icon-common-question calendar-settings-question"  data-hint="<?=Loc::getMessage('EC_SEND_FROM_EMAIL_HELP_TITLE')?>">
+						<i></i>
+					</div>
+					</div>
+					<div class="calendar-field-container calendar-field-container-select">
+						<div class="calendar-field-block">
+							<select id="<?=$id?>_send_from_email" class="calendar-field calendar-field-select"></select>
+						</div>
+					</div>
+				</div>
+
 				<div class="calendar-settings-control">
 					<div class="calendar-settings-control-name"><label for="<?=$id?>_uset_calend_sel"><?=Loc::getMessage('EC_SYNC_PERIOD')?></label></div>
 					<div class="calendar-field-container calendar-field-container-select">
@@ -143,7 +157,7 @@ $showPersonalTitle = $showGeneralSettings && $isPersonal;
 					</div>
 				</div>
 
-				<span id="<?=$id?>_manage_caldav" class="calendar-settings-link-option"><?= Loc::getMessage('EC_MANAGE_CALDAV')?></span>
+<!--				<span id="--><?//=$id?><!--_manage_caldav" class="calendar-settings-link-option">--><?//= Loc::getMessage('EC_MANAGE_CALDAV')?><!--</span>-->
 				<?endif; //if($isPersonal)?>
 
 				<?if ($showGeneralSettings):?>

@@ -22,7 +22,9 @@ if(!defined('NOT_CHECK_PERMISSIONS') || NOT_CHECK_PERMISSIONS !== true)
 }
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/checklist.php");
-include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/lang/".LANG."/admin/checklist.php");
+
+\Bitrix\Main\Localization\Loc::loadMessages(__DIR__."/checklist.php");
+
 $APPLICATION->AddHeadString('
 	<style type="text/css">
 		p,ul,li{font-size:100%!important;}

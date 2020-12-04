@@ -264,12 +264,50 @@ else
 		);
 	</script>
 	<?
+	$ffdCheckNeeded = true;
+	Cashbox\Cashbox::init();
 
-	if (!Cashbox\Manager::isSupportedFFD105())
+	$cashboxList = Cashbox\Manager::getListFromCache();
+	$cashboxesByCountry = [
+		'RU' => [],
+		'UA' => [],
+	];
+
+	foreach ($cashboxList as $cashbox)
 	{
-		Cashbox\Cashbox::init();
+		$handler = $cashbox['HANDLER'];
+		if ($cashbox['ACTIVE'] === 'N' || $handler === '\Bitrix\Sale\Cashbox\CashboxRest')
+		{
+			continue;
+		}
 
-		$cashboxList = Cashbox\Manager::getListFromCache();
+		$handler = $cashbox['HANDLER'];
+
+		if ($handler === '\Bitrix\Sale\Cashbox\CashboxCheckbox')
+		{
+			$country = 'UA';
+		}
+		else
+		{
+			$country = 'RU';
+		}
+
+		$cashboxesByCountry[$country][] = $cashbox['NAME'];
+	}
+
+	if (!(empty($cashboxesByCountry['RU']) || empty($cashboxesByCountry['UA'])))
+	{
+		$ffdCheckNeeded = false;
+		$note = BeginNote();
+		$note .= Loc::getMessage('SALE_CASHBOX_ZONE_CONFLICT');
+		$note .= Loc::getMessage('SALE_CASHBOX_ZONE_CONFLICT_RU_LIST', ['#CASHBOXES#' => implode(', ', $cashboxesByCountry['RU'])]);
+		$note .= Loc::getMessage('SALE_CASHBOX_ZONE_CONFLICT_UA_LIST', ['#CASHBOXES#' => implode(', ', $cashboxesByCountry['UA'])]);
+		$note .= EndNote();
+		echo $note;
+	}
+
+	if ($ffdCheckNeeded && !Cashbox\Manager::isSupportedFFD105())
+	{
 		$cashboxFfd105 = array();
 		$cashboxNoFfd105 = array();
 		foreach ($cashboxList as $cashbox)

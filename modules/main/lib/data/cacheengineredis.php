@@ -1,10 +1,14 @@
 <?php
 namespace Bitrix\Main\Data;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Config;
+use Bitrix\Main\Data\LocalStorage;
 
-class CacheEngineRedis implements ICacheEngine
+class CacheEngineRedis implements ICacheEngine, LocalStorage\Storage\CacheEngineInterface
 {
+	public const SESSION_REDIS_CONNECTION = 'cache.redis';
+
 	protected static $redis = null;
 	protected static $locks = [];
 	protected static $isConnected = false;
@@ -43,22 +47,19 @@ class CacheEngineRedis implements ICacheEngine
 
 		if (self::$redis == null)
 		{
-			self::$redis = new \Redis();
+			$connectionPool = Application::getInstance()->getConnectionPool();
+			$connectionPool->setConnectionParameters(self::SESSION_REDIS_CONNECTION, [
+				'className' => RedisConnection::class,
+				'host' => self::$host,
+				'port' => self::$port,
+				'serializer' => $this->serializer,
+				'persistent' => $this->persistent,
+			]);
 
-			if ($this->persistent && self::$redis->connect(self::$host, self::$port))
-			{
-				self::$isConnected = true;
-
-			}
-			elseif (self::$redis->connect(self::$host, self::$port))
-			{
-				self::$isConnected = true;
-			}
-
-			if (self::$isConnected)
-			{
-				self::$redis->setOption(\Redis::OPT_SERIALIZER, $this->serializer);
-			}
+			/** @var RedisConnection $redisConnection */
+			$redisConnection = $connectionPool->getConnection(self::SESSION_REDIS_CONNECTION);
+			self::$redis = $redisConnection->getResource();
+			self::$isConnected = $redisConnection->isConnected();
 		}
 	}
 
@@ -71,15 +72,14 @@ class CacheEngineRedis implements ICacheEngine
 			return false;
 		}
 
-		$v = (isset($config["redis"])) ? $config["redis"] : null;
-		if ($v != null && isset($v["host"]) && $v["host"] != '')
+		$v = $config["redis"] ?? null;
+		if (!empty($v["host"]))
 		{
-			if ($v != null && isset($v["port"]))
-			{
-				self::$port = (int) $v["port"];
-			}
-
 			self::$host = $v["host"];
+			if (isset($v["port"]))
+			{
+				self::$port = (int)$v["port"];
+			}
 		}
 
 		if (isset($config["use_lock"]))
@@ -118,9 +118,9 @@ class CacheEngineRedis implements ICacheEngine
 			$this->ttlMultiplier = (int) $config["ttl_multiplier"];
 		}
 
-		if (!empty($options) && isset($options["actual_data"]))
+		if (isset($config["actual_data"]))
 		{
-			$this->useLock = !((bool) $options["actual_data"]);
+			$this->useLock = !((bool) $config["actual_data"]);
 		}
 
 		if ($this->useLock)

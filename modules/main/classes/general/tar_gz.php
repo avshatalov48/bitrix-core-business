@@ -31,8 +31,6 @@ class CArchiver implements IBXArchive
 	private $ReplaceExistentFiles = false;
 	private $CheckBXPermissions = false;
 
-	private static $bMbstring = false;
-
 	public function __construct($strArchiveName, $bCompress = false, $start_time = -1, $max_exec_time = -1, $pos = 0, $stepped = false)
 	{
 		$this->io = CBXVirtualIo::GetInstance();
@@ -42,7 +40,6 @@ class CArchiver implements IBXArchive
 		$this->file_pos = $pos;
 		$this->_bCompress = $bCompress;
 		$this->stepped = $stepped;
-		self::$bMbstring = extension_loaded("mbstring");
 
 		if (!$bCompress)
 		{
@@ -733,11 +730,11 @@ class CArchiver implements IBXArchive
 
 		$strFilename = str_replace("\\", "/", $strFilename);
 
-		if (!$this->_writeHeaderBlock($strFilename, (self::$bMbstring? mb_strlen($strFileContent, "latin1") : mb_strlen($strFileContent)), 0, 0, "", 0, 0))
+		if (!$this->_writeHeaderBlock($strFilename, strlen($strFileContent), 0, 0, "", 0, 0))
 			return false;
 
 		$i = 0;
-		while (($v_buffer = (self::$bMbstring? mb_substr($strFileContent, (($i++) * 512), 512, "latin1") : mb_substr($strFileContent, (($i++) * 512), 512))) != '')
+		while (($v_buffer = substr($strFileContent, (($i++) * 512), 512)) != '')
 		{
 			$v_binary_data = pack("a512", $v_buffer);
 			$this->_writeBlock($v_binary_data);
@@ -791,7 +788,7 @@ class CArchiver implements IBXArchive
 
 		clearstatcache();
 
-		while((self::$bMbstring? mb_strlen($v_binary_data = $this->_readBlock(), "latin1") : mb_strlen($v_binary_data = $this->_readBlock())) != 0)
+		while(strlen($v_binary_data = $this->_readBlock()) != 0)
 		{
 			$v_extract_file = FALSE;
 			$v_extraction_stopped = 0;
@@ -979,7 +976,7 @@ class CArchiver implements IBXArchive
 
 		$strFilename_ready = $this->_normalizePath($strFilename_stored);
 
-		if ((self::$bMbstring? mb_strlen($strFilename_ready, "latin1") : mb_strlen($strFilename_ready)) > 99)
+		if (strlen($strFilename_ready) > 99)
 		{
 			if (!$this->_writeLongHeader($strFilename_ready))
 				return false;
@@ -1017,11 +1014,11 @@ class CArchiver implements IBXArchive
 
 		$v_checksum = 0;
 		for ($i = 0; $i < 148; $i++)
-			$v_checksum += ord((self::$bMbstring? mb_substr($v_binary_data_first, $i, 1, "latin1") : mb_substr($v_binary_data_first, $i, 1)));
+			$v_checksum += ord(substr($v_binary_data_first, $i, 1));
 		for ($i = 148; $i < 156; $i++)
 			$v_checksum += ord(' ');
 		for ($i = 156, $j = 0; $i < 512; $i++, $j++)
-			$v_checksum += ord((self::$bMbstring? mb_substr($v_binary_data_last, $j, 1, "latin1") : mb_substr($v_binary_data_last, $j, 1)));
+			$v_checksum += ord(substr($v_binary_data_last, $j, 1));
 
 		$this->_writeBlock($v_binary_data_first, 148);
 
@@ -1051,13 +1048,13 @@ class CArchiver implements IBXArchive
 
 		$v_checksum = 0;
 		for ($i = 0; $i < 148; $i++)
-			$v_checksum += ord((self::$bMbstring? mb_substr($v_binary_data_first, $i, 1, "latin1") : mb_substr($v_binary_data_first, $i, 1)));
+			$v_checksum += ord(substr($v_binary_data_first, $i, 1));
 
 		for ($i = 148; $i < 156; $i++)
 			$v_checksum += ord(' ');
 
 		for ($i = 156, $j=0; $i < 512; $i++, $j++)
-			$v_checksum += ord((self::$bMbstring? mb_substr($v_binary_data_last, $j, 1, "latin1") : mb_substr($v_binary_data_last, $j, 1)));
+			$v_checksum += ord(substr($v_binary_data_last, $j, 1));
 
 		$this->_writeBlock($v_binary_data_first, 148);
 
@@ -1070,7 +1067,7 @@ class CArchiver implements IBXArchive
 		$p_filename = $this->_normalizePath($strFilename);
 
 		$i = 0;
-		while (($v_buffer = (self::$bMbstring? mb_substr($p_filename, (($i++) * 512), 512, "latin1") : mb_substr($p_filename, (($i++) * 512), 512))) != '')
+		while (($v_buffer = substr($p_filename, (($i++) * 512), 512)) != '')
 		{
 			$v_binary_data = pack("a512", "$v_buffer");
 			$this->_writeBlock($v_binary_data);
@@ -1111,11 +1108,11 @@ class CArchiver implements IBXArchive
 
 		$v_checksum = 0;
 		for ($i = 0; $i < 148; $i++)
-			$v_checksum += ord((self::$bMbstring? mb_substr($v_binary_data_first, $i, 1, "latin1") : mb_substr($v_binary_data_first, $i, 1)));
+			$v_checksum += ord(substr($v_binary_data_first, $i, 1));
 		for ($i = 148; $i < 156; $i++)
 			$v_checksum += ord(' ');
 		for ($i = 156, $j = 0; $i < 512; $i++, $j++)
-			$v_checksum += ord((self::$bMbstring? mb_substr($v_binary_data_last, $j, 1, "latin1") : mb_substr($v_binary_data_last, $j, 1)));
+			$v_checksum += ord(substr($v_binary_data_last, $j, 1));
 
 		$this->_writeBlock($v_binary_data_first, 148);
 
@@ -1143,26 +1140,26 @@ class CArchiver implements IBXArchive
 
 	private function _readHeader($v_binary_data, &$v_header)
 	{
-		if ((self::$bMbstring? mb_strlen($v_binary_data, "latin1") : mb_strlen($v_binary_data)) == 0)
+		if (strlen($v_binary_data) == 0)
 		{
 			$v_header['filename'] = '';
 			return true;
 		}
 
-		if ((self::$bMbstring? mb_strlen($v_binary_data, "latin1") : mb_strlen($v_binary_data)) != 512)
+		if (strlen($v_binary_data) != 512)
 		{
 			$v_header['filename'] = '';
-			$this->_arErrors[] = array("INV_BLOCK_SIZE", str_replace("#BLOCK_SIZE#", self::$bMbstring? mb_strlen($v_binary_data, "latin1") : mb_strlen($v_binary_data), GetMessage("MAIN_ARCHIVE_INV_BLOCK_SIZE")));
+			$this->_arErrors[] = array("INV_BLOCK_SIZE", str_replace("#BLOCK_SIZE#", strlen($v_binary_data), GetMessage("MAIN_ARCHIVE_INV_BLOCK_SIZE")));
 			return false;
 		}
 
 		$v_checksum = 0;
 		for ($i = 0; $i < 148; $i++)
-			$v_checksum+=ord((self::$bMbstring? mb_substr($v_binary_data, $i, 1, "latin1") : mb_substr($v_binary_data, $i, 1)));
+			$v_checksum += ord(substr($v_binary_data, $i, 1));
 		for ($i = 148; $i < 156; $i++)
 			$v_checksum += ord(' ');
 		for ($i = 156; $i < 512; $i++)
-			$v_checksum+=ord((self::$bMbstring? mb_substr($v_binary_data, $i, 1, "latin1") : mb_substr($v_binary_data, $i, 1)));
+			$v_checksum += ord(substr($v_binary_data, $i, 1));
 
 		//changed
 		$v_data = unpack("a100filename/a8mode/a8uid/a8gid/a12size/a12mtime/a8checksum/a1typeflag/a100link/a6magic/a2version/a32uname/a32gname/a8devmajor/a8devminor/a131prefix", $v_binary_data);

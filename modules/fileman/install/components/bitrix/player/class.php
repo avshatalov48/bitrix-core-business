@@ -9,7 +9,7 @@ if(!\Bitrix\Main\Loader::includeModule('fileman'))
 
 class CBitrixPlayer extends CBitrixComponent
 {
-	const PLAYER_JS_PATH = '/bitrix/js/fileman/player';
+	protected const PLAYER_JS_PATH = '/bitrix/js/fileman/player';
 
 	protected $playerType;
 	protected $jwConfig;
@@ -21,23 +21,21 @@ class CBitrixPlayer extends CBitrixComponent
 
 	public static function escapeFlashVar($str)
 	{
-		$str = str_replace('?', '%3F', $str);
-		$str = str_replace('=', '%3D', $str);
-		$str = str_replace('&', '%26', $str);
+		$str = str_replace(['?', '=', '&'], ['%3F', '%3D', '%26'], $str);
 		return $str;
 	}
 
-	public static function isAndroid ()
+	public static function isAndroid(): bool
 	{
-		return preg_match('#Android#', $_SERVER['HTTP_USER_AGENT']);
+		return false !== strpos($_SERVER['HTTP_USER_AGENT'], "Android");
 	}
 
-	public static function isIOS ()
+	public static function isIOS(): bool
 	{
-		return preg_match('#\biPhone.*Mobile|\biPod|\biPad#', $_SERVER['HTTP_USER_AGENT']);
+		return (bool) preg_match('#\biPhone.*Mobile|\biPod|\biPad#', $_SERVER['HTTP_USER_AGENT']);
 	}
 
-	public static function isMobile ()
+	public static function isMobile(): bool
 	{
 		return ( self::isAndroid() || self::isIOS() );
 	}
@@ -184,6 +182,11 @@ class CBitrixPlayer extends CBitrixComponent
 		if ((mb_strpos($type, 'video') === 0) || (mb_strpos($type, 'audio') === 0) || (mb_strpos($type, 'rtmp') === 0))
 			return $path;
 		static $rewriteCondition = '';
+		if(empty($path))
+		{
+			$type = $this->GetContentType($path);
+			return $path;
+		}
 		$uri = new \Bitrix\Main\Web\Uri($path);
 		if ($rewriteCondition === '')
 		{

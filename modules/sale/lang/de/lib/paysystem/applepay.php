@@ -1,0 +1,10 @@
+<?
+$MESS["SALE_APPLE_PAY_HTTP_STATUS_CODE"] = "Fehler beim Aufrufen der Antwort. Status: #HTTP_STATUS#";
+$MESS["SALE_APPLE_PAY_HTTP_STATUS_MESSAGE"] = "Fehler beim Aufrufen der Antwort. Status: #HTTP_STATUS#, Nachricht: #STATUS_MESSAGE#";
+$MESS["SALE_APPLE_PAY_LINE_ITEM_DISCOUNT"] = "Rabatt";
+$MESS["SALE_APPLE_PAY_LINE_ITEM_ORDER"] = "Bestellung #ORDER_ID#";
+$MESS["SALE_APPLE_PAY_LINE_ITEM_SHIPPING"] = "Lieferung";
+$MESS["SALE_APPLE_PAY_LINE_ITEM_TAX"] = "Steuer";
+$MESS["SALE_APPLE_PAY_LINE_ITEM_TOTAL"] = "Gesamt";
+$MESS["SALE_APPLE_PAY_ORDER_SUBTITLE"] = "Bestellung #ORDER_ID# für #SUM#";
+?>

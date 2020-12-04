@@ -144,10 +144,18 @@ this.BX.SocialNetwork = this.BX.SocialNetwork || {};
 	      var zIndex = this.getDialog().getZindex() >= 3000 ? this.getDialog().getZindex() + 10 : null;
 
 	      if (main_core.Type.isStringFilled(inviteEmployeeLink)) {
+	        var entity = this.getDialog().getEntity('user');
+	        var userOptions = entity.getOptions() || {};
 	        BX.SidePanel.Instance.open(inviteEmployeeLink, {
 	          zIndex: zIndex,
 	          allowChangeHistory: false,
 	          cacheable: false,
+	          requestMethod: 'post',
+	          requestParams: {
+	            componentParams: JSON.stringify({
+	              'USER_OPTIONS': userOptions
+	            })
+	          },
 	          data: {
 	            entitySelectorId: this.getDialog().getId()
 	          }

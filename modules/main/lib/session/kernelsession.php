@@ -27,13 +27,6 @@ class KernelSession implements SessionInterface, \ArrayAccess
 	public function __construct(int $lifetime = 0)
 	{
 		$this->lifetime = $lifetime;
-
-		$configuration = Configuration::getInstance();
-		$data = $configuration->get('cookies');
-		$data['encrypted'] = $data['encrypted'] ?? [];
-		$data['encrypted'][] = self::COOKIE_NAME;
-
-		$configuration->add('cookies', $data);
 	}
 
 	public function isActive(): bool
@@ -50,14 +43,6 @@ class KernelSession implements SessionInterface, \ArrayAccess
 	{
 		throw new NotSupportedException();
 	}
-
-	public function getPreviousId(): ?string
-	{
-		return null;
-	}
-
-	public function resetPreviousId(): void
-	{}
 
 	public function getName(): string
 	{
@@ -84,7 +69,7 @@ class KernelSession implements SessionInterface, \ArrayAccess
 
 	public function start(): bool
 	{
-		if ($this->started)
+		if ($this->isStarted())
 		{
 			return true;
 		}

@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SUP_ACTIVE"] = "Updates are available:";
 $MESS["SUP_ACTIVE_PERIOD"] = "from #DATE_FROM# till #DATE_TO#";
 $MESS["SUP_APPLY"] = "Apply";
@@ -207,5 +207,6 @@ $MESS["SUP_USERS_IS_NOT_LIMITED"] = "Your license has no maximum user limit.";
 $MESS["SUP_WRONG_APACHE_MOD_REWRITE"] = "Apache mod_rewrite module to transform URL's is not installed. Please install this module or contact your hosting service provider's helpdesk.";
 $MESS["SUP_WRONG_CHARSET_ERROR_HINT1"] = "UTF-8 charset configuration is incorrect. The default_charset parameter and the script internal encoding (mb_internal_encoding()) must be set to UTF-8. Please add the mb_internal_encoding('UTF-8'); line to the dbconn.php file or contact your hosting service provider's helpdesk.";
 $MESS["SUP_WRONG_CHARSET_ERROR_HINT2"] = "Single-byte encoding configuration is incorrect. The default_charset parameter and the script internal encoding (mb_internal_encoding()) must not be set to UTF-8. Please add a mb_internal_encoding('Windows-1252'); line (or specify any other required encoding) to the dbconn.php file or contact your hosting service provider's helpdesk.";
+$MESS["SUP_WRONG_GD"] = "GD image processing library version 2 or higher is required to update the system. Please fix the issue or contact your hosting provider's technical support.";
 $MESS["SUP_WRONG_INTERNAL_ENCODING_ERROR"] = "The current value of the mbstring.internal_encoding option is outdated and in conflict with the default_charset value. Please fix the issue or contact your hosting service provider's helpdesk.";
-?>
+$MESS["SUP_WRONG_MBSTRING_OVERLOAD"] = "The <b>mbstring.func_overload</b> parameter has to be removed to update the system. Please fix the issue or contact your hosting provider's technical support.";

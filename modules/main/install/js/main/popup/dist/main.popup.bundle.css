@@ -522,6 +522,11 @@
 	cursor: default;
 }
 
+.menu-popup .menu-popup-item-disabled .main-ui-loader-svg-circle {
+	stroke: #4a4e53;
+	stroke-width: 3;
+}
+
 .menu-popup-item-icon {
 	display: inline-block;
 	height: 16px;

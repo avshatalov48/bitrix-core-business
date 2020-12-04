@@ -1,8 +1,6 @@
 <?php
 namespace Bitrix\Main\Security;
 
-use Bitrix\Main\Text\BinaryString;
-
 class Random
 {
 	const RANDOM_BLOCK_LENGTH = 64;
@@ -105,7 +103,7 @@ class Random
 	 */
 	public static function getStringByCharsets($length, $charsetList)
 	{
-		$charsetVariants = BinaryString::getLength($charsetList);
+		$charsetVariants = strlen($charsetList);
 		$randomSequence = static::getBytes($length);
 
 		$result = '';
@@ -130,10 +128,10 @@ class Random
 		if (static::isOpensslAvailable())
 		{
 			$bytes = openssl_random_pseudo_bytes($length, $strong);
-			if ($bytes && BinaryString::getLength($bytes) >= $length)
+			if ($bytes && strlen($bytes) >= $length)
 			{
 				if ($strong)
-					return BinaryString::getSubstring($bytes, 0, $length);
+					return substr($bytes, 0, $length);
 				else
 					$backup = $bytes;
 			}
@@ -142,9 +140,9 @@ class Random
 		if (function_exists('mcrypt_create_iv'))
 		{
 			$bytes = mcrypt_create_iv($length, MCRYPT_DEV_URANDOM);
-			if ($bytes && BinaryString::getLength($bytes) >= $length)
+			if ($bytes && strlen($bytes) >= $length)
 			{
-				return BinaryString::getSubstring($bytes, 0, $length);
+				return substr($bytes, 0, $length);
 			}
 		}
 
@@ -152,24 +150,24 @@ class Random
 		{
 			$bytes = @fread($file, $length + 1);
 			@fclose($file);
-			if ($bytes && BinaryString::getLength($bytes) >= $length)
+			if ($bytes && strlen($bytes) >= $length)
 			{
-				return BinaryString::getSubstring($bytes, 0, $length);
+				return substr($bytes, 0, $length);
 			}
 		}
 
-		if ($backup && BinaryString::getLength($backup) >= $length)
+		if ($backup && strlen($backup) >= $length)
 		{
-			return BinaryString::getSubstring($backup, 0, $length);
+			return substr($backup, 0, $length);
 		}
 
 		$bytes = '';
-		while (BinaryString::getLength($bytes) < $length)
+		while (strlen($bytes) < $length)
 		{
 			$bytes .= static::getPseudoRandomBlock();
 		}
 
-		return BinaryString::getSubstring($bytes, 0, $length);
+		return substr($bytes, 0, $length);
 	}
 
 	/**
@@ -184,9 +182,9 @@ class Random
 		if (static::isOpensslAvailable())
 		{
 			$bytes = openssl_random_pseudo_bytes(static::RANDOM_BLOCK_LENGTH);
-			if ($bytes && BinaryString::getLength($bytes) >= static::RANDOM_BLOCK_LENGTH)
+			if ($bytes && strlen($bytes) >= static::RANDOM_BLOCK_LENGTH)
 			{
-				return BinaryString::getSubstring($bytes, 0, static::RANDOM_BLOCK_LENGTH);
+				return substr($bytes, 0, static::RANDOM_BLOCK_LENGTH);
 			}
 		}
 

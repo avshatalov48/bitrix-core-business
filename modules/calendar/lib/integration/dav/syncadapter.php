@@ -61,7 +61,7 @@ class SyncAdapter
 
 				foreach($res as $calendar)
 				{
-					if ($params['skipExchange'] == true && strlen($calendar['DAV_EXCH_CAL']) > 0)
+					if ($params['skipExchange'] == true && $calendar['DAV_EXCH_CAL'] <> '')
 					{
 						continue;
 					}

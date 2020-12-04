@@ -2,8 +2,10 @@
 namespace Bitrix\Main\Data;
 
 
+use Bitrix\Main\Data\LocalStorage;
+
 class CacheEngineXCache
-	implements ICacheEngine, ICacheEngineStat
+	implements ICacheEngine, ICacheEngineStat, LocalStorage\Storage\CacheEngineInterface
 {
 	private $sid = "BX";
 	//cache stats

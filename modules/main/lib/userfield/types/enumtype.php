@@ -7,6 +7,7 @@ use Bitrix\Main\Text\HtmlFilter;
 use CDBResult;
 use CUserFieldEnum;
 use CUserTypeManager;
+use Bitrix\Main\Context;
 
 Loc::loadMessages(__FILE__);
 
@@ -353,6 +354,81 @@ class EnumType extends BaseType
 	public static function getAdminListEditHtmlMulty(array $userField, ?array $additionalParameters): string
 	{
 		return static::renderAdminListEdit($userField, $additionalParameters);
+	}
+
+	public static function getDefaultValue(array $userField, array $additionalParameters = [])
+	{
+		static::getEnumList($userField, $additionalParameters);
+
+		if (!isset($userField['ENUM']))
+		{
+			$userField['ENUM'] = [];
+			$enumValuesManager = new \CUserFieldEnum();
+			$dbRes = $enumValuesManager->getList(
+				[],
+				['USER_FIELD_ID' => $userField['ID']]
+			);
+
+			while($enumValue = $dbRes->fetch())
+			{
+				$userField['ENUM'][] = [
+					'ID' => $enumValue['ID'],
+					'VALUE' => $enumValue['VALUE'],
+					'DEF' => $enumValue['DEF'],
+					'SORT' => $enumValue['SORT'],
+					'XML_ID' => $enumValue['XML_ID'],
+				];
+			}
+		}
+
+		$userField['ENTITY_VALUE_ID'] = 0;
+		return static::getFieldValue($userField, $additionalParameters);
+	}
+
+	public static function getFieldValue(array $userField, array $additionalParameters = [])
+	{
+		if(
+			!$additionalParameters['bVarsFromForm']
+			&& !isset($additionalParameters['VALUE'])
+		)
+		{
+			if(
+				isset($userField['ENTITY_VALUE_ID'], $userField['ENUM'])
+				&& $userField['ENTITY_VALUE_ID'] <= 0
+			)
+			{
+				$value = ($userField['MULTIPLE'] === 'Y' ? [] : null);
+				foreach($userField['ENUM'] as $enum)
+				{
+					if($enum['DEF'] === 'Y')
+					{
+						if($userField['MULTIPLE'] === 'Y')
+						{
+							$value[] = $enum['ID'];
+						}
+						else
+						{
+							$value = $enum['ID'];
+							break;
+						}
+					}
+				}
+			}
+			else
+			{
+				$value = $userField['VALUE'];
+			}
+		}
+		elseif(isset($additionalParameters['VALUE']))
+		{
+			$value = $additionalParameters['VALUE'];
+		}
+		else
+		{
+			$value = Context::getCurrent()->getRequest()->get($userField['FIELD_NAME']);
+		}
+
+		return $value;
 	}
 
 }

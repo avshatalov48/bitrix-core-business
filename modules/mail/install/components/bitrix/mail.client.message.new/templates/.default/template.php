@@ -2,7 +2,10 @@
 
 use Bitrix\Main\Localization\Loc;
 
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 /** @var array $arParams */
 /** @var array $arResult */
@@ -15,42 +18,53 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 /** @var string $componentPath */
 /** @var \CMailClientMessageNewComponent $component */
 
-$this->setViewTarget('pagetitle_icon');
+\Bitrix\UI\Toolbar\Facade\Toolbar::deleteFavoriteStar();
 
-?>
+if ($arResult['TO_PLUG_EXTENSION_SALES_LETTER_TEMPLATE'])
+{
+	\Bitrix\Main\UI\Extension::load('mail.saleslettertemplate');
+}
 
-<span class="mail-msg-title-icon mail-msg-title-icon-outcome"></span>
+$this->setViewTarget('inside_pagetitle'); ?>
+<div></div>
+<?php
+$this->endViewTarget();
 
-<?
+$this->setViewTarget('above_pagetitle'); ?>
 
+<div class="mail-message-new-head">
+	<span class="mail-msg-title-icon mail-msg-title-icon-outcome"></span>
+	<span class="mail-message-new-title-text"><?=Loc::getMessage('MAIL_NEW_MESSAGE_TITLE')?></span>
+</div>
+
+<?php
 $this->endViewTarget();
 
 $message = $arResult['MESSAGE'];
 
-$rcptList = array(
-	'users' => array(),
+$rcptList = [
+	'users' => [],
 	'emails' => $arResult['EMAILS'],
 	'mailContacts' => $arResult['LAST_RCPT'],
-	'companies' => array(),
-	'contacts' => array(),
-	'deals' => array(),
-	'leads' => array(),
-);
-$rcptLast = array(
-	'users' => array(),
-	'emails' => array(),
+	'companies' => [],
+	'contacts' => [],
+	'deals' => [],
+	'leads' => [],
+];
+$rcptLast = [
+	'users' => [],
+	'emails' => [],
 	'mailContacts' => array_combine(array_keys($arResult['LAST_RCPT']), array_keys($arResult['LAST_RCPT'])),
-	'companies' => array(),
-	'contacts' => array(),
-	'deals' => array(),
-	'leads' => array(),
-);
+	'companies' => [],
+	'contacts' => [],
+	'deals' => [],
+	'leads' => [],
+];
 
-$prepareReply = function($__field) use (&$message, &$rcptList, &$rcptLast)
-{
-	$result = array();
+$prepareReply = function($__field) use (&$message, &$rcptList, &$rcptLast) {
+	$result = [];
 
-	foreach ((array) $__field as $item)
+	foreach ((array)$__field as $item)
 	{
 		if (!empty($item['email']))
 		{
@@ -59,19 +73,19 @@ $prepareReply = function($__field) use (&$message, &$rcptList, &$rcptLast)
 				continue;
 			}
 
-//			$id = 'U'.md5($item['email']);
-//			$type = 'users';
+			//			$id = 'U'.md5($item['email']);
+			//			$type = 'users';
 			$id = 'MC'.$item['email'];
 			$type = 'mailcontacts';
 
-			$rcptList['emails'][$id] = $rcptList[$type][$id] = array(
-				'id'         => $id,
-				'entityId'   => count($rcptList['emails'])+1,
-				'name'       => $item['name'] ?: $item['email'],
-				'desc'       => $item['email'],
-				'email'      => $item['email'],
-				'isEmail'    => 'Y',
-			);
+			$rcptList['emails'][$id] = $rcptList[$type][$id] = [
+				'id' => $id,
+				'entityId' => count($rcptList['emails']) + 1,
+				'name' => $item['name'] ? : $item['email'],
+				'desc' => $item['email'],
+				'email' => $item['email'],
+				'isEmail' => 'Y',
+			];
 			$rcptLast['emails'][$id] = $rcptLast[$type][$id] = $id;
 
 			$result[$id] = $type;
@@ -81,8 +95,8 @@ $prepareReply = function($__field) use (&$message, &$rcptList, &$rcptLast)
 	return $result;
 };
 
-$rcptSelected = array();
-$rcptCcSelected = array();
+$rcptSelected = [];
+$rcptCcSelected = [];
 
 if ('reply' == $message['__type'])
 {
@@ -94,42 +108,48 @@ else
 	$rcptSelected = $prepareReply($message['__rcpt']);
 }
 
-$messageHtml = trim($message['BODY_HTML']) ? $message['BODY_HTML'] : preg_replace('/(\s*(\r\n|\n|\r))+/', '<br>', htmlspecialcharsbx($message['BODY']));
+$messageHtml = trim($message['BODY_HTML'])
+	? $message['BODY_HTML']
+	: preg_replace(
+		'/(\s*(\r\n|\n|\r))+/',
+		'<br>',
+		htmlspecialcharsbx($message['BODY'])
+	);
 
 $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 
 ?>
 
 <div class="mail-msg-view-wrapper">
-	<div data-id="<?=intval($message['ID']) ?>" id="mail-msg-view-details-<?=intval($message['ID']) ?>">
+	<div data-id="<?=intval($message['ID'])?>" id="mail-msg-view-details-<?=intval($message['ID'])?>">
 		<?
 
 		$formId = 'mail_msg_new_form';
 		$actionUrl = '/bitrix/services/main/ajax.php?c=bitrix%3Amail.client&action=sendMessage&mode=ajax';
 
 		?>
-		<form action="<?= $actionUrl ?>" method="POST" id="<?= htmlspecialcharsbx($formId) ?>">
-			<?= bitrix_sessid_post() ?>
+		<form action="<?=$actionUrl?>" method="POST" id="<?=htmlspecialcharsbx($formId)?>">
+			<?=bitrix_sessid_post()?>
 			<? if ('reply' == $message['__type'] && $message['__parent'] > 0): ?>
-				<input type="hidden" name="data[IN_REPLY_TO]" value="<?= htmlspecialcharsbx($message['MSG_ID']) ?>">
-				<input type="hidden" name="data[MAILBOX_ID]" value="<?= $message['MAILBOX_ID'] ?>">
+				<input type="hidden" name="data[IN_REPLY_TO]" value="<?=htmlspecialcharsbx($message['MSG_ID'])?>">
+				<input type="hidden" name="data[MAILBOX_ID]" value="<?=$message['MAILBOX_ID']?>">
 			<? endif ?>
 			<?
 
-			$inlineFiles = array();
+			$inlineFiles = [];
 			$quote = preg_replace_callback(
 				'#(\?|&)__bxacid=(n?\d+)#i',
-				function ($matches) use (&$inlineFiles)
-				{
+				function($matches) use (&$inlineFiles) {
 					$inlineFiles[] = $matches[2];
+
 					return $matches[0];
 				},
 				$messageHtml
 			);
 			$quote = $messageHtml;
 
-			$attachedFiles = array();
-			foreach ((array) $message['__files'] as $item)
+			$attachedFiles = [];
+			foreach ((array)$message['__files'] as $item)
 			{
 				if (preg_match('/^n\d+$/i', $item['id']))
 				{
@@ -142,28 +162,29 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 				$attachedFiles = array_intersect($attachedFiles, $inlineFiles);
 			}
 
-			$selectorParams = array(
+			$selectorParams = [
 				//'pathToAjax' => '/bitrix/components/bitrix/crm.activity.editor/ajax.php?soc_net_log_dest=search_email_comms',
-				'extranetUser'             => false,
-				'isCrmFeed'                => $isCrmEnabled,
-				'CrmTypes'                 => array('CRMCONTACT', 'CRMCOMPANY', 'CRMLEAD'),
-				'enableUsers'              => true,
-				'useClientDatabase'        => true,
+				'extranetUser' => false,
+				'isCrmFeed' => $isCrmEnabled,
+				'CrmTypes' => ['CRMCONTACT', 'CRMCOMPANY', 'CRMLEAD'],
+				'enableUsers' => true,
+				'useClientDatabase' => true,
 				'allowSearchEmailContacts' => true,
-				'allowAddUser'             => true,
-				'allowAddCrmContact'       => false,
-				'allowSearchEmailUsers'    => true,
+				'allowAddUser' => true,
+				'allowAddCrmContact' => false,
+				'allowSearchEmailUsers' => true,
 				'allowSearchCrmEmailUsers' => false,
-				'allowUserSearch'          => true,
-				'items'                    => $rcptList,
-				'itemsLast'                => $rcptLast,
-				'emailDescMode'            => true,
-				'searchOnlyWithEmail'      => true,
-			);
+				'allowUserSearch' => true,
+				'items' => $rcptList,
+				'itemsLast' => $rcptLast,
+				'emailDescMode' => true,
+				'searchOnlyWithEmail' => true,
+			];
 
 			$APPLICATION->includeComponent(
-				'bitrix:main.mail.form', '',
-				array(
+				'bitrix:main.mail.form',
+				'',
+				[
 					'VERSION' => 2,
 					'FORM_ID' => $formId,
 					'LAYOUT_ONLY' => true,
@@ -172,86 +193,90 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 					'FOLD_FILES' => !empty($message['MSG_ID']),
 					'EDITOR_TOOLBAR' => true,
 					'USE_SIGNATURES' => true,
-					'FIELDS' => array(
-						array(
-							'name'     => 'data[from]',
-							'title'    => Loc::getMessage('MAIL_MESSAGE_NEW_FROM'),
-							'type'     => 'from',
-							'value'    => $message['__email'],
+					'FIELDS' => [
+						[
+							'name' => 'data[from]',
+							'title' => Loc::getMessage('MAIL_MESSAGE_NEW_FROM'),
+							'type' => 'from',
+							'value' => $message['__email'],
 							'isFormatted' => true,
 							'required' => true,
-						),
-						array(
+						],
+						[
 							'type' => 'separator',
-						),
-						array(
-							'name'        => 'data[to]',
-							'title'       => Loc::getMessage('MAIL_MESSAGE_NEW_TO'),
+						],
+						[
+							'name' => 'data[to]',
+							'title' => Loc::getMessage('MAIL_MESSAGE_NEW_TO'),
 							'placeholder' => Loc::getMessage('MAIL_MESSAGE_NEW_ADD_RCPT'),
-							'type'        => 'rcpt',
+							'type' => 'rcpt',
 							//'value'       => $rcptSelected,
-							'selector'    => array_merge(
+							'selector' => array_merge(
 								$selectorParams,
-								array('itemsSelected' => $rcptSelected)
+								['itemsSelected' => $rcptSelected]
 							),
 							'required' => true,
-						),
-						array(
-							'name'        => 'data[cc]',
-							'title'       => Loc::getMessage('MAIL_MESSAGE_NEW_CC'),
+						],
+						[
+							'name' => 'data[cc]',
+							'title' => Loc::getMessage('MAIL_MESSAGE_NEW_CC'),
 							'placeholder' => Loc::getMessage('MAIL_MESSAGE_NEW_ADD_RCPT'),
-							'type'        => 'rcpt',
-							'folded'      => empty($rcptCcSelected),
+							'type' => 'rcpt',
+							'folded' => empty($rcptCcSelected),
 							//'value'       => $rcptCcSelected,
-							'selector'    => array_merge(
+							'selector' => array_merge(
 								$selectorParams,
-								array('itemsSelected' => $rcptCcSelected)
+								['itemsSelected' => $rcptCcSelected]
 							),
-						),
-						array(
-							'name'        => 'data[bcc]',
-							'title'       => Loc::getMessage('MAIL_MESSAGE_NEW_BCC'),
+						],
+						[
+							'name' => 'data[bcc]',
+							'title' => Loc::getMessage('MAIL_MESSAGE_NEW_BCC'),
 							'placeholder' => Loc::getMessage('MAIL_MESSAGE_NEW_ADD_RCPT'),
-							'type'        => 'rcpt',
-							'folded'      => true,
-							'selector'    => $selectorParams,
-						),
-						array(
-							'name'        => 'data[subject]',
-							'title'       => Loc::getMessage('MAIL_MESSAGE_NEW_SUBJECT'),
+							'type' => 'rcpt',
+							'folded' => true,
+							'selector' => $selectorParams,
+						],
+						[
+							'name' => 'data[subject]',
+							'title' => Loc::getMessage('MAIL_MESSAGE_NEW_SUBJECT'),
 							'placeholder' => Loc::getMessage('MAIL_MESSAGE_NEW_SUBJECT_PH'),
-							'value'       => $message['SUBJECT'],
-						),
-						array(
-							'name'   => 'data[message]',
-							'type'   => 'editor',
-							'value'  => !empty($message['MSG_ID']) ? sprintf(
+							'value' => $message['SUBJECT'],
+						],
+						[
+							'name' => 'data[message]',
+							'type' => 'editor',
+							'value' => !empty($message['MSG_ID']) ? sprintf(
 								'<br><br>%s, %s:<br><blockquote style="margin: 0 0 0 5px; padding: 5px 5px 5px 8px; border-left: 4px solid #e2e3e5; ">%s</blockquote>',
 								formatDate(
-									preg_replace('/[\/.,\s:][s]/', '', $GLOBALS['DB']->dateFormatToPhp(FORMAT_DATETIME)),
+									preg_replace(
+										'/[\/.,\s:][s]/',
+										'',
+										$GLOBALS['DB']->dateFormatToPhp(FORMAT_DATETIME)
+									),
 									$message['FIELD_DATE']->getTimestamp() + \CTimeZone::getOffset(),
 									time() + \CTimeZone::getOffset()
 								),
 								htmlspecialcharsbx(reset($message['__from'])['formated']),
 								$quote
 							) : '',
-						),
-						array(
-							'name'  => 'data[__diskfiles]',
-							'type'  => 'files',
+						],
+						[
+							'name' => 'data[__diskfiles]',
+							'type' => 'files',
 							'value' => $attachedFiles,
-						),
-					),
-					'BUTTONS' => array(
-						'submit' => array(
+						],
+					],
+					'BUTTONS' => [
+						'submit' => [
 							'class' => 'ui-btn-primary',
 							'title' => Loc::getMessage('MAIL_MESSAGE_NEW_SEND'),
-						),
-						'cancel' => array(
+						],
+						'cancel' => [
 							'title' => Loc::getMessage('MAIL_MESSAGE_NEW_CANCEL'),
-						),
-					),
-				)
+						],
+					],
+				]
 			);
 
 			?>
@@ -263,43 +288,50 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 
 <script type="text/javascript">
 
-<? $emailMaxSize = (int) \Bitrix\Main\Config\Option::get('main', 'max_file_size', 0); ?>
+	<? $emailMaxSize = (int)\Bitrix\Main\Config\Option::get('main', 'max_file_size', 0); ?>
 
-BX.message({
-	MAIL_MESSAGE_AJAX_ERROR: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_AJAX_ERROR')) ?>',
-	MAIL_MESSAGE_NEW_EMPTY_RCPT: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_NEW_EMPTY_RCPT')) ?>',
-	MAIL_MESSAGE_NEW_UPLOADING: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_NEW_UPLOADING')) ?>',
-	MAIL_MESSAGE_MAX_SIZE: <?=$emailMaxSize ?>,
-	MAIL_MESSAGE_MAX_SIZE_EXCEED: '<?=\CUtil::jsEscape(Loc::getMessage(
-		'MAIL_MESSAGE_MAX_SIZE_EXCEED',
-		['#SIZE#' => \CFile::formatSize($emailMaxSize)]
-	)) ?>',
-	MAIL_MESSAGE_SEND_SUCCESS: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_SEND_SUCCESS')) ?>'
-});
-
-BX.ready(function ()
-{
-	BXMailMessageController.init({
-		messageId: <?=intval($message['ID']) ?>,
-		type: 'edit',
-		pathList: '<?=\CUtil::jsEscape(\CComponentEngine::makePathFromTemplate(
-			$message['MAILBOX_ID'] > 0 ? $arParams['~PATH_TO_MAIL_MSG_LIST'] : $arParams['~PATH_TO_MAIL_HOME'],
-			array(
-				'id' => $message['MAILBOX_ID'],
+	BX.message({
+		MAIL_MESSAGE_AJAX_ERROR: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_AJAX_ERROR')) ?>',
+		MAIL_MESSAGE_NEW_EMPTY_RCPT: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_NEW_EMPTY_RCPT')) ?>',
+		MAIL_MESSAGE_NEW_UPLOADING: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_NEW_UPLOADING')) ?>',
+		MAIL_MESSAGE_MAX_SIZE: <?=$emailMaxSize ?>,
+		MAIL_MESSAGE_MAX_SIZE_EXCEED: '<?=\CUtil::jsEscape(
+			Loc::getMessage(
+				'MAIL_MESSAGE_MAX_SIZE_EXCEED',
+				['#SIZE#' => \CFile::formatSize($emailMaxSize)]
 			)
-		)) ?>'
+		) ?>',
+		MAIL_MESSAGE_SEND_SUCCESS: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_SEND_SUCCESS')) ?>',
 	});
 
-	new BXMailMessage({
-		messageId: <?=intval($message['ID']) ?>,
-		formId: '<?=\CUtil::jsEscape($formId) ?>'
-	});
+	BX.ready(function() {
+		BXMailMessageController.init({
+			messageId: <?=intval($message['ID']) ?>,
+			type: 'edit',
+			pathList: '<?=\CUtil::jsEscape(
+				\CComponentEngine::makePathFromTemplate(
+					$message['MAILBOX_ID'] > 0 ? $arParams['~PATH_TO_MAIL_MSG_LIST'] : $arParams['~PATH_TO_MAIL_HOME'],
+					[
+						'id' => $message['MAILBOX_ID'],
+					]
+				)
+			) ?>',
+		});
 
-	var mailForm = BXMainMailForm.getForm('<?=\CUtil::jsEscape($formId) ?>');
-	mailForm.init();
-	<? if($arResult['SELECTED_EMAIL_CODE'] && !empty($arResult['LAST_RCPT'][$arResult['SELECTED_EMAIL_CODE']])): ?>
-	mailForm.getField('data[to]').setValue({'<?= CUtil::JSEscape($arResult['SELECTED_EMAIL_CODE']) ?>': 'mailContacts'});
-	<? endif;?>
-});
+		new BXMailMessage({
+			messageId: <?=intval($message['ID']) ?>,
+			formId: '<?=\CUtil::jsEscape($formId) ?>',
+		});
+
+		var mailForm = BXMainMailForm.getForm('<?=\CUtil::jsEscape($formId) ?>');
+		mailForm.init();
+		<? if($arResult['SELECTED_EMAIL_CODE'] && !empty($arResult['LAST_RCPT'][$arResult['SELECTED_EMAIL_CODE']])): ?>
+		mailForm.getField('data[to]').setValue({
+			'<?= CUtil::JSEscape(
+				$arResult['SELECTED_EMAIL_CODE']
+			) ?>': 'mailContacts',
+		});
+		<? endif;?>
+	});
 
 </script>

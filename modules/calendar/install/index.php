@@ -20,9 +20,7 @@ class calendar extends CModule
 	{
 		$arModuleVersion = array();
 
-		$path = str_replace("\\", "/", __FILE__);
-		$path = substr($path, 0, strlen($path) - strlen("/index.php"));
-		include($path."/version.php");
+		include(__DIR__.'/version.php');
 
 		if (is_array($arModuleVersion) && array_key_exists("VERSION", $arModuleVersion))
 		{
@@ -134,7 +132,7 @@ class calendar extends CModule
 		global $DB, $APPLICATION;
 
 		$arCurPhpVer = Explode(".", PhpVersion());
-		if (IntVal($arCurPhpVer[0]) < 5)
+		if (intval($arCurPhpVer[0]) < 5)
 			return true;
 
 		$errors = $this->InstallUserFields();
@@ -145,7 +143,7 @@ class calendar extends CModule
 		}
 
 		if (!$DB->Query("SELECT 'x' FROM b_calendar_access ", true))
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"].'/bitrix/modules/'.$this->MODULE_ID.'/install/db/'.strtolower($DB->type).'/install.sql');
+			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"].'/bitrix/modules/'.$this->MODULE_ID.'/install/db/'.mb_strtolower($DB->type).'/install.sql');
 		$this->InstallTasks();
 
 		if (!empty($errors))
@@ -182,6 +180,8 @@ class calendar extends CModule
 
 		$eventManager->registerEventHandlerCompatible("main", "OnUserTypeBuildList", "calendar", "\\Bitrix\\Calendar\\UserField\\ResourceBooking", "getUserTypeDescription", 154);
 
+		$eventManager->registerEventHandler('mail', 'onReplyReceivedICAL_INVENT', 'calendar', '\Bitrix\Calendar\ICal\IncomingEventManager', 'handleReplyReceivedICalInvent');
+
 		if($DB->type === "MYSQL"
 			&& $DB->Query("CREATE fulltext index IXF_B_CALENDAR_EVENT_SEARCHABLE_CONTENT on b_calendar_event (SEARCHABLE_CONTENT)", true))
 		{
@@ -212,7 +212,7 @@ class calendar extends CModule
 		if ((true == array_key_exists("savedata", $arParams)) && ($arParams["savedata"] != 'Y'))
 		{
 			$GLOBALS["USER_FIELD_MANAGER"]->OnEntityDelete("CALENDAR_EVENT");
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"].'/bitrix/modules/'.$this->MODULE_ID.'/install/db/'.strtolower($DB->type).'/uninstall.sql');
+			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"].'/bitrix/modules/'.$this->MODULE_ID.'/install/db/'.mb_strtolower($DB->type).'/uninstall.sql');
 
 			if (!empty($errors))
 			{
@@ -295,7 +295,7 @@ class calendar extends CModule
 		global $DB;
 
 		$arCurPhpVer = Explode(".", PhpVersion());
-		if (IntVal($arCurPhpVer[0]) < 5)
+		if (intval($arCurPhpVer[0]) < 5)
 			return true;
 
 		$sIn = "'CALENDAR_INVITATION'";
@@ -334,7 +334,7 @@ class calendar extends CModule
 	function UnInstallEvents()
 	{
 		global $DB;
-		$sIn = "'CALENDAR_INVITATION'";
+		$sIn = "'CALENDAR_INVITATION', 'SEND_ICAL_INVENT'";
 		$DB->Query("DELETE FROM b_event_message WHERE EVENT_NAME IN (".$sIn.") ", false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		$DB->Query("DELETE FROM b_event_type WHERE EVENT_NAME IN (".$sIn.") ", false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		return true;
@@ -413,7 +413,7 @@ class calendar extends CModule
 		global $APPLICATION;
 
 		$arCurPhpVer = Explode(".", PhpVersion());
-		if (IntVal($arCurPhpVer[0]) < 5)
+		if (intval($arCurPhpVer[0]) < 5)
 			return true;
 
 		if($_ENV["COMPUTERNAME"]!='BX')
@@ -501,7 +501,7 @@ class calendar extends CModule
 		global $DB, $APPLICATION, $USER, $step;
 		if($USER->IsAdmin())
 		{
-			$step = IntVal($step);
+			$step = intval($step);
 			if($step < 2)
 			{
 				$APPLICATION->IncludeAdminFile(GetMessage("CAL_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/calendar/install/unstep1.php");

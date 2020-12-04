@@ -11,6 +11,6 @@ $MESS["MAIN_USER_CONSENT_EDIT_COMP_FIELD_FORM_FIELD_NAMES"] = "Список по
 $MESS["MAIN_USER_CONSENT_EDIT_COMP_FIELD_LABEL_USE_URL"] = "При клике на ссылку открывать стороннюю ссылку или файл";
 $MESS["MAIN_USER_CONSENT_EDIT_COMP_FIELD_LABEL_URL"] = "Сторонняя ссылка или файл";
 $MESS["MAIN_USER_CONSENT_EDIT_COMP_TAB_TEXT"] = "Текст соглашения";
-$MESS["MAIN_USER_CONSENT_EDIT_COMP_TAB_SETTINGS"] = "Галочка и поведение";
+$MESS["MAIN_USER_CONSENT_EDIT_COMP_TAB_SETTINGS_1"] = "Подпись и поведение";
 $MESS["MAIN_USER_CONSENT_EDIT_COMP_TAB_LIST"] = "Список согласий";
 ?>

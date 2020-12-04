@@ -31,4 +31,5 @@ $MESS["MAIN_EVENTLOG_MP_MODULE_UNINSTALLED"] = "Решение Маркетпл�
 $MESS["MAIN_EVENTLOG_MP_MODULE_DELETED"] = "Решение Маркетплейс стерто";
 $MESS["MAIN_EVENTLOG_MP_MODULE_DOWNLOADED"] = "Решение Маркетплейс скачано";
 $MESS["MAIN_EVENTLOG_USER_BLOCKED"] = "Пользователь заблокирован";
+$MESS["MAIN_EVENTLOG_USER_PERMISSIONS_FAIL"] = "Ошибка доступа к файлу";
 ?>

@@ -1,10 +1,14 @@
 <?php
 namespace Bitrix\Main\Data;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Config;
+use Bitrix\Main\Data\LocalStorage;
 
-class CacheEngineMemcache implements ICacheEngine, ICacheEngineStat
+class CacheEngineMemcache implements ICacheEngine, ICacheEngineStat, LocalStorage\Storage\CacheEngineInterface
 {
+	public const SESSION_MEMCACHE_CONNECTION = 'cache.memcache';
+
 	protected static $memcache = null;
 	private static $isConnected = false;
 
@@ -44,10 +48,17 @@ class CacheEngineMemcache implements ICacheEngine, ICacheEngineStat
 					$port = 11211;
 				}
 
-				if (self::$memcache->pconnect($v["host"], $port))
-				{
-					self::$isConnected = true;
-				}
+				$connectionPool = Application::getInstance()->getConnectionPool();
+				$connectionPool->setConnectionParameters(self::SESSION_MEMCACHE_CONNECTION, [
+					'className' => MemcacheConnection::class,
+					'host' => $v['host'],
+					'port' => $port,
+				]);
+
+				/** @var MemcacheConnection $memcacheConnection */
+				$memcacheConnection = $connectionPool->getConnection(self::SESSION_MEMCACHE_CONNECTION);
+				self::$memcache = $memcacheConnection->getResource();
+				self::$isConnected = $memcacheConnection->isConnected();
 			}
 		}
 

@@ -191,8 +191,12 @@
 			});
 		},
 
-		moveEventToNewDate: function(entry, dateFrom, dateTo)
+		moveEventToNewDate: function(entry, dateFrom, dateTo, options)
 		{
+			if (!options)
+			{
+				options = {};
+			}
 			entry.from.setFullYear(dateFrom.getFullYear(), dateFrom.getMonth(), dateFrom.getDate());
 			if (entry.fullDay)
 			{
@@ -234,6 +238,20 @@
 				return;
 			}
 
+			if (entry.isMeeting()
+				&& options.sendInvitesAgain === undefined
+				&& entry.getAttendees().find(function(item){return item.STATUS === 'N';}))
+			{
+				BX.Calendar.EntryManager.showReInviteUsersDialog({
+					callback: function(params) {
+						this.moveEventToNewDate(
+							entry, dateFrom, dateTo,
+							{sendInvitesAgain: params.sendInvitesAgain});
+					}.bind(this)
+				});
+				return false;
+			}
+
 			var attendees = [];
 			if (entry.isMeeting())
 			{
@@ -255,7 +273,8 @@
 					is_meeting: entry.isMeeting() ? 'Y' : 'N',
 					section: entry.sectionId,
 					timezone: this.calendar.util.getUserOption('timezoneName'), //timezone
-					set_timezone: 'Y'
+					set_timezone: 'Y',
+					sendInvitesAgain: options.sendInvitesAgain ? 'Y' : 'N'
 
 				},
 				handler: BX.delegate(function(response)
@@ -290,21 +309,6 @@
 			}
 			else
 			{
-				//bConfirmed = !!bConfirmed;
-				//if (this.IsAttendee(oEvent) && !this.IsHost(oEvent))
-				//{
-				//	bConfirmed = true;
-				//	if (!confirm(EC_MESS.DeclineConfirm))
-				//		return false;
-				//}
-
-				//if (this.IsHost(oEvent) && !bConfirmed)
-				//{
-				//	bConfirmed = true;
-				//	if (!confirm(EC_MESS.DelMeetingConfirm))
-				//		return false;
-				//}
-
 				if (!params.confirmed
 					&& !confirm(BX.message('EC_DELETE_EVENT_CONFIRM'))
 				)
@@ -638,6 +642,8 @@
 					}
 				}
 			}
+
+			BX.Calendar.EntryManager.setUserIndex(this.userIndex);
 		},
 
 		getUniqueId: function(entryData, entry)
@@ -1027,9 +1033,37 @@
 			return this.to.getTime() < new Date().getTime();
 		},
 
-		isExternal: function()
+		hasEmailAttendees: function()
 		{
-			return false;
+			if (this.emailAttendeesCache === undefined && BX.type.isArray(this.data['ATTENDEE_LIST']))
+			{
+				var userIndex = BX.Calendar.EntryManager.getUserIndex();
+				var user;
+				for (var i = 0; i < this.data['ATTENDEE_LIST'].length; i++)
+				{
+					user = this.data['ATTENDEE_LIST'][i];
+					if ((user.status === 'Y' || user.status === 'Q')
+						&& userIndex[user.id]
+						&& userIndex[user.id].EMAIL_USER
+					)
+					{
+						this.emailAttendeesCache = true;
+						break;
+					}
+				}
+			}
+			return this.emailAttendeesCache;
+		},
+
+		ownerIsEmailUser: function()
+		{
+			if (this.ownerIsEmailUserCache === undefined)
+			{
+				var userIndex = BX.Calendar.EntryManager.getUserIndex();
+				this.ownerIsEmailUserCache = userIndex[parseInt(this.data.MEETING_HOST)]
+						&& userIndex[parseInt(this.data.MEETING_HOST)].EMAIL_USER;
+			}
+			return this.ownerIsEmailUserCache;
 		},
 
 		isSelected: function()

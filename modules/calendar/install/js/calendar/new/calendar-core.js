@@ -21,7 +21,13 @@
 		this.sectionController = new window.BXEventCalendar.SectionController(this, data, config);
 		this.entryController = new window.BXEventCalendar.EntryController(this, data);
 		this.currentViewName = this.util.getUserOption(this.viewOption) || this.DEFAULT_VIEW;
+
 		BX.Calendar.CalendarSectionManager.setNewEntrySectionId(this.sectionController.getCurrentSection().id);
+		BX.Calendar.Util.setUserSettings(config.userSettings);
+		BX.Calendar.Util.setEventWithEmailGuestAmount(config.countEventWithEmailGuestAmount);
+		BX.Calendar.Util.setEventWithEmailGuestLimit(config.eventWithEmailGuestLimit);
+
+		BX.Calendar.Util.setCalendarContext(this);
 
 		this.requests = {};
 		this.currentUser = config.user;
@@ -113,8 +119,6 @@
 
 				this.topBlock.appendChild(BX.create('DIV', {style: {clear: 'both'}}));
 
-				this.util.applyHacksHandlersForPopupzIndex();
-
 				top.BX.addCustomEvent(top, 'onCalendarBeforeCustomSliderCreate', BX.proxy(this.loadCssList, this));
 
 				if (top !== window)
@@ -129,7 +133,40 @@
 					}
 				}
 
+				if (this.util.userIsOwner())
+				{
+					this.syncInterface = new BX.Calendar.Sync.Interface.SyncInterfaceManager({
+						wrapper: document.getElementById(this.id + '-sync-container'),
+						syncInfo: this.syncSlider.syncInfo,
+						userId: this.currentUser.id,
+						syncLinks: this.syncSlider.config.syncLinks,
+						isSetSyncCaldavSettings: this.syncSlider.config.isSetSyncCaldavSettings,
+						sections: this.sectionController.sections,
+						portalAddress: this.syncSlider.config.caldav_link_all,
+						isRuZone: this.syncSlider.config.isRuZone,
+						calendar: this,
+					});
+					this.syncInterface.showSyncButton();
+				}
+
 				BX.Event.EventEmitter.subscribe('BX.Calendar.EventEditForm:onSave', function(event)
+				{
+					if (event instanceof BX.Event.BaseEvent)
+					{
+						var data = event.getData();
+						if (data.options.recursionMode || data.responseData.reload)
+						{
+							this.reload();
+						}
+						else if (data.responseData && BX.Type.isArray(data.responseData.eventList))
+						{
+							this.entryController.handleEntriesList(data.responseData.eventList);
+							this.getView().displayEntries();
+						}
+					}
+				}.bind(this));
+
+				BX.Event.EventEmitter.subscribe('BX.Calendar.CompactEventForm:onSave', function(event)
 				{
 					if (event instanceof BX.Event.BaseEvent)
 					{
@@ -155,7 +192,15 @@
 					}
 				}.bind(this));
 
+				BX.Event.EventEmitter.subscribe('BX.Calendar.CompactEventForm:doRefresh', function(event)
+				{
+					this.refresh();
+				}.bind(this));
+			}
 
+			if (this.util.config.displayMobileBanner)
+			{
+				new BX.Calendar.Sync.Interface.MobileSyncBanner().showInPopup();
 			}
 		},
 
@@ -759,12 +804,6 @@
 
 				if (this.util.userIsOwner())
 				{
-					this.syncButton = this.buttonsCont.appendChild(BX.create("button", {
-						props: {
-							className: "ui-btn ui-btn-icon-business ui-btn-light-border ui-btn-themes",
-							type: "button"
-						}
-					}));
 					this.syncSlider = new window.BXEventCalendar.SyncSlider({
 						calendar: this,
 						button: this.syncButton

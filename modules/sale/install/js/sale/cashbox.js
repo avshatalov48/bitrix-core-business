@@ -357,6 +357,14 @@
 				onsuccess: BX.delegate(function(result)
 					{
 						BX.closeWait();
+						if (result && result.hasOwnProperty('SHOW_UA_HINT'))
+						{
+							BX.hint_replace(BX('hint_CASHBOX_UA'), BX.message('SALE_CASHBOX_UA_HINT'));
+						}
+						else if(BX('hint_cashbox_ua_wrapper'))
+						{
+							BX('hint_cashbox_ua_wrapper').innerHTML = '<span id="hint_CASHBOX_UA"></span>';
+						}
 						if (result && result.hasOwnProperty('HTML'))
 							BX('sale-cashbox-settings-container').innerHTML = result.HTML;
 

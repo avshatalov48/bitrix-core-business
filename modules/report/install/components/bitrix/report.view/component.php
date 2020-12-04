@@ -211,7 +211,7 @@ try
 	$arResult['SHOW_EDIT_BUTTON'] = is_bool($arParams['SHOW_EDIT_BUTTON']) ? $arParams['SHOW_EDIT_BUTTON'] : true;
 
 	// action
-	$settings = unserialize($report['SETTINGS']);
+	$settings = unserialize($report['SETTINGS'], ['allowed_classes' => false]);
 
 	// prevent percent from percent
 	$prcntSelect = [];

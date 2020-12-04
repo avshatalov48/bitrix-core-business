@@ -25,7 +25,7 @@ $composerSettings = \Bitrix\Main\Config\Configuration::getValue('composer');
 if (!empty($composerSettings['config_path']))
 {
 	$jsonPath = $composerSettings['config_path'];
-	$jsonPath = ($jsonPath{0} == '/')
+	$jsonPath = ($jsonPath[0] == '/')
 		? $jsonPath // absolute
 		: realpath($_SERVER["DOCUMENT_ROOT"].'/'.$jsonPath); // relative
 

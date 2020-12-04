@@ -417,6 +417,10 @@ function updatePointPosition_<?echo $MAP_ID?>__n<?=$googleMapLastNumber?>_(obPoi
 	obInput.value = null == obP ? '' : obP[0] + ',' + obP[1];
 	BX('point_<?echo $MAP_ID?>__n<?=$googleMapLastNumber?>_lat').value = obP ? obP[0] : '';
 	BX('point_<?echo $MAP_ID?>__n<?=$googleMapLastNumber?>_lon').value = obP ? obP[1] : '';
+	if (obPoint.pixel)
+	{
+		BX.onCustomEvent(window, 'onAddGoogleMapPoint');
+	}
 }
 
 BX.ready(function() {
@@ -679,6 +683,8 @@ var jsGoogleCESearch_<?echo $MAP_ID;?> = {
 								),
 							),
 						)),
+						'MAP_WIDTH' => $arParams['WIDTH'] ?? null,
+						'MAP_HEIGHT' => $arParams['HEIGHT'] ?? null,
 						'MAP_ID' => 'MAP_GOOGLE_VIEW_'.$arProperty['IBLOCK_ID'].'_'.$arProperty['ID'].'__n'.$googleMapLastNumber.'_',
 						'DEV_MODE' => 'Y',
 						'API_KEY' => $apiKey
@@ -734,6 +740,15 @@ var jsGoogleCESearch_<?echo $MAP_ID;?> = {
 		$paramsHTMLControl = [
 			'VALUE' => $params['FIELD_NAME'] ?? '',
 		];
+
+		if (isset($params['WIDTH']))
+		{
+			$paramsHTMLControl['WIDTH'] = $params['WIDTH'];
+		}
+		if (isset($params['HEIGHT']))
+		{
+			$paramsHTMLControl['HEIGHT'] = $params['HEIGHT'];
+		}
 
 		if ($settings['MULTIPLE'] === 'Y')
 		{

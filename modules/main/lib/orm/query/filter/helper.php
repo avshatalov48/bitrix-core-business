@@ -25,7 +25,7 @@ class Helper
 	 *
 	 * @param string $phrase
 	 * @param string $wildcard '*' or '' actually
-	 * @param int    $minTokenSize
+	 * @param int|null    $minTokenSize
 	 *
 	 * @return string
 	 */
@@ -86,7 +86,7 @@ class Helper
 		static $encoding = null;
 		if($encoding === null)
 		{
-			$encoding = mb_strtolower(\Bitrix\Main\Context::getCurrent()->getCulture()->getCharset());
+			$encoding = strtolower(\Bitrix\Main\Context::getCurrent()->getCulture()->getCharset());
 		}
 
 		if($encoding <> "utf-8")

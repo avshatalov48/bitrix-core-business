@@ -338,7 +338,7 @@ BX.JCCalendar = function()
 			e = e||window.event;
 			this.SetDate(
 				new Date(parseInt(BX.proxy_context.getAttribute('data-date'))),
-				(e.type === 'dblclick' || !this.params.bCompatibility)
+				(e.type === 'dblclick' || this.params.bCompatibility)
 			)
 		}, this);
 
@@ -467,7 +467,7 @@ BX.JCCalendar = function()
 		{
 			case 'time_show':
 				BX.addClass(this.PARTS.TIME, 'bx-calendar-set-time-opened');
-				if (!this.params.bCompatibility)
+				if (this.params.bCompatibility)
 				{
 					BX.removeClass(this.PARTS.BUTTONS, 'bx-calendar-buttons-disabled');
 				}
@@ -475,7 +475,7 @@ BX.JCCalendar = function()
 			break;
 			case 'time_hide':
 				BX.removeClass(this.PARTS.TIME, 'bx-calendar-set-time-opened');
-				if (!this.params.bCompatibility)
+				if (this.params.bCompatibility)
 				{
 					BX.addClass(this.PARTS.BUTTONS, 'bx-calendar-buttons-disabled');
 				}
@@ -1034,18 +1034,18 @@ BX.JCCalendar.prototype.activateTimeStyle = function(bHideTime)
 {
 	if (!!this.params.bCompatibility)
 	{
+		BX.addClass(this.PARTS.BUTTONS, 'bx-calendar-buttons-disabled');
+		BX.addClass(this.PARTS.TIME, 'bx-calendar-set-time-wrap-simple');
+		BX.removeClass(this.PARTS.TIME, 'bx-calendar-set-time-opened');
+	}
+	else
+	{
 		BX.removeClass(this.DIV, 'bx-calendar-time-disabled');
 
 		if (!!bHideTime)
 			BX.removeClass(this.PARTS.TIME, 'bx-calendar-set-time-opened');
 		else
 			BX.addClass(this.PARTS.TIME, 'bx-calendar-set-time-opened');
-	}
-	else
-	{
-		BX.addClass(this.PARTS.BUTTONS, 'bx-calendar-buttons-disabled');
-		BX.addClass(this.PARTS.TIME, 'bx-calendar-set-time-wrap-simple');
-		BX.removeClass(this.PARTS.TIME, 'bx-calendar-set-time-opened');
 	}
 };
 

@@ -305,5 +305,16 @@ abstract class BaseType
 		return static::renderText($userField);
 	}
 
+	/**
+	 * @param array $userField
+	 * @param array $additionalParameters
+	 * @return mixed
+	 */
+	public static function getDefaultValue(array $userField, array $additionalParameters = [])
+	{
+		$value = ($userField['SETTINGS']['DEFAULT_VALUE'] ?? '');
+		return ($userField['MULTIPLE'] === 'Y' ? [$value] : $value);
+	}
+
 	abstract public static function getDbColumnType(): string;
 }

@@ -420,7 +420,7 @@ BX.Fileman.Player.prototype.fillParameters = function(params)
 	this.hasFlash = params.hasFlash || false;
 	if(params.playbackRate && !params.hasFlash)
 	{
-		params.playbackRate = parseInt(params.playbackRate);
+		params.playbackRate = parseFloat(params.playbackRate);
 		if(params.playbackRate != 1)
 		{
 			if(params.playbackRate <= 0)

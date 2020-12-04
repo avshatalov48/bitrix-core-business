@@ -104,9 +104,9 @@
 				var s=d.createElement('script');
 				var r=1*new Date(); s.async=1;s.src=u+'?'+r;
 				var h=d.getElementsByTagName('script')[0];h.parentNode.insertBefore(s,h);
-			})(window,document, this.portal + '/bitrix/js/crm/form_loader.js','b24form');
+			})(top,top.document, this.portal + '/bitrix/js/crm/form_loader.js','b24form');
 
-			window.b24form({
+			top.b24form({
 				"id": form.id,
 				"lang": form.lang,
 				"sec": form.sec,

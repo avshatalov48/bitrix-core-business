@@ -341,8 +341,8 @@ BXMailBlockEditorHandler = function()
 								var itemValue = value[j];
 								var a = BX.findChild(itemList[j], {'tag': 'a'}, true);
 								a.textContent = itemValue.name.trim();
-								a.href = itemValue.href.trim();
-								a.title = itemValue.name.trim();
+								a.href = BX.util.htmlspecialchars(itemValue.href.trim());
+								a.title = BX.util.htmlspecialchars(itemValue.name.trim());
 							}
 						}
 

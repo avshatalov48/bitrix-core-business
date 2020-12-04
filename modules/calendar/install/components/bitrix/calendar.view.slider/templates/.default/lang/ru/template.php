@@ -21,4 +21,5 @@ $MESS["EC_VIEW_REMINDERS"] = "Напоминание";
 $MESS["EC_VIEW_REMINDER_ADD"] = "Напомнить";
 $MESS["EC_VIEW_SECTION"] = "Календарь";
 $MESS["EC_VIEW_SLIDER_EVENT_NOT_FOUND"] = "Событие не найдено или не может быть показано.";
+$MESS["EC_VIEW_SLIDER_CHAT_LINK"] = "Чат с участниками";
 ?>

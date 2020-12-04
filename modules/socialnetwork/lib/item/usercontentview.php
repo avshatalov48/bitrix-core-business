@@ -182,7 +182,9 @@ class UserContentView
 					$fields["USER_PERSONAL_PHOTO"],
 					array('width' => 58, 'height' => 58),
 					BX_RESIZE_IMAGE_EXACT,
-					false
+					false,
+					false,
+					true
 				);
 				$photoSrc = $file["src"];
 			}

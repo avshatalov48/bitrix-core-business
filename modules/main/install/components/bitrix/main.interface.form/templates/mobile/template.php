@@ -111,7 +111,7 @@ foreach($arResult["TABS"] as $tab)
 			if (!empty($tab['title']))
 			{
 				?>
-				<div class="mobile-grid-tab-title"><?= $tab['title'] ?></div>
+				<div class="mobile-grid-tab-title"><?= \Bitrix\Main\Text\HtmlFilter::encode($tab['title']) ?></div>
 				<?php
 			}
 		?>

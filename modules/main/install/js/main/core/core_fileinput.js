@@ -891,14 +891,16 @@ BX["UI"].FileInput.prototype = {
 
 		if (this.uploadParams["maxCount"] <= 1)
 		{
-			var n = BX.findChild(this.agent.form, {tagName : "INPUT", attr : {name : (input_name)}}, false);
+			var n = BX.findChild(this.container, {tagName : "INPUT", attr : {name : (input_name)}}, false);
+			console.log('n1: ', n);
 			if (n)
 			{
 				BX.adjust(n, { attrs : { disabled : true }});
 				var nDelName = input_name + '_del';
 				if (input_name.indexOf('[') > 0)
 					nDelName = input_name.substr(0, input_name.indexOf('[')) + '_del' + input_name.substr(input_name.indexOf('['));
-				n = BX.findChild(this.agent.form, {tagName : "INPUT", attr : {name : nDelName}}, false);
+				n = BX.findChild(this.container, {tagName : "INPUT", attr : {name : nDelName}}, false);
+				console.log('n2: ', n);
 				if (n)
 					BX.adjust(n, { attrs : { disabled : true } } );
 			}
@@ -1141,20 +1143,20 @@ BX["UI"].FileInput.prototype = {
 				name : name,
 				type : "hidden",
 				value : item['file']['input_value']}});
-			this.agent.form.appendChild(node);
+			this.container.appendChild(node);
 			node = BX.create("INPUT", { props : {
 				name : nDelName,
 				type : "hidden",
 				value : "Y"}});
-			this.agent.form.appendChild(node);
+			this.agent.fileInput.parentNode.appendChild(node);
 		}
 		else
 		{
-			var n = BX.findChild(this.agent.form, {tagName : "INPUT", attr : { name : name, disabled : true }}, false);
+			var n = BX.findChild(this.container, {tagName : "INPUT", attr : { name : name, disabled : true }}, false);
 			if (n)
 			{
 				BX.adjust(n, { attrs : { disabled : false } } );
-				BX.adjust(BX.findChild(this.agent.form, {tagName : "INPUT", attr : { name : nDelName, disabled : true }}, false), { attrs : { disabled : false } } );
+				BX.adjust(BX.findChild(this.container, {tagName : "INPUT", attr : { name : nDelName, disabled : true }}, false), { attrs : { disabled : false } } );
 			}
 		}
 

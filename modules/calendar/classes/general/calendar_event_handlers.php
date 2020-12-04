@@ -43,6 +43,7 @@ class CCalendarEventHandlers
 
 		$arNewEvents = CCalendarEvent::GetList(array(
 			'arFilter' => array(
+				"CAL_TYPE" => 'user',
 				"OWNER_ID" => $userId,
 				"FROM_LIMIT" => $date_from,
 				"TO_LIMIT" => $date_to,
@@ -92,6 +93,7 @@ class CCalendarEventHandlers
 				{
 					$arEvents[] = array(
 						'ID' => $arEvent['ID'],
+						'CAL_TYPE' => 'user',
 						'OWNER_ID' => $userId,
 						'CREATED_BY' => $arEvent['CREATED_BY'],
 						'NAME' => $arEvent['NAME'],
@@ -400,9 +402,9 @@ class CCalendarEventHandlers
 					$res['GUESTS'] = array_merge($arGuests['Y'], $arGuests['N'], $arGuests['Q']);
 				}
 
-				if (strlen($res['DESCRIPTION']) > 150)
+				if (mb_strlen($res['DESCRIPTION']) > 150)
 				{
-					$res['DESCRIPTION'] = CUtil::closetags(substr($res['DESCRIPTION'], 0, 150)).'...';
+					$res['DESCRIPTION'] = CUtil::closetags(mb_substr($res['DESCRIPTION'], 0, 150)).'...';
 				}
 
 				$res = array('EVENT' => $res);

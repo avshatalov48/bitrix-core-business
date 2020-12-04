@@ -105,7 +105,7 @@ function __showPopup($element_id, $items)
 	echo
 		'<script type="text/javascript">
 			var currentWindow = top.window;
-			if (top.BX.SidePanel.Instance && top.BX.SidePanel.Instance.getTopSlider())
+			if (top.BX.SidePanel && top.BX.SidePanel.Instance && top.BX.SidePanel.Instance.getTopSlider())
 			{
 				currentWindow = top.BX.SidePanel.Instance.getTopSlider().getWindow();
 			}
@@ -551,7 +551,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && !$bReadOnly && check_bitrix_sessid()
 			?>
 			<script type="text/javascript">
 				var currentWindow = top.window;
-				if (top.BX.SidePanel.Instance && top.BX.SidePanel.Instance.getTopSlider())
+				if (top.BX.SidePanel && top.BX.SidePanel.Instance && top.BX.SidePanel.Instance.getTopSlider())
 				{
 					currentWindow = top.BX.SidePanel.Instance.getTopSlider().getWindow();
 				}

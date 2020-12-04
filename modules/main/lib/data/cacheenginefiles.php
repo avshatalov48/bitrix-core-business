@@ -408,7 +408,7 @@ class CacheEngineFiles
 
 			$this->written = fwrite($handle, $contents);
 			$this->path = $fn;
-			$len = Main\Text\BinaryString::getLength($contents);
+			$len = strlen($contents);
 
 			fclose($handle);
 

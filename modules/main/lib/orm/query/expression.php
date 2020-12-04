@@ -170,6 +170,6 @@ class Expression
 	 */
 	protected static function getTmpName($postfix)
 	{
-		return 'A'.mb_strtoupper(Random::getString(6).'_'.$postfix);
+		return 'A'.strtoupper(Random::getString(6).'_'.$postfix);
 	}
 }

@@ -86,6 +86,16 @@ class Date
 			];
 		}
 
+		//normalize values
+		if($parsedValue['month'] === false)
+		{
+			$parsedValue['month'] = 1;
+		}
+		if($parsedValue['day'] === false)
+		{
+			$parsedValue['day'] = 1;
+		}
+
 		return $parsedValue;
 	}
 

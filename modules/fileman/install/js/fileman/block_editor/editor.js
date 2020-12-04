@@ -177,7 +177,7 @@ BXBlockEditor.prototype.initPhpSlices = function()
 		var phpSlice = node.getAttribute(this.phpParser.getAttrName());
 		var phpDesc = this.phpParser.getPhpSliceDescription(phpSlice);
 		node.innerHTML = phpDesc.name;
-		node.setAttribute('title', phpDesc.title);
+		node.setAttribute('title', BX.util.htmlspecialchars(phpDesc.title));
 
 		this.phpParser.addItem(node.id, phpSlice, node.outerHTML);
 	}

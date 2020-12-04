@@ -1,4 +1,10 @@
 <?
+
+/**
+ * Class CSecuritySession
+ * @deprecated
+ * @see \Bitrix\Main\Session\Session
+ */
 class CSecuritySession
 {
 	const GC_AGENT_NAME = "CSecuritySession::CleanUpAgent();";

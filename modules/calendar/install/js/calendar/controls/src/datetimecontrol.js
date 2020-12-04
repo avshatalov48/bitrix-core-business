@@ -6,12 +6,18 @@ import {EventEmitter, BaseEvent} from 'main.core.events';
 
 export class DateTimeControl extends EventEmitter
 {
+	DATE_INPUT_WIDTH = 110;
+	TIME_INPUT_WIDTH = 70;
+	zIndex = 4200;
+
 	constructor(uid, options = {showTimezone: true})
 	{
 		super();
 		this.setEventNamespace('BX.Calendar.Controls.DateTimeControl');
 
 		this.showTimezone = options.showTimezone;
+		this.inlineEditMode = !!options.inlineEditMode;
+		this.currentInlineEditMode = options.currentInlineEditMode || 'view';
 
 		this.UID = uid || 'date-time-' + Math.round(Math.random() * 100000);
 
@@ -27,23 +33,48 @@ export class DateTimeControl extends EventEmitter
 	{
 		if (Type.isDomNode(this.DOM.outerWrap))
 		{
-			this.DOM.fromDate = this.DOM.outerWrap.appendChild(Tag.render`
-				<input class="calendar-field calendar-field-datetime" value="" type="text" autocomplete="off" style="width: 120px;"/>
-			`);
+			if (this.inlineEditMode)
+			{
+				Dom.addClass(this.DOM.outerWrap, 'calendar-datetime-inline-mode-view');
+			}
 
-			this.DOM.fromTime = this.DOM.outerWrap.appendChild(Tag.render`
-				<input class="calendar-field calendar-field-datetime-menu" value="" type="text" autocomplete="off"/>
+			this.DOM.leftInnerWrap = this.DOM.outerWrap.appendChild(Tag.render`<div class="calendar-field-block calendar-field-block-left"></div>`);
+
+			this.DOM.fromDate = this.DOM.leftInnerWrap.appendChild(Tag.render`
+				<input class="calendar-field calendar-field-datetime" value="" type="text" autocomplete="off" style="width: ${this.DATE_INPUT_WIDTH}px;"/>
 			`);
+			if (this.inlineEditMode)
+			{
+				this.DOM.fromDateText = this.DOM.leftInnerWrap.appendChild(Tag.render`<span class="calendar-field-value calendar-field-value-date"></span>`);
+			}
+
+			this.DOM.fromTime = this.DOM.leftInnerWrap.appendChild(Tag.render`
+				<input class="calendar-field calendar-field-time" value="" type="text" autocomplete="off" style="width: ${this.TIME_INPUT_WIDTH}px;"/>
+			`);
+			if (this.inlineEditMode)
+			{
+				this.DOM.fromTimeText = this.DOM.leftInnerWrap.appendChild(Tag.render`<span class="calendar-field-value calendar-field-value-time"></span>`);
+			}
 
 			this.DOM.outerWrap.appendChild(Tag.render`<div class="calendar-field-block calendar-field-block-between" />`);
 
-			this.DOM.toTime = this.DOM.outerWrap.appendChild(Tag.render`
-				<input class="calendar-field calendar-field-datetime-menu" value="" type="text" autocomplete="off"/>
-			`);
+			this.DOM.rightInnerWrap = this.DOM.outerWrap.appendChild(Tag.render`<div class="calendar-field-block calendar-field-block-right"></div>`);
 
-			this.DOM.toDate = this.DOM.outerWrap.appendChild(Tag.render`
-				<input class="calendar-field calendar-field-datetime" value="" type="text" autocomplete="off" style="width: 120px;"/>
+			this.DOM.toTime = this.DOM.rightInnerWrap.appendChild(Tag.render`
+				<input class="calendar-field calendar-field-time" value="" type="text" autocomplete="off" style="width: ${this.TIME_INPUT_WIDTH}px;"/>
 			`);
+			if (this.inlineEditMode)
+			{
+				this.DOM.toTimeText = this.DOM.rightInnerWrap.appendChild(Tag.render`<span class="calendar-field-value calendar-field-value-time"></span>`);
+			}
+
+			this.DOM.toDate = this.DOM.rightInnerWrap.appendChild(Tag.render`
+				<input class="calendar-field calendar-field-datetime" value="" type="text" autocomplete="off" style="width: ${this.DATE_INPUT_WIDTH}px;"/>`);
+
+			if (this.inlineEditMode)
+			{
+				this.DOM.toDateText = this.DOM.rightInnerWrap.appendChild(Tag.render`<span class="calendar-field-value calendar-field-value-date"></span>`);
+			}
 
 			this.fromTimeControl = new TimeSelector({
 				input: this.DOM.fromTime,
@@ -94,6 +125,17 @@ export class DateTimeControl extends EventEmitter
 		this.DOM.fromTime.value = Util.formatTime(value.from);
 		this.DOM.toTime.value = Util.formatTime(value.to);
 
+		if (this.inlineEditMode)
+		{
+			this.DOM.fromDateText.innerHTML = Util.formatDateUsable(value.from, true, true);
+			this.DOM.toDateText.innerHTML = Util.formatDateUsable(value.to, true, true);
+
+			// Hide right part if it's the same date
+			this.DOM.toDateText.style.display = this.DOM.fromDate.value === this.DOM.toDate.value ? 'none' : '';
+			this.DOM.fromTimeText.innerHTML = this.DOM.fromTime.value;
+			this.DOM.toTimeText.innerHTML = this.DOM.toTime.value;
+		}
+
 		if (value.fullDay !== undefined)
 		{
 			this.DOM.fullDay.checked = value.fullDay;
@@ -120,6 +162,7 @@ export class DateTimeControl extends EventEmitter
 				this.switchTimezone(true);
 			}
 		}
+		this.value = value;
 
 		this.handleFullDayChange();
 	}
@@ -132,8 +175,8 @@ export class DateTimeControl extends EventEmitter
 			toDate: this.DOM.toDate.value,
 			fromTime: this.DOM.fromTime.value,
 			toTime: this.DOM.toTime.value,
-			timezoneFrom: this.DOM.fromTz ? this.DOM.fromTz.value : null,
-			timezoneTo: this.DOM.toTz ? this.DOM.toTz.value : null
+			timezoneFrom: this.DOM.fromTz ? this.DOM.fromTz.value : this.value.timezoneFrom || this.value.timezoneName || null,
+			timezoneTo: this.DOM.toTz ? this.DOM.toTz.value : this.value.timezoneTo || this.value.timezoneName || null
 		};
 
 		value.from = Util.parseDate(value.fromDate);
@@ -175,8 +218,15 @@ export class DateTimeControl extends EventEmitter
 		Event.bind(this.DOM.toDate, 'click', DateTimeControl.showInputCalendar);
 		Event.bind(this.DOM.toDate, 'change', this.handleDateToChange.bind(this));
 
-		Event.bind(this.DOM.fullDay, 'click', this.handleFullDayChange.bind(this));
+		Event.bind(this.DOM.fullDay, 'click', () => {
+			this.handleFullDayChange();
+			this.handleValueChange();
+		});
 
+		if (this.inlineEditMode)
+		{
+			Event.bind(this.DOM.outerWrap, 'click', this.changeInlineEditMode.bind(this));
+		}
 
 		if (Type.isDomNode(this.DOM.defTimezone))
 		{
@@ -221,6 +271,7 @@ export class DateTimeControl extends EventEmitter
 
 	static showInputCalendar(e)
 	{
+		const zIndex = 4000;
 		let target = e.target || e.srcElement;
 		if (Type.isDomNode(target) && target.nodeName.toLowerCase() === 'input')
 		{
@@ -231,6 +282,7 @@ export class DateTimeControl extends EventEmitter
 			{
 				BX.removeCustomEvent(BX.calendar.get().popup, 'onPopupClose', DateTimeControl.inputCalendarClosePopupHandler);
 				BX.addCustomEvent(BX.calendar.get().popup, 'onPopupClose', DateTimeControl.inputCalendarClosePopupHandler);
+				BX.calendar.get().popup.popupContainer.style.zIndex = zIndex;
 			}
 		}
 	}
@@ -330,21 +382,29 @@ export class DateTimeControl extends EventEmitter
 	{
 		let fullDay = this.getFullDayValue();
 
-		// if (fullDay && this.calendar.util.getUserOption('timezoneName')
-		// 	&& (!this.DOM.fromTz.value || !this.DOM.toTz.value))
-		// {
-		// 	this.DOM.fromTz.value = this.DOM.toTz.value = this.DOM.defTimezone.value = this.calendar.util.getUserOption('timezoneName');
-		// }
-
 		if (fullDay)
 		{
-			Dom.addClass(this.DOM.dateTimeWrap, 'calendar-options-item-datetime-hide-time');
+			if (Type.isDomNode(this.DOM.dateTimeWrap))
+			{
+				Dom.addClass(this.DOM.dateTimeWrap, 'calendar-options-item-datetime-hide-time');
+			}
+
+			if (Type.isDomNode(this.DOM.outerWrap))
+			{
+				Dom.addClass(this.DOM.outerWrap, 'calendar-options-item-datetime-hide-time');
+			}
 		}
 		else
 		{
-			Dom.removeClass(this.DOM.dateTimeWrap, 'calendar-options-item-datetime-hide-time');
+			if (Type.isDomNode(this.DOM.dateTimeWrap))
+			{
+				Dom.removeClass(this.DOM.dateTimeWrap, 'calendar-options-item-datetime-hide-time');
+			}
+			if (Type.isDomNode(this.DOM.outerWrap))
+			{
+				Dom.removeClass(this.DOM.outerWrap, 'calendar-options-item-datetime-hide-time');
+			}
 		}
-		this.handleValueChange();
 	}
 
 	handleValueChange()
@@ -373,6 +433,41 @@ export class DateTimeControl extends EventEmitter
 		{
 			Dom.addClass(this.DOM.tzCont, 'calendar-options-timezone-collapse');
 			Dom.removeClass(this.DOM.tzCont, 'calendar-options-timezone-expand');
+		}
+	}
+
+	changeInlineEditMode()
+	{
+		if (!this.viewMode)
+		{
+			this.setInlineEditMode('edit');
+		}
+	}
+
+	setViewMode(viewMode)
+	{
+		this.viewMode = viewMode;
+		if (this.viewMode && this.currentInlineEditMode === 'edit')
+		{
+			this.setInlineEditMode('view');
+		}
+	}
+
+	setInlineEditMode(currentInlineEditMode)
+	{
+		if (this.inlineEditMode)
+		{
+			this.currentInlineEditMode = currentInlineEditMode;
+			if (this.currentInlineEditMode === 'edit')
+			{
+				Dom.addClass(this.DOM.outerWrap, 'calendar-datetime-inline-mode-edit');
+				Dom.removeClass(this.DOM.outerWrap, 'calendar-datetime-inline-mode-view');
+			}
+			else
+			{
+				Dom.removeClass(this.DOM.outerWrap, 'calendar-datetime-inline-mode-edit');
+				Dom.addClass(this.DOM.outerWrap, 'calendar-datetime-inline-mode-view');
+			}
 		}
 	}
 }

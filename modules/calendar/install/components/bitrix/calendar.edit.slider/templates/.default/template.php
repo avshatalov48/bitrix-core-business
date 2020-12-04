@@ -52,26 +52,18 @@ if (empty($event['UF_WEBDAV_CAL_EVENT']['VALUE']))
 	$event['UF_WEBDAV_CAL_EVENT'] = false;
 
 $userId = CCalendar::GetCurUserId();
-
-if ($event['IS_MEETING'] && empty($event['ATTENDEES_CODES']))
-{
-	$event['ATTENDEES_CODES'] = CCalendarEvent::CheckEndUpdateAttendeesCodes($event);
-}
-
 $arParams['event'] = $event;
 $arParams['UF'] = $UF;
 
-if($isSocialnetworkEnabled)
-{
-	CSocNetTools::InitGlobalExtranetArrays();
-	$DESTINATION = CCalendar::GetSocNetDestination(false, $arParams['event']['ATTENDEES_CODES']);
-}
+//if($isSocialnetworkEnabled)
+//{
+//	CSocNetTools::InitGlobalExtranetArrays();
+//	$DESTINATION = CCalendar::GetSocNetDestination(false, $arParams['event']['ATTENDEES_CODES']);
+//}
 ?>
 <div class="webform-buttons calendar-form-buttons-fixed">
 	<div class="calendar-form-footer-container">
-		<button id="<?=$id?>_save" class="ui-btn ui-btn-success">
-			<?= Loc::getMessage('EC_EDIT_SLIDER_SAVE_EVENT_BUTTON')?> <span id="<?=$id?>_save_cmd"></span>
-		</button>
+		<button id="<?=$id?>_save" class="ui-btn ui-btn-success"><?= Loc::getMessage('EC_EDIT_SLIDER_SAVE_EVENT_BUTTON')?></button>
 		<button  id="<?=$id?>_close" class="ui-btn ui-btn-link"><?= Loc::getMessage('EC_EDIT_SLIDER_CANCEL_BUTTON')?></button>
 	</div>
 </div>
@@ -512,14 +504,40 @@ if($isSocialnetworkEnabled)
 
 						<!--region Destination-->
 						<div class="calendar-options-item calendar-options-item-border calendar-options-item-destination" style="border-bottom: none;">
-							<?if ($event['IS_MEETING'] && is_array($event['ATTENDEES_CODES'])):?>
-							<input id="<?=$id?>_attendees_codes" type="hidden" value="<?= implode($event['ATTENDEES_CODES'], ',')?>" />
-							<?endif;?>
+
 							<div class="calendar-options-item-column-left">
 								<div class="calendar-options-item-name js-calendar-field-name"  id="<?=$id?>_attendees_title_wrap"><?= Loc::getMessage('EC_EDIT_SLIDER_ATTENDEES_COLUMN')?></div>
 							</div>
 							<div class="calendar-options-item-column-right">
-								<div id="<?=$id?>_attendees_wrap" class="calendar-options-item-column-one"></div>
+								<div id="tag-selector-654"></div>
+								<div class="calendar-attendees-selector-wrap"></div>
+								<div>
+									<?
+//									$APPLICATION->IncludeComponent(
+//										"bitrix:main.user.selector",
+//										"",
+//										[
+//											"ID" => $id.'_destination',
+//											"LIST" => $selectedUserCodes,
+//											"LAZYLOAD" => "Y",
+//											"INPUT_NAME" => 'EVENT_DESTINATION[]',
+//											"USE_SYMBOLIC_ID" => true,
+//											"API_VERSION" => 3,
+//											"SELECTOR_OPTIONS" => [
+//												'lazyLoad' => 'Y',
+//												'context' => \Bitrix\Calendar\Util::getUserSelectorContext(),
+//												'contextCode' => '',
+//												'enableSonetgroups' => 'Y',
+//												'departmentSelectDisable' => 'N',
+//												'showVacations' => 'Y',
+//												'enableAll' => 'Y',
+//												'allowSearchEmailUsers' => 'Y',
+//												'allowEmailInvitation' => 'Y'
+//											]
+//										]
+//									);
+									?>
+								</div>
 							</div>
 						</div>
 						<!--endregion-->

@@ -25,7 +25,7 @@
 
 .mail-msg-sidepanel-title-text {
     display: inline-block;
-    max-width: 100%;
+    max-width: 700px;
     overflow: hidden;
     text-overflow: ellipsis;
 }

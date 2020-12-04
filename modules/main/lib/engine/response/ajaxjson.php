@@ -31,17 +31,17 @@ class AjaxJson extends Json implements Errorable
 
 	final public static function createSuccess($data = null)
 	{
-		return new static($data, self::STATUS_SUCCESS, null);
+		return new self($data, self::STATUS_SUCCESS, null);
 	}
 
 	final public static function createError(ErrorCollection $errorCollection = null, $data = null)
 	{
-		return new static($data, self::STATUS_ERROR, $errorCollection);
+		return new self($data, self::STATUS_ERROR, $errorCollection);
 	}
 
 	final public static function createDenied(ErrorCollection $errorCollection = null, $data = null)
 	{
-		return new static($data, self::STATUS_DENIED, $errorCollection);
+		return new self($data, self::STATUS_DENIED, $errorCollection);
 	}
 
 	final public function setData($data)

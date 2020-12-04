@@ -14,7 +14,7 @@ class highloadblock extends CModule
 	var $MODULE_CSS;
 	var $MODULE_GROUP_RIGHTS = "N";
 
-	function highloadblock()
+	function __construct()
 	{
 		$arModuleVersion = array();
 		include(__DIR__.'/version.php');

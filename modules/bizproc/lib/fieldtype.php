@@ -322,6 +322,24 @@ class FieldType
 	}
 
 	/**
+	 * @param array $baseValue Base value.
+	 * @param mixed $appendValue Value to append.
+	 * @return mixed Merge result.
+	 */
+	public function mergeValue($baseValue, $appendValue): array
+	{
+		$typeClass = $this->typeClass;
+		$baseValue = (array) $baseValue;
+
+		if ($this->isMultiple() && !\CBPHelper::isEmptyValue($appendValue))
+		{
+			return $typeClass::mergeValue($this, $baseValue, $appendValue);
+		}
+
+		return $baseValue;
+	}
+
+	/**
 	 * @param int $renderMode Control render mode.
 	 * @return bool
 	 */

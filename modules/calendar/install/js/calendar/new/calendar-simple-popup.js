@@ -721,15 +721,23 @@
 				for (i = 0; i < userLength; i++)
 				{
 					user = this.attendees[i] || {};
-					this.plannerField.currentAttendeesWrap.appendChild(BX.create("IMG", {
+					this.plannerField.currentAttendeesWrap.appendChild(BX.create("div", {
 						attrs: {
 							id: 'simple_popup_' + user.id,
-							src: user.smallAvatar || '',
+							// src: user.smallAvatar || '',
 							'bx-tooltip-user-id': user.id
 						},
 						props: {
-							className: 'calendar-member'
-						}}));
+							className: 'ui-icon ui-icon-common-user calendar-member'
+						},
+						children: [
+							BX.create("i", {
+								style: {
+									backgroundImage: 'url('+user.smallAvatar || ''+')'
+								}
+							})
+						]
+					}));
 				}
 
 				if (userLength < this.attendees.length)

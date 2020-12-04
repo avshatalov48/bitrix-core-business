@@ -98,7 +98,11 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		this.eventsNamespace = 'BX.UI.EntityEditor';
 		this.pageTitleInputClassName = "pagetitle-item";
 		this._configurationFieldManager = null;
-		this._commonConfigEditUrl = BX.prop.getString(this._settings, "commonConfigEditUrl", "/configs/editor?ENTITY_TYPE_ID=#ENTITY_TYPE_ID_VALUE#&MODULE_ID=#MODULE_ID#");
+		this._commonConfigEditUrl = BX.prop.getString(
+			this._settings,
+			"commonConfigEditUrl",
+			"/configs/editor/?ENTITY_TYPE_ID=#ENTITY_TYPE_ID_VALUE#&MODULE_ID=#MODULE_ID#"
+		);
 		this.moduleId = null;
 	};
 	BX.UI.EntityEditor.prototype =

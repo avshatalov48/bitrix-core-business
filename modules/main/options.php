@@ -216,6 +216,7 @@ $arAllOptions = array(
 		Array("event_log_logout", GetMessage("MAIN_EVENT_LOG_LOGOUT"), "N", Array("checkbox", "Y")),
 		Array("event_log_login_success", GetMessage("MAIN_EVENT_LOG_LOGIN_SUCCESS"), "N", Array("checkbox", "Y")),
 		Array("event_log_login_fail", GetMessage("MAIN_EVENT_LOG_LOGIN_FAIL"), "N", Array("checkbox", "Y")),
+		Array("event_log_permissions_fail", GetMessage("MAIN_EVENT_LOG_PERM_FAIL"), "N", Array("checkbox", "Y")),
 		Array("event_log_block_user", GetMessage("MAIN_OPT_EVENT_LOG_BLOCK"), "N", Array("checkbox", "Y")),
 		Array("event_log_register", GetMessage("MAIN_EVENT_LOG_REGISTER"), "N", Array("checkbox", "Y")),
 		Array("event_log_register_fail", GetMessage("MAIN_EVENT_LOG_REGISTER_FAIL"), "N", Array("checkbox", "Y")),
@@ -529,6 +530,7 @@ $arAllOptions["auth"][] = array("new_user_agreement", GetMessage("MAIN_REGISTER_
 
 $arAllOptions["auth"][] = GetMessage("main_options_restrictions");
 $arAllOptions["auth"][] = Array("inactive_users_block_days", GetMessage("main_options_block_inactive"), "0", Array("text", 5));
+$arAllOptions["auth"][] = Array("secure_logout", GetMessage("main_options_secure_logout"), "N", Array("checkbox", "Y"));
 
 $arAllOptions["auth"][] = GetMessage("MAIN_OPTION_SESS");
 $arAllOptions["auth"][] = Array("session_expand", GetMessage("MAIN_OPTION_SESS_EXPAND"), "Y", Array("checkbox", "Y"));

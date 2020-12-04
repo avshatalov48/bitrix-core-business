@@ -8,6 +8,7 @@ namespace Bitrix\Report\VisualConstructor\Views\JsComponent\AmCharts4;
 class Column extends Serial
 {
 	const VIEW_KEY = 'amcharts4_column';
+	const USE_IN_VISUAL_CONSTRUCTOR = false;
 
 	/**
 	 * Column view type constructor constructor.

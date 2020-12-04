@@ -18,7 +18,8 @@ class UserSettings
 			'showTasks' => 'Y',
 			'syncTasks' => 'N',
 			'showCompletedTasks' => 'N',
-			'lastUsedSection' => false
+			'lastUsedSection' => false,
+			'sendFromEmail' => false
 		];
 
 	public static function set($settings = [], $userId = false)
@@ -58,48 +59,26 @@ class UserSettings
 			$settings = \CUserOptions::getOption("calendar", "user_settings", false, $userId);
 			if (is_array($settings))
 			{
-				if (isset($settings['view']))
-					$resSettings['view'] = $settings['view'];
-
-				$resSettings['tabId'] = $settings['view'];
-
-				if (isset($settings['showDeclined']))
-					$resSettings['showDeclined'] = !!$settings['showDeclined'];
-
-				if (isset($settings['meetSection']) && $settings['meetSection'] > 0)
-					$resSettings['meetSection'] = intVal($settings['meetSection']);
-
-				if (isset($settings['crmSection']) && $settings['crmSection'] > 0)
-					$resSettings['crmSection'] = intVal($settings['crmSection']);
-
-				if (isset($settings['denyBusyInvitation']))
-					$resSettings['denyBusyInvitation'] = !!$settings['denyBusyInvitation'];
-
-				if (isset($settings['lastUsedSection']) && $settings['lastUsedSection'] > 0)
-					$resSettings['lastUsedSection'] = intVal($settings['lastUsedSection']);
-
-				if (isset($settings['collapseOffHours']))
-					$resSettings['collapseOffHours'] = $settings['collapseOffHours'];
-
-				if (isset($settings['showWeekNumbers']))
-					$resSettings['showWeekNumbers'] = $settings['showWeekNumbers'];
-
-				if (isset($settings['showTasks']))
-					$resSettings['showTasks'] = $settings['showTasks'];
-
-				if (isset($settings['showCompletedTasks']))
-					$resSettings['showCompletedTasks'] = $settings['showCompletedTasks'];
-
-				if (isset($settings['syncTasks']))
-					$resSettings['syncTasks'] = $settings['syncTasks'];
+				foreach($settings as $optionName => $value)
+				{
+					$resSettings[$optionName] = $value;
+				}
 			}
 
 			$resSettings['timezoneName'] = \CCalendar::getUserTimezoneName($userId);
 			$resSettings['timezoneOffsetUTC'] = \CCalendar::getCurrentOffsetUTC($userId);
 			$resSettings['timezoneDefaultName'] = '';
 
+			if (isset($settings['denyBusyInvitation']))
+			{
+				$resSettings['denyBusyInvitation'] = !!$settings['denyBusyInvitation'];
+			}
+			if (isset($settings['showDeclined']))
+			{
+				$resSettings['showDeclined'] = !!$settings['showDeclined'];
+			}
+
 			// We don't have default timezone for this offset for this user
-			// We will ask him but we should suggest some suitable for his offset
 			// We will ask him but we should suggest some suitable for his offset
 			if (!$resSettings['timezoneName'])
 			{
@@ -113,6 +92,7 @@ class UserSettings
 				$resSettings['work_time_end'] = $workTime['end'].'.00';
 			}
 		}
+
 		return $resSettings;
 	}
 
@@ -156,9 +136,9 @@ class UserSettings
 			{
 				foreach($ids as $id)
 				{
-					if (intVal($id) > 0)
+					if (intval($id) > 0)
 					{
-						$res[] = intVal($id);
+						$res[] = intval($id);
 					}
 				}
 			}
@@ -213,9 +193,9 @@ class UserSettings
 			{
 				foreach($ids as $id)
 				{
-					if (intVal($id) > 0)
+					if (intval($id) > 0)
 					{
-						$res[] = intVal($id);
+						$res[] = intval($id);
 					}
 				}
 			}
@@ -318,9 +298,9 @@ class UserSettings
 				{
 					foreach($idList as $id)
 					{
-						if (intVal($id) > 0)
+						if (intval($id) > 0)
 						{
-							$sectionIdList[] = intVal($id);
+							$sectionIdList[] = intval($id);
 						}
 					}
 				}

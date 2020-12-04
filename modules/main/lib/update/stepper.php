@@ -24,6 +24,7 @@ abstract class Stepper
 {
 	protected static $moduleId = "main";
 	protected $deleteFile = false;
+	protected $outerParams = [];
 	private static $filesToUnlink = array();
 	private static $countId = 0;
 	const CONTINUE_EXECUTION = true;
@@ -147,6 +148,7 @@ HTML;
 		if ($option !== "" )
 			$option = unserialize($option);
 		$option = is_array($option) ? $option : array();
+		$updater->setOuterParams(func_get_args());
 		if ($updater->execute($option) === self::CONTINUE_EXECUTION)
 		{
 			$option["steps"] = (array_key_exists("steps", $option) ? intval($option["steps"]) : 0);
@@ -154,7 +156,7 @@ HTML;
 			$option["title"] = $updater::getTitle();
 
 			Option::set("main.stepper.".$updater->getModuleId(), $className, serialize($option));
-			return $className . '::execAgent();';
+			return $className . '::execAgent('.$updater::makeArguments($updater->getOuterParams()).');';
 		}
 		if ($updater->deleteFile === true && \Bitrix\Main\ModuleManager::isModuleInstalled("bitrix24") !== true)
 		{
@@ -213,6 +215,41 @@ HTML;
 	 * @return boolean
 	 */
 	abstract function execute(array &$option);
+
+	public function setOuterParams(array $outerParams): void
+	{
+		$this->outerParams = $outerParams;
+	}
+
+	public function getOuterParams(): array
+	{
+		return $this->outerParams;
+	}
+
+	/**
+	 * It is possible to pass only integer and string values for now. But you can make your own method or extend this one.
+	 * @param array $arguments
+	 * @return string
+	 */
+	public static function makeArguments($arguments = []): string
+	{
+		if (is_array($arguments))
+		{
+			foreach ($arguments as $key=> $val)
+			{
+				if (is_string($val))
+				{
+					$arguments[$key] = "'".str_replace("'", "", $val)."'";
+				}
+				else
+				{
+					$arguments[$key] = intval($val);
+				}
+			}
+			return implode(", ", $arguments);
+		}
+		return "";
+	}
 	/**
 	 * Just fabric method.
 	 * @return Stepper
@@ -232,38 +269,41 @@ HTML;
 	/**
 	 * Adds agent for current class.
 	 * @param int $delay Delay for running agent
+	 * @param array $withArguments Data that will available in $stepper->outerParams
 	 * @return void
 	 */
-	public static function bind($delay = 300)
+	public static function bind($delay = 300, $withArguments = [])
 	{
 		/** @var Stepper $c */
 		$c = get_called_class();
-		self::bindClass($c, $c::getModuleId(), $delay);
+		self::bindClass($c, $c::getModuleId(), $delay, $withArguments);
 	}
 
 	/**
 	 * Adds agent for class $className for $moduleId module. Example for updater: \Bitrix\Main\Stepper::bindClass('\Bitrix\SomeModule\SomeClass', 'somemodule').
-	 * @param string $className Class like \Bitrix\SomeModule\SomeClass.
+	 * @param string $className Class like \Bitrix\SomeModule\SomeClass extends Stepper.
 	 * @param string $moduleId Module ID like somemodule.
 	 * @param int $delay Delay for running agent
+	 * @param array $withArguments
 	 * @return void
 	 */
-	public static function bindClass($className, $moduleId, $delay = 300)
+	public static function bindClass($className, $moduleId, $delay = 300, $withArguments = [])
 	{
 		if (class_exists("\CAgent"))
 		{
 			$addAgent = true;
+			$withArguments = is_array($withArguments) ? $withArguments : [];
 
 			if ($delay <= 0)
 			{
 				/** @var Stepper $className */
-				$addAgent = $className::execAgent() !== '';
+				$addAgent = call_user_func_array([$className, "execAgent"], $withArguments);
 			}
 
 			if ($addAgent)
 			{
 				\CAgent::AddAgent(
-					$className.'::execAgent();',
+					$className.'::execAgent('.(empty($withArguments) ? '' : call_user_func_array([$className, "makeArguments"], [$withArguments])).');',
 					$moduleId,
 					"Y",
 					1,
@@ -281,7 +321,7 @@ HTML;
 		else
 		{
 			global $DB;
-			$name = $DB->ForSql($className.'::execAgent();', 2000);
+			$name = $DB->ForSql($className.'::execAgent('.(empty($withArguments) ? '' : call_user_func_array([$className, "makeArguments"], [$withArguments])).');', 2000);
 			$className = $DB->ForSql($className);
 			$moduleId = $DB->ForSql($moduleId);
 			if (!(($agent = $DB->Query("SELECT ID FROM b_agent WHERE MODULE_ID='".$moduleId."' AND NAME = '".$name."' AND USER_ID IS NULL")->Fetch()) && $agent))

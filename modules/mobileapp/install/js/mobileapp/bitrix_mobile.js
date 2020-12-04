@@ -2662,6 +2662,7 @@
 		this.data = null;
 		this.headers = null;
 		this.aborted = null;
+		this.formData = null;
 };
 
 	MobileAjaxWrapper.prototype.Init = function (params)
@@ -2693,6 +2694,8 @@
 			this.loadstart_callback = params.callback_loadstart;
 		if (params.callback_loadend != 'undefined')
 			this.loadend_callback = params.callback_loadend;
+		if (typeof params.formData !== 'undefined')
+			this.formData = params.formData;
 	};
 
 	MobileAjaxWrapper.prototype.Wrap = function (params)
@@ -2991,8 +2994,19 @@
 				function (auth_data)
 				{
 					this.data.sessid = auth_data.sessid_md5;
+
+					if (
+						this.formData !== null
+						&& this.formData.get('sessid') !== null
+					)
+					{
+						this.formData.set('sessid', auth_data.sessid_md5);
+					}
+
 					this.xhr = BX.ajax({
 						timeout: 30,
+						preparePost: this.preparePost,
+						start: this.start,
 						method: this.method,
 						dataType: this.type,
 						url: this.url,
@@ -3026,11 +3040,19 @@
 							},
 							this
 						),
-						onfailure: BX.delegate(function ()
+						onfailure: BX.delegate(function (response)
 						{
 							this.failure_callback();
 						}, this)
 					});
+
+					if (
+						!this.start
+						&& this.formData !== null
+					)
+					{
+						this.xhr.send(this.formData);
+					}
 				},
 				this
 			),

@@ -204,17 +204,20 @@ class HttpResponse extends Response
 			}
 		}
 
-		$cookies = $this->cookies;
-
 		$cookiesCrypter = new Web\CookiesCrypter();
-		if ($cookiesCrypter->hasEncryptedCookiesInSettings())
+		foreach ($this->cookies as $cookie)
 		{
-			$cookies = $cookiesCrypter->encrypt(...array_values($this->cookies));
-		}
-
-		foreach ($cookies as $cookie)
-		{
-			$this->setCookie($cookie);
+			if (!$cookiesCrypter->shouldEncrypt($cookie))
+			{
+				$this->setCookie($cookie);
+			}
+			else
+			{
+				foreach ($cookiesCrypter->encrypt($cookie) as $cryptoCookie)
+				{
+					$this->setCookie($cryptoCookie);
+				}
+			}
 		}
 	}
 

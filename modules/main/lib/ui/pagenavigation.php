@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2015 Bitrix
+ * @copyright 2001-2020 Bitrix
  */
 namespace Bitrix\Main\UI;
 
@@ -119,7 +119,7 @@ class PageNavigation
 		{
 			return 1;
 		}
-		$maxPages = floor($this->recordCount/$this->pageSize);
+		$maxPages = (int)floor($this->recordCount/$this->pageSize);
 		if(($this->recordCount % $this->pageSize) > 0)
 		{
 			$maxPages++;

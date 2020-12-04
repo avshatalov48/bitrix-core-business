@@ -469,7 +469,7 @@ diskController.prototype = {
 					fileType: BX(result.place, true).getAttribute("bx-attach-file-type")
 				},
 				preview;
-			if (/(\.png|\.jpg|\.jpeg|\.gif|\.bmp)$/i.test(result.element_name) &&
+			if (/(\.png|\.jpg|\.jpeg|\.gif|\.bmp|\.webp)$/i.test(result.element_name) &&
 				(preview = BX.findChild(data.place, {'className': 'files-preview', 'tagName' : 'IMG'}, true, false)) && preview)
 			{
 				data.type = 'image/xyz';
@@ -857,7 +857,7 @@ fileController.prototype.checkFile = function(id, result, param)
 				place : BX(this.prefixNode + result.element_id, true)
 			},
 			preview;
-		if ((result['element_type'] && result['element_type'].indexOf('image/') === 0 || /(\.png|\.jpg|\.jpeg|\.gif|\.bmp)$/i.test(result.element_name)) &&
+		if ((result['element_type'] && result['element_type'].indexOf('image/') === 0 || /(\.png|\.jpg|\.jpeg|\.gif|\.bmp|\.webp)$/i.test(result.element_name)) &&
 			((preview = BX.findChild(data.place, {'tagName' : 'IMG'}, true, false)) && preview || (param && param["hasPreview"] === false)))
 		{
 			data.type = 'image/xyz';
@@ -2463,8 +2463,10 @@ window.onKeyDownHandler = function(e, editor, formID)
 		|| (
 			typeof e.getModifierState === 'function'
 			&& !!e.getModifierState('AltGraph')
-			&& BX.util.in_array(keyCode, [81])
-		) /* German @ == AltGr + Q*/
+			&& BX.util.in_array(keyCode, [81, 50])
+			&& typeof e.key !== 'undefined'
+			&& e.key === '@'
+		) /* German @ == AltGr + Q, Spanish @ == AltGr + 2 */
 	)
 	{
 		setTimeout(function()

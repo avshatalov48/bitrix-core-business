@@ -219,6 +219,9 @@ abstract class DataManager extends Entity\DataManager
 		{
 			static::callOnBeforeUpdateEvent($object, $data, $result);
 
+			// actualize old-style fields array from object
+			$data = $object->collectValues(Values::CURRENT, FieldTypeMask::SCALAR);
+
 			// check data by uf manager CheckFieldsWithOldData
 			if (!$USER_FIELD_MANAGER->checkFieldsWithOldData('HLBLOCK_'.$hlblock['ID'], $oldData, $data))
 			{

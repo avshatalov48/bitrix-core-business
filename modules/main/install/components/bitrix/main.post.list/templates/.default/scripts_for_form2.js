@@ -26,7 +26,12 @@
 			this.bindWindowEvents();
 			this.bindPrivateEvents();
 
-			this.__bindLHEEvents = (function(handler, formId) {if (formId === this.formId) { this.bindLHEEvents(); } }).bind(this);
+			this.__bindLHEEvents = (function(handler, formId) {
+				if (formId === this.formId) {
+					this.handler = handler;
+					this.bindLHEEvents();
+				}
+			}).bind(this);
 			BX.addCustomEvent(window, "onInitialized", this.__bindLHEEvents);
 			if (this.getLHE())
 				this.bindLHEEvents();

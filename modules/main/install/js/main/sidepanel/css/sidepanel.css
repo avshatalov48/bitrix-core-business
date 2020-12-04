@@ -60,11 +60,11 @@
 	display: flex;
 	position: absolute;
 	left: 0;
-	top: 21px;
-	min-width: 30px;
+	top: 17px;
+	min-width: 37px;
 	height: 38px;
 	padding-right: 5px;
-	background: rgba(47, 198, 246, .95);
+	background: rgba(47, 198, 246, 0.95);
 	border-top-left-radius: 19px;
 	border-bottom-left-radius: 19px;
 	white-space: nowrap;

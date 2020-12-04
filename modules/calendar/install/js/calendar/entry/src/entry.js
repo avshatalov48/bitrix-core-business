@@ -7,6 +7,7 @@ export {EntryManager};
 
 export class Entry
 {
+	FULL_DAY_LENGTH = 86400;
 	constructor(options = {})
 	{
 		this.prepareData(options.data);
@@ -43,7 +44,7 @@ export class Entry
 		}
 		if (this.fullDay && !this.data.DT_LENGTH)
 		{
-			this.data.DT_LENGTH = 86400;
+			this.data.DT_LENGTH = this.FULL_DAY_LENGTH;
 		}
 
 		if (!Type.isString(this.data.DATE_FROM) && !Type.isString(this.data.DATE_TO)
@@ -62,8 +63,8 @@ export class Entry
 			}
 			else
 			{
-				this.data.DATE_FROM = Util.formatDateTime(this.from.getTime());
-				this.data.DATE_TO = Util.formatDateTime(this.to.getTime());
+				this.from = new Date(this.from.getTime() - (parseInt(this.data['~USER_OFFSET_FROM']) || 0) * 1000);
+				this.to = new Date(this.from.getTime() + (this.data.DT_LENGTH - (this.fullDay ? 1 : 0)) * 1000);
 			}
 		}
 		else
@@ -118,25 +119,29 @@ export class Entry
 
 	getAttendeesCodes()
 	{
-		return this.data.ATTENDEES_CODES;
+		return this.data.ATTENDEES_CODES || [];
 	}
 
-	getAttendees(userIndex = {})
+	getAttendeesEntityList()
+	{
+		return this.data.attendeesEntityList || [];
+	}
+
+	getAttendees()
 	{
 		if (!this.attendeeList && Type.isArray(this.data['ATTENDEE_LIST']))
 		{
 			this.attendeeList = [];
-			let userIndex = this.getUserIndex();
-			this.data['ATTENDEE_LIST'].forEach(function(user)
-			{
+			const userIndex = this.getUserIndex();
+			this.data['ATTENDEE_LIST'].forEach((user) => {
 				if (userIndex[user.id])
 				{
 					let attendee = BX.clone(userIndex[user.id]);
 					attendee.STATUS = user.status;
-					attendee.ENTRY_ID = user.entryId;
+					attendee.ENTRY_ID = user.entryId || false;
 					this.attendeeList.push(attendee);
 				}
-			}, this);
+			});
 		}
 		return this.attendeeList || [];
 	}
@@ -148,8 +153,7 @@ export class Entry
 
 	getUserIndex()
 	{
-		//let userIndex = this.calendar.entryController.getUserIndex();
-		return this.userIndex;
+		return this.userIndex || EntryManager.getUserIndex();
 	}
 
 	cleanParts()
@@ -260,9 +264,36 @@ export class Entry
 		return this.to.getTime() < new Date().getTime();
 	}
 
-	isExternal()
+	hasEmailAttendees()
 	{
-		return false;
+		if (this.emailAttendeesCache === undefined)
+		{
+			const userIndex = EntryManager.getUserIndex();
+			for (let i = 0; i < this.data['ATTENDEE_LIST'].length; i++)
+			{
+				let user = this.data['ATTENDEE_LIST'][i];
+				if ((user.status === 'Y' || user.status === 'Q')
+					&& userIndex[user.id]
+					&& userIndex[user.id].EMAIL_USER
+				)
+				{
+					this.emailAttendeesCache = true;
+					break;
+				}
+			}
+		}
+		return this.emailAttendeesCache;
+	}
+
+	ownerIsEmailUser()
+	{
+		if (this.ownerIsEmailUserCache === undefined)
+		{
+			const userIndex = EntryManager.getUserIndex();
+			this.ownerIsEmailUserCache = userIndex[parseInt(this.data.MEETING_HOST)]
+				&& userIndex[parseInt(this.data.MEETING_HOST)].EMAIL_USER;
+		}
+		return this.ownerIsEmailUserCache;
 	}
 
 	isSelected()
@@ -293,9 +324,19 @@ export class Entry
 		return parseInt(this.data.MEETING_HOST);
 	}
 
+	getMeetingNotify()
+	{
+		return this.data.MEETING.NOTIFY;
+	}
+
 	getRrule()
 	{
 		return this.data.RRULE;
+	}
+
+	getRRuleDescription()
+	{
+		return this.data['~RRULE_DESCRIPTION'];
 	}
 
 	hasRecurrenceId()
@@ -367,32 +408,52 @@ export class Entry
 
 		if (this.isMeeting())
 		{
-			if (userId === parseInt(this.data.CREATED_BY)
-				||
-				userId === parseInt(this.data.MEETING_HOST)
-			)
+			if (userId === parseInt(this.data.CREATED_BY))
 			{
-				status = this.data.MEETING_STATUS;
+				status = this.data.MEETING_STATUS || 'Q';
 			}
 			else if (userId === parseInt(this.data.MEETING_HOST))
 			{
-				status = this.data.MEETING_STATUS;
+				status = 'H';
+				//status = this.data.MEETING_STATUS || 'H';
 			}
 			else if (Type.isArray(this.data['ATTENDEE_LIST']))
 			{
 				for (i = 0; i < this.data['ATTENDEE_LIST'].length; i++)
 				{
 					user = this.data['ATTENDEE_LIST'][i];
-					if (parseInt(this.data['ATTENDEE_LIST'][i].id) === userId)
+					if (parseInt(user.id) === userId)
 					{
-						status = this.data['ATTENDEE_LIST'][i].status;
+						status = user.status;
 						break;
 					}
 				}
 			}
 		}
 
-		return status || 'Q';
+		return Util.getMeetingStatusList().includes(status) ? status : false;
+	}
+
+	setCurrentStatus(status)
+	{
+		if (this.isMeeting() && Util.getMeetingStatusList().includes(status))
+		{
+			this.data.MEETING_STATUS = status;
+
+			const userId = Util.getCurrentUserId();
+			if (Type.isArray(this.data['ATTENDEE_LIST']))
+			{
+				for (let i = 0; i < this.data['ATTENDEE_LIST'].length; i++)
+				{
+					if (parseInt(this.data['ATTENDEE_LIST'][i].id) === userId)
+					{
+						this.data['ATTENDEE_LIST'][i].status = status;
+						this.attendeeList = null;
+						break;
+					}
+				}
+			}
+		}
 	}
 
 	getReminders()
@@ -590,16 +651,39 @@ export class Entry
 
 	getTimezoneFrom()
 	{
-		return this.data.TZ_FROM;
+		return this.data.TZ_FROM || '';
 	}
 
 	getTimezoneTo()
 	{
-		return this.data.TZ_TO;
+		return this.data.TZ_TO || '';
 	}
 
 	setSectionId(value)
 	{
 		this.data.SECT_ID = this.sectionId = this.isTask() ? 'tasks' : parseInt(value);
+	}
+
+	setDateTimeValue({from, to})
+	{
+		if (Type.isDate(from) && Type.isDate(to))
+		{
+			this.from = this.data.dateFrom = from;
+			this.to = this.data.dateTo = to;
+
+			this.data.DT_LENGTH = Math.round((this.to.getTime() - this.from.getTime()) / 1000);
+			this.data.DURATION = this.data.DT_LENGTH;
+
+			if (this.fullDay)
+			{
+				this.data.DATE_FROM = Util.formatDate(this.from.getTime());
+				this.data.DATE_TO = Util.formatDate(this.to.getTime());
+			}
+			else
+			{
+				this.data.DATE_FROM = Util.formatDateTime(this.from.getTime());
+				this.data.DATE_TO = Util.formatDateTime(this.to.getTime());
+			}
+		}
 	}
 }

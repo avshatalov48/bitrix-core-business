@@ -2141,7 +2141,7 @@ BX.SidePanel.Label = function(slider)
 };
 
 BX.SidePanel.Label.MIN_LEFT_OFFSET = 25;
-BX.SidePanel.Label.MIN_TOP_OFFSET = 21;
+BX.SidePanel.Label.MIN_TOP_OFFSET = 17;
 BX.SidePanel.Label.INTERVAL_TOP_OFFSET = 50;
 
 BX.SidePanel.Label.prototype =

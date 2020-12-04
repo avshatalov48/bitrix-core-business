@@ -1,4 +1,6 @@
-import {Type, Dom, Event} from "main.core";
+import {Type, Dom, Event, Tag, Text, Loc} from "main.core";
+import "ui.icons.b24";
+import {MenuManager} from "main.popup";
 
 export class SectionSelector
 {
@@ -15,8 +17,8 @@ export class SectionSelector
 		this.defaultCalendarType = params.defaultCalendarType;
 		this.defaultOwnerId = parseInt(params.defaultOwnerId);
 
-		this.zIndex = params.zIndex || 3100;
-		this.mode = params.mode;
+		this.zIndex = params.zIndex || 3200;
+		this.mode = params.mode; // full|compact|textselect
 		this.DOM = {
 			outerWrap: params.outerWrap
 		};
@@ -27,18 +29,28 @@ export class SectionSelector
 
 	create()
 	{
-		this.DOM.select = this.DOM.outerWrap.appendChild(Dom.create('DIV', {
-			props: {className: 'calendar-field calendar-field-select' + (this.mode === 'compact' ? ' calendar-field-tiny' : '')}
-		}));
-
-		this.DOM.innerValue = this.DOM.select.appendChild(Dom.create('DIV', {
-			props: {className: 'calendar-field-select-icon'},
-			style: {backgroundColor : this.getCurrentColor()}
-		}));
-
-		if (this.mode === 'full')
+		if (this.mode === 'textselect')
 		{
-			this.DOM.selectInnerText = this.DOM.select.appendChild(Dom.create('SPAN', {text: this.getCurrentTitle()}));
+			this.DOM.select = this.DOM.outerWrap;
+			this.DOM.selectImageWrap = this.DOM.select.appendChild(Tag.render`<span class="calendar-field-choice-calendar-img"></span>`);
+
+			this.DOM.selectInnerText = this.DOM.select.appendChild(Tag.render`<span class="calendar-field-choice-calendar-name">${Text.encode(Loc.getMessage('EC_CALENDAR_SECTION_TITLE') + ' ' + this.getCurrentTitle())}</span>`);
+		}
+		else
+		{
+			this.DOM.select = this.DOM.outerWrap.appendChild(Dom.create('DIV', {
+				props: {className: 'calendar-field calendar-field-select' + (this.mode === 'compact' ? ' calendar-field-tiny' : '')}
+			}));
+
+			this.DOM.innerValue = this.DOM.select.appendChild(Dom.create('DIV', {
+				props: {className: 'calendar-field-select-icon'},
+				style: {backgroundColor : this.getCurrentColor()}
+			}));
+
+			if (this.mode === 'full')
+			{
+				this.DOM.selectInnerText = this.DOM.select.appendChild(Dom.create('SPAN', {text: this.getCurrentTitle()}));
+			}
 		}
 	}
 
@@ -49,66 +61,90 @@ export class SectionSelector
 
 	openPopup()
 	{
+		if (this.viewMode)
+		{
+			return false;
+		}
+
 		if (this.sectionMenu && this.sectionMenu.popupWindow && this.sectionMenu.popupWindow.isShown())
 		{
 			return this.sectionMenu.close();
 		}
 
-		let
-			submenuClass = 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label',
-			i, menuItems = [], icon;
+		const submenuClass = 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label';
+		const menuItems = [];
+		const sectionIdList = [];
+		const sectionList = this.getSectionList();
+		let i;
 
 		if (Type.isArray(this.sectionGroupList))
 		{
-			this.sectionGroupList.forEach(function(sectionGroup)
-			{
-				let filteredList = [], i;
+			this.sectionGroupList.forEach((sectionGroup) => {
+				let filteredList;
 				if (sectionGroup.belongsToView)
 				{
-					filteredList = this.sectionList.filter(this.sectionBelongsToView, this);
+					filteredList = sectionList.filter(this.sectionBelongsToView, this);
 				}
 				else if (sectionGroup.type === 'user')
 				{
-					filteredList = this.sectionList.filter(function(section){
+					filteredList = sectionList.filter((section) => {
 						return SectionSelector.getSectionType(section) === 'user' && SectionSelector.getSectionOwner(section) === sectionGroup.ownerId;
 					});
 				}
 				else if (sectionGroup.type === 'company')
 				{
-					filteredList = this.sectionList.filter(function(section){
+					filteredList = sectionList.filter((section) => {
 						return SectionSelector.getSectionType(section) === 'company_calendar' || SectionSelector.getSectionType(section) === sectionGroup.type;
 					});
 				}
 				else
 				{
-					filteredList = this.sectionList.filter(function(section){
+					filteredList = sectionList.filter((section) => {
 						return SectionSelector.getSectionType(section) === sectionGroup.type;
 					});
 				}
 
+				filteredList = filteredList.filter((section) => {
+					const id = parseInt(section.id || section.ID);
+					if (sectionIdList.includes(id))
+						return false;
+					sectionIdList.push(id);
+					return true;
+				});
+
 				if (filteredList.length > 0)
 				{
 					menuItems.push({
-						text: '<span>' + sectionGroup.title + '</span>',
+						html: '<span>' + sectionGroup.title + '</span>',
 						className: submenuClass
 					});
 
-					for (i = 0; i < filteredList.length; i++)
+					for (let i = 0; i < filteredList.length; i++)
 					{
 						menuItems.push(this.getMenuItem(filteredList[i]));
 					}
 				}
-			}, this);
+			});
 		}
 		else
 		{
-			for (i = 0; i < this.sectionList.length; i++)
+			for (i = 0; i < sectionList.length; i++)
 			{
-				menuItems.push(this.getMenuItem(this.sectionList[i]));
+				menuItems.push(this.getMenuItem(sectionList[i]));
 			}
 		}
 
-		this.sectionMenu = BX.PopupMenu.create(
+		let offsetLeft = 0;
+		if (this.mode === 'compact')
+		{
+			offsetLeft = 40;
+		}
+		else if(this.mode === 'textselect')
+		{
+			offsetLeft = 0;
+		}
+
+		this.sectionMenu = MenuManager.create(
 			this.id,
 			this.DOM.select,
 			menuItems,
@@ -117,7 +153,7 @@ export class SectionSelector
 				autoHide : true,
 				zIndex: this.zIndex,
 				offsetTop: 0,
-				offsetLeft: this.mode === 'compact' ? 40 : 0,
+				offsetLeft: offsetLeft,
 				angle: this.mode === 'compact'
 			}
 		);
@@ -138,7 +174,7 @@ export class SectionSelector
 		{
 			if (this.sectionMenu.menuItems[i].layout.item)
 			{
-				icon = this.sectionMenu.menuItems[i].layout.item.querySelector('.menu-popup-item-icon');
+				let icon = this.sectionMenu.menuItems[i].layout.item.querySelector('.menu-popup-item-icon');
 				if (icon)
 				{
 					icon.style.backgroundColor = this.sectionMenu.menuItems[i].color;
@@ -175,6 +211,53 @@ export class SectionSelector
 		return (this.getCurrentSection() || {}).name || '';
 	}
 
+	getSectionList()
+	{
+		return this.sectionList.filter((section) => {
+			return (section.PERM && section.PERM.edit) || (Type.isFunction(section.canDo) && section.canDo('edit'));
+		});
+	}
+
+	updateSectionImageNode(section)
+	{
+		if (!Type.isElementNode(this.DOM.selectImageWrap))
+		{
+			return;
+		}
+
+		if (section === undefined)
+		{
+			section = this.sectionList.find((section) => {
+				return parseInt(section.id) === parseInt(this.getCurrentSection().id);
+			});
+		}
+
+		if (section && section.type)
+		{
+			const imageSrc = SectionSelector.getSectionImage(section);
+			let imageNode;
+			if (imageSrc)
+			{
+				imageNode = Tag.render`<img class="calendar-field-choice-calendar-img-value" src="${imageSrc}">`;
+			}
+			else if(section.type === 'group')
+			{
+				imageNode = Tag.render`<div class="ui-icon ui-icon-common-user-group"><i></i></div>`;
+			}
+			else if(section.type === 'user')
+			{
+				imageNode = Tag.render`<div class="ui-icon ui-icon-common-user"><i></i></div>`;
+			}
+			else
+			{
+				imageNode = Tag.render`<div class="ui-icon ui-icon-common-bitrix24"><i></i></div>`;
+			}
+
+			Dom.clean(this.DOM.selectImageWrap);
+			this.DOM.selectImageWrap.appendChild(imageNode);
+		}
+	}
+
 	getPopup()
 	{
 		return this.sectionMenu;
@@ -184,26 +267,32 @@ export class SectionSelector
 	{
 		let _this = this;
 		return {
-			text: BX.util.htmlspecialchars(sectionItem.name || sectionItem.NAME),
+			html: BX.util.htmlspecialchars(sectionItem.name || sectionItem.NAME),
 			color: sectionItem.color || sectionItem.COLOR,
-			className: 'calendar-add-popup-section-menu-item',
+			className: 'calendar-add-popup-section-menu-item' + (this.mode === 'full' ? ' section-menu-item-full' : ''),
 			onclick: (function (section)
 			{
-				return function ()
-				{
-					_this.DOM.innerValue.style.backgroundColor = section.color || sectionItem.COLOR;
-					if (_this.DOM.selectInnerText)
+				return () => {
+					if (Type.isDomNode(_this.DOM.innerValue))
 					{
-						_this.DOM.selectInnerText.innerHTML = BX.util.htmlspecialchars(section.name || section.NAME);
+						_this.DOM.innerValue.style.backgroundColor = section.color || sectionItem.COLOR;
 					}
 
+					_this.updateSectionImageNode(section);
 					if (Type.isFunction(_this.selectCallback))
 					{
-						section.color = section.color || sectionItem.COLOR;
-						section.id = parseInt(section.id || sectionItem.ID);
+						if (!section.color && sectionItem.COLOR)
+						{
+							section.color = sectionItem.COLOR;
+						}
+						if (!section.id && sectionItem.ID)
+						{
+							section.id = sectionItem.ID;
+						}
 						_this.selectCallback(section);
 					}
 					_this.sectionMenu.close();
+					_this.updateValue();
 				}
 			})(sectionItem)
 		}
@@ -219,6 +308,11 @@ export class SectionSelector
 		return section.type || section.CAL_TYPE;
 	}
 
+	static getSectionImage(section = {})
+	{
+		return section.data ? section.data.IMAGE : (section.IMAGE || '');
+	}
+
 	static getSectionOwner(section)
 	{
 		return parseInt(section.OWNER_ID || section.data.OWNER_ID)
@@ -226,11 +320,42 @@ export class SectionSelector
 
 	updateValue()
 	{
-		this.DOM.innerValue.style.backgroundColor = this.getCurrentColor();
+		if (Type.isDomNode(this.DOM.innerValue))
+		{
+			this.DOM.innerValue.style.backgroundColor = this.getCurrentColor();
+		}
 
 		if (this.mode === 'full')
 		{
-			this.DOM.select.appendChild(Dom.adjust(this.DOM.selectInnerText, {text: this.getCurrentTitle()}));
+			this.DOM.select.appendChild(Dom.adjust(this.DOM.selectInnerText, {
+				text: this.getCurrentTitle(),
+				props: {
+					title: this.getCurrentTitle()
+				}
+			}));
+		}
+		else if (this.mode === 'textselect')
+		{
+			this.updateSectionImageNode();
+			this.DOM.select.appendChild(Dom.adjust(this.DOM.selectInnerText, {
+				props: {
+					title: Loc.getMessage('EC_CALENDAR_SECTION_TITLE') + ' ' + this.getCurrentTitle()
+				},
+				text: Loc.getMessage('EC_CALENDAR_SECTION_TITLE') + ' ' + this.getCurrentTitle(),
+			}));
+		}
+	}
+
+	setViewMode(viewMode)
+	{
+		this.viewMode = viewMode;
+		if (this.viewMode)
+		{
+			Dom.addClass(this.DOM.outerWrap, 'calendar-section-selector-readonly');
+		}
+		else
+		{
+			Dom.removeClass(this.DOM.outerWrap, 'calendar-section-selector-readonly');
 		}
 	}
 }

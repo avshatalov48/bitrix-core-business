@@ -18,11 +18,12 @@ class ParserChain
 	/**
 	 * @var array Key is host, value - parser class name
 	 */
-	protected  static $metadataParsersByHost = array(
+	protected  static $metadataParsersByHost = [
 		'vk.com' => 'Bitrix\Main\UrlPreview\Parser\Vk',
 		'www.facebook.com' => 'Bitrix\Main\UrlPreview\Parser\Facebook',
 		'www.instagram.com' => 'Bitrix\Main\UrlPreview\Parser\Instagram',
-	);
+		'maps.apple.com' => 'Bitrix\Main\UrlPreview\Parser\AppleMaps',
+	];
 
 	/**
 	 * @param Uri $uri

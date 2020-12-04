@@ -70,7 +70,7 @@ class Reference extends Relation
 
 		if (isset($parameters['join_type']))
 		{
-			$join_type = mb_strtoupper($parameters['join_type']);
+			$join_type = strtoupper($parameters['join_type']);
 
 			if (in_array($join_type, Join::getTypes(), true))
 			{
@@ -155,8 +155,8 @@ class Reference extends Relation
 				$value = ($col1Flag == static::ELEMENTAL_REF) ? $col1 : $col2;
 
 				// cut .this and .ref from the start of definitions
-				$key = mb_substr($key, 5);
-				$value = mb_substr($value, 4);
+				$key = substr($key, 5);
+				$value = substr($value, 4);
 
 				$elemental[$key] = $value;
 			}
@@ -169,11 +169,11 @@ class Reference extends Relation
 	{
 		if (substr_count($definition, '.') == 1)
 		{
-			if (mb_strpos($definition, 'this.') === 0)
+			if (strpos($definition, 'this.') === 0)
 			{
 				return static::ELEMENTAL_THIS;
 			}
-			elseif (mb_strpos($definition, 'ref.') === 0)
+			elseif (strpos($definition, 'ref.') === 0)
 			{
 				return static::ELEMENTAL_REF;
 			}

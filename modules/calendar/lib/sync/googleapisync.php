@@ -1,6 +1,7 @@
 <?
 namespace Bitrix\Calendar\Sync;
 
+use Bitrix\Calendar\ICal\Basic\ICalUtil;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Type;
 use Bitrix\Main\Localization\Loc;
@@ -20,15 +21,15 @@ final class GoogleApiSync
 	const MAXIMUM_CONNECTIONS_TO_SYNC = 3;
 	const ONE_DAY = 86400; //60*60*24;
 	const CHANNEL_EXPIRATION = 604800; //60*60**24*7
-	const ENABLE_ATTENDEE_DESC = true;
 	const CONNECTION_CHANNEL_TYPE = 'BX_CONNECTION';
 	const SECTION_CHANNEL_TYPE = 'BX_SECTION';
+	const SYNC_EVENTS_LIMIT = 50;
 
 	/**
 	 * @var GoogleApiTransport
 	 */
 	private $syncTransport;
-	private $eventsSyncToken = '',
+	private $nextSyncToken = '',
 			$defaultTimezone = 'UTC',
 			$userId = 0,
 			$calendarList = array(),
@@ -45,6 +46,10 @@ final class GoogleApiSync
 	 * @var int
 	 */
 	private $connectionId;
+	/**
+	 * @var string
+	 */
+	private $nextPageToken = '';
 
 	/**
 	 * Closes watch channel and asking google to stop pushes
@@ -297,79 +302,30 @@ final class GoogleApiSync
 	/**
 	 * @return string
 	 */
-	public function getEventsSyncToken()
+	public function getNextSyncToken()
 	{
-		return $this->eventsSyncToken;
+		return $this->nextSyncToken;
 	}
 
 	/**
 	 * get google calendar events list.
 	 * By default selecting primary calendar
 	 * @param array $calendarData
-	 * @param bool $extIdAsKey
-	 * @param bool $firstTry
 	 * @return array
 	 */
-	public function getEvents($calendarData = array(), $extIdAsKey = true, $firstTry = true)
+	public function getEvents(array $calendarData): array
 	{
 		$this->setColors();
-		$eventsList = array();
-		// in a case for events count > 250 (google default page limit)
-		$getEventsRequestParams = array(
-			'pageToken' => '',
-			'syncToken' => $calendarData['SYNC_TOKEN'],
-			'showDeleted' => 'true'
-		);
-		$syncToken = $calendarData['SYNC_TOKEN'];
+		$this->nextSyncToken = $calendarData['SYNC_TOKEN'] ?? '';
 
-		do
+		$result = $this->runSyncEvents($calendarData['GAPI_CALENDAR_ID']);
+
+		if (!empty($result))
 		{
-			$results = $this->syncTransport->getEvents($calendarData['GAPI_CALENDAR_ID'], $getEventsRequestParams);
-			// If error (410) occured just remove SYNC_TOKEN and try again ONCE
-			if (!$results && $firstTry)
-			{
-				unset($calendarData['SYNC_TOKEN']);
-				return $this->getEvents($calendarData, $extIdAsKey, false);
-			}
-
-			$this->defaultReminderData = (!empty($results['defaultReminders'])) ? $results['defaultReminders'] : $this->defaultReminderData;
-
-			if (!empty($results['timeZone']))
-			{
-				try
-				{
-					new \DateTimeZone($results['timeZone']);
-					$this->defaultTimezone = $results['timeZone'];
-				}
-				catch(Exception $e){}
-			}
-
-			$syncToken = (!empty($results['nextSyncToken'])) ? $results['nextSyncToken'] : $syncToken;
-
-			if (empty($results['items']) && empty($results['nextPageToken']))
-			{
-				break;
-			}
-
-			foreach ($results['items'] as $result)
-			{
-				$eventsList[] = $this->prepareEvent($result);
-			}
-		}
-		while ((!empty($results['nextPageToken']) && $getEventsRequestParams['pageToken'] = $results['nextPageToken']));
-
-		$this->eventsSyncToken = $syncToken;
-
-		if ($extIdAsKey)
-		{
-			foreach($eventsList as $key => $eventData)
-			{
-				$eventsList[$eventData['G_EVENT_ID']] = $eventData;
-				unset($eventsList[$key]);
-			}
+			return $this->processResponseReceivingEvents($result);
 		}
 
-		return $eventsList;
+		return [];
 	}
 
 	/**
@@ -527,16 +483,7 @@ final class GoogleApiSync
 
 		if (!empty($event['description']))
 		{
-			$parts = explode('=#=#=#=', $event['description'], 2);
-
-			if (isset($parts[1]))
-			{
-				$returnData["DESCRIPTION"] = trim($parts[1]);
-			}
-			else
-			{
-				$returnData["DESCRIPTION"] = $event['description'];
-			}
+			$returnData["DESCRIPTION"] = $event['description'];
 		}
 
 		if (empty($event['summary']))
@@ -755,17 +702,17 @@ final class GoogleApiSync
 
 	private function prepareTimezone ($timeZone)
 	{
-		return !empty($timeZone) && $timeZone != 'false' ? new \DateTimeZone($timeZone) : new \DateTimeZone("UTC");
+		return Util::prepareTimezone($timeZone);
 	}
 
 	private function prepareToSaveEvent($eventData, $params = null)
 	{
 		$newEvent = array();
 		$newEvent['summary'] = $eventData['NAME'];
-		if (isset($eventData['ATTENDEES_CODES']) && self::ENABLE_ATTENDEE_DESC)
+		if (isset($eventData['ATTENDEES_CODES']) && count($eventData['ATTENDEES_CODES']) > 1)
 		{
-			$users = $this->getAttendees($eventData['ATTENDEES_CODES']);
-			$newEvent['description'] = Loc::getMessage('ATTENDEES_EVENT').': '.$users.' =#=#=#= '.$eventData["DESCRIPTION"];
+			$users = Util::getAttendees($eventData['ATTENDEES_CODES']);
+			$newEvent['description'] = Loc::getMessage('ATTENDEES_EVENT').': '. implode(', ', $users) .' '.$eventData["DESCRIPTION"];
 		}
 		else
 		{
@@ -841,7 +788,7 @@ final class GoogleApiSync
 			$endDate = new Type\Date($eventData['DATE_TO']);
 			$newEvent['end']['date'] =  $endDate->add('+1 day')->format('Y-m-d');
 
-			if (!empty($eventData['DAV_XML_ID']) && stripos($eventData['DAV_XML_ID'], '@google.com') !== false)
+			if (!empty($eventData['DAV_XML_ID']) && mb_stripos($eventData['DAV_XML_ID'], '@google.com') !== false)
 			{
 				$newEvent['start']['dateTime'] = null;
 				$newEvent['end']['dateTime'] = null;
@@ -861,7 +808,7 @@ final class GoogleApiSync
 			$newEvent['end']['dateTime'] = $eventEndDateTime->format(\DateTime::RFC3339);
 			$newEvent['end']['timeZone'] = $dateTimeZoneTo->getName();
 
-			if (!empty($eventData['DAV_XML_ID']) && stripos($eventData['DAV_XML_ID'], '@google.com') !== false)
+			if (!empty($eventData['DAV_XML_ID']) && mb_stripos($eventData['DAV_XML_ID'], '@google.com') !== false)
 			{
 				$newEvent['start']['date'] = null;
 				$newEvent['end']['date'] = null;
@@ -1004,38 +951,6 @@ final class GoogleApiSync
 		return $returnData;
 	}
 
-	private function getAttendees($codeAttendees)
-	{
-		$userIdList = [];
-		$userList = [];
-
-		foreach ($codeAttendees as $codeAttend)
-		{
-			if (substr($codeAttend, 0, 1) === 'U')
-			{
-				$userId = (int)(substr($codeAttend, 1));
-				$userIdList[] = $userId;
-			}
-		}
-
-		if (!empty($userIdList))
-		{
-			$res = \Bitrix\Main\UserTable::getList(array(
-				'filter' => array(
-					'=ID' => $userIdList,
-				),
-				'select' => array('NAME', 'LAST_NAME'),
-			));
-
-			while ($user = $res->fetch())
-			{
-				$userList[] = $user['NAME'].' '.$user['LAST_NAME'];
-			}
-		}
-
-		return implode(', ', $userList);
-	}
-
 	/**
 	 * Get owner of the channel
 	 * @param string $channelId
@@ -1053,5 +968,98 @@ final class GoogleApiSync
 			$userId = intval($matches[2]);
 		}
 		return $userId;
+	}
+
+	public function hasMoreEvents()
+	{
+		return !empty($this->nextPageToken);
+	}
+
+	/**
+	 * @return array
+	 */
+	private function hasExpiredSyncTokenError(): array
+	{
+		return array_filter($this->syncTransport->getErrors(), function ($error) {
+				preg_match("/^\[(410)\][a-z0-9 _]*/i", $error['message']);
+			});
+	}
+
+	/**
+	 * @param array $result
+	 * @return array
+	 */
+	private function processResponseReceivingEvents(array $result): array
+	{
+		if (!empty($result['defaultReminders']))
+		{
+			$this->defaultReminderData = $result['defaultReminders'];
+		}
+
+		if (!empty($result['timeZone']) && Util::isTimezoneValid($result['timeZone']))
+		{
+			$this->defaultTimezone = $result['timeZone'];
+		}
+
+		$eventsList = [];
+		if (!empty($result['items']) && is_array($result['items']))
+		{
+			foreach ($result['items'] as $item)
+			{
+				$eventData = $this->prepareEvent($item);
+				$eventsList[$eventData['G_EVENT_ID']] = $eventData;
+			}
+		}
+
+		$this->nextPageToken = !empty($result['nextPageToken']) ? $result['nextPageToken'] : '';
+		if (!empty($result['nextSyncToken']))
+		{
+			$this->nextSyncToken = $result['nextSyncToken'];
+		}
+
+		return $eventsList;
+	}
+
+	/**
+	 * @return array
+	 */
+	private function getRequestParamsWithSyncToken(): array
+	{
+		return [
+			'pageToken' => $this->nextPageToken,
+			'syncToken' => $this->nextSyncToken,
+			'showDeleted' => 'true',
+		];
+	}
+
+	/**
+	 * @return array
+	 */
+	private function getRequestParamsForFirstSync(): array
+	{
+		return [
+			'pageToken' => $this->nextPageToken,
+			'showDeleted' => 'true',
+			'maxResults' => self::SYNC_EVENTS_LIMIT,
+			'timeMin' => (new Type\DateTime())->add('-4 months')->format(\DateTime::RFC3339),
+		];
+	}
+
+	/**
+	 * @param $gApiCalendarId
+	 * @return array|mixed
+	 */
+	private function runSyncEvents($gApiCalendarId)
+	{
+		$result = !empty($this->nextSyncToken)
+			? $this->syncTransport->getEvents($gApiCalendarId, $this->getRequestParamsWithSyncToken())
+			: $this->syncTransport->getEvents($gApiCalendarId, $this->getRequestParamsForFirstSync());
+
+		if (!$result && $this->hasExpiredSyncTokenError())
+		{
+			return $this->syncTransport->getEvents($gApiCalendarId, $this->getRequestParamsForFirstSync());
+		}
+
+		return $result;
 	}
 }

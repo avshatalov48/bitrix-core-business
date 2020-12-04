@@ -254,9 +254,9 @@ class CAllAgent
 			if (isset($arOFields[$by]))
 			{
 				if ($order != "ASC")
-					$order = "DESC".($DB->type=="ORACLE" ? " NULLS LAST" : "");
+					$order = "DESC";
 				else
-					$order = "ASC".($DB->type=="ORACLE" ? " NULLS FIRST" : "");
+					$order = "ASC";
 				$arSqlOrder[] = $arOFields[$by]." ".$order;
 			}
 		}

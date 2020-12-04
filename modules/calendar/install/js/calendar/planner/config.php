@@ -5,7 +5,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 return [
-	'css' => 'dist/planner.bundle.css',
+	'css' => [
+		'/bitrix/js/calendar/planner.css'
+	],
 	'js' => 'dist/planner.bundle.js',
 	'rel' => [
 		'main.core.events',

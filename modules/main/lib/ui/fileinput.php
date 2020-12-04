@@ -294,8 +294,14 @@ HTML
 				}
 				$patt = array();
 				foreach ($res as $pat => $rep)
-					$patt[] = "#".$pat."#";
-				$files .= str_ireplace($patt, array_values($res), $t);
+				{
+					$patt["#".$pat."#"] = htmlspecialcharsbx($rep);
+				}
+				if (array_key_exists("#description#", $patt) && strpos($patt["#description#"], "&amp;quot;") !== false)
+				{
+					$patt["#description#"] = str_replace("&amp;quot;", "&quot;", $patt["#description#"]);
+				}
+				$files .= str_ireplace(array_keys($patt), array_values($patt), $t);
 				$this->files[] = $res;
 			}
 		}

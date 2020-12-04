@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["MAIN_MAIL_CONFIRM_AJAX_ERROR"] = "Error processing the request.";
 $MESS["MAIN_MAIL_CONFIRM_AUTH"] = "Authentication error";
 $MESS["MAIN_MAIL_CONFIRM_BACK"] = "Back";
@@ -29,8 +29,17 @@ $MESS["MAIN_MAIL_CONFIRM_MENU"] = "Add sender";
 $MESS["MAIN_MAIL_CONFIRM_MENU_PLACEHOLDER"] = "Default sender (\"From\")";
 $MESS["MAIN_MAIL_CONFIRM_MENU_UNKNOWN"] = "Select sender";
 $MESS["MAIN_MAIL_CONFIRM_NAME"] = "Name";
+$MESS["MAIN_MAIL_CONFIRM_POST_DELETE_ACCESS_ERROR"] = "You cannot delete these senders";
+$MESS["MAIN_MAIL_CONFIRM_POST_DELETE_ACCESS_ERROR_TITTLE"] = "Access denied";
+$MESS["MAIN_MAIL_CONFIRM_POST_DELETE_EMPTY_LIST_WARN"] = "Cannot find senders";
+$MESS["MAIN_MAIL_CONFIRM_POST_DELETE_EMPTY_LIST_WARN_TITTLE"] = "Warning";
+$MESS["MAIN_MAIL_CONFIRM_POST_DELETE_NOT_FULL_LIST_WARN"] = "Not all senders could be found";
+$MESS["MAIN_MAIL_CONFIRM_POST_DELETE_NOT_FULL_LIST_WARN_TITTLE"] = "Warning";
+$MESS["MAIN_MAIL_CONFIRM_POST_DELETE_SUCCESS"] = "Senders have been deleted";
+$MESS["MAIN_MAIL_CONFIRM_POST_DELETE_SUCCESS_TITLE"] = "Deleted";
 $MESS["MAIN_MAIL_CONFIRM_PUBLIC"] = "Available to everyone";
 $MESS["MAIN_MAIL_CONFIRM_PUBLIC_HINT"] = "This address will be available to all employees using CRM";
+$MESS["MAIN_MAIL_CONFIRM_PUBLIC_HINT1"] = "The address you added can be selected by any user";
 $MESS["MAIN_MAIL_CONFIRM_SAVE"] = "Save";
 $MESS["MAIN_MAIL_CONFIRM_SMTP_LOGIN"] = "Login";
 $MESS["MAIN_MAIL_CONFIRM_SMTP_PASSWORD"] = "Password";
@@ -40,5 +49,6 @@ $MESS["MAIN_MAIL_CONFIRM_SMTP_SSL"] = "use SSL";
 $MESS["MAIN_MAIL_CONFIRM_SMTP_WARNING"] = "Important! Make sure the SMTP server details you provided are correct. Otherwise, mail will not be delivered.";
 $MESS["MAIN_MAIL_CONFIRM_SPACE_SMTP_PASSWORD"] = "Password starts or ends with a space character";
 $MESS["MAIN_MAIL_CONFIRM_TITLE"] = "Add new address";
+$MESS["MAIN_MAIL_CONFIRM_UI_GRID_EMAIL_COLUMN"] = "Email";
+$MESS["MAIN_MAIL_CONFIRM_UI_GRID_NAME_COLUMN"] = "Name";
 $MESS["MAIN_MAIL_DELETE_SENDER_ERROR"] = "Error deleting sender";
-?>

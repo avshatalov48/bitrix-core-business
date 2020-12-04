@@ -74,7 +74,7 @@ Class mail extends CModule
 
 			$eventManager->registerEventHandler('mail', 'onMailMessageNew', 'mail', '\Bitrix\Mail\Integration\Calendar\ICal\ICalMailEventManager', 'onMailMessageNew');
 			$eventManager->registerEventHandlerCompatible('im', 'OnGetNotifySchema', 'mail', '\Bitrix\Mail\Integration\Im\Notification', 'getSchema');
-			
+
 			$eventManager->registerEventHandler('mail', 'onMailMessageNew', 'mail', '\Bitrix\Mail\Integration\Calendar\ICal\ICalMailEventManager', 'onMailMessageNew');
 
 			RegisterModule("mail");
@@ -200,7 +200,6 @@ Class mail extends CModule
 			}
 
 			CAgent::AddAgent("CMailbox::CleanUp();", "mail", "N", 60*60*24);
-			RegisterModuleDependences("im", "OnGetNotifySchema", "mail", "CMailNotifySchema", "OnGetNotifySchema");
 
 			return true;
 		}
@@ -453,7 +452,7 @@ Class mail extends CModule
 
 		//delete agents
 		CAgent::RemoveModuleAgents("mail");
-
+		
 		UnRegisterModule("mail");
 
 		if($this->errors !== false)

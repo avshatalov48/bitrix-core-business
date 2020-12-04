@@ -8,4 +8,5 @@ $MESS["FORUM_CM_ERR_COMMENT_IS_LOST4"] = "Комментарий для пров
 $MESS["ACCESS_DENIED"] = "Доступ запрещён.";
 $MESS["FORUM_CM_ERR_DELETE"] = "Ошибка удаления комментария.";
 $MESS["FORUM_CM_ERR_MODERATE"] = "Ошибка модерирования комментария.";
+$MESS["FORUM_CM_ERR_TYPE_INCORRECT"] = "Некорректный тип комментария.";
 ?>

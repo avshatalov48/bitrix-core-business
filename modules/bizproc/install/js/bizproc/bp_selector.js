@@ -92,6 +92,28 @@
 					});
 				}
 			}
+			else if (activityData && BX.type.isArray(activityData['ADDITIONAL_RESULT']))
+			{
+				var props = template[i]['Properties'];
+				activityData['ADDITIONAL_RESULT'].forEach(function(addProperty)
+				{
+					if (props[addProperty])
+					{
+						for (var fieldId in props[addProperty])
+						{
+							if (props[addProperty].hasOwnProperty(fieldId))
+							{
+								var field = props[addProperty][fieldId];
+								result.push({
+									text: field['Name'],
+									description: template[i].Properties.Title || activityData.NAME,
+									value: '{='+template[i].Name+':'+fieldId+'}'
+								});
+							}
+						}
+					}
+				}, this);
+			}
 
 			if (template[i].Children && template[i].Children.length > 0)
 			{

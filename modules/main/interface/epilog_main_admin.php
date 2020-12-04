@@ -26,25 +26,16 @@ if(COption::GetOptionString("main", "update_devsrv", "") == "Y")
 			<td class="adm-workarea-wrap">
 <?
 //Footer
-$vendor = COption::GetOptionString("main", "vendor", "1c_bitrix");
+$copyright = \Bitrix\Main\UI\Copyright::getBitrixCopyright();
 
-//wizard customization file
-if(isset($bxProductConfig["admin"]["copyright"]))
-	$sCopyright = $bxProductConfig["admin"]["copyright"];
-else
-	$sCopyright = GetMessage("EPILOG_ADMIN_POWER").' <a href="'.GetMessage("EPILOG_ADMIN_URL_PRODUCT_".$vendor).'">'.GetMessage("EPILOG_ADMIN_SM_".$vendor).'#VERSION#</a>. '.GetMessage("EPILOG_ADMIN_COPY_".$vendor);
 $sVer = ($GLOBALS['USER']->CanDoOperation('view_other_settings')? " ".SM_VERSION : "");
-$sCopyright = str_replace("#VERSION#", $sVer, $sCopyright);
-
-if(isset($bxProductConfig["admin"]["links"]))
-	$sLinks = $bxProductConfig["admin"]["links"];
-else
-	$sLinks = '<a href="'.GetMessage("EPILOG_ADMIN_URL_MAIN_".$vendor).'">'.GetMessage("EPILOG_ADMIN_URL_MAIN_TEXT_".$vendor).'</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="'.GetMessage("EPILOG_ADMIN_URL_SUPPORT_".$vendor).'" class="adm-main-support-link">'.GetMessage("epilog_support_link").'</a>';
+$sCopyright = GetMessage("EPILOG_ADMIN_POWER").' <a href="'.$copyright->getProductUrl().'">'.$copyright->getProductName().$sVer.'</a>. '.$copyright->getCopyright();
+$sLinks = '<a href="'.$copyright->getVendorUrl().'">'.$copyright->getVendorName().'</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="'.$copyright->getSupportUrl().'" class="adm-main-support-link">'.GetMessage("epilog_support_link").'</a>';
 ?>
 			<table cellpadding="0" cellspacing="0" border="0" width="100%">
 				<tr>
 					<td><?echo $sCopyright?></td>
-					<td align="right"><?if(($siteSupport = getLocalPath("php_interface/this_site_support.php", BX_PERSONAL_ROOT)) !== false):?><?include($_SERVER["DOCUMENT_ROOT"].$siteSupport);?><?else:?><?echo $sLinks?><?endif;?></td>
+					<td align="right"><a href="/bitrix/admin/copyright.php"><?echo GetMessage("epilog_admin_copyrights")?></a>&nbsp;&nbsp;|&nbsp;&nbsp;<?if(($siteSupport = getLocalPath("php_interface/this_site_support.php", BX_PERSONAL_ROOT)) !== false):?><?include($_SERVER["DOCUMENT_ROOT"].$siteSupport);?><?else:?><?echo $sLinks?><?endif;?></td>
 				</tr>
 			</table>
 <?

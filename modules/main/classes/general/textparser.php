@@ -65,9 +65,6 @@ class CTextParser
 	public $LAZYLOAD = "N";
 	protected $tagPattern = "/([\s]+|^)#([^\s,\.\[\]<>]+)/is";
 
-	/* @deprecated */
-	public $allowImgExt = "gif|jpg|jpeg|png";
-
 	public function __construct()
 	{
 		global $APPLICATION;
@@ -179,9 +176,7 @@ class CTextParser
 	protected static function strpos($s, $a)
 	{
 		$a = self::chr($a);
-		if (function_exists('mb_orig_strpos'))
-			return mb_orig_strpos($s, $a);
-		return mb_strpos($s, $a);
+		return strpos($s, $a);
 	}
 
 	public function convertText($text)
@@ -1568,8 +1563,7 @@ class CTextParser
 	{
 		$result = array();
 
-		$text = str_replace("\xC2\xA0", ' ', $text);
-		$text = str_replace("\xA0", " ", $text);
+		$text = str_replace((\Bitrix\Main\Application::isUtfMode() ? "\xC2\xA0" : "\xA0"), ' ', $text);
 
 		if (preg_match_all($this->getTagPattern(), ' '.$text, $matches))
 		{

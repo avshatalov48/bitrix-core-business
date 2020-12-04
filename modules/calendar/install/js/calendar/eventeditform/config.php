@@ -19,6 +19,8 @@ return [
 		'calendar.calendarsection',
 		'main.core.events',
 		'calendar.planner',
+		'ui.entity-selector',
+		'calendar.sync.interface',
 	],
 	'skip_core' => false,
 	'lang' => '/bitrix/modules/calendar/classes/general/editeventform_js.php'

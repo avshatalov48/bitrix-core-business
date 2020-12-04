@@ -2,14 +2,14 @@
 $MESS["ACCOUNT_INFO_SENT"] = "A code to reset your password and your registration information has just been sent to your e-mail address. Please check your e-mail. Note that the reset code is re-generated on each request.";
 $MESS["CHANGE_PASS_SUCC"] = "Your password successfully changed.";
 $MESS["CHECKWORD_EXPIRE"] = "Check word validity period has expired. You need to request it again.";
-$MESS["CHECKWORD_INCORRECT"] = "Incorrect check word for login \"#LOGIN#\"";
+$MESS["CHECKWORD_INCORRECT1"] = "Incorrect check word.";
 $MESS["DATA_NOT_FOUND1"] = "User profile was not found.";
 $MESS["FORGOT_NAME"] = "Both Name and Last name required";
 $MESS["FORMATNAME_NONAME"] = "Untitled";
 $MESS["INFO_REQ"] = "You have requested your registration information.";
 $MESS["LIMIT_USERS_COUNT"] = "Attention! The number of users exceeds the license quota. You have to obtain more licenses. Please contact the technical support department.";
 $MESS["LOGIN_BLOCK"] = "Your login is blocked";
-$MESS["LOGIN_NOT_FOUND"] = "User under login \"#LOGIN#\" not found";
+$MESS["LOGIN_NOT_FOUND1"] = "User not found";
 $MESS["LOGIN_WHITESPACE"] = "Login can not start and end with a space.";
 $MESS["MAIN_FUNCTION_REGISTER_CAPTCHA"] = "Word for protecting against automatic registration is entered incorrectly";
 $MESS["MAIN_FUNCTION_REGISTER_NA_INADMIN"] = "You cannot use function CUser::Register in ADMIN_SECTION!";

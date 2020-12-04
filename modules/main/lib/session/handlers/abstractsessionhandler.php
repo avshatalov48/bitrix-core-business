@@ -3,6 +3,7 @@
 namespace Bitrix\Main\Session\Handlers;
 
 use Bitrix\Main\Application;
+use Bitrix\Main\EventManager;
 use Bitrix\Main\HttpResponse;
 use Bitrix\Main\Security\Random;
 
@@ -18,6 +19,8 @@ abstract class AbstractSessionHandler implements \SessionHandlerInterface, \Sess
     private $prefetchData;
 	/** @var string */
     private $lastCreatedId;
+    /** @var array */
+    private $listValidatedIds = [];
 
 	/**
 	 * @return string
@@ -56,12 +59,9 @@ abstract class AbstractSessionHandler implements \SessionHandlerInterface, \Sess
 
 	protected function triggerLockFatalError(string $text): void
 	{
-		$httpResponse = new HttpResponse();
-		$httpResponse->setStatus("500 Internal Server Error");
-
+		\CHTTP::SetStatus("500 Internal Server Error");
 		trigger_error($text, E_USER_ERROR);
-
-		Application::getInstance()->end(0, $httpResponse);
+		die;
 	}
 
 	public function write($sessionId, $sessionData)
@@ -71,18 +71,9 @@ abstract class AbstractSessionHandler implements \SessionHandlerInterface, \Sess
 			return false;
 		}
 
-		$session = Application::getInstance()->getSession();
-		if ($this->readOnly && !$session->getPreviousId())
+		if ($this->readOnly)
 		{
 			return true;
-		}
-
-		if ($session->getPreviousId())
-		{
-			$oldSessionId = $session->getPreviousId();
-			$session->resetPreviousId();
-
-			$this->destroy($oldSessionId);
 		}
 
 		return $this->processWrite($sessionId, $sessionData);
@@ -94,6 +85,16 @@ abstract class AbstractSessionHandler implements \SessionHandlerInterface, \Sess
 
 	abstract protected function unlock($sessionId): bool;
 
+	private function releaseLocksAfterValidate(): void
+	{
+		unset($this->listValidatedIds[$this->sessionId]);
+		foreach ($this->listValidatedIds as $mustBeUnlockedId => $true)
+		{
+			$this->unlock($mustBeUnlockedId);
+			unset($this->listValidatedIds[$this->sessionId]);
+		}
+	}
+	
 	public function close()
 	{
 		if (!$this->readOnly && $this->validateSessionId($this->sessionId))
@@ -104,9 +105,11 @@ abstract class AbstractSessionHandler implements \SessionHandlerInterface, \Sess
 			}
 
 			$this->unlock($this->sessionId);
+			$this->releaseLocksAfterValidate();
 		}
 
 		$this->sessionId = null;
+		$this->lastCreatedId = null;
 
 		return true;
 	}
@@ -123,29 +126,38 @@ abstract class AbstractSessionHandler implements \SessionHandlerInterface, \Sess
 			return false;
 		}
 
-		$this->processDestroy($sessionId);
+		$result = $this->processDestroy($sessionId);
+		$this->lastCreatedId = null;
 
-		$session = Application::getInstance()->getSession();
-		if ($session->getPreviousId())
-		{
-			$this->processDestroy($session->getPreviousId());
-			$session->resetPreviousId();
-		}
-
-		return true;
+		return $result;
 	}
 
 	abstract protected function processDestroy($sessionId): bool;
 
 	public function validateId($sessionId)
 	{
-		if ($this->lastCreatedId === $sessionId)
+		if (\PHP_VERSION_ID < 70317 || (70400 <= \PHP_VERSION_ID && \PHP_VERSION_ID < 70405))
 		{
 			//due to https://bugs.php.net/bug.php?id=77178
-			$this->lastCreatedId = null;
+			foreach (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS) as $frame)
+			{
+				if (!isset($frame['class']) && isset($frame['function']) && in_array($frame['function'], [
+						'session_regenerate_id',
+						'session_create_id',
+						'session_start',
+					], true
+					))
+				{
 
-			return true;
+					if ($this->lastCreatedId === $sessionId)
+					{
+						return true;
+					}
+				}
+			}
 		}
+
+		$this->listValidatedIds[$sessionId] = true;
 
 		$this->prefetchData = $this->read($sessionId);
 		$this->prefetchId = $sessionId;

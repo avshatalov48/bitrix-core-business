@@ -169,7 +169,6 @@ class BaseWidget extends Base
 				$this->reportHandlerList[] = $report->getReportHandler();
 			}
 		}
-
 	}
 
 	private function fillFormElementValues()

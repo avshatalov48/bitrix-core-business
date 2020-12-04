@@ -17,7 +17,7 @@ class CGroup
 	public function Add($arFields)
 	{
 		/** @global CMain $APPLICATION */
-		global $DB, $APPLICATION;
+		global $DB, $APPLICATION, $CACHE_MANAGER;
 
 		if(!$this->CheckFields($arFields))
 			return false;
@@ -93,6 +93,9 @@ class CGroup
 
 		foreach (GetModuleEvents("main", "OnAfterGroupAdd", true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array(&$arFields));
+
+		if (CACHED_b_group!==false)
+			$CACHE_MANAGER->CleanDir("b_group");
 
 		return $ID;
 	}
@@ -778,7 +781,7 @@ class CGroup
 	public function Update($ID, $arFields)
 	{
 		/** @global CMain $APPLICATION */
-		global $DB, $APPLICATION;
+		global $DB, $APPLICATION, $CACHE_MANAGER;
 
 		$ID = intval($ID);
 
@@ -920,13 +923,16 @@ class CGroup
 		foreach (GetModuleEvents("main", "OnAfterGroupUpdate", true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array($ID, &$arFields));
 
+		if (CACHED_b_group!==false)
+			$CACHE_MANAGER->CleanDir("b_group");
+
 		return true;
 	}
 
 	public static function Delete($ID)
 	{
 		/** @global CMain $APPLICATION */
-		global $APPLICATION, $DB;
+		global $APPLICATION, $DB, $CACHE_MANAGER;
 
 		$ID = intval($ID);
 		if($ID<=2)
@@ -955,7 +961,12 @@ class CGroup
 			return false;
 		CUser::clearUserGroupCache();
 
-		return $DB->Query("DELETE FROM b_group WHERE ID=".$ID." AND ID>2", true);
+		$res = $DB->Query("DELETE FROM b_group WHERE ID=".$ID." AND ID>2", true);
+
+		if (CACHED_b_group!==false)
+			$CACHE_MANAGER->CleanDir("b_group");
+
+		return $res;
 	}
 
 	public static function GetGroupUser($ID)

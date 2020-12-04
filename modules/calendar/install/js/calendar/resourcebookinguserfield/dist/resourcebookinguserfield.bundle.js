@@ -2,9 +2,7 @@ this.BX = this.BX || {};
 (function (exports,main_core,calendar_resourcebookinguserfield,calendar_resourcebooking) {
 	'use strict';
 
-	var FormFieldTunnerAbstract =
-	/*#__PURE__*/
-	function () {
+	var FormFieldTunnerAbstract = /*#__PURE__*/function () {
 	  function FormFieldTunnerAbstract() {
 	    babelHelpers.classCallCheck(this, FormFieldTunnerAbstract);
 	    this.label = '';
@@ -209,9 +207,7 @@ this.BX = this.BX || {};
 	  return FormFieldTunnerAbstract;
 	}();
 
-	var FormFieldTunnerPopupAbstract =
-	/*#__PURE__*/
-	function () {
+	var FormFieldTunnerPopupAbstract = /*#__PURE__*/function () {
 	  function FormFieldTunnerPopupAbstract(params) {
 	    babelHelpers.classCallCheck(this, FormFieldTunnerPopupAbstract);
 	    this.id = 'resourcebooking-settings-popup-' + Math.round(Math.random() * 100000);
@@ -407,9 +403,7 @@ this.BX = this.BX || {};
 	  return FormFieldTunnerPopupAbstract;
 	}();
 
-	var FormFieldTunnerValuePopupAbstract =
-	/*#__PURE__*/
-	function () {
+	var FormFieldTunnerValuePopupAbstract = /*#__PURE__*/function () {
 	  function FormFieldTunnerValuePopupAbstract(params) {
 	    babelHelpers.classCallCheck(this, FormFieldTunnerValuePopupAbstract);
 	    this.id = 'resourcebooking-settings-value-popup-' + Math.round(Math.random() * 100000);
@@ -545,9 +539,7 @@ this.BX = this.BX || {};
 	  }]);
 	  return FormFieldTunnerValuePopupAbstract;
 	}();
-	var FormFieldTunnerMultipleChecknoxPopupAbstract =
-	/*#__PURE__*/
-	function (_FormFieldTunnerValue) {
+	var FormFieldTunnerMultipleChecknoxPopupAbstract = /*#__PURE__*/function (_FormFieldTunnerValue) {
 	  babelHelpers.inherits(FormFieldTunnerMultipleChecknoxPopupAbstract, _FormFieldTunnerValue);
 
 	  function FormFieldTunnerMultipleChecknoxPopupAbstract(params) {
@@ -735,9 +727,7 @@ this.BX = this.BX || {};
 	  return FormFieldTunnerMultipleChecknoxPopupAbstract;
 	}(FormFieldTunnerValuePopupAbstract);
 
-	var UserSelectorFieldEditControl =
-	/*#__PURE__*/
-	function () {
+	var UserSelectorFieldEditControl = /*#__PURE__*/function () {
 	  function UserSelectorFieldEditControl(params) {
 	    babelHelpers.classCallCheck(this, UserSelectorFieldEditControl);
 	    this.params = params || {};
@@ -1162,9 +1152,7 @@ this.BX = this.BX || {};
 	  }]);
 	  return UserSelectorFieldEditControl;
 	}();
-	var WebformUserSelectorFieldEditControl =
-	/*#__PURE__*/
-	function (_UserSelectorFieldEdi) {
+	var WebformUserSelectorFieldEditControl = /*#__PURE__*/function (_UserSelectorFieldEdi) {
 	  babelHelpers.inherits(WebformUserSelectorFieldEditControl, _UserSelectorFieldEdi);
 
 	  function WebformUserSelectorFieldEditControl(params) {
@@ -1231,9 +1219,7 @@ this.BX = this.BX || {};
 	  return WebformUserSelectorFieldEditControl;
 	}(UserSelectorFieldEditControl);
 
-	var UserSelectorFieldTunner =
-	/*#__PURE__*/
-	function (_FormFieldTunnerAbstr) {
+	var UserSelectorFieldTunner = /*#__PURE__*/function (_FormFieldTunnerAbstr) {
 	  babelHelpers.inherits(UserSelectorFieldTunner, _FormFieldTunnerAbstr);
 
 	  function UserSelectorFieldTunner() {
@@ -1293,9 +1279,7 @@ this.BX = this.BX || {};
 	  return UserSelectorFieldTunner;
 	}(FormFieldTunnerAbstract);
 
-	var UsersStatePopup =
-	/*#__PURE__*/
-	function (_FormFieldTunnerPopup) {
+	var UsersStatePopup = /*#__PURE__*/function (_FormFieldTunnerPopup) {
 	  babelHelpers.inherits(UsersStatePopup, _FormFieldTunnerPopup);
 
 	  function UsersStatePopup(params) {
@@ -1384,9 +1368,7 @@ this.BX = this.BX || {};
 	  return UsersStatePopup;
 	}(FormFieldTunnerPopupAbstract);
 
-	var UsersValuePopup =
-	/*#__PURE__*/
-	function (_FormFieldTunnerValue) {
+	var UsersValuePopup = /*#__PURE__*/function (_FormFieldTunnerValue) {
 	  babelHelpers.inherits(UsersValuePopup, _FormFieldTunnerValue);
 
 	  function UsersValuePopup(params) {
@@ -1547,9 +1529,7 @@ this.BX = this.BX || {};
 	  return UsersValuePopup;
 	}(FormFieldTunnerValuePopupAbstract);
 
-	var ResourceSelectorFieldTunner =
-	/*#__PURE__*/
-	function (_FormFieldTunnerAbstr) {
+	var ResourceSelectorFieldTunner = /*#__PURE__*/function (_FormFieldTunnerAbstr) {
 	  babelHelpers.inherits(ResourceSelectorFieldTunner, _FormFieldTunnerAbstr);
 
 	  function ResourceSelectorFieldTunner() {
@@ -1612,9 +1592,7 @@ this.BX = this.BX || {};
 	  return ResourceSelectorFieldTunner;
 	}(FormFieldTunnerAbstract);
 
-	var ResourcesStatePopup =
-	/*#__PURE__*/
-	function (_FormFieldTunnerPopup) {
+	var ResourcesStatePopup = /*#__PURE__*/function (_FormFieldTunnerPopup) {
 	  babelHelpers.inherits(ResourcesStatePopup, _FormFieldTunnerPopup);
 
 	  function ResourcesStatePopup(params) {
@@ -1722,9 +1700,7 @@ this.BX = this.BX || {};
 	  return ResourcesStatePopup;
 	}(FormFieldTunnerPopupAbstract);
 
-	var ResourcesValuePopup =
-	/*#__PURE__*/
-	function (_FormFieldTunnerMulti) {
+	var ResourcesValuePopup = /*#__PURE__*/function (_FormFieldTunnerMulti) {
 	  babelHelpers.inherits(ResourcesValuePopup, _FormFieldTunnerMulti);
 
 	  function ResourcesValuePopup(params) {
@@ -1809,9 +1785,7 @@ this.BX = this.BX || {};
 	  return ResourcesValuePopup;
 	}(FormFieldTunnerMultipleChecknoxPopupAbstract);
 
-	var ServiceSelectorFieldTunner =
-	/*#__PURE__*/
-	function (_FormFieldTunnerAbstr) {
+	var ServiceSelectorFieldTunner = /*#__PURE__*/function (_FormFieldTunnerAbstr) {
 	  babelHelpers.inherits(ServiceSelectorFieldTunner, _FormFieldTunnerAbstr);
 
 	  function ServiceSelectorFieldTunner() {
@@ -1855,9 +1829,7 @@ this.BX = this.BX || {};
 	  return ServiceSelectorFieldTunner;
 	}(FormFieldTunnerAbstract);
 
-	var ServiceValuePopup =
-	/*#__PURE__*/
-	function (_FormFieldTunnerMulti) {
+	var ServiceValuePopup = /*#__PURE__*/function (_FormFieldTunnerMulti) {
 	  babelHelpers.inherits(ServiceValuePopup, _FormFieldTunnerMulti);
 
 	  function ServiceValuePopup(params) {
@@ -1930,9 +1902,7 @@ this.BX = this.BX || {};
 	  return ServiceValuePopup;
 	}(FormFieldTunnerMultipleChecknoxPopupAbstract);
 
-	var DurationSelectorFieldTunner =
-	/*#__PURE__*/
-	function (_FormFieldTunnerAbstr) {
+	var DurationSelectorFieldTunner = /*#__PURE__*/function (_FormFieldTunnerAbstr) {
 	  babelHelpers.inherits(DurationSelectorFieldTunner, _FormFieldTunnerAbstr);
 
 	  function DurationSelectorFieldTunner() {
@@ -1986,9 +1956,7 @@ this.BX = this.BX || {};
 	  return DurationSelectorFieldTunner;
 	}(FormFieldTunnerAbstract);
 
-	var DurationStatePopup =
-	/*#__PURE__*/
-	function (_FormFieldTunnerPopup) {
+	var DurationStatePopup = /*#__PURE__*/function (_FormFieldTunnerPopup) {
 	  babelHelpers.inherits(DurationStatePopup, _FormFieldTunnerPopup);
 
 	  function DurationStatePopup(params) {
@@ -2111,9 +2079,7 @@ this.BX = this.BX || {};
 	  return DurationStatePopup;
 	}(FormFieldTunnerPopupAbstract);
 
-	var DateSelectorFieldTunner =
-	/*#__PURE__*/
-	function (_FormFieldTunnerAbstr) {
+	var DateSelectorFieldTunner = /*#__PURE__*/function (_FormFieldTunnerAbstr) {
 	  babelHelpers.inherits(DateSelectorFieldTunner, _FormFieldTunnerAbstr);
 
 	  function DateSelectorFieldTunner() {
@@ -2155,9 +2121,7 @@ this.BX = this.BX || {};
 	  return DateSelectorFieldTunner;
 	}(FormFieldTunnerAbstract);
 
-	var DateStatePopup =
-	/*#__PURE__*/
-	function (_FormFieldTunnerPopup) {
+	var DateStatePopup = /*#__PURE__*/function (_FormFieldTunnerPopup) {
 	  babelHelpers.inherits(DateStatePopup, _FormFieldTunnerPopup);
 
 	  function DateStatePopup(params) {
@@ -2271,9 +2235,7 @@ this.BX = this.BX || {};
 	  return DateStatePopup;
 	}(FormFieldTunnerPopupAbstract);
 
-	var TimeSelectorFieldTunner =
-	/*#__PURE__*/
-	function (_FormFieldTunnerAbstr) {
+	var TimeSelectorFieldTunner = /*#__PURE__*/function (_FormFieldTunnerAbstr) {
 	  babelHelpers.inherits(TimeSelectorFieldTunner, _FormFieldTunnerAbstr);
 
 	  function TimeSelectorFieldTunner() {
@@ -2321,9 +2283,7 @@ this.BX = this.BX || {};
 	  return TimeSelectorFieldTunner;
 	}(FormFieldTunnerAbstract);
 
-	var TimeStatePopup =
-	/*#__PURE__*/
-	function (_FormFieldTunnerPopup) {
+	var TimeStatePopup = /*#__PURE__*/function (_FormFieldTunnerPopup) {
 	  babelHelpers.inherits(TimeStatePopup, _FormFieldTunnerPopup);
 
 	  function TimeStatePopup(params) {
@@ -2503,9 +2463,7 @@ this.BX = this.BX || {};
 	  return TimeStatePopup;
 	}(FormFieldTunnerPopupAbstract);
 
-	var AdjustFieldController =
-	/*#__PURE__*/
-	function () {
+	var AdjustFieldController = /*#__PURE__*/function () {
 	  function AdjustFieldController(params) {
 	    babelHelpers.classCallCheck(this, AdjustFieldController);
 	    this.params = params;
@@ -3027,9 +2985,7 @@ this.BX = this.BX || {};
 	  return AdjustFieldController;
 	}();
 
-	var ResourceSelectorFieldEditControl =
-	/*#__PURE__*/
-	function () {
+	var ResourceSelectorFieldEditControl = /*#__PURE__*/function () {
 	  function ResourceSelectorFieldEditControl(params) {
 	    babelHelpers.classCallCheck(this, ResourceSelectorFieldEditControl);
 	    this.params = params || {};
@@ -3674,9 +3630,7 @@ this.BX = this.BX || {};
 	  return ResourceSelectorFieldEditControl;
 	}();
 
-	var PlannerPopup =
-	/*#__PURE__*/
-	function () {
+	var PlannerPopup = /*#__PURE__*/function () {
 	  function PlannerPopup(params) {
 	    babelHelpers.classCallCheck(this, PlannerPopup);
 	  }
@@ -4085,9 +4039,7 @@ this.BX = this.BX || {};
 	  return PlannerPopup;
 	}();
 
-	var EditFieldController =
-	/*#__PURE__*/
-	function () {
+	var EditFieldController = /*#__PURE__*/function () {
 	  function EditFieldController(params) {
 	    babelHelpers.classCallCheck(this, EditFieldController);
 	    this.params = params;
@@ -4873,9 +4825,7 @@ this.BX = this.BX || {};
 	  return EditFieldController;
 	}();
 
-	var ServiceSelector =
-	/*#__PURE__*/
-	function () {
+	var ServiceSelector = /*#__PURE__*/function () {
 	  function ServiceSelector(params) {
 	    babelHelpers.classCallCheck(this, ServiceSelector);
 	    this.params = calendar_resourcebooking.Type.isPlainObject(params) ? params : {};
@@ -5134,9 +5084,7 @@ this.BX = this.BX || {};
 	  return ServiceSelector;
 	}();
 
-	var TimezoneSelector =
-	/*#__PURE__*/
-	function () {
+	var TimezoneSelector = /*#__PURE__*/function () {
 	  function TimezoneSelector(params) {
 	    babelHelpers.classCallCheck(this, TimezoneSelector);
 	    this.params = calendar_resourcebooking.Type.isPlainObject(params) ? params : {};
@@ -5199,9 +5147,7 @@ this.BX = this.BX || {};
 	  return TimezoneSelector;
 	}();
 
-	var ModeSelector =
-	/*#__PURE__*/
-	function () {
+	var ModeSelector = /*#__PURE__*/function () {
 	  function ModeSelector(params) {
 	    babelHelpers.classCallCheck(this, ModeSelector);
 	    this.params = params;
@@ -5896,9 +5842,7 @@ this.BX = this.BX || {};
 	  return Configurator;
 	};
 
-	var CalendarViewSettingsSlider =
-	/*#__PURE__*/
-	function () {
+	var CalendarViewSettingsSlider = /*#__PURE__*/function () {
 	  function CalendarViewSettingsSlider(params) {
 	    babelHelpers.classCallCheck(this, CalendarViewSettingsSlider);
 	    this.id = 'calendar_custom_settings_' + Math.round(Math.random() * 1000000);
@@ -6007,9 +5951,7 @@ this.BX = this.BX || {};
 	  return CalendarViewSettingsSlider;
 	}();
 
-	var AdminSettingsViewer =
-	/*#__PURE__*/
-	function () {
+	var AdminSettingsViewer = /*#__PURE__*/function () {
 	  function AdminSettingsViewer() {
 	    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, AdminSettingsViewer);
@@ -6386,9 +6328,7 @@ this.BX = this.BX || {};
 	  return AdminSettingsViewer;
 	}();
 
-	var ResourcebookingUserfield =
-	/*#__PURE__*/
-	function () {
+	var ResourcebookingUserfield = /*#__PURE__*/function () {
 	  function ResourcebookingUserfield() {
 	    babelHelpers.classCallCheck(this, ResourcebookingUserfield);
 	  }

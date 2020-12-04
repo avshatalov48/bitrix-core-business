@@ -1000,7 +1000,7 @@
 				&& (dayCode = params.specialTarget && params.specialTarget.getAttribute('data-bx-calendar-week-day')))
 			{
 				this.deselectEntry();
-				this.showSimplePopupForNewEntry({
+				this.showCompactEditFormForNewEntry({
 					entry: this.buildTopNewEntryWrap({
 						dayFrom: this.days[this.dayIndex[dayCode]],
 						holder: this.topEntryHolder

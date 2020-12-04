@@ -225,6 +225,36 @@ class Base
 	}
 
 	/**
+	 * @param FieldType $fieldType Document field type.
+	 * @param array $baseValue Base value.
+	 * @param mixed $appendValue Value to append.
+	 * @return mixed Merge result.
+	 */
+	public static function mergeValue(FieldType $fieldType, array $baseValue, $appendValue): array
+	{
+		if (\CBPHelper::isEmptyValue($baseValue))
+		{
+			return (array) $appendValue;
+		}
+
+		if (!is_array($appendValue))
+		{
+			$baseValue[] = $appendValue;
+			return $baseValue;
+		}
+
+		$isSimple = !\CBPHelper::isAssociativeArray($baseValue) && !\CBPHelper::isAssociativeArray($appendValue);
+		$result = $isSimple ? array_merge($baseValue, $appendValue) : $baseValue + $appendValue;
+
+		if ($isSimple)
+		{
+			$result = array_values(array_unique($result));
+		}
+
+		return $result;
+	}
+
+	/**
 	 * @var array
 	 */
 	protected static $errors = array();
@@ -344,7 +374,7 @@ class Base
 	{
 		$messageAdd = Loc::getMessage('BPDT_BASE_ADD');
 
-		$name = Main\Text\HtmlFilter::encode(\CUtil::JSEscape(static::generateControlName($field)));
+		$name = Main\Text\HtmlFilter::encode(\CUtil::jsEscape(static::generateControlName($field)));
 		$property = Main\Text\HtmlFilter::encode(Main\Web\Json::encode($fieldType->getProperty()));
 
 		$renderResult = implode('', $controls) . <<<HTML

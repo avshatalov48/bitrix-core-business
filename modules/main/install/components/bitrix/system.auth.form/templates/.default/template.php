@@ -179,6 +179,7 @@ else:
 			<?foreach ($arResult["GET"] as $key => $value):?>
 				<input type="hidden" name="<?=$key?>" value="<?=$value?>" />
 			<?endforeach?>
+			<?=bitrix_sessid_post()?>
 			<input type="hidden" name="logout" value="yes" />
 			<input type="submit" name="logout_butt" value="<?=GetMessage("AUTH_LOGOUT_BUTTON")?>" />
 			</td>

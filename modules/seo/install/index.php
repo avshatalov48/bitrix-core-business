@@ -101,6 +101,8 @@ class seo extends CModule
 		$eventManager->registerEventHandler("catalog", "OnProductUpdate", "seo", "\\Bitrix\\Seo\\Adv\\Auto", "checkQuantity");
 		$eventManager->registerEventHandler("catalog", "OnProductSetAvailableUpdate", "seo", "\\Bitrix\\Seo\\Adv\\Auto", "checkQuantity");
 
+		$eventManager->registerEventHandler("bitrix24", "onDomainChange", "seo", "\\Bitrix\\Seo\\Service", "changeRegisteredDomain");
+
 		if (COption::GetOptionString('seo', 'searchers_list', '') == '' && CModule::IncludeModule('statistic'))
 		{
 			$arFilter = array('ACTIVE' => 'Y', 'NAME' => 'Google|MSN|Bing', 'NAME_EXACT_MATCH' => 'Y');
@@ -227,6 +229,8 @@ class seo extends CModule
 		$eventManager->unRegisterEventHandler("catalog", "OnProductUpdate", "seo", "\\Bitrix\\Seo\\Adv\\Auto", "checkQuantity");
 		$eventManager->unRegisterEventHandler("catalog", "OnProductSetAvailableUpdate", "seo", "\\Bitrix\\Seo\\Adv\\Auto", "checkQuantity");
 
+		$eventManager->unregisterEventHandler("bitrix24", "onDomainChange", "seo", "\\Bitrix\\Seo\\Service", "changeRegisteredDomain");
+
 		UnRegisterModule("seo");
 
 		return true;
@@ -261,5 +265,18 @@ class seo extends CModule
 				"[W] ".GetMessage("SEO_FULL"))
 			);
 		return $arr;
+	}
+
+	/**
+	 * Method for migrate from cloud version.
+	 * @return void
+	 * @throws \Bitrix\Main\LoaderException
+	 */
+	public function migrateToBox(): void
+	{
+		if (\Bitrix\Main\Loader::includeModule('seo'))
+		{
+			\Bitrix\Seo\Service::changeRegisteredDomain();
+		}
 	}
 }

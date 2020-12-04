@@ -10,9 +10,12 @@
 		this.inPersonal = this.calendar.util.userIsOwner();
 		this.showGeneralSettings = !!(this.calendar.util.config.perm && this.calendar.util.config.perm.access);
 		this.settings = this.calendar.util.config.settings;
+		this.DOM = {};
 
 		this.SLIDER_WIDTH = 500;
 		this.SLIDER_DURATION = 80;
+
+		this.fixPopupZIndexBinded = this.fixPopupZIndex.bind(this);
 	}
 
 	SettingsSlider.prototype = {
@@ -21,21 +24,31 @@
 			this.calendar.util.doBxContextFix();
 
 			BX.SidePanel.Instance.open(this.sliderId, {
-				contentCallback: BX.delegate(this.create, this),
+				contentCallback: this.createContent.bind(this),
 				width: this.SLIDER_WIDTH,
 				animationDuration: this.SLIDER_DURATION,
 				events: {
 					onClose: BX.proxy(this.hide, this),
-					onCloseComplete: BX.proxy(this.destroy, this)
+					onCloseComplete: BX.proxy(this.destroy, this),
+					onLoad: this.onLoadSlider.bind(this)
 				}
 			});
 
 			this.calendar.disableKeyHandler();
+			this.isOpenedState = true;
+
+			BX.addCustomEvent('onPopupShow', this.fixPopupZIndexBinded);
 		},
 
 		close: function ()
 		{
+			this.isOpenedState = false;
 			BX.SidePanel.Instance.close();
+		},
+
+		isOpened: function()
+		{
+			return this.isOpenedState;
 		},
 
 		hide: function (event)
@@ -50,6 +63,8 @@
 				{
 					BX.removeCustomEvent("SidePanel.Slider:onClose", BX.proxy(this.hide, this));
 				}
+
+				BX.removeCustomEvent('onPopupShow', this.fixPopupZIndexBinded);
 			}
 		},
 
@@ -65,25 +80,42 @@
 			}
 		},
 
-		create: function ()
+		createContent: function (slider)
 		{
-			top.BX.onCustomEvent(top, 'onCalendarBeforeCustomSliderCreate');
-			var promise = new BX.Promise();
-			BX.ajax.get(this.calendar.util.getActionUrl(), {
-				action: 'get_settings_slider',
-				is_personal: this.inPersonal ? 'Y' : 'N',
-				show_general_settings: this.showGeneralSettings ? 'Y' : 'N',
-				unique_id: this.uid,
-				sessid: BX.bitrix_sessid(),
-				bx_event_calendar_request: 'Y',
-				reqId: Math.round(Math.random() * 1000000)
-			}, BX.delegate(function (html)
-			{
-				promise.fulfill(BX.util.trim(html));
-				this.initControls();
-			}, this));
+			return new Promise(function(resolve){
+				top.BX.ajax.runAction('calendar.api.calendarajax.getSettingsSlider', {
+					data: {
+						isPersonal: this.inPersonal ? 'Y' : 'N',
+						showGeneralSettings: this.showGeneralSettings ? 'Y' : 'N',
+						uid: this.uid
+					}
+				}).then(
+					function(response)
+					{
+						var html = response.data.html;
+						slider.getData().set("sliderContent", html);
+						var params = response.data.additionalParams;
+						this.mailboxList = params.mailboxList;
+						this.uid = params.uid;
 
-			return promise;
+						resolve(html);
+					}.bind(this),
+					function (response)
+					{
+						//Dom.remove(loader);
+					}.bind(this)
+				);
+			}.bind(this));
+		},
+
+		onLoadSlider: function(event)
+		{
+			var slider = event.getSlider();
+			this.DOM.content = slider.layout.content;
+			this.sliderId = slider.getUrl();
+			// Used to execute javasctipt and attach CSS from ajax responce
+			BX.html(slider.layout.content, slider.getData().get("sliderContent"));
+			this.initControls(this.uid);
 		},
 
 		initControls: function ()
@@ -91,10 +123,8 @@
 			BX.bind(top.BX(this.uid + '_save'), 'click', BX.proxy(this.save, this));
 			BX.bind(top.BX(this.uid + '_close'), 'click', BX.proxy(this.close, this));
 
-			this.DOM = {
-				denyBusyInvitation: top.BX(this.uid + '_deny_busy_invitation'),
-				showWeekNumbers: top.BX(this.uid + '_show_week_numbers')
-			};
+			this.DOM.denyBusyInvitation = top.BX(this.uid + '_deny_busy_invitation');
+			this.DOM.showWeekNumbers = top.BX(this.uid + '_show_week_numbers');
 
 			if (this.inPersonal)
 			{
@@ -108,6 +138,26 @@
 
 				this.DOM.syncPeriodPast = top.BX(this.uid + '_sync_period_past');
 				this.DOM.syncPeriodFuture = top.BX(this.uid + '_sync_period_future');
+
+				this.DOM.sendFromEmailSelect = top.BX(this.uid + '_send_from_email');
+			}
+
+			if (BX.Type.isElementNode(this.DOM.sendFromEmailSelect))
+			{
+				this.emailSelectorControl = new BX.Calendar.Controls.EmailSelectorControl({
+					selectNode: this.DOM.sendFromEmailSelect,
+					allowAddNewEmail: true,
+					mailboxList: this.mailboxList
+				});
+
+				this.DOM.emailHelpIcon = this.DOM.content.querySelector('.calendar-settings-question');
+
+				if(this.DOM.emailHelpIcon && BX.Helper)
+				{
+					BX.Event.bind(this.DOM.emailHelpIcon, 'click', function(){BX.Helper.show("redirect=detail&code=12070142")});
+					BX.UI.Hint.initNode(this.DOM.emailHelpIcon);
+				}
+				this.emailSelectorControl.setValue(this.calendar.util.getUserOption('sendFromEmail'));
 			}
 
 			// General settings
@@ -135,12 +185,6 @@
 						}
 					}
 				}
-			}
-
-			this.DOM.manageCalDav = top.BX(this.uid + '_manage_caldav');
-			if (this.DOM.manageCalDav)
-			{
-				BX.bind(this.DOM.manageCalDav, 'click', BX.proxy(this.calendar.syncSlider.showCalDavSyncDialog, this.calendar.syncSlider));
 			}
 
 			// Set personal user settings
@@ -188,6 +232,7 @@
 					if(this.DOM.showCompletedTasks)
 					{
 						this.DOM.showCompletedTasks.disabled = !this.DOM.showTasks.checked;
+						this.DOM.showCompletedTasks.checked = this.DOM.showCompletedTasks.checked && this.DOM.showTasks.checked;
 					}
 					if(this.DOM.syncTasks)
 					{
@@ -198,12 +243,12 @@
 			}
 			if(this.DOM.showCompletedTasks)
 			{
-				this.DOM.showCompletedTasks.checked = this.calendar.util.getUserOption('showCompletedTasks') === 'Y';
+				this.DOM.showCompletedTasks.checked = this.calendar.util.getUserOption('showCompletedTasks') === 'Y' && this.DOM.showTasks.checked;
 				this.DOM.showCompletedTasks.disabled = !showTasks;
 			}
 			if(this.DOM.syncTasks)
 			{
-				this.DOM.syncTasks.checked = this.calendar.util.getUserOption('syncTasks') === 'Y';
+				this.DOM.syncTasks.checked = this.calendar.util.getUserOption('syncTasks') === 'Y' && this.DOM.showTasks.checked;
 				this.DOM.syncTasks.disabled = !showTasks;
 			}
 
@@ -297,20 +342,26 @@
 				userSettings.userTimezoneName = this.DOM.timezoneSelect.value;
 			}
 
-
 			if(this.DOM.syncPeriodPast)
 			{
 				userSettings.syncPeriodPast = this.DOM.syncPeriodPast.value;
 			}
+
 			if(this.DOM.syncPeriodFuture)
 			{
 				userSettings.syncPeriodFuture = this.DOM.syncPeriodFuture.value;
 			}
 
+			if(this.emailSelectorControl)
+			{
+				userSettings.sendFromEmail = this.emailSelectorControl.getValue();
+			}
+
 			var data = {
 				action: 'save_settings',
 				user_settings: userSettings,
-				user_timezone_name: userSettings.userTimezoneName
+				user_timezone_name: userSettings.userTimezoneName,
+				userSettings: userSettings.sendFromEmail
 			};
 
 			if (this.showGeneralSettings && this.DOM.workTimeStart)
@@ -322,6 +373,7 @@
 					year_holidays: this.DOM.yearHolidays.value,
 					year_workdays: this.DOM.yearWorkdays.value
 				};
+
 				for(var i = 0; i < this.DOM.weekHolidays.options.length; i++)
 				{
 					if (this.DOM.weekHolidays.options[i].selected)
@@ -533,6 +585,20 @@
 				top.BX.PopupMenu.destroy(menuId);
 				_this.accessPopupMenu = null;
 			});
+		},
+
+		fixPopupZIndex: function(popupWindow)
+		{
+			var Z_INDEX = 4200;
+			if (popupWindow.params.zIndex && popupWindow.params.zIndex < Z_INDEX
+				||
+				popupWindow.popupContainer.style.zIndex
+				&& popupWindow.popupContainer.style.zIndex < Z_INDEX
+			)
+			{
+				popupWindow.params.zIndex = Z_INDEX;
+				popupWindow.popupContainer.style.zIndex = Z_INDEX;
+			}
 		}
 	};
 

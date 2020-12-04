@@ -55,3 +55,44 @@
 	word-wrap: break-word;
 }
 
+.popup-window.email-limit-popup {
+	padding-left: 20px;
+	padding-right: 20px;
+}
+
+.email-limit-popup .popup-window-content {
+	background: #fff;
+	border-top: 1px solid #edeef0;
+	border-bottom: 1px solid #edeef0;
+	color: #535c69;
+	text-align: center;
+	padding-bottom: 32px;
+	padding-top: 30px;
+}
+
+.email-limit-popup .popup-window-titlebar-text {
+	color: #535C69;
+	padding-left: 0;
+}
+
+.email-limit-popup .popup-window-buttons {
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+	padding-bottom: 0;
+}
+
+.email-limit-popup .ui-btn:last-child {
+	margin-left: 0;
+	margin-top: 6px;
+}
+
+.calendar-email-limit-text {
+	font: 21px/25px "OpenSans-Regular", Helvetica, Arial, sans-serif;
+	margin-bottom: 13px;
+}
+
+.calendar-email-limit-subtext {
+	font-size: 14px;
+	line-height: 20px;
+}

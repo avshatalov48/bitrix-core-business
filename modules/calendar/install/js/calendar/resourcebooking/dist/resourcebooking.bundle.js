@@ -11,9 +11,7 @@ this.BX = this.BX || {};
 
 	  return data;
 	}
-	var ViewControlAbstract =
-	/*#__PURE__*/
-	function () {
+	var ViewControlAbstract = /*#__PURE__*/function () {
 	  function ViewControlAbstract(params) {
 	    babelHelpers.classCallCheck(this, ViewControlAbstract);
 
@@ -176,9 +174,7 @@ this.BX = this.BX || {};
 	  return ViewControlAbstract;
 	}();
 
-	var ViewDropDownSelect =
-	/*#__PURE__*/
-	function () {
+	var ViewDropDownSelect = /*#__PURE__*/function () {
 	  function ViewDropDownSelect(params) {
 	    babelHelpers.classCallCheck(this, ViewDropDownSelect);
 	    this.id = 'viewform-dropdown-select-' + Math.round(Math.random() * 100000);
@@ -439,9 +435,7 @@ this.BX = this.BX || {};
 	  return ViewDropDownSelect;
 	}();
 
-	var UserSelector =
-	/*#__PURE__*/
-	function (_ViewControlAbstract) {
+	var UserSelector = /*#__PURE__*/function (_ViewControlAbstract) {
 	  babelHelpers.inherits(UserSelector, _ViewControlAbstract);
 
 	  function UserSelector(params) {
@@ -578,9 +572,7 @@ this.BX = this.BX || {};
 	  return UserSelector;
 	}(ViewControlAbstract);
 
-	var ResourceSelector =
-	/*#__PURE__*/
-	function (_ViewControlAbstract) {
+	var ResourceSelector = /*#__PURE__*/function (_ViewControlAbstract) {
 	  babelHelpers.inherits(ResourceSelector, _ViewControlAbstract);
 
 	  function ResourceSelector(params) {
@@ -708,9 +700,7 @@ this.BX = this.BX || {};
 	  return ResourceSelector;
 	}(ViewControlAbstract);
 
-	var ServiceSelector =
-	/*#__PURE__*/
-	function (_ViewControlAbstract) {
+	var ServiceSelector = /*#__PURE__*/function (_ViewControlAbstract) {
 	  babelHelpers.inherits(ServiceSelector, _ViewControlAbstract);
 
 	  function ServiceSelector(params) {
@@ -827,9 +817,7 @@ this.BX = this.BX || {};
 	  return ServiceSelector;
 	}(ViewControlAbstract);
 
-	var DurationSelector =
-	/*#__PURE__*/
-	function (_ViewControlAbstract) {
+	var DurationSelector = /*#__PURE__*/function (_ViewControlAbstract) {
 	  babelHelpers.inherits(DurationSelector, _ViewControlAbstract);
 
 	  function DurationSelector(params) {
@@ -1053,9 +1041,7 @@ this.BX = this.BX || {};
 
 	  return data;
 	}
-	var DateSelector =
-	/*#__PURE__*/
-	function (_ViewControlAbstract) {
+	var DateSelector = /*#__PURE__*/function (_ViewControlAbstract) {
 	  babelHelpers.inherits(DateSelector, _ViewControlAbstract);
 
 	  function DateSelector(params) {
@@ -1270,9 +1256,7 @@ this.BX = this.BX || {};
 	  return DateSelector;
 	}(ViewControlAbstract);
 
-	var PopupDateSelector =
-	/*#__PURE__*/
-	function () {
+	var PopupDateSelector = /*#__PURE__*/function () {
 	  function PopupDateSelector(params) {
 	    babelHelpers.classCallCheck(this, PopupDateSelector);
 	    this.DOM = {
@@ -1413,9 +1397,7 @@ this.BX = this.BX || {};
 
 	babelHelpers.defineProperty(PopupDateSelector, "externalDatePickerIsEnabled", null);
 
-	var LineDateSelector =
-	/*#__PURE__*/
-	function () {
+	var LineDateSelector = /*#__PURE__*/function () {
 	  function LineDateSelector(params) {
 	    babelHelpers.classCallCheck(this, LineDateSelector);
 	    params = params || {};
@@ -1797,9 +1779,7 @@ this.BX = this.BX || {};
 
 	  return data;
 	}
-	var TimeSelector =
-	/*#__PURE__*/
-	function (_ViewControlAbstract) {
+	var TimeSelector = /*#__PURE__*/function (_ViewControlAbstract) {
 	  babelHelpers.inherits(TimeSelector, _ViewControlAbstract);
 
 	  function TimeSelector(params) {
@@ -2478,9 +2458,7 @@ this.BX = this.BX || {};
 
 	  return data;
 	}
-	var StatusInformer =
-	/*#__PURE__*/
-	function () {
+	var StatusInformer = /*#__PURE__*/function () {
 	  function StatusInformer(params) {
 	    babelHelpers.classCallCheck(this, StatusInformer);
 	    this.DOM = {
@@ -2672,9 +2650,7 @@ this.BX = this.BX || {};
 
 	  return data;
 	}
-	var LiveFieldController =
-	/*#__PURE__*/
-	function (_EventEmitter) {
+	var LiveFieldController = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(LiveFieldController, _EventEmitter);
 
 	  function LiveFieldController(params) {
@@ -4095,9 +4071,7 @@ this.BX = this.BX || {};
 	  return LiveFieldController;
 	}(main_core_events.EventEmitter);
 
-	var Translit =
-	/*#__PURE__*/
-	function () {
+	var Translit = /*#__PURE__*/function () {
 	  function Translit() {
 	    babelHelpers.classCallCheck(this, Translit);
 	  }
@@ -4194,9 +4168,7 @@ this.BX = this.BX || {};
 
 	  return data;
 	}
-	var BookingUtil$$1 =
-	/*#__PURE__*/
-	function () {
+	var BookingUtil$$1 = /*#__PURE__*/function () {
 	  function BookingUtil$$1() {
 	    babelHelpers.classCallCheck(this, BookingUtil$$1);
 	  }
@@ -4473,9 +4445,7 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(BookingUtil$$1, "DATE_FORMAT", null);
 	babelHelpers.defineProperty(BookingUtil$$1, "DATETIME_FORMAT", null);
 
-	var FieldViewControllerAbstract =
-	/*#__PURE__*/
-	function (_Event$EventEmitter) {
+	var FieldViewControllerAbstract = /*#__PURE__*/function (_Event$EventEmitter) {
 	  babelHelpers.inherits(FieldViewControllerAbstract, _Event$EventEmitter);
 
 	  function FieldViewControllerAbstract(params) {
@@ -4674,9 +4644,7 @@ this.BX = this.BX || {};
 	  return FieldViewControllerAbstract;
 	}(main_core.Event.EventEmitter);
 
-	var FieldViewControllerEdit =
-	/*#__PURE__*/
-	function (_FieldViewControllerA) {
+	var FieldViewControllerEdit = /*#__PURE__*/function (_FieldViewControllerA) {
 	  babelHelpers.inherits(FieldViewControllerEdit, _FieldViewControllerA);
 
 	  function FieldViewControllerEdit(params) {
@@ -4687,9 +4655,7 @@ this.BX = this.BX || {};
 	  return FieldViewControllerEdit;
 	}(FieldViewControllerAbstract);
 
-	var FieldViewControllerPreview =
-	/*#__PURE__*/
-	function (_FieldViewControllerA) {
+	var FieldViewControllerPreview = /*#__PURE__*/function (_FieldViewControllerA) {
 	  babelHelpers.inherits(FieldViewControllerPreview, _FieldViewControllerA);
 
 	  function FieldViewControllerPreview(params) {
@@ -4707,9 +4673,7 @@ this.BX = this.BX || {};
 	  return FieldViewControllerPreview;
 	}(FieldViewControllerAbstract);
 
-	var SelectInput$$1 =
-	/*#__PURE__*/
-	function (_Event$EventEmitter) {
+	var SelectInput$$1 = /*#__PURE__*/function (_Event$EventEmitter) {
 	  babelHelpers.inherits(SelectInput$$1, _Event$EventEmitter);
 
 	  function SelectInput$$1(params) {
@@ -4957,9 +4921,7 @@ this.BX = this.BX || {};
 	}(main_core.Event.EventEmitter);
 
 	var CoreDate = window.BX && BX.Main && BX.Main.Date ? BX.Main.Date : null;
-	var Resourcebooking =
-	/*#__PURE__*/
-	function () {
+	var Resourcebooking = /*#__PURE__*/function () {
 	  function Resourcebooking() {
 	    babelHelpers.classCallCheck(this, Resourcebooking);
 	  }

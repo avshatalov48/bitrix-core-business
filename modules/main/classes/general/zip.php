@@ -27,8 +27,6 @@ class CZip implements IBXArchive
 
 	const ReadBlockSize = 2048;
 
-	private static $bMbstring = false;
-
 	public function __construct($pzipname)
 	{
 		$this->io = CBXVirtualIo::GetInstance();
@@ -38,9 +36,6 @@ class CZip implements IBXArchive
 		$this->arPackedFilesData = array();
 		$this->_errorReset();
 		$this->fileSystemEncoding = $this->_getfileSystemEncoding();
-		self::$bMbstring = extension_loaded("mbstring");
-
-		return;
 	}
 
 	/**
@@ -1088,7 +1083,7 @@ class CZip implements IBXArchive
 		$arHeader['extra']             = '';
 		$arHeader['extra_len']         = 0;
 		$arHeader['filename']          = \Bitrix\Main\Text\Encoding::convertEncoding($filename, $this->fileSystemEncoding, "cp866");
-		$arHeader['filename_len']      = self::$bMbstring? mb_strlen(\Bitrix\Main\Text\Encoding::convertEncoding($filename, $this->fileSystemEncoding, "cp866"), "latin1") : mb_strlen(\Bitrix\Main\Text\Encoding::convertEncoding($filename, $this->fileSystemEncoding, "cp866"));
+		$arHeader['filename_len']      = strlen(\Bitrix\Main\Text\Encoding::convertEncoding($filename, $this->fileSystemEncoding, "cp866"));
 		$arHeader['flag']              = 0;
 		$arHeader['index']             = -1;
 		$arHeader['internal']          = 0;
@@ -1164,7 +1159,7 @@ class CZip implements IBXArchive
 				}
 
 				//set header params
-				$arHeader['compressed_size'] = self::$bMbstring? mb_strlen($compressedContent, "latin1") : mb_strlen($compressedContent);
+				$arHeader['compressed_size'] = strlen($compressedContent);
 				$arHeader['compression']     = 8;
 
 				//generate header
@@ -1240,7 +1235,7 @@ class CZip implements IBXArchive
 							$arHeader['crc'],
 							$arHeader['compressed_size'],
 							$arHeader['size'],
-			self::$bMbstring? mb_strlen($arHeader['stored_filename'], 'latin1') : mb_strlen($arHeader['stored_filename']),
+			strlen($arHeader['stored_filename']),
 							$arHeader['extra_len']
 							);
 
@@ -1249,7 +1244,7 @@ class CZip implements IBXArchive
 
 		//write the variable fields
 		if ($arHeader['stored_filename'] <> '')
-			fputs($this->zipfile, $arHeader['stored_filename'], (self::$bMbstring? mb_strlen($arHeader['stored_filename'], 'latin1') : mb_strlen($arHeader['stored_filename'])));
+			fputs($this->zipfile, $arHeader['stored_filename'], strlen($arHeader['stored_filename']));
 		if ($arHeader['extra_len'] != 0)
 			fputs($this->zipfile, $arHeader['extra'], $arHeader['extra_len']);
 
@@ -1279,7 +1274,7 @@ class CZip implements IBXArchive
 							$arHeader['crc'],
 							$arHeader['compressed_size'],
 							$arHeader['size'],
-			self::$bMbstring? mb_strlen($arHeader['stored_filename'], 'latin1') : mb_strlen($arHeader['stored_filename']),
+			strlen($arHeader['stored_filename']),
 							$arHeader['extra_len'],
 							$arHeader['comment_len'],
 							$arHeader['disk'],
@@ -1293,7 +1288,7 @@ class CZip implements IBXArchive
 		//variable fields
 		if ($arHeader['stored_filename'] <> '')
 		{
-			fputs($this->zipfile, $arHeader['stored_filename'], (self::$bMbstring? mb_strlen($arHeader['stored_filename'], 'latin1') : mb_strlen($arHeader['stored_filename'])));
+			fputs($this->zipfile, $arHeader['stored_filename'], strlen($arHeader['stored_filename']));
 		}
 		if ($arHeader['extra_len'] != 0)
 		{
@@ -1814,7 +1809,7 @@ class CZip implements IBXArchive
 		$binary_data = fread($this->zipfile, 26);
 
 		//look for invalid block size
-		if ((self::$bMbstring? mb_strlen($binary_data, "latin1") : mb_strlen($binary_data)) != 26)
+		if (strlen($binary_data) != 26)
 		{
 			$arHeader['filename'] = "";
 			$arHeader['status']   = "invalid_header";
@@ -1893,7 +1888,7 @@ class CZip implements IBXArchive
 		$binary_data = fread($this->zipfile, 42);
 
 		//if block size is not valid
-		if ((self::$bMbstring? mb_strlen($binary_data, "latin1") : mb_strlen($binary_data)) != 42)
+		if (strlen($binary_data) != 42)
 		{
 			$arHeader['filename'] = "";
 			$arHeader['status']   = "invalid_header";
@@ -2049,7 +2044,7 @@ class CZip implements IBXArchive
 		$binary_data = fread($this->zipfile, 18);
 
 		//if block size is not valid
-		if ((self::$bMbstring? mb_strlen($binary_data, "latin1") : mb_strlen($binary_data)) != 18)
+		if (strlen($binary_data) != 18)
 		{
 			$this->_errorLog("ERR_ARC_END_SIZE", str_replace("#SIZE#", mb_strlen($binary_data), GetMessage("MAIN_ZIP_ERR_ARC_END_SIZE")));
 			return $this->arErrors;

@@ -5,9 +5,7 @@
  */
 use \Bitrix\Main\UI;
 
-UI\Extension::load("ui.animations");
-UI\Extension::load("main.rating");
-UI\Extension::load("ui.tooltip");
+UI\Extension::load(['ui.animations', 'main.rating' , 'ui.tooltip', 'ui.icons.b24']);
 
 $APPLICATION->SetAdditionalCSS("/bitrix/components/bitrix/socialnetwork.log.ex/templates/.default/style.css");
 $APPLICATION->SetAdditionalCSS("/bitrix/components/bitrix/socialnetwork.blog.blog/templates/.default/style.css");
@@ -32,6 +30,10 @@ CUtil::InitJSCore(array("date", "fx", "popup", "viewer", "clipboard", "tooltip")
 if (CModule::IncludeModule('socialnetwork'))
 {
 	CUtil::InitJSCore(array("comment_aux"));
+}
+if (CModule::IncludeModule('landing'))
+{
+	CUtil::InitJSCore(array("landing_note"));
 }
 $prefixNode = $arParams["ENTITY_XML_ID"].'-'.$arParams["EXEMPLAR_ID"];
 $eventNodeId = $prefixNode."_main";
@@ -116,6 +118,16 @@ ob_start();
 	<!--RCRD_END_#FULL_ID#-->
 <?
 $template = preg_replace("/[\t\n]/", "", ob_get_clean());
+ob_start();
+?>
+	<script>
+		BX.ready(function() {
+			BX.onCustomEvent(BX('<?=$eventNodeIdTemplate?>'), 'OnUCBlankCommentIsInDOM', ['#ID#', BX('<?=$eventNodeIdTemplate?>')]);
+		});
+	</script>
+	<div style="position: absolute;width:1px;height:1px;opasity:0;"></div>
+<?
+$blankTemplate =  preg_replace("/[\t\n]/", "", ob_get_clean());
 ?><div id="<?=$eventNodeId?>"><?
 if (empty($arParams["RECORDS"]))
 {
@@ -152,8 +164,11 @@ else
 	$tmp = reset($arParams["RECORDS"]);
 	?><div class="feed-com-corner<?=($arParams["NAV_STRING"] === "" && $tmp["NEW"] == "Y" ? " feed-post-block-yellow-corner" : "")?>"></div><?
 	if ($arParams["PREORDER"] != "Y"): ?><?=$arParams["NAV_STRING"]?><? endif;
-	$iCount = 0;
 	?><!--RCRDLIST_<?=$arParams["ENTITY_XML_ID"]?>--><?
+	$collapsedMessages = 0;
+	$collapsedMessagesBlockIsCollapsed = true;
+	$collapsedMessagesBlock = null;
+
 	foreach ($arParams["RECORDS"] as $res)
 	{
 		if (intval($res["ID"]) <= 0)
@@ -161,18 +176,97 @@ else
 			continue;
 		}
 
+		if ($res["COLLAPSED"] === "Y")
+		{
+			$collapsedMessages++;
+			if ($collapsedMessagesBlock === null)
+			{
+				ob_start();
+	?>
+		<div class="feed-com-collapsed" data-bx-role="collapsed-block">
+			<input type="checkbox" id="collapsed_switcher_<?=$arParams["ENTITY_XML_ID"]?>_<?=$res["ID"]?>" #COLLAPSED_MESSAGES_BLOCK_IS_COLLAPSED#>
+			<label for="collapsed_switcher_<?=$arParams["ENTITY_XML_ID"]?>_<?=$res["ID"]?>"
+				data-bx-collapse-role="show">
+				<a class="feed-com-collapsed-btn">
+					<?=GetMessage("MPL_SHOW_COLLAPSED_COMMENTS")?> (#COLLAPSED_MESSAGES_COUNT#)
+				</a>
+			</label>
+			<label for="collapsed_switcher_<?=$arParams["ENTITY_XML_ID"]?>_<?=$res["ID"]?>"
+				data-bx-collapse-role="hide">
+				<a class="feed-com-collapsed-btn">
+					<?=GetMessage("MPL_HIDE_COLLAPSED_COMMENTS")?> (#COLLAPSED_MESSAGES_COUNT#)
+				</a>
+			</label>
+			<div class="feed-com-collapsed-block">
+				<div class="feed-com-collapsed-block-inner">
+					#COLLAPSED_MESSAGES_BLOCK#
+				</div>
+			</div>
+<script>
+	BX.ready(function() {
+		BX("collapsed_switcher_<?=$arParams["ENTITY_XML_ID"]?>_<?=$res["ID"]?>").addEventListener("click", function() {
+			var serviceBlock = this.parentNode.querySelector("div.feed-com-collapsed-block");
+			serviceBlock.style.height = this.checked ? (serviceBlock.children[0].offsetHeight + "px") : 0;
+			serviceBlock.style.opacity = this.checked ? 1 : 0;
+			this.classList.remove("feed-com-collapsed-once");
+		});
+	});
+</script>
+		</div><?
+				$collapsedMessagesBlock = ob_get_clean();
+				ob_start();
+			}
+		}
+		else if ($collapsedMessagesBlock !== null)
+		{
+			?><?=str_replace([
+					"#COLLAPSED_MESSAGES_BLOCK_IS_COLLAPSED#",
+					"#COLLAPSED_MESSAGES_COUNT#",
+					"#COLLAPSED_MESSAGES_BLOCK#"
+				], [
+					$collapsedMessagesBlockIsCollapsed ? "" : "checked class=\"feed-com-collapsed-once\" ",
+					$collapsedMessages,
+					ob_get_clean()
+				],
+				$collapsedMessagesBlock
+			);
+			$collapsedMessagesBlock = null;
+			$collapsedMessages = 0;
+			$collapsedMessagesBlockIsCollapsed = true;
+		}
+
 		$res["AUTHOR"] = (is_array($res["AUTHOR"]) ? $res["AUTHOR"] : array());
-		$iCount++;
+		$isMessageBlank = !(array_key_exists("POST_MESSAGE_TEXT", $res) && $res["POST_MESSAGE_TEXT"] !== null);
+		$collapsedMessagesBlockIsCollapsed = ($res["NEW"] == "Y" || $res["ID"] == $arParams["RESULT"] ? false : $collapsedMessagesBlockIsCollapsed);
 		?><div id="record-<?=$arParams["ENTITY_XML_ID"]?>-<?=$res["ID"]?>-cover" <?
 			?>bx-mpl-xml-id="<?=$arParams["ENTITY_XML_ID"]?>" <?
 			?>bx-mpl-entity-id="<?=$res["ID"]?>" <?
 			?>bx-mpl-read-status="<?=(($res["NEW"] == "Y" ? "new" : "old"))?>" <?
+			?>bx-mpl-blank-status="<?=($isMessageBlank ? "blank" : "full")?>" <?
 			?>bx-mpl-block="main" <?
 			?>class="feed-com-block-cover"><?
-		?><?=$this->__component->parseTemplate($res, $arParams, $template)?>
-		</div>
-	<?
+				?><?=$this->__component->parseTemplate($res, $arParams, ($isMessageBlank ? $blankTemplate : $template));?>
+			</div>
+		<?
 	}
+	if ($collapsedMessagesBlock !== null)
+	{
+		?><?=str_replace([
+				"#COLLAPSED_MESSAGES_BLOCK_IS_COLLAPSED#",
+				"#COLLAPSED_MESSAGES_COUNT#",
+				"#COLLAPSED_MESSAGES_BLOCK#"
+			], [
+				$collapsedMessagesBlockIsCollapsed ? "" : "checked class=\"feed-com-collapsed-once\" ",
+				$collapsedMessages,
+				ob_get_clean()
+			],
+			$collapsedMessagesBlock
+		);
+		$collapsedMessagesBlock = null;
+		$collapsedMessages = 0;
+		$collapsedMessagesBlockIsCollapsed = true;
+	}
+
 	?><!--RCRDLIST_END_<?=$arParams["ENTITY_XML_ID"]?>--><?
 	if ($arParams["PREORDER"] == "Y"): ?><?=$arParams["NAV_STRING"]?><? endif;
 }
@@ -183,6 +277,7 @@ if ($this->__component->__parent instanceof \Bitrix\Main\Engine\Contract\Control
 		"componentName" => $this->__component->__parent->getName(),
 		"processComment" => method_exists($this->__component->__parent, "processCommentAction"),
 		"navigateComment" => method_exists($this->__component->__parent, "navigateCommentAction"),
+		"getComment" => method_exists($this->__component->__parent, "getCommentAction"),
 		"readComment" => method_exists($this->__component->__parent, "readCommentAction"),
 		"params" => $this->__component->__parent->getSignedParameters()
 	];

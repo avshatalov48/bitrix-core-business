@@ -249,36 +249,36 @@
 				submenuClass = 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label',
 				menuItems = [
 					{
-						text: '<span>' + BX.message('EC_SEC_SLIDER_POPUP_NEW_TITLE') + '</span>',
+						html: '<span>' + BX.message('EC_SEC_SLIDER_POPUP_NEW_TITLE') + '</span>',
 						className: submenuClass
 					},
 					{
-						text: BX.message('EC_SEC_SLIDER_POPUP_NEW_MENU'),
+						html: BX.message('EC_SEC_SLIDER_POPUP_NEW_MENU'),
 						onclick: BX.proxy(function(){
 							this.addBtnMenu.close();
 							this.showEditSectionForm();
 						}, this)
 					},
 					{
-						text: '<span>' + BX.message('EC_SEC_SLIDER_POPUP_EXIST_TITLE') + '</span>',
+						html: '<span>' + BX.message('EC_SEC_SLIDER_POPUP_EXIST_TITLE') + '</span>',
 						className: submenuClass
 					},
 					{
-						text: BX.message('EC_SEC_SLIDER_POPUP_MENU_ADD_COMP'),
+						html: BX.message('EC_SEC_SLIDER_POPUP_MENU_ADD_COMP'),
 						onclick: BX.proxy(function(){
 							this.addBtnMenu.close();
 							this.showTrackingTypesForm();
 						}, this)
 					},
 					{
-						text: BX.message('EC_SEC_SLIDER_POPUP_MENU_ADD_USER'),
+						html: BX.message('EC_SEC_SLIDER_POPUP_MENU_ADD_USER'),
 						onclick: BX.proxy(function(){
 							this.addBtnMenu.close();
 							this.showTrackingUsersForm();
 						}, this)
 					},
 					{
-						text: BX.message('EC_SEC_SLIDER_POPUP_MENU_ADD_GROUP'),
+						html: BX.message('EC_SEC_SLIDER_POPUP_MENU_ADD_GROUP'),
 						onclick: BX.proxy(function(){
 							this.addBtnMenu.close();
 							this.showTrackingGroupsForm();
@@ -344,7 +344,10 @@
 					}));
 
 					title = li.appendChild(BX.create('DIV', {
-						props: {className: 'calendar-list-slider-item-name'},
+						props: {
+							className: 'calendar-list-slider-item-name',
+							title: params.sectionList[i].name,
+						},
 						text: params.sectionList[i].name
 					}));
 

@@ -7,11 +7,10 @@ $MESS ['SEC_FILTER_EXCL_FOUND'] = "Filter exclusions exist.";
 $MESS ['SEC_FILTER_OFF'] = "Proactive protection is disabled.";
 $MESS ['SEC_FILTER_BUTTON_OFF'] = "Disable Proactive Protection";
 $MESS ['SEC_FILTER_BUTTON_ON'] = "Enable Proactive Protection";
-$MESS ['SEC_FILTER_NOTE'] = "<p>The <b>Proactive Filter</b> (Web Application Firewall*) protects the site from most known web attacks. The filter recognizes dangerous threats in incoming requests and blocks intrusions.</p>
+$MESS ['SEC_FILTER_NOTE'] = "<p>The <b>Proactive Filter</b> protects the site from most known web attacks. The filter recognizes dangerous threats in incoming requests and blocks intrusions.</p>
 <p>The Proactive Filter is the most effective way to guard against possible security defects in web project implementation (XSS, SQL Injection, PHP Including etc.).</p>
 <p>You will always get the latest updates for your proactive filter using the SiteUpdate technology.</p>
 <p>Note that some harmless actions that users perform can be considered suspicious and cause the filter to react.</p>
-<p><b>*WAF (Web Application Firewall)</b> is a special security guard software based on network traffic filtering.</p>
 <p><i>Recommended for standard level.</i></p>";
 $MESS ['SEC_FILTER_PARAMETERS_TAB'] = "Active Reaction";
 $MESS ['SEC_FILTER_PARAMETERS_TAB_TITLE'] = "Configure system reactions to intrusions";

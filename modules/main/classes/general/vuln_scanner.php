@@ -270,7 +270,7 @@ class CVulnScanner
 					$braces++;
 					$i++;
 				}
-				elseif($token === T_ISSET || ($token === T_STRING && mb_substr($token_value, 0, 3) === 'is_'))
+				elseif($token === T_ISSET || ($token === T_STRING && substr($token_value, 0, 3) === 'is_'))
 				{
 					$skip = true;
 				}
@@ -385,7 +385,7 @@ class CVulnScanner
 							&& ($className = $this->getClassName($i + 3))
 						)
 						{
-							$this->objects[$token_value] = ltrim(mb_strtoupper($className), '\\');
+							$this->objects[$token_value] = ltrim(strtoupper($className), '\\');
 							$i += $this->getBraceEnd($this->tokens, $i);
 						}
 						if(!(is_array($this->tokens[$i + 2]) && $this->tokens[$i + 2][0] === T_ARRAY))
@@ -418,9 +418,9 @@ class CVulnScanner
 								if($this->tokens[$i + 1] === '(' && $this->tokens[$i + 2][0] === T_CONSTANT_ENCAPSED_STRING)
 								{
 									//if(!empty(substr($this->tokens[$i+2][1], 1, -1)))
-									$component_name = mb_substr($this->tokens[$i + 2][1], 1, -1);
+									$component_name = substr($this->tokens[$i + 2][1], 1, -1);
 								}
-								$component_name = self::strtolower($component_name);
+								$component_name = strtolower($component_name);
 								if(empty($component_name)) // || strpos($component_name, 'bitrix:') === 0)
 									continue;
 
@@ -441,7 +441,7 @@ class CVulnScanner
 								}
 
 								if($this->tokens[$i + 1] === '(' && $this->tokens[$i + 4][0] === T_CONSTANT_ENCAPSED_STRING)
-									$component_template = mb_substr($this->tokens[$i + 4][1], 1, -1);
+									$component_template = substr($this->tokens[$i + 4][1], 1, -1);
 								
 								//$additional_tokens=array(array(T_VARIABLE, '$arParams', 0), '=', array(T_CONSTANT_ENCAPSED_STRING, ' ', 0), ';', array(T_VARIABLE, '$arResult', 0), '=', array(T_CONSTANT_ENCAPSED_STRING, ' ', 0), ';');
 								$scanner = new CVulnScanner($inc_file, $this->arParams, $this->template, $component_template);
@@ -497,7 +497,7 @@ class CVulnScanner
 								$skip = 3;
 								if($this->tokens[$i + 1] === '(' && $this->tokens[$i + 2][0] === T_CONSTANT_ENCAPSED_STRING)
 								{
-									$tmp = mb_substr($this->tokens[$i + 2][1], 1, -1);
+									$tmp = substr($this->tokens[$i + 2][1], 1, -1);
 									if(!empty($tmp))
 										$template_name = $tmp;
 									unset($tmp);
@@ -534,12 +534,12 @@ class CVulnScanner
 						{
 							if($this->tokens[$i + 1] === '(')
 							{
-								$inc_file = mb_substr($this->tokens[$i + 2][1], 1, -1);
+								$inc_file = substr($this->tokens[$i + 2][1], 1, -1);
 								$skip = 5;
 							}
 							else
 							{
-								$inc_file = mb_substr($this->tokens[$i + 1][1], 1, -1);
+								$inc_file = substr($this->tokens[$i + 1][1], 1, -1);
 								$skip = 3;
 							}
 						}
@@ -884,7 +884,7 @@ class CVulnScanner
 
 					if(is_array($tokens[$i + 1]) && $tokens[$i + 1][0] === T_STRING)
 					{
-						$this->sec_func['STRING'][] = self::strtolower($tokens[$i + 1][1]);
+						$this->sec_func['STRING'][] = strtolower($tokens[$i + 1][1]);
 					}
 					else
 					{
@@ -895,7 +895,7 @@ class CVulnScanner
 						}
 						if(is_array($tokens[$i + $f - 1]) && $tokens[$i + $f - 1][0] === T_STRING)
 						{
-							$this->sec_func['STRING'][] = self::strtolower($tokens[$i + $f - 1][1]);
+							$this->sec_func['STRING'][] = strtolower($tokens[$i + $f - 1][1]);
 						}
 					}
 
@@ -974,18 +974,18 @@ class CVulnScanner
 			}
 			elseif(is_array($tokens[$i]))
 			{
-				if(is_array($tokens[$i]) && (self::strtolower($tokens[$i][1]) === 'includecomponenttemplate' || self::strtolower($tokens[$i][1]) === 'initcomponenttemplate'))
+				if(is_array($tokens[$i]) && (strtolower($tokens[$i][1]) === 'includecomponenttemplate' || strtolower($tokens[$i][1]) === 'initcomponenttemplate'))
 				{
 					$tokens[$i][3] = $component_template;
-					$tokens[$i][1] = self::strtolower($tokens[$i][1]);
+					$tokens[$i][1] = strtolower($tokens[$i][1]);
 					$tokens[$i][0] = T_INCLUDE_COMPONENTTEMPLATE;
 					$tmp = array(array(T_INCLUDE_RESULT_MODIFIER, 'include_result_modifier', $tokens[$i][2], $component_template));
 					array_splice($tokens, $i - 1, 0, $tmp);
 					$i++;
 				}
-				elseif(is_array($tokens[$i]) && (self::strtolower($tokens[$i][1]) == 'includecomponent'))
+				elseif(is_array($tokens[$i]) && (strtolower($tokens[$i][1]) == 'includecomponent'))
 				{
-					$tokens[$i][1] = self::strtolower($tokens[$i][1]);
+					$tokens[$i][1] = strtolower($tokens[$i][1]);
 					$tokens[$i][0] = T_INCLUDE_COMPONENT;
 				}
 				elseif(($tokens[$i][0] === T_IF || $tokens[$i][0] === T_ELSEIF || $tokens[$i][0] === T_FOR
@@ -1163,11 +1163,11 @@ class CVulnScanner
 				}
 				elseif($tokens[$i][0] === T_FUNCTION)
 				{
-					$tokens[$i + 1][1] = self::strtolower($tokens[$i + 1][1]);
+					$tokens[$i + 1][1] = strtolower($tokens[$i + 1][1]);
 				}
 				elseif($tokens[$i][0] === T_STRING && $tokens[$i + 1] === '(')
 				{
-					$tokens[$i][1] = self::strtolower($tokens[$i][1]);
+					$tokens[$i][1] = strtolower($tokens[$i][1]);
 				}
 				elseif($tokens[$i][0] === T_DO)
 				{
@@ -1327,7 +1327,7 @@ class CVulnScanner
 					{
 						if($tokens[$i][1] === 'DIRECTORY_SEPARATOR' || $tokens[$i][1] === 'PATH_SEPARATOR')
 							$value .= '/';
-						elseif(self::strtolower($tokens[$i][1]) === '$componentpath')
+						elseif(strtolower($tokens[$i][1]) === '$componentpath')
 							$value = dirname($file_name);
 						elseif($tokens[$i][1] === '$_SERVER' && $tokens[$i][3][0] === 'DOCUMENT_ROOT')
 							$value .= $this->arParams['doc_root_path'];
@@ -1337,7 +1337,7 @@ class CVulnScanner
 				)
 				{
 
-					$value .= mb_substr($tokens[$i][1], 1, -1);
+					$value .= substr($tokens[$i][1], 1, -1);
 				}
 				elseif($tokens[$i][0] === T_ENCAPSED_AND_WHITESPACE)
 				{
@@ -1434,8 +1434,8 @@ class CVulnScanner
 		$output = '';
 		for ($i = 0, $count = count($tainted_vars); $i < $count; $i++)
 		{
-			if($pos = mb_strpos($tainted_vars[$i], '['))
-				$tainted_vars[$i] = mb_substr($tainted_vars[$i], 0, $pos);
+			if($pos = strpos($tainted_vars[$i], '['))
+				$tainted_vars[$i] = substr($tainted_vars[$i], 0, $pos);
 		}
 		if(isset($line))
 			$output .= "<span>$line:</span>&nbsp;";
@@ -1580,7 +1580,7 @@ class CVulnScanner
 					foreach ($var_declare->tainted_vars as $taint_var)
 					{
 						$res = $this->traverseVar($taint_var, $var_declare->id);
-						if($res && mb_strpos($result, $res) === false)
+						if($res && strpos($result, $res) === false)
 							$result .= $res;
 					}
 
@@ -1706,19 +1706,6 @@ class CVulnScanner
 		}
 		return $result;
 	}
-
-	protected static function strtolower($pString)
-	{
-		if(function_exists("mb_orig_strtolower"))
-		{
-			return mb_orig_strtolower($pString);
-		}
-		else
-		{
-			return mb_strtolower($pString);
-		}
-	}
-
 }
 
 class CQAACheckListTests
@@ -1743,7 +1730,7 @@ class CQAACheckListTests
 				{
 					$dirs[] = $name;
 				}
-				elseif(in_array(mb_substr($name, -4), $file_types))
+				elseif(in_array(substr($name, -4), $file_types))
 				{
 					$files[] = $name;
 				}
@@ -2334,7 +2321,7 @@ class CQAACheckListTests
 			$vulnCount=0;
 			foreach ($NS['MESSAGE'] as $file_output)
 				if (!empty($file_output))
-					if (mb_strpos($arDetailReport, $file_output['OUTPUT']) === false)
+					if (strpos($arDetailReport, $file_output['OUTPUT']) === false)
 					{
 						$arDetailReport .= $file_output['OUTPUT'];
 						$vulnCount += $file_output['VULN_COUNT'];

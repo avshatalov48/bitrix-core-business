@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["ERR_MAX_INPUT_VARS"] = "The value of max_input_vars must be #MIN# or greater. The current value is: #CURRENT#";
 $MESS["ERR_NO_MODS"] = "The required extensions are not installed:";
 $MESS["ERR_NO_MODS_DOC_GENERATOR"] = "The Document Generator module requires php-xml and php-zip extensions.";
@@ -37,6 +37,7 @@ $MESS["MAIN_SC_COMP_DISABLED_MOD"] = "The server doesn't support compression, th
 $MESS["MAIN_SC_CORRECT"] = "Correct";
 $MESS["MAIN_SC_CORRECT_DESC"] = "Intranet requires special configuration of the server environment. <a href=\"http://www.bitrixsoft.com/products/virtual_appliance/\" target=\"_blank\">Bitrix Virtual Appliance</a> is configured properly out-of-the-box. Some features may be unavailable if you fail to adjust the required parameters.";
 $MESS["MAIN_SC_CORRECT_SETTINGS"] = "Settings are correct";
+$MESS["MAIN_SC_DEFAULT_CHARSET"] = "The default_charset parameter must not be empty.";
 $MESS["MAIN_SC_DOCS_EDIT_MS_OFFICE"] = "Editing documents in Microsoft Office";
 $MESS["MAIN_SC_ENABLED"] = "The server supports compression, the Bitrix Compression module needs to be uninstalled";
 $MESS["MAIN_SC_ENABLED_MOD"] = "Using the web server module for compression";
@@ -50,6 +51,7 @@ $MESS["MAIN_SC_EXTERNAL_CALLS"] = "External video calls";
 $MESS["MAIN_SC_EXTRANET_ACCESS"] = "External access to Extranet";
 $MESS["MAIN_SC_FAST_FILES_TEST"] = "Fast file and document access";
 $MESS["MAIN_SC_FULL_TEST_DESC"] = "Run full system check to find weak spots and fix website issues or to avoid problems in the future. Short but comprehensive descriptions provided for each of the tests will help you get to the root of the problem and fix it.";
+$MESS["MAIN_SC_FUNC_OVERLOAD"] = "Legacy parameter mbstring.func_overload delected. Please delete it.";
 $MESS["MAIN_SC_FUNC_WORKS_FINE"] = "The feature is OK";
 $MESS["MAIN_SC_FUNC_WORKS_PARTIAL"] = "The feature may have issues; check for and fix them.";
 $MESS["MAIN_SC_FUNC_WORKS_WRONG"] = "The feature is out of order. Fix errors.";
@@ -64,7 +66,7 @@ $MESS["MAIN_SC_MCRYPT"] = "Encryption features";
 $MESS["MAIN_SC_METHOD_NOT_SUP"] = "The server does not support the method #METHOD#.";
 $MESS["MAIN_SC_NOT_AVAIL"] = "Unavailable";
 $MESS["MAIN_SC_NOT_SUPPORTED"] = "Server does not support this feature.";
-$MESS["MAIN_SC_NO_ACCESS"] = "Cannot access Bitrix, Inc. server. Updates and Bitrix Cloud Service are unavailable.";
+$MESS["MAIN_SC_NO_ACCESS"] = "Cannot access Bitrix24 server. Updates and Bitrix Cloud Service are unavailable.";
 $MESS["MAIN_SC_NO_CONFLICT"] = "No conflicts.";
 $MESS["MAIN_SC_NO_CONNECTTO"] = "Cannot connect to #HOST#";
 $MESS["MAIN_SC_NO_EXTERNAL_ACCESS_"] = "This feature is unavailable because the Intranet is externally inaccessible.";
@@ -284,31 +286,25 @@ Such messages may not send if the server is configured incorrectly.
 
 Should any problem appear, contact your hosting provider. If you are running the system at a local machine, you will have to configure the server manually.";
 $MESS["SC_HELP_CHECK_MAIL_B_EVENT"] = "The database table B_EVENT stores the website's e-mail queue and logs the e-mail sending events. If some of the messages failed to be sent, possible reasons are invalid recipient address, incorrect e-mail template parameters or the server's e-mail subsystem.";
-$MESS["SC_HELP_CHECK_MAIL_PUSH"] = "The <a href=\"https://helpdesk.bitrix24.com/open/1602367/\" target=_blank>Message Relay</a> feature will post messages from e-mail to Activity Stream making it possible to involve in discussion any user who does not have an account on your Bitrix24.
+$MESS["SC_HELP_CHECK_MAIL_PUSH"] = "The <a href=\"https://helpdesk.bitrix24.com/open/1612393/\" target=_blank>Message Relay</a> feature will post messages from e-mail to Activity Stream making it possible to involve in discussion any user who does not have an account on your Bitrix24.
 
-You will have to <a href=\"https://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=71&LESSON_ID=7655&LESSON_PATH=6415.6420.3698.7655\" target=_blank>configure DNS</a> properly and make your Bitrix24 externally accessible to use this feature.";
-$MESS["SC_HELP_CHECK_MBSTRING"] = "The mbstring module is required for internationalization support. The module is very strict as to setting the correct parameters depending on the current website encoding: the parameters for UTF-8 encoding are different from those of any national charset (e.g. cp1252).
+You will have to configure DNS properly and make your Bitrix24 externally accessible to use this feature.";
+$MESS["SC_HELP_CHECK_MBSTRING"] = "mbstring module is required for multilanguage support. 
 
-The following parameters are mandatory for UTF-8 based websites:
-<b>mbstring.func_overload=2</b>
+Website encoding needs to be specified as a value of the default_charset parameter. For example:
+
 <b>default_charset=utf-8</b>
 
-The first parameter implicitly redirects PHP string functions calls to mbstring functions. The second parameter defines the text encoding.
+Misconfiguration will lead to numerous issues: texts will be haphazardly truncated, XML import and the Update System will be broken etc.
 
-If your website does not use UTF-8, the first parameter must be zero:
-<b>mbstring.func_overload=0</b>
-
-If you cannot disable function redirection for some reason, try using a single-byte encoding:
-<b>mbstring.func_overload=2</b>
-<b>default_charset=latin1</b>
-
-If the assigned values does not match the website parameters, you will encounter weird and bizarre errors like truncated words, broken XML import etc.
-
-<b>Remember</b> that the <b>mbstring.func_overload</b> parameter is defined in the global php.ini (or in httpd.conf for a virtual server), while the encoding parameter sits in .htaccess.
-
-All the Bitrix modules use the <i>BX_UTF</I> constant to resolve the current encoding. A UTF-8 website requires the following code in <i>/bitrix/php_interface/dbconn.php</i>:
+Add this code to <i>/bitrix/php_interface/dbconn.php</I> to enable UTF-8 on your site:
 <code>define('BX_UTF', true);</code>
-";
+and add this code to <i>/bitrix/settings.php</i>:
+<code>'utf_mode' => 
+  array (
+    'value' => true,
+    'readonly' => true,
+  ),</code>";
 $MESS["SC_HELP_CHECK_MEMORY_LIMIT"] = "This test creates an isolated PHP process to generate a variable whose size is incremented gradually. In the end, this will produce the amount of memory available to the PHP process.
 
 PHP defines the memory limit in php.ini by setting the <b>memory_limit</b> parameter. However, this may be overridden on shared hostings. You should not trust this parameter.
@@ -445,7 +441,7 @@ If you use a self-issued certificate on a HTTPS connection, your visitors may ex
 $MESS["SC_HELP_CHECK_SOCNET"] = "To receive updates from social resources, the <a href=\"http://www.bitrixsoft.com/company/blog/news/integration-with-social-networks.php\">Social Website Integration</a> module has to be configured providing authentication keys for each service that are going to be used.";
 $MESS["SC_HELP_CHECK_TURN"] = "Video calling requires that the involved users' browsers can connect to each other. If the callers sit on different networks - for example, in offices  in different locations - and no direct connection is possible, you will need a special TURN server to establish connection.
 
-Bitrix Inc. provides the preconfigured TURN server free of charge at turn.calls.bitrix24.com. 
+Bitrix24 provides the preconfigured TURN server free of charge at turn.calls.bitrix24.com. 
 
 Alternatively, you can set up your own server and specify the server URL in the Web Messenger module settings.";
 $MESS["SC_HELP_CHECK_UPDATE"] = "This will try to establish a test connection to the update server using the Kernel module current settings. If the connection cannot be established, you will not be able to install updates or activate the trial version.
@@ -464,9 +460,7 @@ Notice that some extra configuration might be required <a href=\"http://www.bitr
 ";
 $MESS["SC_HELP_NOTOPIC"] = "Sorry, no help on this topic.";
 $MESS["SC_MBSTRING_NA"] = "Verification failed due to UTF configuration errors";
-$MESS["SC_MB_CUR_SETTINGS"] = "mbstring parameters:";
 $MESS["SC_MB_NOT_UTF"] = "The website runs in single byte encoding";
-$MESS["SC_MB_REQ_SETTINGS"] = "required:";
 $MESS["SC_MB_UTF"] = "The website runs in UTF encoding";
 $MESS["SC_MEMORY_CHANGED"] = "The value of memory_limit was increased from #VAL0# to #VAL1# using ini_set while testing.";
 $MESS["SC_MOD_GD"] = "GD Library";
@@ -575,4 +569,3 @@ $MESS["SC_WARNINGS_FOUND"] = "There were warnings but no errors.";
 $MESS["SC_WARN_DAV"] = "WebDav is disabled because the module mod_dav/mod_dav_fs is loaded.";
 $MESS["SC_WARN_SECURITY"] = "The mod_security module loaded, some Control Panel problems may arise.";
 $MESS["SC_WARN_SUHOSIN"] = "The suhosin module loaded, some Control Panel problems may arise (suhosin.simulation=#VAL#).";
-?>

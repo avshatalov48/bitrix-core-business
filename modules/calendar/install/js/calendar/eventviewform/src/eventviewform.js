@@ -5,7 +5,6 @@ import {Type, Event, Loc, Tag, Dom} from 'main.core';
 import {Entry, EntryManager} from "calendar.entry";
 import {MeetingStatusControl, Reminder} from "calendar.controls";
 import {BaseEvent} from 'main.core.events';
-//import {Section} from "calendar.section";
 
 export class EventViewForm {
 	permissions = {};
@@ -101,7 +100,6 @@ export class EventViewForm {
 		// Used to execute javasctipt and attach CSS from ajax responce
 		this.BX.html(slider.layout.content, slider.getData().get("sliderContent"));
 		this.initControls(this.uid);
-		this.setFormValues();
 	}
 
 	createContent(slider)
@@ -113,8 +111,7 @@ export class EventViewForm {
 					dateFrom: Util.formatDate(this.entryDateFrom),
 					timezoneOffset: this.timezoneOffset
 				}
-			}).then(function(response)
-				{
+			}).then((response) => {
 					let html = '';
 					if ((Type.isFunction(slider.isOpen) && slider.isOpen()) || slider.isOpen === true)
 					{
@@ -122,17 +119,17 @@ export class EventViewForm {
 						slider.getData().set("sliderContent", html);
 						let params = response.data.additionalParams;
 
+						this.userId = params.userId;
 						this.uid = params.uniqueId;
 						this.entryUrl = params.entryUrl;
 						this.handleEntryData(params.entry, params.userIndex, params.section);
 					}
 					resolve(html);
-				}.bind(this),
-				function (response) {
-
+				},
+				(response) => {
 					this.displayError(response.errors);
 					resolve(response);
-				}.bind(this));
+				});
 		});
 	}
 
@@ -145,6 +142,17 @@ export class EventViewForm {
 		this.DOM.editButton = this.DOM.content.querySelector(`#${uid}_but_edit`);
 		this.DOM.delButton = this.DOM.content.querySelector(`#${uid}_but_del`);
 		this.DOM.sidebarInner = this.DOM.content.querySelector(`#${uid}_sidebar_inner`);
+		this.DOM.chatLink = this.DOM.content.querySelector(`#${uid}_but_chat`);
+
+		if (this.DOM.chatLink)
+		{
+			Event.bind(this.DOM.chatLink, 'click', () => {
+				EntryManager.openChatForEntry({
+					entryId: this.entry.parentId,
+					entry: this.entry
+				});
+			});
+		}
 
 		if (this.DOM.buttonSet)
 		{
@@ -204,16 +212,7 @@ export class EventViewForm {
 									userId: this.userId,
 									reminders: this.reminderValues
 								}
-							}).then(
-								// Success
-								function(response)
-								{
-								}.bind(this),
-								// Failure
-								function (response)
-								{
-								}.bind(this)
-							);
+							});
 						}
 					}.bind(this));
 				}
@@ -228,10 +227,9 @@ export class EventViewForm {
 		//this.DOM.reminderInputsWrap = this.DOM.reminderWrap.appendChild(Tag.render`<span></span>`);
 		if (this.canDo(this.entry, 'delete'))
 		{
-			Event.bind(this.DOM.delButton, 'click', function ()
-			{
+			Event.bind(this.DOM.delButton, 'click', ()=>{
 				EntryManager.deleteEntry(this.entry);
-			}.bind(this));
+			});
 		}
 		else
 		{
@@ -252,6 +250,19 @@ export class EventViewForm {
 		if (this.entry && this.entry.isMeeting())
 		{
 			this.initAcceptMeetingControl(uid);
+
+			const attendees = this.entry.getAttendees();
+			if (Type.isArray(attendees))
+			{
+				if (window.location.host === 'cp.bitrix.ru'
+					&& this.DOM.chatLink
+					&& attendees.length > 1
+					&& attendees.find((user)=>{return user.STATUS !== 'N' && parseInt(user.ID) === parseInt(this.userId);})
+				)
+				{
+					this.DOM.chatLink.style.display = '';
+				}
+			}
 		}
 
 		if (this.DOM.sidebarInner)
@@ -271,11 +282,6 @@ export class EventViewForm {
 
 		Event.unbind(document, "click", Util.applyHacksForPopupzIndex);
 		Event.bind(document, "click", Util.applyHacksForPopupzIndex);
-	}
-
-	setFormValues()
-	{
-
 	}
 
 	handleEntryData(entryData, userIndex, sectionData)
@@ -389,7 +395,6 @@ export class EventViewForm {
 				closeByEsc: true,
 				offsetTop: 0,
 				offsetLeft: 0,
-				width: 220,
 				resizable: false,
 				lightShadow: true,
 				content: this.DOM.userListPopupWrap,
@@ -406,24 +411,29 @@ export class EventViewForm {
 	initAcceptMeetingControl(uid)
 	{
 		this.DOM.statusButtonset = this.DOM.content.querySelector(`#${uid}_status_buttonset`);
-		if (this.entry.getCurrentStatus() === 'H')
+		this.DOM.statusButtonset.style.marginRight = '12px';
+
+		if (this.entry.getCurrentStatus() === 'H' || this.entry.getCurrentStatus() === false)
 		{
 			Dom.remove(this.DOM.statusButtonset);
 		}
 		else
 		{
-			this.setStatus = new MeetingStatusControl(
+			this.statusControl = new MeetingStatusControl(
 			{
 				wrap: this.DOM.statusButtonset,
 				currentStatus: this.DOM.content.querySelector(`#${uid}_current_status`).value || this.entry.getCurrentStatus()
 			});
 
-			this.setStatus.subscribe('onSetStatus', function(event)
+			this.statusControl.subscribe('onSetStatus', function(event)
 				{
 					if (event instanceof BaseEvent)
 					{
-						let data = event.getData();
-						EntryManager.setMeetingStatus(this.entry, data.status);
+						const result = EntryManager.setMeetingStatus(this.entry, event.getData().status);
+						if (!result)
+						{
+							this.statusControl.setStatus(this.entry.getCurrentStatus(), false);
+						}
 					}
 				}.bind(this)
 			);
@@ -470,11 +480,11 @@ export class EventViewForm {
 	{
 		if ((action === 'edit' || action === 'delete'))
 		{
-			if ((entry.isMeeting() && entry.id !== entry.parentId)
-				|| entry.isResourcebooking())
-			{
-				return false;
-			}
+			// if ((entry.isMeeting() && entry.id !== entry.parentId)
+			// 	|| entry.isResourcebooking())
+			// {
+			// 	return false;
+			// }
 
 			return this.permissions.edit;
 		}

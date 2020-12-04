@@ -113,7 +113,7 @@
 					{
 						response = response.data;
 						var id = (response["attachId"] || response["id"]), iconUrl = "blank";
-						if (BX.util.in_array(fileObj.ext, ["jpg", "bmp", "jpeg", "jpe", "gif", "png"]))
+						if (BX.util.in_array(fileObj.ext, ["jpg", "bmp", "jpeg", "jpe", "gif", "png", "webp"]))
 							iconUrl = "img";
 						else if (BX.util.in_array(fileObj.ext, ["doc", "pdf", "ppt", "rar", "xls", "zip"]))
 							iconUrl = fileObj.ext;
@@ -155,7 +155,7 @@
 							iconUrl = "blank";
 							tempId = getId();
 
-							if (BX.util.in_array(ext, ["jpg", "bmp", "jpeg", "jpe", "gif", "png"]))
+							if (BX.util.in_array(ext, ["jpg", "bmp", "jpeg", "jpe", "gif", "png", "webp"]))
 								iconUrl = "img";
 							else if (BX.util.in_array(ext, ["doc", "pdf", "ppt", "rar", "xls", "zip"]))
 								iconUrl = ext;
@@ -199,7 +199,7 @@
 									}
 									else if (
 										files.length == 1
-										&& BX.util.in_array(file.type, ['gif','jpg','jpeg','png','jpe','bmp'])
+										&& BX.util.in_array(file.type, ['gif','jpg','jpeg','png','jpe','bmp','webp'])
 									) // only one image in the attachment
 									{
 										text += "\n[DISK FILE ID=" + (file.fieldValue ? file.fieldValue : "n" + file.fileId) + "]";
@@ -966,11 +966,11 @@
 									type: fileData.type,
 									mimeType: mimeType,
 									folderId: parseInt(BX.message('MOBILE_EXT_UTILS_USER_FOLDER_FOR_SAVED_FILES')),
-									chunk: parseInt(BX.message('MOBILE_EXT_UTILS_MAX_UPLOAD_CHUNK_SIZE')),
+//									chunk: parseInt(BX.message('MOBILE_EXT_UTILS_MAX_UPLOAD_CHUNK_SIZE')),
 									params: {
 										commentVirtualId: attachmentsData.commentVirtualId
 									},
-									name: fileData.name,
+									name: (typeof BX.MobileUtils.getUploadFilename === 'function' ? BX.MobileUtils.getUploadFilename(fileData.name, fileData.type) : fileData.name),
 									url: fileData.url,
 									previewUrl: (fileData.previewUrl ? fileData.previewUrl : null),
 									resize: BX.MobileUtils.getResizeOptions(fileData.type)

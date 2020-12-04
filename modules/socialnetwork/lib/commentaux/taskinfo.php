@@ -1,7 +1,9 @@
 <?php
 namespace Bitrix\Socialnetwork\CommentAux;
 
+use Bitrix\Forum\MessageTable;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Web\Json;
 
 final class TaskInfo extends Base
 {
@@ -10,11 +12,13 @@ final class TaskInfo extends Base
 
 	public function getParamsFromFields($fields = array())
 	{
+		static $cacheData = [];
+
 		$params = [];
 
-		if (!empty($fields['SHARE_DEST']))
+		if (!empty($fields['SHARE_DEST'])) // old
 		{
-			$paramsList = unserialize(htmlspecialcharsback($fields['SHARE_DEST']));
+			$paramsList = unserialize(htmlspecialcharsback($fields['SHARE_DEST']), ['allowed_classes' => false]);
 			if (!empty($paramsList))
 			{
 				$params = $paramsList;
@@ -22,7 +26,6 @@ final class TaskInfo extends Base
 			else
 			{
 				$paramsList = explode('|', $fields['SHARE_DEST']);
-
 				if (!empty($paramsList))
 				{
 					foreach($paramsList as $pair)
@@ -33,6 +36,60 @@ final class TaskInfo extends Base
 							$params[$key] = $value;
 						}
 					}
+				}
+			}
+		}
+		elseif (
+			!empty($fields['EVENT_ID'])
+			&& in_array($fields['EVENT_ID'], [ 'tasks_comment', 'crm_activity_add_comment' ])
+			&& !empty($fields['SOURCE_ID'])
+			&& (int)$fields['SOURCE_ID'] > 0
+			&& Loader::includeModule('forum')
+		) // new
+		{
+			$messageId = (int)$fields['SOURCE_ID'];
+
+			if (isset($cacheData[$messageId]))
+			{
+				$params = $cacheData[$messageId];
+			}
+			else
+			{
+				$res = MessageTable::getList([
+					'filter' => [
+						'=ID' => $messageId
+					],
+					'select' => ['TOPIC_ID']
+				]);
+				if (
+					($forumMessageFields = $res->fetch())
+					&& !empty($forumMessageFields['TOPIC_ID'])
+				)
+				{
+					$res = MessageTable::getList([
+						'filter' => [
+							'=TOPIC_ID' => (int)$forumMessageFields['TOPIC_ID']
+						],
+						'select' => ['ID', 'POST_MESSAGE']
+					]);
+					while (
+						($forumMessageFields = $res->fetch())
+						&& !empty($forumMessageFields['POST_MESSAGE'])
+					)
+					{
+						try
+						{
+							$messageParams = Json::decode($forumMessageFields['POST_MESSAGE']);
+						}
+						catch(\Bitrix\Main\ArgumentException $e)
+						{
+							$messageParams = [];
+						}
+
+						$cacheData[$forumMessageFields['ID']] = $messageParams;
+					}
+
+					$params = $cacheData[$messageId];
 				}
 			}
 		}
@@ -60,6 +117,15 @@ final class TaskInfo extends Base
 		)
 		{
 			$result = htmlspecialcharsEx(\Bitrix\Tasks\Comments\Task\CommentPoster::getCommentText($params));
+			$parser = new \CTextParser();
+
+			$parser->allow = [
+				'HTML' => 'N',
+				'ANCHOR' => 'Y',
+				'USER' => 'Y',
+			];
+
+			$result = $parser->convertText($result);
 		}
 
 		return $result;
@@ -80,14 +146,13 @@ final class TaskInfo extends Base
 		$userId = (
 			is_array($ratingVoteParams)
 			&& isset($ratingVoteParams['OWNER_ID'])
-				? intval($ratingVoteParams['OWNER_ID'])
+				? (int)$ratingVoteParams['OWNER_ID']
 				: 0
 		);
 
 		if (
 			$userId > 0
 			&& is_array($fields)
-			&& isset($fields["SHARE_DEST"])
 			&& Loader::includeModule('im')
 		)
 		{
@@ -102,7 +167,7 @@ final class TaskInfo extends Base
 					$ratingVoteParams['ENTITY_ID']
 				);
 
-				if ($followValue != "N")
+				if ($followValue !== "N")
 				{
 					$ratingVoteParams['ENTITY_LINK'] = $this->getRatingCommentLink(array(
 						'commentId' => $fields['ID'],
@@ -112,16 +177,19 @@ final class TaskInfo extends Base
 					));
 
 					$ratingVoteParams["ENTITY_PARAM"] = 'COMMENT';
-					$ratingVoteParams["ENTITY_TITLE"] = $ratingVoteParams["ENTITY_MESSAGE"] = $this->getText();
+
+					$CBXSanitizer = new \CBXSanitizer;
+					$CBXSanitizer->delAllTags();
+					$ratingVoteParams["ENTITY_TITLE"] = $ratingVoteParams["ENTITY_MESSAGE"] = strip_tags(str_replace('<br>', ' ', $CBXSanitizer->sanitizeHtml($this->getText())));
 
 					$messageFields = array(
 						"MESSAGE_TYPE" => IM_MESSAGE_SYSTEM,
 						"TO_USER_ID" => $userId,
-						"FROM_USER_ID" => intval($ratingVoteParams['USER_ID']),
+						"FROM_USER_ID" => (int)$ratingVoteParams['USER_ID'],
 						"NOTIFY_TYPE" => IM_NOTIFY_FROM,
 						"NOTIFY_MODULE" => "main",
 						"NOTIFY_EVENT" => "rating_vote",
-						"NOTIFY_TAG" => "RATING|".($ratingVoteParams['VALUE'] >= 0 ? "" : "DL|")."BLOG_COMMENT|".$fields['ID'],
+						"NOTIFY_TAG" => "RATING|".($ratingVoteParams['VALUE'] >= 0 ? "" : "DL|")."FORUM_POST|".$fields['SOURCE_ID'],
 						"NOTIFY_MESSAGE" => \CIMEvent::getMessageRatingVote($ratingVoteParams),
 						"NOTIFY_MESSAGE_OUT" => \CIMEvent::getMessageRatingVote($ratingVoteParams, true)
 					);

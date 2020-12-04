@@ -26,19 +26,6 @@ class AnnotationReader
 		{
 			throw new SystemException( "You have to enable opcache.save_comments=1 or zend_optimizerplus.save_comments=1.");
 		}
-
-		if (PHP_VERSION_ID < 70000)
-		{
-			if (extension_loaded('Zend Optimizer+') &&
-				(ini_get('zend_optimizerplus.load_comments') === "0" || ini_get('opcache.load_comments') === "0"))
-			{
-				throw new SystemException( "You have to enable opcache.load_comments=1 or zend_optimizerplus.load_comments=1.");
-			}
-			if (extension_loaded('Zend OPcache') && ini_get('opcache.load_comments') == 0)
-			{
-				throw new SystemException( "You have to enable opcache.load_comments=1 or zend_optimizerplus.load_comments=1.");
-			}
-		}
 	}
 
 	public function getMethodAnnotations(\ReflectionMethod $method)

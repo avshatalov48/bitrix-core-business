@@ -4,6 +4,7 @@ namespace Bitrix\Main\Engine;
 
 
 use Bitrix\Main\Config\Configuration;
+use Bitrix\Main\ObjectException;
 
 final class Resolver
 {
@@ -27,26 +28,14 @@ final class Resolver
 		$controllerClass = self::buildControllerClassName($vendor, $module, $parts);
 		try
 		{
-			$reflectionClass = new \ReflectionClass($controllerClass);
-			if ($reflectionClass->isAbstract())
-			{
-				return null;
-			}
+			$controller = ControllerBuilder::build($controllerClass, [
+				'scope' => $scope,
+				'currentUser' => CurrentUser::get(),
+			]);
 
-			if (!$reflectionClass->isSubclassOf(Controller::className()))
-			{
-				return null;
-			}
-
-			/** @var Controller $controller */
-			/** @see \Bitrix\Main\Engine\Controller::__construct */
-			$controller = $reflectionClass->newInstance();
-			$controller->setScope($scope);
-			$controller->setCurrentUser(CurrentUser::get());
-
-			return array($controller, $actionName);
+			return [$controller, $actionName];
 		}
-		catch (\ReflectionException $exception)
+		catch (ObjectException $exception)
 		{}
 
 		return null;

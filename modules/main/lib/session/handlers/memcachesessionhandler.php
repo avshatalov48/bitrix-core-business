@@ -2,18 +2,18 @@
 
 namespace Bitrix\Main\Session\Handlers;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Context;
+use Bitrix\Main\Data\MemcacheConnection;
 
 class MemcacheSessionHandler extends AbstractSessionHandler
 {
+	public const SESSION_MEMCACHE_CONNECTION = 'session.memcache';
+
 	/** @var \Memcache $connection */
 	protected $connection;
 	/** @var string */
 	protected $prefix;
-	/** @var int */
-	protected $port;
-	/** @var string */
-	protected $host;
 	/** @var bool */
 	protected $exclusiveLock;
 
@@ -21,9 +21,16 @@ class MemcacheSessionHandler extends AbstractSessionHandler
 	{
 		$this->readOnly = $options['readOnly'] ?? false; //defined('BX_SECURITY_SESSION_READONLY');
 		$this->prefix = $options['keyPrefix'] ?? 'BX'; //defined("BX_CACHE_SID") ? BX_CACHE_SID : "BX"
-		$this->port = (int)($options['port'] ?? 11211); //defined("BX_SECURITY_SESSION_MEMCACHE_PORT") ? intval(BX_SECURITY_SESSION_MEMCACHE_PORT) : 11211
-		$this->host = $options['host']; //BX_SECURITY_SESSION_MEMCACHE_HOST
 		$this->exclusiveLock = $options['exclusiveLock'] ?? false; //defined('BX_SECURITY_SESSION_MEMCACHE_EXLOCK') && BX_SECURITY_SESSION_MEMCACHE_EXLOCK
+
+		$connectionPool = Application::getInstance()->getConnectionPool();
+		$connectionPool->setConnectionParameters(self::SESSION_MEMCACHE_CONNECTION, [
+			'className' => MemcacheConnection::class,
+			'host' => $options['host'] ?? '127.0.0.1',
+			'port' => (int)($options['port'] ?? 11211),
+			'servers' => $options['servers'] ?? [],
+		]);
+
 	}
 
 	public function open($savePath, $sessionName)
@@ -95,34 +102,12 @@ class MemcacheSessionHandler extends AbstractSessionHandler
 
 	protected function createConnection(): bool
 	{
-		$exception = null;
-		if (!extension_loaded('memcache'))
-		{
-			$result = false;
-			$exception = new \ErrorException("memcache extension is not loaded.", 0, E_USER_ERROR, __FILE__, __LINE__);
-		}
-		else
-		{
-			$this->connection = new \Memcache();
-			$result = $this->connection->pconnect($this->host, $this->port);
-			if (!$result)
-			{
-				$error = error_get_last();
-				if ($error && $error["type"] == E_WARNING)
-				{
-					$exception = new \ErrorException($error['message'], 0, $error['type'], $error['file'], $error['line']);
-				}
-			}
-		}
+		$connectionPool = Application::getInstance()->getConnectionPool();
+		/** @var MemcacheConnection $redisConnection */
+		$memcacheConnection = $connectionPool->getConnection(self::SESSION_MEMCACHE_CONNECTION);
+		$this->connection = $memcacheConnection->getResource();
 
-		if ($exception)
-		{
-			$application = \Bitrix\Main\Application::getInstance();
-			$exceptionHandler = $application->getExceptionHandler();
-			$exceptionHandler->writeToLog($exception);
-		}
-
-		return $result;
+		return (bool)$this->connection;
 	}
 
 	protected function closeConnection(): void

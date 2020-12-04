@@ -37,7 +37,7 @@ class CSocNetLogComments extends CAllSocNetLogComments
 		{
 			$arCommentEvent = CSocNetLogTools::FindLogCommentEventByID($arFields["EVENT_ID"]);
 			if (
-				!$arCommentEvent
+				!is_array($arCommentEvent)
 				|| !array_key_exists("ADD_CALLBACK", $arCommentEvent)
 				|| !is_callable($arCommentEvent["ADD_CALLBACK"])
 			)
@@ -59,11 +59,11 @@ class CSocNetLogComments extends CAllSocNetLogComments
 		{
 			$arSource = CSocNetLogComments::SetSource($arFields);
 			if (
-				$arSource["NO_SOURCE"] == "Y"
+				$arSource["NO_SOURCE"] === "Y"
 				|| intval($arSource["SOURCE_ID"]) > 0
 			)
 			{
-				if ($arSource["NO_SOURCE"] == "Y")
+				if ($arSource["NO_SOURCE"] === "Y")
 					$bSetSource = false;
 				else
 					$arFields["SOURCE_ID"] = $arSource["SOURCE_ID"];
@@ -288,7 +288,7 @@ class CSocNetLogComments extends CAllSocNetLogComments
 			return false;
 	}
 
-	function Update($ID, $arFields, $bSetSource = false)
+	public static function Update($ID, $arFields, $bSetSource = false)
 	{
 		global $DB, $APPLICATION, $USER_FIELD_MANAGER;
 
@@ -491,7 +491,7 @@ class CSocNetLogComments extends CAllSocNetLogComments
 	/***************************************/
 	/**********  DATA SELECTION  ***********/
 	/***************************************/
-	function GetList($arOrder = Array("ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array(), $arParams = array())
+	public static function GetList($arOrder = Array("ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array(), $arParams = array())
 	{
 		global $DB, $arSocNetAllowedEntityTypes, $USER, $USER_FIELD_MANAGER;
 

@@ -4,7 +4,7 @@
 //**    MODIFICATION OF THIS FILE WILL ENTAIL SITE FAILURE            **/
 //**********************************************************************/
 if (!defined("UPDATE_SYSTEM_VERSION"))
-	define("UPDATE_SYSTEM_VERSION", "20.5.0");
+	define("UPDATE_SYSTEM_VERSION", "20.200.260");
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 define("HELP_FILE", "marketplace/sysupdate.php");
@@ -145,6 +145,28 @@ if (function_exists('apache_get_modules') && !in_array('mod_rewrite', apache_get
 	$errorMessage .= "<br>".GetMessage("SUP_WRONG_APACHE_MOD_REWRITE").". ";
 }
 
+if (version_compare(SM_VERSION, "20.0.1500") >= 0)
+{
+	if ((int)ini_get('mbstring.func_overload') > 0)
+	{
+		$strongSystemMessage .= "<br>".GetMessage("SUP_WRONG_MBSTRING_OVERLOAD").". ";
+	}
+
+	$gdOk = true;
+	if (!function_exists("gd_info"))
+	{
+		$gdOk = false;
+	}
+	if ($gdOk)
+	{
+		$arGdInfo = gd_info();
+		$gdOk = preg_match("/(^|[^0-9.])2\./", $arGdInfo['GD Version']);
+	}
+	if (!$gdOk)
+	{
+		$errorMessage .= "<br>".GetMessage("SUP_WRONG_GD").". ";
+	}
+}
 
 // MySQL 5.0.0, PHP 5.3.0
 if ($DB->type === "MYSQL")
@@ -1915,7 +1937,7 @@ $tabControl->BeginNextTab();
 				<?if (is_array($arUpdateList) && array_key_exists("CLIENT", $arUpdateList)):?>
 					<tr>
 						<td nowrap><?echo GetMessage("SUP_REGISTERED")?>&nbsp;&nbsp;</td>
-						<td><?echo $arUpdateList["CLIENT"][0]["@"]["NAME"]?></td>
+						<td><?echo htmlspecialchars($arUpdateList["CLIENT"][0]["@"]["NAME"])?></td>
 					</tr>
 				<?endif;?>
 				<tr>

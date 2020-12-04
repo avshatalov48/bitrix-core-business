@@ -13,6 +13,7 @@ class CBPSetFieldActivity
 		$this->arProperties = array(
 			"Title" => "",
 			"FieldValue" => null,
+			"MergeMultipleFields" => 'N',
 			"ModifiedBy" => null
 		);
 	}
@@ -25,7 +26,9 @@ class CBPSetFieldActivity
 		$fieldValue = $this->FieldValue;
 
 		if (!is_array($fieldValue) || count($fieldValue) <= 0)
+		{
 			return CBPActivityExecutionStatus::Closed;
+		}
 
 		$documentService = $this->workflow->GetService("DocumentService");
 
@@ -36,29 +39,7 @@ class CBPSetFieldActivity
 			return CBPActivityExecutionStatus::Executing;
 		}
 
-		$documentFields = $documentService->GetDocumentFields($documentType);
-		$documentFieldsAliasesMap = CBPDocument::getDocumentFieldsAliasesMap($documentFields);
-
-		$resultFields = [];
-		foreach ($fieldValue as $key => $value)
-		{
-			if (!isset($documentFields[$key]) && isset($documentFieldsAliasesMap[$key]))
-			{
-				$key = $documentFieldsAliasesMap[$key];
-			}
-
-			if (($property = $documentFields[$key]) && $value)
-			{
-				$fieldTypeObject = $documentService->getFieldTypeObject($documentType, $property);
-				if ($fieldTypeObject)
-				{
-					$fieldTypeObject->setDocumentId($documentId);
-					$value = $fieldTypeObject->externalizeValue('Document', $value);
-				}
-			}
-
-			$resultFields[$key] = $value;
-		}
+		$resultFields = $this->prepareFieldsValues($documentId, $documentType, $fieldValue);
 
 		try
 		{
@@ -72,6 +53,53 @@ class CBPSetFieldActivity
 		return CBPActivityExecutionStatus::Closed;
 	}
 
+	protected function prepareFieldsValues(array $documentId, array $documentType, array $fields, $mergeValues = null): array
+	{
+		if (!is_bool($mergeValues))
+		{
+			$mergeValues = ($this->MergeMultipleFields === 'Y');
+		}
+
+		$documentService = $this->workflow->GetService("DocumentService");
+
+		$documentFields = $documentService->GetDocumentFields($documentType);
+		$documentValues = $documentService->GetDocument($documentId, $documentType);
+		$documentFieldsAliasesMap = CBPDocument::getDocumentFieldsAliasesMap($documentFields);
+
+		$resultFields = [];
+		foreach ($fields as $key => $value)
+		{
+			if (!isset($documentFields[$key]) && isset($documentFieldsAliasesMap[$key]))
+			{
+				$key = $documentFieldsAliasesMap[$key];
+			}
+
+			if (($property = $documentFields[$key]) && ($value || $mergeValues))
+			{
+				$fieldTypeObject = $documentService->getFieldTypeObject($documentType, $property);
+				if ($fieldTypeObject)
+				{
+					$fieldTypeObject->setDocumentId($documentId);
+
+					if ($mergeValues && $fieldTypeObject->isMultiple())
+					{
+						$baseValue = $documentValues[$key] ?? [];
+						$value = $fieldTypeObject->mergeValue($baseValue, $value);
+					}
+
+					if ($value)
+					{
+						$value = $fieldTypeObject->externalizeValue('Document', $value);
+					}
+				}
+			}
+
+			$resultFields[$key] = $value;
+		}
+
+		return $resultFields;
+	}
+
 	public function OnExternalEvent($arEventParameters = array())
 	{
 		if ($this->executionStatus != CBPActivityExecutionStatus::Closed)
@@ -83,8 +111,12 @@ class CBPSetFieldActivity
 			if ($documentService->IsDocumentLocked($documentId, $this->GetWorkflowInstanceId()))
 				return;
 
-			if (count($this->FieldValue) > 0)
-				$documentService->UpdateDocument($documentId, $this->FieldValue);
+			$fieldValue = $this->FieldValue;
+			if (is_array($fieldValue) && count($fieldValue) > 0)
+			{
+				$resultFields = $this->prepareFieldsValues($documentId, $this->GetDocumentType(), $fieldValue);
+				$documentService->UpdateDocument($documentId, $resultFields);
+			}
 
 			$documentService->UnsubscribeOnUnlockDocument($documentId, $this->GetWorkflowInstanceId(), $this->name);
 			$this->workflow->RemoveEventHandler($this->name, $this);
@@ -146,6 +178,10 @@ class CBPSetFieldActivity
 			{
 				$modifiedBy = $arCurrentActivity["Properties"]['ModifiedBy'];
 			}
+			if ($arCurrentActivity["Properties"]['MergeMultipleFields'])
+			{
+				$arCurrentValues['merge_multiple_fields'] = $arCurrentActivity["Properties"]['MergeMultipleFields'];
+			}
 		}
 		else
 		{
@@ -197,6 +233,14 @@ class CBPSetFieldActivity
 			'currentValues' => $arCurrentValues,
 			'formName' => $formName
 		));
+
+		$dialog->setMap([
+			'MergeMultipleFields' => [
+				'Name' => GetMessage('BPSFA_MERGE_MULTIPLE'),
+				'FieldName' => 'merge_multiple_fields',
+				'Type' => 'bool',
+			]
+		]);
 
 		$dialog->setRuntimeData(array(
 			"arCurrentValues" => $arCurrentValues,
@@ -305,6 +349,11 @@ class CBPSetFieldActivity
 			{
 				return false;
 			}
+		}
+
+		if (isset($arCurrentValues['merge_multiple_fields']))
+		{
+			$properties['MergeMultipleFields'] = $arCurrentValues['merge_multiple_fields'] === 'Y' ? 'Y' : 'N';
 		}
 
 		$errors = self::ValidateProperties($properties, new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser));

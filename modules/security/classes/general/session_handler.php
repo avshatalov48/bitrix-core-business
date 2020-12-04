@@ -1,4 +1,10 @@
 <?php
+
+/**
+ * Class CSecuritySessionHandler
+ * @deprecated
+ * @see \Bitrix\Main\Session\Handlers\AbstractSessionHandler
+ */
 class CSecuritySessionHandler extends SessionHandler
 {
 	private $class;

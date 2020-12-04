@@ -157,4 +157,13 @@ class CMainUIFilterAjaxController extends \Bitrix\Main\Engine\Controller
 			"result" => $value === "" || Bitrix\Main\Type\DateTime::isCorrect($value, $phpDateFormat),
 		];
 	}
+
+	/**
+	 * Only for analytics
+	 * @return boolean
+	 */
+	public function limitAnalyticsAction()
+	{
+		return true;
+	}
 }

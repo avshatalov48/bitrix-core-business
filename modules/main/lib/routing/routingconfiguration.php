@@ -88,8 +88,6 @@ class RoutingConfiguration
 
 	public function any($uri, $controller)
 	{
-		$this->options->methods(['POST', 'GET']);
-
 		$route = new Route($uri, $controller);
 		$this->routeContainer = $route;
 
@@ -99,6 +97,14 @@ class RoutingConfiguration
 	public function group($callback)
 	{
 		$this->routeContainer = $callback;
+
+		// add inner configuration to the router
+		$subConfigurator = clone $this->configurator;
+		$subConfigurator->mergeOptionsWith($this->options);
+
+		// call
+		$callback = $this->routeContainer;
+		$callback($subConfigurator);
 	}
 
 	public function release()
@@ -111,15 +117,6 @@ class RoutingConfiguration
 			$route->setOptions($this->options);
 
 			$routes[] = $route;
-		}
-		elseif ($this->routeContainer instanceof \Closure)
-		{
-			$subConfigurator = clone $this->configurator;
-			$subConfigurator->mergeOptionsWith($this->options);
-
-			// call
-			$callback = $this->routeContainer;
-			$callback($subConfigurator);
 		}
 
 		return $routes;

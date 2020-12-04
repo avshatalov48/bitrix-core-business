@@ -56,6 +56,13 @@ class CBPSocNetMessageActivity
 	private function getMessageText($isRobot = false)
 	{
 		$messageText = $this->MessageText;
+		if (is_array($messageText))
+		{
+			$messageText = implode(', ', CBPHelper::MakeArrayFlat($messageText));
+		}
+
+		$messageText = (string) $messageText;
+
 		if ($messageText)
 		{
 			$messageText = strip_tags($messageText);
@@ -76,7 +83,7 @@ class CBPSocNetMessageActivity
 			}
 			else
 			{
-				$messageText = CBPHelper::ConvertTextForMail($this->MessageText);
+				$messageText = CBPHelper::ConvertTextForMail($messageText);
 			}
 		}
 		return $messageText;

@@ -27,6 +27,17 @@ class Smtp
 
 	protected $options = array();
 
+	/**
+	 * Smtp client constructor.
+	 *
+	 * @param string $host Host.
+	 * @param string $port Port.
+	 * @param string $tls Tls.
+	 * @param string $strict Strict.
+	 * @param string $login Login.
+	 * @param string $password Password.
+	 * @param string|null $encoding.  If null - current site encoding.
+	 */
 	public function __construct($host, $port, $tls, $strict, $login, $password, $encoding = null)
 	{
 		$this->reset();
@@ -50,11 +61,21 @@ class Smtp
 		);
 	}
 
+	/**
+	 * Disconnects from the submission server.
+	 *
+	 * @return void
+	 */
 	public function __destruct()
 	{
 		$this->disconnect();
 	}
 
+	/**
+	 * Disconnects from the submission server.
+	 *
+	 * @return void
+	 */
 	protected function disconnect()
 	{
 		if (!is_null($this->stream))
@@ -72,6 +93,12 @@ class Smtp
 		$this->errors = new Main\ErrorCollection();
 	}
 
+	/**
+	 * Connect to the submission server.
+	 *
+	 * @param array $error Will be filled with connection errors.
+	 * @return bool True if the connection was successful, false - otherwise.
+	 */
 	public function connect(&$error)
 	{
 		$error = null;
@@ -206,6 +233,12 @@ class Smtp
 		return true;
 	}
 
+	/**
+	 * Authenticate to the submission server.
+	 *
+	 * @param array $error Will be filled with authentication errors.
+	 * @return bool True if the authentication was successful, false - otherwise.
+	 */
 	public function authenticate(&$error)
 	{
 		$error = null;
@@ -249,7 +282,7 @@ class Smtp
 				$error
 			);
 		}
-		else // if ($mech == 'login')
+		else
 		{
 			$response = $this->executeCommand(sprintf(
 				"AUTH LOGIN\x00%s\x00%s",
@@ -382,11 +415,10 @@ class Smtp
 	}
 
 	/**
-	 * Reads and returns server response
+	 * Reads and returns server response.
 	 *
 	 * @return array|false
 	 */
-
 	protected function readResponse()
 	{
 		$response = array();
@@ -432,13 +464,18 @@ class Smtp
 		return $error;
 	}
 
+	/**
+	 * Returns all Smtp client errors.
+	 *
+	 * @return Main\ErrorCollection object.
+	 */
 	public function getErrors()
 	{
 		return $this->errors;
 	}
 
 	/**
-	 * Returns error message
+	 * Returns error message by code.
 	 *
 	 * @param int $code Error code.
 	 * @return string

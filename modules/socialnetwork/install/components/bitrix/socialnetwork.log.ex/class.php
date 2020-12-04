@@ -108,7 +108,7 @@ final class SocialnetworkLogList extends \Bitrix\Socialnetwork\Component\LogList
 			'SHOW_REFRESH',
 			'SHOW_NAV_STRING',
 			'MODE',
-			'EMPTY_EXPLICIT',
+//			'EMPTY_EXPLICIT',
 			'FILTER_ID',
 			'ORDER',
 			'DESTINATION',

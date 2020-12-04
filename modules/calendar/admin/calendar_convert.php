@@ -265,10 +265,10 @@ class CCalendarConvert
 						self::SetModuleOption('path_to_user', $PARAMS['PATH_TO_USER']);
 						self::SetModuleOption('path_to_group', $PARAMS['PATH_TO_GROUP']);
 
-						if (isset($PARAMS['SEF_URL_TEMPLATES']['group_calendar']) && (strpos($PARAMS['SEF_URL_TEMPLATES']['group_calendar'], 'extranet') === false && strpos($PARAMS['SEF_FOLDER'], 'extranet') === false))
+						if (isset($PARAMS['SEF_URL_TEMPLATES']['group_calendar']) && (mb_strpos($PARAMS['SEF_URL_TEMPLATES']['group_calendar'], 'extranet') === false && mb_strpos($PARAMS['SEF_FOLDER'], 'extranet') === false))
 							self::SetModuleOption('path_to_group_calendar', $PARAMS['SEF_FOLDER'].$PARAMS['SEF_URL_TEMPLATES']['group_calendar']);
 
-						if (isset($PARAMS['SEF_URL_TEMPLATES']['user_calendar']) && (strpos($PARAMS['SEF_URL_TEMPLATES']['user_calendar'], 'extranet') === false && strpos($PARAMS['SEF_FOLDER'], 'extranet') === false))
+						if (isset($PARAMS['SEF_URL_TEMPLATES']['user_calendar']) && (mb_strpos($PARAMS['SEF_URL_TEMPLATES']['user_calendar'], 'extranet') === false && mb_strpos($PARAMS['SEF_FOLDER'], 'extranet') === false))
 							self::SetModuleOption('path_to_user_calendar', $PARAMS['SEF_FOLDER'].$PARAMS['SEF_URL_TEMPLATES']['user_calendar']);
 
 						self::SetModuleOption('week_holidays', $PARAMS['CALENDAR_WEEK_HOLIDAYS']);
@@ -340,7 +340,7 @@ class CCalendarConvert
 					//	continue;
 
 					// Skip reserve meetings
-					$checked = strpos($iblock['CODE'], 'video-meeting') === false && strpos($iblock['CODE'], 'meeting_rooms') === false;
+					$checked = mb_strpos($iblock['CODE'], 'video-meeting') === false && mb_strpos($iblock['CODE'], 'meeting_rooms') === false;
 
 					// Skip users and groups calendars
 					if ($iblock['ID'] == self::$types['user']['iblockId'] || $iblock['ID'] == self::$types['group']['iblockId'])
@@ -562,7 +562,7 @@ class CCalendarConvert
 		foreach ($arUserSections as $section)
 		{
 			$arUF = $GLOBALS["USER_FIELD_MANAGER"]->GetUserFields($ent_id, $section['ID']);
-			if (isset($arUF["UF_CAL_CONVERTED"]) && strlen($arUF["UF_CAL_CONVERTED"]['VALUE']) > 0)
+			if (isset($arUF["UF_CAL_CONVERTED"]) && $arUF["UF_CAL_CONVERTED"]['VALUE'] <> '')
 				continue;
 
 			$SectionAccess = array();
@@ -676,7 +676,7 @@ class CCalendarConvert
 				if ($event['PROPERTY_PARENT'] > 0)
 					continue;
 
-				$host = intVal($event['CREATED_BY']);
+				$host = intval($event['CREATED_BY']);
 				$arFields['ATTENDEES'] = array();
 				if ($event['PROPERTY_HOST_IS_ABSENT'] == 'N')
 					$arFields['ATTENDEES'][] = $host;

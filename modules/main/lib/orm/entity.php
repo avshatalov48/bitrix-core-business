@@ -161,7 +161,7 @@ class Entity
 		{
 			if (!empty($fieldInfo['reference']))
 			{
-				if (is_string($fieldInfo['data_type']) && mb_strpos($fieldInfo['data_type'], '\\') === false)
+				if (is_string($fieldInfo['data_type']) && strpos($fieldInfo['data_type'], '\\') === false)
 				{
 					// if reference has no namespace, then it'is in the same namespace
 					$fieldInfo['data_type'] = $this->getNamespace().$fieldInfo['data_type'];
@@ -186,11 +186,11 @@ class Entity
 				$fieldClass = StringHelper::snake2camel($fieldInfo['data_type']) . 'Field';
 				$fieldClass = '\\Bitrix\\Main\\Entity\\'.$fieldClass;
 
-				if (mb_strlen($fieldInfo['data_type']) && class_exists($fieldClass))
+				if (strlen($fieldInfo['data_type']) && class_exists($fieldClass))
 				{
 					$field = new $fieldClass($fieldName, $fieldInfo);
 				}
-				elseif (mb_strlen($fieldInfo['data_type']) && class_exists($fieldInfo['data_type']))
+				elseif (strlen($fieldInfo['data_type']) && class_exists($fieldInfo['data_type']))
 				{
 					$fieldClass = $fieldInfo['data_type'];
 					$field = new $fieldClass($fieldName, $fieldInfo);
@@ -243,7 +243,7 @@ class Entity
 	{
 		// basic properties
 		$classPath = explode('\\', ltrim($this->className, '\\'));
-		$this->name = mb_substr(end($classPath), 0, -5);
+		$this->name = substr(end($classPath), 0, -5);
 
 		// default db table name
 		if (is_null($this->dbTableName))
@@ -266,7 +266,7 @@ class Entity
 					continue;
 				}
 
-				$this->dbTableName .= mb_strtolower($_pathElem).'_';
+				$this->dbTableName .= strtolower($_pathElem).'_';
 			}
 
 			// add class
@@ -276,7 +276,7 @@ class Entity
 			}
 			else
 			{
-				$this->dbTableName = mb_substr($this->dbTableName, 0, -1);
+				$this->dbTableName = substr($this->dbTableName, 0, -1);
 			}
 		}
 
@@ -509,7 +509,7 @@ class Entity
 
 	public function getReferencesCountTo($refEntityName)
 	{
-		if (array_key_exists($key = mb_strtolower($refEntityName), $this->references))
+		if (array_key_exists($key = strtolower($refEntityName), $this->references))
 		{
 			return count($this->references[$key]);
 		}
@@ -520,7 +520,7 @@ class Entity
 
 	public function getReferencesTo($refEntityName)
 	{
-		if (array_key_exists($key = mb_strtolower($refEntityName), $this->references))
+		if (array_key_exists($key = strtolower($refEntityName), $this->references))
 		{
 			return $this->references[$key];
 		}
@@ -641,12 +641,12 @@ class Entity
 
 	public function getFullName()
 	{
-		return mb_substr($this->className, 0, -5);
+		return substr($this->className, 0, -5);
 	}
 
 	public function getNamespace()
 	{
-		return mb_substr($this->className, 0, mb_strrpos($this->className, '\\') + 1);
+		return substr($this->className, 0, strrpos($this->className, '\\') + 1);
 	}
 
 	public function getModule()
@@ -658,9 +658,9 @@ class Entity
 			// \Thing -> ""
 			$parts = explode("\\", $this->className);
 			if($parts[1] == "Bitrix")
-				$this->module = mb_strtolower($parts[2]);
+				$this->module = strtolower($parts[2]);
 			elseif(!empty($parts[1]) && isset($parts[2]))
-				$this->module = mb_strtolower($parts[1].".".$parts[2]);
+				$this->module = strtolower($parts[1].".".$parts[2]);
 			else
 				$this->module = "";
 		}
@@ -744,12 +744,12 @@ class Entity
 	 */
 	public static function normalizeEntityClass($entityName)
 	{
-		if (mb_strtolower(mb_substr($entityName, -5)) !== 'table')
+		if (strtolower(substr($entityName, -5)) !== 'table')
 		{
 			$entityName .= 'Table';
 		}
 
-		if (mb_substr($entityName, 0, 1) !== '\\')
+		if (substr($entityName, 0, 1) !== '\\')
 		{
 			$entityName = '\\'.$entityName;
 		}
@@ -760,7 +760,7 @@ class Entity
 	public static function getEntityClassParts($class)
 	{
 		$class = static::normalizeEntityClass($class);
-		$lastPos = mb_strrpos($class, '\\');
+		$lastPos = strrpos($class, '\\');
 
 		if($lastPos === 0)
 		{
@@ -769,9 +769,9 @@ class Entity
 		}
 		else
 		{
-			$namespace = mb_substr($class, 1, $lastPos - 1);
+			$namespace = substr($class, 1, $lastPos - 1);
 		}
-		$name = mb_substr($class, $lastPos + 1, -5);
+		$name = substr($class, $lastPos + 1, -5);
 
 		return compact('namespace', 'name');
 	}
@@ -783,7 +783,7 @@ class Entity
 			$this->code = '';
 
 			// get absolute path to class
-			$class_path = explode('\\', mb_strtoupper(ltrim($this->className, '\\')));
+			$class_path = explode('\\', strtoupper(ltrim($this->className, '\\')));
 
 			// cut class name to leave namespace only
 			$class_path = array_slice($class_path, 0, -1);
@@ -801,7 +801,7 @@ class Entity
 			}
 
 			// glue entity name
-			$this->code .= mb_strtoupper(StringHelper::camel2snake($this->getName()));
+			$this->code .= strtoupper(StringHelper::camel2snake($this->getName()));
 		}
 
 		return $this->code;
@@ -851,14 +851,14 @@ class Entity
 
 	public static function normalizeName($entityName)
 	{
-		if (mb_substr($entityName, 0, 1) !== '\\')
+		if (substr($entityName, 0, 1) !== '\\')
 		{
 			$entityName = '\\'.$entityName;
 		}
 
-		if (mb_strtolower(mb_substr($entityName, -5)) === 'table')
+		if (strtolower(substr($entityName, -5)) === 'table')
 		{
-			$entityName = mb_substr($entityName, 0, -5);
+			$entityName = substr($entityName, 0, -5);
 		}
 
 		return $entityName;
@@ -990,7 +990,7 @@ class Entity
 		$classCode = '';
 		$classCodeEnd = '';
 
-		if (mb_strtolower(mb_substr($entityName, -5)) !== 'table')
+		if (strtolower(substr($entityName, -5)) !== 'table')
 		{
 			$entityName .= 'Table';
 		}

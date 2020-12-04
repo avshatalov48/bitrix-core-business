@@ -395,15 +395,9 @@ final class Configuration
 			"readonly" => false
 		);
 
-		global $DBType, $DBHost, $DBName, $DBLogin, $DBPassword;
+		global $DBHost, $DBName, $DBLogin, $DBPassword;
 
-		$DBType = mb_strtolower($DBType);
-		if ($DBType == 'mysql')
-			$dbClassName = defined('BX_USE_MYSQLI') && BX_USE_MYSQLI === true ? "\\Bitrix\\Main\\DB\\MysqliConnection" : "\\Bitrix\\Main\\DB\\MysqlConnection";
-		elseif ($DBType == 'mssql')
-			$dbClassName = "\\Bitrix\\Main\\DB\\MssqlConnection";
-		else
-			$dbClassName = "\\Bitrix\\Main\\DB\\OracleConnection";
+		$dbClassName = defined('BX_USE_MYSQLI') && BX_USE_MYSQLI === true ? "\\Bitrix\\Main\\DB\\MysqliConnection" : "\\Bitrix\\Main\\DB\\MysqlConnection";
 
 		$ar['connections']['value']['default'] = array(
 			'className' => $dbClassName,

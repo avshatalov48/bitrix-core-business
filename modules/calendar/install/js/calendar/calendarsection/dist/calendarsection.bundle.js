@@ -2,9 +2,7 @@ this.BX = this.BX || {};
 (function (exports,calendar_entry,calendar_util,main_core) {
 	'use strict';
 
-	var CalendarSectionManager =
-	/*#__PURE__*/
-	function () {
+	var CalendarSectionManager = /*#__PURE__*/function () {
 	  function CalendarSectionManager() {
 	    babelHelpers.classCallCheck(this, CalendarSectionManager);
 	  }
@@ -61,10 +59,13 @@ this.BX = this.BX || {};
 	      } // 2. Company calendar
 
 
-	      sectionGroups.push({
-	        title: main_core.Loc.getMessage('EC_SEC_SLIDER_TITLE_COMP_CAL'),
-	        type: 'company'
-	      }); // 3. Users calendars
+	      if (type !== 'company' && type !== 'company_calendar') {
+	        sectionGroups.push({
+	          title: main_core.Loc.getMessage('EC_SEC_SLIDER_TITLE_COMP_CAL'),
+	          type: 'company'
+	        });
+	      } // 3. Users calendars
+
 
 	      if (main_core.Type.isArray(followedUserList)) {
 	        followedUserList.forEach(function (user) {

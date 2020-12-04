@@ -11,16 +11,17 @@ class CSecurityRedirect
 		if(!defined("BX_SECURITY_LOCAL_REDIRECT"))
 			define("BX_SECURITY_LOCAL_REDIRECT", true);
 
-		if(array_key_exists("LOCAL_REDIRECTS", $_SESSION))
+		$kernelSession = \Bitrix\Main\Application::getInstance()->getKernelSession();
+		if ($kernelSession->isStarted() && $kernelSession->has("LOCAL_REDIRECTS"))
 		{
-			if($_SESSION["LOCAL_REDIRECTS"]["C"] == 0 && $_SESSION["LOCAL_REDIRECTS"]["R"] == '')
-				$_SESSION["LOCAL_REDIRECTS"]["R"] = $_SERVER["HTTP_REFERER"];
+			if($kernelSession["LOCAL_REDIRECTS"]["C"] == 0 && $kernelSession["LOCAL_REDIRECTS"]["R"] == '')
+				$kernelSession["LOCAL_REDIRECTS"]["R"] = $_SERVER["HTTP_REFERER"];
 
-			$_SESSION["LOCAL_REDIRECTS"]["C"]++;
+			$kernelSession["LOCAL_REDIRECTS"]["C"]++;
 		}
 		else
 		{
-			$_SESSION["LOCAL_REDIRECTS"] = array("C" => 1, "R" => $_SERVER["HTTP_REFERER"]);
+			$kernelSession["LOCAL_REDIRECTS"] = array("C" => 1, "R" => $_SERVER["HTTP_REFERER"]);
 		}
 
 		if($skip_security_check)
@@ -90,8 +91,8 @@ class CSecurityRedirect
 
 		if(!$bSkipCheck && preg_match("/^(http|https|ftp):\\/\\//i", $url_l))
 		{
-			if($_SESSION["LOCAL_REDIRECTS"]["C"] > 1)
-				$REFERER_TO_CHECK = $_SESSION["LOCAL_REDIRECTS"]["R"];
+			if($kernelSession["LOCAL_REDIRECTS"]["C"] > 1)
+				$REFERER_TO_CHECK = $kernelSession["LOCAL_REDIRECTS"]["R"];
 			else
 				$REFERER_TO_CHECK = $_SERVER["HTTP_REFERER"];
 
@@ -251,7 +252,7 @@ class CSecurityRedirect
 		//There was no looped local redirects
 		//so it's only true referer
 		if(!defined("BX_SECURITY_LOCAL_REDIRECT"))
-			$_SESSION["LOCAL_REDIRECTS"] = array("C" => 0, "R" => $_SERVER["HTTP_REFERER"]);
+			\Bitrix\Main\Application::getInstance()->getKernelSession()["LOCAL_REDIRECTS"] = array("C" => 0, "R" => $_SERVER["HTTP_REFERER"]);
 
 		if(COption::GetOptionString("security", "redirect_href_sign") == "Y")
 			$content = preg_replace_callback("#(<a\\s[^>/]*?href\\s*=\\s*)(['\"])(.+?)(\\2)#i", array("self", "ReplaceHREF"), $content);

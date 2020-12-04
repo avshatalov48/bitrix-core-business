@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,main_core) {
+(function (exports,main_core,ui_notification,main_popup) {
 	'use strict';
 
 	(function (window) {
@@ -907,9 +907,7 @@ this.BX = this.BX || {};
 
 	  return data;
 	}
-	var Util =
-	/*#__PURE__*/
-	function () {
+	var Util = /*#__PURE__*/function () {
 	  function Util() {
 	    babelHelpers.classCallCheck(this, Util);
 	  }
@@ -1069,12 +1067,14 @@ this.BX = this.BX || {};
 	    }
 	  }, {
 	    key: "formatDateUsable",
-	    value: function formatDateUsable(date, showYear) {
+	    value: function formatDateUsable(date) {
+	      var showYear = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+	      var showDayOfWeek = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 	      var lang = main_core.Loc.getMessage('LANGUAGE_ID'),
 	          format = Util.getDateFormat();
 
 	      if (lang === 'ru' || lang === 'ua') {
-	        format = 'j F';
+	        format = showDayOfWeek ? 'l, j F' : 'j F';
 
 	        if (date.getFullYear && date.getFullYear() !== new Date().getFullYear() && showYear !== false) {
 	          format += ' Y';
@@ -1340,10 +1340,10 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "closeAllPopups",
 	    value: function closeAllPopups() {
-	      if (BX.PopupMenu && BX.PopupMenu.Data) {
-	        for (var id in BX.PopupMenu.Data) {
-	          if (BX.PopupMenu.Data.hasOwnProperty(id) && BX.type.isObject(BX.PopupMenu.Data[id]) && BX.PopupMenu.Data[id].popupWindow && BX.PopupMenu.Data[id].popupWindow.isShown()) {
-	            BX.PopupMenu.Data[id].popupWindow.close();
+	      if (main_popup.PopupManager.isAnyPopupShown()) {
+	        for (var i = 0, length = main_popup.PopupManager._popups.length; i < length; i++) {
+	          if (main_popup.PopupManager._popups[i].isShown()) {
+	            main_popup.PopupManager._popups[i].close();
 	          }
 	        }
 	      }
@@ -1355,11 +1355,74 @@ this.BX = this.BX || {};
 	        analyticsLabel: label
 	      });
 	    }
+	  }, {
+	    key: "setOptions",
+	    value: function setOptions(config, additionalParams) {
+	      Util.config = config;
+	      Util.additionalParams = additionalParams;
+	    }
+	  }, {
+	    key: "setUserSettings",
+	    value: function setUserSettings(userSettings) {
+	      Util.userSettings = userSettings;
+	    }
+	  }, {
+	    key: "getUserSettings",
+	    value: function getUserSettings() {
+	      return Util.userSettings || {};
+	    }
+	  }, {
+	    key: "setCalendarContext",
+	    value: function setCalendarContext(calendarContext) {
+	      Util.calendarContext = calendarContext;
+	    }
+	  }, {
+	    key: "getCalendarContext",
+	    value: function getCalendarContext() {
+	      return Util.calendarContext || null;
+	    }
+	  }, {
+	    key: "getMeetingStatusList",
+	    value: function getMeetingStatusList() {
+	      return ['Y', 'N', 'Q', 'H'];
+	    }
+	  }, {
+	    key: "checkEmailLimitationPopup",
+	    value: function checkEmailLimitationPopup() {
+	      var emailGuestAmount = Util.getEventWithEmailGuestAmount();
+	      var emailGuestLimit = Util.getEventWithEmailGuestLimit();
+	      return emailGuestLimit > 0 && (emailGuestAmount === 8 || emailGuestAmount === 4 || emailGuestAmount >= emailGuestLimit);
+	    }
+	  }, {
+	    key: "isEventWithEmailGuestAllowed",
+	    value: function isEventWithEmailGuestAllowed() {
+	      return Util.getEventWithEmailGuestLimit() === -1 || Util.getEventWithEmailGuestAmount() < Util.getEventWithEmailGuestLimit();
+	    }
+	  }, {
+	    key: "setEventWithEmailGuestAmount",
+	    value: function setEventWithEmailGuestAmount(value) {
+	      Util.countEventWithEmailGuestAmount = value;
+	    }
+	  }, {
+	    key: "setEventWithEmailGuestLimit",
+	    value: function setEventWithEmailGuestLimit(value) {
+	      Util.eventWithEmailGuestLimit = value;
+	    }
+	  }, {
+	    key: "getEventWithEmailGuestAmount",
+	    value: function getEventWithEmailGuestAmount() {
+	      return Util.countEventWithEmailGuestAmount;
+	    }
+	  }, {
+	    key: "getEventWithEmailGuestLimit",
+	    value: function getEventWithEmailGuestLimit() {
+	      return Util.eventWithEmailGuestLimit;
+	    }
 	  }]);
 	  return Util;
 	}();
 
 	exports.Util = Util;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX,BX,BX.Main));
 //# sourceMappingURL=util.bundle.js.map

@@ -972,6 +972,7 @@ HIBSELECT;
 				'userType' => 'directory',
 				'isHtml' => $hasImages,
 				'items' => $items,
+				'enableEmptyItem' => $settings['IS_REQUIRED'] === 'N',
 			],
 		];
 	}

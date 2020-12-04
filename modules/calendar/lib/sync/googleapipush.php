@@ -587,7 +587,7 @@ final class GoogleApiPush
 						if(!empty($sections[$row['ENTITY_ID']]))
 						{
 							$eventsSyncToken = \CCalendarSync::syncCalendarEvents($sections[$row['ENTITY_ID']]);
-							if($eventsSyncToken)
+							if(!empty($eventsSyncToken))
 							{
 								\CCalendarSect::edit(array('arFields' => array('ID' => $sections[$row['ENTITY_ID']]['ID'], 'SYNC_TOKEN' => $eventsSyncToken)));
 							}
@@ -646,10 +646,11 @@ final class GoogleApiPush
 			{
 				self::checkPushConnectionChannel($connectionIds, $connections);
 				self::checkPushSectionChannel($connectionIds, $connections);
+				return "\\Bitrix\\Calendar\\Sync\\GoogleApiPush::checkPushChannel(". end($connectionIds) .");";
 			}
 		}
 
-		return "\\Bitrix\\Calendar\\Sync\\GoogleApiPush::checkPushChannel(". end($connectionIds) ?? 0 .");";
+		return "\\Bitrix\\Calendar\\Sync\\GoogleApiPush::checkPushChannel();";
 	}
 
 	/**
@@ -870,6 +871,7 @@ final class GoogleApiPush
 	{
 		if (preg_match('/(holiday.calendar.google.com)/', $gApiCalendarId)
 			|| preg_match('/(group.v.calendar.google.com)/', $gApiCalendarId)
+			|| preg_match('/(group.calendar.google.com)/', $gApiCalendarId)
 			|| preg_match('/(@virtual)/', $gApiCalendarId)
 		)
 		{

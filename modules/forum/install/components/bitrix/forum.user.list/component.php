@@ -71,7 +71,7 @@ $cache_path_main = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$component
 ********************************************************************/
 $cache_id = "forum_forums_listex_".(($tzOffset = CTimeZone::GetOffset()) <> 0 ? "_".$tzOffset : "");
 $cache_path = $cache_path_main."forums";
-//$arForums = [];
+$arForums = [];
 if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path))
 {
 	$res = $cache->GetVars();

@@ -124,7 +124,7 @@ class CCalendarLocation
 
 	public static function releaseRoom($params = array())
 	{
-		return CCalendar::DeleteEvent(intVal($params['room_event_id']), false, ['checkPermissions' => false]);
+		return CCalendar::DeleteEvent(intval($params['room_event_id']), false, ['checkPermissions' => false]);
 	}
 
 	public static function reserveRoom($params = array())

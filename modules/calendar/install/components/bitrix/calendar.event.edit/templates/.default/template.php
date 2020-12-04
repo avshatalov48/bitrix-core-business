@@ -65,7 +65,7 @@ if ($event['IS_MEETING'])
 				$curUserStatus = $att['STATUS'];
 			$att['AVATAR_SRC'] = CCalendar::GetUserAvatarSrc($att);
 			$att['URL'] = CCalendar::GetUserUrl($att["USER_ID"], $arParams["PATH_TO_USER"]);
-			$attendees[strtolower($att['STATUS'])]['users'][] = $att;
+			$attendees[mb_strtolower($att['STATUS'])]['users'][] = $att;
 		}
 	}
 }

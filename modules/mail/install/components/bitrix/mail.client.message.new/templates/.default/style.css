@@ -1,3 +1,22 @@
+.pagetitle-wrap{
+	display:none;
+}
+
+.mail-message-new-title-text{
+	font: 26px/26px 'OpenSans-Light', Helvetica, Arial, sans-serif;
+	display: inline-block;
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.mail-message-new-head
+{
+	padding-bottom: 20px;
+	padding-top: 20px;
+	min-height: 74px; box-sizing: border-box;
+	position: relative; width: 100%; display: flex; align-items: center;
+}
 
 .mail-msg-view-wrapper {
 	position: relative;

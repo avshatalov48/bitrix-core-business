@@ -58,7 +58,7 @@ final class IndexCalendar extends Stepper
 			{
 				// 1. Replace colors
 				$color = self::getNewColor($section['COLOR']);
-				if (strtolower($color) != strtolower($section['COLOR']))
+				if (mb_strtolower($color) != mb_strtolower($section['COLOR']))
 				{
 					\CCalendarSect::Edit(array(
 						'arFields' => array(
@@ -108,7 +108,7 @@ final class IndexCalendar extends Stepper
 		{
 			// 1. Replace colors
 			$color = self::getNewColor($event['COLOR']);
-			if (strtolower($color) != strtolower($event['COLOR']))
+			if (mb_strtolower($color) != mb_strtolower($event['COLOR']))
 			{
 				\CCalendarEvent::updateColor($event['ID'], $color);
 			}
@@ -170,7 +170,7 @@ final class IndexCalendar extends Stepper
 
 	public function getNewColor($color)
 	{
-		$color = strtolower($color);
+		$color = mb_strtolower($color);
 		$colorTable = array(
 			// Biege
 			'#daa187' => '#af7e00',

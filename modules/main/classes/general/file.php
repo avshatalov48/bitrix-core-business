@@ -21,8 +21,6 @@ class CFile
 	const DELETE_DB = 0x02;
 	const DELETE_ALL = 0x03;
 
-	protected static $enableTrackingResizeImage = false;
-
 	public static function SaveForDB(&$arFields, $field, $strSavePath)
 	{
 		$arFile = $arFields[$field];
@@ -164,7 +162,7 @@ class CFile
 		{
 			if (!isset($arFile["size"]))
 			{
-				$arFile["size"] = CUtil::BinStrlen($arFile["content"]);
+				$arFile["size"] = strlen($arFile["content"]);
 			}
 		}
 		else
@@ -1212,7 +1210,7 @@ class CFile
 
 	public static function GetImageExtensions()
 	{
-		return "jpg,bmp,jpeg,jpe,gif,png";
+		return "jpg,bmp,jpeg,jpe,gif,png,webp";
 	}
 
 	public static function GetFlashExtensions()
@@ -1335,7 +1333,7 @@ class CFile
 			$goodMime = false;
 			foreach($mimeType as $strMimeType)
 			{
-				if(mb_substr($arFile["type"], 0, mb_strlen($strMimeType)) == $strMimeType)
+				if(substr($arFile["type"], 0, strlen($strMimeType)) == $strMimeType)
 				{
 					$goodMime = true;
 					break;
@@ -1360,7 +1358,7 @@ class CFile
 			$tok = strtok($strExt,",");
 			while($tok)
 			{
-				if(mb_strtolower(trim($tok)) == mb_strtolower($strFileExt))
+				if(strtolower(trim($tok)) == strtolower($strFileExt))
 				{
 					$IsExtCorrect = true;
 					break;
@@ -1768,7 +1766,7 @@ function ImgShw(ID, width, height, alt)
 			return NULL;
 		}
 
-		if(preg_match("#^php://filter#i", $path))
+		if(preg_match("#^(php://filter|phar://)#i", $path))
 		{
 			return NULL;
 		}
@@ -2318,7 +2316,7 @@ function ImgShw(ID, width, height, alt)
 			while ($Y >= 0)
 			{
 				$X = 0;
-				$COLORS = unpack("H*", cutil::binsubstr($IMG, floor($P), floor($P)+$BMP['width']*$BMP['bytes_per_pixel']));
+				$COLORS = unpack("H*", substr($IMG, floor($P), floor($P)+$BMP['width']*$BMP['bytes_per_pixel']));
 				while ($X < $BMP['width'])
 				{
 					$C = hexdec($COLORS[1][$X]);
@@ -2463,14 +2461,14 @@ function ImgShw(ID, width, height, alt)
 		if (!$bGD2Initial && function_exists("gd_info"))
 		{
 			$arGDInfo = gd_info();
-			$bGD2 = ((mb_strpos($arGDInfo['GD Version'], "2.") !== false) ? true : false);
+			$bGD2 = (strpos($arGDInfo['GD Version'], "2.") !== false);
 			$bGD2Initial = true;
 		}
 
 		return $bGD2;
 	}
 
-	public static function ResizeImageFile($sourceFile, &$destinationFile, $arSize, $resizeType = BX_RESIZE_IMAGE_PROPORTIONAL, $arWaterMark = array(), $jpgQuality=false, $arFilters=false)
+	public static function ResizeImageFile($sourceFile, &$destinationFile, $arSize, $resizeType = BX_RESIZE_IMAGE_PROPORTIONAL, $arWaterMark = array(), $quality=false, $arFilters=false)
 	{
 		$io = CBXVirtualIo::GetInstance();
 
@@ -2495,11 +2493,13 @@ function ImgShw(ID, width, height, alt)
 		$arDestinationSize = array("x" => 0, "y" => 0, "width" => 0, "height" => 0);
 
 		$arSourceFileSizeTmp = static::GetImageSize($sourceFile);
-		if (!in_array($arSourceFileSizeTmp[2], array(IMAGETYPE_PNG, IMAGETYPE_JPEG, IMAGETYPE_GIF, IMAGETYPE_BMP)))
+		$fileType = $arSourceFileSizeTmp[2];
+
+		if (!static::ImageTypeSupported($fileType))
 			return false;
 
 		$orientation = 0;
-		if($arSourceFileSizeTmp[2] == IMAGETYPE_JPEG)
+		if($fileType == IMAGETYPE_JPEG)
 		{
 			$exifData = static::ExtractImageExif($io->GetPhysicalName($sourceFile));
 			if ($exifData  && isset($exifData['Orientation']))
@@ -2543,12 +2543,7 @@ function ImgShw(ID, width, height, alt)
 			}
 		}
 
-		if(static::isEnabledTrackingResizeImage())
-		{
-			header("X-Bitrix-Resize-Image: {$arSize["width"]}_{$arSize["height"]}_{$resizeType}");
-		}
-
-		if (class_exists("imagick") && function_exists('memory_get_usage'))
+		if (class_exists("imagick"))
 		{
 			//When memory limit reached we'll try to use ImageMagic
 			$memoryNeeded = $arSourceFileSizeTmp[0] * $arSourceFileSizeTmp[1] * 4 * 3;
@@ -2592,7 +2587,7 @@ function ImgShw(ID, width, height, alt)
 
 		if ($io->Copy($sourceFile, $destinationFile))
 		{
-			switch ($arSourceFileSizeTmp[2])
+			switch ($fileType)
 			{
 				case IMAGETYPE_GIF:
 					$sourceImage = imagecreatefromgif($io->GetPhysicalName($sourceFile));
@@ -2600,6 +2595,10 @@ function ImgShw(ID, width, height, alt)
 					break;
 				case IMAGETYPE_PNG:
 					$sourceImage = imagecreatefrompng($io->GetPhysicalName($sourceFile));
+					$bHasAlpha = true;
+					break;
+				case IMAGETYPE_WEBP:
+					$sourceImage = imagecreatefromwebp($io->GetPhysicalName($sourceFile));
 					$bHasAlpha = true;
 					break;
 				case IMAGETYPE_BMP:
@@ -2618,14 +2617,14 @@ function ImgShw(ID, width, height, alt)
 					{
 						$properlyOriented = static::ImageHandleOrientation($orientation, $sourceImage);
 
-						if($jpgQuality === false)
-							$jpgQuality = intval(COption::GetOptionString('main', 'image_resize_quality', '95'));
-						if($jpgQuality <= 0 || $jpgQuality > 100)
-							$jpgQuality = 95;
+						if($quality === false)
+							$quality = intval(COption::GetOptionString('main', 'image_resize_quality', '95'));
+						if($quality <= 0 || $quality > 100)
+							$quality = 95;
 
 						if ($properlyOriented)
 						{
-							imagejpeg($properlyOriented, $io->GetPhysicalName($destinationFile), $jpgQuality);
+							imagejpeg($properlyOriented, $io->GetPhysicalName($destinationFile), $quality);
 							$sourceImage = $properlyOriented;
 						}
 					}
@@ -2650,8 +2649,8 @@ function ImgShw(ID, width, height, alt)
 				{
 					if (static::IsGD2())
 					{
-						$picture = ImageCreateTrueColor($arDestinationSize["width"], $arDestinationSize["height"]);
-						if($arSourceFileSizeTmp[2] == IMAGETYPE_PNG)
+						$picture = imagecreatetruecolor($arDestinationSize["width"], $arDestinationSize["height"]);
+						if($fileType == IMAGETYPE_PNG || $fileType == IMAGETYPE_WEBP)
 						{
 							$transparentcolor = imagecolorallocatealpha($picture, 0, 0, 0, 127);
 							imagefilledrectangle($picture, 0, 0, $arDestinationSize["width"], $arDestinationSize["height"], $transparentcolor);
@@ -2662,7 +2661,7 @@ function ImgShw(ID, width, height, alt)
 								$arDestinationSize["width"], $arDestinationSize["height"], $arSourceSize["width"], $arSourceSize["height"]);
 							imagealphablending($picture, true);
 						}
-						elseif($arSourceFileSizeTmp[2] == IMAGETYPE_GIF)
+						elseif($fileType == IMAGETYPE_GIF)
 						{
 							imagepalettecopy($picture, $sourceImage);
 
@@ -2714,26 +2713,32 @@ function ImgShw(ID, width, height, alt)
 
 				if ($bNeedCreatePicture)
 				{
+					if($quality === false)
+						$quality = intval(COption::GetOptionString('main', 'image_resize_quality', '95'));
+					if($quality <= 0 || $quality > 100)
+						$quality = 95;
+
 					if($io->FileExists($destinationFile))
 						$io->Delete($destinationFile);
-					switch ($arSourceFileSizeTmp[2])
+					switch ($fileType)
 					{
 						case IMAGETYPE_GIF:
 							imagegif($picture, $io->GetPhysicalName($destinationFile));
 							break;
 						case IMAGETYPE_PNG:
-							imagealphablending($picture, false );
+							imagealphablending($picture, false);
 							imagesavealpha($picture, true);
 							imagepng($picture, $io->GetPhysicalName($destinationFile));
 							break;
+						case IMAGETYPE_WEBP:
+							imagealphablending($picture, true);
+							imagesavealpha($picture, true);
+							imagewebp($picture, $io->GetPhysicalName($destinationFile), $quality);
+							break;
 						default:
-							if ($arSourceFileSizeTmp[2] == IMAGETYPE_BMP)
+							if ($fileType == IMAGETYPE_BMP)
 								$destinationFile .= ".jpg";
-							if($jpgQuality === false)
-								$jpgQuality = intval(COption::GetOptionString('main', 'image_resize_quality', '95'));
-							if($jpgQuality <= 0 || $jpgQuality > 100)
-								$jpgQuality = 95;
-							imagejpeg($picture, $io->GetPhysicalName($destinationFile), $jpgQuality);
+							imagejpeg($picture, $io->GetPhysicalName($destinationFile), $quality);
 							break;
 					}
 					imagedestroy($picture);
@@ -3374,6 +3379,8 @@ function ImgShw(ID, width, height, alt)
 						$src->get($filename);
 					}
 				}
+				@ob_flush();
+				flush();
 				$application->terminate();
 			}
 		}
@@ -3482,10 +3489,10 @@ function ImgShw(ID, width, height, alt)
 
 		// Color
 		$color = preg_replace("/[^a-z0-9]/is", "", trim($color));
-		if (mb_strlen($color) != 6)
+		if (strlen($color) != 6)
 			$color = "FF0000";
 
-		$arColor = array("red" => hexdec(mb_substr($color, 0, 2)), "green" => hexdec(mb_substr($color, 2, 2)), "blue" => hexdec(mb_substr($color, 4, 2)));
+		$arColor = array("red" => hexdec(substr($color, 0, 2)), "green" => hexdec(substr($color, 2, 2)), "blue" => hexdec(substr($color, 4, 2)));
 
 		if (static::IsGD2() && $Params["text_width"] > 0)
 		{
@@ -3572,7 +3579,7 @@ function ImgShw(ID, width, height, alt)
 
 		$arFileSizeTmp = static::GetImageSize($file);
 
-		if (!in_array($arFileSizeTmp[2], array(IMAGETYPE_PNG, IMAGETYPE_JPEG, IMAGETYPE_GIF, IMAGETYPE_BMP)))
+		if (!static::ImageTypeSupported($arFileSizeTmp[2]))
 			return false;
 
 		if ($Params["fill"] == 'resize')
@@ -3697,31 +3704,43 @@ function ImgShw(ID, width, height, alt)
 			return false;
 
 		$angle = 360 - $angle;
-		$arSourceFileSizeTmp = static::GetImageSize($sourceFile);
-		if (!in_array($arSourceFileSizeTmp[2], array(IMAGETYPE_PNG, IMAGETYPE_JPEG, IMAGETYPE_GIF, IMAGETYPE_BMP)))
+		$sourceFileSize = static::GetImageSize($sourceFile);
+		$type = $sourceFileSize[2];
+
+		if (!static::ImageTypeSupported($type))
 			return false;
-		$sourceImage = static::CreateImage($sourceFile, $arSourceFileSizeTmp[2]);
+
+		$sourceImage = static::CreateImage($sourceFile, $type);
+
 		// Rotate image
 		$sourceImage = imagerotate($sourceImage, $angle, 0);
+
 		// Delete old file
 		unlink($sourceFile);
-		switch ($arSourceFileSizeTmp[2])
+
+		$quality = intval(COption::GetOptionString('main', 'image_resize_quality', 95));
+		if($quality <= 0 || $quality > 100)
+			$quality = 95;
+
+		switch ($type)
 		{
 			case IMAGETYPE_GIF:
 				imagegif($sourceImage, $sourceFile);
 				break;
 			case IMAGETYPE_PNG:
-				imagealphablending($sourceImage, false );
+				imagealphablending($sourceImage, false);
 				imagesavealpha($sourceImage, true);
 				imagepng($sourceImage, $sourceFile);
 				break;
+			case IMAGETYPE_WEBP:
+				imagealphablending($sourceImage, true);
+				imagesavealpha($sourceImage, true);
+				imagewebp($sourceImage, $sourceFile, $quality);
+				break;
 			default:
-				if ($arSourceFileSizeTmp[2] == IMAGETYPE_BMP)
+				if ($type == IMAGETYPE_BMP)
 					$sourceFile .= ".jpg";
-				$jpgQuality = intval(COption::GetOptionString('main', 'image_resize_quality', '100'));
-				if($jpgQuality <= 0 || $jpgQuality > 100)
-					$jpgQuality = 100;
-				imagejpeg($sourceImage, $sourceFile, $jpgQuality);
+				imagejpeg($sourceImage, $sourceFile, $quality);
 				break;
 		}
 		imagedestroy($sourceImage);
@@ -3737,7 +3756,7 @@ function ImgShw(ID, width, height, alt)
 			$type = $arSourceFileSizeTmp[2];
 		}
 
-		if (in_array($type, array(IMAGETYPE_PNG, IMAGETYPE_JPEG, IMAGETYPE_GIF, IMAGETYPE_BMP)))
+		if (static::ImageTypeSupported($type))
 		{
 			switch ($type)
 			{
@@ -3746,6 +3765,9 @@ function ImgShw(ID, width, height, alt)
 					break;
 				case IMAGETYPE_PNG:
 					$sourceImage = imagecreatefrompng($path);
+					break;
+				case IMAGETYPE_WEBP:
+					$sourceImage = imagecreatefromwebp($path);
 					break;
 				case IMAGETYPE_BMP:
 					$sourceImage = static::ImageCreateFromBMP($path);
@@ -3865,97 +3887,7 @@ function ImgShw(ID, width, height, alt)
 
 		if ($type == "")
 		{
-			static $arTypes = array(
-				"jpeg" => "image/jpeg",
-				"jpe" => "image/jpeg",
-				"jpg" => "image/jpeg",
-				"png" => "image/png",
-				"gif" => "image/gif",
-				"bmp" => "image/bmp",
-				"xla" => "application/vnd.ms-excel",
-				"xlb" => "application/vnd.ms-excel",
-				"xlc" => "application/vnd.ms-excel",
-				"xll" => "application/vnd.ms-excel",
-				"xlm" => "application/vnd.ms-excel",
-				"xls" => "application/vnd.ms-excel",
-				"xlsx" => "application/vnd.ms-excel",
-				"xlt" => "application/vnd.ms-excel",
-				"xlw" => "application/vnd.ms-excel",
-				"dbf" => "application/vnd.ms-excel",
-				"csv" => "application/vnd.ms-excel",
-				"doc" => "application/msword",
-				"docx" => "application/msword",
-				"dot" => "application/msword",
-				"rtf" => "application/msword",
-				"rar" => "application/x-rar-compressed",
-				"zip" => "application/zip",
-				"pdf" => "application/pdf",
-				"ogv" => "video/ogg",
-				"mp4" => "video/mp4",
-				"mp4v" => "video/mp4",
-				"mpg4" => "video/mp4",
-				"mpeg" => "video/mpeg",
-				"mpg" => "video/mpeg",
-				"mpe" => "video/mpeg",
-				"m1v" => "video/mpeg",
-				"m2v" => "video/mpeg",
-				"webm" => "video/webm",
-				"3gp" => "video/3gpp",
-				"3g2" => "video/3gpp2",
-				"h264" => "video/h264",
-				"jpgv" => "video/jpeg",
-				"qt" => "video/quicktime",
-				"mov" => "video/quicktime",
-				"dvb" => "video/vnd.dvb.file",
-				"fvt" => "video/vnd.fvt",
-				"mxu" => "video/vnd.mpegurl",
-				"m4u" => "video/vnd.mpegurl",
-				"pyv" => "video/vnd.ms-playready.media.pyv",
-				"uvu" => "video/vnd.uvvu.mp4",
-				"uvvu" => "video/vnd.uvvu.mp4",
-				"viv" => "video/vnd.vivo",
-				"f4v" => "video/x-f4v",
-				"fli" => "video/x-fli",
-				"flv" => "video/x-flv",
-				"m4v" => "video/x-m4v",
-				"mkv" => "video/x-matroska",
-				"mk3d" => "video/x-matroska",
-				"mks" => "video/x-matroska",
-				"mng" => "video/x-mng",
-				"asf" => "video/x-ms-asf",
-				"asx" => "video/x-ms-asf",
-				"vob" => "video/x-ms-vob",
-				"wm" => "video/x-ms-wm",
-				"wmv" => "video/x-ms-wmv",
-				"wmx" => "video/x-ms-wmx",
-				"wvx" => "video/x-ms-wvx",
-				"avi" => "video/x-msvideo",
-				"movie" => "video/x-sgi-movie",
-				"smv" => "video/x-smv",
-				"mpga" => "audio/mpeg",
-				"mp2" => "audio/mpeg",
-				"mp2a" => "audio/mpeg",
-				"mp3" => "audio/mpeg",
-				"m2a" => "audio/mpeg",
-				"m3a" => "audio/mpeg",
-				"ogg" => "audio/ogg",
-				"oga" => "audio/ogg",
-				"spx" => "audio/ogg",
-				"weba" => "audio/webm",
-				"aac" => "audio/aacp",
-				"flac" => "audio/x-flac",
-				"m3u" => "audio/x-mpegurl",
-				"m3u8" => "application/vnd.apple.mpegurl",
-				"ts" => "video/MP2T",
-				"wav" => "audio/x-wav",
-				"m4a" => "audio/mp4",
-			);
-			$type = $arTypes[strtolower(substr($pathX, bxstrrpos($pathX, ".") + 1))];
-		}
-
-		if ($type == "")
-		{
-			$type = "application/octet-stream";
+			$type = \Bitrix\Main\Web\MimeType::getByFileExtension(substr($pathX, bxstrrpos($pathX, ".") + 1));
 		}
 
 		return $type;
@@ -4017,8 +3949,9 @@ function ImgShw(ID, width, height, alt)
 			|\\x00\\x00\\x01\\x00  # php_sig_ico
 			|\\x00\\x00\\x00\\x0c
 			\\x6a\\x50\\x20\\x20
-			\\x0d\\x0a\\x87\\x0a  # php_sig_jp2
-			)/x",
+			\\x0d\\x0a\\x87\\x0a   # php_sig_jp2
+			|RIFF.{4}WEBP		   # php_sig_riff php_sig_webp
+			)/xs",
 			$signature
 		))
 		{
@@ -4031,20 +3964,35 @@ function ImgShw(ID, width, height, alt)
 		}
 	}
 
+	protected static function ImageTypeSupported($type)
+	{
+		$knownTypes = [IMAGETYPE_PNG => 1, IMAGETYPE_JPEG => 1, IMAGETYPE_GIF => 1, IMAGETYPE_BMP => 1];
+
+		if(function_exists("imagecreatefromwebp"))
+		{
+			$knownTypes[IMAGETYPE_WEBP] = 1;
+		}
+
+		return isset($knownTypes[$type]);
+	}
+
+	/**
+	 * @deprecated
+	 */
 	public static function isEnabledTrackingResizeImage()
-	{
-		return static::$enableTrackingResizeImage;
-	}
+	{}
 
+	/**
+	 * @deprecated
+	 */
 	public static function enableTrackingResizeImage()
-	{
-		static::$enableTrackingResizeImage = true;
-	}
+	{}
 
+	/**
+	 * @deprecated
+	 */
 	public static function disableTrackingResizeImage()
-	{
-		static::$enableTrackingResizeImage = false;
-	}
+	{}
 }
 
 global $arCloudImageSizeCache;

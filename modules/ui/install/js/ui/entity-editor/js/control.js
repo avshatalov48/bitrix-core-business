@@ -2287,11 +2287,6 @@ if(typeof BX.UI.EntityEditorColumn === "undefined")
 	};
 	BX.UI.EntityEditorColumn.prototype.processChildControlChange = function(child, params)
 	{
-		if(!child.isInEditMode())
-		{
-			return;
-		}
-
 		if(typeof(params) === "undefined")
 		{
 			params = {};
@@ -2300,6 +2295,11 @@ if(typeof BX.UI.EntityEditorColumn === "undefined")
 		if(!BX.prop.get(params, "control", null))
 		{
 			params["control"] = child;
+		}
+
+		if(!child.isInEditMode() && !params["control"].isInEditMode())
+		{
+			return;
 		}
 
 		this.markAsChanged(params);
@@ -7983,15 +7983,17 @@ if(typeof BX.UI.EntityEditorHtml === "undefined")
 	{
 		this._htmlEditorContainer.style.display = "";
 
-		this._htmlEditor.CheckAndReInit();
-		this._htmlEditor.ResizeSceleton("100%", 200);
-		this._htmlEditor.SetContent(this.getStringValue(""), true);
+		setTimeout(function() {
+			this._htmlEditor.CheckAndReInit();
+			this._htmlEditor.ResizeSceleton("100%", 200);
+			this._htmlEditor.SetContent(this.getStringValue(""), true);
 
-		if(this._focusOnLoad)
-		{
-			this._htmlEditor.Focus(true);
-			this._focusOnLoad = false;
-		}
+			if(this._focusOnLoad)
+			{
+				this._htmlEditor.Focus(true);
+				this._focusOnLoad = false;
+			}
+		}.bind(this), 0);
 	};
 	BX.UI.EntityEditorHtml.prototype.release = function()
 	{

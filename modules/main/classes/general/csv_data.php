@@ -6,8 +6,6 @@
  * @copyright 2001-2014 Bitrix
  */
 
-use Bitrix\Main\Text\BinaryString;
-
 class CCSVData
 {
 	var $sFileName;			// full file name
@@ -166,7 +164,7 @@ class CCSVData
 				{
 					$this->__buffer = fread($this->__file, 1024*1024);
 				}
-				$this->__buffer_size = BinaryString::getLength($this->__buffer);
+				$this->__buffer_size = strlen($this->__buffer);
 				$this->__buffer_pos = 0;
 			}
 
@@ -246,7 +244,7 @@ class CCSVData
 				{
 					$this->__buffer = fread($this->__file, 1024*1024);
 				}
-				$this->__buffer_size = BinaryString::getLength($this->__buffer);
+				$this->__buffer_size = strlen($this->__buffer);
 				$this->__buffer_pos = 0;
 			}
 
@@ -303,7 +301,7 @@ class CCSVData
 			{
 				$this->__buffer = fread($this->__file, 1024*1024);
 			}
-			$this->__buffer_size = BinaryString::getLength($this->__buffer);
+			$this->__buffer_size = strlen($this->__buffer);
 			$this->__buffer_pos = 0;
 		}
 	}
@@ -345,7 +343,7 @@ class CCSVData
 		{
 			$this->__buffer = fread($this->__file, 1024*1024);
 		}
-		$this->__buffer_size = BinaryString::getLength($this->__buffer);
+		$this->__buffer_size = strlen($this->__buffer);
 		$this->__buffer_pos = 0;
 	}
 

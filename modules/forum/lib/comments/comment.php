@@ -21,6 +21,8 @@ class Comment extends BaseObject
 	const ERROR_PARAMS_MESSAGE = 'params0006';
 	const ERROR_PERMISSION = 'params0007';
 	const ERROR_MESSAGE_IS_NULL = 'params0008';
+	const ERROR_PARAMS_TYPE = 'params0009';
+
 
 	/* @var integer */
 	private $id = 0;
@@ -90,6 +92,18 @@ class Comment extends BaseObject
 			$result["APPROVED"] = ($this->forum["MODERATION"] != "Y" || $this->getEntity()->canModerate($this->getUser()->getId())) ? "Y" : "N";
 		}
 
+		if (isset($params["SERVICE_TYPE"]))
+		{
+			if (!in_array($params["SERVICE_TYPE"], \Bitrix\Forum\Comments\Service\Manager::getTypesList()))
+			{
+				$errorCollection->addOne(new Error(Loc::getMessage("FORUM_CM_ERR_TYPE_INCORRECT"), self::ERROR_PARAMS_TYPE));
+			}
+			else
+			{
+				$result["SERVICE_TYPE"] = $params["SERVICE_TYPE"];
+			}
+		}
+
 		if ($errorCollection->hasErrors())
 		{
 			$errorCollectionParam->add($errorCollection->toArray());
@@ -154,6 +168,7 @@ class Comment extends BaseObject
 
 			"AUX" => $params["AUX"],
 			"AUX_DATA" => $auxData,
+			"SERVICE_TYPE" => ($params["SERVICE_TYPE"] ?? null)
 		);
 
 		if ($this->prepareFields($params, $this->errorCollection))

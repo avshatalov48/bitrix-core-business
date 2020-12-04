@@ -179,3 +179,9 @@ $MESS["MAIL_MESSAGE_ICAL_MAYBE"] = "Возможно";
 $MESS["MAIL_MESSAGE_ICAL_NOTIFY_ACCEPT"] = "Приглашение принято";
 $MESS["MAIL_MESSAGE_ICAL_NOTIFY_REJECT"] = "Приглашение отклонено";
 $MESS["MAIL_MESSAGE_ICAL_NOTIFY_ERROR"] = "Ошибка при обработке запроса";
+
+$MESS["MAIL_NEW_MESSAGE_TITLE"] = "Новое письмо";
+
+$MESS["MAIL_MODULE_NOT_INSTALLED"] = "Модуль mail не установлен.";
+
+$MESS["INTERFACE_MAIL_CHECK_ALL"] = "Отметить все/снять отметку у всех";

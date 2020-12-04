@@ -3250,34 +3250,28 @@ abstract class CAllMain
 		return $this->LAST_ERROR;
 	}
 
+	/**
+	 * @deprecated Use Main\Text\Encoding::convertEncoding()
+	 * @param $string
+	 * @param $charset_in
+	 * @param $charset_out
+	 * @return mixed
+	 */
 	public function ConvertCharset($string, $charset_in, $charset_out)
 	{
-		$this->ResetException();
-
-		$error = "";
-		$result = \Bitrix\Main\Text\Encoding::convertEncoding($string, $charset_in, $charset_out, $error);
-		if (!$result && !empty($error))
-			$this->ThrowException($error, "ERR_CHAR_BX_CONVERT");
-
-		return $result;
+		return Main\Text\Encoding::convertEncoding($string, $charset_in, $charset_out);
 	}
 
+	/**
+	 * @deprecated Use Main\Text\Encoding::convertEncoding()
+	 * @param $arData
+	 * @param $charset_from
+	 * @param $charset_to
+	 * @return mixed
+	 */
 	public function ConvertCharsetArray($arData, $charset_from, $charset_to)
 	{
-		if (!is_array($arData))
-		{
-			if (is_string($arData))
-				$arData = $this->ConvertCharset($arData, $charset_from, $charset_to);
-
-			return ($arData);
-		}
-
-		foreach ($arData as $key => $value)
-		{
-			$arData[$key] = $this->ConvertCharsetArray($value, $charset_from, $charset_to);
-		}
-
-		return $arData;
+		return Main\Text\Encoding::convertEncoding($arData, $charset_from, $charset_to);
 	}
 
 	public function CaptchaGetCode()

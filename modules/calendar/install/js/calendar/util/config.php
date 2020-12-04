@@ -10,6 +10,7 @@ return [
 	'rel' => [
 		'main.core',
 		'ui.notification',
+		'main.popup',
 	],
 	'skip_core' => false,
 ];

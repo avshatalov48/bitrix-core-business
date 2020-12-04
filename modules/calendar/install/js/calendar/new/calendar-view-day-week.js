@@ -1001,11 +1001,6 @@
 			entryClassName += ' calendar-event-line-border';
 		}
 
-		if (entry.isExternal())
-		{
-			entryClassName += ' calendar-event-line-intranet';
-		}
-
 		if (this.util.getDayCode(entry.from) !== this.util.getDayCode(from.date))
 		{
 			entryClassName += ' calendar-event-line-start-yesterday';
@@ -1195,9 +1190,9 @@
 			toTimeValue = params.part.toTimeValue,
 			entryClassName = 'calendar-event-block-wrap';
 
-		if (entry.isExternal())
+		if (entry.hasEmailAttendees() || entry.ownerIsEmailUser())
 		{
-			entryClassName += ' calendar-event-block-intranet';
+			entryClassName += ' calendar-event-block-wrap-icon';
 		}
 
 		if (entry.isExpired())
@@ -1223,7 +1218,10 @@
 
 			wrapNode = BX.create('DIV', {
 				attrs: {'data-bx-calendar-entry': entry.uid},
-				props: {className: entryClassName}, style: {
+				props: {
+					className: entryClassName
+				},
+				style: {
 					top: top,
 					height: ((toTimeValue - fromTimeValue) * this.gridLineHeight - 3) + 'px',
 					left: this.dayCount > 1 ? 'calc((100% / ' + this.dayCount + ') * ' + from.dayOffset + ' + 2px)' : '2px',
@@ -1234,6 +1232,10 @@
 			innerNode = wrapNode.appendChild(BX.create('DIV', {props: {className: 'calendar-event-block-inner'}}));
 			bgNode = innerNode.appendChild(BX.create('DIV', {props: {className: 'calendar-event-block-background'}}));
 			timeLabel = this.calendar.util.formatTime(entry.from) + ' &ndash; ' + this.calendar.util.formatTime(entry.to);
+			if (entry.hasEmailAttendees() || entry.ownerIsEmailUser())
+			{
+				innerNode.appendChild(BX.create('SPAN', {props: {className: 'calendar-event-block-icon-mail'}}));
+			}
 			nameNode = innerNode.appendChild(BX.create('SPAN', {props: {className: 'calendar-event-block-text'}, text: params.entry.name}));
 
 			if (!this.calendar.util.isDarkColor(entry.color))
@@ -1985,7 +1987,7 @@
 				&& (dayCode = params.specialTarget && params.specialTarget.getAttribute('data-bx-calendar-week-day')))
 			{
 				this.deselectEntry();
-				this.showSimplePopupForNewEntry({
+				this.showCompactEditFormForNewEntry({
 					entry: this.buildTopNewEntryWrap({
 						dayFrom: this.days[this.dayIndex[dayCode]],
 						holder: this.topEntryHolder
@@ -1999,6 +2001,12 @@
 	{
 		if (!this.isActive())
 			return;
+
+		var compactForm = BX.Calendar.EntryManager.getCompactViewForm(false);
+		if (compactForm && compactForm.isShown())
+		{
+			return;
+		}
 
 		var
 			dayCode,
@@ -2083,7 +2091,7 @@
 			toDate.setHours(this.newEntry.timeTo.h, this.newEntry.timeTo.m, 0, 0);
 
 			this.deselectEntry();
-			this.showSimplePopupForNewEntry({
+			this.showCompactEditFormForNewEntry({
 				entry: this.newEntry,
 				entryTime: {
 					from: fromDate,
@@ -2207,7 +2215,6 @@
 		partWrap = params.holder.appendChild(BX.create('DIV', {
 			props: {className: entryClassName},
 			style: {
-				top: top,
 				height: this.gridLineHeight + 'px',
 				minHeight: '20px',
 				left: this.dayCount > 1 ? 'calc((100% / ' + this.dayCount + ') * ' + from.dayOffset + ' + 2px)' : '2px',
@@ -2292,10 +2299,10 @@
 		return entry;
 	};
 
-	DayView.prototype.showSimplePopupForNewEntry = function(params)
+	DayView.prototype.showCompactEditFormForNewEntry = function(params)
 	{
 		// Show simple add entry popup
-		this.showSimplePopup({
+		this.showCompactEditForm({
 			entryNode: params.entry.entryNode,
 			bindNode: params.entry.bindNode,
 			section: params.entry.section,
@@ -2306,41 +2313,49 @@
 			closeCallback: BX.delegate(function()
 			{
 				BX.remove(params.entry.entryNode);
-			}, this),
-			changeDateCallback: BX.delegate(function(date)
-			{
-				//var dayCode = this.util.getDayCode(date);
-				//if (dayCode && this.dayIndex[dayCode] && this.days[this.dayIndex[dayCode]])
-				//{
-				//	var dayFrom = this.days[this.dayIndex[dayCode]];
-				//	partWrap.style.left = 'calc((100% / ' + this.dayCount + ') * (' + (dayFrom.dayOffset + 1) + ' - 1) + 2px)';
-				//
-				//	this.entryHolders[dayFrom.holderIndex].appendChild(partWrap);
-				//	var pos = BX.pos(partWrap);
-				//	BX.adjust(entryClone, {
-				//		style: {
-				//			width: (pos.width + 1) + 'px',
-				//			height: pos.height + 'px',
-				//			top : pos.top + 'px',
-				//			left : pos.left + 'px'
-				//		}
-				//	});
-				//}
-			}, this),
-			changeSectionCallback: function(section)
-			{
-				var color = section.color;
-				if (params.entry.blockBackgroundNode)
-					params.entry.blockBackgroundNode.style.backgroundColor = color;
-			},
-			saveCallback: function()
-			{
-			},
-			cancelCallback: function()
-			{
-			},
-			fullFormCallback: BX.delegate(this.showEditSlider, this)
+			}, this)
 		});
+
+		BX.Event.EventEmitter.unsubscribeAll('BX.Calendar.CompactEventForm:onChange');
+		BX.Event.EventEmitter.subscribe('BX.Calendar.CompactEventForm:onChange', function(event)
+		{
+			if (event instanceof BX.Event.BaseEvent)
+			{
+				var data = event.getData();
+				var dateTime = data.form.dateTimeControl.getValue();
+				// var dayCode = this.util.getDayCode(dateTime.from);
+				//
+				// if (dayCode && this.dayIndex[dayCode] !== undefined && this.days[this.dayIndex[dayCode]])
+				// {
+				// 	var dayFrom = this.days[this.dayIndex[dayCode]];
+				// 	partWrap.style.left = 'calc((100% / ' + this.dayCount + ') * (' + (dayFrom.dayOffset + 1) + ' - 1) + 2px)';
+				//
+				// 	BX.removeClass(this.entryHolders[dayFrom.holderIndex], 'shifted');
+				// 	this.entryHolders[dayFrom.holderIndex].appendChild(partWrap);
+				// 	var pos = BX.pos(partWrap);
+				// 	if (entryClone)
+				// 	{
+				// 		BX.adjust(entryClone, {
+				// 			style: {
+				// 				width: (pos.width - 6) + 'px',
+				// 				height: pos.height + 'px',
+				// 				top : pos.top + 'px',
+				// 				left : pos.left + 'px'
+				// 			}
+				// 		});
+				// 	}
+				// }
+				//
+				// var color = data.form.colorSelector.getValue();
+				// if (entryClone)
+				// {
+				// 	entryClone.style.background = color;
+				// 	entryClone.style.borderColor = color;
+				// }
+			}
+		}.bind(this));
+
+
 	};
 
 	DayView.prototype.showAllEventsInPopup = function(params)

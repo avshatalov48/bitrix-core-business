@@ -8,6 +8,7 @@ use CLang;
 use CUserTypeManager;
 use Bitrix\Main;
 use Bitrix\Main\Type;
+use Bitrix\Main\Context;
 
 Loc::loadMessages(__FILE__);
 
@@ -290,5 +291,52 @@ class DateTimeType extends DateType
 		}
 
 		return (string) $value;
+	}
+
+	public static function getFieldValue(array $userField, array $additionalParameters = [])
+	{
+		if(!$additionalParameters['bVarsFromForm'])
+		{
+			if(
+				isset($userField['ENTITY_VALUE_ID'])
+				&&
+				$userField['ENTITY_VALUE_ID'] <= 0
+			)
+			{
+				if($userField['SETTINGS']['DEFAULT_VALUE']['TYPE'] === self::TYPE_NOW)
+				{
+					$value = \ConvertTimeStamp(
+						time() + \CTimeZone::getOffset(),
+						self::FORMAT_TYPE_FULL
+					);
+				}
+				else
+				{
+					$value = str_replace(
+						' 00:00:00',
+						'',
+						\CDatabase::formatDate(
+							$userField['SETTINGS']['DEFAULT_VALUE']['VALUE'],
+							'YYYY-MM-DD HH:MI:SS',
+							\CLang::getDateFormat(self::FORMAT_TYPE_FULL)
+						)
+					);
+				}
+			}
+			else
+			{
+				$value = $userField['VALUE'];
+			}
+		}
+		elseif(isset($additionalParameters['VALUE']))
+		{
+			$value = $additionalParameters['VALUE'];
+		}
+		else
+		{
+			$value = Context::getCurrent()->getRequest()->get($userField['FIELD_NAME']);
+		}
+
+		return $value;
 	}
 }

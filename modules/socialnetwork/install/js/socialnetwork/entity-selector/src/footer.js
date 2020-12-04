@@ -112,12 +112,21 @@ export default class Footer extends DefaultFooter
 
 		if (Type.isStringFilled(inviteEmployeeLink))
 		{
+			const entity = this.getDialog().getEntity('user');
+			const userOptions = entity.getOptions() || {};
+
 			BX.SidePanel.Instance.open(
 				inviteEmployeeLink,
 				{
 					zIndex,
 					allowChangeHistory: false,
 					cacheable: false,
+					requestMethod: 'post',
+					requestParams: {
+						componentParams: JSON.stringify({
+							'USER_OPTIONS': userOptions
+						})
+					},
 					data: {
 						entitySelectorId: this.getDialog().getId()
 					}

@@ -3,6 +3,7 @@ $MESS["CALENDAR_EVENT"] = "Событие";
 $MESS["CALENDAR_NEW_EVENT_NOTIFICATION"] = "Событие успешно добавлено";
 $MESS["CALENDAR_SAVE_EVENT_NOTIFICATION"] = "Событие успешно сохранено";
 $MESS["CALENDAR_EVENT_DO_VIEW"] = "Посмотреть";
+$MESS["CALENDAR_EVENT_DO_ADD"] = "Создать";
 $MESS["CALENDAR_EVENT_DO_SAVE"] = "Сохранить";
 $MESS["CALENDAR_EVENT_DO_CANCEL"] = "Отменить";
 $MESS["CALENDAR_EVENT_DO_OPEN"] = "Открыть";

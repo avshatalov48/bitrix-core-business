@@ -2514,6 +2514,7 @@ this.BX = this.BX || {};
 	    this.api = null;
 	    this.isAddPresetModeState = false;
 	    this.firstInit = true;
+	    this.analyticsLabel = null;
 	    this.emitter = new BX.Event.EventEmitter();
 	    this.emitter.setEventNamespace('BX.Filter.Field');
 
@@ -3211,12 +3212,31 @@ this.BX = this.BX || {};
 	     * @param data
 	     */
 	    backend: function backend(action, data) {
+	      var analyticsLabel = this.analyticsLabel || {};
+	      this.analyticsLabel = {};
 	      return BX.ajax.runComponentAction('bitrix:main.ui.filter', action, {
 	        mode: 'ajax',
 	        data: data,
+	        analyticsLabel: babelHelpers.objectSpread({
+	          FILTER_ID: this.getParam('FILTER_ID'),
+	          GRID_ID: this.getParam('GRID_ID'),
+	          PRESET_ID: data['data']['preset_id'],
+	          FIND: data['data'].hasOwnProperty('fields') && data['data']['fields'].hasOwnProperty('FIND') && !!data['data']['fields']['FIND'] ? "Y" : "N",
+	          ROWS: main_core.Type.isObject(data['data']['additional']) && Object.keys(data['data']['additional']).length == 0 ? "N" : "Y"
+	        }, analyticsLabel)
+	      });
+	    },
+
+	    /**
+	     * Sends analytics when limit is enabled
+	     */
+	    limitAnalyticsSend: function limitAnalyticsSend() {
+	      BX.ajax.runComponentAction('bitrix:main.ui.filter', 'limitAnalytics', {
+	        mode: 'ajax',
+	        data: {},
 	        analyticsLabel: {
 	          FILTER_ID: this.getParam('FILTER_ID'),
-	          GRID_ID: this.getParam('GRID_ID')
+	          LIMIT: this.getParam('FILTER_ID')
 	        }
 	      });
 	    },
@@ -4589,6 +4609,11 @@ this.BX = this.BX || {};
 	      if (!popup.isShown()) {
 	        this.isOpened = true;
 	        var showDelay = this.settings.get('FILTER_SHOW_DELAY');
+
+	        if (this.getParam('LIMITS_ENABLED') === true) {
+	          this.limitAnalyticsSend();
+	        }
+
 	        setTimeout(BX.delegate(function () {
 	          popup.show();
 
@@ -5812,6 +5837,9 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "setFilter",
 	    value: function setFilter(filter) {
+	      var analyticsLabel = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+	      this.setAnalyticsLabel(analyticsLabel);
+
 	      if (main_core.Type.isObject(filter)) {
 	        this.parent.updateParams(filter);
 	        this.parent.getPreset().deactivateAllPresets();
@@ -5847,6 +5875,8 @@ this.BX = this.BX || {};
 	    key: "extendFilter",
 	    value: function extendFilter(fields) {
 	      var force = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+	      var analyticsLabel = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+	      this.setAnalyticsLabel(analyticsLabel);
 
 	      if (main_core.Type.isObject(fields)) {
 	        Object.keys(fields).forEach(function (key) {
@@ -5879,6 +5909,9 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "apply",
 	    value: function apply() {
+	      var analyticsLabel = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+	      this.setAnalyticsLabel(analyticsLabel);
+
 	      if (!this.parent.isEditEnabled()) {
 	        if (!this.parent.isEditEnabled()) {
 	          this.parent.applyFilter();
@@ -5895,6 +5928,15 @@ this.BX = this.BX || {};
 	    key: "getEmitter",
 	    value: function getEmitter() {
 	      return this.parent.emitter;
+	    }
+	  }, {
+	    key: "setAnalyticsLabel",
+	    value: function setAnalyticsLabel() {
+	      var analyticsLabel = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+
+	      if (main_core.Type.isObject(analyticsLabel)) {
+	        this.parent.analyticsLabel = analyticsLabel;
+	      }
 	    }
 	  }]);
 	  return Api;

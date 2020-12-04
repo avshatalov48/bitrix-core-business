@@ -10,6 +10,7 @@ namespace Bitrix\Main;
 use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\Engine\AutoWire;
 use Bitrix\Main\Engine\Controller;
+use Bitrix\Main\Engine\ControllerBuilder;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Engine\Response\AjaxJson;
 use Bitrix\Main\Engine\Router;
@@ -97,76 +98,75 @@ class HttpApplication extends Application
 	 */
 	public function run()
 	{
-		$e = null;
-		$result = null;
-		$errorCollection = new ErrorCollection();
-
 		try
 		{
 			$router = new Router($this->context->getRequest());
 
 			/** @var Controller $controller */
 			/** @var string $actionName */
-			list($controller, $actionName) = $router->getControllerAndAction();
+			[$controller, $actionName] = $router->getControllerAndAction();
 			if (!$controller)
 			{
 				throw new SystemException('Could not find controller for the request');
 			}
 
-			$this->registerAutoWirings();
-
-			$result = $controller->run($actionName, $this->getSourceParametersList());
-			$errorCollection->add($controller->getErrors());
+			$this->runController($controller, $actionName);
 		}
 		catch (\Throwable $e)
 		{
-			$this->handleRunError($e, $errorCollection);
-		}
-		finally
-		{
-			$controller = isset($controller) ? $controller : null;
-			$this->runFinally($controller, $result, $errorCollection);
-		}
-	}
+			$errorCollection = new ErrorCollection();
 
-	public function runController($controller, $action)
-	{
-		$controllerClass = $controller;
-		$errorCollection = new ErrorCollection();
-
-		try
-		{
-			/** @var \Bitrix\Main\Engine\Controller $controllerObject */
-			$controllerObject = new $controllerClass;
-			$controllerObject->setScope(\Bitrix\Main\Engine\Controller::SCOPE_AJAX);
-			$controllerObject->setCurrentUser(CurrentUser::get());
-
-			$this->registerAutoWirings();
-
-			$result = $controllerObject->run($action, [[], []]);
-			$errorCollection->add($controllerObject->getErrors());
-		}
-		catch (\Throwable $e)
-		{
-			$this->handleRunError($e, $errorCollection);
-		}
-		finally
-		{
-			$this->runFinally($controllerObject, $result, $errorCollection);
+			$this->processRunError($e, $errorCollection);
+			$this->finalizeControllerResult($controller ?? null, null, $errorCollection);
 		}
 	}
 
 	/**
-	 * @param Controller        $controller
+	 * @param Controller|string $controller
+	 * @param string $action
+	 * @return void
+	 */
+	final public function runController($controller, $action): void
+	{
+		$result = null;
+		$errorCollection = new ErrorCollection();
+
+		try
+		{
+			if (is_string($controller))
+			{
+				$controller = ControllerBuilder::build($controller, [
+					'scope' => Controller::SCOPE_AJAX,
+					'currentUser' => CurrentUser::get(),
+				]);
+			}
+
+			$this->registerAutoWirings();
+
+			$result = $controller->run($action, $this->getSourceParametersList());
+			$errorCollection->add($controller->getErrors());
+		}
+		catch (\Throwable $e)
+		{
+			$this->processRunError($e, $errorCollection);
+		}
+		finally
+		{
+			$this->finalizeControllerResult($controller, $result, $errorCollection);
+		}
+	}
+
+	/**
+	 * @param Controller|null   $controller
 	 * @param HttpResponse|null $result
 	 * @param ErrorCollection   $errorCollection
 	 */
-	private function runFinally($controller, $result, ErrorCollection $errorCollection)
+	private function finalizeControllerResult($controller, $result, ErrorCollection $errorCollection): void
 	{
 		$response = $this->buildResponse($result, $errorCollection);
 		$response = $this->context->getResponse()->copyHeadersTo($response);
 
-		if (!empty($controller))
+		if ($controller)
 		{
 			$controller->finalizeResponse($response);
 		}
@@ -179,13 +179,7 @@ class HttpApplication extends Application
 		$this->terminate(0);
 	}
 
-	/**
-	 * @param \Throwable $e
-	 * @param ErrorCollection $errorCollection
-	 *
-	 * @return array
-	 */
-	private function handleRunError($e, $errorCollection)
+	private function processRunError(\Throwable $e, ErrorCollection $errorCollection): void
 	{
 		$exceptionHandler = $this->getExceptionHandler();
 		$exceptionHandler->writeToLog($e);

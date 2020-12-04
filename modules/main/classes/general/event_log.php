@@ -189,9 +189,9 @@ class CEventLog
 			if (array_key_exists($by, $arOFields))
 			{
 				if ($order != "ASC")
-					$order = "DESC".($DB->type=="ORACLE" ? " NULLS LAST" : "");
+					$order = "DESC";
 				else
-					$order = "ASC".($DB->type=="ORACLE" ? " NULLS FIRST" : "");
+					$order = "ASC";
 				$arSqlOrder[$by] = $arOFields[$by]." ".$order;
 			}
 		}
@@ -253,6 +253,7 @@ class CEventLog
 			"USER_LOGOUT" => "[USER_LOGOUT] ".GetMessage("MAIN_EVENTLOG_USER_LOGOUT"),
 			"USER_PASSWORD_CHANGED" => "[USER_PASSWORD_CHANGED] ".GetMessage("MAIN_EVENTLOG_USER_PASSWORD_CHANGED"),
 			"USER_BLOCKED" => "[USER_BLOCKED] ".GetMessage("MAIN_EVENTLOG_USER_BLOCKED"),
+			"USER_PERMISSIONS_FAIL" => "[USER_PERMISSIONS_FAIL] ".GetMessage("MAIN_EVENTLOG_USER_PERMISSIONS_FAIL"),
 			"USER_REGISTER" => "[USER_REGISTER] ".GetMessage("MAIN_EVENTLOG_USER_REGISTER"),
 			"USER_REGISTER_FAIL" => "[USER_REGISTER_FAIL] ".GetMessage("MAIN_EVENTLOG_USER_REGISTER_FAIL"),
 			"USER_GROUP_CHANGED" => "[USER_GROUP_CHANGED] ".GetMessage("MAIN_EVENTLOG_GROUP"),

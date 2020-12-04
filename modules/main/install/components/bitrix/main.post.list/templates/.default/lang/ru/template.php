@@ -25,4 +25,6 @@ $MESS["MPL_CLOSE"] = "Закрыть";
 $MESS["MPL_LINK_COPIED"] = "Ссылка скопирована";
 $MESS["MPL_HAVE_WRITTEN_M"] = "написал:";
 $MESS["MPL_HAVE_WRITTEN_F"] = "написала:";
+$MESS["MPL_SHOW_COLLAPSED_COMMENTS"] = "Показать пинги";
+$MESS["MPL_HIDE_COLLAPSED_COMMENTS"] = "Скрыть пинги";
 ?>

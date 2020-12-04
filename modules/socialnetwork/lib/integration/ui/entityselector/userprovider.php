@@ -200,12 +200,12 @@ class UserProvider extends BaseProvider
 		if (Loader::includeModule('intranet'))
 		{
 			$inviteEmployeeLink = null;
-			if (
-				false
-				&& $this->options['inviteEmployeeLink'] && self::isIntranetUser() && Invitation::canCurrentUserInvite()
-			)
+			if ($this->options['inviteEmployeeLink'] && self::isIntranetUser() && Invitation::canCurrentUserInvite())
 			{
-				$inviteEmployeeLink = SITE_DIR.'company/invite.php';;
+				$inviteEmployeeLink = UrlManager::getInstance()->create('getSliderContent', [
+					'c' => 'bitrix:intranet.invitation',
+					'mode' => Router::COMPONENT_MODE_AJAX,
+				]);
 			}
 
 			$inviteGuestLink = null;
@@ -268,6 +268,7 @@ class UserProvider extends BaseProvider
 			$dialog->addItems(
 				$this->getUserItems([
 					'searchByEmail' => $searchQuery->getQuery(),
+					'myEmailUsers' => false
 				])
 			);
 		}
@@ -460,11 +461,7 @@ class UserProvider extends BaseProvider
 		);
 
 		$isIntranetUser = $intranetInstalled && self::isIntranetUser($currentUserId);
-		if ($isIntranetUser && isset($options['departmentId']) && is_int($options['departmentId']))
-		{
-			$query->addFilter('UF_DEPARTMENT', $options['departmentId']);
-		}
-		else if ($intranetInstalled)
+		if ($intranetInstalled)
 		{
 			$query->registerRuntimeField(new ExpressionField(
 				'IS_INTRANET_USER',
@@ -513,6 +510,11 @@ class UserProvider extends BaseProvider
 
 			if ($isIntranetUser)
 			{
+				if (isset($options['departmentId']) && is_int($options['departmentId']))
+				{
+					$query->addFilter('UF_DEPARTMENT', $options['departmentId']);
+				}
+
 				if ($emailUsersOnly)
 				{
 					$query->where('EXTERNAL_AUTH_ID', 'email');

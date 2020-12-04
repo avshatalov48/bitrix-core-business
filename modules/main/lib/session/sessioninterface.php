@@ -12,10 +12,6 @@ interface SessionInterface
 
 	public function setId($id);
 
-	public function getPreviousId(): ?string;
-
-	public function resetPreviousId(): void;
-
 	public function regenerateId(): bool;
 
 	public function getName();

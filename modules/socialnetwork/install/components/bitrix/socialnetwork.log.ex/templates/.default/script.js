@@ -1201,6 +1201,7 @@ BitrixLF.prototype.getNextPage = function()
 					this.recalcMoreButton();
 					this.registerViewAreaList();
 					this.recalcMoreButtonCommentsList();
+					BX.Livefeed.PinnedPanelInstance.resetFlags();
 					BX.Livefeed.PinnedPanelInstance.initPosts();
 				}
 			}.bind(this));
@@ -1225,6 +1226,7 @@ BitrixLF.prototype.getNextPage = function()
 					this.registerViewAreaList();
 					this.recalcMoreButtonCommentsList();
 					BX.onCustomEvent(window, 'BX.Livefeed:recalculateComments', [{ rootNode: BX(contentBlockId) }]);
+					BX.Livefeed.PinnedPanelInstance.resetFlags();
 					BX.Livefeed.PinnedPanelInstance.initPosts();
 				}.bind(this);
 				BX.bind(BX('sonet_log_more_container_first'), 'click', f);
@@ -1388,6 +1390,7 @@ BitrixLF.prototype.refresh = function(params, filterPromise)
 				this.recalcMoreButton();
 				this.recalcMoreButtonCommentsList();
 				this.registerViewAreaList();
+				BX.Livefeed.PinnedPanelInstance.resetFlags();
 				BX.Livefeed.PinnedPanelInstance.initPanel();
 				BX.Livefeed.PinnedPanelInstance.initPosts();
 			}.bind(this));
@@ -1610,7 +1613,7 @@ BitrixLF.prototype.recalcMoreButtonPost = function(params)
 	}
 };
 
-BitrixLF.prototype.recalcMoreButtonCommentsList = function()
+BitrixLF.prototype.recalcMoreButtonCommentsList = function(params)
 {
 	BX.onCustomEvent(window, 'OnUCMoreButtonListRecalc', []);
 };

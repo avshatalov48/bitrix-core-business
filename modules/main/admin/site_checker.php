@@ -448,7 +448,7 @@ elseif ($_REQUEST['read_log']) // after prolog to send correct charset
 	$oTest = new CSiteCheckerTest();
 	$str = htmlspecialcharsEx(file_get_contents($_SERVER['DOCUMENT_ROOT'].$oTest->LogFile));
 
-	if (($s = CUtil::BinStrlen($str)) > ini_get('pcre.backtrack_limit'))
+	if (($s = strlen($str)) > ini_get('pcre.backtrack_limit'))
 		@ini_set('pcre.backtrack_limit', $s);
 
 	?><!DOCTYPE HTML><html><body style="color:#666"><h1 style="color:#000"><?=GetMessage("MAIN_SC_SYSTEST_LOG")?></h1><?

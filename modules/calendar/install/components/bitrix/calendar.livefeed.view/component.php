@@ -52,7 +52,7 @@ if (!is_array($arParams['~LIVEFEED_ENTRY_PARAMS']) || !array_key_exists('COMMENT
 else
 {
 	$arResult['ID'] = 'livefeed_'.$arParams['~LIVEFEED_ENTRY_PARAMS']['COMMENT_XML_ID'];
-	$arResult['ID'] = strtolower(preg_replace('/[^\d|\w_\-]/', '', $arResult['ID']));
+	$arResult['ID'] = mb_strtolower(preg_replace('/[^\d|\w_\-]/', '', $arResult['ID']));
 
 	// Instance date for recurcive events, which were commented before
 	$instanceDate = CCalendarEvent::ExtractDateFromCommentXmlId($arParams['~LIVEFEED_ENTRY_PARAMS']['COMMENT_XML_ID']);
@@ -99,7 +99,7 @@ $arParams['AVATAR_SIZE'] = 30;
 if (!isset($arParams['EVENT_TEMPLATE_URL']))
 {
 	$editUrl = CCalendar::GetPath('user', '#USER_ID#');
-	$arParams['EVENT_TEMPLATE_URL'] = $editUrl.((strpos($editUrl, "?") === false) ? '?' : '&').'EVENT_ID=#EVENT_ID#';
+	$arParams['EVENT_TEMPLATE_URL'] = $editUrl.((mb_strpos($editUrl, "?") === false) ? '?' : '&').'EVENT_ID=#EVENT_ID#';
 }
 
 
@@ -147,6 +147,7 @@ if ($arResult['EVENT']['IS_MEETING'])
 
 if ($arParams['MOBILE'] == 'Y')
 {
+	$this->setSiteTemplateId('mobile_app');
 	$arParams['ACTION_URL'] = SITE_DIR.'mobile/index.php?mobile_action=calendar_livefeed';
 }
 else
@@ -161,14 +162,14 @@ ob_end_clean();
 
 $footStr1 = '<!--#BX_FEED_EVENT_FOOTER_MESSAGE#-->';
 $footStr2 = '<!--#BX_FEED_EVENT_FOOTER_MESSAGE_END#-->';
-$pos1 = strpos($html_message, $footStr1);
-$pos2 = strpos($html_message, $footStr2);
+$pos1 = mb_strpos($html_message, $footStr1);
+$pos2 = mb_strpos($html_message, $footStr2);
 
 if ($footStr1 !== false)
-	$message = substr($html_message, 0, $pos1);
+	$message = mb_substr($html_message, 0, $pos1);
 else
 	$message = $html_message;
-$footer_message = substr($html_message, $pos1 + strlen($footStr1), $pos2 - $pos1 - strlen($footStr1));
+$footer_message = mb_substr($html_message, $pos1 + mb_strlen($footStr1), $pos2 - $pos1 - mb_strlen($footStr1));
 
 return array(
 	'MESSAGE' => htmlspecialcharsex($message),

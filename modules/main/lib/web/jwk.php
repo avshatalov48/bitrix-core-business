@@ -1,7 +1,6 @@
 <?php
 namespace Bitrix\Main\Web;
 
-use Bitrix\Main\Text\BinaryString;
 use UnexpectedValueException;
 
 /**
@@ -103,14 +102,14 @@ class JWK
 
 
 		$components = array(
-			'modulus' => pack('Ca*a*', 2, self::encodeLength(BinaryString::getLength($modulus)), $modulus),
-			'publicExponent' => pack('Ca*a*', 2, self::encodeLength(BinaryString::getLength($publicExponent)), $publicExponent)
+			'modulus' => pack('Ca*a*', 2, self::encodeLength(strlen($modulus)), $modulus),
+			'publicExponent' => pack('Ca*a*', 2, self::encodeLength(strlen($publicExponent)), $publicExponent)
 		);
 
 		$RSAPublicKey = pack(
 			'Ca*a*a*',
 			48,
-			self::encodeLength(BinaryString::getLength($components['modulus']) + BinaryString::getLength($components['publicExponent'])),
+			self::encodeLength(strlen($components['modulus']) + strlen($components['publicExponent'])),
 			$components['modulus'],
 			$components['publicExponent']
 		);
@@ -119,12 +118,12 @@ class JWK
 		// sequence(oid(1.2.840.113549.1.1.1), null)) = rsaEncryption.
 		$rsaOID = pack('H*', '300d06092a864886f70d0101010500'); // hex version of MA0GCSqGSIb3DQEBAQUA
 		$RSAPublicKey = chr(0) . $RSAPublicKey;
-		$RSAPublicKey = chr(3) . self::encodeLength(BinaryString::getLength($RSAPublicKey)) . $RSAPublicKey;
+		$RSAPublicKey = chr(3) . self::encodeLength(strlen($RSAPublicKey)) . $RSAPublicKey;
 
 		$RSAPublicKey = pack(
 			'Ca*a*',
 			48,
-			self::encodeLength(BinaryString::getLength($rsaOID . $RSAPublicKey)),
+			self::encodeLength(strlen($rsaOID . $RSAPublicKey)),
 			$rsaOID . $RSAPublicKey
 		);
 
@@ -152,7 +151,7 @@ class JWK
 		}
 
 		$temp = ltrim(pack('N', $length), chr(0));
-		return pack('Ca*', 0x80 | BinaryString::getLength($temp), $temp);
+		return pack('Ca*', 0x80 | strlen($temp), $temp);
 	}
 
 }

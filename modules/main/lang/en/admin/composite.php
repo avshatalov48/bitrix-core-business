@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["COMPOSITE_BANNER_TEXT"] = "Faster with Bitrix";
 $MESS["COMPOSITE_BANNER_URL"] = "http://www.bitrixsoft.com/composite/";
 $MESS["MAIN_ADD"] = "Add";
@@ -50,7 +50,7 @@ $MESS["MAIN_COMPOSITE_CHECK_CONNECTION_OK"] = "Connection was successful";
 $MESS["MAIN_COMPOSITE_CLEAR_CACHE"] = "Reset cache";
 $MESS["MAIN_COMPOSITE_CLUSTER_HINT"] = "Use the #A_START#Web Cluster#A_END# module settings page to set connection parameters for memcached.";
 $MESS["MAIN_COMPOSITE_COMPOSITE_SWITCH_DESC1"] = "Migrating a website to the new technology is not complicated, however it may take some time for a large and seasoned project.";
-$MESS["MAIN_COMPOSITE_COMPOSITE_SWITCH_DESC2"] = "According to our experience, a web project as large as the Bitrix Inc. website can be migrated within four days involving only one developer.";
+$MESS["MAIN_COMPOSITE_COMPOSITE_SWITCH_DESC2"] = "According to our experience, a web project as large as the Bitrix24 website can be migrated within four days involving only one developer.";
 $MESS["MAIN_COMPOSITE_COMPOSITE_SWITCH_DESC3"] = "Do the following to migrate your project to the Autocomposite technology:";
 $MESS["MAIN_COMPOSITE_COMPOSITE_SWITCH_ON"] = "Enable Autocomposite Technology!";
 $MESS["MAIN_COMPOSITE_COMPOSITE_SWITCH_TASK1"] = "Extensive documentation will be available soon.";
@@ -107,4 +107,3 @@ $MESS["MAIN_COMPOSITE_TITLE"] = "Composite Website";
 $MESS["MAIN_COMPOSITE_VOTING_TITLE"] = "Composite mode voting";
 $MESS["MAIN_COMPOSITE_WARNING"] = "Static cache mode is on. Please disable it.";
 $MESS["MAIN_COMPOSITE_WARNING_EDUCATION"] = "-";
-?>

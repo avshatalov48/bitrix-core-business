@@ -10,6 +10,12 @@ use Bitrix\Main\Type\Collection;
  */
 class CAdminList
 {
+	public const MODE_PAGE = 'normal';
+	public const MODE_LIST = 'list';
+	public const MODE_ACTION = 'frame';
+	public const MODE_EXPORT = 'excel';
+	public const MODE_CONFIG = 'settings';
+
 	var $table_id;
 	/** @var CAdminSorting */
 	var $sort;
@@ -43,6 +49,8 @@ class CAdminList
 
 	private $filter;
 
+	protected $mode = null;
+
 	/**
 	 * @param string $table_id
 	 * @param CAdminSorting|bool $sort
@@ -53,6 +61,8 @@ class CAdminList
 		$this->sort = $sort;
 
 		$this->isPublicMode = (defined("PUBLIC_MODE") && PUBLIC_MODE == 1);
+
+		$this->initMode();
 	}
 
 	/**
@@ -159,38 +169,65 @@ class CAdminList
 
 	public function AddAdminContextMenu($aContext=array(), $bShowExcel=true, $bShowSettings=true)
 	{
+		$config = [];
+		if ($bShowSettings)
+		{
+			$config['settings'] = true;
+		}
+		if ($bShowExcel)
+		{
+			$config['excel'] = true;
+		}
+		$this->SetContextMenu($aContext, [], $config);
+	}
+
+	public function SetContextMenu(array $menu = [], array $additional = [], array $config = []): void
+	{
+		$this->InitContextMenu(
+			$menu,
+			array_merge($additional, $this->GetSystemContextMenu($config))
+		);
+	}
+
+	protected function GetSystemContextMenu(array $config = []): array
+	{
+		$result = [];
 		/** @global CMain $APPLICATION */
 		global $APPLICATION;
 
-		$aAdditionalMenu = array();
-
-		if($bShowSettings)
+		$queryString = DeleteParam(["mode"]);
+		$link = $APPLICATION->GetCurPage();
+		if (isset($config['settings']))
 		{
-			$link = DeleteParam(array("mode"));
-			$link = $APPLICATION->GetCurPage()."?mode=settings".($link <> ""? "&".$link:"");
-			$aAdditionalMenu[] = array(
-				"TEXT"=>GetMessage("admin_lib_context_sett"),
-				"TITLE"=>GetMessage("admin_lib_context_sett_title"),
-				"ONCLICK"=>$this->table_id.".ShowSettings('".CUtil::JSEscape($link)."')",
-				"GLOBAL_ICON"=>"adm-menu-setting",
-			);
+			$result[] = [
+				"TEXT" => GetMessage("admin_lib_context_sett"),
+				"TITLE" => GetMessage("admin_lib_context_sett_title"),
+				"ONCLICK" => $this->table_id.".ShowSettings('".CUtil::JSEscape(
+					$link."?mode=settings".($queryString <> ""? "&".$queryString : "")
+				)."')",
+				"GLOBAL_ICON" => "adm-menu-setting",
+			];
 		}
-
-		if($bShowExcel)
+		if (isset($config['excel']))
 		{
-			$link = DeleteParam(array("mode"));
-			$link = $APPLICATION->GetCurPage()."?mode=excel".($link <> ""? "&".$link:"");
-			$aAdditionalMenu[] = array(
-				"TEXT"=>"Excel",
-				"TITLE"=>GetMessage("admin_lib_excel"),
-				//"LINK"=>htmlspecialcharsbx($link),
-				"ONCLICK"=>"location.href='".htmlspecialcharsbx($link)."'",
+			$result[] = [
+				"TEXT" => "Excel",
+				"TITLE" => GetMessage("admin_lib_excel"),
+				"ONCLICK"=>"location.href='".htmlspecialcharsbx(
+					$link."?mode=excel".($queryString <> ""? "&".$queryString : "")
+				)."'",
 				"GLOBAL_ICON"=>"adm-menu-excel",
-			);
+			];
 		}
+		return $result;
+	}
 
-		if(count($aContext)>0 || count($aAdditionalMenu) > 0)
-			$this->context = new CAdminContextMenuList($aContext, $aAdditionalMenu);
+	protected function InitContextMenu(array $menu = [], array $additional = []): void
+	{
+		if (!empty($menu) || !empty($additional))
+		{
+			$this->context = new CAdminContextMenuList($menu, $additional);
+		}
 	}
 
 	/**
@@ -390,6 +427,65 @@ class CAdminList
 			$result = (!is_array($_REQUEST['ID']) ? array($_REQUEST['ID']) : $_REQUEST['ID']);
 		}
 		return $result;
+	}
+
+	/**
+	 * @return void
+	 */
+	protected function initMode(): void
+	{
+		$this->mode = self::MODE_PAGE;
+		if (isset($_REQUEST['mode']) && is_string($_REQUEST['mode']))
+		{
+			if (in_array(
+				$_REQUEST['mode'],
+				[self::MODE_LIST, self::MODE_ACTION, self::MODE_EXPORT, self::MODE_CONFIG]
+			))
+			{
+				$this->mode = $_REQUEST['mode'];
+			}
+		}
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getCurrentMode(): string
+	{
+		return $this->mode;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isPageMode(): bool
+	{
+		return $this->getCurrentMode() === self::MODE_PAGE;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isExportMode(): bool
+	{
+		return $this->getCurrentMode() === self::MODE_EXPORT;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isAjaxMode(): bool
+	{
+		$mode = $this->getCurrentMode();
+		return ($mode === self::MODE_LIST || $mode === self::MODE_ACTION);
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isConfigMode(): bool
+	{
+		return $this->getCurrentMode() === self::MODE_CONFIG;
 	}
 
 	public function ActionRedirect($url)
@@ -834,12 +930,7 @@ class CAdminList
 	<input type="hidden" name="action_button" id="<?=$this->table_id; ?>_action_button" value="" />
 <?
 		if($this->bEditMode || !empty($this->arUpdateErrorIDs)):
-?>
-		<input type="hidden" name="save" id="<?=$this->table_id?>_hidden_save" value="Y">
-		<input type="submit" class="adm-btn-save" name="save" value="<?=GetMessage("admin_lib_list_edit_save")?>" title="<?=GetMessage("admin_lib_list_edit_save_title")?>" />
-		<input type="button" onclick="BX('<?=$this->table_id?>_hidden_save').name='cancel'; <?=htmlspecialcharsbx($this->ActionPost(false, 'action_button', ''))?> " name="cancel" value="<?=GetMessage("admin_lib_list_edit_cancel")?>" title="<?=GetMessage("admin_lib_list_edit_cancel_title")?>" />
-
-<?
+			$this->DisplayEditButtons();
 		else: //($this->bEditMode || count($this->arUpdateErrorIDs)>0)
 			if($this->arActionsParams["disable_action_target"] <> true):
 ?>
@@ -1133,6 +1224,15 @@ topWindow.BX.ajax.UpdatePageData({});
 			require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin_after.php");
 			die();
 		}
+	}
+
+	protected function DisplayEditButtons(): void
+	{
+?>
+		<input type="hidden" name="save" id="<?=$this->table_id?>_hidden_save" value="Y">
+		<input type="submit" class="adm-btn-save" name="save" value="<?=GetMessage("admin_lib_list_edit_save")?>" title="<?=GetMessage("admin_lib_list_edit_save_title")?>" />
+		<input type="button" onclick="BX('<?=$this->table_id?>_hidden_save').name='cancel'; <?=htmlspecialcharsbx($this->ActionPost(false, 'action_button', ''))?> " name="cancel" value="<?=GetMessage("admin_lib_list_edit_cancel")?>" title="<?=GetMessage("admin_lib_list_edit_cancel_title")?>" />
+<?
 	}
 }
 

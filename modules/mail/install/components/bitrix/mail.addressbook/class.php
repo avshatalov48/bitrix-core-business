@@ -4,10 +4,12 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Main\UI\PageNavigation;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\UI\Filter;
+use Bitrix\Mail\Internals\MailContactTable;
 
 /**
  * Class AddressBookComponent
@@ -17,6 +19,13 @@ class AddressBookComponent extends CBitrixComponent implements Controllerable
 	public function configureActions()
 	{
 		return [];
+	}
+
+	protected $rowsCount = 20;
+
+	private function getRowsCount()
+	{
+		return $this->rowsCount;
 	}
 
 	protected $gridId = 'MAIL_ADDRESSBOOK_LIST';
@@ -98,13 +107,23 @@ class AddressBookComponent extends CBitrixComponent implements Controllerable
 
 	private function setRows()
 	{
-		$this->arResult['ROWS'] = \Bitrix\Mail\Internals\MailContactTable::getList(
+		$pageNavigationObject = new PageNavigation("page");
+		$pageNavigationObject->allowAllRecords(true)->setPageSize($this->getRowsCount())->initFromUri();
+
+		$list = MailContactTable::getList(
 			[
+				'offset' => $pageNavigationObject->getOffset(),
+				'limit' => $pageNavigationObject->getLimit(),
 				'filter' => $this->getDataFilter(),
 				'order' => ["ID" => "desc"],
 				'select' => ['ID', 'NAME', 'EMAIL'],
+				'count_total' => true,
 			]
-		)->fetchAll();
+		);
+
+		$pageNavigationObject->setRecordCount($list->getCount());
+		$this->arResult['NAV_OBJECT'] = $pageNavigationObject;
+		$this->arResult['ROWS'] = $list->fetchAll();
 	}
 
 	/**

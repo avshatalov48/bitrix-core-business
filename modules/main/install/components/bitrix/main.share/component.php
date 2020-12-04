@@ -83,14 +83,14 @@ foreach ($arResult["HANDLERS_ALL"] as $name => $arHandler)
 			$arHandler["ICON"] = str_replace("#PAGE_TITLE#", CUtil::JSEscape($PageTitleBack), $arHandler["ICON"]);
 			$arHandler["ICON"] = str_replace("#PAGE_TITLE_ENCODED#", urlencode($PageTitleBack), $arHandler["ICON"]);
 			$arHandler["ICON"] = str_replace("#PAGE_TITLE_ORIG#", CUtil::addslashes($PageTitle), $arHandler["ICON"]);
-			$utfTitle = $APPLICATION->ConvertCharset($PageTitleBack, LANG_CHARSET, "UTF-8");
+			$utfTitle = \Bitrix\Main\Text\Encoding::convertEncoding($PageTitleBack, LANG_CHARSET, "UTF-8");
 			$arHandler["ICON"] = str_replace("#PAGE_TITLE_UTF_ENCODED#", urlencode($utfTitle), $arHandler["ICON"]);
 		}
 		else
 		{
 			$arHandler["ICON"] = str_replace("#PAGE_TITLE#", CUtil::addslashes($PageTitle), $arHandler["ICON"]);
 			$arHandler["ICON"] = str_replace("#PAGE_TITLE_ENCODED#", urlencode($PageTitle), $arHandler["ICON"]);
-			$utfTitle = $APPLICATION->ConvertCharset($PageTitle, LANG_CHARSET, "UTF-8");
+			$utfTitle = \Bitrix\Main\Text\Encoding::convertEncoding($PageTitle, LANG_CHARSET, "UTF-8");
 			$arHandler["ICON"] = str_replace("#PAGE_TITLE_UTF_ENCODED#", urlencode($utfTitle), $arHandler["ICON"]);
 		}
 

@@ -177,6 +177,11 @@ abstract class CBPActivity
 	public function getTemplatePropertyType($propertyName)
 	{
 		$rootActivity = $this->GetRootActivity();
+		if ($propertyName === 'TargetUser' && !isset($rootActivity->arPropertiesTypes[$propertyName]))
+		{
+			return ['Type' => 'user'];
+		}
+
 		return $rootActivity->arPropertiesTypes[$propertyName];
 	}
 
@@ -576,9 +581,9 @@ abstract class CBPActivity
 			$documentFields = $documentService->GetDocumentFields($documentType);
 			//check aliases
 			$documentFieldsAliasesMap = CBPDocument::getDocumentFieldsAliasesMap($documentFields);
-			if (!isset($document[$fieldName]) && mb_strtoupper(mb_substr($fieldName, -mb_strlen('_PRINTABLE'))) == '_PRINTABLE')
+			if (!isset($document[$fieldName]) && mb_strtoupper(mb_substr($fieldName, -10)) === '_PRINTABLE')
 			{
-				$fieldName = mb_substr($fieldName, 0, -mb_strlen('_PRINTABLE'));
+				$fieldName = mb_substr($fieldName, 0, -10);
 				if (!in_array('printable', $modifiers))
 					$modifiers[] = 'printable';
 			}
@@ -592,7 +597,7 @@ abstract class CBPActivity
 			if (isset($document[$fieldName]))
 			{
 				$result = $document[$fieldName];
-				if (is_array($result) && mb_strtoupper(mb_substr($fieldName, -mb_strlen('_PRINTABLE'))) == '_PRINTABLE')
+				if (is_array($result) && mb_strtoupper(mb_substr($fieldName, -10)) === '_PRINTABLE')
 					$result = implode(", ", CBPHelper::MakeArrayFlat($result));
 
 				$property = isset($documentFields[$fieldName]) ? $documentFields[$fieldName] : null;
@@ -602,10 +607,10 @@ abstract class CBPActivity
 		{
 			$rootActivity = $this->GetRootActivity();
 
-			if (mb_substr($fieldName, -mb_strlen("_printable")) == "_printable")
+			if (mb_substr($fieldName, -10) == "_printable")
 			{
-				$fieldName = mb_substr($fieldName, 0, mb_strlen($fieldName) - mb_strlen("_printable"));
-				$modifiers = array('printable');
+				$fieldName = mb_substr($fieldName, 0, -10);
+				$modifiers = ['printable'];
 			}
 
 			switch ($objectName)
@@ -625,8 +630,15 @@ abstract class CBPActivity
 		}
 		elseif ($objectName === 'GlobalConst')
 		{
-			$result = Bizproc\Workflow\Type\GlobalConst::getValue($fieldName);
 			$property = Bizproc\Workflow\Type\GlobalConst::getById($fieldName);
+			if (!$property && mb_substr($fieldName, -10) == "_printable")
+			{
+				$fieldName = mb_substr($fieldName, 0, -10);
+				$modifiers = ['printable'];
+				$property = Bizproc\Workflow\Type\GlobalConst::getById($fieldName);
+			}
+
+			$result = Bizproc\Workflow\Type\GlobalConst::getValue($fieldName);
 		}
 		elseif ($objectName == "Workflow")
 		{
@@ -635,14 +647,25 @@ abstract class CBPActivity
 		}
 		elseif ($objectName == "User")
 		{
+			if (mb_substr($fieldName, -10) == "_printable")
+			{
+				$modifiers = ['printable'];
+			}
+
 			$result = 0;
 			if (isset($GLOBALS["USER"]) && is_object($GLOBALS["USER"]) && $GLOBALS["USER"]->isAuthorized())
+			{
 				$result = "user_".$GLOBALS["USER"]->GetID();
+			}
 			$property = array('Type' => 'user');
 		}
 		elseif ($objectName == "System")
 		{
-			global $DB;
+			if (mb_substr($fieldName, -10) == "_printable")
+			{
+				$fieldName = mb_substr($fieldName, 0, -10);
+				$modifiers = ['printable'];
+			}
 
 			$result = null;
 			$property = array('Type' => 'datetime');
@@ -650,20 +673,14 @@ abstract class CBPActivity
 			if ($systemField === 'now')
 			{
 				$result = new Bizproc\BaseType\Value\DateTime();
-				//$result = date($DB->DateFormatToPHP(CSite::GetDateFormat("FULL")));
 			}
 			elseif ($systemField === 'nowlocal')
 			{
 				$result = new Bizproc\BaseType\Value\DateTime(time(), CTimeZone::GetOffset());
-				//$result = time();
-				//if (CTimeZone::Enabled())
-				//	$result += CTimeZone::GetOffset();
-				//$result = date($DB->DateFormatToPHP(CSite::GetDateFormat("FULL")), $result);
 			}
 			elseif ($systemField == 'date')
 			{
 				$result = new Bizproc\BaseType\Value\Date();
-				//$result = date($DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")));
 				$property = array('Type' => 'date');
 			}
 			if ($result === null)

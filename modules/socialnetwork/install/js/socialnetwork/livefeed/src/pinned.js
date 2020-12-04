@@ -6,7 +6,17 @@ class PinnedPanel
 {
 	constructor()
 	{
+		this.panelInitialized = false;
+		this.postsInitialized = false;
+		this.handlePostClick = this.handlePostClick.bind(this);
+
 		this.init();
+	}
+
+	resetFlags()
+	{
+		this.panelInitialized = false;
+		this.postsInitialized = false;
 	}
 
 	init()
@@ -22,11 +32,18 @@ class PinnedPanel
 
 	initPanel()
 	{
+		if (this.panelInitialized)
+		{
+			return;
+		}
+
 		const pinnedPanelNode = this.getPanelNode();
 		if (!pinnedPanelNode)
 		{
 			return;
 		}
+
+		this.panelInitialized = true;
 
 		Event.bind(pinnedPanelNode, 'click', (event) => {
 			const likeClicked = event.target.classList.contains('feed-inform-ilike') || event.target.closest('.feed-inform-ilike') !== null;
@@ -113,39 +130,51 @@ class PinnedPanel
 
 	initPosts()
 	{
+		if (this.postsInitialized)
+		{
+			return;
+		}
+
 		const postList = document.querySelectorAll('[data-livefeed-post-pinned]');
+		if (postList.length > 0)
+		{
+			this.postsInitialized = true;
+		}
 
-		postList.forEach((post) => {
-
-			Event.bind(post, 'click', (event) => {
-				if (!event.target.classList.contains('feed-post-pin'))
-				{
-					return
-				}
-
-				const post = event.target.closest('[data-livefeed-id]');
-
-				if (!post)
-				{
-					return;
-				}
-
-				const newState = (post.getAttribute('data-livefeed-post-pinned') === 'Y' ? 'N' : 'Y');
-				const logId = parseInt(post.getAttribute('data-livefeed-id'));
-
-				if (logId <= 0)
-				{
-					return;
-				}
-
-				this.changePinned({
-					logId: logId,
-					newState: newState,
-					event: event
-				});
-
-			});
+		Array.from(postList).forEach((post) => {
+			Event.unbind(post, 'click', this.handlePostClick);
+			Event.bind(post, 'click', this.handlePostClick);
 		});
+	}
+
+	handlePostClick(event)
+	{
+		if (!event.target.classList.contains('feed-post-pin'))
+		{
+			return
+		}
+
+		const post = event.target.closest('[data-livefeed-id]');
+
+		if (!post)
+		{
+			return;
+		}
+
+		const newState = (post.getAttribute('data-livefeed-post-pinned') === 'Y' ? 'N' : 'Y');
+		const logId = parseInt(post.getAttribute('data-livefeed-id'));
+
+		if (logId <= 0)
+		{
+			return;
+		}
+
+		this.changePinned({
+			logId: logId,
+			newState: newState,
+			event: event
+		});
+
 	}
 
 	initEvents()

@@ -89,7 +89,7 @@ class Configuration extends Model
 	 */
 	public function getValue()
 	{
-		return unserialize($this->value);
+		return unserialize($this->value, ['allowed_classes' => false]);
 	}
 
 	/**

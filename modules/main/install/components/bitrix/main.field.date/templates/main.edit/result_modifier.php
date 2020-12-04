@@ -54,7 +54,7 @@ foreach($arResult['value'] as $key => $value)
 			'/bitrix/js/mobile/userfield/mobile_field.js'
 		);
 		Asset::getInstance()->addJs(
-			'/bitrix/components/bitrix/main.field.datetime/templates/main.view/mobile.js'
+			'/bitrix/components/bitrix/main.field.date/templates/main.view/mobile.js'
 		);
 
 		if(

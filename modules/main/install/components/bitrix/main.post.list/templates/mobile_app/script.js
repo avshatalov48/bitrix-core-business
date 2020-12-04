@@ -353,6 +353,7 @@
 				method: 'POST',
 				url: actionUrl,
 				data: {},
+				formData: fd,
 				type: 'json',
 				processData : true,
 				start : false,
@@ -369,7 +370,7 @@
 					}
 				}, this),
 				callback_failure: BX.delegate(function(data) {
-					this.showError(comment, BX.message('INCORRECT_SERVER_RESPONSE'));
+					this.showError(comment, BX.message('INCORRECT_SERVER_RESPONSE_2'));
 					BX.onCustomEvent(window, 'OnUCFormResponse', [comment.id[0], comment.id[1], this, data, comment]);
 				}, this)
 			});
@@ -1010,8 +1011,8 @@
 	BXMobileApp.addCustomEvent(window, 'onPull-unicomments', function(data) {
 		var params = data.params;
 		var command = data.command;
-		console.log('onPull-unicomments:', command, params);
-		if (params["AUX"] && !BX.util.in_array(params["AUX"], ["createtask", "fileversion"]) ||
+
+		if (params["AUX"] && !BX.util.in_array(params["AUX"], ["createtask", "fileversion", "TASKINFO"]) ||
 			repo["list"][params["ENTITY_XML_ID"]] <= 0)
 		{
 			return;

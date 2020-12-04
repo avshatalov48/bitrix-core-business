@@ -38,6 +38,9 @@ class MainMailConfirmAjax
 				case 'deleteSender':
 					$result = (array) self::executeDelete($error);
 					break;
+				case 'sendersListCanDel':
+					$result = (array) self::executeSenderListCanDel($error);
+					break;
 				default:
 					$error = getMessage('MAIN_MAIL_CONFIRM_AJAX_ERROR');
 			}
@@ -243,7 +246,28 @@ class MainMailConfirmAjax
 
 		return [];
 	}
+	private static function executeSenderListCanDel(&$error)
+	{
+		global $USER;
 
+		$error = false;
+		if(is_object($USER) && ($userId = $USER->getId()) !== null)
+		{
+			$mailboxes = Main\Mail\Sender::prepareUserMailboxes($userId);
+			foreach ($mailboxes as $key => $box)
+			{
+				if(!(isset($box['can_delete']) && $box['can_delete']))
+				{
+					unset($mailboxes[$key]);
+				}
+			}
+			return [
+				'mailboxes'=> $mailboxes,
+			];
+		}
+		$error = getMessage('MAIN_MAIL_CONFIRM_AUTH');
+		return null;
+	}
 	private static function returnJson($data)
 	{
 		global $APPLICATION;

@@ -1,4 +1,10 @@
 <?
+
+/**
+ * Class CSecuritySessionMC
+ * @deprecated
+ * @see \Bitrix\Main\Session\Handlers\MemcacheSessionHandler
+ */
 class CSecuritySessionMC
 {
 	/** @var Memcache $connection*/

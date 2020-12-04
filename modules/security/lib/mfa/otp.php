@@ -1112,7 +1112,6 @@ class Otp
 	 */
 	public static function verifyUser(array $params)
 	{
-		/** @global \CMain $APPLICATION */
 		global $APPLICATION;
 
 		if (!static::isOtpEnabled()) // OTP disabled in settings
@@ -1177,10 +1176,10 @@ class Otp
 				&& Option::get('security', 'otp_allow_remember') === 'Y'
 			);
 
-			if (!$isCaptchaChecked && !$_SESSION['BX_LOGIN_NEED_CAPTCHA'])
+			if (!$isCaptchaChecked && !$APPLICATION->NeedCAPTHA())
 			{
 				// Backward compatibility with old login page
-				$_SESSION['BX_LOGIN_NEED_CAPTCHA'] = true;
+				$APPLICATION->SetNeedCAPTHA(true);
 			}
 
 			$isOtpPassword = (bool) preg_match('/^\d{6}$/D', $params['OTP']);
@@ -1236,6 +1235,12 @@ class Otp
 
 			//the OTP form will be shown on the next hit, send the event
 			static::sendEvent($otp);
+
+			//write to the log ("on" by default)
+			if(Option::get("security", "otp_log") <> "N")
+			{
+				\CSecurityEvent::getInstance()->doLog("SECURITY", "SECURITY_OTP", $otp->getUserId(), "");
+			}
 		}
 
 		return $isSuccess;
@@ -1315,9 +1320,10 @@ class Otp
 	 */
 	public static function getDeferredParams()
 	{
-		if (isset($_SESSION['BX_SECURITY_OTP']) && is_array($_SESSION['BX_SECURITY_OTP']))
+		$kernelSession = Application::getInstance()->getKernelSession();
+		if (isset($kernelSession['BX_SECURITY_OTP']) && is_array($kernelSession['BX_SECURITY_OTP']))
 		{
-			return $_SESSION['BX_SECURITY_OTP'];
+			return $kernelSession['BX_SECURITY_OTP'];
 		}
 
 		return null;
@@ -1331,9 +1337,10 @@ class Otp
 	 */
 	public static function setDeferredParams($params)
 	{
+		$kernelSession = Application::getInstance()->getKernelSession();
 		if ($params === null)
 		{
-			unset($_SESSION['BX_SECURITY_OTP']);
+			unset($kernelSession['BX_SECURITY_OTP']);
 		}
 		else
 		{
@@ -1342,7 +1349,7 @@ class Otp
 			if (isset($params['PASSWORD']))
 				unset($params['PASSWORD']);
 
-			$_SESSION['BX_SECURITY_OTP'] = $params;
+			$kernelSession['BX_SECURITY_OTP'] = $params;
 		}
 	}
 

@@ -446,7 +446,7 @@ class CForumMessage extends CAllForumMessage
 			" . $DB->DateToCharFunction("FM.POST_DATE", "FULL") . " as POST_DATE,
 			FM.EDITOR_ID, FM.EDITOR_NAME, FM.EDITOR_EMAIL, FM.EDIT_REASON,
 			FU.SHOW_NAME, U.LOGIN, U.NAME, U.SECOND_NAME, U.LAST_NAME, U.PERSONAL_PHOTO,
-			" . $DB->DateToCharFunction("FM.EDIT_DATE", "FULL") . " as EDIT_DATE, FM.PARAM1, FM.PARAM2, FM.HTML, FM.MAIL_HEADER" .
+			" . $DB->DateToCharFunction("FM.EDIT_DATE", "FULL") . " as EDIT_DATE, FM.PARAM1, FM.PARAM2, FM.HTML, FM.MAIL_HEADER, FM.SERVICE_TYPE " .
 			$obUserFieldsSql->GetSelect() .
 			(!empty($arAddParams["sNameTemplate"]) ?
 				",\n\t".CForumUser::GetFormattedNameFieldsForSelect(array_merge(
@@ -791,7 +791,7 @@ class CForumMessage extends CAllForumMessage
 				"	FM.AUTHOR_IP, FM.AUTHOR_REAL_IP, FM.GUEST_ID, \n".
 				"	FM.EDITOR_ID, FM.EDITOR_NAME, FM.EDITOR_EMAIL, FM.EDIT_REASON, \n".
 				"	".$DB->DateToCharFunction("FM.EDIT_DATE", "FULL")." as EDIT_DATE, \n".
-				"	FM.HTML, FM.MAIL_HEADER, \n".
+				"	FM.HTML, FM.MAIL_HEADER, FM.SERVICE_TYPE, \n".
 				"	FU.SHOW_NAME, FU.DESCRIPTION, FU.NUM_POSTS, FU.POINTS as NUM_POINTS, FU.SIGNATURE, FU.AVATAR, \n".
 				"	".$DB->DateToCharFunction("FU.DATE_REG", "SHORT")." as DATE_REG, \n".
 				"	U.LOGIN, U.NAME, U.SECOND_NAME, U.LAST_NAME, U.PERSONAL_PHOTO, FU.RANK_ID, U.PERSONAL_WWW, U.PERSONAL_GENDER, \n".
@@ -828,7 +828,7 @@ class CForumMessage extends CAllForumMessage
 				"	FM.AUTHOR_IP, FM.AUTHOR_REAL_IP, FM.GUEST_ID, \n".
 				"	FM.EDITOR_ID, FM.EDITOR_NAME, FM.EDITOR_EMAIL, FM.EDIT_REASON, \n".
 				"	".$DB->DateToCharFunction("FM.EDIT_DATE", "FULL")." as EDIT_DATE, \n".
-				"	FM.HTML, FM.MAIL_HEADER, \n".
+				"	FM.HTML, FM.MAIL_HEADER, FM.SERVICE_TYPE, \n".
 				"	FU.SHOW_NAME, FU.DESCRIPTION, FU.NUM_POSTS, FU.POINTS as NUM_POINTS, FU.SIGNATURE, FU.AVATAR, \n".
 				"	".$DB->DateToCharFunction("FU.DATE_REG", "SHORT")." as DATE_REG, \n".
 				"	U.LOGIN, U.NAME, U.SECOND_NAME, U.LAST_NAME, U.PERSONAL_PHOTO, FU.RANK_ID, U.PERSONAL_WWW, U.PERSONAL_GENDER, \n".

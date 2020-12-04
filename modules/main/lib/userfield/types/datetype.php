@@ -9,6 +9,7 @@ use Bitrix\Main\Type;
 use CLang;
 use CDatabase;
 use Bitrix\Main\Text\HtmlFilter;
+use Bitrix\Main\Context;
 
 Loc::loadMessages(__FILE__);
 
@@ -191,5 +192,56 @@ class DateType extends BaseType
 	{
 		global $DB;
 		return $DB->DateToCharFunction($fieldName, static::FORMAT_TYPE_SHORT);
+	}
+
+	/**
+	 * @param array $userFiled
+	 */
+	public static function getDefaultValue(array $userField, array $additionalParameters = [])
+	{
+		$userField['ENTITY_VALUE_ID'] = 0;
+		$value = static::getFieldValue($userField, $additionalParameters);
+		return ($userField['MULTIPLE'] === 'Y' ? [$value] : $value);
+	}
+
+	/**
+	 * @param array $userField
+	 * @param array $additionalParameters
+	 */
+	public static function getFieldValue(array $userField, array $additionalParameters = [])
+	{
+		if(!$additionalParameters['bVarsFromForm'])
+		{
+			if(
+				isset($userField['ENTITY_VALUE_ID'])
+				&& $userField['ENTITY_VALUE_ID'] <= 0
+			)
+			{
+				if($userField['SETTINGS']['DEFAULT_VALUE']['TYPE'] === self::TYPE_NOW)
+				{
+					$value = \ConvertTimeStamp(time(), self::FORMAT_TYPE_SHORT);
+				}
+				else
+				{
+					$value = \CDatabase::formatDate(
+						$userField['SETTINGS']['DEFAULT_VALUE']['VALUE'],
+						'YYYY-MM-DD',
+						\CLang::getDateFormat(self::FORMAT_TYPE_SHORT)
+					);
+				}
+			} else {
+				$value = $userField['VALUE'];
+			}
+		}
+		elseif(isset($additionalParameters['VALUE']))
+		{
+			$value = $additionalParameters['VALUE'];
+		}
+		else
+		{
+			$value = Context::getCurrent()->getRequest()->get($userField['FIELD_NAME']);
+		}
+
+		return $value;
 	}
 }

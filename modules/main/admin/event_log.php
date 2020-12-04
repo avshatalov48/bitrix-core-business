@@ -245,6 +245,7 @@ while($db_res = $rsData->NavNext(true, "a_"))
 		case "USER_GROUP_CHANGED":
 		case "USER_EDIT":
 		case "USER_BLOCKED":
+		case "USER_PERMISSIONS_FAIL":
 		case "SECURITY_OTP":
 			if(!array_key_exists($a_ITEM_ID, $arUsersCache))
 			{

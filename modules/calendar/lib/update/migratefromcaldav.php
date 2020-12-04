@@ -78,7 +78,7 @@ final class MigrateFromCaldav
 									$section['GAPI_CALENDAR_ID'] = $davXmlId;
 									$sectionSyncToken = NULL;
 									$externalEvents = $googleApiConnection->getEvents($section);
-									$sectionSyncToken = $googleApiConnection->getEventsSyncToken();
+									$sectionSyncToken = $googleApiConnection->getNextSyncToken();
 
 									if ($localEventsList)
 									{

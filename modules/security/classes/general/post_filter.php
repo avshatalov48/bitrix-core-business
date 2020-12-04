@@ -188,19 +188,19 @@ class CSecurityXSSDetect
 	{
 		foreach($searches as $i => $search)
 		{
-			$pos = static::fastStrpos($string, $search["value"]);
+			$pos = strpos($string, $search["value"]);
 			if ($pos !== false)
 			{
-				$prevChar = static::fastSubstr($string, $pos - 1, 1);
+				$prevChar = substr($string, $pos - 1, 1);
 				$isFound = ($prevChar !== '\\');
 				if ($isFound && preg_match("/^[a-zA-Z_]/", $search["value"]))
 				{
 					$isFound = preg_match("/^[a-zA-Z_]/", $prevChar) <= 0;
 				}
-			}
 
-			if ($isFound)
-				return $i;
+				if ($isFound)
+					return $i;
+			}
 		}
 		return null;
 	}
@@ -313,25 +313,4 @@ class CSecurityXSSDetect
 				$this->addVariable($variableName, $value);
 		}
 	}
-
-	protected static function fastStrpos($haystack, $needle)
-	{
-		if (function_exists("mb_orig_strpos"))
-		{
-			return mb_orig_strpos($haystack, $needle);
-		}
-
-		return mb_strpos($haystack, $needle);
-	}
-
-	protected static function fastSubstr($string, $start, $length = null)
-	{
-		if (function_exists("mb_orig_substr"))
-		{
-			return mb_orig_substr($string, $start, $length);
-		}
-
-		return mb_substr($string, $start, $length);
-	}
-
 }

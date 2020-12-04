@@ -211,6 +211,10 @@ else
 	if ($arParams["PREORDER"] != "Y"): ?><?=$arParams["NAV_STRING"]?><? endif;
 	$iCount = 0;
 	?><!--RCRDLIST_<?=$arParams["ENTITY_XML_ID"]?>--><?
+	$collapsedMessages = 0;
+	$collapsedMessagesBlockIsCollapsed = true;
+	$collapsedMessagesBlock = null;
+
 	foreach ($arParams["RECORDS"] as $key => $res)
 	{
 		if (intval($res["ID"]) <= 0)
@@ -218,17 +222,82 @@ else
 			continue;
 		}
 
+		if ($res["COLLAPSED"] === "Y")
+		{
+			$collapsedMessages++;
+			if ($collapsedMessagesBlock === null)
+			{
+				ob_start();
+				?>
+				<div class="feed-com-collapsed" data-bx-role="collapsed-block">
+				<input type="checkbox" id="collapsed_switcher_<?=$arParams["ENTITY_XML_ID"]?>_<?=$res["ID"]?>" #COLLAPSED_MESSAGES_BLOCK_IS_COLLAPSED#>
+				<label for="collapsed_switcher_<?=$arParams["ENTITY_XML_ID"]?>_<?=$res["ID"]?>" data-bx-collapse-role="show">
+					<div class="post-comment-control-item">
+						<?=GetMessage("MPL_SHOW_COLLAPSED_COMMENTS")?> (#COLLAPSED_MESSAGES_COUNT#)
+					</div>
+				</label>
+				<label for="collapsed_switcher_<?=$arParams["ENTITY_XML_ID"]?>_<?=$res["ID"]?>" data-bx-collapse-role="hide">
+					<div class="post-comment-control-item">
+						<?=GetMessage("MPL_HIDE_COLLAPSED_COMMENTS")?> (#COLLAPSED_MESSAGES_COUNT#)
+					</div>
+				</label>
+				<div class="feed-com-collapsed-block">
+					#COLLAPSED_MESSAGES_BLOCK#
+				</div>
+				</div><?
+				$collapsedMessagesBlock = ob_get_clean();
+				ob_start();
+			}
+		}
+		else if ($collapsedMessagesBlock !== null)
+		{
+			?><?=str_replace([
+			"#COLLAPSED_MESSAGES_BLOCK_IS_COLLAPSED#",
+			"#COLLAPSED_MESSAGES_COUNT#",
+			"#COLLAPSED_MESSAGES_BLOCK#"
+		], [
+			$collapsedMessagesBlockIsCollapsed ? "" : "checked",
+			$collapsedMessages,
+			ob_get_clean()
+		],
+			$collapsedMessagesBlock
+		);
+			$collapsedMessagesBlock = null;
+			$collapsedMessages = 0;
+			$collapsedMessagesBlockIsCollapsed = true;
+		}
+
 		$res["AUTHOR"] = (is_array($res["AUTHOR"]) ? $res["AUTHOR"] : array());
+		$isMessageBlank = !(array_key_exists("POST_MESSAGE_TEXT", $res) && $res["POST_MESSAGE_TEXT"] !== null);
+		$collapsedMessagesBlockIsCollapsed = ($res["NEW"] == "Y" ? false : $collapsedMessagesBlockIsCollapsed);
 		$iCount++;
 		?><div id="record-<?=$arParams["ENTITY_XML_ID"]?>-<?=$res["ID"]?>-cover" <?
 			?>bx-mpl-xml-id="<?=$arParams["ENTITY_XML_ID"]?>" <?
 			?>bx-mpl-entity-id="<?=$res["ID"]?>" <?
 			?>bx-mpl-read-status="<?=(($res["NEW"] == "Y" ? "new" : "old"))?>" <?
+			?>bx-mpl-blank-status="<?=($isMessageBlank ? "blank" : "full")?>" <?
 			?>bx-mpl-block="main" <?
 		?>class="feed-com-block-cover"><?
 		?><?=$this->__component->parseTemplate($res, $arParams, $template)?>
 		</div>
 	<?
+	}
+	if ($collapsedMessagesBlock !== null)
+	{
+		?><?=str_replace([
+		"#COLLAPSED_MESSAGES_BLOCK_IS_COLLAPSED#",
+		"#COLLAPSED_MESSAGES_COUNT#",
+		"#COLLAPSED_MESSAGES_BLOCK#"
+	], [
+		$collapsedMessagesBlockIsCollapsed ? "" : "checked",
+		$collapsedMessages,
+		ob_get_clean()
+	],
+		$collapsedMessagesBlock
+	);
+		$collapsedMessagesBlock = null;
+		$collapsedMessages = 0;
+		$collapsedMessagesBlockIsCollapsed = true;
 	}
 	?><!--RCRDLIST_END_<?=$arParams["ENTITY_XML_ID"]?>--><?
 	if ($arParams["PREORDER"] == "Y"): ?><?=$arParams["NAV_STRING"]?><? endif;
@@ -253,6 +322,41 @@ if ($this->__component->__parent instanceof \Bitrix\Main\Engine\Contract\Control
 ?>
 <script>
 	BX.ready(function(){
+
+		var collapsedblocks = document.querySelectorAll('.feed-com-collapsed-block');
+		for (const block of collapsedblocks) {
+			block.addEventListener('transitionend', function(event){
+				var position = BX.pos(event.target);
+				var input = block.parentNode.querySelector('input');
+				var duration;
+
+				if (block.offsetHeight < 200 )
+				{
+					duration =  1500;
+				}
+				else
+				{
+					duration =  800;
+				}
+
+				var easing = new BX.easing({
+					duration : duration,
+					start : { scroll : window.pageYOffset || document.documentElement.scrollTop },
+					finish : { scroll : position.top },
+					transition : BX.easing.makeEaseOut(BX.easing.transitions.quart),
+					step : function(state) {
+						window.scrollTo(0, state.scroll);
+					}
+				});
+
+				if (input.checked)
+				{
+					easing.animate();
+				}
+
+			});
+		}
+
 		var f = function() {
 			BX.MPL.createInstance({
 					EXEMPLAR_ID : '<?=CUtil::JSEscape(htmlspecialcharsbx($arParams["EXEMPLAR_ID"]))?>',

@@ -7,17 +7,20 @@ use Bitrix\Main\InvalidOperationException;
 
 final class LazySessionStart implements \ArrayAccess
 {
-	private static $isRegistered = false;
+	private static $instance;
 
 	public static function register()
 	{
-		if (static::$isRegistered)
+		if (static::$instance)
 		{
 			throw new InvalidOperationException("LazySessionStart was already registered.");
 		}
 
-		$_SESSION = new static();
-		static::$isRegistered = true;
+		// It's very important to make link to object LazySessionStart,
+		// because when somebody uses $_SESSION['d'] += $value;
+		// it converts to: offsetGet & offsetSet. But php destroys
+		// object because it'll be last reference and offsetSet crashes.
+		$_SESSION = static::$instance = new static();
 	}
 
 	protected function start()

@@ -42,7 +42,7 @@ function gdGetRss($rss_url, $cache_time = 0, $isHtml = false)
 	if (preg_match("/<"."\\?XML[^>]{1,}encoding=[\"']([^>\"']{1,})[\"'][^>]{0,}\\?".">/i", $res, $matches))
 	{
 		$charset = trim($matches[1]);
-		$res = $APPLICATION->ConvertCharset($res, $charset, SITE_CHARSET);
+		$res = \Bitrix\Main\Text\Encoding::convertEncoding($res, $charset, SITE_CHARSET);
 	}
 
 	$xml = new CDataXML();

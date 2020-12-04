@@ -19,6 +19,7 @@ $MESS["MAIN_EVENT_LOG_MARKETPLACE"] = "Log Marketplace solution install and unin
 $MESS["MAIN_EVENT_LOG_MODULE_ACCESS"] = "Changes in module access permissions";
 $MESS["MAIN_EVENT_LOG_PASSWORD_CHANGE"] = "Actual password changes";
 $MESS["MAIN_EVENT_LOG_PASSWORD_REQUEST"] = "Password change requests";
+$MESS["MAIN_EVENT_LOG_PERM_FAIL"] = "Log file access errors:";
 $MESS["MAIN_EVENT_LOG_REGISTER"] = "New user registrations";
 $MESS["MAIN_EVENT_LOG_REGISTER_FAIL"] = "Registration errors";
 $MESS["MAIN_EVENT_LOG_TASK"] = "Changes of access permission level";
@@ -236,6 +237,7 @@ $MESS["main_options_map"] = "Site Map";
 $MESS["main_options_phone_auth"] = "Register users using phone number:";
 $MESS["main_options_phone_required"] = "Phone number is required:";
 $MESS["main_options_restrictions"] = "Security";
+$MESS["main_options_secure_logout"] = "Use secure logout (CSRF protection):";
 $MESS["main_options_sms_conf_note"] = "Your phone number will have to be confirmed using SMS code.";
 $MESS["main_options_sms_list_prompt"] = "(select service)";
 $MESS["main_options_sms_note1"] = "Configure SMS sending services in the <a href=\"#URL#\">\"Messaging Service\" module settings</a>.";

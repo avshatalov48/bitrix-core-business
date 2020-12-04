@@ -142,7 +142,7 @@
 			}
 		},
 
-		showSimplePopup: function(params)
+		showCompactEditForm: function(params)
 		{
 			if (this.calendar.isExternalMode())
 			{
@@ -157,35 +157,32 @@
 				return;
 			}
 
-			if (!this.simpleEntryPopup)
-			{
-				this.simpleEntryPopup = new window.BXEventCalendar.SimpleAddPopup(this.calendar);
-			}
-			this.simpleEntryPopup.show(params);
-
 			BX.Calendar.EntryManager.openCompactEditForm({
-				//entry: params.entry,
 				type: this.calendar.util.type,
-				ownerId: this.calendar.util.ownerId
+				ownerId: this.calendar.util.ownerId,
+				sections: this.calendar.sectionController.sections,
+				trackingUserList: this.calendar.util.getSuperposedTrackedUsers(),
+				entryTime: params.entryTime || null,
+				closeCallback: params.closeCallback,
+				userSettings: this.calendar.util.config.userSettings,
+				locationFeatureEnabled: this.calendar.util.isRichLocationEnabled(),
+				locationList: this.calendar.util.getLocationList(),
+				iblockMeetingRoomList: this.calendar.util.getMeetingRoomList(),
 			});
 		},
 
-		showSimpleViewPopup : function(params)
+		showCompactViewForm : function(params)
 		{
-			if (!this.simpleViewPopup)
-			{
-				this.simpleViewPopup = new window.BXEventCalendar.SimpleViewPopup(this.calendar);
-			}
-			else if (this.simpleViewPopup.isShown())
-			{
-				this.simpleViewPopup.close();
-			}
-			this.simpleViewPopup.show(params);
-
 			BX.Calendar.EntryManager.openCompactViewForm({
 				entry: params.entry,
 				type: this.calendar.util.type,
-				ownerId: this.calendar.util.ownerId
+				ownerId: this.calendar.util.ownerId,
+				sections: this.calendar.sectionController.sections,
+				trackingUserList: this.calendar.util.getSuperposedTrackedUsers(),
+				userSettings: this.calendar.util.config.userSettings,
+				locationFeatureEnabled: this.calendar.util.isRichLocationEnabled(),
+				locationList: this.calendar.util.getLocationList(),
+				iblockMeetingRoomList: this.calendar.util.getMeetingRoomList()
 			});
 		},
 
@@ -224,25 +221,27 @@
 				return this.calendar.triggerEvent('entryClick', params);
 			}
 
-			if (params.entry.isSelected())
-			{
+			// if (params.entry.isSelected())
+			// {
 				if (params.entry.isTask())
 				{
 					BX.SidePanel.Instance.open(this.calendar.util.getViewTaskPath(params.entry.id), {loader: "task-new-loader"});
 				}
 				else
 				{
-					this.showViewSlider({
-						entry: params.entry
-					});
-				}
-			}
+					this.showCompactViewForm(params);
 
-			this.selectEntry(params.entry);
-			if (this.name === 'week' || this.name === 'month')
-			{
-				this.showSimpleViewPopup(params);
-			}
+					// this.showViewSlider({
+					// 	entry: params.entry
+					// });
+				}
+			//}
+
+			//this.selectEntry(params.entry);
+			// if (this.name === 'week' || this.name === 'month')
+			// {
+			// 	this.showCompactViewForm(params);
+			// }
 		},
 
 		showViewSlider: function(params)
@@ -285,30 +284,6 @@
 			if (uniqueId && this.entriesIndex[uniqueId] !== undefined && this.entries[this.entriesIndex[uniqueId]])
 				return this.entries[this.entriesIndex[uniqueId]];
 			return false;
-		},
-
-		selectEntry: function(entry)
-		{
-			if (entry && entry.parts)
-			{
-				if (this.selectedEntry)
-					this.deselectEntry();
-
-				if (entry.select)
-					entry.select();
-
-				entry.parts.forEach(function(part)
-				{
-					part.params = this.selectEntryPart(part.params, entry.color, entry.isExpired());
-				}, this);
-
-				this.selectedEntry = entry;
-
-				if (this.name !== 'week' && this.name !== 'month')
-				{
-					this.showAdditionalInfo(entry);
-				}
-			}
 		},
 
 		selectEntryPart: function(params, color)
@@ -477,18 +452,6 @@
 			{
 				popup.destroy();
 			});
-		},
-
-		showAdditionalInfo: function(entry)
-		{
-			BX.remove(this.calendar.additionalInfoOuter);
-
-			this.calendar.additionalInfoOuter = this.calendar.rightBlock.appendChild(BX.create('DIV', {props: {className: 'calendar-right-block hide'}}));
-
-			if (!this.simpleViewPopup)
-				this.simpleViewPopup = new window.BXEventCalendar.SimpleViewPopup(this.calendar);
-
-			this.calendar.additionalInfoOuter.appendChild(this.simpleViewPopup.createContent({entry: entry}));
 		},
 
 		showNavigationCalendar: function()

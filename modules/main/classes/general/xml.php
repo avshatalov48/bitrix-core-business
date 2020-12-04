@@ -349,9 +349,6 @@ class CDataXML
 
 	function Load($file)
 	{
-		/** @global CMain $APPLICATION */
-		global $APPLICATION;
-
 		unset($this->tree);
 		$this->tree = False;
 
@@ -363,7 +360,7 @@ class CDataXML
 			{
 				$charset = trim($matches[1]);
 			}
-			$content = $APPLICATION->ConvertCharset($content, $charset, SITE_CHARSET);
+			$content = \Bitrix\Main\Text\Encoding::convertEncoding($content, $charset, SITE_CHARSET);
 			$this->tree = &$this->__parse($content);
 			return $this->tree !== false;
 		}

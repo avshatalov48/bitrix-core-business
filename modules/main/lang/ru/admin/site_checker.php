@@ -120,8 +120,6 @@ $MESS["SC_T_MODULES"] = "Наличие необходимых модулей ph
 $MESS["SC_MOD_MBSTRING"] = "Поддержка mbstring";
 $MESS["SC_MB_UTF"] = "Сайт работает в UTF кодировке";
 $MESS["SC_MB_NOT_UTF"] = "Сайт работает в однобайтовой кодировке";
-$MESS["SC_MB_CUR_SETTINGS"] = "настройки mbstring:";
-$MESS["SC_MB_REQ_SETTINGS"] = "требуется:";
 $MESS["SC_T_MBSTRING"] = "Параметры настройки UTF (mbstring и константа BX_UTF)";
 $MESS["SC_T_SITES"] = "Настройки сайтов";
 $MESS["SC_BX_UTF"] = "Необходимо установить в <i>/bitrix/php_interface/dbconn.php</i> код
@@ -167,24 +165,13 @@ $MESS["SC_HELP_CHECK_SERVER_VARS"] = "Проверяются значения п
 
 Значение HTTP_HOST берется на основе имени текущего виртуального хоста (домена). Невалидный домен приводит к тому, что некоторые браузеры (например, Internet Explorer 6) отказываются сохранять для него cookie, как следствие - не сохраняется авторизация.";
 $MESS["MAIN_SC_MBSTRING_SETTIGNS_DIFFER"] = "Настройки mbstring в <i>/bitrix/.settings.php</i> (utf_mode) и в <i>/bitrix/php_interface/dbconn.php</i> (BX_UTF) отличаются.";
-$MESS["SC_HELP_CHECK_MBSTRING"] = "Модуль mbstring необходим для работы с разными языками. Параметры настройки этого модуля должны иметь строго определенные значения в зависимости от того, работает сайт в кодировке utf-8 или в национальной кодировке (например, cp1251).
+$MESS["SC_HELP_CHECK_MBSTRING"] = "Модуль mbstring необходим для работы с разными языками. 
 
-Для сайтов в кодировке UTF-8 строго необходимо значение параметров:
-<b>mbstring.func_overload=2</b>
+Кодировка сайта должна быть указана в параметре default_charset, например:
+
 <b>default_charset=utf-8</b>
 
-Первый параметр включает подмену всех базовых функций php работы со строками (вычисление длины, поиск, замена и т.д.) функциями mbstring. Второй определяет кодировку текста.
-
-Если сайт не использует кодировку UTF-8, требуется, чтобы параметр имел значение:
-<b>mbstring.func_overload=0</b>
-
-Если нет возможности отключить подмену функций, необходимо установить кодировку текста в однобайтовую:
-<b>mbstring.func_overload=2</b>
-<b>default_charset=latin1</b>
-
 Если параметры не соответствуют требуемым, то в разных местах будут появляться совершенно непредсказуемые ошибки: частично обрезанный текст, неработающий импорт xml, система обновлений и т.д.
-
-<b>Обратите внимание</b>, что параметр <b>mbstring.func_overload</b> определяется в глобальном файле настроек php.ini, а кодировку можно переопределить в .htaccess.
 
 Для сайта в UTF-8 необходимо установить в <i>/bitrix/php_interface/dbconn.php</i> код:
 <code>define('BX_UTF', true);</code>
@@ -590,4 +577,6 @@ $MESS["MAIN_CATDOC_WARN"] = "Ошибочная версия catdoc: #VERSION#<b
 $MESS["MAIN_SC_ENC_EQUAL"] = "Значения mbstring.internal_encoding и default_charset не совпадают. Рекомендуется очистить mbstring.internal_encoding и установить default_charset.";
 $MESS["MAIN_SC_ENC_UTF"] = "Значение default_charset должно быть установлено в UTF-8.";
 $MESS["MAIN_SC_ENC_NON_UTF"] = "Значение default_charset должно быть установлено в кодировку, отличную от UTF-8.";
+$MESS["MAIN_SC_FUNC_OVERLOAD"] = "Используется устаревшая настройка mbstring.func_overload, удалите ее.";
+$MESS["MAIN_SC_DEFAULT_CHARSET"] = "Настройка default_charset не должна быть пустой.";
 ?>

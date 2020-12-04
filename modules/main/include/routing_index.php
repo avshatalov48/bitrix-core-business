@@ -8,6 +8,7 @@
 
 use Bitrix\Main\Context;
 use Bitrix\Main\Engine\Action;
+use Bitrix\Main\Engine\AutoWire\Parameter;
 use Bitrix\Main\Engine\Contract\RoutableAction;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Routing\CompileCache;
@@ -33,6 +34,7 @@ $request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
 $routes = new RoutingConfigurator;
 $router = new Router;
 $routes->setRouter($router);
+$application->setRouter($router);
 
 // files with routes
 $files = [];
@@ -69,6 +71,8 @@ $route = $router->match($request);
 
 if (!empty($route))
 {
+	$application->setCurrentRoute($route);
+
 	// copy route parameters to the request
 	if ($route->getParametersValues())
 	{
@@ -96,7 +100,28 @@ if (!empty($route))
 	}
 	elseif ($controller instanceof \Closure)
 	{
-		$controller($request);
+		$b = \Bitrix\Main\Engine\AutoWire\Binder::buildForFunction($controller);
+
+		// pass current route
+		$b->appendAutoWiredParameter(new Parameter(
+			\Bitrix\Main\Routing\Route::class, function () use ($route) {
+				return $route;
+			}
+		));
+
+		// pass request
+		$b->appendAutoWiredParameter(new Parameter(
+			\Bitrix\Main\HttpRequest::class, function () use ($request) {
+			return $request;
+		}
+		));
+
+		// pass named parameters
+		$b->setSourcesParametersToMap([
+			$route->getParametersValues()->getValues()
+		]);
+
+		$b->invoke();
 		die;
 	}
 	elseif (is_array($controller))

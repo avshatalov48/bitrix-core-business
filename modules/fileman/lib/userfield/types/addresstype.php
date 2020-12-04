@@ -52,7 +52,7 @@ class AddressType extends BaseType
 			$apiKey = null;
 			$key = Option::get('bitrix24', 'google_map_api_key', '');
 			$keyHost = Option::get('bitrix24', 'google_map_api_key_host', '');
-			if($keyHost === BX24_HOST_NAME)
+			if(defined('BX24_HOST_NAME') && $keyHost === BX24_HOST_NAME)
 			{
 				$apiKey = $key;
 			}

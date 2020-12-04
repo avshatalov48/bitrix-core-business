@@ -8,7 +8,6 @@
 namespace Bitrix\Main\UserConsent;
 
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Text\BinaryString;
 
 Loc::loadLanguageFile(__FILE__);
 
@@ -98,7 +97,7 @@ class Text
 
 			if ($mod == 'end')
 			{
-				$pos += BinaryString::getLength($tag);
+				$pos += strlen($tag);
 			}
 
 			$cut[$var][$mod][] = $pos;
@@ -139,7 +138,7 @@ class Text
 				continue;
 			}
 
-			$template = BinaryString::getSubstring($template, 0, $start) . BinaryString::getSubstring($template, $end);
+			$template = substr($template, 0, $start) . substr($template, $end);
 		}
 
 		return str_replace($from, $to, $template);

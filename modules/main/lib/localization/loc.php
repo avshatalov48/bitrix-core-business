@@ -410,7 +410,7 @@ final class Loc
 			//cycle through languages
 			foreach(self::$userMessages as $messages)
 			{
-				if(is_array($messages[$path]))
+				if(isset($messages[$path]) && is_array($messages[$path]))
 				{
 					foreach($messages[$path] as $key => $val)
 					{

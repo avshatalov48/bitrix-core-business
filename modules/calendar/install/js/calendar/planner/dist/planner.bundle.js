@@ -31,9 +31,7 @@ this.BX = this.BX || {};
 
 	  return data;
 	}
-	var Selector =
-	/*#__PURE__*/
-	function (_EventEmitter) {
+	var Selector = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(Selector, _EventEmitter);
 
 	  function Selector() {
@@ -770,6 +768,26 @@ this.BX = this.BX || {};
 	  return Selector;
 	}(main_core_events.EventEmitter);
 
+	function _templateObject5() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div bx-tooltip-user-id=\"", "\" bx-tooltip-classname=\"calendar-planner-user-tooltip\" title=\"", "\" class=\"ui-icon calendar-planner-user-image-icon\"><i style=\"background-image: url('", "')\"></i></div>"]);
+
+	  _templateObject5 = function _templateObject5() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject4() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div bx-tooltip-user-id=\"", "\" bx-tooltip-classname=\"calendar-planner-user-tooltip\" title=\"", "\" class=\"ui-icon calendar-planner-user-image-icon ", "\"><i></i></div>"]);
+
+	  _templateObject4 = function _templateObject4() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
 	function _templateObject3$1() {
 	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"calendar-planner-option-tab ", "\" data-bx-planner-scale=\"", "\">", "</span>"]);
 
@@ -799,9 +817,7 @@ this.BX = this.BX || {};
 
 	  return data;
 	}
-	var Planner =
-	/*#__PURE__*/
-	function (_EventEmitter) {
+	var Planner = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(Planner, _EventEmitter);
 
 	  // in days
@@ -898,7 +914,7 @@ this.BX = this.BX || {};
 	        this.hideAnimation = null;
 	      }
 
-	      if (!this.built) {
+	      if (!this.isBuilt()) {
 	        this.build();
 	        this.bindEventHandlers();
 	      } else {
@@ -1302,7 +1318,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "buildTimeline",
 	    value: function buildTimeline(clearCache) {
-	      if (this.lastTimelineKey !== this.getTimelineShownKey() || clearCache === true) {
+	      if (this.isBuilt() && (this.lastTimelineKey !== this.getTimelineShownKey() || clearCache === true)) {
 	        if (this.DOM.timelineScaleWrap) {
 	          main_core.Dom.clean(this.DOM.timelineScaleWrap);
 	        }
@@ -1423,16 +1439,19 @@ this.BX = this.BX || {};
 	    key: "rebuild",
 	    value: function rebuild() {
 	      var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-	      this.buildTimeline(true);
-	      this.update(this.entries, this.accessibility);
-	      this.adjustHeight();
-	      this.resizePlannerWidth(this.width);
 
-	      if (params.updateSelector !== false) {
-	        this.selector.update(params.selectorParams);
+	      if (this.isBuilt()) {
+	        this.buildTimeline(true);
+	        this.update(this.entries, this.accessibility);
+	        this.adjustHeight();
+	        this.resizePlannerWidth(this.width);
+
+	        if (params.updateSelector !== false) {
+	          this.selector.update(params.selectorParams);
+	        }
+
+	        this.clearCacheTime();
 	      }
-
-	      this.clearCacheTime();
 	    }
 	  }, {
 	    key: "getScaleData",
@@ -1764,18 +1783,7 @@ this.BX = this.BX || {};
 	          }));
 	        }
 
-	        if (entry.avatar) {
-	          rowWrap.appendChild(BX.create("img", {
-	            props: {
-	              className: 'calendar-planner-user-image-icon',
-	              src: entry.avatar
-	            },
-	            attrs: {
-	              'bx-tooltip-user-id': entry.id,
-	              'bx-tooltip-classname': 'calendar-planner-user-tooltip'
-	            }
-	          }));
-	        }
+	        rowWrap.appendChild(Planner.getEntryAvatarNode(entry));
 
 	        if (this.showEntryName) {
 	          rowWrap.appendChild(BX.create("span", {
@@ -3284,6 +3292,16 @@ this.BX = this.BX || {};
 	        main_core.Dom.remove(this.DOM.loader);
 	      }
 	    }
+	  }, {
+	    key: "isShown",
+	    value: function isShown() {
+	      return this.shown;
+	    }
+	  }, {
+	    key: "isBuilt",
+	    value: function isBuilt() {
+	      return this.built;
+	    }
 	  }], [{
 	    key: "prepareAccessibilityItem",
 	    value: function prepareAccessibilityItem(entry) {
@@ -3317,6 +3335,21 @@ this.BX = this.BX || {};
 	      }
 
 	      return entry;
+	    }
+	  }, {
+	    key: "getEntryAvatarNode",
+	    value: function getEntryAvatarNode(entry) {
+	      var imageNode;
+	      var img = entry.avatar;
+	      debugger;
+
+	      if (!img || img === "/bitrix/images/1.gif") {
+	        imageNode = main_core.Tag.render(_templateObject4(), entry.id, main_core.Text.encode(entry.name), entry.emailUser ? 'ui-icon-common-user-mail' : 'ui-icon-common-user');
+	      } else {
+	        imageNode = main_core.Tag.render(_templateObject5(), entry.id, main_core.Text.encode(entry.name), entry.avatar);
+	      }
+
+	      return imageNode;
 	    }
 	  }, {
 	    key: "getEntryUniqueId",

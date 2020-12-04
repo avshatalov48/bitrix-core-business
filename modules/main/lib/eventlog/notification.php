@@ -212,7 +212,7 @@ class Notification
 	 */
 	public function __call($name, $arguments)
 	{
-		if(($first = mb_substr($name, 0, 3)) == "get" || $first == "set")
+		if(($first = substr($name, 0, 3)) == "get" || $first == "set")
 		{
 			/** @noinspection PhpUndefinedMethodInspection */
 			return $this->data->__call($name, $arguments);

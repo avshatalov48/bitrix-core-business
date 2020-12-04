@@ -36,7 +36,7 @@ class Image extends Renderer
 		return [
 			'image/gif',
 			'image/jpeg',
-			'image/jpeg',
+			'image/webp',
 			'image/bmp',
 			'image/png',
 		];

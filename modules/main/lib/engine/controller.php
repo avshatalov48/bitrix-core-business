@@ -7,6 +7,7 @@ use Bitrix\Main\Application;
 use Bitrix\Main\Component\ParameterSigner;
 use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\Diag\ExceptionHandlerFormatter;
+use Bitrix\Main\Engine\AutoWire\BinderArgumentException;
 use Bitrix\Main\Engine\AutoWire\Parameter;
 use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Engine\Response\Converter;
@@ -85,6 +86,37 @@ class Controller implements Errorable, Controllerable
 		$this->converter = Converter::toJson();
 
 		$this->init();
+	}
+
+	/**
+	 * @param Controller $controller
+	 * @param string     $actionName
+	 * @param array      $parameters
+	 *
+	 * @return HttpResponse|mixed
+	 * @throws SystemException
+	 */
+	public function forward($controller, string $actionName, array $parameters = null)
+	{
+		if (is_string($controller))
+		{
+			$controller = new $controller;
+		}
+
+		// override parameters
+		$controller->request = $this->getRequest();
+		$controller->setScope($this->getScope());
+		$controller->setCurrentUser($this->getCurrentUser());
+
+		// run action
+		$result = $controller->run(
+			$actionName,
+			$parameters === null ? $this->getSourceParametersList() : [$parameters]
+		);
+
+		$this->addErrors($controller->getErrors());
+
+		return $result;
 	}
 
 	/**
@@ -399,7 +431,10 @@ class Controller implements Errorable, Controllerable
 
 	private function processExceptionInDebug(\Throwable $e)
 	{
-		$this->writeToLogException($e);
+		if (!($e instanceof BinderArgumentException))
+		{
+			$this->writeToLogException($e);
+		}
 
 		$exceptionHandling = Configuration::getValue('exception_handling');
 		if (!empty($exceptionHandling['debug']))
@@ -564,6 +599,10 @@ class Controller implements Errorable, Controllerable
 		}
 		else
 		{
+			if (!$config && ($this instanceof Contract\FallbackActionInterface))
+			{
+				return new FallbackAction($actionName, $this, []);
+			}
 			if (!$config)
 			{
 				throw new SystemException(

@@ -2,6 +2,11 @@
 
 use Bitrix\Security\SessionTable;
 
+/**
+ * Class CSecuritySessionDB
+ * @deprecated
+ * @see \Bitrix\Main\Session\Handlers\DatabaseSessionHandler
+ */
 class CSecuritySessionDB
 {
 	protected static $isReadOnly = false;

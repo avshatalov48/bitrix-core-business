@@ -14,6 +14,8 @@ return [
 		'main.popup',
 		'calendar.controls',
 		'calendar.entry',
+		'calendar.calendarsection',
+		'calendar.sync.interface',
 	],
 	'skip_core' => false,
 ];

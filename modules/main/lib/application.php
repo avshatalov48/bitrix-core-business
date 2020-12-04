@@ -12,6 +12,8 @@ use Bitrix\Main\Data;
 use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Diag;
 use Bitrix\Main\IO;
+use Bitrix\Main\Routing\Route;
+use Bitrix\Main\Routing\Router;
 use Bitrix\Main\Session\CompositeSessionManager;
 use Bitrix\Main\Session\KernelSessionProxy;
 use Bitrix\Main\Session\SessionConfigurationResolver;
@@ -39,6 +41,12 @@ abstract class Application
 	 * @var Context
 	 */
 	protected $context;
+
+	/** @var Router */
+	protected $router;
+
+	/** @var Route */
+	protected $currentRoute;
 
 	/**
 	 * Pool of database connections.
@@ -141,19 +149,15 @@ abstract class Application
 	private function initializeSessionLocalStorage()
 	{
 		$cacheEngine = Data\Cache::createCacheEngine();
-		if (
-			$cacheEngine instanceof Data\CacheEngineNone ||
-			$cacheEngine instanceof Data\CacheEngineFiles ||
-			!($cacheEngine instanceof Data\ICacheEngine)
-		)
+		if ($cacheEngine instanceof Data\LocalStorage\Storage\CacheEngineInterface)
+		{
+			$localSessionStorage = new Data\LocalStorage\Storage\CacheStorage($cacheEngine);
+		}
+		else
 		{
 			$localSessionStorage = new Data\LocalStorage\Storage\NativeSessionStorage(
 				$this->getSession()
 			);
-		}
-		else
-		{
-			$localSessionStorage = new Data\LocalStorage\Storage\CacheStorage($cacheEngine);
 		}
 
 		$this->sessionLocalStorageManager = new Data\LocalStorage\SessionLocalStorageManager($localSessionStorage);
@@ -162,6 +166,38 @@ abstract class Application
 		{
 			$this->sessionLocalStorageManager->setTtl($configLocalStorage['ttl']);
 		}
+	}
+
+	/**
+	 * @return Router
+	 */
+	public function getRouter(): Router
+	{
+		return $this->router;
+	}
+
+	/**
+	 * @param Router $router
+	 */
+	public function setRouter(Router $router): void
+	{
+		$this->router = $router;
+	}
+
+	/**
+	 * @return Route
+	 */
+	public function getCurrentRoute(): Route
+	{
+		return $this->currentRoute;
+	}
+
+	/**
+	 * @param Route $currentRoute
+	 */
+	public function setCurrentRoute(Route $currentRoute): void
+	{
+		$this->currentRoute = $currentRoute;
 	}
 
 	/**

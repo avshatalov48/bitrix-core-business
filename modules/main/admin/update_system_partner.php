@@ -580,7 +580,7 @@ $tabControl->BeginNextTab();
 											<?if (is_array($arUpdateList) && array_key_exists("CLIENT", $arUpdateList)):?>
 												<tr>
 													<td><?echo GetMessage("SUP_REGISTERED")?>&nbsp;&nbsp;</td>
-													<td><?echo $arUpdateList["CLIENT"][0]["@"]["NAME"]?></td>
+													<td><?echo htmlspecialchars($arUpdateList["CLIENT"][0]["@"]["NAME"])?></td>
 												</tr>
 											<?endif;?>
 

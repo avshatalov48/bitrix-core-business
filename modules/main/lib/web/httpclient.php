@@ -875,7 +875,7 @@ class HttpClient
 				//HTTP/1.0 requires Content-Length for POST
 				if($this->requestHeaders->get("Content-Length") === null)
 				{
-					$this->setHeader("Content-Length", BinaryString::getLength($entityBody));
+					$this->setHeader("Content-Length", strlen($entityBody));
 				}
 			}
 		}
@@ -969,7 +969,7 @@ class HttpClient
 			{
 				$buf = $this->receive();
 
-				$this->receivedBytesLength += BinaryString::getLength($buf);
+				$this->receivedBytesLength += strlen($buf);
 
 				if(!$this->checkErrors($buf))
 				{
@@ -994,7 +994,7 @@ class HttpClient
 
 			$buf = $this->receive($count);
 
-			$receivedBytesLength = BinaryString::getLength($buf);
+			$receivedBytesLength = strlen($buf);
 			$this->receivedBytesLength += $receivedBytesLength;
 
 			if(!$this->checkErrors($buf))
@@ -1040,7 +1040,7 @@ class HttpClient
 		if(is_resource($this->outputStream))
 		{
 			$compressed = stream_get_contents($this->outputStream, -1, 10);
-			$compressed = BinaryString::getSubstring($compressed, 0, -8);
+			$compressed = substr($compressed, 0, -8);
 			if($compressed <> '')
 			{
 				$uncompressed = gzinflate($compressed);
@@ -1052,7 +1052,7 @@ class HttpClient
 		}
 		else
 		{
-			$compressed = BinaryString::getSubstring($this->result, 10, -8);
+			$compressed = substr($this->result, 10, -8);
 			if($compressed <> '')
 			{
 				$this->result = gzinflate($compressed);

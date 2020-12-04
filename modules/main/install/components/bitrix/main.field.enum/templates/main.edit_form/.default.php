@@ -192,7 +192,7 @@ elseif($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_LIST)
 			{
 				$textParser = new CTextParser();
 				$shortValue = HtmlFilter::encode($textParser->html_cut($item['~VALUE'], EnumUfComponent::MAX_OPTION_LENGTH));
-				$valueTitle = HtmlFilter::encode('title="' . $item['~VALUE'] . '"');
+				$valueTitle = 'title="' . HtmlFilter::encode($item['~VALUE']) . '"';
 			}
 
 			$isWasSelect = ($isWasSelect || $isSelected);

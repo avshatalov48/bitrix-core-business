@@ -11,6 +11,7 @@ return [
 		'calendar.entry',
 		'calendar.calendarsection',
 		'calendar.util',
+		'main.core.events',
 		'calendar.controls',
 		'calendar.compacteventform',
 		'main.core',

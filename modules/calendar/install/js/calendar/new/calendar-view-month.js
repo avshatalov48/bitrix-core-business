@@ -596,10 +596,10 @@
 				entryClassName += ' calendar-event-line-border';
 			}
 
-			if (entry.isExternal())
-			{
-				entryClassName += ' calendar-event-line-intranet';
-			}
+			// if (entry.hasEmailAttendees())
+			// {
+			// 	entryClassName += ' calendar-event-line-intranet';
+			// }
 
 			if (entry.isExpired())
 			{
@@ -882,7 +882,8 @@
 			section = this.calendar.sectionController.getCurrentSection(),
 			color = section.color;
 
-		if (BX.hasClass(holder, 'shifted'))
+		var compactForm = BX.Calendar.EntryManager.getCompactViewForm(false);
+		if (compactForm && compactForm.isShown())
 		{
 			return;
 		}
@@ -930,7 +931,7 @@
 		setTimeout(BX.delegate(function(){
 
 			// Show simple add entry popup
-			this.showSimplePopup({
+			this.showCompactEditForm({
 				entryTime: entryTime,
 				entryName: entryName,
 				nameNode: entryClone.querySelector('.calendar-event-line-text'),
@@ -943,42 +944,48 @@
 					BX.cleanNode(partWrap, true);
 					BX.removeClass(holder, 'shifted');
 					holder.style.height = '1px';
-				},
-				changeDateCallback: BX.delegate(function(date)
+				}
+			});
+
+			BX.Event.EventEmitter.unsubscribeAll('BX.Calendar.CompactEventForm:onChange');
+			BX.Event.EventEmitter.subscribe('BX.Calendar.CompactEventForm:onChange', function(event)
+			{
+				if (event instanceof BX.Event.BaseEvent)
 				{
-					var dayCode = this.util.getDayCode(date);
+					var data = event.getData();
+					var dateTime = data.form.dateTimeControl.getValue();
+					var dayCode = this.util.getDayCode(dateTime.from);
+
 					if (dayCode && this.dayIndex[dayCode] !== undefined && this.days[this.dayIndex[dayCode]])
 					{
 						var dayFrom = this.days[this.dayIndex[dayCode]];
 						partWrap.style.left = 'calc((100% / ' + this.dayCount + ') * (' + (dayFrom.dayOffset + 1) + ' - 1) + 2px)';
 
+						BX.removeClass(this.entryHolders[dayFrom.holderIndex], 'shifted');
 						this.entryHolders[dayFrom.holderIndex].appendChild(partWrap);
 						var pos = BX.pos(partWrap);
-						BX.adjust(entryClone, {
-							style: {
-								width: (pos.width + 1) + 'px',
-								height: pos.height + 'px',
-								top : pos.top + 'px',
-								left : pos.left + 'px'
-							}
-						});
+						if (entryClone)
+						{
+							BX.adjust(entryClone, {
+								style: {
+									width: (pos.width - 6) + 'px',
+									height: pos.height + 'px',
+									top : pos.top + 'px',
+									left : pos.left + 'px'
+								}
+							});
+						}
 					}
-				}, this),
-				saveCallback: function()
-				{
 
-				},
-				changeSectionCallback: function(section)
-				{
-					var color = section.color;
+					var color = data.form.colorSelector.getValue();
 					if (entryClone)
 					{
 						entryClone.style.background = color;
 						entryClone.style.borderColor = color;
 					}
-				},
-				fullFormCallback: BX.delegate(this.showEditSlider, this)
-			});
+				}
+			}.bind(this));
+
 		}, this), 200);
 	};
 

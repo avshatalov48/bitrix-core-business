@@ -17,3 +17,6 @@ $MESS ['SEC_OTP_NEW_MANDATORY_USING'] = "Требовать двухэтапну
 $MESS ['SEC_OTP_MANDATORY_SKIP_DAYS'] = "Количество дней для подключения";
 $MESS ['SEC_OTP_NEW_MANDATORY_RIGHTS']= "Пользователи с обязательной двухэтапной авторизацией";
 $MESS ['SEC_OTP_MANDATORY_RIGHTS_SELECT']= "Добавить пользователей";
+$MESS["SEC_OTP_LOG"] = "Журналирование";
+$MESS["SEC_OTP_LOG_ENABLE"] = "Занести попытку запроса кода OTP в журнал:";
+?>

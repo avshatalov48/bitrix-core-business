@@ -1,8 +1,7 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
-$arParams["CALENDAR_TYPE"] = $arParams["CALENDAR_TYPE"];
 $arParams['B_CUR_USER_LIST'] = $arParams['B_CUR_USER_LIST'] == 'Y';
-$arParams["FUTURE_MONTH_COUNT"] = intVal($arParams["FUTURE_MONTH_COUNT"]);
+$arParams["FUTURE_MONTH_COUNT"] = intval($arParams["FUTURE_MONTH_COUNT"]);
 if ($arParams["FUTURE_MONTH_COUNT"] <= 0)
 	$arParams["FUTURE_MONTH_COUNT"] = 1;
 
@@ -12,7 +11,7 @@ if(!CModule::IncludeModule("calendar") || !class_exists("CCalendar"))
 	return ShowError(GetMessage("EC_CALENDAR_MODULE_NOT_INSTALLED"));
 
 // Limits
-if (strlen($arParams["INIT_DATE"]) > 0 && strpos($arParams["INIT_DATE"], '.') !== false)
+if ($arParams["INIT_DATE"] <> '' && mb_strpos($arParams["INIT_DATE"], '.') !== false)
 	$ts = CCalendar::Timestamp($arParams["INIT_DATE"]);
 else
 	$ts = time();
@@ -41,11 +40,11 @@ elseif ($arEvents == 'inactive_feature')
 }
 elseif (is_array($arEvents))
 {
-	if (strpos($arParams['DETAIL_URL'], '?') !== FALSE)
+	if (mb_strpos($arParams['DETAIL_URL'], '?') !== FALSE)
 	{
-		$arParams['DETAIL_URL'] = substr($arParams['DETAIL_URL'], 0, strpos($arParams['DETAIL_URL'], '?'));
+		$arParams['DETAIL_URL'] = mb_substr($arParams['DETAIL_URL'], 0, mb_strpos($arParams['DETAIL_URL'], '?'));
 	}
-	$arParams['DETAIL_URL'] = str_replace('#user_id#', $curUserId, strtolower($arParams['DETAIL_URL']));
+	$arParams['DETAIL_URL'] = str_replace('#user_id#', $curUserId, mb_strtolower($arParams['DETAIL_URL']));
 
 	for ($i = 0, $l = count($arEvents); $i < $l; $i++)
 	{
@@ -74,7 +73,7 @@ elseif (is_array($arEvents))
 
 		$arResult['ITEMS'][] = $arEvents[$i];
 	}
-	array_splice($arResult['ITEMS'], intVal($arParams['EVENTS_COUNT']));
+	array_splice($arResult['ITEMS'], intval($arParams['EVENTS_COUNT']));
 }
 
 

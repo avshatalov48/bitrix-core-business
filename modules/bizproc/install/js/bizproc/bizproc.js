@@ -336,9 +336,9 @@ BizProcActivity = function()
 	ob.Settings = function (e)
 	{
 		var contentUrl = "/bitrix/admin/"+MODULE_ID+"_bizproc_activity_settings.php?mode=public&bxpublic=Y&lang="+BX.message('LANGUAGE_ID')+"&entity="+ENTITY;
-		if (document_type_signed)
+		if (window.document_type_signed)
 		{
-			contentUrl ="/bitrix/tools/bizproc_activity_settings.php?mode=public&bxpublic=Y&lang="+BX.message('LANGUAGE_ID')+"&dts="+document_type_signed;
+			contentUrl ="/bitrix/tools/bizproc_activity_settings.php?mode=public&bxpublic=Y&lang="+BX.message('LANGUAGE_ID')+"&dts="+window.document_type_signed;
 		}
 
 		(new BX.CDialog({
@@ -505,10 +505,14 @@ BizProcActivity = function()
 		this.height = iHeight;
 	};
 
-	this.drawEditorComment = function()
+	this.drawEditorComment = function(container)
 	{
+		if (!container)
+		{
+			container = this.div;
+		}
 		if (
-			!this.div
+			!container
 			|| !BX.getClass('BX.UI.Hint')
 			|| !ob['Properties']['EditorComment']
 			|| ob['Properties']['EditorComment'].length <= 0
@@ -517,7 +521,7 @@ BizProcActivity = function()
 			return false;
 		}
 
-		var commentNode = this.div.appendChild(document.createElement('SPAN'));
+		var commentNode = container.appendChild(document.createElement('SPAN'));
 		commentNode.className = 'activity-comment';
 		commentNode.setAttribute('data-hint',
 			BX.util.nl2br(BX.util.htmlspecialchars(ob['Properties']['EditorComment']))

@@ -3901,6 +3901,9 @@ class CUpdateSystem
 /********************* Классы для разбора XML **************************/
 /************************************************************************/
 
+if (extension_loaded('mbstring') && function_exists('mb_strlen'))
+{
+
 /**********************************************************************/
 /*********   CUpdatesXMLNode   ****************************************/
 /**********************************************************************/
@@ -4175,9 +4178,9 @@ class CUpdatesXML
 				{
 					$arXMLAttribute_tmp = explode("=\"", $strXMLParam_tmp);
 					if ($arXMLAttribute_tmp[0]=="version")
-						$oXMLDocument->version = substr($arXMLAttribute_tmp[1], 0, strlen($arXMLAttribute_tmp[1]) - 1);
+						$oXMLDocument->version = mb_substr($arXMLAttribute_tmp[1], 0, mb_strlen($arXMLAttribute_tmp[1]) - 1);
 					elseif ($arXMLAttribute_tmp[0]=="encoding")
-						$oXMLDocument->encoding = substr($arXMLAttribute_tmp[1], 0, strlen($arXMLAttribute_tmp[1]) - 1);
+						$oXMLDocument->encoding = mb_substr($arXMLAttribute_tmp[1], 0, mb_strlen($arXMLAttribute_tmp[1]) - 1);
 				}
 			}
 		}
@@ -4193,19 +4196,19 @@ class CUpdatesXML
 
 		$pos = 0;
 		$endTagPos = 0;
-		while ($pos < strlen($strXMLText))
+		while ($pos < mb_strlen($strXMLText))
 		{
-			$char = substr($strXMLText, $pos, 1);
+			$char = mb_substr($strXMLText, $pos, 1);
 			if ($char == "<")
 			{
 				// find tag name
-				$endTagPos = strpos($strXMLText, ">", $pos);
+				$endTagPos = mb_strpos($strXMLText, ">", $pos);
 
 				// tag name with attributes
-				$tagName = substr($strXMLText, $pos + 1, $endTagPos - ($pos + 1));
+				$tagName = mb_substr($strXMLText, $pos + 1, $endTagPos - ($pos + 1));
 
 				// check if it's an endtag </tagname>
-				if (substr($tagName, 0, 1) == "/")
+				if (mb_substr($tagName, 0, 1) == "/")
 				{
 					$lastNodeArray = array_pop($TagStack);
 					$lastTag = $lastNodeArray["TagName"];
@@ -4215,13 +4218,13 @@ class CUpdatesXML
 					unset($currentNode);
 					$currentNode = &$lastNode;
 
-					$tagName = substr($tagName, 1, strlen($tagName));
+					$tagName = mb_substr($tagName, 1, mb_strlen($tagName));
 
 					// strip out namespace; nameSpace:Name
-					$colonPos = strpos($tagName, ":");
+					$colonPos = mb_strpos($tagName, ":");
 
 					if ($colonPos > 0)
-						$tagName = substr($tagName, $colonPos + 1, strlen($tagName));
+						$tagName = mb_substr($tagName, $colonPos + 1, mb_strlen($tagName));
 
 					if ($lastTag != $tagName)
 					{
@@ -4231,8 +4234,8 @@ class CUpdatesXML
 				}
 				else
 				{
-					$firstSpaceEnd = strpos($tagName, " ");
-					$firstNewlineEnd = strpos($tagName, "\n");
+					$firstSpaceEnd = mb_strpos($tagName, " ");
+					$firstNewlineEnd = mb_strpos($tagName, "\n");
 
 					if ($firstNewlineEnd != false)
 					{
@@ -4259,34 +4262,34 @@ class CUpdatesXML
 
 					if ($tagNameEnd > 0)
 					{
-						$justName = substr($tagName, 0, $tagNameEnd);
+						$justName = mb_substr($tagName, 0, $tagNameEnd);
 					}
 					else
 						$justName = $tagName;
 
 
 					// strip out namespace; nameSpace:Name
-					$colonPos = strpos($justName, ":");
+					$colonPos = mb_strpos($justName, ":");
 
 					if ($colonPos > 0)
-						$justName = substr($justName, $colonPos + 1, strlen($justName));
+						$justName = mb_substr($justName, $colonPos + 1, mb_strlen($justName));
 
 					// remove trailing / from the name if exists
-					if (substr($justName, strlen($justName) - 1, 1) == "/")
+					if (mb_substr($justName, mb_strlen($justName) - 1, 1) == "/")
 					{
-						$justName = substr($justName, 0, strlen($justName) - 1);
+						$justName = mb_substr($justName, 0, mb_strlen($justName) - 1);
 					}
 
 
 					// check for CDATA
 					$cdataSection = "";
 					$isCDATASection = false;
-					$cdataPos = strpos($strXMLText, "<![CDATA[", $pos);
+					$cdataPos = mb_strpos($strXMLText, "<![CDATA[", $pos);
 					if ($cdataPos == $pos && $pos > 0)
 					{
 						$isCDATASection = true;
-						$endTagPos = strpos($strXMLText, "]]>", $cdataPos);
-						$cdataSection = &substr($strXMLText, $cdataPos + 9, $endTagPos - ( $cdataPos + 9));
+						$endTagPos = mb_strpos($strXMLText, "]]>", $cdataPos);
+						$cdataSection = &mb_substr($strXMLText, $cdataPos + 9, $endTagPos - ( $cdataPos + 9));
 
 						// new CDATA node
 						unset($subNode);
@@ -4312,7 +4315,7 @@ class CUpdatesXML
 					// find attributes
 					if ($tagNameEnd > 0)
 					{
-						$attributePart = &substr($tagName, $tagNameEnd, strlen($tagName));
+						$attributePart = &mb_substr($tagName, $tagNameEnd, mb_strlen($tagName));
 
 						// attributes
 						unset($attr);
@@ -4324,7 +4327,7 @@ class CUpdatesXML
 
 					// check it it's a oneliner: <tagname /> or a cdata section
 					if ($isCDATASection == false)
-						if (substr($tagName, strlen($tagName) - 1, 1) != "/")
+						if (mb_substr($tagName, mb_strlen($tagName) - 1, 1) != "/")
 						{
 							array_push($TagStack,
 								array("TagName" => $justName, "ParentNodeObject" => &$currentNode));
@@ -4335,17 +4338,17 @@ class CUpdatesXML
 				}
 			}
 
-			$pos = strpos($strXMLText, "<", $pos + 1);
+			$pos = mb_strpos($strXMLText, "<", $pos + 1);
 
 			if ($pos == false)
 			{
 				// end of document
-				$pos = strlen($strXMLText);
+				$pos = mb_strlen($strXMLText);
 			}
 			else
 			{
 				// content tag
-				$tagContent = substr($strXMLText, $endTagPos + 1, $pos - ($endTagPos + 1));
+				$tagContent = mb_substr($strXMLText, $endTagPos + 1, $pos - ($endTagPos + 1));
 
 				if (($this->TrimWhiteSpace && (trim($tagContent)!="")) || !$this->TrimWhiteSpace)
 				{
@@ -4388,10 +4391,10 @@ class CUpdatesXML
 				$attributeName = $attributeArray[1][$i];
 
 				// strip out namespace; nameSpace:Name
-				$colonPos = strpos($attributeName, ":");
+				$colonPos = mb_strpos($attributeName, ":");
 
 				if ($colonPos > 0)
-					$attributeName = substr($attributeName, $colonPos + 1, strlen($attributeName));
+					$attributeName = mb_substr($attributeName, $colonPos + 1, mb_strlen($attributeName));
 
 				$attributeValue = $attributeArray[2][$i];
 
@@ -4405,6 +4408,519 @@ class CUpdatesXML
 		}
 		return $ret;
 	}
+}
+
+}
+else
+{
+
+
+	/**********************************************************************/
+	/*********   CUpdatesXMLNode   ****************************************/
+	/**********************************************************************/
+	class CUpdatesXMLNode
+	{
+		var $name;				// Name of the node
+		var $content;			// Content of the node
+		var $children;			// Subnodes
+		var $attributes;		// Attributes
+
+		public function __construct()
+		{
+		}
+
+		function &__toString()
+		{
+			$ret = "";
+
+			switch ($this->name)
+			{
+				case "cdata-section":
+					$ret = "<![CDATA[";
+					$ret .= $this->content;
+					$ret .= "]]>";
+					break;
+
+				default:
+					$isOneLiner = false;
+
+					if (count($this->children)==0 && ($this->content == ''))
+						$isOneLiner = true;
+
+					$attrStr = "";
+
+					if (count($this->attributes) > 0)
+						foreach ($this->attributes as $attr)
+						{
+							$attrStr .= " ".$attr->name."=\"".$attr->content."\" ";
+						}
+
+					if ($isOneLiner)
+						$oneLinerEnd = " /";
+					else
+						$oneLinerEnd = "";
+
+					$ret = "<".$this->name.$attrStr.$oneLinerEnd.">";
+
+					if (count($this->children)>0)
+						foreach ($this->children as $child)
+						{
+							$ret .= $child->__toString();
+						}
+
+					if (!$isOneLiner)
+					{
+						if ($this->content <> '')
+							$ret .= $this->content;
+
+						$ret .= "</".$this->name.">";
+					}
+
+					break;
+			}
+
+			return $ret;
+		}
+
+		function &__toArray()
+		{
+			$arInd = array();
+			$retHash = array();
+
+			$retHash["@"] = array();
+			if (!empty($this->attributes) && is_array($this->attributes))
+				foreach ($this->attributes as $attr)
+				{
+					$retHash["@"][$attr->name] = $attr->content;
+					$numAdded++;
+				}
+
+			$retHash["#"] = "";
+			if ($this->content <> '')
+			{
+				$retHash["#"] = $this->content;
+			}
+			else
+			{
+				if (!empty($this->children) && is_array($this->children))
+				{
+					$ar = array();
+					foreach ($this->children as $child)
+					{
+						if (array_key_exists($child->name, $arInd))
+							$arInd[$child->name] = $arInd[$child->name] + 1;
+						else
+							$arInd[$child->name] = 0;
+
+						$ar[$child->name][$arInd[$child->name]] = $child->__toArray();
+					}
+					$retHash["#"] = $ar;
+				}
+			}
+
+			return $retHash;
+		}
+	}
+
+
+
+	/**********************************************************************/
+	/*********   CUpdatesXMLDocument   ******************************************/
+	/**********************************************************************/
+	class CUpdatesXMLDocument
+	{
+		var $version;				// XML version
+		var $encoding;				// XML encoding
+
+		var $children;
+		var $root;
+
+		public function __construct()
+		{
+		}
+
+		/* Returns a XML string of the DOM document */
+		function &__toString()
+		{
+			$ret = "<"."?xml";
+			if ($this->version <> '')
+				$ret .= " version=\"".$this->version."\"";
+			if ($this->encoding <> '')
+				$ret .= " encoding=\"".$this->encoding."\"";
+			$ret .= "?".">";
+
+			if (count($this->children) > 0)
+				foreach ($this->children as $child)
+				{
+					$ret .= $child->__toString();
+				}
+
+			return $ret;
+		}
+
+		/* Returns an array of the DOM document */
+		function &__toArray()
+		{
+			$arRetArray = array();
+
+			if (count($this->children)>0)
+				foreach ($this->children as $child)
+				{
+					$arRetArray[$child->name] = $child->__toArray();
+				}
+
+			return $arRetArray;
+		}
+	}
+
+
+
+	/**********************************************************************/
+	/*********   CUpdatesXML   **************************************************/
+	/**********************************************************************/
+	class CUpdatesXML
+	{
+		var $tree;
+		var $TrimWhiteSpace;
+
+		public function __construct($TrimWhiteSpace = True)
+		{
+			$this->TrimWhiteSpace = ($TrimWhiteSpace ? True : False);
+			$this->tree = False;
+		}
+
+		function Load($file)
+		{
+			unset($this->tree);
+			$this->tree = False;
+
+			if (file_exists($file))
+			{
+				$content = file_get_contents($file);
+				$this->tree = &$this->__parse($content);
+				return True;
+			}
+
+			return false;
+		}
+
+		function LoadString($text)
+		{
+			unset($this->tree);
+			$this->tree = False;
+
+			if ($text <> '')
+			{
+				$this->tree = &$this->__parse($text);
+				return true;
+			}
+
+			return false;
+		}
+
+		function &GetTree()
+		{
+			return $this->tree;
+		}
+
+		function &GetArray()
+		{
+			return $this->tree->__toArray();
+		}
+
+		function &GetString()
+		{
+			return $this->tree->__toString();
+		}
+
+		function &SelectNodes($strNode)
+		{
+			if (!is_object($this->tree))
+				return false;
+
+			$result = &$this->tree;
+
+			$tmp = explode("/", $strNode);
+			for ($i = 1, $ni = count($tmp); $i < $ni; $i++)
+			{
+				if ($tmp[$i] != "")
+				{
+					if (!is_array($result->children))
+						return false;
+
+					$bFound = False;
+					for ($j = 0, $nj = count($result->children); $j < $nj; $j++)
+					{
+						if ($result->children[$j]->name==$tmp[$i])
+						{
+							$result = &$result->children[$j];
+							$bFound = True;
+							break;
+						}
+					}
+
+					if (!$bFound)
+						return False;
+				}
+			}
+
+			return $result;
+		}
+
+
+		/* Will return an DOM object tree from the well formed XML. */
+		function &__parse(&$strXMLText)
+		{
+			$TagStack = array();
+
+			$oXMLDocument = new CUpdatesXMLDocument();
+
+			// stip the !doctype
+			$strXMLText = &preg_replace("%<\!DOCTYPE.*?>%is", "", $strXMLText);
+
+			// get document version and encoding from header
+			preg_match_all("#<\?(.*?)\?>#i", $strXMLText, $arXMLHeader_tmp);
+			foreach ($arXMLHeader_tmp[0] as $strXMLHeader_tmp)
+			{
+				preg_match_all("/([a-zA-Z:]+=\".*?\")/i", $strXMLHeader_tmp, $arXMLParam_tmp);
+				foreach ($arXMLParam_tmp[0] as $strXMLParam_tmp)
+				{
+					if ($strXMLParam_tmp <> '')
+					{
+						$arXMLAttribute_tmp = explode("=\"", $strXMLParam_tmp);
+						if ($arXMLAttribute_tmp[0]=="version")
+							$oXMLDocument->version = substr($arXMLAttribute_tmp[1], 0, strlen($arXMLAttribute_tmp[1]) - 1);
+						elseif ($arXMLAttribute_tmp[0]=="encoding")
+							$oXMLDocument->encoding = substr($arXMLAttribute_tmp[1], 0, strlen($arXMLAttribute_tmp[1]) - 1);
+					}
+				}
+			}
+
+			// strip header
+			$strXMLText = &preg_replace("#<\?.*?\?>#", "", $strXMLText);
+
+			// strip comments
+			$strXMLText = &CUpdatesXML::__stripComments($strXMLText);
+
+			$oXMLDocument->root = &$oXMLDocument->children;
+			$currentNode = &$oXMLDocument;
+
+			$pos = 0;
+			$endTagPos = 0;
+			while ($pos < strlen($strXMLText))
+			{
+				$char = substr($strXMLText, $pos, 1);
+				if ($char == "<")
+				{
+					// find tag name
+					$endTagPos = strpos($strXMLText, ">", $pos);
+
+					// tag name with attributes
+					$tagName = substr($strXMLText, $pos + 1, $endTagPos - ($pos + 1));
+
+					// check if it's an endtag </tagname>
+					if (substr($tagName, 0, 1) == "/")
+					{
+						$lastNodeArray = array_pop($TagStack);
+						$lastTag = $lastNodeArray["TagName"];
+
+						$lastNode = &$lastNodeArray["ParentNodeObject"];
+
+						unset($currentNode);
+						$currentNode = &$lastNode;
+
+						$tagName = substr($tagName, 1, strlen($tagName));
+
+						// strip out namespace; nameSpace:Name
+						$colonPos = strpos($tagName, ":");
+
+						if ($colonPos > 0)
+							$tagName = substr($tagName, $colonPos + 1, strlen($tagName));
+
+						if ($lastTag != $tagName)
+						{
+							print("Error parsing XML, unmatched tags $tagName");
+							return false;
+						}
+					}
+					else
+					{
+						$firstSpaceEnd = strpos($tagName, " ");
+						$firstNewlineEnd = strpos($tagName, "\n");
+
+						if ($firstNewlineEnd != false)
+						{
+							if ($firstSpaceEnd != false)
+							{
+								$tagNameEnd = min($firstSpaceEnd, $firstNewlineEnd);
+							}
+							else
+							{
+								$tagNameEnd = $firstNewlineEnd;
+							}
+						}
+						else
+						{
+							if ($firstSpaceEnd != false)
+							{
+								$tagNameEnd = $firstSpaceEnd;
+							}
+							else
+							{
+								$tagNameEnd = 0;
+							}
+						}
+
+						if ($tagNameEnd > 0)
+						{
+							$justName = substr($tagName, 0, $tagNameEnd);
+						}
+						else
+							$justName = $tagName;
+
+
+						// strip out namespace; nameSpace:Name
+						$colonPos = strpos($justName, ":");
+
+						if ($colonPos > 0)
+							$justName = substr($justName, $colonPos + 1, strlen($justName));
+
+						// remove trailing / from the name if exists
+						if (substr($justName, strlen($justName) - 1, 1) == "/")
+						{
+							$justName = substr($justName, 0, strlen($justName) - 1);
+						}
+
+
+						// check for CDATA
+						$cdataSection = "";
+						$isCDATASection = false;
+						$cdataPos = strpos($strXMLText, "<![CDATA[", $pos);
+						if ($cdataPos == $pos && $pos > 0)
+						{
+							$isCDATASection = true;
+							$endTagPos = strpos($strXMLText, "]]>", $cdataPos);
+							$cdataSection = &substr($strXMLText, $cdataPos + 9, $endTagPos - ( $cdataPos + 9));
+
+							// new CDATA node
+							unset($subNode);
+							$subNode = new CUpdatesXMLNode();
+							$subNode->name = "cdata-section";
+							$subNode->content = $cdataSection;
+
+							$currentNode->children[] = &$subNode;
+
+							$pos = $endTagPos;
+							$endTagPos += 2;
+						}
+						else
+						{
+							// normal start tag
+							unset($subNode);
+							$subNode = new CUpdatesXMLNode();
+							$subNode->name = $justName;
+
+							$currentNode->children[] = &$subNode;
+						}
+
+						// find attributes
+						if ($tagNameEnd > 0)
+						{
+							$attributePart = &substr($tagName, $tagNameEnd, strlen($tagName));
+
+							// attributes
+							unset($attr);
+							$attr = &CUpdatesXML::__parseAttributes($attributePart);
+
+							if ($attr != false)
+								$subNode->attributes = &$attr;
+						}
+
+						// check it it's a oneliner: <tagname /> or a cdata section
+						if ($isCDATASection == false)
+							if (substr($tagName, strlen($tagName) - 1, 1) != "/")
+							{
+								array_push($TagStack,
+									array("TagName" => $justName, "ParentNodeObject" => &$currentNode));
+
+								unset($currentNode);
+								$currentNode = &$subNode;
+							}
+					}
+				}
+
+				$pos = strpos($strXMLText, "<", $pos + 1);
+
+				if ($pos == false)
+				{
+					// end of document
+					$pos = strlen($strXMLText);
+				}
+				else
+				{
+					// content tag
+					$tagContent = substr($strXMLText, $endTagPos + 1, $pos - ($endTagPos + 1));
+
+					if (($this->TrimWhiteSpace && (trim($tagContent)!="")) || !$this->TrimWhiteSpace)
+					{
+						unset($subNode);
+
+						// convert special chars
+						$tagContent = &str_replace("&gt;", ">", $tagContent);
+						$tagContent = &str_replace("&lt;", "<", $tagContent);
+						$tagContent = &str_replace("&apos;", "'", $tagContent);
+						$tagContent = &str_replace("&quot;", '"', $tagContent);
+						$tagContent = &str_replace("&amp;", "&", $tagContent);
+
+						$currentNode->content = $tagContent;
+					}
+				}
+			}
+
+			return $oXMLDocument;
+		}
+
+		function __stripComments(&$str)
+		{
+			$str = &preg_replace("#<\!--.*?-->#s", "", $str);
+			return $str;
+		}
+
+		/* Parses the attributes. Returns false if no attributes in the supplied string is found */
+		function &__parseAttributes($attributeString)
+		{
+			$ret = false;
+
+			preg_match_all("/(\\S+?)\\s*=\\s*[\"](.*?)[\"]/s", $attributeString, $attributeArray);
+
+			foreach ($attributeArray[0] as $i => $attributePart)
+			{
+				$attributePart = $attributePart;
+
+				if (trim($attributePart) != "" && trim($attributePart) != "/")
+				{
+					$attributeName = $attributeArray[1][$i];
+
+					// strip out namespace; nameSpace:Name
+					$colonPos = strpos($attributeName, ":");
+
+					if ($colonPos > 0)
+						$attributeName = substr($attributeName, $colonPos + 1, strlen($attributeName));
+
+					$attributeValue = $attributeArray[2][$i];
+
+					unset($attrNode);
+					$attrNode = new CUpdatesXMLNode();
+					$attrNode->name = $attributeName;
+					$attrNode->content = $attributeValue;
+
+					$ret[] = &$attrNode;
+				}
+			}
+			return $ret;
+		}
+	}
+
 }
 
 /************************************************************************/

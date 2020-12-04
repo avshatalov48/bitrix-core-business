@@ -1,4 +1,5 @@
 <?php
+$MESS["INTERFACE_MAIL_CHECK_ALL"] = "Check All / Uncheck All";
 $MESS["MAIL_CLIENT_AJAX_ERROR"] = "Error processing the request.";
 $MESS["MAIL_CLIENT_BUTTON_LOADING"] = "Loading...";
 $MESS["MAIL_CLIENT_CANCELATION_WARNING_3"] = "Email synchronization is not available on your plan. New emails will not be visible in Bitrix24.
@@ -49,6 +50,13 @@ $MESS["MAIL_MESSAGE_EXT_BIND_TASKS_EMPTY_TITLE"] = "Task";
 $MESS["MAIL_MESSAGE_EXT_BIND_TASKS_TITLE"] = "Tasks";
 $MESS["MAIL_MESSAGE_EXT_BLOCK_LINK"] = "More...";
 $MESS["MAIL_MESSAGE_EXT_BLOCK_TITLE"] = "More";
+$MESS["MAIL_MESSAGE_ICAL_ACCEPT"] = "Accept";
+$MESS["MAIL_MESSAGE_ICAL_INVITATION"] = "Invitation";
+$MESS["MAIL_MESSAGE_ICAL_MAYBE"] = "Maybe";
+$MESS["MAIL_MESSAGE_ICAL_NOTIFY_ACCEPT"] = "Invitation accepted";
+$MESS["MAIL_MESSAGE_ICAL_NOTIFY_ERROR"] = "Error processing the request.";
+$MESS["MAIL_MESSAGE_ICAL_NOTIFY_REJECT"] = "Invitation declined";
+$MESS["MAIL_MESSAGE_ICAL_REJECT"] = "Decline";
 $MESS["MAIL_MESSAGE_LIST_ADDRESSBOOK_LINK"] = "Contacts";
 $MESS["MAIL_MESSAGE_LIST_ATTACH_ICON_HINT"] = "Contains attachments";
 $MESS["MAIL_MESSAGE_LIST_BLACKLIST_LINK"] = "Blacklist";
@@ -134,3 +142,5 @@ $MESS["MAIL_MESSAGE_SENT"] = "Sent: #DATETIME#";
 $MESS["MAIL_MESSAGE_SPAM_CONFIRM"] = "Are you sure you want to delete this message and blacklist the sender?";
 $MESS["MAIL_MESSAGE_SYNC_BTN_HINT"] = "Synchronize";
 $MESS["MAIL_MESSAGE_TASK_TITLE"] = "Email: #SUBJECT#";
+$MESS["MAIL_MODULE_NOT_INSTALLED"] = "The Mail module is not installed.";
+$MESS["MAIL_NEW_MESSAGE_TITLE"] = "New message";

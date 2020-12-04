@@ -12,6 +12,7 @@ namespace Bitrix\Main\Data;
  * Class description
  * @package    bitrix
  * @subpackage main
+ * @property \Memcached $resource
  */
 class MemcachedConnection extends NosqlConnection
 {
@@ -54,18 +55,30 @@ class MemcachedConnection extends NosqlConnection
 
 	protected function disconnectInternal()
 	{
+		if ($this->isConnected())
+		{
+			$this->resource->quit();
+			$this->resource = null;
+			$this->isConnected = false;
+		}
 	}
 
 	public function get($key)
 	{
-		$this->connectInternal();
+		if (!$this->isConnected())
+		{
+			$this->connect();
+		}
 
 		return $this->resource->get($key);
 	}
 
 	public function set($key, $value)
 	{
-		$this->connectInternal();
+		if (!$this->isConnected())
+		{
+			$this->connect();
+		}
 
 		return $this->resource->set($key, $value);
 	}

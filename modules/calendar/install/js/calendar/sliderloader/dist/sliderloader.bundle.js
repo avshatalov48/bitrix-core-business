@@ -2,15 +2,14 @@ this.BX = this.BX || {};
 (function (exports,main_core) {
 	'use strict';
 
-	var SliderLoader =
-	/*#__PURE__*/
-	function () {
+	var SliderLoader = /*#__PURE__*/function () {
 	  function SliderLoader(eventId) {
 	    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	    babelHelpers.classCallCheck(this, SliderLoader);
 	    this.extensionName = main_core.Type.isString(eventId) && (eventId === 'NEW' || eventId.substr(0, 4) === 'EDIT') ? 'EventEditForm' : 'EventViewForm';
 	    this.entryId = main_core.Type.isString(eventId) && eventId.substr(0, 4) === 'EDIT' ? parseInt(eventId.substr(4)) : parseInt(eventId);
 	    this.entry = options.entry || null;
+	    this.formDataValue = options.formDataValue || null;
 	    this.entryDateFrom = main_core.Type.isDate(options.entryDateFrom) ? options.entryDateFrom : null;
 	    this.timezoneOffset = options.timezoneOffset;
 	    this.type = options.type;
@@ -36,7 +35,9 @@ this.BX = this.BX || {};
 	      var _this = this;
 
 	      return new Promise(function (resolve) {
-	        main_core.Runtime.loadExtension('calendar.' + _this.extensionName.toLowerCase()).then(function (exports) {
+	        var extensionName = 'calendar.' + _this.extensionName.toLowerCase();
+
+	        main_core.Runtime.loadExtension(extensionName).then(function (exports) {
 	          if (exports && exports[_this.extensionName]) {
 	            var calendarForm = new exports[_this.extensionName]({
 	              entryId: _this.entryId,
@@ -45,12 +46,15 @@ this.BX = this.BX || {};
 	              timezoneOffset: _this.timezoneOffset,
 	              type: _this.type,
 	              ownerId: _this.ownerId,
-	              userId: _this.userId
+	              userId: _this.userId,
+	              formDataValue: _this.formDataValue
 	            });
 
 	            if (babelHelpers.typeof(calendarForm.initInSlider)) {
 	              calendarForm.initInSlider(slider, resolve);
 	            }
+	          } else {
+	            console.error("Extension \"calendar.".concat(extensionName, "\" not found"));
 	          }
 	        });
 	      });

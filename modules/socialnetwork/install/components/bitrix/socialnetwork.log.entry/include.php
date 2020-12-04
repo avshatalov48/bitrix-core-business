@@ -1140,7 +1140,9 @@ if (!function_exists('__SLEGetLogCommentRecord'))
 			$commentAuxProvider = \Bitrix\Socialnetwork\CommentAux\Base::findProvider(
 				array(
 					'POST_TEXT' => $arComment['MESSAGE'],
-					'SHARE_DEST' => $arComment['SHARE_DEST']
+					'SHARE_DEST' => $arComment['SHARE_DEST'],
+					'SOURCE_ID' => (int)$arComment['SOURCE_ID'],
+					'EVENT_ID' => $arComment['EVENT_ID'],
 				),
 				array(
 					'eventId' => $arComment['EVENT_ID']

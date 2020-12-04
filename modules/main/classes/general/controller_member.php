@@ -971,28 +971,7 @@ class __CControllerPacket
 	 */
 	protected function _decode(&$arParameters, $encodingFrom ,$encodingTo)
 	{
-		global $APPLICATION;
-
-		if (is_array($arParameters))
-		{
-			$res = array();
-			foreach ($arParameters as $key => $value)
-			{
-				if (is_string($key))
-				{
-					$key = $APPLICATION->ConvertCharset($key, $encodingFrom, $encodingTo);
-				}
-
-				$this->_decode($value, $encodingFrom, $encodingTo);
-
-				$res[$key] = $value;
-			}
-			$arParameters = $res;
-		}
-		elseif (is_string($arParameters))
-		{
-			$arParameters = $APPLICATION->ConvertCharset($arParameters, $encodingFrom, $encodingTo);
-		}
+		$arParameters = \Bitrix\Main\Text\Encoding::convertEncoding($arParameters, $encodingFrom, $encodingTo);
 	}
 
 	/**
@@ -1392,8 +1371,6 @@ class __CControllerPacketResponse extends __CControllerPacket
 	// Разбирает строку ответа по полям объекта
 	function ParseResult($result)
 	{
-		global $APPLICATION;
-
 		$ar_result = array();
 		$pairs = explode('&', trim($result, " \n\r\t"));
 		foreach ($pairs as $pair)
@@ -1418,8 +1395,8 @@ class __CControllerPacketResponse extends __CControllerPacket
 			$this->arParameters = $arParameters;
 			if (isset($ar_result['encoding']))
 			{
-				if($this->text && is_object($APPLICATION))
-					$this->text = $APPLICATION->ConvertCharset($this->text, $this->encoding, SITE_CHARSET);
+				if($this->text)
+					$this->text = \Bitrix\Main\Text\Encoding::convertEncoding($this->text, $this->encoding, SITE_CHARSET);
 			}
 		}
 

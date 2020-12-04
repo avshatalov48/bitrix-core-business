@@ -592,7 +592,7 @@ try
 		// <editor-fold defaultstate="collapsed" desc="initialize default values">
 		if ($arParams['ACTION'] == 'edit' || $arParams['ACTION'] == 'copy')
 		{
-			$settings = unserialize($arResult['report']['SETTINGS']);
+			$settings = unserialize($arResult['report']['SETTINGS'], ['allowed_classes' => false]);
 
 			call_user_func_array(
 				array($arParams['REPORT_HELPER_CLASS'], 'fillFilterUFColumns'),

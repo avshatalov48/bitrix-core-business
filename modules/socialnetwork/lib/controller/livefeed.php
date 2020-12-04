@@ -358,6 +358,11 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 	public function getNextPageAction(array $params = [])
 	{
 		$componentParameters = $this->getUnsignedParameters();
+		if (!is_array($componentParameters))
+		{
+			$componentParameters = [];
+		}
+
 		$requestParameters = [
 			'TARGET' => 'page',
 			'PAGE_NUMBER' => (isset($params['PAGE_NUMBER']) && (int)$params['PAGE_NUMBER'] >= 1 ? (int)$params['PAGE_NUMBER'] : 1),
@@ -377,6 +382,11 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 	public function refreshAction(array $params = [])
 	{
 		$componentParameters = $this->getUnsignedParameters();
+		if (!is_array($componentParameters))
+		{
+			$componentParameters = [];
+		}
+
 		$requestParameters = [
 			'TARGET' => 'page',
 			'PAGE_NUMBER' => 1,

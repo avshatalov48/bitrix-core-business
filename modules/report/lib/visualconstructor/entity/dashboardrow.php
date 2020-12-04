@@ -232,7 +232,7 @@ class DashboardRow extends Model
 	 */
 	public function getLayoutMap()
 	{
-		return unserialize($this->layoutMap);
+		return unserialize($this->layoutMap, ['allowed_classes' => false]);
 	}
 
 	/**

@@ -217,7 +217,7 @@ class CTask
 		$strOrderBy = '';
 		foreach($arOrder as $by=>$order)
 			if(isset($arFields[strtoupper($by)]))
-				$strOrderBy .= $arFields[strtoupper($by)]["FIELD_NAME"].' '.(strtolower($order) == 'desc'?'desc'.($DB->type == "ORACLE"?" NULLS LAST":""):'asc'.($DB->type == "ORACLE"?" NULLS FIRST":"")).',';
+				$strOrderBy .= $arFields[strtoupper($by)]["FIELD_NAME"].' '.(strtolower($order) == 'desc'?'desc':'asc').',';
 
 		if($strOrderBy <> '')
 			$strOrderBy = "ORDER BY ".rtrim($strOrderBy, ",");

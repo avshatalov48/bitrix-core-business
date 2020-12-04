@@ -1,10 +1,8 @@
 this.BX = this.BX || {};
-(function (exports,calendar_entry,calendar_calendarsection,calendar_util,calendar_controls,calendar_compacteventform,main_core) {
+(function (exports,calendar_entry,calendar_calendarsection,calendar_util,main_core_events,calendar_controls,calendar_compacteventform,main_core) {
 	'use strict';
 
-	var EntryManager =
-	/*#__PURE__*/
-	function () {
+	var EntryManager = /*#__PURE__*/function () {
 	  function EntryManager() {
 	    babelHelpers.classCallCheck(this, EntryManager);
 	  }
@@ -14,6 +12,8 @@ this.BX = this.BX || {};
 	    value: function getNewEntry(options) {
 	      var newEntryData = {};
 	      var dateTime = EntryManager.getNewEntryTime(new Date());
+	      var userSettings = calendar_util.Util.getUserSettings();
+	      var userId = calendar_util.Util.getCurrentUserId();
 	      newEntryData.ID = null;
 	      newEntryData.NAME = EntryManager.getNewEntryName();
 	      newEntryData.dateFrom = dateTime.from;
@@ -23,8 +23,36 @@ this.BX = this.BX || {};
 	        type: 'min',
 	        count: 15
 	      }];
-	      newEntryData.ATTENDEES_CODES = ['U' + calendar_util.Util.getCurrentUserId()]; //newEntryData.TIMEZONE_FROM = userSettings.timezoneName || userSettings.timezoneDefaultName || null;
+	      newEntryData.attendeesEntityList = [{
+	        entityId: 'user',
+	        id: userId
+	      }];
+	      newEntryData.ATTENDEE_LIST = [{
+	        id: calendar_util.Util.getCurrentUserId(),
+	        status: "H"
+	      }];
 
+	      if (options.type === 'user' && userId !== options.ownerId) {
+	        newEntryData.attendeesEntityList.push({
+	          entityId: 'user',
+	          id: options.ownerId
+	        });
+	        newEntryData.ATTENDEE_LIST = [{
+	          id: options.ownerId,
+	          status: "H"
+	        }, {
+	          id: calendar_util.Util.getCurrentUserId(),
+	          status: "Y"
+	        }];
+	      } else if (options.type === 'group') {
+	        newEntryData.attendeesEntityList.push({
+	          entityId: 'project',
+	          id: options.ownerId
+	        });
+	      }
+
+	      newEntryData.TZ_FROM = userSettings.timezoneName || userSettings.timezoneDefaultName || '';
+	      newEntryData.TZ_TO = userSettings.timezoneName || userSettings.timezoneDefaultName || '';
 	      return new calendar_entry.Entry({
 	        data: newEntryData
 	      });
@@ -85,7 +113,8 @@ this.BX = this.BX || {};
 	          entry: options.entry || null,
 	          type: options.type,
 	          ownerId: options.ownerId,
-	          userId: options.userId
+	          userId: options.userId,
+	          formDataValue: options.formDataValue || null
 	        }).show();
 	      }
 	    }
@@ -110,13 +139,19 @@ this.BX = this.BX || {};
 	    key: "deleteEntry",
 	    value: function deleteEntry(entry) {
 	      if (entry instanceof calendar_entry.Entry) {
-	        BX.addCustomEvent('BX.Calendar.Entry:beforeDelete', function () {
+	        main_core_events.EventEmitter.subscribe('BX.Calendar.Entry:beforeDelete', function () {
 	          if (calendar_util.Util.getBX().SidePanel.Instance) {
 	            calendar_util.Util.getBX().SidePanel.Instance.close();
 	          }
 	        });
-	        BX.addCustomEvent('BX.Calendar.Entry:delete', function () {
-	          calendar_util.Util.getBX().reload();
+	        main_core_events.EventEmitter.subscribe('BX.Calendar.Entry:delete', function () {
+	          var calendar = calendar_util.Util.getCalendarContext();
+
+	          if (calendar) {
+	            calendar.reload();
+	          } else {
+	            calendar_util.Util.getBX().reload();
+	          }
 	        });
 	        entry.delete();
 	      }
@@ -124,41 +159,56 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "setMeetingStatus",
 	    value: function setMeetingStatus(entry, status) {
+	      var _this = this;
+
 	      var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
-	      if (!main_core.Type.isPlainObject(params)) {
-	        params = {};
-	      }
-
-	      params.recursionMode = params.recursionMode || false;
-
-	      if (status === 'N' && !params.confirmed) {
-	        if (entry.isRecursive()) {
-	          this.showConfirmStatusDialog(entry);
-	          return false;
-	        } else if (!confirm(main_core.Loc.getMessage('EC_DECLINE_MEETING_CONFIRM'))) {
-	          return false;
+	      return new Promise(function (resolve) {
+	        if (!main_core.Type.isPlainObject(params)) {
+	          params = {};
 	        }
-	      }
 
-	      BX.ajax.runAction('calendar.api.calendarajax.setMeetingStatus', {
-	        data: {
-	          entryId: entry.id,
-	          entryParentId: entry.parentId,
-	          status: status,
-	          recursionMode: params.recursionMode,
-	          currentDateDrom: calendar_util.Util.formatDate(entry.from)
+	        params.recursionMode = params.recursionMode || false;
+
+	        if (status === 'N' && !params.confirmed) {
+	          if (entry.isRecursive()) {
+	            _this.showConfirmStatusDialog(entry);
+
+	            return false;
+	          } else if (!confirm(main_core.Loc.getMessage('EC_DECLINE_MEETING_CONFIRM'))) {
+	            return false;
+	          }
 	        }
-	      }).then(function (response) {
-	        BX.Event.EventEmitter.emit('BX.Calendar.Entry:onChangeMeetingStatus', new main_core.Event.BaseEvent({
+
+	        BX.ajax.runAction('calendar.api.calendarajax.setMeetingStatus', {
 	          data: {
+	            entryId: entry.id,
+	            entryParentId: entry.parentId,
+	            status: status,
+	            recursionMode: params.recursionMode,
+	            currentDateDrom: calendar_util.Util.formatDate(entry.from)
+	          }
+	        }).then(function (response) {
+	          BX.Event.EventEmitter.emit('BX.Calendar.Entry:onChangeMeetingStatus', new main_core.Event.BaseEvent({
+	            data: {
+	              entry: entry,
+	              status: status,
+	              recursionMode: params.recursionMode,
+	              currentDateDrom: entry.from
+	            }
+	          }));
+
+	          if (entry instanceof calendar_entry.Entry) {
+	            entry.setCurrentStatus(status);
+	          }
+
+	          resolve({
 	            entry: entry,
 	            status: status,
 	            recursionMode: params.recursionMode,
 	            currentDateDrom: entry.from
-	          }
-	        }));
-	      }.bind(this));
+	          });
+	        });
+	      });
 	    }
 	  }, {
 	    key: "showConfirmStatusDialog",
@@ -197,9 +247,61 @@ this.BX = this.BX || {};
 	      }
 	    }
 	  }, {
+	    key: "showReInviteUsersDialog",
+	    value: function showReInviteUsersDialog(options) {
+	      if (!this.reinviteUsersDialog) {
+	        this.reinviteUsersDialog = new calendar_controls.ReinviteUserDialog();
+	      }
+
+	      this.reinviteUsersDialog.show();
+
+	      if (main_core.Type.isFunction(options.callback)) {
+	        this.reinviteUsersDialog.unsubscribeAll('onSelect');
+	        this.reinviteUsersDialog.subscribe('onSelect', function (event) {
+	          if (event instanceof main_core.Event.BaseEvent) {
+	            options.callback(event.getData());
+	          }
+	        });
+	      }
+	    }
+	  }, {
+	    key: "showConfirmedEmailDialog",
+	    value: function showConfirmedEmailDialog() {
+	      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+	      if (!this.confirmedEmailDialog) {
+	        this.confirmedEmailDialog = new calendar_controls.ConfirmedEmailDialog();
+	      }
+
+	      this.confirmedEmailDialog.show();
+
+	      if (main_core.Type.isFunction(options.callback)) {
+	        this.confirmedEmailDialog.unsubscribeAll('onSelect');
+	        this.confirmedEmailDialog.subscribe('onSelect', function (event) {
+	          if (event instanceof main_core.Event.BaseEvent) {
+	            options.callback(event.getData());
+	          }
+	        });
+	      }
+	    }
+	  }, {
+	    key: "showEmailLimitationDialog",
+	    value: function showEmailLimitationDialog() {
+	      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	      var confirmedEmailDialog = new calendar_controls.EmailLimitationDialog();
+	      confirmedEmailDialog.subscribe('onClose', function () {
+	        if (main_core.Type.isFunction(options.callback)) {
+	          options.callback();
+	        }
+	      });
+	      confirmedEmailDialog.show();
+	    }
+	  }, {
 	    key: "getCompactViewForm",
 	    value: function getCompactViewForm() {
-	      if (!EntryManager.compactEntryForm) {
+	      var create = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
+	      if (!EntryManager.compactEntryForm && create) {
 	        EntryManager.compactEntryForm = new calendar_compacteventform.CompactEventForm();
 	      }
 
@@ -209,17 +311,38 @@ this.BX = this.BX || {};
 	    key: "openCompactViewForm",
 	    value: function openCompactViewForm() {
 	      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-	      EntryManager.getCompactViewForm().showInViewMode(options);
+	      var compactForm = EntryManager.getCompactViewForm();
+
+	      if (!compactForm.isShown()) {
+	        compactForm.unsubscribeAll('onClose');
+
+	        if (main_core.Type.isFunction(options.closeCallback)) {
+	          compactForm.subscribe('onClose', options.closeCallback);
+	        }
+
+	        compactForm.showInViewMode(options);
+	      }
 	    }
 	  }, {
 	    key: "openCompactEditForm",
 	    value: function openCompactEditForm() {
 	      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-	      EntryManager.getCompactViewForm().showInEditMode(options);
+	      var compactForm = EntryManager.getCompactViewForm();
+
+	      if (!compactForm.isShown()) {
+	        compactForm.unsubscribeAll('onClose');
+
+	        if (main_core.Type.isFunction(options.closeCallback)) {
+	          compactForm.subscribe('onClose', options.closeCallback);
+	        }
+
+	        compactForm.showInEditMode(options);
+	      }
 	    }
 	  }, {
 	    key: "getEntryInstance",
 	    value: function getEntryInstance(entry, userIndex) {
+	      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 	      var entryInstance = null;
 
 	      if (entry instanceof calendar_entry.Entry) {
@@ -236,23 +359,53 @@ this.BX = this.BX || {};
 	            userIndex: userIndex
 	          });
 	        } else {
-	          entryInstance = EntryManager.getNewEntry();
+	          entryInstance = EntryManager.getNewEntry(options);
 	        }
 	      }
 
 	      return entryInstance;
 	    }
+	  }, {
+	    key: "getUserIndex",
+	    value: function getUserIndex() {
+	      return EntryManager.userIndex;
+	    }
+	  }, {
+	    key: "setUserIndex",
+	    value: function setUserIndex(userIndex) {
+	      EntryManager.userIndex = userIndex;
+	    }
+	  }, {
+	    key: "openChatForEntry",
+	    value: function openChatForEntry(_ref) {
+	      var entryId = _ref.entryId,
+	          entry = _ref.entry;
+
+	      if (window.BXIM && entry && entry.data.MEETING && parseInt(entry.data.MEETING.CHAT_ID)) {
+	        BXIM.openMessenger('chat' + parseInt(entry.data.MEETING.CHAT_ID));
+	      } else {
+	        BX.ajax.runAction('calendar.api.calendarajax.createEventChat', {
+	          data: {
+	            entryId: entryId
+	          }
+	        }).then(function (response) {
+	          if (window.BXIM && response.data && response.data.chatId > 0) {
+	            BXIM.openMessenger('chat' + response.data.chatId);
+	          }
+	        });
+	      }
+	    }
 	  }]);
 	  return EntryManager;
 	}();
 	babelHelpers.defineProperty(EntryManager, "newEntryName", '');
+	babelHelpers.defineProperty(EntryManager, "userIndex", {});
 
-	var Entry =
-	/*#__PURE__*/
-	function () {
+	var Entry = /*#__PURE__*/function () {
 	  function Entry() {
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, Entry);
+	    babelHelpers.defineProperty(this, "FULL_DAY_LENGTH", 86400);
 	    this.prepareData(options.data);
 	    this.parts = [];
 
@@ -285,7 +438,7 @@ this.BX = this.BX || {};
 	      }
 
 	      if (this.fullDay && !this.data.DT_LENGTH) {
-	        this.data.DT_LENGTH = 86400;
+	        this.data.DT_LENGTH = this.FULL_DAY_LENGTH;
 	      }
 
 	      if (!main_core.Type.isString(this.data.DATE_FROM) && !main_core.Type.isString(this.data.DATE_TO) && main_core.Type.isDate(this.data.dateFrom) && main_core.Type.isDate(this.data.dateTo)) {
@@ -298,8 +451,8 @@ this.BX = this.BX || {};
 	          this.data.DATE_FROM = calendar_util.Util.formatDate(this.from.getTime());
 	          this.data.DATE_TO = calendar_util.Util.formatDate(this.to.getTime());
 	        } else {
-	          this.data.DATE_FROM = calendar_util.Util.formatDateTime(this.from.getTime());
-	          this.data.DATE_TO = calendar_util.Util.formatDateTime(this.to.getTime());
+	          this.from = new Date(this.from.getTime() - (parseInt(this.data['~USER_OFFSET_FROM']) || 0) * 1000);
+	          this.to = new Date(this.from.getTime() + (this.data.DT_LENGTH - (this.fullDay ? 1 : 0)) * 1000);
 	        }
 	      } else {
 	        if (this.isTask()) {
@@ -345,25 +498,30 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getAttendeesCodes",
 	    value: function getAttendeesCodes() {
-	      return this.data.ATTENDEES_CODES;
+	      return this.data.ATTENDEES_CODES || [];
+	    }
+	  }, {
+	    key: "getAttendeesEntityList",
+	    value: function getAttendeesEntityList() {
+	      return this.data.attendeesEntityList || [];
 	    }
 	  }, {
 	    key: "getAttendees",
 	    value: function getAttendees() {
+	      var _this = this;
 
 	      if (!this.attendeeList && main_core.Type.isArray(this.data['ATTENDEE_LIST'])) {
 	        this.attendeeList = [];
-
-	        var _userIndex = this.getUserIndex();
-
+	        var userIndex = this.getUserIndex();
 	        this.data['ATTENDEE_LIST'].forEach(function (user) {
-	          if (_userIndex[user.id]) {
-	            var attendee = BX.clone(_userIndex[user.id]);
+	          if (userIndex[user.id]) {
+	            var attendee = BX.clone(userIndex[user.id]);
 	            attendee.STATUS = user.status;
-	            attendee.ENTRY_ID = user.entryId;
-	            this.attendeeList.push(attendee);
+	            attendee.ENTRY_ID = user.entryId || false;
+
+	            _this.attendeeList.push(attendee);
 	          }
-	        }, this);
+	        });
 	      }
 
 	      return this.attendeeList || [];
@@ -376,8 +534,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getUserIndex",
 	    value: function getUserIndex() {
-	      //let userIndex = this.calendar.entryController.getUserIndex();
-	      return this.userIndex;
+	      return this.userIndex || EntryManager.getUserIndex();
 	    }
 	  }, {
 	    key: "cleanParts",
@@ -480,9 +637,32 @@ this.BX = this.BX || {};
 	      return this.to.getTime() < new Date().getTime();
 	    }
 	  }, {
-	    key: "isExternal",
-	    value: function isExternal() {
-	      return false;
+	    key: "hasEmailAttendees",
+	    value: function hasEmailAttendees() {
+	      if (this.emailAttendeesCache === undefined) {
+	        var userIndex = EntryManager.getUserIndex();
+
+	        for (var i = 0; i < this.data['ATTENDEE_LIST'].length; i++) {
+	          var user = this.data['ATTENDEE_LIST'][i];
+
+	          if ((user.status === 'Y' || user.status === 'Q') && userIndex[user.id] && userIndex[user.id].EMAIL_USER) {
+	            this.emailAttendeesCache = true;
+	            break;
+	          }
+	        }
+	      }
+
+	      return this.emailAttendeesCache;
+	    }
+	  }, {
+	    key: "ownerIsEmailUser",
+	    value: function ownerIsEmailUser() {
+	      if (this.ownerIsEmailUserCache === undefined) {
+	        var userIndex = EntryManager.getUserIndex();
+	        this.ownerIsEmailUserCache = userIndex[parseInt(this.data.MEETING_HOST)] && userIndex[parseInt(this.data.MEETING_HOST)].EMAIL_USER;
+	      }
+
+	      return this.ownerIsEmailUserCache;
 	    }
 	  }, {
 	    key: "isSelected",
@@ -510,9 +690,19 @@ this.BX = this.BX || {};
 	      return parseInt(this.data.MEETING_HOST);
 	    }
 	  }, {
+	    key: "getMeetingNotify",
+	    value: function getMeetingNotify() {
+	      return this.data.MEETING.NOTIFY;
+	    }
+	  }, {
 	    key: "getRrule",
 	    value: function getRrule() {
 	      return this.data.RRULE;
+	    }
+	  }, {
+	    key: "getRRuleDescription",
+	    value: function getRRuleDescription() {
+	      return this.data['~RRULE_DESCRIPTION'];
 	    }
 	  }, {
 	    key: "hasRecurrenceId",
@@ -573,23 +763,41 @@ this.BX = this.BX || {};
 	          user;
 
 	      if (this.isMeeting()) {
-	        if (userId === parseInt(this.data.CREATED_BY) || userId === parseInt(this.data.MEETING_HOST)) {
-	          status = this.data.MEETING_STATUS;
+	        if (userId === parseInt(this.data.CREATED_BY)) {
+	          status = this.data.MEETING_STATUS || 'Q';
 	        } else if (userId === parseInt(this.data.MEETING_HOST)) {
-	          status = this.data.MEETING_STATUS;
+	          status = 'H'; //status = this.data.MEETING_STATUS || 'H';
 	        } else if (main_core.Type.isArray(this.data['ATTENDEE_LIST'])) {
 	          for (i = 0; i < this.data['ATTENDEE_LIST'].length; i++) {
 	            user = this.data['ATTENDEE_LIST'][i];
 
-	            if (parseInt(this.data['ATTENDEE_LIST'][i].id) === userId) {
-	              status = this.data['ATTENDEE_LIST'][i].status;
+	            if (parseInt(user.id) === userId) {
+	              status = user.status;
 	              break;
 	            }
 	          }
 	        }
 	      }
 
-	      return status || 'Q';
+	      return calendar_util.Util.getMeetingStatusList().includes(status) ? status : false;
+	    }
+	  }, {
+	    key: "setCurrentStatus",
+	    value: function setCurrentStatus(status) {
+	      if (this.isMeeting() && calendar_util.Util.getMeetingStatusList().includes(status)) {
+	        this.data.MEETING_STATUS = status;
+	        var userId = calendar_util.Util.getCurrentUserId();
+
+	        if (main_core.Type.isArray(this.data['ATTENDEE_LIST'])) {
+	          for (var i = 0; i < this.data['ATTENDEE_LIST'].length; i++) {
+	            if (parseInt(this.data['ATTENDEE_LIST'][i].id) === userId) {
+	              this.data['ATTENDEE_LIST'][i].status = status;
+	              this.attendeeList = null;
+	              break;
+	            }
+	          }
+	        }
+	      }
 	    }
 	  }, {
 	    key: "getReminders",
@@ -794,17 +1002,38 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getTimezoneFrom",
 	    value: function getTimezoneFrom() {
-	      return this.data.TZ_FROM;
+	      return this.data.TZ_FROM || '';
 	    }
 	  }, {
 	    key: "getTimezoneTo",
 	    value: function getTimezoneTo() {
-	      return this.data.TZ_TO;
+	      return this.data.TZ_TO || '';
 	    }
 	  }, {
 	    key: "setSectionId",
 	    value: function setSectionId(value) {
 	      this.data.SECT_ID = this.sectionId = this.isTask() ? 'tasks' : parseInt(value);
+	    }
+	  }, {
+	    key: "setDateTimeValue",
+	    value: function setDateTimeValue(_ref) {
+	      var from = _ref.from,
+	          to = _ref.to;
+
+	      if (main_core.Type.isDate(from) && main_core.Type.isDate(to)) {
+	        this.from = this.data.dateFrom = from;
+	        this.to = this.data.dateTo = to;
+	        this.data.DT_LENGTH = Math.round((this.to.getTime() - this.from.getTime()) / 1000);
+	        this.data.DURATION = this.data.DT_LENGTH;
+
+	        if (this.fullDay) {
+	          this.data.DATE_FROM = calendar_util.Util.formatDate(this.from.getTime());
+	          this.data.DATE_TO = calendar_util.Util.formatDate(this.to.getTime());
+	        } else {
+	          this.data.DATE_FROM = calendar_util.Util.formatDateTime(this.from.getTime());
+	          this.data.DATE_TO = calendar_util.Util.formatDateTime(this.to.getTime());
+	        }
+	      }
 	    }
 	  }]);
 	  return Entry;
@@ -813,5 +1042,5 @@ this.BX = this.BX || {};
 	exports.EntryManager = EntryManager;
 	exports.Entry = Entry;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX.Calendar,BX.Calendar,BX.Calendar,BX.Calendar.Controls,BX.Calendar,BX));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX.Calendar,BX.Calendar,BX.Calendar,BX.Event,BX.Calendar.Controls,BX.Calendar,BX));
 //# sourceMappingURL=entry.bundle.js.map

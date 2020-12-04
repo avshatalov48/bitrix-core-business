@@ -1,6 +1,8 @@
 <?
 $MESS["SALE_PS_MANAGER_GROUP_COLUMN"] = "Колонки";
+$MESS["SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_ADYEN"] = "Налаштування підключення Adyen";
 $MESS["SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_ALFABANK"] = "Налаштування підключення Альфа-Банку";
+$MESS["SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_APPLE_PAY"] = "Налаштування підключення Apple Pay";
 $MESS["SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_ASSIST"] = "Налаштування підключення Assist";
 $MESS["SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_AUTHORIZE"] = "Налаштування підключення Authorize.net";
 $MESS["SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_BILL"] = "Налаштування рахунків";

@@ -1,4 +1,5 @@
 // # # #  #  #  # Planner for Event Calendar  # # #  #  #  #
+
 ;(function(window) {
 function CalendarPlanner(params, initialUpdateParams)
 {
@@ -1075,19 +1076,28 @@ CalendarPlanner.prototype =
 				entry.rowWrap.appendChild(BX.create("span", {props: {className: 'calendar-planner-user-status-icon ' + this.entryStatusMap[entry.status], title: BX.message('EC_PL_STATUS_' + entry.status.toUpperCase())}}));
 			}
 
-			if (entry.avatar)
-			{
-				entry.rowWrap.appendChild(BX.create("img", {
-					props: {
-						className: 'calendar-planner-user-image-icon',
-						src: entry.avatar
-					},
-					attrs: {
-						'bx-tooltip-user-id': entry.id,
-						'bx-tooltip-classname': 'calendar-planner-user-tooltip'
-					}
-				}));
-			}
+			entry.rowWrap.appendChild(this.getEntryAvatarNode(entry));
+			//
+			// if (entry.avatar)
+			// {
+			// 	entry.rowWrap.appendChild(BX.create("div", {
+			// 		props: {
+			// 			className: 'ui-icon ui-icon-common-user calendar-planner-user-image-icon',
+			// 			// src: entry.avatar
+			// 		},
+			// 		attrs: {
+			// 			'bx-tooltip-user-id': entry.id,
+			// 			'bx-tooltip-classname': 'calendar-planner-user-tooltip'
+			// 		},
+			// 		children: [
+			// 			BX.create("i", {
+			// 				style: {
+			// 					backgroundImage: 'url('+entry.avatar+')'
+			// 				}
+			// 			})
+			// 		]
+			// 	}));
+			// }
 
 			if (this.showEntryName)
 			{
@@ -1217,6 +1227,34 @@ CalendarPlanner.prototype =
 				this.selectEntryRow(entry);
 			}
 		}
+	},
+
+	getEntryAvatarNode: function(entry)
+	{
+		var img = entry.avatar;
+
+		var imageNode = BX.create("div", {
+			attrs: {
+				'bx-tooltip-user-id': entry.id,
+				'bx-tooltip-classname': "calendar-planner-user-tooltip",
+
+			},
+			props: {
+				className: 'ui-icon calendar-planner-user-image-icon',
+				title: BX.Text.encode(entry.name),
+			},
+			html: '<i></i>'
+		});
+
+		if (!img || img === "/bitrix/images/1.gif")
+		{
+			BX.addClass(imageNode, entry.emailUser ? 'ui-icon-common-user-mail' : 'ui-icon-common-user');
+		}
+		else
+		{
+			imageNode.innerHTML = '<i style="background-image: url('+ entry.avatar + ')"></i>';
+		}
+		return imageNode;
 	},
 
 	selectEntryRow: function(entry)

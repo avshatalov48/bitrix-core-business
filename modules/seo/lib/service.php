@@ -337,15 +337,16 @@ class Service
 
 		$clientType = $clientType ?: Service::CLIENT_TYPE_COMPATIBLE;
 
-		return array(
+		return [
 			"action" => "authorize",
 			"type" => $clientType,
 			"engine" => $engine,
 			"client_id" => static::getEngine()->getClientId(),
 			"client_secret" => static::getEngine()->getClientSecret(),
 			"key" => static::getLicense(),
-			"check_key" => urlencode($checkKey)
-		);
+			"check_key" => urlencode($checkKey),
+			"redirect_uri" => static::getRedirectUri(),
+		];
 	}
 
 	/**
@@ -367,5 +368,32 @@ class Service
 	protected static function getLicense()
 	{
 		return md5(LICENSE_KEY);
+	}
+
+	/**
+	 * If site change domain - need update engine
+	 * @param array $domains
+	 * @throws \Exception
+	 */
+	public static function changeRegisteredDomain(array $domains = []): void
+	{
+		if (!self::isRegistered())
+		{
+			return;
+		}
+		if(!$engine = static::getEngine())
+		{
+			return;
+		}
+
+		$newRedirectUri = static::getRedirectUri();
+		if(!empty($domains))
+		{
+			$newRedirectUri = str_replace($domains['old_domain'], $domains['new_domain'], $newRedirectUri);
+		}
+
+		SearchEngineTable::update($engine->getId(), [
+			'REDIRECT_URI' => $newRedirectUri
+		]);
 	}
 }

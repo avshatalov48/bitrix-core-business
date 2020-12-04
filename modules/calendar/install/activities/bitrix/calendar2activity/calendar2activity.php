@@ -50,9 +50,9 @@ class CBPCalendar2Activity
 		$arFields['DATE_FROM'] = CCalendar::Date($fromTs);
 		$arFields['DATE_TO'] = CCalendar::Date($toTs);
 
-		if ($this->CalendarSection && intVal($this->CalendarSection) > 0)
+		if ($this->CalendarSection && intval($this->CalendarSection) > 0)
 		{
-			$arFields['SECTIONS'] = array(intVal($this->CalendarSection));
+			$arFields['SECTIONS'] = array(intval($this->CalendarSection));
 		}
 
 		if ($this->CalendarOwnerId || ($arFields["CAL_TYPE"] != "user" && $arFields["CAL_TYPE"] != "group"))

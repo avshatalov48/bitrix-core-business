@@ -126,6 +126,17 @@ class RestService extends \IRestService
 		$senderLang['APP_ID'] = $result->getId();
 		static::addSenderLang($senderLang, $server->getClientId());
 
+		$app = \Bitrix\Rest\AppTable::getByClientId($params['APP_ID']);
+		if ($app['CODE'])
+		{
+			AddEventToStatFile(
+				'messageservice',
+				'addProvider' . $params['TYPE'],
+				uniqid($app['CODE'], true),
+				$app['CODE']
+			);
+		}
+
 		return true;
 	}
 

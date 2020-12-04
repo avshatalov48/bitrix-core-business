@@ -401,7 +401,7 @@ class CBackup
 
 					$arState['TABLES'][$table]['LAST_ID'] = $arTable['LAST_ID'] = $arTable["KEY_COLUMN"] ? $arSource[$arTable["KEY_COLUMN"]] : ++$i;
 
-					if (CTar::strlen($strInsert) > 1000000)
+					if (strlen($strInsert) > 1000000)
 					{
 						if(!$B->file_put_contents_ex($strDumpFile, $strInsert.";\n"))
 							return false;
@@ -467,7 +467,7 @@ class CBackup
 			}
 		}
 
-		$c = CTar::strlen($str);
+		$c = strlen($str);
 		if ($this->LastFileSize + $c >= $LIMIT)
 		{
 			$this->strLastFile = self::getNextName($this->strLastFile);
@@ -516,10 +516,10 @@ class CBackup
 
 		if (!$c)
 		{
-			$l = mb_strrpos($file, '.');
-			$num = CTar::substr($file,$l+1);
+			$l = strrpos($file, '.');
+			$num = substr($file,$l+1);
 			if (is_numeric($num))
-				$file = CTar::substr($file,0,$l+1).++$num;
+				$file = substr($file,0,$l+1).++$num;
 			else
 				$file .= '.1';
 			$c = $file;
@@ -694,14 +694,14 @@ class CDirRealScan extends CDirScan
 					}
 				}
 
-				$arInfo['size'] = CTar::strlen($strFile);
+				$arInfo['size'] = strlen($strFile);
 				if (!$tar->writeHeader($arInfo))
 					return false;
 
 				$i = 0;
 				while($i < $arInfo['size'])
 				{
-					if (!$tar->writeBlock(pack("a512",CTar::substr($strFile,$i,512))))
+					if (!$tar->writeBlock(pack("a512", substr($strFile, $i, 512))))
 						return false;
 					$i += 512;
 				}
@@ -773,9 +773,9 @@ class CPasswordStorage
 
 			$key = $LICENSE_KEY;
 
-			$l = CTar::strlen($key);
+			$l = strlen($key);
 			if ($l > 56)
-				$key = CTar::substr($key, 0, 56);
+				$key = substr($key, 0, 56);
 			elseif ($l < 16)
 				$key = str_repeat($key, ceil(16/$l));
 		}
@@ -801,8 +801,8 @@ class CPasswordStorage
 
 		$temporary_cache = base64_decode(COption::GetOptionString('main', $strName, ''));
 		$pass = CTar::decrypt($temporary_cache, self::getEncryptKey());
-		if (CTar::substr($pass, 0, 6) == self::SIGN)
-			return CTar::substr(preg_replace('#\x00+$#', '', $pass), 6);
+		if (substr($pass, 0, 6) == self::SIGN)
+			return substr(preg_replace('#\x00+$#', '', $pass), 6);
 		return false;
 	}
 }
@@ -837,7 +837,7 @@ class CTar
 	# {
 	function openRead($file)
 	{
-		if (!isset($this->gzip) && (self::substr($file,-3)=='.gz' || self::substr($file,-4)=='.tgz'))
+		if (!isset($this->gzip) && (substr($file,-3)=='.gz' || substr($file,-4)=='.tgz'))
 			$this->gzip = true;
 
 		$this->BufferSize = 51200;
@@ -849,7 +849,7 @@ class CTar
 				$data = unpack("a100empty/a90signature/a10version/a56tail/a256enc", $str);
 				if (trim($data['signature']) != self::BX_SIGNATURE)
 				{
-					if (self::strlen($this->EncryptKey))
+					if (strlen($this->EncryptKey))
 						$this->Error('Invalid encryption signature','ENC_SIGN');
 
 					// Probably archive is not encrypted
@@ -866,7 +866,7 @@ class CTar
 				$key = $this->getEncryptKey();
 				$this->BlockHeader = $this->Block = 1;
 
-				if (!$key || self::substr($str, 0, 256) != self::decrypt($data['enc'], $key))
+				if (!$key || substr($str, 0, 256) != self::decrypt($data['enc'], $key))
 					return $this->Error('Invalid encryption key', 'ENC_KEY');
 			}
 		}
@@ -888,8 +888,8 @@ class CTar
 		$str = '';
 		if ($this->Buffer)
 		{
-			$str = self::substr($this->Buffer, 0, 512);
-			$this->Buffer = self::substr($this->Buffer, 512);
+			$str = substr($this->Buffer, 0, 512);
+			$this->Buffer = substr($this->Buffer, 512);
 			$this->Block++;
 		}
 
@@ -914,9 +914,9 @@ class CTar
 		$this->Block += $Block;
 		$toSkip = $Block * 512;
 
-		if (self::strlen($this->Buffer) > $toSkip)
+		if (strlen($this->Buffer) > $toSkip)
 		{
-			$this->Buffer = self::substr($this->Buffer, $toSkip);
+			$this->Buffer = substr($this->Buffer, $toSkip);
 			return true;
 		}
 		$this->Buffer = '';
@@ -953,7 +953,7 @@ class CTar
 		$str = '';
 		while(trim($str) == '')
 		{
-			if (!($l = self::strlen($str = $this->readBlock($bIgnoreOpenNextError = true))))
+			if (!($l = strlen($str = $this->readBlock($bIgnoreOpenNextError = true))))
 				return 0; // finish
 		}
 
@@ -961,7 +961,7 @@ class CTar
 			$this->BlockHeader = $this->Block - 1;
 
 		if ($l != 512)
-			return $this->Error('Wrong block size: '.self::strlen($str).' (block '.$this->Block.')');
+			return $this->Error('Wrong block size: '.strlen($str).' (block '.$this->Block.')');
 
 
 		$data = unpack("a100filename/a8mode/a8uid/a8gid/a12size/a12mtime/a8checksum/a1type/a100link/a6magic/a2version/a32uname/a32gname/a8devmajor/a8devminor/a155prefix", $str);
@@ -979,8 +979,8 @@ class CTar
 		$header['type'] = trim($data['type'], "\x00");
 //		$header['link'] = $data['link'];
 
-		if (self::strpos($header['filename'],'./') === 0)
-			$header['filename'] = self::substr($header['filename'], 2);
+		if (strpos($header['filename'],'./') === 0)
+			$header['filename'] = substr($header['filename'], 2);
 
 		if ($header['type']=='L') // Long header
 		{
@@ -991,10 +991,10 @@ class CTar
 
 			if (!is_array($header = $this->readHeader($Long = true)))
 				return $this->Error('Wrong long header, block: '.$this->Block);
-			$header['filename'] = self::substr($filename,0,self::strpos($filename,chr(0)));
+			$header['filename'] = substr($filename, 0, strpos($filename, chr(0)));
 		}
 		
-		if (self::strpos($header['filename'],'/') === 0) // trailing slash
+		if (strpos($header['filename'], '/') === 0) // trailing slash
 			$header['type'] = 5; // Directory
 
 		if ($header['type']=='5')
@@ -1069,7 +1069,7 @@ class CTar
 			while(++$this->ReadBlockCurrent <= $FileBlockCount && ($contents = $this->readBlock()))
 			{
 				if ($this->ReadBlockCurrent == $FileBlockCount && ($chunk = $header['size'] % 512))
-					$contents = self::substr($contents, 0, $chunk);
+					$contents = substr($contents, 0, $chunk);
 
 				fwrite($rs,$contents);
 
@@ -1136,7 +1136,7 @@ class CTar
 	# {
 	function openWrite($file)
 	{
-		if (!isset($this->gzip) && (self::substr($file,-3)=='.gz' || self::substr($file,-4)=='.tgz'))
+		if (!isset($this->gzip) && (substr($file,-3)=='.gz' || substr($file,-4)=='.tgz'))
 			$this->gzip = true;
 
 		$this->BufferSize = 51200;
@@ -1196,19 +1196,19 @@ class CTar
 		if (!($f = fopen($file, 'w')))
 			return $this->Error('Can\'t open file for writing: '.$file);
 
-		$ar = unpack('A3bin0/A1FLG/A6bin1',self::substr($data,0,10));
+		$ar = unpack('A3bin0/A1FLG/A6bin1', substr($data,0,10));
 		if ($ar['FLG'] != 0)
 			return $this->Error('Error writing extra field: already exists');
 
 		$EXTRA = "\x00\x00\x00\x00".self::BX_EXTRA; // 10 байт
-		fwrite($f,$ar['bin0']."\x04".$ar['bin1'].chr(self::strlen($EXTRA))."\x00".$EXTRA.self::substr($data,10));
+		fwrite($f,$ar['bin0']."\x04".$ar['bin1'].chr(strlen($EXTRA))."\x00".$EXTRA.substr($data,10));
 		fclose($f);
 		return true;
 	}
 
 	function writeBlock($str)
 	{
-		$l = self::strlen($str);
+		$l = strlen($str);
 		if ($l!=512)
 			return $this->Error('Wrong block size: '.$l);
 
@@ -1228,7 +1228,7 @@ class CTar
 		$this->Block++;
 		$this->ArchiveSizeCurrent += 512;
 
-		if (self::strlen($this->Buffer) == $this->BufferSize)
+		if (strlen($this->Buffer) == $this->BufferSize)
 			return $this->flushBuffer();
 
 		return true;
@@ -1259,10 +1259,10 @@ class CTar
 	function addFile($f)
 	{
 		$f = str_replace('\\', '/', $f);
-		$path = $this->prefix.self::substr($f,self::strlen($this->path) + 1);
+		$path = $this->prefix.substr($f, strlen($this->path) + 1);
 		if ($path == '')
 			return true;
-		if (self::strlen($path)>512)
+		if (strlen($path) > 512)
 			return $this->Error('Path is too long: '.$path);
 		if (is_link($f) && !file_exists($f)) // broken link
 			return true;
@@ -1273,19 +1273,19 @@ class CTar
 		if ($this->ReadBlockCurrent == 0) // read from start
 		{
 			$this->ReadFileSize = $ar['size'];
-			if (self::strlen($path) > 100) // Long header
+			if (strlen($path) > 100) // Long header
 			{
 				$ar0 = $ar;
 				$ar0['type'] = 'L';
 				$ar0['filename'] = '././@LongLink';
-				$ar0['size'] = self::strlen($path);
+				$ar0['size'] = strlen($path);
 				if (!$this->writeHeader($ar0))
 					return $this->Error('Can\'t write header to file: '.$this->file);
 
 				if (!$this->writeBlock(pack("a512",$path)))
 					return $this->Error('Can\'t write to file: '.$this->file);
 
-				$ar['filename'] = self::substr($path,0,100);
+				$ar['filename'] = substr($path,0,100);
 			}
 
 			if (!$this->writeHeader($ar))
@@ -1308,7 +1308,7 @@ class CTar
 				$this->ReadBlockCurrent++;
 				if (feof($rs))
 					$str = pack("a512", $str);
-				elseif (self::strlen($str) != 512)
+				elseif (strlen($str) != 512)
 					return $this->Error('Error reading from file: '.$f);
 
 				if (!$this->writeBlock($str))
@@ -1410,10 +1410,10 @@ class CTar
 
 		if (!$c)
 		{
-			$l = mb_strrpos($file, '.');
-			$num = self::substr($file,$l+1);
+			$l = strrpos($file, '.');
+			$num = substr($file,$l+1);
 			if (is_numeric($num))
-				$file = self::substr($file,0,$l+1).++$num;
+				$file = substr($file,0,$l+1).++$num;
 			else
 				$file .= '.1';
 			$c = $file;
@@ -1423,32 +1423,35 @@ class CTar
 
 	function checksum($s)
 	{
-		$chars = count_chars(self::substr($s,0,148).'        '.self::substr($s,156,356));
+		$chars = count_chars(substr($s,0,148).'        '.substr($s,156,356));
 		$sum = 0;
 		foreach($chars as $ch => $cnt)
 			$sum += $ch*$cnt;
 		return $sum;
 	}
 
+	/**
+	 * @deprecated Will be removed
+	 */
 	public static function substr($s, $a, $b = null)
 	{
-		if (function_exists('mb_orig_substr'))
-			return $b === null ? mb_orig_substr($s, $a) : mb_orig_substr($s, $a, $b);
-		return $b === null? mb_substr($s, $a) : mb_substr($s, $a, $b);
+		return $b === null? substr($s, $a) : substr($s, $a, $b);
 	}
 
+	/**
+	 * @deprecated Will be removed
+	 */
 	public static function strlen($s)
 	{
-		if (function_exists('mb_orig_strlen'))
-			return mb_orig_strlen($s);
-		return mb_strlen($s);
+		return strlen($s);
 	}
 
+	/**
+	 * @deprecated Will be removed
+	 */
 	public static function strpos($s, $a)
 	{
-		if (function_exists('mb_orig_strpos'))
-			return mb_orig_strpos($s, $a);
-		return mb_strpos($s, $a);
+		return strpos($s, $a);
 	}
 
 	function getDataSize($file)
@@ -1525,7 +1528,7 @@ class CTar
 	function getFileInfo($f)
 	{
 		$f = str_replace('\\', '/', $f);
-		$path = self::substr($f,self::strlen($this->path) + 1);
+		$path = substr($f, strlen($this->path) + 1);
 
 		$ar = array();
 
@@ -1565,7 +1568,7 @@ class CTar
 
 	public static function encrypt($data, $md5_key)
 	{
-		if ($m = self::strlen($data)%8)
+		if ($m = strlen($data)%8)
 			$data .= str_repeat("\x00",  8 - $m);
 		if (function_exists('openssl_encrypt'))
 			return openssl_encrypt($data, 'BF-ECB', $md5_key, OPENSSL_RAW_DATA | OPENSSL_NO_PADDING);

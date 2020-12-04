@@ -50,7 +50,7 @@ abstract class Cashbox
 
 		if (!$handlerList)
 		{
-			$zone = 'ru';
+			$zone = '';
 			if (Main\Loader::includeModule("bitrix24"))
 			{
 				$zone = \CBitrix24::getLicensePrefix();
@@ -77,6 +77,18 @@ abstract class Cashbox
 			elseif ($zone === 'ua')
 			{
 				$handlerList = [
+					'\Bitrix\Sale\Cashbox\CashboxCheckbox' => '/bitrix/modules/sale/lib/cashbox/cashboxcheckbox.php',
+				];
+			}
+			else
+			{
+				$handlerList = [
+					'\Bitrix\Sale\Cashbox\CashboxAtolFarm' => '/bitrix/modules/sale/lib/cashbox/cashboxatolfarm.php',
+					'\Bitrix\Sale\Cashbox\CashboxAtolFarmV4' => '/bitrix/modules/sale/lib/cashbox/cashboxatolfarmv4.php',
+					'\Bitrix\Sale\Cashbox\CashboxOrangeData' => '/bitrix/modules/sale/lib/cashbox/cashboxorangedata.php',
+					'\Bitrix\Sale\Cashbox\CashboxBitrixV2' => '/bitrix/modules/sale/lib/cashbox/cashboxbitrixv2.php',
+					'\Bitrix\Sale\Cashbox\CashboxBitrix' => '/bitrix/modules/sale/lib/cashbox/cashboxbitrix.php',
+					'\Bitrix\Sale\Cashbox\Cashbox1C' => '/bitrix/modules/sale/lib/cashbox/cashbox1c.php',
 					'\Bitrix\Sale\Cashbox\CashboxCheckbox' => '/bitrix/modules/sale/lib/cashbox/cashboxcheckbox.php',
 				];
 			}

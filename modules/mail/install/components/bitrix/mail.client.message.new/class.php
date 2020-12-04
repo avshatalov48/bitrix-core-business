@@ -25,8 +25,6 @@ class CMailClientMessageNewComponent extends CBitrixComponent
 	{
 		global $USER, $APPLICATION;
 
-		$APPLICATION->setTitle(Loc::getMessage('MAIL_CLIENT_HOME_TITLE'));
-
 		if (!is_object($USER) || !$USER->isAuthorized())
 		{
 			$APPLICATION->authForm('');
@@ -51,6 +49,13 @@ class CMailClientMessageNewComponent extends CBitrixComponent
 		}
 
 		$message = array();
+
+		$this->arResult['TO_PLUG_EXTENSION_SALES_LETTER_TEMPLATE'] = false;
+
+		if (!empty($_REQUEST['sales_letter']) && $_REQUEST['sales_letter'])
+		{
+			$this->arResult['TO_PLUG_EXTENSION_SALES_LETTER_TEMPLATE'] = true;
+		}
 
 		if (!empty($_REQUEST['id']) && $_REQUEST['id'] > 0)
 		{

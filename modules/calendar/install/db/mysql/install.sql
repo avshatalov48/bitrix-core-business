@@ -95,7 +95,9 @@ create table b_calendar_event
   INDEX ix_cal_event_parent_id (PARENT_ID),
   INDEX ix_cal_event_created_by (CREATED_BY),
   INDEX ix_cal_event_owner_id_accessibility (ACCESSIBILITY, DATE_FROM_TS_UTC, DATE_TO_TS_UTC),
-  INDEX ix_cal_event_recurrence_id (RECURRENCE_ID)
+  INDEX ix_cal_event_recurrence_id (RECURRENCE_ID),
+  INDEX ix_cal_google_event_id (G_EVENT_ID),
+  INDEX ix_cal_dav_xml_id (DAV_XML_ID)
 );
 
 create table b_calendar_event_sect

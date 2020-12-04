@@ -635,15 +635,15 @@ BXBlockEditorSocial.prototype =
 		var href = this.getItemControl(item, 'href');
 		var name = this.getItemControl(item, 'name');
 
-		href.value = elementSelect.value;
-		name.value = elementSelect.options[elementSelect.selectedIndex].text;
+		href.value =  elementSelect.value;
+		name.value =  elementSelect.options[elementSelect.selectedIndex].text;
 	},
 
 	addItem: function(href, name)
 	{
 		var html = this.templateItem.innerHTML;
-		html = html.replace('#href#', href);
-		html = html.replace('#name#', name);
+		html = html.replace('#href#', BX.util.htmlspecialchars(href));
+		html = html.replace('#name#', BX.util.htmlspecialchars(name));
 
 		var div = BX.create('div', {
 			'attrs': {'data-bx-block-editor-social-item': 'item'},

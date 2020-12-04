@@ -370,6 +370,7 @@ HTML;
 			"ENTITY_XML_ID" => $arParams["ENTITY_XML_ID"], // string
 			"FULL_ID" => array($arParams["ENTITY_XML_ID"], $res["ID"]),
 			"NEW" => $res["NEW"], //"Y" | "N"
+			"COLLAPSED" => $res["COLLAPSED"] === "Y" ? "Y" : "N",
 			"AUX" => (isset($res["AUX"]) ? $res["AUX"] : ''),
 			"AUX_LIVE_PARAMS" => (isset($res["AUX_LIVE_PARAMS"]) ? $res["AUX_LIVE_PARAMS"] : array()),
 			"CAN_DELETE" => (isset($res["CAN_DELETE"]) ? $res["CAN_DELETE"] : 'Y'),
@@ -915,6 +916,7 @@ HTML;
 		$arParams["ENTITY_XML_ID"] = trim($arParams["ENTITY_XML_ID"]);
 		/*@param array $arParams["RECORDS"] contains data to view */
 		$arParams["RECORDS"] = (is_array($arParams["RECORDS"]) ? $arParams["RECORDS"] : array());
+		$arParams["~RECORDS"] = $arParams["RECORDS"];
 		$arParams["NAV_STRING"] = (!!$arParams["NAV_STRING"] && is_string($arParams["NAV_STRING"]) ? $arParams["NAV_STRING"] : "");
 		//$arParams["NAV_RESULT"] = (!!$arParams["NAV_STRING"] && is_object($arParams["NAV_RESULT"]) ? $arParams["NAV_RESULT"] : false);
 		$arParams["PREORDER"] = ($arParams["PREORDER"] == "Y" ? "Y" : "N");
@@ -958,14 +960,23 @@ HTML;
 		if ($arParams["VISIBLE_RECORDS_COUNT"] > 0)
 		{
 			if ($arParams["NAV_RESULT"]->bShowAll)
+			{
 				$arParams["VISIBLE_RECORDS_COUNT"] = 0;
-			else if (array_key_exists($arParams['RESULT'], $arParams["RECORDS"]))
+			}
+			elseif (array_key_exists($arParams["RESULT"], $arParams["RECORDS"]))
+			{
 				$arParams["VISIBLE_RECORDS_COUNT"] = count($arParams["RECORDS"]);
-			else if (0 < $arParams["NAV_RESULT"]->NavRecordCount && $arParams["NAV_RESULT"]->NavRecordCount <= $arParams["VISIBLE_RECORDS_COUNT"])
-				$arParams["VISIBLE_RECORDS_COUNT"] = $arParams["NAV_RESULT"]->NavRecordCount;
-			else if (isset($_REQUEST["PAGEN_".$arParams["NAV_RESULT"]->NavNum]) ||
+			}
+			elseif (isset($_REQUEST["PAGEN_".$arParams["NAV_RESULT"]->NavNum]) ||
 				isset($_REQUEST["FILTER"]) && $arParams["ENTITY_XML_ID"] == $_REQUEST["ENTITY_XML_ID"])
+			{
 				$arParams["VISIBLE_RECORDS_COUNT"] = 0;
+			}
+			elseif (0 < $arParams["NAV_RESULT"]->NavRecordCount &&
+				$arParams["NAV_RESULT"]->NavRecordCount <= $arParams["VISIBLE_RECORDS_COUNT"])
+			{
+				$arParams["VISIBLE_RECORDS_COUNT"] = count($arParams["RECORDS"]);
+			}
 			if (!!$arParams["NAV_STRING"])
 			{
 				$path = "PAGEN_".$arParams["NAV_RESULT"]->NavNum."=";
@@ -982,18 +993,7 @@ HTML;
 		{
 			if ($arParams["VISIBLE_RECORDS_COUNT"] > 0)
 			{
-				$list = array();
-				$res = 0;
-				for ($ii = 0; $ii < $arParams["VISIBLE_RECORDS_COUNT"]; $ii++)
-				{
-					$res = array_shift($arParams["RECORDS"]);
-					if (!empty($res))
-					{
-						$list[$res["ID"]] = $res;
-					}
-				}
-
-				$arParams["RECORDS"] = $list;
+				$arParams["RECORDS"] = array_slice($arParams["RECORDS"], 0, $arParams["VISIBLE_RECORDS_COUNT"], true);
 			}
 
 			$arParams["LAST_RECORD"] = end($arParams["RECORDS"]);
@@ -1047,12 +1047,12 @@ HTML;
 		$arResult["NAV_STRING_COUNT_MORE"] = 0;
 		if ($arParams["NAV_STRING"] && $arParams["NAV_RESULT"])
 		{
-			$arResult["NAV_STRING_COUNT_MORE"] = $arParams["NAV_RESULT"]->NavRecordCount;
-			$arResult["NAV_STRING_COUNT_MORE"] -= (
-				$arParams["VISIBLE_RECORDS_COUNT"] > 0
-					? $arParams["VISIBLE_RECORDS_COUNT"]
-					: $arParams["NAV_RESULT"]->NavPageNomer * $arParams["NAV_RESULT"]->NavPageSize
-			);
+			$arResult["NAV_STRING_COUNT_MORE"] =
+				$arParams["NAV_RESULT"]->NavRecordCount - (
+					$arParams["VISIBLE_RECORDS_COUNT"] > 0
+						? $arParams["VISIBLE_RECORDS_COUNT"]
+						: $arParams["NAV_RESULT"]->NavPageNomer * $arParams["NAV_RESULT"]->NavPageSize
+				);
 		}
 
 		if (
@@ -1159,7 +1159,7 @@ HTML;
 			{
 				$json = $this->parseHTML($output, "RECORD");
 			}
-			else if ($this->getMode() == "RECORD" || $this->getMode() == "LIST")
+			else if (in_array($this->getMode(), ["RECORD", "RECORDS", "LIST"]))
 			{
 				$json = $this->parseHTML($output, $this->getMode());
 				$this->sendJsonResponse($json);
@@ -1188,7 +1188,6 @@ HTML;
 		header('Content-Type:application/json; charset=UTF-8');
 		/** @noinspection PhpUndefinedClassInspection */
 		\CMain::finalActions(Json::encode($response));
-		die;
 	}
 
 	private function parseHTML($response, $mode = "RECORD")
@@ -1219,20 +1218,35 @@ HTML;
 				'navigation' => $messageNavigation
 			);
 		}
-		else if ($mode == "RECORD")
+		else if ($mode == "RECORD" || $mode == "RECORDS")
 		{
-			$record = $arParams["RESULT"];
-			if ($record <= 0)
+			$recordIds = [];
+			if ($arParams["RESULT"] > 0)
 			{
-				$filter = $this->request->getQuery("FILTER");
-				$record = (is_array($filter) ? intval($filter["ID"]) : 0);
+				$recordIds[] = $arParams["RESULT"];
 			}
-			$message = $FHParser->getInnerHTML('<!--RCRD_'.$arParams["ENTITY_XML_ID"]."-".$record.'-->', '<!--RCRD_END_'.$arParams["ENTITY_XML_ID"]."-".$record.'-->');
-			$res = false;
-			if (array_key_exists($record, $arParams["RECORDS"]) && array_key_exists($record, $arParams["~RECORDS"]))
+			elseif (($filter = $this->request->get("FILTER"))
+				&& is_array($filter)
+				&& array_key_exists("ID", $filter))
 			{
-				$res = $arParams["RECORDS"][$record];
-				$res = array_merge($arParams["~RECORDS"][$record], $res, ($this->isWeb() ? $res["WEB"] : $res["MOBILE"]));
+				if ($mode == "RECORD")
+				{
+					$recordIds[] = $filter["ID"];
+				}
+				else
+				{
+					$recordIds = $filter["ID"];
+				}
+			}
+			$arParams["RECORDS"] = array_intersect_key($arParams["RECORDS"], $arParams["~RECORDS"], array_flip($recordIds));
+
+			$records = [];
+			foreach ($arParams["RECORDS"]  as $recordId => $res)
+			{
+				$message = $FHParser->getInnerHTML(
+					'<!--RCRD_'.$arParams["ENTITY_XML_ID"]."-".$recordId.'-->',
+					'<!--RCRD_END_'.$arParams["ENTITY_XML_ID"]."-".$recordId.'-->');
+				$res = array_merge($arParams["~RECORDS"][$recordId], $res, ($this->isWeb() ? $res["WEB"] : $res["MOBILE"]));
 				unset($res["WEB"]);
 				unset($res["MOBILE"]);
 
@@ -1242,7 +1256,10 @@ HTML;
 						$this->arParams["RIGHTS"]["EDIT"] == "OWN" && $res["AUTHOR"]["ID"] == $this->getUserId()
 					))
 				{
-					$_SESSION["MFI_UPLOADED_FILES_".$arParams["mfi"]] = array();
+					if (!array_key_exists("MFI_UPLOADED_FILES_".$arParams["mfi"], $_SESSION))
+					{
+						$_SESSION["MFI_UPLOADED_FILES_".$arParams["mfi"]] = [];
+					}
 					foreach($res["FILES"] as $key => $arFile)
 					{
 						$_SESSION["MFI_UPLOADED_FILES_".$arParams["mfi"]][] = $key;
@@ -1265,17 +1282,27 @@ HTML;
 						}
 					}
 				}
+				$records[$recordId] = [
+					'message' => $SHParser->getInnerHTML('<!--LOAD_SCRIPT-->', '<!--END_LOAD_SCRIPT-->').$message,
+					'messageBBCode' => $arParams["~RECORDS"][$recordId]["~POST_MESSAGE_TEXT"],
+					'messageId' => array($arParams["ENTITY_XML_ID"], $recordId),
+					'messageFields' => $res
+				];
 			}
 
 			$JSResult += array(
 				'errorMessage' => (isset($arParams["~ERROR_MESSAGE"]) ? $arParams["~ERROR_MESSAGE"] : (isset($arParams["ERROR_MESSAGE"]) ? $arParams["ERROR_MESSAGE"] : '')),
 				'okMessage' => (isset($arParams["~OK_MESSAGE"]) ? $arParams["~OK_MESSAGE"] : (isset($arParams["OK_MESSAGE"]) ? $arParams["OK_MESSAGE"] : '')),
 				'status' => "success",
-				'message' => $SHParser->getInnerHTML('<!--LOAD_SCRIPT-->', '<!--END_LOAD_SCRIPT-->').$message,
-				'messageBBCode' => $arParams["~RECORDS"][$record]["~POST_MESSAGE_TEXT"],
-				'messageId' => array($arParams["ENTITY_XML_ID"], $record),
-				'messageFields' => $res
 			);
+			if ($mode == "RECORDS")
+			{
+				$JSResult["messageList"] = $records;
+			}
+			elseif (!empty($records))
+			{
+				$JSResult += reset($records);
+			}
 		}
 		return $JSResult;
 	}

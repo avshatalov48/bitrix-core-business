@@ -127,6 +127,7 @@ final class ConverterObjectColor extends Stepper
 
 		return self::FINISH_EXECUTION;
 	}
+
 	private function loadCurrentStatus()
 	{
 		$status = Option::get('calendar', 'changecolor', 'default');

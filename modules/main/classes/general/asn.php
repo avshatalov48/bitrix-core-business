@@ -24,8 +24,8 @@ class CASNReader
 
 	protected static function ReadBytes(&$buf, $len)
 	{
-		$res = CUtil::BinSubstr($buf, 0, $len);
-		$buf = CUtil::BinSubstr($buf, $len);
+		$res = substr($buf, 0, $len);
+		$buf = substr($buf, $len);
 		
 		return $res;
 	}
@@ -38,7 +38,7 @@ class CASNReader
 	protected static function ToInt($bin)
 	{
 		$result = 0;
-		$len = CUtil::BinStrlen($bin);
+		$len = strlen($bin);
 		for($i=0; $i<$len; $i++) 
 		{
 			$byte = self::ReadByte($bin);
@@ -50,8 +50,8 @@ class CASNReader
 	public function GetValue()    
 	{
 		$result = $this->value;
-		if(ord($result{0}) == 0x00)
-			$result = CUtil::BinSubstr($result, 1);
+		if(ord($result[0]) == 0x00)
+			$result = substr($result, 1);
 		return $result;
 	}
 

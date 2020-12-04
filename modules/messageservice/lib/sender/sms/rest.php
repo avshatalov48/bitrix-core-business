@@ -179,6 +179,22 @@ class Rest extends Sender\Base
 		$sendResult->setExternalId($messageId);
 		$sendResult->setStatus(MessageService\MessageStatus::SENT);
 
+		if ($application['CODE'])
+		{
+			AddEventToStatFile(
+				'messageservice',
+				'sendRest' . $restSender['TYPE'],
+				uniqid($application['CODE'], true),
+				$application['CODE']
+			);
+		}
+
+		if (is_callable(['\Bitrix\Rest\UsageStatTable', 'logMessage']))
+		{
+			\Bitrix\Rest\UsageStatTable::logMessage($application['CLIENT_ID'], $restSender['TYPE']);
+			\Bitrix\Rest\UsageStatTable::finalize();
+		}
+
 		return $sendResult;
 	}
 

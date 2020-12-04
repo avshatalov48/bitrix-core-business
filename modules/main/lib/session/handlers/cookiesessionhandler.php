@@ -4,8 +4,8 @@ namespace Bitrix\Main\Session\Handlers;
 
 use Bitrix\Main\Context;
 use Bitrix\Main\Request;
-use Bitrix\Main\Response;
 use Bitrix\Main\Web\Cookie;
+use Bitrix\Main\Web\CryptoCookie;
 use Bitrix\Main\Web\Json;
 
 class CookieSessionHandler implements \SessionHandlerInterface
@@ -79,7 +79,7 @@ class CookieSessionHandler implements \SessionHandlerInterface
 			'expires' => $expires?: null,
 		]);
 
-		$cookie = new Cookie($sessionId, $value, $expires);
+		$cookie = new CryptoCookie($sessionId, $value, $expires);
 		$this->getResponse()->addCookie($cookie);
 
 		return true;

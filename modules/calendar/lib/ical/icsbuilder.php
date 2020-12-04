@@ -144,17 +144,17 @@ class IcsBuilder {
 			{
 				if ($this->fullDayMode)
 				{
-					$props[strtoupper($k).'DTSTART;VALUE=DATE'] = self::formatDateValue($v);
+					$props[mb_strtoupper($k).'DTSTART;VALUE=DATE'] = self::formatDateValue($v);
 				}
 				else
 				{
 					$tzid = ($k === 'dtstart') ? $this->timezoneFrom : $this->timezoneTo;
-					$props[strtoupper($k).';TZID='.$tzid] = self::formatDateTimeValue($v);
+					$props[mb_strtoupper($k).';TZID='.$tzid] = self::formatDateTimeValue($v);
 				}
 			}
 			else
 			{
-				$props[strtoupper($k)] = $v;
+				$props[mb_strtoupper($k)] = $v;
 			}
 		}
 

@@ -572,7 +572,7 @@ class CBXPunycode
 		$test = 'none';
 		for ($i = 0; $i < $inputLength; $i++)
 		{
-			$v = ord($input{$i});
+			$v = ord($input[$i]);
 			if ($v < 128)
 			{
 				$output[$outputLength] = $v;

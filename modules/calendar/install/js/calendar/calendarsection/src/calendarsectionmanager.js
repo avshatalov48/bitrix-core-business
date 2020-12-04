@@ -70,10 +70,13 @@ export class CalendarSectionManager {
 		}
 
 		// 2. Company calendar
-		sectionGroups.push({
-			title: Loc.getMessage('EC_SEC_SLIDER_TITLE_COMP_CAL'),
-			type: 'company'
-		});
+		if (type !== 'company' && type !== 'company_calendar')
+		{
+			sectionGroups.push({
+				title: Loc.getMessage('EC_SEC_SLIDER_TITLE_COMP_CAL'),
+				type: 'company'
+			});
+		}
 
 		// 3. Users calendars
 		if (Type.isArray(followedUserList))

@@ -13,6 +13,7 @@ export class SliderLoader
 			: parseInt(eventId);
 
 		this.entry = options.entry || null;
+		this.formDataValue = options.formDataValue || null;
 		this.entryDateFrom = Type.isDate(options.entryDateFrom) ? options.entryDateFrom : null;
 		this.timezoneOffset = options.timezoneOffset;
 		this.type = options.type;
@@ -35,7 +36,9 @@ export class SliderLoader
 	loadExtension(slider)
 	{
 		return new Promise((resolve) => {
-			Runtime.loadExtension('calendar.' + this.extensionName.toLowerCase()).then((exports) => {
+
+			const extensionName = 'calendar.' + this.extensionName.toLowerCase();
+			Runtime.loadExtension(extensionName).then((exports) => {
 				if (exports && exports[this.extensionName])
 				{
 					const calendarForm = new exports[this.extensionName](
@@ -46,13 +49,18 @@ export class SliderLoader
 							timezoneOffset: this.timezoneOffset,
 							type: this.type,
 							ownerId: this.ownerId,
-							userId: this.userId
+							userId: this.userId,
+							formDataValue: this.formDataValue
 						}
 					);
 					if (typeof calendarForm.initInSlider)
 					{
 						calendarForm.initInSlider(slider, resolve);
 					}
+				}
+				else
+				{
+					console.error(`Extension "calendar.${extensionName}" not found`);
 				}
 			});
 		});

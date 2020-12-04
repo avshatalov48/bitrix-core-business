@@ -15,12 +15,15 @@ RequestInformationOptionalActivity = function()
 		var act = _crt(1, 4);
 		act.style.fontSize = '11px';
 
-		act.rows[0].cells[1].style.background = 'url('+ob.Icon+') 2px 2px no-repeat';
+		act.rows[0].cells[1].style.background = 'url('+(ob.Icon?ob.Icon:'/bitrix/images/bizproc/act_icon.gif')+') 2px 2px no-repeat';
 		act.rows[0].cells[1].style.height = '24px';
 		act.rows[0].cells[1].style.width = '24px';
 
 		act.rows[0].cells[2].align = 'left';
 		act.rows[0].cells[2].innerHTML = HTMLEncode(ob['Properties']['Title']);
+
+		act.rows[0].cells[2].style.overflow = 'hidden';
+		act.rows[0].cells[2].style.lineHeight = '14px';
 
 		act.rows[0].cells[0].width = '33';
 		act.rows[0].cells[0].align = 'left';

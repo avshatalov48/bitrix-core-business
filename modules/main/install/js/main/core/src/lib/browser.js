@@ -132,6 +132,16 @@ export default class Browser
 		return UA.includes('macintosh');
 	}
 
+	static isWin()
+	{
+		return UA.includes('windows');
+	}
+
+	static isLinux()
+	{
+		return UA.includes('linux') && !Browser.isAndroid();
+	}
+
 	static isAndroid()
 	{
 		return UA.includes('android');

@@ -63,6 +63,7 @@ class MailUserSignatureListComponent extends CBitrixComponent
 	protected function prepareGrid()
 	{
 		$grid = [];
+		$grid["ROWS"] = [];
 		$grid['GRID_ID'] = $this->gridId;
 		$grid['COLUMNS'] = [
 			[

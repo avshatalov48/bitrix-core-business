@@ -108,16 +108,8 @@ class HmacAlgorithm
 			throw new ArgumentTypeException('actual', 'string');
 		}
 
-		if (function_exists('mb_orig_strlen'))
-		{
-			$lenExpected = mb_orig_strlen($expected);
-			$lenActual = mb_orig_strlen($actual);
-		}
-		else
-		{
-			$lenExpected = mb_strlen($expected);
-			$lenActual = mb_strlen($actual);
-		}
+		$lenExpected = strlen($expected);
+		$lenActual = strlen($actual);
 
 		$status = $lenExpected ^ $lenActual;
 		$len = min($lenExpected, $lenActual);

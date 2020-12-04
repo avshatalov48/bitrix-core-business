@@ -53,7 +53,7 @@ if (!empty($arResult["MESSAGES"]))
 
 		if (count($arResult["MESSAGES"]) > $arResult["VISIBLE_RECORDS_COUNT"])
 		{
-			$arResult["MESSAGES"] = array_slice($arResult["MESSAGES"], 0, $arResult["VISIBLE_RECORDS_COUNT"]);
+			$arResult["MESSAGES"] = array_slice($arResult["MESSAGES"], 0, $arResult["VISIBLE_RECORDS_COUNT"], true);
 		}
 
 		$arResult["NAV_RESULT"]->bShowAll = false;

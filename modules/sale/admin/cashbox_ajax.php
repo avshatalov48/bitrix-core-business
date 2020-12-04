@@ -2,6 +2,7 @@
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Application;
+use Bitrix\Main\Loader;
 use Bitrix\Sale\Cashbox;
 use Bitrix\Sale\Payment;
 use Bitrix\Sale\Order;
@@ -173,6 +174,11 @@ if($arResult["ERROR"] === '' && $saleModulePermissions >= "W" && check_bitrix_se
 				if ($handler === '\\'.Cashbox\CashboxOrangeData::class)
 				{
 					$arResult['OFD'] = '\\'.Cashbox\TaxcomOfd::class;
+				}
+
+				if ($handler === '\Bitrix\Sale\Cashbox\CashboxCheckbox')
+				{
+					$arResult['SHOW_UA_HINT'] = 'Y';
 				}
 
 				ob_start();

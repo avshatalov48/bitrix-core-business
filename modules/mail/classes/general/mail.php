@@ -1730,7 +1730,7 @@ class CAllMailMessage
 			if (!(isset($params['replaces']) && $params['replaces'] > 0))
 			{
 				$DB->query(sprintf(
-					'INSERT INTO b_mail_message_closure (MESSAGE_ID, PARENT_ID) VALUES (%1$u, %1$u)',
+					'INSERT IGNORE INTO b_mail_message_closure (MESSAGE_ID, PARENT_ID) VALUES (%1$u, %1$u)',
 					$message_id
 				));
 

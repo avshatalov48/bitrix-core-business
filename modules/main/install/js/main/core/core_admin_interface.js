@@ -4976,7 +4976,7 @@ BX.AdminFilter = function(filter_id, aRows)
 
 		tab.id = "adm-filter-tab-"+this.filter_id+"-"+newId;
 
-		if(this.url && BX.adminMenu)
+		if(this.url && BX.adminMenu && BX.adminMenu.registerItem)
 		{
 			var registerUrl = BX.util.remove_url_param(this.url,["adm_filter_applied","adm_filter_preset"]);
 			registerUrl += "&adm_filter_applied" + '=' + BX.util.urlencode(newId);
@@ -6241,7 +6241,7 @@ BX.admFltTab.prototype = {
 
 	_RegisterDD: function(tabId, url, name)
 	{
-		if(!BX.adminMenu)
+		if(!BX.adminMenu || !BX.adminMenu.registerItem)
 		{
 			return;
 		}

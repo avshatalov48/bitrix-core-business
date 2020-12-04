@@ -3,11 +3,9 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2015 Bitrix
+ * @copyright 2001-2020 Bitrix
  */
 namespace Bitrix\Main\UI;
-
-use Bitrix\Main\Web;
 
 class ReversePageNavigation extends PageNavigation
 {
@@ -31,7 +29,7 @@ class ReversePageNavigation extends PageNavigation
 		{
 			return 1;
 		}
-		$maxPages = floor($this->recordCount/$this->pageSize);
+		$maxPages = (int)floor($this->recordCount/$this->pageSize);
 		if($this->recordCount > 0 && $maxPages == 0)
 		{
 			$maxPages = 1;

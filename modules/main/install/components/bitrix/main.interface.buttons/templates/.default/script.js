@@ -104,6 +104,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			getDisabledItems: BX.delegate(this.getDisabledItems, this),
 			getMoreButton: BX.delegate(this.getMoreButton, this),
 			adjustMoreButtonPosition: BX.delegate(this.adjustMoreButtonPosition, this),
+			getSubmenu: BX.delegate(this.getSubmenu, this),
 			showSubmenu: BX.delegate(this.showSubmenu, this),
 			closeSubmenu: BX.delegate(this.closeSubmenu, this),
 			refreshSubmenu: BX.delegate(this.refreshSubmenu, this),

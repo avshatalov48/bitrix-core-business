@@ -93,7 +93,7 @@ if ( check_bitrix_sessid() &&
 				"ENTITY_XML_ID" => $_REQUEST["ENTITY_XML_ID"],
 				"TS" => time(),
 				"NAME" => $arUserInfo["NAME_FORMATED"],
-				"AVATAR" => $arUserInfo["PERSONAL_PHOTO_resized_30"]["src"]
+				"AVATAR" => CHTTP::urnEncode($arUserInfo["PERSONAL_PHOTO_resized_30"]["src"])
 			) + ($request->getPost("COMMENT_EXEMPLAR_ID") === null ? array() : array("COMMENT_EXEMPLAR_ID" => $request->getPost("COMMENT_EXEMPLAR_ID"))))
 		)
 	);
@@ -108,7 +108,7 @@ if ( check_bitrix_sessid() &&
 				"ENTITY_XML_ID" => $_REQUEST["ENTITY_XML_ID"],
 				"TS" => time(),
 				"NAME" => $arUserInfo["NAME_FORMATED"],
-				"AVATAR" => $arUserInfo["PERSONAL_PHOTO_resized_30"]["src"]
+				"AVATAR" => CHTTP::urnEncode($arUserInfo["PERSONAL_PHOTO_resized_30"]["src"])
 			) + ($request->getPost("COMMENT_EXEMPLAR_ID") === null ? array() : array("COMMENT_EXEMPLAR_ID" => $request->getPost("COMMENT_EXEMPLAR_ID"))))
 		)
 	);

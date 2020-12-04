@@ -5,6 +5,7 @@ namespace Bitrix\Main\Session;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\NotSupportedException;
+use Bitrix\Main\Session\Handlers\StrictSessionHandler;
 
 final class SessionConfigurationResolver
 {
@@ -65,6 +66,10 @@ final class SessionConfigurationResolver
 			if (!empty($sessionConfig['debug']))
 			{
 				$this->session->enableDebug();
+
+				$debugger = $this->session->getDebugger();
+				$debugger->setMode($sessionConfig['debug']);
+				$debugger->storeConfig($sessionConfig);
 			}
 		}
 	}
@@ -82,9 +87,8 @@ final class SessionConfigurationResolver
 		}
 
 		$sessionConfig = $this->configuration::getValue("session") ?: [];
-
 		$saveHandlerFromIni = ini_get('session.save_handler');
-		if (!$sessionConfig && $saveHandlerFromIni !== 'files')
+		if ((!$sessionConfig || $sessionConfig === ['mode' => self::MODE_DEFAULT]) && $saveHandlerFromIni !== 'files')
 		{
 			//when some specific save_handler was installed and we can't change behavior.
 			return [
@@ -111,7 +115,7 @@ final class SessionConfigurationResolver
 		switch ($type)
 		{
 			case self::TYPE_FILE:
-				return new Handlers\NativeFileSessionHandler($options);
+				return new StrictSessionHandler(new Handlers\NativeFileSessionHandler($options));
 			case self::TYPE_DATABASE:
 				return new Handlers\DatabaseSessionHandler($options);
 			case self::TYPE_REDIS:

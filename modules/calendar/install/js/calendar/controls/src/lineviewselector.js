@@ -116,7 +116,7 @@ export class LineViewSelector extends  EventEmitter
 			if (view.type === 'base')
 			{
 				menuItems.push({
-					text: '<span>' + view.text + '</span>' + (view.hotkey ? '<span class="calendar-item-hotkey">' + view.hotkey + '</span>' : ''),
+					html: '<span>' + view.text + '</span>' + (view.hotkey ? '<span class="calendar-item-hotkey">' + view.hotkey + '</span>' : ''),
 					className: this.currentValue.name === view.name ? 'menu-popup-item-accept' : ' ',
 					onclick: () => {
 						this.emit('onChange', {
@@ -133,7 +133,7 @@ export class LineViewSelector extends  EventEmitter
 		if (menuItems.length < this.views.length)
 		{
 			menuItems.push({
-				text: '<span>' + Loc.getMessage('EC_VIEW_MODE_SHOW_BY') + '</span>',
+				html: '<span>' + Loc.getMessage('EC_VIEW_MODE_SHOW_BY') + '</span>',
 				className: 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label'
 			});
 

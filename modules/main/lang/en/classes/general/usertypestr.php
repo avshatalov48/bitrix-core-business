@@ -1,5 +1,5 @@
 <?
-$MESS ['USER_TYPE_STRING_DESCRIPTION'] = "Text";
+$MESS ['USER_TYPE_STRING_DESCRIPTION'] = "String";
 $MESS ['USER_TYPE_STRING_SIZE'] = "Input field size";
 $MESS ['USER_TYPE_STRING_ROWS'] = "Row count";
 $MESS ['USER_TYPE_STRING_REGEXP'] = "Validation regular expression";

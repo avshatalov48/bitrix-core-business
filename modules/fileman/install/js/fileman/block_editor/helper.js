@@ -109,11 +109,11 @@ BXBlockEditorHelper.prototype.column = function(node, param, value)
 			var width = null;
 			if(inner.childNodes.length == 3)
 			{
-				width = '188';
+				width = '210';
 			}
 			else if(inner.childNodes.length == 2)
 			{
-				width = '282';
+				width = '318';
 			}
 			for(var i in inner.childNodes)
 			{

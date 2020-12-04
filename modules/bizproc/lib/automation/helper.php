@@ -277,6 +277,17 @@ class Helper
 				}
 			}
 
+			if (!$fieldId && mb_substr($fieldName, -10) === '_printable')
+			{
+				$fieldName = mb_substr($fieldName, 0,-10);
+				$key = array_search(trim($fieldName), $names);
+				if ($key !== false)
+				{
+					$fieldId = $ids[$key];
+					$pairs[] = 'printable';
+				}
+			}
+
 			if ($fieldId)
 			{
 				$mods = isset($pairs[0]) ? trim($pairs[0]) : '';

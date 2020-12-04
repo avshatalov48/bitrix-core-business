@@ -1,7 +1,10 @@
 .feed-com-block-cover {
-	margin-bottom: 11px;
+	margin-bottom: 10px;
+	margin-top: 1px;
 }
-
+.feed-com-block-cover:first-child {
+	margin-top: 0;
+}
 .feed-com-block-outer .feed-post-more-link {
 	border-bottom: none !important;
 	display: inline-block;
@@ -112,7 +115,7 @@ a.feed-time.feed-com-time:hover {
 	background-color: #EDF1F3;
 }
 
-.feed-com-block.feed-com-block-pointer {
+.feed-com-block-pointer {
 	-webkit-animation: feed-com-block-point-message 2s linear 1;
 	animation: feed-com-block-point-message 2s linear 1;
 }
@@ -120,13 +123,19 @@ a.feed-time.feed-com-time:hover {
 	padding-bottom: 5px;
 }
 @-webkit-keyframes feed-com-block-point-message {
+	0%,100% { background-color: #edf1f3; }
+	5%,90%  { background-color: #eff2f1; }
+	10%,85%  { background-color: #f4f4ec; }
+	15%,80%  { background-color: #f8f6e8; }
 	20%  { background-color: #fbf8e4; }
-	100% { background-color: inherit; }
 }
 
 @keyframes feed-com-block-point-message {
+	0%,100% { background-color: #edf1f3; }
+	5%,90%  { background-color: #eff2f1; }
+	10%,85%  { background-color: #f4f4ec; }
+	15%,80%  { background-color: #f8f6e8; }
 	20%  { background-color: #fbf8e4; }
-	100% { background-color: inherit; }
 }
 .feed-com-main-content.feed-com-block-pointer-to-new {
 	background-color: #fbf8e4;
@@ -322,7 +331,7 @@ a.feed-time.feed-com-time:hover {
 
 .feed-com-informers-bottom {
 	display: block;
-	margin-left: 57px;
+	margin-left: 52px;
 	padding: 5px 0 0 19px;
 	/*display: inline-block;*/
 	color: rgba(130, 139, 149, .7);
@@ -887,10 +896,12 @@ div[bx-mpl-block="edit-placeholder"] .feed-add-post-files-activity {
 /*=========================== aux comment =======================*/
 .feed-com-block.mpl-comment-aux .feed-com-main-content {
 	border: 1px solid #dddfe1;
-	background-color: #fff;
 	color: #7f8690;
 }
-
+.feed-com-block.mpl-comment-aux .feed-com-main-content.feed-com-block-old,
+.feed-com-block.mpl-comment-aux .feed-com-main-content.feed-com-block-read {
+	background-color: #fff;
+}
 .feed-com-block.mpl-comment-aux .feed-time.feed-com-time {
 	color: #a8aeb5;
 }
@@ -908,3 +919,67 @@ div[bx-mpl-block="edit-placeholder"] .feed-add-post-files-activity {
 	display: none;
 }
 /*=========================== aux comment =======================*/
+.feed-com-collapsed {
+	position: relative;
+}
+.feed-com-collapsed > .feed-com-loader {
+	right: 15px;
+}
+.feed-com-collapsed > input[type=checkbox] {
+	display: none;
+}
+.feed-com-collapsed label[data-bx-collapse-role="show"],
+.feed-com-collapsed input[type=checkbox]:checked ~ label[data-bx-collapse-role="hide"] {
+	display: inline-block;
+}
+.feed-com-collapsed input[type=checkbox]:checked ~ label[data-bx-collapse-role="show"],
+.feed-com-collapsed label[data-bx-collapse-role="hide"] {
+	display: none;
+}
+
+.feed-com-collapsed label[data-bx-collapse-role="hide"] {
+	margin-bottom: 10px;
+}
+
+.feed-com-collapsed .feed-com-collapsed-btn {
+	font-size: 12px;
+	color: #a8aeb5;
+	transition: color .3s;
+	display: inline-block;
+	margin: 0 0 6px 71px;
+	line-height: 18px;
+	text-decoration: none;
+	cursor: pointer;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.feed-com-collapsed label[data-bx-collapse-role="hide"] .feed-com-collapsed-btn {
+	margin-bottom: -2px;
+}
+
+.feed-com-collapsed .feed-com-collapsed-btn:hover {
+	color: #3A3D42;
+	line-height: 18px;
+}
+.feed-com-collapsed-block {
+	opacity: 0;
+	height: 0;
+	overflow: hidden;
+	transition: all .2s linear;
+}
+.feed-com-collapsed input[type=checkbox]:checked ~ .feed-com-collapsed-block {
+	opacity: 1;
+}
+.feed-com-collapsed input.feed-com-collapsed-once[type=checkbox]:checked ~ .feed-com-collapsed-block {
+	opacity: 1;
+	height: auto;
+}
+.feed-com-collapsed-block-inner .feed-com-block-cover:last-child {
+	margin-bottom: 0;
+}
+.feed-com-collapsed-block-inner{
+	padding-bottom: 10px;
+}

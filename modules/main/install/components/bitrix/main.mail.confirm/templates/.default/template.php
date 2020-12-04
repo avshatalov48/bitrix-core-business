@@ -171,7 +171,8 @@
 	{
 		BXMainMailConfirm.init({
 			mailboxes: <?=Bitrix\Main\Web\Json::encode($arParams['MAILBOXES']) ?>,
-			canCheckSmtp: <?=(!empty($arParams['IS_SMTP_AVAILABLE']) && \Bitrix\Main\Mail\Smtp\Config::canCheck() ? 'true' : 'false') ?>
+			canCheckSmtp: <?=(!empty($arParams['IS_SMTP_AVAILABLE']) && \Bitrix\Main\Mail\Smtp\Config::canCheck() ? 'true' : 'false') ?>,
+			action:  '<?=\CUtil::jsEscape($arParams['ACTION_URL'])?>'
 		});
 	});
 

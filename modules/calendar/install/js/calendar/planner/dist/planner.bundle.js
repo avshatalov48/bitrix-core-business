@@ -1713,7 +1713,7 @@ this.BX = this.BX || {};
 	      var rowWrap;
 
 	      if (entry.type === 'moreLink') {
-	        rowWrap = this.DOM.entrieListWrap.appendChild(BX.create("DIV", {
+	        rowWrap = this.DOM.entrieListWrap.appendChild(BX.create('DIV', {
 	          props: {
 	            className: 'calendar-planner-user'
 	          }
@@ -1770,7 +1770,7 @@ this.BX = this.BX || {};
 	        rowWrap = this.DOM.entrieListWrap.appendChild(BX.create("DIV", {
 	          attrs: {
 	            'data-bx-planner-entry': entry.uid,
-	            className: 'calendar-planner-user'
+	            className: 'calendar-planner-user' + (entry.emailUser ? ' calendar-planner-email-user' : '')
 	          }
 	        }));
 
@@ -2934,7 +2934,7 @@ this.BX = this.BX || {};
 	            dateTo = new Date(ts + duration);
 	          }
 
-	          if (timeTo >= this.shownScaleTimeTo) {
+	          if (timeTo > this.shownScaleTimeTo) {
 	            dateFrom = new Date(ts + calendar_util.Util.getDayLength() - 1000); // next day
 
 	            dateFrom.setHours(this.shownScaleTimeFrom, 0, 0, 0);
@@ -3341,7 +3341,6 @@ this.BX = this.BX || {};
 	    value: function getEntryAvatarNode(entry) {
 	      var imageNode;
 	      var img = entry.avatar;
-	      debugger;
 
 	      if (!img || img === "/bitrix/images/1.gif") {
 	        imageNode = main_core.Tag.render(_templateObject4(), entry.id, main_core.Text.encode(entry.name), entry.emailUser ? 'ui-icon-common-user-mail' : 'ui-icon-common-user');

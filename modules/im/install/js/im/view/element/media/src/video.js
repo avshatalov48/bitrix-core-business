@@ -89,6 +89,13 @@ Vue.cloneComponent('bx-im-view-element-file-video', 'bx-im-view-element-file',
 				:containerStyle="styleBoxSizes"
 				:elementStyle="styleVideoSizes"
 				:autoplay="autoplay"
+				:showControls="!file.viewerAttrs.viewerType"
+				:data-viewer="file.viewerAttrs.viewer === null"
+				:data-viewer-type="file.viewerAttrs.viewerType? file.viewerAttrs.viewerType: false"
+				:data-src="file.viewerAttrs.src? file.viewerAttrs.src: false"
+				:data-viewer-group-by="file.viewerAttrs.viewerGroupBy? file.viewerAttrs.viewerGroupBy: false"
+				:data-title="file.viewerAttrs.title? file.viewerAttrs.title: false"
+				:data-actions="file.viewerAttrs.action? file.viewerAttrs.actions: false"
 				@click="download(file, $event)"
 			/>
 		</div>

@@ -33,6 +33,7 @@
 		}
 
 		this.callerName = config.callerName;
+		this.callerColor = config.callerColor;
 
 		this.callbacks = {
 			onClose: BX.type.isFunction(config.onClose) ? config.onClose : BX.DoNothing,
@@ -53,7 +54,8 @@
 		{
 			var params = {
 				callerAvatar: this.callerAvatar,
-				callerName: this.callerName
+				callerName: this.callerName,
+				callerColor: this.callerColor
 			};
 
 			if(this.window)
@@ -73,6 +75,7 @@
 			this.content = new BX.Call.NotificationConferenceContent({
 				callerAvatar: this.callerAvatar,
 				callerName: this.callerName,
+				callerColor: this.callerColor,
 				onClose: this.callbacks.onClose,
 				onDestroy: this.callbacks.onDestroy,
 				onButtonClick: this.callbacks.onButtonClick
@@ -149,6 +152,7 @@
 	{
 		this.callerAvatar = config.callerAvatar;
 		this.callerName = config.callerName;
+		this.callerColor = config.callerColor;
 
 		this.elements = {
 			root: null,
@@ -164,47 +168,70 @@
 
 	BX.Call.NotificationConferenceContent.prototype.render = function()
 	{
+		var backgroundImage = this.callerAvatar || '/bitrix/js/im/images/default-call-background.png';
+
 		this.elements.root = BX.create("div", {
 			props: {className: "bx-messenger-call-window"},
 			children: [
 				BX.create("div", {
+					props: {className: "bx-messenger-call-window-background"},
+					style: {
+						backgroundImage: 'url(' + backgroundImage + ')'
+					},
+				}),
+				BX.create("div", {
+					props: {className: "bx-messenger-call-window-background-blur"}
+				}),
+				BX.create("div", {
+					props: {className: "bx-messenger-call-window-background-gradient"},
+					style: {
+						backgroundImage: "url('/bitrix/js/im/images/call-background-gradient.png')"
+					}
+				}),
+				BX.create("div", {
+					props: {className: "bx-messenger-call-window-bottom-background"}
+				}),
+				BX.create("div", {
 					props: {className: "bx-messenger-call-window-body"},
 					children: [
 						BX.create("div", {
-							props: {className: "bx-messenger-call-window-photo"},
+							props: { className: "bx-messenger-call-window-top" },
 							children: [
 								BX.create("div", {
-									props: {className: "bx-messenger-call-window-photo-left"},
+									props: {className: "bx-messenger-call-window-photo"},
 									children: [
 										BX.create("div", {
-											props: {className: "bx-messenger-call-window-photo-block"},
+											props: {className: "bx-messenger-call-window-photo-left"},
 											children: [
-												this.elements.avatar = BX.create("img", {
-													props: {
-														className: "bx-messenger-call-window-overlay-photo-img",
-														src: this.callerAvatar || "/bitrix/js/im/images/hidef-avatar-v3.png"
-													},
-													style: {
-														backgroundColor: "#df532d"
-													}
+												BX.create("div", {
+													props: {className: "bx-messenger-call-window-photo-block"},
+													children: [
+														this.elements.avatar = BX.create("img", {
+															props: {
+																className: "bx-messenger-call-window-overlay-photo-img",
+																src: this.callerAvatar || "/bitrix/js/im/images/default-avatar-videoconf-big.png"
+															},
+															style: {
+																backgroundColor: this.callerColor
+															}
+														}),
+													]
 												}),
 											]
 										}),
 									]
 								}),
-							]
-						}),
-						BX.create("div", {
-							props: {className: "bx-messenger-call-window-info"},
-							children: [
 								BX.create("div", {
 									props: {className: "bx-messenger-call-window-title"},
 									children: [
 										BX.create("div", {
 											props: {className: "bx-messenger-call-window-title-block"},
 											children: [
-												document.createTextNode(BX.message("IM_M_VIDEO_CALL_FROM")),
-												BX.create("span", {
+												BX.create("div", {
+													props: {className: "bx-messenger-call-overlay-title-caller-prefix"},
+													text: BX.message("IM_M_VIDEO_CALL_FROM")
+												}),
+												BX.create("div", {
 													props: {className: "bx-messenger-call-overlay-title-caller"},
 													text: BX.util.htmlspecialcharsback(this.callerName)
 												})
@@ -212,20 +239,41 @@
 										}),
 									]
 								}),
+							]
+						}),
+						BX.create("div", {
+							props: { className: "bx-messenger-call-window-bottom" },
+							children: [
 								BX.create("div", {
 									props: {className: "bx-messenger-call-window-buttons"},
 									children: [
 										BX.create("div", {
 											props: {className: "bx-messenger-call-window-buttons-block"},
 											children: [
-												BX.create("button", {
-													props: {className: "ui-btn ui-btn-sm ui-btn-round ui-btn-primary-dark ui-btn-icon-camera bx-messenger-call-window-button"},
-													text: BX.message("IM_M_CALL_BTN_ANSWER_CONFERENCE"),
+												BX.create("div", {
+													props: {className: "bx-messenger-call-window-button"},
+													children: [
+														BX.create("div", {
+															props: {className: "bx-messenger-call-window-button-icon bx-messenger-call-window-button-icon-camera"}
+														}),
+														BX.create("div", {
+															props: {className: "bx-messenger-call-window-button-text"},
+															text: BX.message("IM_M_CALL_BTN_ANSWER_CONFERENCE"),
+														}),
+													],
 													events: {click: this._onAnswerConferenceButtonClick.bind(this)}
 												}),
-												BX.create("button", {
-													props: {className: "ui-btn ui-btn-sm ui-btn-round ui-btn-danger-dark ui-btn-icon-phone-down"},
-													text: BX.message("IM_M_CALL_BTN_SKIP_CONFERENCE"),
+												BX.create("div", {
+													props: {className: "bx-messenger-call-window-button bx-messenger-call-window-button-danger"},
+													children: [
+														BX.create("div", {
+															props: {className: "bx-messenger-call-window-button-icon bx-messenger-call-window-button-icon-phone-down"}
+														}),
+														BX.create("div", {
+															props: {className: "bx-messenger-call-window-button-text"},
+															text: BX.message("IM_M_CALL_BTN_SKIP_CONFERENCE"),
+														}),
+													],
 													events: {click: this._onSkipConferenceButtonClick.bind(this)}
 												}),
 											]
@@ -233,7 +281,7 @@
 									]
 								}),
 							]
-						}),
+						})
 					]
 				})
 			]
@@ -246,7 +294,7 @@
 	{
 		this.render();
 		document.body.appendChild(this.elements.root);
-		BX.desktop.setWindowPosition({X:STP_CENTER, Y:STP_VCENTER, Width: 635, Height: 125});
+		BX.desktop.setWindowPosition({X:STP_CENTER, Y:STP_VCENTER, Width: 351, Height: 510});
 	};
 
 	BX.Call.NotificationConferenceContent.prototype._onAnswerConferenceButtonClick = function(e)

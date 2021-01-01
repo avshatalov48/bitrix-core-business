@@ -5,6 +5,7 @@ import {Loc} from 'landing.loc';
 import {Backend} from 'landing.backend';
 import {Env} from 'landing.env';
 import {SliderHacks} from 'landing.sliderhacks';
+import {TextField} from 'landing.ui.field.textfield';
 import 'translit';
 import './css/style.css';
 
@@ -53,20 +54,20 @@ export class CreatePage extends Content
 		this.renderTo(document.body);
 	}
 
-	getTitleField(): BX.Landing.UI.Field.Text
+	getTitleField(): TextField
 	{
 		return this.cache.remember('titleField', () => {
-			return new BX.Landing.UI.Field.Text({
+			return new TextField({
 				title: Loc.getMessage('LANDING_CREATE_PAGE_PANEL_FIELD_PAGE_TITLE'),
 				textOnly: true,
 			});
 		});
 	}
 
-	getCodeField(): BX.Landing.UI.Field.Text
+	getCodeField(): TextField
 	{
 		return this.cache.remember('codeField', () => {
-			return new BX.Landing.UI.Field.Text({
+			return new TextField({
 				title: Loc.getMessage('LANDING_CREATE_PAGE_PANEL_FIELD_PAGE_CODE'),
 				textOnly: true,
 			});
@@ -96,7 +97,7 @@ export class CreatePage extends Content
 				return BX.Landing.Block.Node.Text.currentNode;
 			}
 
-			return BX.Landing.UI.Field.Text.currentField;
+			return TextField.currentField;
 		})();
 
 		const capitalizedTitle = title.replace(/^\w/, c => c.toUpperCase());

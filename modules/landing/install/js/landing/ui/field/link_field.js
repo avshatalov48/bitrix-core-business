@@ -363,7 +363,7 @@
 				target: trim(this.targetInput.getValue())
 			};
 
-			if (this.isAvailableMedia() && this.isEnabledMedia())
+			if (this.isAvailableMedia() && this.isEnabledMedia() && this.mediaService)
 			{
 				value.attrs = {
 					"data-url": trim(this.mediaService.getEmbedURL())

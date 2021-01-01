@@ -1,8 +1,8 @@
 <?php
 $MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_ALFABANK'] = 'Настройки подключения Альфа-Банка';
 $MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_AUTHORIZE'] = 'Настройки подключения Authorize.net';
-$MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_YANDEX'] = 'Настройки подключения Яндекса';
-$MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_YANDEX_INVOICE'] = 'Настройки подключения Яндекс.Денег';
+$MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_YANDEX'] = 'Настройки подключения ЮKassa';
+$MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_YANDEX_INVOICE'] = 'Настройки подключения ЮMoney';
 $MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_WEBMONEY'] = 'Настройки подключения Webmoney';
 $MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_ASSIST'] = 'Настройки подключения Assist';
 $MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_ROBOXCHANGE'] = 'Настройки подключения RoboxChange';

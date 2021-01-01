@@ -33,6 +33,7 @@ Event.bind(document, 'click', (event: MouseEvent) => {
 				if (urlParams.target === '_self')
 				{
 					event.stopImmediatePropagation();
+					BX.Landing.Pub.TopPanel.pushHistory(urlParams.href);
 					void SliderHacks.reloadSlider(urlParams.href);
 				}
 				else

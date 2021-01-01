@@ -1,0 +1,97 @@
+.landing-ui-field-agreements-list-container .landing-ui-component-list-item-body {
+	padding-top: 21px;
+	padding-left: 21px;
+	padding-right: 21px;
+}
+
+.landing-ui-field-agreements-list-container .landing-ui-field-radio-button-item-icon {
+	background-color: #ffffff;
+}
+
+.landing-ui-field-agreements-list-container .landing-ui-component-list-item-body .landing-ui-form-description {
+	display: none;
+}
+
+.landing-ui-field-agreements-list-container .landing-ui-component-list-item-body .landing-ui-field-radio-button-item {
+	width: 112px;
+}
+
+.landing-ui-field-agreements-list-actions-container {
+	position: relative;
+	margin-top: 10px;
+}
+
+.landing-ui-field-agreements-list-actions-button {
+	display: inline-block;
+	font: 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #80868e;
+	border-bottom: 1px dashed #d8d8d8;
+	transition: all 200ms ease;
+	cursor: pointer;
+}
+
+.landing-ui-field-agreements-list-actions-button:first-child {
+	margin-right: 18px;
+}
+
+.landing-ui-field-agreements-list-actions-button:hover,
+.landing-ui-field-agreements-list-actions-button:active {
+	color: #333333;
+	border-bottom: 1px dashed #333333;
+}
+
+.landing-ui-agreement-type-1-icon {
+	background-image: url("images/type1.svg");
+}
+
+.landing-ui-agreement-type-1-icon:hover,
+.landing-ui-agreement-type-1-icon.landing-ui-field-radio-button-item-active {
+	background-image: url("images/type1-hover.svg");
+}
+
+.landing-ui-agreement-type-2-icon {
+	background-image: url("images/type2.svg");
+}
+
+.landing-ui-agreement-type-2-icon:hover,
+.landing-ui-agreement-type-2-icon.landing-ui-field-radio-button-item-active {
+	background-image: url("images/type2-hover.svg");
+}
+
+.landing-ui-agreement-type-3-icon {
+	background-image: url("images/type3.svg");
+}
+
+.landing-ui-agreement-type-3-icon:hover,
+.landing-ui-agreement-type-3-icon.landing-ui-field-radio-button-item-active {
+	background-image: url("images/type3-hover.svg");
+}
+
+.landing-ui-agreement-type-4-icon {
+	background-image: url("images/type4.svg");
+}
+
+.landing-ui-agreement-type-4-icon:hover,
+.landing-ui-agreement-type-4-icon.landing-ui-field-radio-button-item-active {
+	background-image: url("images/type4-hover.svg");
+}
+
+.landing-ui-field-agreements-list-item-body-actions {
+	margin-bottom: 20px;
+}
+
+.landing-ui-field-agreements-list-item-body-action {
+	display: inline-block;
+	font: 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #80868e;
+	border-bottom: 1px dashed #d8d8d8;
+	transition: all 200ms ease;
+	cursor: pointer;
+	margin-right: 18px;
+}
+
+.landing-ui-field-agreements-list-item-body-action:hover,
+.landing-ui-field-agreements-list-item-body-action:active {
+	color: #333333;
+	border-bottom: 1px dashed #333333;
+}

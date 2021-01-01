@@ -4258,7 +4258,12 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 			for(var i = 0, length = infos.length; i < length; i++)
 			{
 				var info = infos[i];
-				items.push({ value: info.name, text: info.title, legend: info.legend });
+				items.push({
+					value: info.name,
+					text: info.title,
+					legend: info.legend,
+					callback: !!info.callback ? info.callback : null
+				});
 			}
 
 			this._fieldTypeSelectMenu = BX.UI.UserFieldTypeMenu.create(
@@ -8756,7 +8761,7 @@ if(typeof BX.UI.EntityEditorCustom === "undefined")
 		{
 			this._innerWrapper.appendChild(BX.create("div",
 				{
-					props: { className: "ui-entity-editor-content-block" },
+					props: { className: "ui-entity-editor-content-block-text" },
 					text: BX.message("UI_ENTITY_EDITOR_FIELD_EMPTY")
 				}));
 		}

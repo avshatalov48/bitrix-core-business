@@ -963,6 +963,7 @@ if(CModule::IncludeModule("socialnetwork"))
 							'SHARE_DEST' => $arComment['EVENT']['SHARE_DEST'],
 							'SOURCE_ID' => (int)$arComment['EVENT']['SOURCE_ID'],
 							'EVENT_ID' => $arComment['EVENT']['EVENT_ID'],
+							'RATING_TYPE_ID' => $arComment['EVENT']['RATING_TYPE_ID']
 						),
 						array(
 							'eventId' => $arComment['EVENT']['EVENT_ID']

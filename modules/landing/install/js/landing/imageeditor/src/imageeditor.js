@@ -15,7 +15,7 @@ export class ImageEditor
 		return imageEditor
 			.edit(preparedOptions)
 			.then((file) => {
-				file.name = getFilename(options.image);
+				file.name = decodeURIComponent(getFilename(options.image));
 				return file;
 			});
 	}

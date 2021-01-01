@@ -77,7 +77,7 @@ SequenceActivity = function()
 				oSubMenu.push({
 					'ICON': 'url(/bitrix/images/bizproc/act_icon_plus.png)',
 					'TEXT': '<img src="/bitrix/images/bizproc/act_icon_plus.png" align="left" style="margin-right: 7px;margin-left: 0px">'
-					+ '<b>' + HTMLEncode(BPMESS['BPSA_MARKETPLACE_ADD_TITLE']) + '</b><br>' + HTMLEncode(BPMESS['BPSA_MARKETPLACE_ADD_DESCR']),
+					+ '<b>' + HTMLEncode(BPMESS['BPSA_MARKETPLACE_ADD_TITLE_2']) + '</b><br>' + HTMLEncode(BPMESS['BPSA_MARKETPLACE_ADD_DESCR_2']),
 					'ONCLICK': 'BX.rest.Marketplace.open({}, \'auto_pb\'); if(window.jsPopup_WFAct) {window.jsPopup_WFAct.PopupHide();}'
 				});
 			}
@@ -117,7 +117,7 @@ SequenceActivity = function()
 		else
 			window.jsPopup_WFAct = new PopupMenu('PopupWFAct', 30000);
 
-		window.jsPopup_WFAct.ShowMenu(this, jsMnu_WFAct); 
+		window.jsPopup_WFAct.ShowMenu(this, jsMnu_WFAct);
 	};
 
 	ob.lastDrop = false;

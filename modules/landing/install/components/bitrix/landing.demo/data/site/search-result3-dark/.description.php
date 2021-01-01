@@ -29,7 +29,6 @@ return array(
 			'B24BUTTON_COLOR' => 'site',
 			'VIEW_USE' => 'Y',
 			'UP_SHOW' => 'Y',
-			'THEME_CODE' => '2business',
 			'THEMEFONTS_CODE' => 'g-font-roboto',
 			'THEMEFONTS_CODE_H' => 'g-font-montserrat',
 			'THEMEFONTS_SIZE' => '1.14286',

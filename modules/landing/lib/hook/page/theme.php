@@ -2,149 +2,179 @@
 
 namespace Bitrix\Landing\Hook\Page;
 
-use \Bitrix\Landing\Field;
+use Bitrix\Landing\Field;
+use Bitrix\Landing\Hook\Page;
 use Bitrix\Main\Application;
-use \Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Event;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\Page\AssetLocation;
-use Bitrix\Landing\Manager;
+use Bitrix\Landing\Restriction;
+use Bitrix\Main\Text\HtmlFilter;
 
 Loc::loadMessages(__FILE__);
 
-class Theme extends \Bitrix\Landing\Hook\Page
+class Theme extends Page
 {
+	protected const DEFAULT_COLOR = '#34bcf2';
+
 	/**
 	 * Map of the field.
 	 * @return array
 	 */
 	protected function getMap()
 	{
-		return array(
-			'CODE' => new Field\Select('CODE', array(
+		return [
+			'CODE' => new Field\Select('CODE', [
 				'title' => Loc::getMessage('LANDING_HOOK_THEMECODE_NEW'),
 				'options' => array_merge(
-					array(
-						'' => array(
-							'name' => Loc::getMessage('LANDING_HOOK_THEMECODE_DEF'),
+					[
+						'' => [
 							'color' => '#f0f0f0',
-						)
-					),
+						]
+					],
 					self::getColorCodes()
 				),
-			)),
-		);
+			]),
+			'USE' => new Field\Checkbox('USE', [
+				'title' => Loc::getMessage('LANDING_HOOK_THEME_CUSTOM_USE')
+			]),
+			'COLOR' => new Field\Text('COLOR', [
+				'title' => Loc::getMessage('LANDING_HOOK_THEME_CUSTOM_COLOR')
+			])
+		];
 	}
 
 	/**
 	 * Get all themes colors.
 	 * @return array
 	 */
-	public static function getColorCodes()
+	public static function getColorCodes(): array
 	{
-		static $colors = array();
+		static $colors = [];
 
 		if (!empty($colors))
 		{
 			return $colors;
 		}
 
-		$colors = array(
-			'2business' => array(
-				'name' => Loc::getMessage('LANDING_HOOK_THEMECODE_BUSINESS_NEW'),
+		$colors = [
+			'2business' => [
 				'color' => '#3949a0',
-				'base' => true
-			),
-			'gym' => array(
-				'name' => Loc::getMessage('LANDING_HOOK_THEMECODE-GYM'),
+				'main' => '#333333',
+				'base' => true,
+			],
+			'gym' => [
 				'color' => '#6b7de0',
-			),
-			'3corporate' => array(
-				'name' => Loc::getMessage('LANDING_HOOK_THEMECODE_CORPORATE_NEW'),
+				'main' => '#444444',
+			],
+			'3corporate' => [
 				'color' => '#6ab8ee',
-				'base' => true
-			),
-			'app' => array(
-				'name' => Loc::getMessage('LANDING_HOOK_THEMECODE-APP'),
+				'main' => '#12222d',
+				'secondary' => '#fafbfc',
+				'base' => true,
+			],
+			'wiki-dark' => [
+				'color' => '#60e7f5',
+			],
+			'app' => [
 				'color' => '#4fd2c2',
-				'base' => true
-			),
-			'consulting' => array(
-				'name' => Loc::getMessage('LANDING_HOOK_THEMECODE-CONSULTING'),
+				'main' => '#999999',
+				'colorTitle' => '#111111',
+				'base' => true,
+			],
+			'consulting' => [
 				'color' => '#21a79b',
-			),
-			'accounting' => array(
-				'name' => Loc::getMessage('LANDING_HOOK_THEMECODE-ACCOUNTING'),
-				'color' => '#a5c33c',
-				'base' => true
-			),
-			'courses' => array(
-				'name' => Loc::getMessage('LANDING_HOOK_THEMECODE-COURSES'),
+				'main' => '#464c5e',
+				'secondary' => '#f5fafa',
+			],
+			'courses' => [
 				'color' => '#6bda95',
-			),
-			'spa' => array(
-				'name' => Loc::getMessage('LANDING_HOOK_THEMECODE-SPA'),
+				'main' => '#999999',
+				'colorTitle' => '#000000',
+			],
+			'accounting' => [
+				'color' => '#a5c33c',
+				'main' => '#999999',
+				'base' => true,
+			],
+			'spa' => [
 				'color' => '#9dba04',
-			),
-			'charity' => array(
-				'name' => Loc::getMessage('LANDING_HOOK_THEMECODE-CHARITY'),
+				'main' => '#999999',
+				'colorTitle' => '#000000',
+			],
+			'charity' => [
 				'color' => '#f5f219',
-			),
-			'1construction' => array(
-				'name' => Loc::getMessage('LANDING_HOOK_THEMECODE_CONSTRUCTION_NEW'),
+				'main' => '#999999',
+				'colorTitle' => '#111111',
+			],
+			'1construction' => [
 				'color' => '#f7b70b',
-				'base' => true
-			),
-			'travel' => array(
-				'name' => Loc::getMessage('LANDING_HOOK_THEMECODE-TRAVEL'),
+				'main' => '#a7a7a7',
+				'base' => true,
+			],
+			'travel' => [
 				'color' => '#ee4136',
-			),
-			'architecture' => array(
-				'name' => Loc::getMessage('LANDING_HOOK_THEMECODE-ARCHITECTURE'),
+				'main' => '#333333',
+			],
+			'architecture' => [
 				'color' => '#c94645',
-			),
-			'event' => array(
-				'name' => Loc::getMessage('LANDING_HOOK_THEMECODE-EVENT'),
+				'main' => '#7d7d8f',
+				'colorTitle' => '#383339',
+			],
+			'event' => [
 				'color' => '#f73859',
-			),
-			'lawyer' => array(
-				'name' => Loc::getMessage('LANDING_HOOK_THEMECODE-LAWYER'),
+				'main' => '#979aa7',
+				'secondary' => '#1a2e39',
+				'colorTitle' => '#151826',
+			],
+			'lawyer' => [
 				'color' => '#e74c3c',
-			),
-			'music' => array(
-				'name' => Loc::getMessage('LANDING_HOOK_THEMECODE-MUSIC'),
-				'color' => '#fe6466',
-			),
-			'real-estate' => array(
-				'name' => Loc::getMessage('LANDING_HOOK_THEMECODE-REALESTATE'),
+				'main' => '#444444',
+				'colorTitle' => '#4e4353',
+			],
+			'real-estate' => [
 				'color' => '#f74c3c',
-				'base' => true
-			),
-			'restaurant' => array(
-				'name' => Loc::getMessage('LANDING_HOOK_THEMECODE-RESTAURANT'),
+				'main' => '#1a2e39',
+				'secondary' => '#1a2e39',
+				'base' => true,
+			],
+			'restaurant' => [
 				'color' => '#e6125d',
-			),
-			'shipping' => array(
-				'name' => Loc::getMessage('LANDING_HOOK_THEMECODE-SHIPPING'),
+				'main' => '#444444',
+				'colorTitle' => '#222222',
+			],
+			'shipping' => [
 				'color' => '#ff0000',
-			),
-			'agency' => array(
-				'name' => Loc::getMessage('LANDING_HOOK_THEMECODE-AGENCY'),
+				'main' => '#444444',
+				'colorTitle' => '#2c2c2c',
+			],
+			'agency' => [
 				'color' => '#fe6466',
-			),
-			'wedding' => array(
-				'name' => Loc::getMessage('LANDING_HOOK_THEMECODE-WEDDING'),
+				'main' => '#a49da6',
+				'colorTitle' => '#383339',
+			],
+			'music' => [
+				'color' => '#fe6476',
+				'main' => '#999999',
+				'colorTitle' => '#2f2f2f',
+			],
+			'wedding' => [
 				'color' => '#d65779',
-			),
-			'photography' => array(
-				'name' => Loc::getMessage('LANDING_HOOK_THEMECODE-PHOTOGRAPHY'),
+				'main' => '#444444',
+				'colorTitle' => '#222222',
+			],
+			'photography' => [
 				'color' => '#333333',
-				'base' => true
-			),
-		);
+				'main' => '#444444',
+				'colorTitle' => '#333333',
+				'base' => true,
+			],
+		];
 
-		$event = new \Bitrix\Main\Event('landing', 'onGetThemeColors', array(
+		$event = new Event('landing', 'onGetThemeColors', [
 			'colors' => $colors
-		));
+		]);
 		$event->send();
 		foreach ($event->getResults() as $result)
 		{
@@ -167,7 +197,6 @@ class Theme extends \Bitrix\Landing\Hook\Page
 		{
 			$colors = [
 				'1construction' => [
-					'name' => Loc::getMessage('LANDING_HOOK_THEMECODE_CONSTRUCTION_NEW'),
 					'color' => '#f7b70b',
 					'base' => true
 				]
@@ -178,19 +207,54 @@ class Theme extends \Bitrix\Landing\Hook\Page
 	}
 
 	/**
+	 * Find theme name (old format) by hex color
+	 * @param string $hexColor (with lead #)
+	 * @return string|null
+	 */
+	protected static function getThemeCodeByColor(string $hexColor): ?string
+	{
+		foreach(self::getColorCodes() as $code => $color)
+		{
+			if($color['color'] === $hexColor)
+			{
+				return $code;
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * Enable or not the hook.
 	 * @return boolean
 	 */
 	public function enabled()
 	{
-		return trim($this->fields['CODE']) != '';
+		if ($this->issetCustomExec())
+		{
+			return true;
+		}
+
+		if ($this->isPage())
+		{
+			if (
+				$this->fields['CODE']->getValue()
+				&& !$this->fields['COLOR']->getValue()
+			)
+			{
+				return true;
+			}
+			return $this->fields['USE']->getValue() === 'Y';
+		}
+
+		return true;
 	}
 
 	/**
 	 * @param string $hexColor
 	 * @return array
 	 */
-	protected static function convertHexToRgb($hexColor)
+	protected static function convertHexToRgb(string $hexColor): array
 	{
 		if ($hexColor[0] !== '#')
 		{
@@ -198,25 +262,28 @@ class Theme extends \Bitrix\Landing\Hook\Page
 		}
 		if (strlen($hexColor) === 4)
 		{
-			$hexColor = $hexColor[0]. $hexColor[1]. $hexColor[1]. $hexColor[2]. $hexColor[2]. $hexColor[3]. $hexColor[3];
+			$hexColor =
+				$hexColor[0] . $hexColor[1] . $hexColor[1] . $hexColor[2] . $hexColor[2] . $hexColor[3] . $hexColor[3];
 		}
-		if (!(strlen($hexColor) === 7))
+		if (strlen($hexColor) !== 7)
 		{
-			$hexColor = '#34bcf2';
+			$hexColor = self::DEFAULT_COLOR;
 		}
-		$red = hexdec(substr($hexColor, 1, 2));
-		$green = hexdec(substr($hexColor, 3, 2));
-		$blue = hexdec(substr($hexColor, 5, 2));
-		return [$red, $green, $blue];
+
+		return [
+			hexdec(substr($hexColor, 1, 2)),
+			hexdec(substr($hexColor, 3, 2)),
+			hexdec(substr($hexColor, 5, 2)),
+		];
 	}
 
 	/**
 	 * @param integer $red
 	 * @param integer $green
 	 * @param integer $blue
-	 * @return array
+	 * @return array [hue, saturation, lightness]
 	 */
-	protected static function convertRgbToHsl($red, $green, $blue)
+	protected static function convertRgbToHsl(int $red, int $green, int $blue): array
 	{
 		$red /= 255;
 		$green /= 255;
@@ -225,14 +292,14 @@ class Theme extends \Bitrix\Landing\Hook\Page
 		$min = min($red, $green, $blue);
 		$lightness = ($max + $min) / 2;
 		$d = $max - $min;
-		if($d === 0)
+		if($d == 0)
 		{
-			$hue = $saturate = 0;
+			$hue = $saturation = 0;
 		}
 		else
 		{
 			$hue = 0;
-			$saturate = $d / (1 - abs(2 * $lightness - 1));
+			$saturation = $d / (1 - abs(2 * $lightness - 1));
 			switch($max)
 			{
 				case $red:
@@ -242,76 +309,129 @@ class Theme extends \Bitrix\Landing\Hook\Page
 						$hue += 360;
 					}
 					break;
+
 				case $green:
 					$hue = 60 * (($blue - $red) / $d + 2);
 					break;
+
 				case $blue:
 					$hue = 60 * (($red - $green) / $d + 4);
 					break;
+
 				default:
 					break;
 			}
 		}
-		$hue = round($hue, 2);
-		$saturate = round($saturate, 2) * 100;
-		$lightness = round($lightness, 2) * 100;
-		return [$hue, $saturate, $lightness];
+
+		return [
+			round($hue, 2),
+			round($saturation, 2) * 100,
+			round($lightness, 2) * 100,
+		];
 	}
 
 	/**
 	 * Exec hook.
 	 * @return void
 	 */
-	public function exec()
+	public function exec(): void
 	{
-		$code = \htmlspecialcharsbx(trim($this->fields['CODE']));
-		Manager::setThemeId($code);
+		$defaultColors = self::getColorCodes();
 
+		// get color from request or from settings
 		$request = Application::getInstance()->getContext()->getRequest();
-		$color = false;
 		if ($request->get('color'))
 		{
-			$color = $request->get('color');
+			$colorHex = $request->get('color');
 		}
-
-		if (is_string($color))
+		elseif (
+			($themeCodeFromRequest = $request->get('theme'))
+			&& array_key_exists($themeCodeFromRequest, $defaultColors)
+		)
 		{
-			if ($color[0] !== '#')
-			{
-				$color = '#'.$color;
-			}
-
-			$rgbColor = self::convertHexToRgb($color);
-			$rgbTemplate = $rgbColor[0].', '.$rgbColor[1].', '.$rgbColor[2];
-
-			$hslColor = self::convertRgbToHsl($rgbColor[0], $rgbColor[1],$rgbColor[2]);
-			$hslaColorDarken1 = 'hsl('.$hslColor[0].', '.$hslColor[1].'%, '.min($hslColor[2]+2, 100).'%)';
-			$hslaColorDarken2 = 'hsl('.$hslColor[0].', '.$hslColor[1].'%, '.min($hslColor[2]+5, 100).'%)';
-			$hslaColorDarken3 = 'hsl('.$hslColor[0].', '.$hslColor[1].'%, '.min($hslColor[2]+10, 100).'%)';
-			$hslaColorLighten1 = 'hsl('.$hslColor[0].', '.$hslColor[1].'%, '.max($hslColor[2]-10, 0).'%)';
-
-			$colorMain = 'hsl('.$hslColor[0].', 20%, 20%)';
-			$colorSecondary = 'hsl('.$hslColor[0].', 20%, 80%)';
-
-			Asset::getInstance()->addString(
-				'<style type="text/css">
-					:root {
-						--theme-color-primary: ' . $color . ';
-						--theme-color-primary-darken-1: ' . $hslaColorDarken1 . ';
-						--theme-color-primary-darken-2: ' . $hslaColorDarken2 . ';
-						--theme-color-primary-darken-3: ' . $hslaColorDarken3 . ';
-						--theme-color-primary-lighten-1: ' . $hslaColorLighten1 . ';
-						--theme-color-primary-opacity-0_1: rgba('.$rgbTemplate.', 0.1);
-						--theme-color-primary-opacity-0_2: rgba('.$rgbTemplate.', 0.2);
-						--theme-color-primary-opacity-0_3: rgba('.$rgbTemplate.', 0.3);
-						--theme-color-primary-opacity-0_4: rgba('.$rgbTemplate.', 0.4);
-						--theme-color-primary-opacity-0_6: rgba('.$rgbTemplate.', 0.6);
-						--theme-color-primary-opacity-0_8: rgba('.$rgbTemplate.', 0.8);
-						--theme-color-primary-opacity-0_9: rgba('.$rgbTemplate.', 0.9);
-						--theme-color-main: ' . $colorMain . ';
-						--theme-color-secondary: ' . $colorSecondary . ';
-				</style>', false, AssetLocation::BEFORE_CSS
-			);
+			$themeCode = $themeCodeFromRequest;
+			$colorHex = $defaultColors[$themeCodeFromRequest]['color'];
 		}
+		else
+		{
+			$colorHex = HtmlFilter::encode(trim($this->fields['COLOR']->getValue()));
+			if (!$colorHex)
+			{
+				$themeCode = HtmlFilter::encode(trim($this->fields['CODE']));
+				$colorHex = $themeCode ? $defaultColors[$themeCode]['color'] : self::DEFAULT_COLOR;
+			}
+		}
+
+		if ($colorHex[0] !== '#')
+		{
+			$colorHex = '#'.$colorHex;
+		}
+		if (strlen($colorHex) !== 7)
+		{
+			$colorHex = self::DEFAULT_COLOR;
+		}
+		else
+		{
+			$pattern = '/#[0-9a-f]{6}/i';
+			if (preg_match($pattern, $colorHex) !== 1)
+			{
+				$colorHex = self::DEFAULT_COLOR;
+			}
+		}
+
+		$restrictionCode = Restriction\Hook::getRestrictionCodeByHookCode('THEME');
+		if (
+			!Restriction\Manager::isAllowed($restrictionCode)
+			&& !self::getThemeCodeByColor($colorHex)
+		)
+		{
+			$colorHex = self::DEFAULT_COLOR;
+		}
+
+		// print
+		$rgbColor = self::convertHexToRgb($colorHex);
+		$rgbTemplate = $rgbColor[0] . ', ' . $rgbColor[1] . ', ' . $rgbColor[2];
+		$hslColor = self::convertRgbToHsl($rgbColor[0], $rgbColor[1], $rgbColor[2]);
+
+		$themeCode = $themeCode ?? self::getThemeCodeByColor($colorHex);
+		if ($themeCode)
+		{
+			$colorMain = $defaultColors[$themeCode]['main'];
+			if ($defaultColors[$themeCode]['secondary'])
+			{
+				$colorSecondary = $defaultColors[$themeCode]['secondary'];
+			}
+			if ($defaultColors[$themeCode]['colorTitle'])
+			{
+				$colorTitle = $defaultColors[$themeCode]['colorTitle'];
+			}
+		}
+		$colorMain = $colorMain ?? 'hsl('.$hslColor[0].', 20%, 20%)';
+		$colorSecondary = $colorSecondary ?? 'hsl('.$hslColor[0].', 20%, 80%)';
+		$colorTitle = $colorTitle ?? $colorMain;
+
+		Asset::getInstance()->addString(
+			'<style type="text/css">
+				:root {
+					--theme-color-primary: ' . $colorHex . ';
+					--theme-color-primary-darken-1: hsl(' . $hslColor[0] . ', ' . $hslColor[1] . '%, ' . min($hslColor[2] - 2, 100) . '%)' . ';
+					--theme-color-primary-darken-2: hsl(' . $hslColor[0] . ', ' . $hslColor[1] . '%, ' . min($hslColor[2] - 5, 100) . '%)' . ';
+					--theme-color-primary-darken-3: hsl(' . $hslColor[0] . ', ' . $hslColor[1] . '%, ' . min($hslColor[2] - 10, 100) . '%)' . ';
+					--theme-color-primary-lighten-1: hsl(' . $hslColor[0] . ', ' . $hslColor[1] . '%, ' . max($hslColor[2] + 10, 0) . '%)' . ';
+					--theme-color-primary-opacity-0_1: rgba('.$rgbTemplate.', 0.1);
+					--theme-color-primary-opacity-0_2: rgba('.$rgbTemplate.', 0.2);
+					--theme-color-primary-opacity-0_3: rgba('.$rgbTemplate.', 0.3);
+					--theme-color-primary-opacity-0_4: rgba('.$rgbTemplate.', 0.4);
+					--theme-color-primary-opacity-0_6: rgba('.$rgbTemplate.', 0.6);
+					--theme-color-primary-opacity-0_8: rgba('.$rgbTemplate.', 0.8);
+					--theme-color-primary-opacity-0_9: rgba('.$rgbTemplate.', 0.9);
+					--theme-color-main: ' . $colorMain . ';
+					--theme-color-secondary: ' . $colorSecondary . ';
+					--theme-color-title: ' . $colorTitle . ';
+				}
+			</style>',
+			false,
+			AssetLocation::BEFORE_CSS
+		);
 	}
 }

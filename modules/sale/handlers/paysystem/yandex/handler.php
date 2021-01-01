@@ -385,10 +385,7 @@ class YandexHandler
 	protected function getUrlList()
 	{
 		return array(
-			'pay' => array(
-				self::TEST_URL => 'https://demomoney.yandex.ru/eshop.xml',
-				self::ACTIVE_URL => 'https://money.yandex.ru/eshop.xml'
-			),
+			'pay' => 'https://yoomoney.ru/eshop.xml',
 			'confirm' => array(
 				self::ACTIVE_URL => 'https://penelope.yamoney.ru/webservice/mws/api/confirmPayment',
 				self::TEST_URL => 'https://penelope-demo.yamoney.ru:8083/webservice/mws/api/confirmPayment'

@@ -570,13 +570,23 @@ class User
 		return $this->userData;
 	}
 
+	/**
+	 * @param string $avatarUrl
+	 * @param string $hash
+	 *
+	 * @return int|string
+	 */
 	public static function uploadAvatar($avatarUrl = '', $hash = '')
 	{
 		if (!$ar = parse_url($avatarUrl))
+		{
 			return '';
+		}
 
-		if (!preg_match('#\.(png|jpg|jpeg|gif|webp)$#i', $ar['path']))
+		if (!preg_match('#\.(png|jpg|jpeg|gif|webp)$#i', $ar['path'], $matches))
+		{
 			return '';
+		}
 
 		$hash = md5($hash.$avatarUrl);
 
@@ -596,9 +606,30 @@ class User
 			}
 		}
 
-		$recordFile = \CFile::MakeFileArray($avatarUrl);
-		if (!\CFile::IsImage($recordFile['name'], $recordFile['type']))
+		try
+		{
+			$tempPath =  \CFile::GetTempName('', $hash.'.'.$matches[1]);
+
+			$http = new \Bitrix\Main\Web\HttpClient();
+			$http->setPrivateIp(false);
+			if ($http->download($avatarUrl, $tempPath))
+			{
+				$recordFile = \CFile::MakeFileArray($tempPath);
+			}
+			else
+			{
+				return '';
+			}
+		}
+		catch (\Bitrix\Main\IO\IoException $exception)
+		{
 			return '';
+		}
+
+		if (!\CFile::IsImage($recordFile['name'], $recordFile['type']))
+		{
+			return '';
+		}
 
 		if (is_array($recordFile) && $recordFile['size'] && $recordFile['size'] > 0 && $recordFile['size'] < 1000000)
 		{

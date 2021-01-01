@@ -6,7 +6,7 @@
 
 	BX.Landing.SliderHelper.ACTION_INIT = 'init';
 	BX.Landing.SliderHelper.ACTION_ADD = 'add';
-	BX.Landing.SliderHelper.ACTION_REMOVE = 'remove';
+	BX.Landing.SliderHelper.ACTION_REMOVE_SLIDE = 'remove_slide';
 	BX.Landing.SliderHelper.ACTION_UPDATE = 'update';
 
 	BX.Landing.SliderHelper.ACTIVE_CLASS = 'slick-initialized';
@@ -20,114 +20,91 @@
 		action = action ? action : BX.Landing.SliderHelper.ACTION_INIT;
 
 		var relativeSelector = BX.Landing.SliderHelper.makeCarouselRelativeSelector(event);
-		var nodes = event.block.querySelectorAll(relativeSelector);
-		if (nodes.length > 0)
+		var sliders = [].slice.call(event.block.querySelectorAll(relativeSelector));
+		sliders.forEach(function (sliderNode)
 		{
-			if(action == BX.Landing.SliderHelper.ACTION_UPDATE && BX.Landing.SliderHelper.isSliderActive(nodes))
+			if (
+				BX.Landing.SliderHelper.isSliderActive(sliderNode)
+				&& action === BX.Landing.SliderHelper.ACTION_UPDATE
+			)
 			{
 				BX.Landing.SliderHelper.destroy(event);
 			}
 
-			BX.Landing.SliderHelper.initBase(relativeSelector);
+			BX.Landing.SliderHelper.initBase(sliderNode);
 
-			if(action == BX.Landing.SliderHelper.ACTION_UPDATE && BX.Landing.SliderHelper.isSliderActive(nodes))
+			if (
+				action === BX.Landing.SliderHelper.ACTION_UPDATE
+				|| action === BX.Landing.SliderHelper.ACTION_ADD
+				|| action === BX.Landing.SliderHelper.ACTION_REMOVE_SLIDE
+			)
 			{
-				BX.Landing.SliderHelper.goToSlide(relativeSelector, event, action);
+				BX.Landing.SliderHelper.goToSlide(sliderNode, event, action);
 				BX.Landing.SliderHelper.setSelection(event);
 			}
-		}
+		});
 	};
 
 	BX.Landing.SliderHelper.destroy = function (event)
 	{
 		var relativeSelector = BX.Landing.SliderHelper.makeCarouselRelativeSelector(event);
-		var nodes = event.block.querySelectorAll(relativeSelector);
-		if (nodes.length > 0 && BX.Landing.SliderHelper.isSliderActive(nodes))
+		var sliders = [].slice.call(event.block.querySelectorAll(relativeSelector));
+		sliders.forEach(function (sliderNode)
 		{
-			// save current slide number
-			event.block.slickCurrentSlide = $(relativeSelector).slick("slickCurrentSlide");
-
-			// cant save range object if node will be broken. Save just params
-
-			if(window.getSelection().rangeCount > 0)
+			if (BX.Landing.SliderHelper.isSliderActive(sliderNode))
 			{
-				var range = window.getSelection().getRangeAt(0);
-				event.block.savedRange = {
-					sCont: range.startContainer,
-					sOffset: range.startOffset,
-					eCont: range.endContainer,
-					eOffset: range.endOffset,
-				};
-			}
-
-			$(relativeSelector).slick('unslick');
-		}
-	};
-
-
-	BX.Landing.SliderHelper.isSliderActive = function (nodes)
-	{
-		var result = false;
-		Object.keys(nodes).forEach(function (name)
-		{
-			if (BX.hasClass(nodes[name], BX.Landing.SliderHelper.ACTIVE_CLASS))
-			{
-				result = true;
+				// save current slide number
+				sliderNode.slickCurrentSlide = $(sliderNode).slick("slickCurrentSlide");
+				$(sliderNode).slick('unslick');
 			}
 		});
 
-		return result;
+		BX.Landing.SliderHelper.saveSelection(event);
 	};
-
 
 	/**
 	 * Base slider initialization slider without options
 	 */
-	BX.Landing.SliderHelper.initBase = function (selector)
+	BX.Landing.SliderHelper.initBase = function (sliderNode)
 	{
 		// some classes conflict with slider markup - remove them
-		var excludeClasses = $(selector).data('init-classes-exclude');
-		if(excludeClasses && BX.type.isArray(excludeClasses))
+		var excludeClasses = $(sliderNode).data('init-classes-exclude');
+		if (excludeClasses && BX.type.isArray(excludeClasses))
 		{
-			excludeClasses.forEach(function (item)
+			excludeClasses.forEach(function (excludeClass)
 			{
-				if(item.selector && item.class)
+				if (excludeClass.selector && excludeClass.class)
 				{
-					$(selector).parent().find(item.selector).removeClass(item.class);
+					$(sliderNode).parent().find(excludeClass.selector).removeClass(excludeClass.class);
 				}
 			})
 		}
 
 		var config = {accessibility: false};
 		// in editor mode infinity scroll will be create cloned slides - we not need them
-		if (BX.Landing.getMode() == 'edit')
+		if (BX.Landing.getMode() === 'edit')
 		{
 			config.infinite = false;
 		}
-		$.HSCore.components.HSCarousel.init(selector, config);
+		$.HSCore.components.HSCarousel.init(sliderNode, config);
 	};
 
+	BX.Landing.SliderHelper.destroy = function (event)
+	{
+		var relativeSelector = BX.Landing.SliderHelper.makeCarouselRelativeSelector(event);
+		var sliders = [].slice.call(event.block.querySelectorAll(relativeSelector));
+		sliders.forEach(function (sliderNode)
+		{
+			if (BX.Landing.SliderHelper.isSliderActive(sliderNode))
+			{
+				// save current slide number
+				sliderNode.slickCurrentSlide = $(sliderNode).slick("slickCurrentSlide");
+				$(sliderNode).slick('unslick');
+			}
+		});
 
-	/**
-	 * Hack to reinit attrs, when $.data give old values
-	 */
-	// dbg - new function, not worked yet
-	// BX.Landing.SliderHelper.initAttrs = function (event)
-	// {
-	// 	var relativeSelector = BX.Landing.SliderHelper.makeCarouselRelativeSelector(event);
-	// 	var nodes = event.block.querySelectorAll(relativeSelector);
-	// 	if (nodes.length > 0)
-	// 	{
-	// 		for (var attr in event.data)
-	// 		{
-	// 			$(relativeSelector).slick('slickSetOption', attr.replace('data-', ''), event.data[attr], true);
-	// 		}
-	// 		// nodes.forEach(function(i){
-	//
-	// 		// });
-	// 	}
-	// };
-
+		BX.Landing.SliderHelper.saveSelection(event);
+	};
 
 	/**
 	 * For current event find all parents sliders and return relative (from block id) selector.
@@ -140,12 +117,6 @@
 	 */
 	BX.Landing.SliderHelper.makeCarouselRelativeSelector = function (event, carouselClass)
 	{
-		// cached value
-		if (event.block.carouselRelativeSelector)
-		{
-			return event.block.carouselRelativeSelector;
-		}
-
 		carouselClass = carouselClass || "js-carousel";
 		var carouselSelectors = [];
 
@@ -157,40 +128,33 @@
 			{
 				//card may be outside of the slider (when undo). Find same cards by selector
 				eventNodes = event.block.querySelectorAll('.' + event.card.className.split(/\s+/).join('.'));
-				// eventNodes = [event.card];
 			}
 			else if (event.node)
 			{
-				eventNodes = event.node;
+				eventNodes = [event.node];
 			}
 			else if (event.data && event.data.selector)	//selector of deleted card
 			{
 				eventNodes = event.block.querySelectorAll(event.data.selector.split("@")[0]);
 			}
 
-			// convert to array
-			if (!BX.type.isArray(eventNodes))
-			{
-				eventNodes = [eventNodes];
-			}
-
 			// fore each event node find parent and take his selector
-			eventNodes.forEach(function (n)
+			eventNodes.forEach(function (node)
 			{
-				var currCarousel = BX.findParent(n, {className: carouselClass}),
+				var currCarousel = BX.findParent(node, {className: carouselClass}),
 					currSelector = '';
 				if (currCarousel)
 				{
 					// remove slick-classes, because them will may be deleted if slider destroyed
 					currCarousel.classList.forEach(function (cl)
 					{
-						if (cl.indexOf('slick-') == -1)
+						if (cl.indexOf('slick-') === -1)
 						{
 							currSelector += '.' + cl;
 						}
 					});
 
-					if (carouselSelectors[carouselSelectors.length - 1] != currSelector)
+					if (carouselSelectors[carouselSelectors.length - 1] !== currSelector)
 					{
 						carouselSelectors.push(currSelector);
 					}
@@ -199,7 +163,7 @@
 		}
 
 		// if nothing find - use DEFAULT selector
-		if (carouselSelectors.length == 0)
+		if (carouselSelectors.length === 0)
 		{
 			carouselSelectors = ['.' + carouselClass];
 		}
@@ -210,11 +174,40 @@
 			carouselSelectors[i] = event.makeRelativeSelector(s);
 		});
 
-		// todo: make correctly multiply slider selector
-		// cache selector
-		event.block.carouselRelativeSelector = carouselSelectors.join(',');
+		return carouselSelectors.join(',');
+	};
 
-		return event.block.carouselRelativeSelector;
+	BX.Landing.SliderHelper.isSliderActive = function (nodes)
+	{
+		if (!BX.Type.isArrayLike(nodes))
+		{
+			nodes = [nodes];
+		}
+		var result = false;
+		nodes.forEach(function (node)
+		{
+			if (BX.hasClass(node, BX.Landing.SliderHelper.ACTIVE_CLASS))
+			{
+				result = true;
+			}
+		});
+
+		return result;
+	};
+
+	BX.Landing.SliderHelper.saveSelection = function (event)
+	{
+		// cant save range object if node will be broken. Save just params
+		if (window.getSelection().rangeCount > 0)
+		{
+			var range = window.getSelection().getRangeAt(0);
+			event.block.savedRange = {
+				sCont: range.startContainer,
+				sOffset: range.startOffset,
+				eCont: range.endContainer,
+				eOffset: range.endOffset
+			};
+		}
 	};
 
 	BX.Landing.SliderHelper.setSelection = function (event)
@@ -232,20 +225,22 @@
 		}
 	};
 
-	BX.Landing.SliderHelper.goToSlide = function (selector, event, action)
+	BX.Landing.SliderHelper.goToSlide = function (sliderNode, event, action)
 	{
 		if (!action)
 		{
 			return;
 		}
 
-		var currSlideNumber = parseInt(event.block.slickCurrentSlide);
+		var currSlideNumber = parseInt(sliderNode.slickCurrentSlide);
 
 		// for multiple row sliders need use parent container as slide
-		var slideContainer = event.card;
-		if(
-			event.block.querySelector(selector).dataset.rows &&
-			parseInt(event.block.querySelector(selector).dataset.rows) > 1
+		var slideContainer = action === BX.Landing.SliderHelper.ACTION_REMOVE_SLIDE
+			? BX.Landing.SliderHelper.findNewSlideWhenRemove(event)
+			: event.card;
+		if (
+			sliderNode.dataset.rows
+			&& parseInt(sliderNode.dataset.rows) > 1
 		)
 		{
 			slideContainer = BX.findParent(event.card, {className: 'slick-slide'});
@@ -258,73 +253,94 @@
 		switch (action)
 		{
 			case BX.Landing.SliderHelper.ACTION_ADD :
-				BX.Landing.SliderHelper.goToNewSlideAfterAdd(selector, currSlideNumber, newSlideNumber);
+				BX.Landing.SliderHelper.goToSlideAfterAdd(sliderNode, currSlideNumber, newSlideNumber);
 				break;
 
-			case BX.Landing.SliderHelper.ACTION_REMOVE:
-				BX.Landing.SliderHelper.goToNewSlideAfterRemove(selector, currSlideNumber, newSlideNumber);
+			case BX.Landing.SliderHelper.ACTION_REMOVE_SLIDE:
+				BX.Landing.SliderHelper.goToSlideAfterRemove(sliderNode, currSlideNumber, newSlideNumber);
 				break;
 
 			case BX.Landing.SliderHelper.ACTION_UPDATE:
-				BX.Landing.SliderHelper.goToSlideAfterUpdate(selector, currSlideNumber);
+				BX.Landing.SliderHelper.goToSlideAfterUpdate(sliderNode, currSlideNumber);
 				break;
 
 			default:
 		}
 	};
 
+	BX.Landing.SliderHelper.findNewSlideWhenRemove = function (event)
+	{
+		var selector = event.data.selector,
+			selectorName = selector.split("@")[0],
+			selectorIndex = parseInt(selector.split("@")[1]),
+			slides = event.block.querySelectorAll(selectorName);
+		// if deleted not a last card - new card will be have same index
+		// if not - find previously card
+		var slideNew = slides[selectorIndex];
+		if (!slideNew)
+		{
+			slideNew = (!BX.type.isNumber(selectorIndex) || selectorIndex === 0)
+				? null
+				: slides[selectorIndex - 1]
+			;
+			// if new card is null it means, that all cards was be deleted
+		}
+
+		return slideNew;
+	}
+
 	/**
 	 * Move slider to new slide after add card.
 	 *
-	 * @param carouselSelector
+	 * @param carouselNode
 	 * @param currSlideNumber
 	 * @param newSlideNumber
 	 */
-	BX.Landing.SliderHelper.goToNewSlideAfterAdd = function (carouselSelector, currSlideNumber, newSlideNumber)
+	BX.Landing.SliderHelper.goToSlideAfterAdd = function (carouselNode, currSlideNumber, newSlideNumber)
 	{
-
-		// BX.Landing.SliderHelper.goToNewSlideAfterAdd(relativeSelector, currSlideNumber, newSlideNumber);
-		// currSlideNumber = parseInt(currSlideNumber);
-		// newSlideNumber = parseInt(newSlideNumber);
 		if (BX.type.isNumber(newSlideNumber) && BX.type.isNumber(currSlideNumber))
 		{
 			// if new slide in visible area - stay on current slide, else - go to next element (one step)
-			var slidesToShow = $(carouselSelector).slick('slickGetOption', 'slidesToShow');
+			var slidesToShow = $(carouselNode).slick('slickGetOption', 'slidesToShow');
 			slidesToShow = slidesToShow === true ? 1 : slidesToShow; //slidesToShow can be 'true'
 			if ((newSlideNumber - currSlideNumber) >= slidesToShow)
 			{
-				$(carouselSelector).slick('slickGoTo', currSlideNumber, true);
-				$(carouselSelector).slick('slickGoTo', currSlideNumber + 1, false);
+				$(carouselNode).slick('slickGoTo', currSlideNumber, true);
+				$(carouselNode).slick('slickGoTo', currSlideNumber + 1, false);
 			}
 			else
 			{
-				$(carouselSelector).slick('slickGoTo', currSlideNumber, true);
+				$(carouselNode).slick('slickGoTo', currSlideNumber, true);
 			}
 		}
 	};
 
-
 	/**
 	 * Move slider to new slide after remove. Stay on current position or move to previously slide, if was removed last element
 	 *
-	 * @param carouselSelector
+	 * @param carouselNode
 	 * @param currSlideNumber
 	 * @param newSlideNumber
 	 */
-	BX.Landing.SliderHelper.goToNewSlideAfterRemove = function (carouselSelector, currSlideNumber, newSlideNumber)
+	BX.Landing.SliderHelper.goToSlideAfterRemove = function (carouselNode, currSlideNumber, newSlideNumber)
 	{
 		if (BX.type.isNumber(newSlideNumber) && BX.type.isNumber(currSlideNumber))
 		{
-			$(carouselSelector).slick('slickGoTo', Math.min(currSlideNumber, newSlideNumber), true);
+			$(carouselNode).slick('slickGoTo', Math.min(currSlideNumber, newSlideNumber), true);
 		}
 	}
 
-
-	BX.Landing.SliderHelper.goToSlideAfterUpdate = function (carouselSelector, currSlideNumber)
+	/**
+	 * Move slider to new slide after update. Just set previously position
+	 *
+	 * @param carouselNode
+	 * @param currSlideNumber
+	 */
+	BX.Landing.SliderHelper.goToSlideAfterUpdate = function (carouselNode, currSlideNumber)
 	{
 		if (BX.type.isNumber(currSlideNumber))
 		{
-			$(carouselSelector).slick('slickGoTo', currSlideNumber, true);
+			$(carouselNode).slick('slickGoTo', currSlideNumber, true);
 		}
 	}
 })();

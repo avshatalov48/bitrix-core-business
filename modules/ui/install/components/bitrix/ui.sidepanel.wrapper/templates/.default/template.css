@@ -261,9 +261,11 @@ div.ui-side-panel-wrap-title-container.ui-side-panel-wrap-title-align-right-cont
 }
 
 .ui-page-slider-left-panel {
+	margin: 0;
 	position: relative;
-	float: left;
 	padding: 0;
+	padding-right: 21px;
+	box-sizing: border-box;
 	max-width: 240px;
 	width: 100%;
 }

@@ -108,7 +108,7 @@ class MessageMail implements Message\iBase, Message\iMailable
 						function ($item)
 						{
 							return array(
-//								'id' => '#' . $item['CODE'] . '#',
+								'id' => '#' . $item['CODE'] . '#',
 								'text' => $item['NAME'],
 								'title' => $item['DESC'],
 								'items' => $item['ITEMS']?array_map(
@@ -336,6 +336,19 @@ class MessageMail implements Message\iBase, Message\iMailable
 				return $result;
 			}
 		}
+		parse_str(
+			$this->configuration->getOption('LINK_PARAMS')->getValue(),
+			$utmTags
+		);
+
+		$utm = [];
+		foreach ($utmTags as $utmTag => $value)
+		{
+			$utm[] = [
+				'CODE' => $utmTag,
+				'VALUE' => $value
+			];
+		}
 
 		//TODO: compare with allowed email list
 		$emailFrom = $this->configuration->getOption('EMAIL_FROM')->getValue();
@@ -344,6 +357,7 @@ class MessageMail implements Message\iBase, Message\iMailable
 
 		return Entity\Message::create()
 			->setCode($this->getCode())
+			->setUtm($utm)
 			->saveConfiguration($this->configuration);
 	}
 

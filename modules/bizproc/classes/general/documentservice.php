@@ -56,6 +56,25 @@ class CBPDocumentService
 		return null;
 	}
 
+	public function getFieldValue($parameterDocumentId, $fieldId, $parameterDocumentType = null)
+	{
+		[$moduleId, $entity, $documentId] = CBPHelper::ParseDocumentId($parameterDocumentId);
+		$documentType = ($parameterDocumentType && is_array($parameterDocumentType)) ? $parameterDocumentType[2] : null;
+
+		if ($moduleId)
+		{
+			CModule::IncludeModule($moduleId);
+		}
+		if (class_exists($entity) && method_exists($entity, 'getFieldValue'))
+		{
+			return call_user_func_array([$entity, "getFieldValue"], [$documentId, $fieldId, $documentType]);
+		}
+
+		$document = $this->GetDocument($parameterDocumentId, $parameterDocumentType);
+
+		return $document[$fieldId] ?? null;
+	}
+
 	public function UpdateDocument($parameterDocumentId, $arFields, $modifiedBy = null)
 	{
 		[$moduleId, $entity, $documentId] = CBPHelper::ParseDocumentId($parameterDocumentId);
@@ -330,7 +349,16 @@ class CBPDocumentService
 		}
 
 		if (class_exists($entity))
-			return call_user_func_array(array($entity, "AddDocumentField"), array($documentType, $arFields));
+		{
+			$result = call_user_func_array([$entity, 'AddDocumentField'], [$documentType, $arFields]);
+			if ($result)
+			{
+				$k = $moduleId."@".$entity."@".$documentType;
+				unset($this->documentFieldsCache[$k]);
+			}
+
+			return $result;
+		}
 
 		return false;
 	}

@@ -506,6 +506,40 @@ class CBPRuntime
 		return null;
 	}
 
+	public function getActivityReturnProperties($code, $lang = false): array
+	{
+		$activity = null;
+		if (is_array($code))
+		{
+			$activity = $code;
+			$code = $activity['Type'];
+		}
+
+		$description = $this->GetActivityDescription($code, $lang);
+		$props = [];
+		if (isset($description['RETURN']) && is_array($description['RETURN']))
+		{
+			foreach ($description['RETURN'] as $id => $prop)
+			{
+				$props[$id] = Bizproc\FieldType::normalizeProperty($prop);
+			}
+		}
+		if (isset($description['ADDITIONAL_RESULT']) && is_array($description['ADDITIONAL_RESULT']))
+		{
+			foreach($description['ADDITIONAL_RESULT'] as $propertyKey)
+			{
+				if (isset($activity['Properties'][$propertyKey]) && is_array($activity['Properties'][$propertyKey]))
+				{
+					foreach ($activity['Properties'][$propertyKey] as $id => $prop)
+					{
+						$props[$id] = Bizproc\FieldType::normalizeProperty($prop);
+					}
+				}
+			}
+		}
+		return $props;
+	}
+
 	private function LoadActivityLocalization($path, $file, $lang = false)
 	{
 		\Bitrix\Main\Localization\Loc::loadLanguageFile($path. '/'. $file);

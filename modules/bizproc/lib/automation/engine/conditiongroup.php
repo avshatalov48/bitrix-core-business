@@ -4,13 +4,14 @@ namespace Bitrix\Bizproc\Automation\Engine;
 use Bitrix\Bizproc\Automation\Target\BaseTarget;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Bizproc\Automation\Helper;
+use Bitrix\Main\NotSupportedException;
 
 Loc::loadMessages(__FILE__);
 
 class ConditionGroup
 {
 	const TYPE_FIELD = 'field';
-	//const TYPE_VARIABLE = 'variable'; //reserved
+	const TYPE_MIXED = 'mixed';
 
 	const JOINER_AND = 'AND';// 0
 	const JOINER_OR = 'OR';// 1
@@ -65,6 +66,11 @@ class ConditionGroup
 		if (empty($this->items))
 		{
 			return true;
+		}
+
+		if ($this->getType() === static::TYPE_MIXED)
+		{
+			throw new NotSupportedException('Mixed conditions can`t be evaluated by document only');
 		}
 
 		$documentService = \CBPRuntime::getRuntime(true)->getDocumentService();
@@ -130,7 +136,7 @@ class ConditionGroup
 	 */
 	public function setType($type)
 	{
-		if ($type === static::TYPE_FIELD)
+		if ($type === static::TYPE_FIELD || $type === static::TYPE_MIXED)
 		{
 			$this->type = $type;
 		}
@@ -183,23 +189,23 @@ class ConditionGroup
 	/**
 	 * @param array $childActivity Child activity array.
 	 * @param array $documentType
+	 * @param Template $template
 	 * @return array New activity array.
 	 */
-	public function createBizprocActivity(array $childActivity, array $documentType)
+	public function createBizprocActivity(array $childActivity, array $documentType, Template $template)
 	{
-		$title = Loc::getMessage('BIZPROC_AUTOMATION_CONDITION_TITLE');
-		$fieldCondition = [];
+		$mixedCondition = [];
 		$bizprocJoiner = 0;
 
 		$documentService = \CBPRuntime::GetRuntime(true)->getDocumentService();
-		$documentFields = $documentService->GetDocumentFields($documentType);
 
 		/** @var Condition $condition */
 		foreach ($this->getItems() as [$condition, $joiner])
 		{
+			$object = $condition->getObject();
 			$field = $condition->getField();
 			$value = $condition->getValue();
-			$property = isset($documentFields[$field]) ? $documentFields[$field] : null;
+			$property = $template->getProperty($object, $field);
 			if ($property && !in_array($condition->getOperator(), ['empty', '!empty']))
 			{
 				$valueInternal = $documentService->GetFieldInputValue(
@@ -216,40 +222,42 @@ class ConditionGroup
 				}
 			}
 
-			$fieldCondition[] = [
-				$field,
-				$condition->getOperator(),
-				self::unConvertExpressions($value, $documentType),
-				$bizprocJoiner
+			$mixedCondition[] = [
+				'object' => $object,
+				'field' => $field,
+				'operator' => $condition->getOperator(),
+				'value' => self::unConvertExpressions($value, $documentType),
+				'joiner' => $bizprocJoiner,
 			];
 			$bizprocJoiner = ($joiner === static::JOINER_OR) ? 1 : 0;
 		}
 
-		$activity = array(
+		$title = Loc::getMessage('BIZPROC_AUTOMATION_CONDITION_TITLE');
+		$activity = [
 			'Type' => 'IfElseActivity',
 			'Name' => Robot::generateName(),
-			'Properties' => array('Title' => $title),
-			'Children' => array(
-				array(
+			'Properties' => ['Title' => $title],
+			'Children' => [
+				[
 					'Type' => 'IfElseBranchActivity',
 					'Name' => Robot::generateName(),
-					'Properties' => array(
+					'Properties' => [
 						'Title' => $title,
-						'fieldcondition' => $fieldCondition
-					),
-					'Children' => array($childActivity)
-				),
-				array(
+						'mixedcondition' => $mixedCondition
+					],
+					'Children' => [$childActivity]
+				],
+				[
 					'Type' => 'IfElseBranchActivity',
 					'Name' => Robot::generateName(),
-					'Properties' => array(
+					'Properties' => [
 						'Title' => $title,
 						'truecondition' => '1',
-					),
-					'Children' => array()
-				)
-			)
-		);
+					],
+					'Children' => []
+				]
+			]
+		];
 
 		return $activity;
 	}
@@ -257,47 +265,59 @@ class ConditionGroup
 	/**
 	 * @param array &$activity Target activity array.
 	 * @param array $documentType
+	 * @param Template $template
 	 * @return false|ConditionGroup Instance of false.
 	 */
-	public static function convertBizprocActivity(array &$activity, array $documentType)
+	public static function convertBizprocActivity(array &$activity, array $documentType, Template $template)
 	{
 		$conditionGroup = false;
-		$documentService = \CBPRuntime::GetRuntime(true)->getDocumentService();
-		$documentFields = $documentService->GetDocumentFields($documentType);
 
 		if (
 			count($activity['Children']) === 2
 			&& $activity['Children'][0]['Type'] === 'IfElseBranchActivity'
 			&& $activity['Children'][1]['Type'] === 'IfElseBranchActivity'
-			&& !empty($activity['Children'][0]['Properties']['fieldcondition'])
+			&& (
+				!empty($activity['Children'][0]['Properties']['fieldcondition'])
+				||
+				!empty($activity['Children'][0]['Properties']['mixedcondition'])
+			)
 			&& !empty($activity['Children'][1]['Properties']['truecondition'])
 			&& count($activity['Children'][0]['Children']) === 1
-			&& count($activity['Children'][0]['Properties']['fieldcondition']) > 0
 		)
 		{
 			$conditionGroup = new static();
-			$bizprocConditions = $activity['Children'][0]['Properties']['fieldcondition'];
+			$conditionGroup->setType(static::TYPE_MIXED);
 
-			foreach ($bizprocConditions as $index => $fieldCondition)
+			$isMixed = isset($activity['Children'][0]['Properties']['mixedcondition']);
+			$bizprocConditions = $activity['Children'][0]['Properties'][$isMixed?'mixedcondition':'fieldcondition'];
+
+			foreach ($bizprocConditions as $index => $condition)
 			{
-				$property = isset($documentFields[$fieldCondition[0]]) ? $documentFields[$fieldCondition[0]] : null;
+				if (!$isMixed)
+				{
+					$condition = self::convertDocumentCondition($condition);
+				}
+
+				$property = $template->getProperty($condition['object'], $condition['field']);
 				if ($property && $property['Type'] === 'user')
 				{
-					$fieldCondition[2] = \CBPHelper::UsersArrayToString(
-						$fieldCondition[2],
+					$condition[2] = \CBPHelper::UsersArrayToString(
+						$condition[2],
 						null,
 						$documentType
 					);
 				}
 
 				$conditionItem = new Condition(array(
-					'field' => $fieldCondition[0],
-					'operator' => $fieldCondition[1],
-					'value' => self::convertExpressions($fieldCondition[2], $documentType),
+					'object' => $condition['object'],
+					'field' => $condition['field'],
+					'operator' => $condition['operator'],
+					'value' => self::convertExpressions($condition['value'], $documentType),
 				));
 
 				$nextCondition = isset($bizprocConditions[$index + 1]) ? $bizprocConditions[$index + 1] : null;
-				$joiner = ($nextCondition && !empty($nextCondition[3])) ? static::JOINER_OR : static::JOINER_AND;
+				$joiner = ($nextCondition && (!empty($nextCondition[3]) || !empty($nextCondition['joiner'])))
+					? static::JOINER_OR : static::JOINER_AND;
 
 				$conditionGroup->addItem($conditionItem, $joiner);
 			}
@@ -306,6 +326,17 @@ class ConditionGroup
 		}
 
 		return $conditionGroup;
+	}
+
+	private static function convertDocumentCondition(array $condition): array
+	{
+		return [
+			'object' => 'Document',
+			'field' => $condition[0],
+			'operator' => $condition[1],
+			'value' => $condition[2],
+			'joiner' => $condition[3],
+		];
 	}
 
 	/**

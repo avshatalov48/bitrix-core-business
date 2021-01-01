@@ -30,8 +30,18 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(LabelSize, "SM", 'ui-label-sm');
 	babelHelpers.defineProperty(LabelSize, "LG", 'ui-label-lg');
 
-	function _templateObject3() {
+	function _templateObject4() {
 	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\">", "</div>"]);
+
+	  _templateObject4 = function _templateObject4() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject3() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<a href=\"", "\" class=\"", "\">", "</a>"]);
 
 	  _templateObject3 = function _templateObject3() {
 	    return data;
@@ -41,7 +51,7 @@ this.BX = this.BX || {};
 	}
 
 	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<a href=\"", "\" class=\"", "\">", "</a>"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-label-icon\"></div>"]);
 
 	  _templateObject2 = function _templateObject2() {
 	    return data;
@@ -67,6 +77,7 @@ this.BX = this.BX || {};
 	    this.color = options.color;
 	    this.size = options.size;
 	    this.link = options.link;
+	    this.icon = options.icon;
 	    this.fill = !!options.fill ? true : options.fill;
 	    this.customClass = options.customClass;
 	    this.classList = "ui-label";
@@ -203,15 +214,32 @@ this.BX = this.BX || {};
 	      }
 
 	      this.container.setAttribute("class", this.classList);
+	    }
+	  }, {
+	    key: "getIconAction",
+	    value: function getIconAction() {
+	      this.iconNode = main_core.Tag.render(_templateObject2());
+
+	      for (var key in this.icon) {
+	        this.iconNode.addEventListener(key, this.icon[key]);
+	      }
+
+	      return this.iconNode;
 	    } // endregion
 
 	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
-	      if (this.getLink()) {
-	        this.container = main_core.Tag.render(_templateObject2(), this.link, this.getClassList(), this.getTextContainer());
-	      } else {
-	        this.container = main_core.Tag.render(_templateObject3(), this.getClassList(), this.getTextContainer());
+	      if (!this.container) {
+	        if (this.getLink()) {
+	          this.container = main_core.Tag.render(_templateObject3(), this.link, this.getClassList(), this.getTextContainer());
+	        } else {
+	          this.container = main_core.Tag.render(_templateObject4(), this.getClassList(), this.getTextContainer());
+	        }
+
+	        if (babelHelpers.typeof(this.icon) === 'object') {
+	          this.container.appendChild(this.getIconAction());
+	        }
 	      }
 
 	      return this.container;

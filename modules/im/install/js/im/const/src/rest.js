@@ -37,7 +37,9 @@ export const RestMethod = Object.freeze({
 	mobileBrowserConstGet: 'mobile.browser.const.get',
 
 	imRecentGet: 'im.recent.get',
-	imRecentList: 'im.recent.list'
+	imRecentList: 'im.recent.list',
+
+	imCallGetCallLimits: 'im.call.getCallLimits'
 
 });
 
@@ -61,5 +63,7 @@ export const RestMethodHandler = Object.freeze({
 	mobileBrowserConstGet: 'mobile.browser.const.get',
 
 	imRecentGet: 'im.recent.get',
-	imRecentList: 'im.recent.list'
+	imRecentList: 'im.recent.list',
+
+	imCallGetCallLimits: 'im.call.getCallLimits'
 });

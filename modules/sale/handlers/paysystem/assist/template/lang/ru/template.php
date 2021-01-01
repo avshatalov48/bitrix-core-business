@@ -1,5 +1,5 @@
 <?php
-$MESS["SALE_HANDLERS_PAY_SYSTEM_ASSIST_DESCRIPTION"] = "Услугу предоставляет сервис онлайн-платежей <b>&laquo;Яндекс.Касса&raquo;</b>.<br /><br />Сумма к оплате по счету: ";
+$MESS["SALE_HANDLERS_PAY_SYSTEM_ASSIST_DESCRIPTION"] = "Услугу предоставляет сервис онлайн-платежей <b>&laquo;ЮKassa&raquo;</b>.<br /><br />Сумма к оплате по счету: ";
 $MESS["SALE_HANDLERS_PAY_SYSTEM_ASSIST_WARNING_RETURN"] = "<b>Обратите внимание:</b> если вы откажетесь от покупки, для возврата денег вам придется обратиться в магазин.";
 $MESS["SALE_HANDLERS_PAY_SYSTEM_ASSIST_BUTTON_PAID"] = "Оплатить";
 $MESS["SALE_HANDLERS_PAY_SYSTEM_ASSIST_PROMT"]="Вы хотите оплатить через систему <b>www.assist.ru</b>.";

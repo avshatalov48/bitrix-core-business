@@ -1,0 +1,39 @@
+.landing-ui-component-action-panel {
+	display: flex;
+	position: relative;
+	margin-top: 17px;
+}
+
+.landing-ui-component-action-panel-button {
+	display: inline-block;
+	font: 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #80868e;
+	border-bottom: 1px dashed #d8d8d8;
+	transition: all 200ms ease;
+	cursor: pointer;
+	margin-right: 13px;
+}
+
+.landing-ui-component-action-panel-button:hover {
+	color: #333333;
+	border-bottom: 1px dashed #333333;
+}
+
+.landing-ui-component-action-panel-button:last-child {
+	margin-right: 0;
+}
+
+.landing-ui-component-action-panel-left,
+.landing-ui-component-action-panel-center,
+.landing-ui-component-action-panel-right {
+	display: flex;
+	flex-grow: 1;
+}
+
+.landing-ui-component-action-panel-center {
+	justify-content: center;
+}
+
+.landing-ui-component-action-panel-right {
+	justify-content: flex-end;
+}

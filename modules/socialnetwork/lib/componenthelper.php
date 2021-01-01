@@ -2184,7 +2184,12 @@ class ComponentHelper
 			'AUTHOR_ID' => $task['CREATED_BY'],
 			'MESSAGE' => CommentAux\CreateTask::getPostText(),
 			'SHARE_DEST' => 'sourcetype='.$sourceEntityType.'|sourceid='.$sourceEntityId.'|taskid='.$taskId,
-			'AUX' => 'Y'
+			'AUX' => 'Y',
+			'AUX_DATA' => [
+				'sourcetype' => $sourceEntityType,
+				'sourceid' => $sourceEntityId,
+				'taskid' => $taskId
+			]
 		));
 
 		if (!$sonetCommentId)

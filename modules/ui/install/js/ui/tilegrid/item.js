@@ -110,7 +110,9 @@ BX.TileGrid.Item.prototype =
 	},
 
 	afterRender: function()
-	{},
+	{
+
+	},
 
 	handleClick: function(event)
 	{

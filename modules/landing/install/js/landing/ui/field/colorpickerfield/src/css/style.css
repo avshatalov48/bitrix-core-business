@@ -1,0 +1,61 @@
+.landing-ui-field-colorpicker > .landing-ui-field-input {
+	border: none;
+	padding-left: 0;
+	padding-right: 0;
+}
+
+.landing-ui-field-colorpicker-layout {
+	display: flex;
+	align-items: center;
+	position: relative;
+}
+
+.landing-ui-field-colorpicker-label {
+	background-image: url('../internal/opacity/css/images/opacity.png');
+	background-position: left top;
+	background-repeat: repeat;
+	background-size: 8px;
+	position: relative;
+	min-width: 32px;
+	max-width: 32px;
+	min-height: 32px;
+	max-height: 32px;
+	border-radius: 2px;
+	margin-right: 11px;
+	margin-bottom: 0;
+	cursor: pointer;
+	z-index: 1;
+}
+
+.landing-ui-field-colorpicker-label::before {
+	position: absolute;
+	content: '';
+	left: -2px;
+	right: -2px;
+	top: -2px;
+	bottom: -2px;
+	border: 1px rgba(0, 0, 0, .1) solid;
+	border-radius: 2px;
+}
+
+.landing-ui-field-colorpicker-label-inner {
+	position: absolute;
+	display: inline-block;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 2;
+	border-radius: 2px;
+}
+
+.landing-ui-field-colorpicker-input {
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	opacity: 0;
+}
+
+.landing-ui-field-colorpicker-code-input {
+	flex-grow: 1;
+}

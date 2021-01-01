@@ -136,12 +136,14 @@
 /*ARROW*/
 .im-phone-btn-arrow {
 	position: absolute;
-	top: 16px;
-	right: 19px;
+	top: 6px;
+	right: 9px;
 	color: rgba(255, 255, 255, .7);
 	-webkit-transition: color .3s;
 	transition: color .3s;
 	cursor: pointer;
+	background-color: #29303a;
+	padding: 10px;
 }
 .im-phone-btn-arrow:hover {
 	color: #fff;
@@ -1048,10 +1050,13 @@
 .im-phone-call-header{
 	padding-bottom: 15px;
 	border-bottom: 1px solid rgba(216,216,216,.20);
+	width: 100%;
+	overflow: hidden;
 }
 .im-phone-call-title-text {
 	font-size:15px;
 	color: #BDC0C3;
+	white-space: nowrap;
 }
 .im-phone-call-title-number {
 	color: #fff;

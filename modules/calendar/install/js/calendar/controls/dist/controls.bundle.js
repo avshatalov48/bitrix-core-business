@@ -758,33 +758,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      return remindValue.toString();
 	    }
 	  }, {
-	    key: "showCustomInputCalendar",
-	    value: function showCustomInputCalendar(e, input) {
-	      if (!main_core.Type.isDomNode(input) && e) {
-	        input = e.target || e.srcElement;
-	      }
-
-	      if (main_core.Type.isDomNode(input) && input.nodeName.toLowerCase() === 'input') {
-	        BX.calendar({
-	          node: input.parentNode,
-	          value: calendar_util.Util.formatDateTime(calendar_util.Util.getUsableDateTime(new Date())),
-	          field: input,
-	          bTime: true,
-	          bHideTime: false
-	        });
-	        BX.onCustomEvent(window, 'onCalendarControlChildPopupShown');
-	        var calendarPopup = BX.calendar.get().popup;
-
-	        if (calendarPopup) {
-	          // Apply hack for calendar z-index
-	          calendarPopup.params.zIndex = 4200;
-	          calendarPopup.popupContainer.style.zIndex = calendarPopup.params.zIndex;
-	          BX.removeCustomEvent(calendarPopup, 'onPopupClose', Reminder.inputCalendarClosePopupHandler);
-	          BX.addCustomEvent(calendarPopup, 'onPopupClose', Reminder.inputCalendarClosePopupHandler);
-	        }
-	      }
-	    }
-	  }, {
 	    key: "inputCalendarClosePopupHandler",
 	    value: function inputCalendarClosePopupHandler(e) {
 	      BX.onCustomEvent(window, 'onCalendarControlChildPopupClosed');
@@ -4241,17 +4214,28 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      var target = e.target || e.srcElement;
 
 	      if (main_core.Type.isDomNode(target) && target.nodeName.toLowerCase() === 'input') {
-	        BX.calendar({
+	        var calendarControl = BX.calendar.get();
+
+	        if (calendarControl.popup) {
+	          // Workaround hack for BX.calendar - it works as singleton and we trying to reinit it
+	          calendarControl.popup.destroy();
+	          calendarControl.popup = null;
+	          calendarControl._current_layer = null;
+	          calendarControl._layers = {};
+	        }
+
+	        calendarControl.Show({
 	          node: target.parentNode,
 	          field: target,
 	          bTime: false
 	        });
 	        BX.onCustomEvent(window, 'onCalendarControlChildPopupShown');
+	        var calendarPopup = calendarControl.popup;
 
-	        if (BX.calendar.get().popup) {
-	          BX.removeCustomEvent(BX.calendar.get().popup, 'onPopupClose', DateTimeControl.inputCalendarClosePopupHandler);
-	          BX.addCustomEvent(BX.calendar.get().popup, 'onPopupClose', DateTimeControl.inputCalendarClosePopupHandler);
-	          BX.calendar.get().popup.popupContainer.style.zIndex = zIndex;
+	        if (calendarPopup) {
+	          BX.removeCustomEvent(calendarPopup, 'onPopupClose', DateTimeControl.inputCalendarClosePopupHandler);
+	          BX.addCustomEvent(calendarPopup, 'onPopupClose', DateTimeControl.inputCalendarClosePopupHandler);
+	          calendarPopup.popupContainer.style.zIndex = zIndex;
 	        }
 	      }
 	    }
@@ -4792,6 +4776,10 @@ this.BX.Calendar = this.BX.Calendar || {};
 	            className: submenuClass
 	          });
 	          groupUsers.forEach(function (user) {
+	            user.toString = function () {
+	              return user.ID;
+	            };
+
 	            menuItems.push({
 	              text: BX.util.htmlspecialchars(user.DISPLAY_NAME),
 	              dataset: {
@@ -4799,15 +4787,17 @@ this.BX.Calendar = this.BX.Calendar || {};
 	              },
 	              className: 'calendar-add-popup-user-menu-item',
 	              onclick: function onclick() {
-	                BX.SidePanel.Instance.open(user.URL, {
-	                  loader: "intranet:profile",
-	                  cacheable: false,
-	                  allowChangeHistory: false,
-	                  contentClassName: "bitrix24-profile-slider-content",
-	                  width: 1100
-	                });
+	                if (!user.EMAIL_USER) {
+	                  BX.SidePanel.Instance.open(user.URL, {
+	                    loader: "intranet:profile",
+	                    cacheable: false,
+	                    allowChangeHistory: false,
+	                    contentClassName: "bitrix24-profile-slider-content",
+	                    width: 1100
+	                  });
 
-	                _this6.morePopup.close();
+	                  _this6.morePopup.close();
+	                }
 	              }
 	            });
 	          });

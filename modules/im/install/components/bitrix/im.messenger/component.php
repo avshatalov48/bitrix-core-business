@@ -339,6 +339,7 @@ else if ($arResult["DESIGN"] == 'DESKTOP')
 }
 
 $arResult['PROMO'] = \Bitrix\Im\Promotion::getActive($promoType);
+$arResult['LIMIT'] = \Bitrix\Im\Limit::getTypesForJs();
 
 CJSCore::Init($initJs);
 \Bitrix\Main\UI\Extension::load(['ui.buttons', 'ui.buttons.icons']);

@@ -116,7 +116,7 @@ return [
 					0 => 'landing-block-card js-animation fadeIn media g-mb-0--last landing-card g-mb-50',
 				],
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title g-theme-bitrix-color-v4 g-font-size-24 g-mb-2',
+					0 => 'landing-block-node-title g-color-primary g-font-size-24 g-mb-2',
 				],
 				'.landing-block-node-subtitle' => [
 					0 => 'landing-block-node-subtitle g-color-gray-light-v4 g-font-size-16',
@@ -199,7 +199,7 @@ return [
 			'nodes' => [
 				'.landing-block-card-img' => [
 					0 => [
-						'src' => 'https://cdn.bitrix24.site/bitrix/images/landing/business/1230x736/img1.jpg',
+						'src' => 'https://cdn.bitrix24.site/bitrix/images/landing/business/1230x736/img3.jpg',
 						'url' => '{"text":"","href":"","target":"_self","enabled":false}',
 					],
 					1 => [
@@ -207,7 +207,7 @@ return [
 						'url' => '{"text":"","href":"","target":"_self","enabled":false}',
 					],
 					2 => [
-						'src' => 'https://cdn.bitrix24.site/bitrix/images/landing/business/1230x736/img1.jpg',
+						'src' => 'https://cdn.bitrix24.site/bitrix/images/landing/business/1230x736/img3.jpg',
 						'url' => '{"text":"","href":"","target":"_self","enabled":false}',
 					],
 					3 => [
@@ -215,7 +215,7 @@ return [
 						'url' => '{"text":"","href":"","target":"_self","enabled":false}',
 					],
 					4 => [
-						'src' => 'https://cdn.bitrix24.site/bitrix/images/landing/business/1230x736/img1.jpg',
+						'src' => 'https://cdn.bitrix24.site/bitrix/images/landing/business/1230x736/img3.jpg',
 						'url' => '{"text":"","href":"","target":"_self","enabled":false}',
 					],
 					5 => [
@@ -349,7 +349,7 @@ return [
 					0 => 'landing-block-title g-color-white g-font-size-17',
 				],
 				'.landing-block-link' => [
-					0 => 'landing-block-link u-link-v5 g-font-size-18 g-font-weight-700 g-color-blue g-color-blue--hover',
+					0 => 'landing-block-link u-link-v5 g-font-size-18 g-font-weight-700 g-color-primary g-color-primary-opacity-0_8--hover',
 				],
 				'.landing-block-link-container' => [
 					0 => 'landing-block-link-container',

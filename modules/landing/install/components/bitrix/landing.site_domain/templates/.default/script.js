@@ -150,6 +150,7 @@
 		this.domainName = params.domainName;
 		this.domainPostfix = params.domainPostfix || '';
 		this.idDomainName = params.idDomainName;
+		this.idDomainINA = params.idDomainINA;
 		this.idDomainDnsInfo = params.idDomainDnsInfo;
 		this.idDomainSubmit = params.idDomainSubmit;
 		this.previousDomainName = null;
@@ -272,6 +273,11 @@
 							this.helper.setSuccess(
 								BX.message('LANDING_TPL_DOMAIN_AVAILABLE')
 							);
+						}
+
+						if (data.result.dns && this.idDomainINA)
+						{
+							this.idDomainINA.textContent = data.result.dns['INA'];
 						}
 					}
 					else

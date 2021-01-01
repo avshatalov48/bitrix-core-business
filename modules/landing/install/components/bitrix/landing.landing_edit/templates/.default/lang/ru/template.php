@@ -29,3 +29,5 @@ $MESS['LANDING_TPL_HTML_DISABLED_TITLE'] = 'Ограничение тарифа'
 $MESS['LANDING_FIELD_TITLE_METAOG_NAME'] = 'Вид страницы в соцсетях';
 $MESS['LANDING_FIELD_TITLE_METAOG_NAME_KNOWLEDGE'] = 'Вид богатой ссылки';
 $MESS['LANDING_FIELD_TITLE_METAOG_NAME_GROUP'] = 'Вид богатой ссылки';
+$MESS['LANDING_TPL_MY_COLOR'] = 'Свой цвет';
+$MESS['LANDING_TPL_OTHER_COLORS'] = 'Ещё цвета';

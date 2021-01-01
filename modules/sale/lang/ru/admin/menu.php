@@ -102,6 +102,7 @@ $MESS["SALE_CASHBOX"] = "Кассы ККМ";
 $MESS["SALE_CASHBOX_TITLE"] = "Кассы";
 $MESS["SALE_CASHBOX_LIST"] = "Список касс";
 $MESS["SALE_CASHBOX_CHECK"] = "Чеки за день";
+$MESS["SALE_CASHBOX_CHECK_CORRECTION"] = "Коррекция";
 $MESS["SALE_CASHBOX_ZREPORT"] = "Z-отчеты";
 $MESS["SALE_BUYERS"] = "Покупатели";
 $MESS["SALE_BUYERS_DESCR"] = "Список покупателей";

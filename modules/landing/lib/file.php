@@ -19,7 +19,7 @@ class File
 	 * Entity type block.
 	 */
 	const ENTITY_TYPE_BLOCK = 'B';
-	
+
 	/**
 	 * Entity type asset.
 	 */
@@ -103,6 +103,13 @@ class File
 	 */
 	protected static function delete($fileId, $entityId, $entityType)
 	{
+		//@tmp log
+		Debug::log(
+			$entityId . '@' . $entityType,
+			'fileId: ' . print_r($fileId, true) . '@' . print_r(\Bitrix\Main\Diag\Helper::getBackTrace(15), true),
+			'LANDING_FILE_MARK_DELETE'
+		);
+
 		$filter = array(
 			'ENTITY_ID' => $entityId,
 			'=ENTITY_TYPE' => $entityType
@@ -384,7 +391,7 @@ class File
 			self::ENTITY_TYPE_BLOCK
 		);
 	}
-	
+
 	/**
 	 * Add new record for Asset.
 	 * @param int $assetId Id of landing to which attached asset.
@@ -400,20 +407,20 @@ class File
 			// todo: res from add and check error
 		}
 	}
-	
+
 	/**
 	 * Gets asset files for current landing.
 	 * @param int $assetId Id of landing to which attached asset.
 	 * @return array
 	 */
-	public static function getFilesFromAsset($assetId)
+	public static function getFilesFromAsset($assetId): array
 	{
 		return self::getFiles(
 			$assetId,
 			self::ENTITY_TYPE_ASSET
 		);
 	}
-	
+
 	/**
 	 * Delete asset files for current landing.
 	 * Not remove from disk immediately, just marked for agent
@@ -421,17 +428,17 @@ class File
 	 * @param int|int[] $fileId File id (by default delete all files from Asset).
 	 * @return void
 	 */
-	public static function deleteFromAsset($assetId, $fileId = [])
+	public static function deleteFromAsset(int $assetId, $fileId = []): void
 	{
 		self::delete($fileId, $assetId, self::ENTITY_TYPE_ASSET);
 	}
-	
+
 	/**
 	 * Mark file as "need rebuild", but not delete them. File will be exist until not created new file.
 	 * @param int|int[] $assetId Id of landing to which attached asset. If not set - will marked all.
 	 * @return void
 	 */
-	public static function markAssetToRebuild($assetId = [])
+	public static function markAssetToRebuild($assetId = []): void
 	{
 		$filter = [
 			'=ENTITY_TYPE' => self::ENTITY_TYPE_ASSET
@@ -455,19 +462,19 @@ class File
 			$resUpdate->isSuccess();
 		}
 	}
-	
+
 	/**
 	 * When file rebuilded - delete old files (marked as "need rebuild") for current asset ID (current landing)
 	 * @param int|int[] $assetId Id of landing to which attached asset.
 	 * @return void
 	 */
-	public static function markAssetRebuilded($assetId)
+	public static function markAssetRebuilded($assetId): void
 	{
 		if(!is_array($assetId))
 		{
 			$assetId = [$assetId];
 		}
-		
+
 		foreach ($assetId as $key => $id)
 		{
 			self::deleteFromAsset(-1 * abs($id));

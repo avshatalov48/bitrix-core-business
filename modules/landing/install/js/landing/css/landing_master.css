@@ -778,6 +778,10 @@ body[style*="cursor: move;"] .landing-ui-panel-block-card-action {
 	padding-right: 20px;
 }
 
+.landing-ui-popup-filterable .menu-popup {
+	overflow-y: auto;
+	max-height: 206px!important;
+}
 
 .landing-google-settings-button {
 	position: relative;
@@ -959,4 +963,18 @@ only screen and (min-resolution: 2dppx) {
 .landing-ui-button-plus.landing-ui-disable {
 	pointer-events: none;
 	opacity: .5;
+}
+
+.landing-edit-mode .b24-form {
+	pointer-events: none!important;
+}
+
+.landing-edit-mode .landing-sidebar {
+	padding-bottom: 40px;
+}
+
+div[id^="popup-window-content-calendar-resourcebooking-settings-popup"] {
+	max-height: 400px;
+	overflow: auto;
+	overflow-x: hidden;
 }

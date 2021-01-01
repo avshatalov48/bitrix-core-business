@@ -10,7 +10,7 @@ class Message
 {
 	public static function index(\Bitrix\Forum\Forum $forum, \Bitrix\Forum\Topic $topic, array $message)
 	{
-		if (!\Bitrix\Main\Loader::includeModule("search"))
+		if (!\Bitrix\Main\Loader::includeModule("search") || $message["SERVICE_TYPE"] > 0)
 		{
 			return; 
 		}

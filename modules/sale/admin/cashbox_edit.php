@@ -32,7 +32,12 @@ $server = $context->getServer();
 $lang = $context->getLanguage();
 $documentRoot = Application::getDocumentRoot();
 
-$isPortalZoneless = !(Loader::includeModule("bitrix24") || Loader::includeModule('intranet'));
+$isCloud = Loader::includeModule("bitrix24");
+$zone = '';
+if (!$isCloud && Loader::includeModule('intranet'))
+{
+	$zone = \CIntranetUtils::getPortalZone();
+}
 
 \Bitrix\Sale\Cashbox\Cashbox::init();
 
@@ -307,7 +312,7 @@ $tabControl->BeginCustomField('HANDLER', GetMessage("SALE_CASHBOX_HANDLER"));
 					{
 						$selected = ($handler === $cashbox['HANDLER']) ? 'selected' : '';
 						$handlerName = $handler::getName();
-						if ($handler === '\Bitrix\Sale\Cashbox\CashboxCheckbox' && $isPortalZoneless)
+						if ($handler === '\Bitrix\Sale\Cashbox\CashboxCheckbox' && (!$isCloud && $zone !== 'ua'))
 						{
 							$handlerName .= ' ' . Loc::getMessage('SALE_CASHBOX_FOR_UA');
 						}
@@ -319,7 +324,7 @@ $tabControl->BeginCustomField('HANDLER', GetMessage("SALE_CASHBOX_HANDLER"));
 			<?if ($cashboxObject instanceof Cashbox\ITestConnection):?>
 				<input type="button" id="TEST_BUTTON" value="<?=Loc::getMessage('SALE_CASHBOX_CONNECTION')?>" onclick="BX.Sale.Cashbox.testConnection(<?=$id?>)">
 			<?endif;?>
-			<?php if ($isPortalZoneless): ?>
+			<?php if (!$isCloud && $zone !== 'ua'): ?>
 			<span id="hint_cashbox_ua_wrapper">
 				<span id="hint_CASHBOX_UA"></span>
 				<?php if ($cashbox['HANDLER'] === '\Bitrix\Sale\Cashbox\CashboxCheckbox'): ?>

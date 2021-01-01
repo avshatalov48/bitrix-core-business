@@ -51,12 +51,13 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 			"EDIT" => $editRight,
 			"DELETE" => $editRight
 		),
-		"VISIBLE_RECORDS_COUNT" => 3,
+		"VISIBLE_RECORDS_COUNT" => $arResult["VISIBLE_RECORDS_COUNT"],
 
 		"ERROR_MESSAGE" => $arResult["ERROR_MESSAGE"],
 		"OK_MESSAGE" => $arResult["OK_MESSAGE"],
 		"RESULT" => ($arResult["RESULT"] ?: $request->getQuery("MID")),
 		"PUSH&PULL" => $arResult["PUSH&PULL"],
+		"MODE" => $arResult["MODE"],
 		"VIEW_URL" => ($arParams["SHOW_LINK_TO_MESSAGE"] == "Y" && !(isset($arParams["PUBLIC_MODE"]) && $arParams["PUBLIC_MODE"]) ? $link : ""),
 		"EDIT_URL" => ForumAddPageParams($link, array("ACTION" => "GET"), false, false),
 		"MODERATE_URL" => ForumAddPageParams($link, array("ACTION" => "#ACTION#"), false, false),

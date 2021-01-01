@@ -112,6 +112,26 @@ export class ImBasePullHandler
 			return false;
 		}
 
+		let collection = this.store.state.messages.collection[params.chatId];
+		if (!collection)
+		{
+			collection = [];
+		}
+
+		let message = collection.find(element => {
+			if (params.message.templateId && element.id === params.message.templateId)
+			{
+				return true;
+			}
+
+			return element.id === params.message.id;
+		});
+
+		if (message && params.message.push)
+		{
+			return false;
+		}
+
 		if (params.chat && params.chat[params.chatId])
 		{
 			this.store.dispatch('dialogues/update', {
@@ -166,30 +186,11 @@ export class ImBasePullHandler
 			});
 		}
 
-		let collection = this.store.state.messages.collection[params.chatId];
-		if (!collection)
-		{
-			collection = [];
-		}
-
-		let update = false;
-		if (params.message.templateId && collection.length > 0)
-		{
-			for (let index = collection.length-1; index >= 0; index--)
-			{
-				if (collection[index].id === params.message.templateId)
-				{
-					update = true;
-					break;
-				}
-			}
-		}
-
-		if (update)
+		if (message)
 		{
 			this.store.dispatch('messages/update', {
-				id: params.message.templateId,
-				chatId: params.chatId,
+				id: message.id,
+				chatId: message.chatId,
 				fields: {
 					push: false,
 					...params.message,
@@ -359,6 +360,32 @@ export class ImBasePullHandler
 			fields: {
 				ownerId: params.userId,
 			}
+		});
+	}
+
+	handleChatUserAdd(params, extra)
+	{
+		if (this.skipExecute(params, extra))
+		{
+			return false;
+		}
+
+		this.store.dispatch('dialogues/update', {
+			dialogId: params.dialogId,
+			fields: {userCounter: params.userCount}
+		});
+	}
+
+	handleChatUserLeave(params, extra)
+	{
+		if (this.skipExecute(params, extra))
+		{
+			return false;
+		}
+
+		this.store.dispatch('dialogues/update', {
+			dialogId: params.dialogId,
+			fields: {userCounter: params.userCount}
 		});
 	}
 

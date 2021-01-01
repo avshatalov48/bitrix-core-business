@@ -28,6 +28,15 @@ export class DialogRestHandler extends BaseRestHandler
 			diskFolderId: data.disk_folder_id,
 		}});
 	}
+
+	handleImCallGetCallLimitsSuccess(data)
+	{
+		this.store.commit('application/set', {call: {
+			serverEnabled: data.callServerEnabled,
+			maxParticipants: data.maxParticipants,
+		}});
+	}
+
 	handleImChatGetError(error)
 	{
 		if (error.ex.error === 'ACCESS_ERROR')

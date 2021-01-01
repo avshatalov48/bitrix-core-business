@@ -1007,7 +1007,9 @@ export class Planner extends EventEmitter
 		let rowWrap;
 		if (entry.type === 'moreLink')
 		{
-			rowWrap = this.DOM.entrieListWrap.appendChild(BX.create("DIV", {props: {className: 'calendar-planner-user'}}));
+			rowWrap = this.DOM.entrieListWrap.appendChild(BX.create('DIV', {
+				props: { className: 'calendar-planner-user' }
+			}));
 
 			if (this.showEntryName)
 			{
@@ -1062,7 +1064,7 @@ export class Planner extends EventEmitter
 			rowWrap = this.DOM.entrieListWrap.appendChild(BX.create("DIV", {
 				attrs: {
 					'data-bx-planner-entry' : entry.uid,
-					className: 'calendar-planner-user'
+					className: 'calendar-planner-user' + (entry.emailUser ? ' calendar-planner-email-user' : '')
 				}
 			}));
 
@@ -1195,7 +1197,7 @@ export class Planner extends EventEmitter
 	{
 		let imageNode;
 		const img = entry.avatar;
-debugger;
+
 		if (!img || img === "/bitrix/images/1.gif")
 		{
 			imageNode = Tag.render`<div bx-tooltip-user-id="${entry.id}" bx-tooltip-classname="calendar-planner-user-tooltip" title="${Text.encode(entry.name)}" class="ui-icon calendar-planner-user-image-icon ${(entry.emailUser ? 'ui-icon-common-user-mail' : 'ui-icon-common-user')}"><i></i></div>`;
@@ -2364,6 +2366,7 @@ debugger;
 			{
 				timeFrom = parseInt(dateFrom.getHours()) + dateFrom.getMinutes() / 60;
 				timeTo = parseInt(dateTo.getHours()) + dateTo.getMinutes() / 60;
+
 				if (timeFrom <= this.shownScaleTimeFrom)
 				{
 					dateFrom.setHours(this.shownScaleTimeFrom, 0, 0, 0);
@@ -2371,7 +2374,7 @@ debugger;
 					dateTo = new Date(ts + duration);
 				}
 
-				if (timeTo >= this.shownScaleTimeTo)
+				if (timeTo > this.shownScaleTimeTo)
 				{
 					dateFrom = new Date(ts + Util.getDayLength() - 1000); // next day
 					dateFrom.setHours(this.shownScaleTimeFrom, 0, 0, 0);

@@ -49,7 +49,7 @@ class FactoryComponents
 				$this->component = $this->getTimezoneComponent($properties, $subComponents);
 				break;
 			default:
-				// @TODO: write to log with unknown components
+				$this->component = null;
 		}
 
 		return $this;

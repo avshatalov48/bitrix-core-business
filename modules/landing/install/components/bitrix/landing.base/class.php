@@ -4,6 +4,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use \Bitrix\Crm\Integration\Landing\FormLanding;
 use \Bitrix\Landing\Landing;
 use \Bitrix\Landing\Manager;
 use \Bitrix\Main\Loader;
@@ -195,7 +196,8 @@ class LandingBaseComponent extends \CBitrixComponent
 				'PRESETS' => [
 					'url' => defined('BX24_HOST_NAME') ? BX24_HOST_NAME : $_SERVER['SERVER_NAME'],
 					'tarif' => ($b24 = Loader::includeModule('bitrix24')) ? \CBitrix24::getLicenseType() : '',
-					'city' => $b24 ? implode(' / ', $this->getUserGeoData()) : ''
+					'city' => $b24 ? implode(' / ', $this->getUserGeoData()) : '',
+					'partner_id' => \Bitrix\Main\Config\Option::get('bitrix24', 'partner_id', 0)
 				],
 				'PORTAL_URI' => 'https://cp.bitrix.ru'
 			]
@@ -552,15 +554,17 @@ class LandingBaseComponent extends \CBitrixComponent
 	/**
 	 * Get current sites.
 	 * @param array $params Params.
+	 * @param bool $skipTypeCheck Skip check for type in filter.
 	 * @return array
 	 */
-	protected function getSites($params = array())
+	protected function getSites($params = array(), bool $skipTypeCheck = false)
 	{
 		if (!isset($params['filter']))
 		{
 			$params['filter'] = array();
 		}
 		if (
+			!$skipTypeCheck &&
 			isset($this->arParams['TYPE']) &&
 			!isset($params['filter']['=TYPE'])
 		)
@@ -976,6 +980,29 @@ class LandingBaseComponent extends \CBitrixComponent
 		}
 
 		return null;
+	}
+
+	/**
+	 * Detects site special type and returns it.
+	 * @param int $siteId Site id.
+	 * @return string|null
+	 */
+	protected function getSpecialTypeSite(int $siteId): ?string
+	{
+		$specialType = null;
+
+		if (Loader::includeModule('crm'))
+		{
+			$storedSiteId = (int) \Bitrix\Main\Config\Option::get(
+				'crm', FormLanding::OPT_CODE_LANDINGS_SITE_ID
+			);
+			if ($storedSiteId == $siteId)
+			{
+				$specialType = \Bitrix\Landing\Site\Type::PSEUDO_SCOPE_CODE_FORMS;
+			}
+		}
+
+		return $specialType;
 	}
 
 	/**

@@ -151,9 +151,7 @@ return array(
 				<div class="h-100 g-pb-15 g-pb-0--md">
 					<div class="landing-block-node-img-container h-100 g-pos-rel g-parent u-block-hover landing-block-node-img-container-left js-animation fadeInLeft">
 						<img data-fancybox="gallery" class="landing-block-node-img img-fluid g-object-fit-cover h-100 w-100 u-block-hover__main--zoom-v1" src="https://cdn.bitrix24.site/bitrix/images/landing/business/480x480/img1.jpg" alt="" data-fileid="-1" />
-						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0
-							g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20
-							g-transition-0_2 g-transition--ease-in">
+						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0 g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
 							<div class="h-100 g-flex-middle g-brd-around g-brd-white-opacity-0_2 text-uppercase">
 								<h3 class="landing-block-node-img-title g-flex-middle-item text-center h3 g-color-white g-line-height-1_4 g-text-transform-none g-letter-spacing-1 g-font-size-32"><span style="font-style: italic; font-weight: 700;">Yellow</span></h3>
 							</div>
@@ -166,9 +164,7 @@ return array(
 				<div class="h-100 g-pb-15 g-pb-0--md">
 					<div class="landing-block-node-img-container h-100 g-pos-rel g-parent u-block-hover landing-block-node-img-container-left js-animation fadeInLeft">
 						<img data-fancybox="gallery" class="landing-block-node-img img-fluid g-object-fit-cover h-100 w-100 u-block-hover__main--zoom-v1" src="https://cdn.bitrix24.site/bitrix/images/landing/business/480x480/img2.jpg" alt="" data-fileid="-1" />
-						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0
-							g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20
-							g-transition-0_2 g-transition--ease-in">
+						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0 g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
 							<div class="h-100 g-flex-middle g-brd-around g-brd-white-opacity-0_2 text-uppercase">
 								<h3 class="landing-block-node-img-title g-flex-middle-item text-center h3 g-color-white g-line-height-1_4 g-text-transform-none g-letter-spacing-1 g-font-size-32"><span style="font-style: italic; font-weight: 700;">Orange</span></h3>
 							</div>
@@ -181,9 +177,7 @@ return array(
 				<div class="h-100 g-pb-15 g-pb-0--sm">
 					<div class="landing-block-node-img-container h-100 g-pos-rel g-parent u-block-hover landing-block-node-img-container-left js-animation fadeInLeft">
 						<img data-fancybox="gallery" class="landing-block-node-img img-fluid g-object-fit-cover h-100 w-100 u-block-hover__main--zoom-v1" src="https://cdn.bitrix24.site/bitrix/images/landing/business/480x480/img3.jpg" alt="" data-fileid="-1" />
-						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0
-							g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20
-							g-transition-0_2 g-transition--ease-in">
+						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0 g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
 							<div class="h-100 g-flex-middle g-brd-around g-brd-white-opacity-0_2 text-uppercase">
 								<h3 class="landing-block-node-img-title g-flex-middle-item text-center h3 g-color-white g-line-height-1_4 g-text-transform-none g-letter-spacing-1 g-font-size-32"><span style="font-style: italic; font-weight: 700;">Pink</span></h3>
 							</div>
@@ -196,9 +190,7 @@ return array(
 				<div class="h-100 g-pb-0">
 					<div class="landing-block-node-img-container h-100 g-pos-rel g-parent u-block-hover landing-block-node-img-container-left js-animation fadeInLeft">
 						<img data-fancybox="gallery" class="landing-block-node-img img-fluid g-object-fit-cover h-100 w-100 u-block-hover__main--zoom-v1" src="https://cdn.bitrix24.site/bitrix/images/landing/business/480x480/img4.jpg" alt="" data-fileid="-1" />
-						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0
-							g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20
-							g-transition-0_2 g-transition--ease-in">
+						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0 g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
 							<div class="h-100 g-flex-middle g-brd-around g-brd-white-opacity-0_2 text-uppercase">
 								<h3 class="landing-block-node-img-title g-flex-middle-item text-center h3 g-color-white g-line-height-1_4 g-text-transform-none g-letter-spacing-1 g-font-size-32"><span style="font-style: italic; font-weight: 700;">Sunny</span></h3>
 							</div>
@@ -507,134 +499,110 @@ return array(
 			array (
 				'CODE' => '33.1.form_1_transparent_black_left_text',
 				'SORT' => '12000',
-				'CONTENT' => '<section class="landing-block g-pos-rel g-pt-120 g-pb-120 landing-block-node-bgimg g-bg-size-cover g-bg-img-hero g-bg-cover g-bg-black-opacity-0_7--after" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1080/img10.jpg\');" data-fileid="-1">
-		<div class="container g-pos-rel g-z-index-1">
-			<div class="row align-items-center">
+				'CONTENT' => '<section class="landing-block landing-block-node-bgimg landing-semantic-color-overlay g-pos-rel g-pt-120 g-pb-120 g-bg-size-cover g-bg-img-hero g-bg-cover g-bg-black-opacity-0_7--after"
+	style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1080/img10.jpg);">
 
-				<div class="landing-block-form-styles" hidden="">
-					<div class="g-bg-transparent h1 g-color-white g-brd-none g-pa-0" data-form-style-wrapper-padding="1" data-form-style-bg="1" data-form-style-bg-content="1" data-form-style-bg-block="1" data-form-style-header-font-size="1" data-form-style-header-font-weight="1" data-form-style-button-font-color="1" data-form-style-border-block="1">
-					</div>
-					<div class="g-bg-primary g-color-primary g-brd-primary" data-form-style-main-bg="1" data-form-style-main-border-color="1" data-form-style-main-font-color-hover="1">
-					</div>
-					<div class="g-bg-transparent g-brd-none g-brd-bottom g-brd-white" data-form-style-input-bg="1" data-form-style-input-border="1" data-form-style-input-border-radius="1" data-form-style-input-border-color="1">
-					</div>
-					<div class="g-brd-primary g-brd-none g-brd-bottom g-bg-black-opacity-0_7" data-form-style-input-border-hover="1" data-form-style-input-border-color-hover="1" data-form-style-input-select-bg="1">
-					</div>
+	<div class="container g-z-index-1 g-pos-rel">
+		<div class="row align-items-center">
+
+			<div class="col-md-4 g-mb-60">
+				<h2 class="landing-block-node-main-title landing-semantic-title-medium js-animation fadeInUp h1 g-color-white mb-4 font-italic">Contact Us</h2>
+
+				<div class="landing-block-node-text landing-semantic-text-medium js-animation fadeInUp g-line-height-1_5 text-left g-mb-40 g-color-white-opacity-0_6">
+					<p>
+						Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor.
+						Vivamus a fringilla lorem, vel faucibus ante. Nunc ullamcorper, justo a iaculis elementum,
+						enim orci viverra eros, fringilla porttitor lorem eros vel odio.
+					</p>
 				</div>
 
+				<h3 class="landing-block-node-title landing-semantic-subtitle-medium h4 g-color-white mb-4">Contact Info</h3>
 
-				<div class="col-md-4 g-mb-60">
-					<h2 class="landing-block-node-main-title h1 g-color-white mb-4 js-animation fadeInUp"><span style="font-style: italic; font-weight: 700;">Contact Us</span></h2>
-					
-					<div class="landing-block-node-text g-line-height-1_5 text-left g-mb-40 g-color-white g-font-size-13 js-animation fadeInUp" data-form-style-main-font-family="1" data-form-style-main-font-weight="1" data-form-style-header-text-font-size="1" data-selector=".landing-block-node-text@0"><p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante. Nunc ullamcorper, justo a iaculis elementum, enim orci viverra eros, fringilla porttitor lorem eros vel odio.</p></div>
-
-					<h3 class="h4 g-color-white mb-4 landing-block-node-title" data-form-style-main-font-color="1" data-form-style-main-font-family="1"> </h3>
-
+				<div class="landing-block-node-card-contact-container">
 					<!-- Icon Block -->
-				<div class="landing-block-node-card-contact" data-card-preset="text">
-					<div class="media align-items-center mb-4">
-						<div class="d-flex">
+					<div class="landing-block-node-card-contact" data-card-preset="text">
+						<div class="media align-items-center mb-4">
+							<div class="d-flex">
 								<span class="landing-block-card-contact-icon-container u-icon-v1 u-icon-size--sm g-color-white mr-2">
-								  <i class="landing-block-card-contact-icon icon-hotel-restaurant-235 u-line-icon-pro"></i>
+									<i class="landing-block-card-contact-icon icon-hotel-restaurant-235 u-line-icon-pro"></i>
 								</span>
-						</div>
-						<div class="media-body">
-							<div class="landing-block-node-contact-text g-color-white-opacity-0_6 mb-0"
-								 data-form-style-main-font-weight="1"
-								 data-form-style-header-text-font-size="1"
-								 data-form-style-label-font-weight="1"
-								 data-form-style-label-font-size="1"
-								 data-form-style-second-font-color="1"
-							>5B Streat, City 50987 New Town US
+							</div>
+							<div class="media-body">
+								<div class="landing-block-node-contact-text landing-semantic-text-medium g-color-white-opacity-0_6 mb-0">5B Streat, City
+									50987 New Town US
+								</div>
 							</div>
 						</div>
 					</div>
-				</div>
-				<!-- End Icon Block -->
+					<!-- End Icon Block -->
 
-				<!-- Icon Block -->
-				<div class="landing-block-node-card-contact" data-card-preset="link">
-					<div class="media align-items-center mb-4">
-						<div class="d-flex">
+					<!-- Icon Block -->
+					<div class="landing-block-node-card-contact" data-card-preset="link">
+						<div class="media align-items-center mb-4">
+							<div class="d-flex">
 								<span class="landing-block-card-contact-icon-container u-icon-v1 u-icon-size--sm g-color-white mr-2">
-								  <i class="landing-block-card-contact-icon icon-communication-033 u-line-icon-pro"></i>
+									<i class="landing-block-card-contact-icon icon-communication-033 u-line-icon-pro"></i>
 								</span>
-						</div>
-						<div class="media-body">
-							<a href="tel:+32(0)333444555" class="landing-block-card-linkcontact-link g-color-white-opacity-0_6"
-							 data-form-style-main-font-weight="1"
-							 data-form-style-header-text-font-size="1"
-							 data-form-style-label-font-weight="1"
-							 data-form-style-label-font-size="1"
-							 data-form-style-second-font-color="1">+32 (0) 333 444 555</a>
+							</div>
+							<div class="media-body">
+								<a href="tel:#PHONE1#" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#PHONE1#</a>
+							</div>
 						</div>
 					</div>
-				</div>
-				<!-- End Icon Block -->
+					<!-- End Icon Block -->
 
-				<!-- Icon Block -->
-				<div class="landing-block-node-card-contact" data-card-preset="link">
-					<div class="media align-items-center mb-4">
-						<div class="d-flex">
+					<!-- Icon Block -->
+					<div class="landing-block-node-card-contact" data-card-preset="link">
+						<div class="media align-items-center mb-4">
+							<div class="d-flex">
 								<span class="landing-block-card-contact-icon-container u-icon-v1 u-icon-size--sm g-color-white mr-2">
-								  <i class="landing-block-card-contact-icon icon-communication-033 u-line-icon-pro"></i>
+									<i class="landing-block-card-contact-icon icon-communication-033 u-line-icon-pro"></i>
 								</span>
+							</div>
+							<a href="tel:#PHONE2#" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#PHONE2#</a>
 						</div>
-						<a href="tel:+32(0)333444666" class="landing-block-card-linkcontact-link g-color-white-opacity-0_6"
-						data-form-style-main-font-weight="1"
-						 data-form-style-header-text-font-size="1"
-						 data-form-style-label-font-weight="1"
-						 data-form-style-label-font-size="1"
-						 data-form-style-second-font-color="1">+32 (0) 333 444 666</a>
 					</div>
-				</div>
-				<!-- End Icon Block -->
+					<!-- End Icon Block -->
 
-				<!-- Icon Block -->
-				<div class="landing-block-node-card-contact" data-card-preset="link">
-					<div class="media align-items-center mb-4">
-						<div class="d-flex">
+					<!-- Icon Block -->
+					<div class="landing-block-node-card-contact" data-card-preset="link">
+						<div class="media align-items-center mb-4">
+							<div class="d-flex">
 								<span class="landing-block-card-contact-icon-container u-icon-v1 u-icon-size--sm g-color-white mr-2">
-								  <i class="landing-block-card-contact-icon icon-communication-033 u-line-icon-pro"></i>
+									<i class="landing-block-card-contact-icon icon-communication-033 u-line-icon-pro"></i>
 								</span>
+							</div>
+							<a href="tel:#PHONE3#" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#PHONE3#</a>
 						</div>
-						<a href="tel:+32(0)333444777" class="landing-block-card-linkcontact-link g-color-white-opacity-0_6"
-						data-form-style-main-font-weight="1"
-						 data-form-style-header-text-font-size="1"
-						 data-form-style-label-font-weight="1"
-						 data-form-style-label-font-size="1"
-						 data-form-style-second-font-color="1">+32 (0) 333 444 777</a>
 					</div>
-				</div>
-				<!-- End Icon Block -->
+					<!-- End Icon Block -->
 
-				<!-- Icon Block -->
-				<div class="landing-block-node-card-contact" data-card-preset="link">
-					<div class="media align-items-center mb-4">
-						<div class="d-flex">
+					<!-- Icon Block -->
+					<div class="landing-block-node-card-contact" data-card-preset="link">
+						<div class="media align-items-center mb-4">
+							<div class="d-flex">
 								<span class="landing-block-card-contact-icon-container u-icon-v1 u-icon-size--sm g-color-white mr-2">
-								  <i class="landing-block-card-contact-icon icon-communication-062 u-line-icon-pro"></i>
+									<i class="landing-block-card-contact-icon icon-communication-062 u-line-icon-pro"></i>
 								</span>
+							</div>
+							<a href="mailto:#EMAIL1#" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#EMAIL1#</a>
 						</div>
-						<a href="mailto:info@company24.com" class="landing-block-card-linkcontact-link g-color-white-opacity-0_6"
-						data-form-style-main-font-weight="1"
-						 data-form-style-header-text-font-size="1"
-						 data-form-style-label-font-weight="1"
-						 data-form-style-label-font-size="1"
-						 data-form-style-second-font-color="1">info@company24.com</a>
 					</div>
+					<!-- End Icon Block -->
 				</div>
-				<!-- End Icon Block -->
-				</div>
-
-
-				<div class="col-md-8">
-					<div class="bitrix24forms g-brd-none g-brd-around--sm g-brd-white-opacity-0_6 g-px-0 g-px-20--sm g-px-45--lg g-py-0 g-py-30--sm g-py-60--lg u-form-alert-v1" data-b24form="" data-form-style-input-border-color="1" data-b24form-use-style="Y" data-b24form-show-header="N" data-b24form-original-domain=""></div>
-				</div>
-
 			</div>
-		</div>
 
+			<div class="col-md-8">
+				<div class="bitrix24forms landing-block-node-form js-animation fadeInUp g-brd-none g-brd-around--sm g-brd-white-opacity-0_6 g-px-0 g-px-20--sm g-px-45--lg g-py-0 g-py-30--sm g-py-60--lg u-form-alert-v1"
+					data-b24form-use-style="Y"
+					data-b24form-design=\'{"dark":true,"style":"modern","shadow":false,"compact":false,"color":{"primary":"--primary","primaryText":"#fff","text":"#fff","background":"#00000000","fieldBorder":"#fff","fieldBackground":"#ffffff00","fieldFocusBackground":"#ffffff00"},"border":{"top":false,"bottom":false,"left":false,"right":false}}\'
+					data-b24form-embed
+				>
+				</div>
+			</div>
+
+		</div>
+	</div>
 </section>',
 			),
 		'17.1.copyright_with_social' =>

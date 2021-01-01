@@ -902,7 +902,7 @@ class Element implements Controllable, Errorable
 		$order = $this->getOrder($availableFieldsIdForSort);
 
 		$filter = [
-			"IBLOCK_TYPE" => $this->params["IBLOCK_TYPE_ID"],
+			"=IBLOCK_TYPE" => $this->params["IBLOCK_TYPE_ID"],
 			"IBLOCK_ID" => $this->iblockId,
 			"ID" => $this->params["ELEMENT_ID"] ? $this->params["ELEMENT_ID"] : "",
 			"CODE" => $this->params["ELEMENT_CODE"] ? $this->params["ELEMENT_CODE"] : "",
@@ -971,7 +971,7 @@ class Element implements Controllable, Errorable
 				$filter[$key] = $value;
 			}
 		}
-		
+
 		return $filter;
 	}
 

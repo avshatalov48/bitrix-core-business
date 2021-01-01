@@ -10,8 +10,6 @@
 	var proxy = BX.Landing.Utils.proxy;
 	var create = BX.Landing.Utils.create;
 
-	var Popup = BX.Landing.UI.Tool.Popup;
-
 	/**
 	 * Implements interface for works with suggest popup
 	 * @constructor
@@ -92,9 +90,11 @@
 		{
 			if (this.popup === null)
 			{
-				this.popup = new Popup({
+				this.popup = new BX.Main.Popup({
 					id: "landing_suggests_popup",
+					autoHide: false,
 					offsetLeft: -20,
+					offsetTop: 11,
 					angle: {offset: 74}
 				});
 			}

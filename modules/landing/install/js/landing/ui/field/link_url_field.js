@@ -26,7 +26,6 @@
 
 	var BaseButton = BX.Landing.UI.Button.BaseButton;
 	var Dropdown = BX.Landing.UI.Field.Dropdown;
-	var Menu = BX.Landing.UI.Tool.Menu;
 
 	/** @type {string} */
 	var TYPE_BLOCK = "block";
@@ -641,7 +640,7 @@
 
 		/**
 		 * Creates popup menu
-		 * @return {BX.Landing.UI.Tool.Menu}
+		 * @return {BX.PopupMenuWindow}
 		 */
 		createPopup: function()
 		{
@@ -671,7 +670,7 @@
 				});
 			}
 
-			this.popup = new Menu({
+			this.popup = new BX.PopupMenuWindow({
 				id: "link_list_" + (+new Date()),
 				bindElement: this.button.layout,
 				items: buttons,

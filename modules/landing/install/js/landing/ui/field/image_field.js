@@ -139,22 +139,26 @@
 			var sourceClassList = this.content.classList;
 			var newClassList = [];
 
-			BX.Landing.UI.Panel.Icon.getInstance().libraries.forEach(function(library) {
-				library.categories.forEach(function(category) {
-					category.items.forEach(function(item) {
-						var classList = item.split(" ");
-						classList.forEach(function(className) {
-							if (sourceClassList.indexOf(className) !== -1 && newClassList.indexOf(className) === -1)
-							{
-								newClassList.push(className);
-							}
+			BX.Landing.UI.Panel.IconPanel
+				.getLibraries()
+				.then(function(libraries) {
+					libraries.forEach(function(library) {
+						library.categories.forEach(function(category) {
+							category.items.forEach(function(item) {
+								var classList = item.split(" ");
+								classList.forEach(function(className) {
+									if (sourceClassList.indexOf(className) !== -1 && newClassList.indexOf(className) === -1)
+									{
+										newClassList.push(className);
+									}
+								});
+							});
 						});
 					});
-				});
-			});
 
+					this.icon.innerHTML = "<span class=\""+newClassList.join(" ")+"\"></span>";
+				}.bind(this));
 
-			this.icon.innerHTML = "<span class=\""+newClassList.join(" ")+"\"></span>";
 			this.showPreview();
 			this.altField.layout.hidden = true;
 		}

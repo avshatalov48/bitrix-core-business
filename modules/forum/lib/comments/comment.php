@@ -6,6 +6,7 @@ use Bitrix\Forum\Internals\Error\ErrorCollection;
 use Bitrix\Forum\MessageTable;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Web\Json;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Forum\Internals\Error\Error;
 use \Bitrix\Main\Event;
@@ -53,8 +54,43 @@ class Comment extends BaseObject
 			$result["SOURCE_ID"] = $params["SOURCE_ID"];
 		}
 		$errorCollection = new ErrorCollection();
+		if (isset($params["SERVICE_TYPE"]))
+		{
+			if (!in_array($params["SERVICE_TYPE"], \Bitrix\Forum\Comments\Service\Manager::getTypesList()))
+			{
+				$errorCollection->addOne(new Error(Loc::getMessage("FORUM_CM_ERR_TYPE_INCORRECT"), self::ERROR_PARAMS_TYPE));
+			}
+			else
+			{
+				$result["SERVICE_TYPE"] = $params["SERVICE_TYPE"];
+				if (!isset($params["SERVICE_DATA"]))
+				{
+					if (($result["SERVICE_TYPE"] === \Bitrix\Forum\Comments\Service\Manager::TYPE_TASK_INFO ||
+						$result["SERVICE_TYPE"] === \Bitrix\Forum\Comments\Service\Manager::TYPE_TASK_CREATED)
+						&& JSon::decode($result["POST_MESSAGE"]) == $params["AUX_DATA"])
+					{
+						$params["SERVICE_DATA"] = $result["POST_MESSAGE"];
+						$result["POST_MESSAGE"] = "";
+					}
+					else
+					{
+						$params["SERVICE_DATA"] = Json::encode($params["AUX_DATA"] ?? []);
+					}
+				}
+				$result["SERVICE_DATA"] = $params["SERVICE_DATA"];
+				if ($result["POST_MESSAGE"] == "" &&
+					($handler = \Bitrix\Forum\Comments\Service\Manager::find(
+						["SERVICE_TYPE" => $result["SERVICE_TYPE"]]
+					)))
+				{
+					$result["POST_MESSAGE"] = $handler->getText($result["SERVICE_DATA"]);
+				}
+			}
+		}
 		if ($result["POST_MESSAGE"] == '')
+		{
 			$errorCollection->addOne(new Error(Loc::getMessage("FORUM_CM_ERR_EMPTY_TEXT"), self::ERROR_PARAMS_MESSAGE));
+		}
 
 		if ($result["AUTHOR_NAME"] == '' && $result["AUTHOR_ID"] > 0)
 			$result["AUTHOR_NAME"] = self::getUserName($result["AUTHOR_ID"]);
@@ -91,19 +127,6 @@ class Comment extends BaseObject
 		{
 			$result["APPROVED"] = ($this->forum["MODERATION"] != "Y" || $this->getEntity()->canModerate($this->getUser()->getId())) ? "Y" : "N";
 		}
-
-		if (isset($params["SERVICE_TYPE"]))
-		{
-			if (!in_array($params["SERVICE_TYPE"], \Bitrix\Forum\Comments\Service\Manager::getTypesList()))
-			{
-				$errorCollection->addOne(new Error(Loc::getMessage("FORUM_CM_ERR_TYPE_INCORRECT"), self::ERROR_PARAMS_TYPE));
-			}
-			else
-			{
-				$result["SERVICE_TYPE"] = $params["SERVICE_TYPE"];
-			}
-		}
-
 		if ($errorCollection->hasErrors())
 		{
 			$errorCollectionParam->add($errorCollection->toArray());
@@ -168,7 +191,8 @@ class Comment extends BaseObject
 
 			"AUX" => $params["AUX"],
 			"AUX_DATA" => $auxData,
-			"SERVICE_TYPE" => ($params["SERVICE_TYPE"] ?? null)
+			"SERVICE_TYPE" => ($params["SERVICE_TYPE"] ?? null),
+			"SERVICE_DATA" => ($params["SERVICE_DATA"] ?? null)
 		);
 
 		if ($this->prepareFields($params, $this->errorCollection))

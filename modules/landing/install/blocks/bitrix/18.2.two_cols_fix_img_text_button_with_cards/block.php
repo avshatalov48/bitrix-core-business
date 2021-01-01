@@ -15,7 +15,7 @@
 		</div>
 
 		<div class="col-lg-2 col-md-10 col-12 text-right">
-			<a class="landing-block-node-link landing-semantic-link-image-medium g-color-gray-dark-v2 g-color-primary--hover g-font-weight-700 g-font-size-12 g-text-underline--none--hover text-uppercase g-color-primary g-color-teal--hover"
+			<a class="landing-block-node-link landing-semantic-link-image-medium g-color-primary g-font-weight-700 g-font-size-12 g-text-underline--none--hover text-uppercase"
 			   href="#">
 				Read more ...
 			</a>
@@ -38,8 +38,7 @@
 		</div>
 
 		<div class="col-lg-2 col-md-10 col-12 text-right">
-			<a class="landing-block-node-link landing-semantic-link-image-medium g-color-gray-dark-v2 g-color-primary--hover g-font-weight-700 g-font-size-12 g-text-underline--none--hover text-uppercase g-color-primary g-color-teal--hover"
-			   href="#">
+			<a class="landing-block-node-link landing-semantic-link-image-medium g-color-primary g-font-weight-700 g-font-size-12 g-text-underline--none--hover text-uppercase"   href="#">
 				Read more ...
 			</a>
 		</div>
@@ -61,8 +60,7 @@
 		</div>
 
 		<div class="col-lg-2 col-md-10 col-12 text-right">
-			<a class="landing-block-node-link landing-semantic-link-image-medium g-color-gray-dark-v2 g-color-primary--hover g-font-weight-700 g-font-size-12 g-text-underline--none--hover text-uppercase g-color-primary g-color-teal--hover"
-			   href="#">
+			<a class="landing-block-node-link landing-semantic-link-image-medium g-color-primary g-font-weight-700 g-font-size-12 g-text-underline--none--hover text-uppercase"   href="#">
 				Read more ...
 			</a>
 		</div>

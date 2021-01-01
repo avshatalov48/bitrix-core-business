@@ -100,11 +100,23 @@ class BitrixVuex
 	}
 }
 
-let bitrixVuex = BitrixVuex;
+let Vuex;
+let VuexVendor;
+
+if (typeof exports !== 'undefined' && ('Vuex' in exports))
+{
+	Vuex = exports.Vuex;
+	VuexVendor = exports.VuexVendor;
+}
+else
+{
+	Vuex = BitrixVuex;
+	VuexVendor = VuexVendorV3;
+}
 
 export {
-	bitrixVuex as Vuex,
-	VuexVendorV3 as VuexVendor,
+	Vuex,
+	VuexVendor,
 	VuexBuilder,
 	VuexBuilderModel
 };

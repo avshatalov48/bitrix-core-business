@@ -8,7 +8,7 @@ if(!empty($arResult["FATAL_MESSAGE"])):
 	?>
 	<div class="wiki-errors">
 		<div class="wiki-error-text">
-			<?=$arResult['FATAL_MESSAGE']?>
+			<?=htmlspecialcharsEx($arResult['FATAL_MESSAGE'])?>
 		</div>
 	</div>
 	<?
@@ -18,13 +18,13 @@ else:
 	<? if (isset($arResult['VERSION'])) : ?>
 		<div id="wiki-sub-post_content">
 			<div id="wiki-version-info">
-			<?=GetMessage('WIKI_VERSION_FROM')?> <?=$arResult['VERSION']['MODIFIED']?>;
-			<?=$arResult['VERSION']['USER_LOGIN']?>  (<? if (!empty($arResult['VERSION']['CUR_LINK'])){ ?><a title="<?=$arResult['ELEMENT']['NAME'];?>" href="<?=$arResult['VERSION']['CANCEL_LINK']?>"><?=GetMessage('WIKI_RESTORE_TO_CURRENT')?></a><? } else { ?><?=GetMessage('WIKI_RESTORE_TO_CURRENT')?><? } ?>)
+			<?=GetMessage('WIKI_VERSION_FROM')?> <?=htmlspecialcharsbx($arResult['VERSION']['MODIFIED'])?>;
+			<?=$arResult['VERSION']['USER_LOGIN']?>  (<? if (!empty($arResult['VERSION']['CUR_LINK'])){ ?><a title="<?=htmlspecialcharsbx($arResult['ELEMENT']['NAME']);?>" href="<?=htmlspecialcharsbx($arResult['VERSION']['CANCEL_LINK'])?>"><?=GetMessage('WIKI_RESTORE_TO_CURRENT')?></a><? } else { ?><?=GetMessage('WIKI_RESTORE_TO_CURRENT')?><? } ?>)
 			</div>
 			<div id="wiki-version-nav">
-			<? if (!empty($arResult['VERSION']['PREV_LINK'])){ ?><a title="<?=$arResult['ELEMENT']['NAME'];?>" href="<?=$arResult['VERSION']['PREV_LINK']?>"><?=GetMessage('WIKI_PREV_VERSION')?></a> <? } else { ?> <?=GetMessage('WIKI_PREV_VERSION')?> <? } ?> |
-			<? if (!empty($arResult['VERSION']['CUR_LINK'])){ ?><a title="<?=$arResult['ELEMENT']['NAME'];?>" href="<?=$arResult['VERSION']['CUR_LINK']?>"><?=GetMessage('WIKI_CURR_VERSION')?></a> <? } else { ?> <?=GetMessage('WIKI_CURR_VERSION')?> <? } ?> |
-			<? if (!empty($arResult['VERSION']['NEXT_LINK'])){ ?><a title="<?=$arResult['ELEMENT']['NAME'];?>" href="<?=$arResult['VERSION']['NEXT_LINK']?>"><?=GetMessage('WIKI_NEXT_VERSION')?></a> <? } else { ?> <?=GetMessage('WIKI_NEXT_VERSION')?> <? } ?>
+			<? if (!empty($arResult['VERSION']['PREV_LINK'])){ ?><a title="<?=htmlspecialcharsbx($arResult['ELEMENT']['NAME']);?>" href="<?=htmlspecialcharsbx($arResult['VERSION']['PREV_LINK'])?>"><?=GetMessage('WIKI_PREV_VERSION')?></a> <? } else { ?> <?=GetMessage('WIKI_PREV_VERSION')?> <? } ?> |
+			<? if (!empty($arResult['VERSION']['CUR_LINK'])){ ?><a title="<?=htmlspecialcharsbx($arResult['ELEMENT']['NAME']);?>" href="<?=htmlspecialcharsbx($arResult['VERSION']['CUR_LINK'])?>"><?=GetMessage('WIKI_CURR_VERSION')?></a> <? } else { ?> <?=GetMessage('WIKI_CURR_VERSION')?> <? } ?> |
+			<? if (!empty($arResult['VERSION']['NEXT_LINK'])){ ?><a title="<?=htmlspecialcharsbx($arResult['ELEMENT']['NAME']);?>" href="<?=htmlspecialcharsbx($arResult['VERSION']['NEXT_LINK'])?>"><?=GetMessage('WIKI_NEXT_VERSION')?></a> <? } else { ?> <?=GetMessage('WIKI_NEXT_VERSION')?> <? } ?>
 			</div>
 		</div>
 	<? endif ?>

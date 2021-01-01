@@ -5425,7 +5425,7 @@ class CSocNetLogTools
 			"lists_new_element" => array("WF", "WF", ""),
 			"news" => array("IBLOCK", "IB", ""),
 			"wiki" => array("IBLOCK", "IB", ""),
-			"timeman_entry"=> array("TIMEMAN_ENTRY", "TE", ""),
+			"timeman_entry"=> array("TIMEMAN_ENTRY", "TM", ""),
 			"report"=> array("TIMEMAN_REPORT", "TR", ""),
 		);
 

@@ -68,7 +68,10 @@ class OpenGraph extends Parser
 	{
 		if(!$document->getExtraField('VIDEO'))
 		{
-			$ogVideo = $document->getMetaContent('og:video') ?: $document->getMetaContent('og:video');
+			$ogVideo = $document->getMetaContent('og:video')
+				?? $document->getMetaContent('og:video:secure_url')
+				?? $document->getMetaContent('og:video:url')
+				?? '';
 			if($ogVideo <> '')
 			{
 				$document->setExtraField('VIDEO', $ogVideo);
@@ -77,7 +80,7 @@ class OpenGraph extends Parser
 
 		if(!$document->getExtraField('VIDEO_TYPE'))
 		{
-			$ogVideoType = $document->getMetaContent('og:video:type') ?: $document->getMetaContent('og:video:type');
+			$ogVideoType = $document->getMetaContent('og:video:type') ?? '';
 			if($ogVideoType <> '')
 			{
 				$document->setExtraField('VIDEO_TYPE', $ogVideoType);
@@ -87,7 +90,7 @@ class OpenGraph extends Parser
 
 		if(!$document->getExtraField('VIDEO_WIDTH'))
 		{
-			$ogVideoWidth = $document->getMetaContent('og:video:width') ?: $document->getMetaContent('og:video:width');
+			$ogVideoWidth = $document->getMetaContent('og:video:width') ?? '';
 			if($ogVideoWidth <> '')
 			{
 				$document->setExtraField('VIDEO_WIDTH', $ogVideoWidth);
@@ -96,7 +99,7 @@ class OpenGraph extends Parser
 
 		if(!$document->getExtraField('VIDEO_HEIGHT'))
 		{
-			$ogVideoHeight = $document->getMetaContent('og:video:height') ?: $document->getMetaContent('og:video:height');
+			$ogVideoHeight = $document->getMetaContent('og:video:height') ?? '';
 			if($ogVideoHeight <> '')
 			{
 				$document->setExtraField('VIDEO_HEIGHT', $ogVideoHeight);

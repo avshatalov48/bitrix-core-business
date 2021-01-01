@@ -49,10 +49,12 @@ class PostingTable extends Main\Entity\DataManager
 			'CAMPAIGN_ID' => array(
 				'data_type' => 'integer',
 				'required' => true,
+				'column_name' => 'MAILING_ID',
 			),
 			'LETTER_ID' => array(
 				'data_type' => 'integer',
 				'required' => true,
+				'column_name' => 'MAILING_CHAIN_ID',
 			),
 			'DATE_CREATE' => array(
 				'data_type' => 'datetime',
@@ -112,15 +114,15 @@ class PostingTable extends Main\Entity\DataManager
 			),
 			'LETTER' => array(
 				'data_type' => LetterTable::class,
-				'reference' => array('=this.MAILING_CHAIN_ID' => 'ref.ID'),
+				'reference' => array('=this.LETTER_ID' => 'ref.ID'),
 			),
 			'MAILING' => array(
 				'data_type' => Sender\MailingTable::class,
-				'reference' => array('=this.MAILING_ID' => 'ref.ID'),
+				'reference' => array('=this.CAMPAIGN_ID' => 'ref.ID'),
 			),
 			'MAILING_CHAIN' => array(
 				'data_type' => Sender\MailingChainTable::class,
-				'reference' => array('=this.MAILING_CHAIN_ID' => 'ref.ID'),
+				'reference' => array('=this.LETTER_ID' => 'ref.ID'),
 			),
 			'POSTING_RECIPIENT' => array(
 				'data_type' => Posting\RecipientTable::class,

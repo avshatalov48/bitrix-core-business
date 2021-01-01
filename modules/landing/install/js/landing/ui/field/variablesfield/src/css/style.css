@@ -1,0 +1,23 @@
+.landing-ui-field-variables {
+	position: relative;
+	display: flex;
+	flex-direction: row;
+}
+
+.landing-ui-field-variables-left {
+	flex-grow: 1;
+}
+
+.landing-ui-field-variables-button {
+	background: url("images/button-icon.svg") center center no-repeat;
+	width: 36px;
+	height: 36px;
+	margin-right: -8px;
+	cursor: pointer;
+	opacity: .5;
+	transition: 200ms opacity ease;
+}
+
+.landing-ui-field-variables-button:hover {
+	opacity: 1;
+}

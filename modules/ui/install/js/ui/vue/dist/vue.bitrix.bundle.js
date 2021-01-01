@@ -631,10 +631,16 @@
 	  return BitrixVue;
 	}();
 
-	var Vue = new BitrixVue();
 
-	exports.VueVendor = ui_vue_vendor_v2.VueVendorV2;
-	exports.Vue = Vue;
+
+
+	if (typeof exports !== 'undefined' && 'Vue' in exports) {
+	  exports.Vue = exports.Vue;
+	  exports.VueVendor = exports.VueVendor;
+	} else {
+	  exports.Vue = new BitrixVue();
+	  exports.VueVendor = ui_vue_vendor_v2.VueVendorV2;
+	}
 
 }((this.BX = this.BX || {}),window,BX));
 //# sourceMappingURL=vue.bitrix.bundle.js.map

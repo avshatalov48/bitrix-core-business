@@ -469,7 +469,7 @@ Vue.component('bx-im-component-dialog',
 		},
 		onDialogMessageClickByChatTeaser(event)
 		{
-			this.$root.$bitrixController.application.joinParentChat(data.message.id, 'chat'+data.message.params.CHAT_ID).then((dialogId) => {
+			this.$root.$bitrixController.application.joinParentChat(event.message.id, 'chat'+event.message.params.CHAT_ID).then((dialogId) => {
 				this.openDialog(dialogId);
 			}).catch(() => {});
 

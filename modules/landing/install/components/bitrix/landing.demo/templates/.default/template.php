@@ -112,7 +112,7 @@ foreach ($arResult['DEMO'] as $item):
 	{
 		continue;
 	}
-	
+
 	$tpl = (
 		(
 			defined('SMN_SITE_ID') ||
@@ -243,7 +243,7 @@ foreach ($arResult['DEMO'] as $item):
 		<div class="landing-license-banner-icon-arrow"></div>
 	</div>
 	<div class="landing-license-banner-title">
-		<?= Loc::getMessage('LANDING_TPL_LOAD_APP_TEMPLATE');?>
+		<?= Loc::getMessage('LANDING_TPL_LOAD_APP_TEMPLATE_2');?>
 	</div>
 </a>
 <?endif;?>

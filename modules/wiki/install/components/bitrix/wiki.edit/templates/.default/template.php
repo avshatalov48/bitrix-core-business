@@ -196,7 +196,7 @@ else:
 
 							$APPLICATION->IncludeComponent('bitrix:search.tags.input', '.default', $arSParams);
 						else:
-							?><input type="text" class="wiki-input" id="TAGS" tabindex="4" name="TAGS" size="30" value="<?=$arResult['ELEMENT']['~TAGS']?>"/><?
+							?><input type="text" class="wiki-input" id="TAGS" tabindex="4" name="TAGS" size="30" value="<?=htmlspecialcharsbx($arResult['ELEMENT']['~TAGS'])?>"/><?
 						endif?>
 					</div>
 				</div>

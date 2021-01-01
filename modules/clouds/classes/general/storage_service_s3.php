@@ -29,13 +29,11 @@ class CCloudStorageService_S3 extends CCloudStorageService
 		return "S3 compatible storage";
 	}
 	/**
-	 * @return array[string]string
+	 * @return array[string]string|false
 	*/
 	function GetLocationList()
 	{
-		return array(
-			"" => "N/A",
-		);
+		return false;
 	}
 	/**
 	 * @param array[string]string $arBucket
@@ -336,33 +334,28 @@ class CCloudStorageService_S3 extends CCloudStorageService
 		$this->errstr = '';
 		$this->result = '';
 
-		$request_id = '';
+		$request = false;
 		if (defined("BX_CLOUDS_TRACE") && $verb !== "GET" && $verb !== "HEAD")
 		{
 			$stime = microtime(1);
-			$request_id = md5((string)mt_rand());
-			AddMessage2Log('{'
-				.'"request_id": "'.$request_id.'",'
-				.'"portal":"'.(CModule::IncludeModule('replica')? getNameByDomain(): $_SERVER["HOST_NAME"]).'",'
-				.'"verb":"'.$verb.'",'
-				.'"host":"'.$host.'",'
-				.'"uri":"'.$file_name.$params.'"'
-			.'}', '', 0);
+			$request = array(
+				"request_id" => md5((string)mt_rand()),
+				"portal" => (CModule::IncludeModule('replica')? getNameByDomain(): $_SERVER["HTTP_HOST"]),
+				"verb" => $verb,
+				"host" => $host,
+				"uri" => $file_name.$params
+			);
+			AddMessage2Log(json_encode($request), 'clouds', 20);
 		}
 
 		$obRequest->Query($verb, $host, 80, $file_name.$params, $content, '', $ContentType);
 
-		if ($request_id != '')
+		if ($request)
 		{
-			AddMessage2Log('{'
-				.'"request_id": "'.$request_id.'",'
-				.'"portal":"'.(CModule::IncludeModule('replica')? getNameByDomain(): $_SERVER["HOST_NAME"]).'",'
-				.'"verb":"'.$verb.'",'
-				.'"host":"'.$host.'",'
-				.'"uri":"'.$file_name.$params.'",'
-				.'"status":"'.$obRequest->status.'",'
-				.'"time": "'.(round(microtime(1)-$stime,6)).'"'
-			.'}', 'clouds', 20);
+			$request["status"] = $obRequest->status;
+			$request["time"] = round(microtime(true) - $stime, 6);
+			$request["headers"] = $obRequest->headers;
+			AddMessage2Log(json_encode($request), 'clouds', 0);
 		}
 
 		$this->status = $obRequest->status;

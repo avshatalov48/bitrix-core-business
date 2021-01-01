@@ -181,6 +181,8 @@ class CashboxBitrixV2 extends CashboxBitrix
 			CreditCheck::getType() => 'credit',
 			CreditReturnCheck::getType() => 'credit',
 			CreditPaymentCheck::getType() => 'creditPayment',
+			CreditPaymentReturnCashCheck::getType() => 'creditPayment',
+			CreditPaymentReturnCheck::getType() => 'creditPayment',
 			PrepaymentCheck::getType() => 'prepayment',
 			PrepaymentReturnCheck::getType() => 'prepayment',
 			PrepaymentReturnCashCheck::getType() => 'prepayment',

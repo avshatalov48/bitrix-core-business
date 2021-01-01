@@ -3,6 +3,7 @@ namespace Bitrix\Bizproc;
 
 use Bitrix\Main\Entity;
 use Bitrix\Main\ORM\Fields\Field;
+use Bitrix\Main\ORM\Fields\Validators\Validator;
 use Bitrix\Main\Text\BinaryString;
 
 /**
@@ -190,7 +191,7 @@ class RestActivityTable extends Entity\DataManager
 		return array(
 			function($value, $primary, $row, Field $field) {
 				$errorMsg = GetMessage("BPRAT_PROPERTIES_LENGTH_ERROR", array("#FIELD_TITLE#" => $field->getTitle()));
-				return BinaryString::getLength($value) < 65535 ? true : $errorMsg;
+				return BinaryString::getLength(serialize($value)) < 65535 ? true : $errorMsg;
 			}
 		);
 	}

@@ -10,10 +10,12 @@ use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\MultiClaimResult;
 use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\PhoneResult;
 use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\PriceResult;
 use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\SingleClaimResult;
+use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\TariffsResult;
 use Sale\Handlers\Delivery\YandexTaxi\Api\ClaimReader\ClaimReader;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\Claim;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\Estimation;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\SearchOptions;
+use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\TariffsOptions;
 use Sale\Handlers\Delivery\YandexTaxi\Api\Transport;
 use Sale\Handlers\Delivery\YandexTaxi\Common\Logger;
 
@@ -87,7 +89,7 @@ final class Api
 
 		if ($statusCode != 200)
 		{
-			$this->logger->log(static::LOG_SOURCE, 'status_code', $statusCode);
+			$this->logger->log(static::LOG_SOURCE, 'check_price', $response->toString());
 			return $this->respondStatusError($result, $statusCode, 'check_price');
 		}
 
@@ -106,6 +108,49 @@ final class Api
 		if (isset($body['eta']))
 		{
 			$result->setEta((int)$body['eta']);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param TariffsOptions $tariffsOptions
+	 * @return TariffsResult
+	 * @throws \Bitrix\Main\ArgumentException
+	 */
+	public function getTariffs(TariffsOptions $tariffsOptions): TariffsResult
+	{
+		$result = new TariffsResult();
+
+		try
+		{
+			$response = $this->transport->post('tariffs', $tariffsOptions);
+		}
+		catch (Transport\Exception $requestException)
+		{
+			return $this->respondTransportError($result);
+		}
+
+		$statusCode = $response->getStatus();
+		$body = $response->getBody();
+
+		if ($statusCode != 200)
+		{
+			$this->logger->log(static::LOG_SOURCE, 'tariffs', $response->toString());
+			return $this->respondStatusError($result, $statusCode, 'tariffs');
+		}
+
+		if (isset($body['available_tariffs']) && is_array($body['available_tariffs']))
+		{
+			foreach ($body['available_tariffs'] as $tariff)
+			{
+				if (!isset($tariff['name']))
+				{
+					continue;
+				}
+
+				$result->addTariff($tariff['name']);
+			}
 		}
 
 		return $result;
@@ -140,7 +185,7 @@ final class Api
 
 		if ($statusCode != 200)
 		{
-			$this->logger->log(static::LOG_SOURCE, 'status_code', $statusCode);
+			$this->logger->log(static::LOG_SOURCE, 'create_claim', $response->toString());
 			return $this->respondStatusError($result, $statusCode, 'create');
 		}
 
@@ -182,7 +227,7 @@ final class Api
 
 		if ($statusCode != 200)
 		{
-			$this->logger->log(static::LOG_SOURCE, 'status_code', $statusCode);
+			$this->logger->log(static::LOG_SOURCE, 'accept_claim', $response->toString());
 			return $this->respondStatusError($result, $statusCode, 'accept');
 		}
 
@@ -222,7 +267,7 @@ final class Api
 
 		if ($statusCode != 200)
 		{
-			$this->logger->log(static::LOG_SOURCE, 'status_code', $statusCode);
+			$this->logger->log(static::LOG_SOURCE, 'cancel_claim', $response->toString());
 			return $this->respondStatusError($result, $statusCode, 'cancel');
 		}
 
@@ -257,7 +302,7 @@ final class Api
 
 		if ($statusCode != 200)
 		{
-			$this->logger->log(static::LOG_SOURCE, 'status_code', $statusCode);
+			$this->logger->log(static::LOG_SOURCE, 'get_claim', $response->toString());
 			return $this->respondStatusError($result, $statusCode, 'info');
 		}
 
@@ -296,7 +341,7 @@ final class Api
 
 		if ($statusCode != 200)
 		{
-			$this->logger->log(static::LOG_SOURCE, 'status_code', $statusCode);
+			$this->logger->log(static::LOG_SOURCE, 'search_claims_1', $response->toString());
 			return $this->respondStatusError($result, $statusCode, 'info');
 		}
 
@@ -311,7 +356,7 @@ final class Api
 				}
 				else
 				{
-					$this->logger->log(static::LOG_SOURCE, 'claim_structure', $statusCode);
+					$this->logger->log(static::LOG_SOURCE, 'search_claims_2', $response->toString());
 					return $result->addErrors($claimReadResult->getErrors());
 				}
 			}
@@ -353,7 +398,7 @@ final class Api
 
 		if ($statusCode != 200)
 		{
-			$this->logger->log(static::LOG_SOURCE, 'status_code', $statusCode);
+			$this->logger->log(static::LOG_SOURCE, 'get_phone', $response->toString());
 			return $this->respondStatusError($result, $statusCode, 'driver-voiceforwarding');
 		}
 
@@ -397,13 +442,13 @@ final class Api
 
 		if ($statusCode != 200)
 		{
-			$this->logger->log(static::LOG_SOURCE, 'status_code', $statusCode);
+			$this->logger->log(static::LOG_SOURCE, 'get_journal_records_1', $response->toString());
 			return $this->respondStatusError($result, $statusCode, 'journal');
 		}
 
 		if (!is_array($body) || !isset($body['cursor']) || !isset($body['events']))
 		{
-			$this->logger->log(static::LOG_SOURCE, 'response_structure', $statusCode);
+			$this->logger->log(static::LOG_SOURCE, 'get_journal_records_2', $response->toString());
 
 			return $result->addError(new Error(Loc::getMessage('SALE_YANDEX_TAXI_NETWORK_ERROR_UNEXPECTED_ERROR')));
 		}

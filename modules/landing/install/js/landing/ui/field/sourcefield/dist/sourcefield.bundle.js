@@ -363,7 +363,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      return this.cache.remember('menu', function () {
 	        var form = _this8.input.closest('.landing-ui-field-source');
 
-	        var menu = new BX.Landing.UI.Tool.Menu({
+	        var menu = new BX.PopupMenuWindow({
 	          id: "".concat(_this8.selector, "_").concat(main_core.Text.getRandom()),
 	          bindElement: _this8.getButtonField().layout,
 	          autoHide: true,

@@ -7,8 +7,6 @@
 	var isString = BX.Landing.Utils.isString;
 	var isEmpty = BX.Landing.Utils.isEmpty;
 	var addClass = BX.Landing.Utils.addClass;
-	var show = BX.Landing.Utils.Show;
-	var hide = BX.Landing.Utils.Hide;
 
 
 	/**
@@ -16,6 +14,9 @@
 	 * @extends {BX.PopupWindow}
 	 * @param {object} options
 	 * @constructor
+	 *
+	 * @deprecated Do not use it
+	 * @see BX.Main.Popup
 	 */
 	BX.Landing.UI.Tool.Popup = function(options)
 	{

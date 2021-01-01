@@ -33,7 +33,7 @@
 
                         <h3 class="landing-block-node-title landing-semantic-subtitle-medium h5 text-uppercase g-color-gray-light-v2 g-mb-10">Step 2. Creative concept</h3>
                         <div class="landing-block-node-text landing-semantic-text-medium g-color-gray-light-v2">
-							<p>We strive to embrace and drive change in our industry which allows us to keep our clients relevant.</p>
+							<p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante.</p>
 						</div>
                     </div>
                 </div>

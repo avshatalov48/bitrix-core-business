@@ -133,6 +133,18 @@ Vue.component('bx-im-view-message-body',
 
 			return this.dateFormatFunction;
 		},
+		isDesktop()
+		{
+			return Utils.platform.isBitrixDesktop();
+		},
+		getDesktopVersion()
+		{
+			return Utils.platform.getDesktopVersion();
+		},
+		isMobile()
+		{
+			return Utils.platform.isBitrixMobile();
+		}
 	},
 	computed:
 	{
@@ -362,7 +374,7 @@ Vue.component('bx-im-view-message-body',
 	},
 	template: `
 		<div class="bx-im-message-content-wrap">
-			<template v-if="contentType == ContentType.default || contentType == ContentType.audio || contentType == ContentType.progress">
+			<template v-if="contentType == ContentType.default || contentType == ContentType.audio || contentType == ContentType.progress || (contentType !== ContentType.image && isDesktop() && getDesktopVersion() < 47)">
 				<div class="bx-im-message-content">
 					<span class="bx-im-message-content-box">
 						<div class="bx-im-message-content-name-wrap">
@@ -374,7 +386,7 @@ Vue.component('bx-im-view-message-body',
 							</template>
 						</div>
 						<div :class="['bx-im-message-content-body', referenceContentBodyClassName]">
-							<template v-if="contentType == ContentType.audio">
+							<template v-if="(contentType == ContentType.audio) && (!isDesktop() || (isDesktop() && getDesktopVersion() > 43))">
 								<bx-im-view-element-file-audio v-for="file in filesData" :messageType="messageType" :file="file" :key="file.templateId" @uploadCancel="clickByUploadCancel"/>
 							</template>
 							<template v-else>

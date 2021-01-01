@@ -195,21 +195,12 @@ return [
 		],
 		'#block3443' => [
 			'old_id' => 3443,
-			'code' => '32.2.img_one_big',
+			'code' => '40.5.slider_blocks_with_img_and_description',
 			'access' => 'X',
-			'nodes' => [
-				'.landing-block-node-img' => [
-					0 => [
-						'src' => 'https://cdn.bitrix24.site/bitrix/images/landing/business/1110x624/img1.jpg',
-					],
-				],
-			],
+			'nodes' => [],
 			'style' => [
 				'#wrapper' => [
 					0 => 'landing-block container g-pt-10 g-pl-6 g-pb-65',
-				],
-				'.landing-block-node-img' => [
-					0 => 'landing-block-node-img js-animation zoomIn img-fluid',
 				],
 			],
 		],

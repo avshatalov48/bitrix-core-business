@@ -1,17 +1,10 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
-class CCommentRatings
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+include_once __DIR__."/base.php";
+class CCommentRatings extends CCommentBase
 {
-	var $component = null;
 	var $arRatings = array();
 	var $display = array("BEFORE_HEADER" => true, "AFTER_ACTIONS" => false);
-
-	function __construct(&$component)
-	{
-		$this->component = &$component;
-
-		AddEventHandler("forum", "OnPrepareComments", Array($this, "OnPrepareComments"));
-		AddEventHandler("forum", "OnCommentsDisplayTemplate", Array($this, "OnCommentsDisplayTemplate"));
-	}
 
 	function OnCommentsDisplayTemplate($output, $arParams, $arResult)
 	{
@@ -22,21 +15,27 @@ class CCommentRatings
 		}
 	}
 
-	function OnPrepareComments()
+	function OnPrepareComments($component)
 	{
+		if ($component !== $this->component)
+		{
+			return;
+		}
 		$arResult =& $this->component->arResult;
-		$arParams =& $this->component->arParams;
 
 		$arMessages =& $arResult['MESSAGES'];
+
 		$arMessageIDs = array_keys($arMessages);
 		$arRatings = CRatings::GetRatingVoteResult('FORUM_POST', $arMessageIDs);
 		if ($arRatings)
+		{
 			foreach($arRatings as $postID => $arRating)
 			{
 				$this->arRatings[$postID] = $arRating;
 				if (array_key_exists($postID, $arMessages))
 					$arMessages[$postID]["RATING"] = $arRating;
 			}
+		}
 	}
 
 	function RatingDisplay($top = true, $commentID, $authorID)

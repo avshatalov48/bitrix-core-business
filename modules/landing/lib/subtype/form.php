@@ -1,38 +1,56 @@
 <?php
+
 namespace Bitrix\Landing\Subtype;
 
-use \Bitrix\Main\Localization\Loc;
-use \Bitrix\Landing\Manager;
-use \Bitrix\Main\Loader;
-use \Bitrix\Crm\WebForm\Internals\FormTable;
-use \Bitrix\Socialservices\ApClient;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Loader;
+use Bitrix\Landing\Manager;
+use Bitrix\Landing\Block;
+use Bitrix\Landing\Internals\BlockTable;
+use Bitrix\Crm\WebForm\Internals\FormTable;
+use Bitrix\Crm\UI\Webpack;
+use Bitrix\Socialservices\ApClient;
 
 Loc::loadMessages(__FILE__);
 
 class Form
 {
+	protected const ATTR_FORM_PARAMS = 'data-b24form';
+	protected const ATTR_FORM_EMBED = 'data-b24form-embed';
+	protected const ATTR_FORM_STYLE = 'data-b24form-design';
+	protected const ATTR_FORM_USE_STYLE = 'data-b24form-use-style';
+	protected const ATTR_FORM_FROM_CONNECTOR = 'data-b24form-connector';
+	protected const ATTR_FORM_OLD_DOMAIN = 'data-b24form-original-domain';
+	protected const ATTR_FORM_OLD_HEADER = 'data-b24form-show-header';
+	protected const SELECTOR_FORM_NODE = '.bitrix24forms';
+	protected const SELECTOR_OLD_STYLE_NODE = '.landing-block-form-styles';
+	protected const STYLE_SETTING = 'crm-form';
+	protected const REGEXP_FORM_STYLE = '/data-b24form-design *= *[\'"](\{.+\})[\'"]/i';
+
 	/**
 	 * Check if b24 or box portal
 	 * @return bool
 	 * @throws \Bitrix\Main\LoaderException
 	 */
-	protected static function isCrm()
+	protected static function isCrm(): bool
 	{
 		return Loader::includeModule('crm');
 	}
-	
+
 	/**
 	 * Gets web forms in system.
+	 * @param bool $force - if true - get forms forcibly w/o cache
 	 * @return array
+	 * @throws \Bitrix\Main\LoaderException
 	 */
-	protected static function getForms()
+	protected static function getForms(bool $force = false): array
 	{
-		static $forms = array();
-		if ($forms)
+		static $forms = [];
+		if ($forms && !$force)
 		{
 			return $forms;
 		}
-		
+
 		if (self::isCrm())
 		{
 			$forms = self::getFormsForPortal();
@@ -41,84 +59,96 @@ class Form
 		{
 			$forms = self::getFormsViaConnector();
 		}
-		$forms = self::prepareForms($forms);
-		
+
 		return $forms;
 	}
-	
-	protected static function getFormsForPortal()
+
+	protected static function getFormsForPortal(): array
 	{
-		$forms = array();
-		$res = FormTable::getList(array(
-			'select' => array(
+		$res = FormTable::getList([
+			'select' => [
 				'ID',
 				'NAME',
 				'SECURITY_CODE',
 				'IS_CALLBACK_FORM',
-			),
-			'filter' => array(
-				'ACTIVE' => 'Y',
-			),
-			'order' => array(
-				'ID' => 'DESC',
-			),
-		));
-		while ($row = $res->fetch())
+				'ACTIVE',
+			],
+			'order' => [
+				'ID' => 'ASC',
+			],
+		]);
+
+		$forms = [];
+		while ($form = $res->fetch())
 		{
-			$forms[] = $row;
+			$form['ID'] = (int) $form['ID'];
+			$webpack = Webpack\Form::instance($form['ID']);
+			if (!$webpack->isBuilt())
+			{
+				$webpack->build();
+				$webpack = Webpack\Form::instance($form['ID']);
+			}
+			$form['URL'] = $webpack->getEmbeddedFileUrl();
+			$forms[] = $form;
 		}
-		
+
 		return $forms;
 	}
-	
-	protected static function getFormsViaConnector()
+
+	protected static function getFormsViaConnector(): array
 	{
-		$forms = array();
+		// todo: test on bus
+		$forms = [];
 		$client = ApClient::init();
 		if ($client)
 		{
-			$res = $client->call('crm.webform.list');
+			$res = $client->call('crm.webform.list', ['GET_INACTIVE' => 'Y']);
 			if (isset($res['result']) && is_array($res['result']))
 			{
-				$forms = $res['result'];
+				foreach($res['result'] as $form)
+				{
+					$form['ID'] = (int) $form['ID'];
+					$forms[] = $form;
+				}
 			}
 		}
-		
+
 		return $forms;
 	}
-	
-	
+
 	/**
 	 * Move callback form to end.
 	 * @param array $forms Forms array.
 	 * @return array
 	 */
-	protected static function prepareForms($forms)
+	protected static function prepareFormsToAttrs(array $forms): array
 	{
-		$formsCallback = array();
-		$formsAll = array();
-		
+		$sorted = [];
 		foreach ($forms as $form)
 		{
-			if ($form['IS_CALLBACK_FORM'] == 'Y')
+			if($form['ACTIVE'] !== 'Y')
 			{
-				$formsCallback[] = array(
-					'name' => $form['NAME'],
-					'value' => $form['ID'] . '|' . $form['SECURITY_CODE'],
-				);
+				continue;
+			}
+
+			$item = [
+				'name' => $form['NAME'],
+				'value' => "{$form['ID']}|{$form['SECURITY_CODE']}|{$form['URL']}",
+			];
+
+			if ($form['IS_CALLBACK_FORM'] === 'Y')
+			{
+				$sorted[] = $item;
 			}
 			else
 			{
-				$formsAll[] = array(
-					'name' => $form['NAME'],
-					'value' => $form['ID'] . '|' . $form['SECURITY_CODE'],
-				);
+				array_unshift($sorted, $item);
 			}
 		}
-		
-		return array_merge($formsAll, $formsCallback);
+
+		return $sorted;
 	}
-	
+
 	/**
 	 * Gets attrs for form.
 	 * @return array
@@ -130,46 +160,25 @@ class Form
 		{
 			return $attrs;
 		}
-		
+
 		// get from CRM or via connector
 		$forms = self::getForms();
-		
-		
-		// create data-attributes list
+		$forms = self::prepareFormsToAttrs($forms);
+
 		if (!empty($forms))
 		{
-			// portal domain
-			$attrs[] = array(
-				'attribute' => 'data-b24form-original-domain',
-				'hidden' => true,
-			);
 			// get forms list
 			$attrs[] = array(
 				'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM'),
-				'attribute' => 'data-b24form',
+				'attribute' => self::ATTR_FORM_PARAMS,
 				'items' => $forms,
 				'type' => 'list',
 			);
 			// show header
-			$attrs[] = array(
-				'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM_SHOW_HEADER'),
-				'attribute' => 'data-b24form-show-header',
-				'type' => 'list',
-				'items' => array(
-					array(
-						'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM_SHOW_HEADER_Y'),
-						'value' => 'Y',
-					),
-					array(
-						'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM_SHOW_HEADER_N'),
-						'value' => 'N',
-					),
-				),
-			);
-			// use custom css
+			// use custom design
 			$attrs[] = array(
 				'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM_USE_STYLE'),
-				'attribute' => 'data-b24form-use-style',
+				'attribute' => self::ATTR_FORM_USE_STYLE,
 				'type' => 'list',
 				'items' => array(
 					array(
@@ -182,6 +191,12 @@ class Form
 					),
 				),
 			);
+			$attrs[] = array(
+				'name' => 'Form design',
+				'attribute' => self::ATTR_FORM_STYLE,
+				'type' => 'string',
+				'hidden' => true,
+			);
 		}
 		// no form - no settings, just message for user
 		else
@@ -189,82 +204,86 @@ class Form
 			// portal or SMN with b24connector
 			if (Manager::isB24() || Manager::isB24Connector())
 			{
-				$attrs[] = array(
+				// todo:need alert?
+				$attrs[] = [
 					'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM'),
-					'attribute' => 'data-b24form',
+					'attribute' => self::ATTR_FORM_PARAMS,
 					'type' => 'list',
-					'items' => array(
-						array(
+					'items' => [
+						[
 							'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM_NO_FORM'),
 							'value' => false,
-						),
-					),
-				);
-				
-				$attrs[] = array(
-					'attribute' => 'data-b24form-connector',
-					'hidden' => true,
-				);
+						],
+					],
+				];
 			}
 			// siteman
 			else
 			{
-				// todo: no select, just text
-				$attrs[] = array(
+				// todo: need?
+				$attrs[] = [
 					'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM'),
-					'attribute' => 'data-b24form',
+					'attribute' => self::ATTR_FORM_PARAMS,
 					'type' => 'list',
-					'items' => array(
-						array(
+					'items' => [
+						[
 							'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM_NO_FORM'),
 							'value' => false,
-						),
-					),
-				
-				);
+						],
+					],
+
+				];
 			}
 		}
-		
+
 		return $attrs;
 	}
-	
+
 	/**
 	 * Prepare manifest.
 	 * @param array $manifest Block's manifest.
-	 * @param \Bitrix\Landing\Block $block Block instance.
+	 * @param Block $block Block instance.
 	 * @param array $params Additional params.
 	 * @return array
 	 */
-	public static function prepareManifest(array $manifest, \Bitrix\Landing\Block $block = null, array $params = array())
+	public static function prepareManifest(array $manifest, Block $block = null, array $params = []): array
 	{
 		// add extension
-		if (
-			!isset($manifest['assets']) ||
-			!is_array($manifest['assets'])
-		)
+		if (!isset($manifest['assets']) || !is_array($manifest['assets']))
 		{
-			$manifest['assets'] = array();
+			$manifest['assets'] = [];
 		}
-		if (
-			!isset($manifest['assets']['ext']) ||
-			!is_array($manifest['assets']['ext'])
-		)
+		if (!isset($manifest['assets']['ext']))
 		{
-			$manifest['assets']['ext'] = array();
+			$manifest['assets']['ext'] = [];
 		}
-		if (!in_array('landing_form', $manifest['assets']['ext']))
+		if (!is_array($manifest['assets']['ext']))
+		{
+			$manifest['assets']['ext'] = [$manifest['assets']['ext']];
+		}
+		if (!in_array('landing_form', $manifest['assets']['ext'], true))
 		{
 			$manifest['assets']['ext'][] = 'landing_form';
 		}
-		
-		// add settings link
-		if (
-			!isset($manifest['block']) ||
-			!is_array($manifest['block'])
-		)
+
+		// style setting
+		if (!is_array($manifest['style']['block']) && !is_array($manifest['style']['nodes']))
 		{
-			$manifest['block'] = array();
+			$manifest['style'] = [
+				'block' => [],
+				'nodes' => $manifest['style'],
+			];
 		}
+		$manifest['style']['nodes'][self::SELECTOR_FORM_NODE] = [
+			'type' => self::STYLE_SETTING,
+		];
+
+		// // add settings link
+		// if (!isset($manifest['block']) || !is_array($manifest['block']))
+		// {
+		// 	$manifest['block'] = [];
+		// }
+
 		if (Manager::isB24())
 		{
 			$link = '/crm/webform/';
@@ -283,79 +302,176 @@ class Form
 		// if no forms - will be show alert in javascript form init
 
 		// add callbacks
-		$manifest['callbacks'] = array(
-			'afterAdd' => function(\Bitrix\Landing\Block &$block)
+		$manifest['callbacks'] = [
+			'afterAdd' => function (Block &$block)
 			{
 				$forms = self::getForms();
-				$attrsToSet = [
-					'data-b24form' => '',
-					'data-b24form-original-domain' => '',
-				];
+				$forms = self::prepareFormsToAttrs($forms);
+				$attrsToSet = [self::ATTR_FORM_EMBED => ''];
 				if (!empty($forms))
 				{
-					$attrsToSet['data-b24form'] = $forms[0]['value'];
-					$attrsToSet['data-b24form-original-domain'] = self::getOriginalFormDomain();
-					
-					// When create preview sites on repo need set demo portal
-					if ((defined('LANDING_IS_REPO') && LANDING_IS_REPO === true))
-					{
-						$attrsToSet['data-b24form'] = '1|n3j8e2';
-						$attrsToSet['data-b24form-original-domain'] = 'https://landing.bitrix24.ru';
-					}
+					$attrsToSet[self::ATTR_FORM_PARAMS] = $forms[0]['value'];
 				}
-				
-				// set BUS flag
+				// set SMN flag
 				if (!self::isCrm())
 				{
-					$attrsToSet["data-b24form-connector"] = 'Y';
+					$attrsToSet[self::ATTR_FORM_FROM_CONNECTOR] = 'Y';
 				}
-				
-				$block->setAttributes(array(
-					'.bitrix24forms' => $attrsToSet,
-				));
+
+				$dom = $block->getDom();
+				if ($node = $dom->querySelector(self::SELECTOR_FORM_NODE))
+				{
+					$attrsExists = $node->getAttributes();
+					if (
+						$attrsExists[self::ATTR_FORM_PARAMS]
+						&& $formParamsExists = $attrsExists[self::ATTR_FORM_PARAMS]->getValue()
+					)
+					{
+						$attrsToSet[self::ATTR_FORM_PARAMS] = $formParamsExists;
+					}
+					$node->setInnerHTML(
+						'<div class="g-landing-alert">'
+						. Loc::getMessage('LANDING_BLOCK_WEBFORM_PRELOADER')
+						. '</div>'
+					);
+					$block->saveContent($dom->saveHTML());
+				}
+
+				$block->setAttributes([
+					self::SELECTOR_FORM_NODE => $attrsToSet,
+				]);
 				$block->save();
 			},
-		);
+		];
 
-		if(
+		// add attrs
+		if (
 			!array_key_exists('attrs', $manifest)
 			|| !is_array($manifest['attrs'])
 		)
 		{
 			$manifest['attrs'] = [];
 		}
-		$manifest['attrs']['.bitrix24forms'] = self::getAttrs();
+		$manifest['attrs'][self::SELECTOR_FORM_NODE] = self::getAttrs();
 
 		return $manifest;
+	}
+
+	public static function setFormIdToBlock(int $blockId, int $formId): void
+	{
+		$block = new Block($blockId);
+		foreach (self::getForms(true) as $form)
+		{
+			if ($form['ID'] === $formId)
+			{
+				$newParam = "{$form['ID']}|{$form['SECURITY_CODE']}|{$form['URL']}";
+				$block->setAttributes([
+					self::SELECTOR_FORM_NODE => [self::ATTR_FORM_PARAMS => $newParam]
+				]);
+				$block->save();
+				break;
+			}
+		}
+	}
+
+	/**
+	 * Find old forms blocks and update to embed format
+	 * @param int $landingId
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public static function updateLandingToEmbedForms(int $landingId): void
+	{
+		$res = BlockTable::getList([
+			'select' => [
+				'ID',
+			],
+			'filter' => [
+				'LID' => $landingId,
+				'=DELETED' => 'N',
+			],
+		]);
+		while ($row = $res->fetch())
+		{
+			$block = new Block($row['ID']);
+			self::updateBlockToEmbed($block);
+		}
+	}
+
+	protected static function updateBlockToEmbed(Block $block): void
+	{
+		$manifest = $block->getManifest();
+		if (
+			!$manifest['block']['subtype']
+			|| (!is_array($manifest['block']['subtype']) && $manifest['block']['subtype'] !== 'form')
+			|| (is_array($manifest['block']['subtype']) && !in_array('form', $manifest['block']['subtype'], true))
+		)
+		{
+			return;
+		}
+
+		$content = $block->getContent();
+		if (strpos($content, self::ATTR_FORM_EMBED) !== false)
+		{
+			return;
+		}
+
+		$dom = $block->getDom();
+		if (!$resultNode = $dom->querySelector(self::SELECTOR_FORM_NODE))
+		{
+			return;
+		}
+		$attrs = $resultNode->getAttributes();
+		$formParams = explode('|', $attrs[self::ATTR_FORM_PARAMS]->getValue());
+		if (count($formParams) !== 2 || !(int)$formParams[0])
+		{
+			return;
+		}
+
+		foreach (self::getForms() as $form)
+		{
+			if ($form['ID'] == $formParams[0])
+			{
+				$newParams = "{$form['ID']}|{$form['SECURITY_CODE']}|{$form['URL']}";
+				$resultNode->setAttribute(self::ATTR_FORM_PARAMS, $newParams);
+				$resultNode->setAttribute(self::ATTR_FORM_EMBED, '');
+				$resultNode->removeAttribute(self::ATTR_FORM_OLD_DOMAIN);
+				$resultNode->removeAttribute(self::ATTR_FORM_OLD_HEADER);
+
+				// find new styles
+				$contentFromRepo = Block::getContentFromRepository($block->getCode());
+				if (
+					$contentFromRepo
+					&& preg_match(self::REGEXP_FORM_STYLE, $contentFromRepo, $style)
+				)
+				{
+					$resultNode->setAttribute(self::ATTR_FORM_STYLE, $style[1]);
+				}
+			}
+		}
+
+		if ($oldStyleNode = $dom->querySelector(self::SELECTOR_OLD_STYLE_NODE))
+		{
+			$oldStyleNode->getParentNode()->removeChild($oldStyleNode);
+		}
+
+		$block->saveContent($dom->saveHTML());
+		$block->save();
 	}
 
 	/**
 	 * Get original domain for web-forms.
 	 * @return string
+	 * @deprecated
 	 */
-	public static function getOriginalFormDomain()
+	public static function getOriginalFormDomain(): string
 	{
-		$formDomain = '';
+		trigger_error(
+			"Now using embedded forms, no need domain",
+			E_USER_WARNING
+		);
 
-		// if is b24 portal - use just them domain
-		if (Manager::isB24())
-		{
-			$formDomain = (\CMain::IsHTTPS() ? 'https://' : 'http://') . str_replace(
-					array('http://', 'http://', ':' . $_SERVER['SERVER_PORT']),
-					'', $_SERVER['HTTP_HOST']
-				);
-		}
-		// if use b24 connector - need get portal url
-		else if (Manager::isB24Connector())
-		{
-			if ($client = ApClient::init())
-			{
-				$connection = $client->getConnection();
-				$domain = parse_url($connection['ENDPOINT']);
-				$formDomain = $domain['scheme'] . '://' . $domain['host'];
-			}
-		}
-		
-		return $formDomain;
+		return '';
 	}
 }

@@ -1,10 +1,8 @@
-import {Connection} from "./connection";
+import {ConnectionProvider} from "./connectionprovider";
 import {Loc} from "main.core";
 
-export class IphoneProvider extends Connection
+export class IphoneProvider extends ConnectionProvider
 {
-
-
 	constructor(options)
 	{
 		super({
@@ -22,5 +20,4 @@ export class IphoneProvider extends Connection
 
 		this.setConnections();
 	}
-
 }

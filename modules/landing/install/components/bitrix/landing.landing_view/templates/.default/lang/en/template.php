@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["LANDING_TPL_BUY_RENEW"] = "Please #LINK1#renew your license#LINK2#";
 $MESS["LANDING_TPL_PREVIEW_URL"] = "Preview";
 $MESS["LANDING_TPL_PUBLIC_URL"] = "Publish";
@@ -13,6 +13,7 @@ $MESS["LANDING_TPL_SETTINGS_STORE_URL"] = "Online store parameters";
 $MESS["LANDING_TPL_SETTINGS_UNPUBLIC"] = "Unpublish";
 $MESS["LANDING_TPL_SETTINGS_URL"] = "Settings";
 $MESS["LANDING_TPL_START_PAGE"] = "My sites";
+$MESS["LANDING_TPL_START_PAGE_FORM"] = "My forms";
 $MESS["LANDING_TPL_START_PAGE_GROUP"] = "Knowledge bases";
 $MESS["LANDING_TPL_START_PAGE_KNOWLEDGE"] = "Knowledge bases";
 $MESS["LANDING_TPL_START_PAGE_LOGO"] = "Bitrix";
@@ -22,4 +23,3 @@ $MESS["LANDING_TPL_START_PAGE_PAGE"] = "My Sites";
 $MESS["LANDING_TPL_START_PAGE_STORE"] = "My online stores";
 $MESS["LANDING_WAIT_WHILE_CREATING"] = "Please wait, your site is now being published...";
 $MESS["LANDING_WAIT_WHILE_CREATING_FORCE"] = "Open site";
-?>

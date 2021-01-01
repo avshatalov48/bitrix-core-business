@@ -228,6 +228,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	    babelHelpers.classCallCheck(this, Content);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Content).call(this, id, data));
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "adjustActionsPanels", true);
 	    main_core.Dom.addClass(_this.layout, 'landing-ui-panel-content');
 	    _this.data = Object.freeze(data);
 	    _this.overlay = Content.createOverlay();
@@ -391,6 +392,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "isShown",
 	    value: function isShown() {
 	      return this.state === 'shown';
+	    }
+	  }, {
+	    key: "shouldAdjustActionsPanels",
+	    value: function shouldAdjustActionsPanels() {
+	      return this.adjustActionsPanels;
 	    } // eslint-disable-next-line no-unused-vars
 
 	  }, {
@@ -399,6 +405,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this4 = this;
 
 	      if (!this.isShown()) {
+	        if (this.shouldAdjustActionsPanels()) {
+	          main_core.Dom.addClass(document.body, 'landing-ui-hide-action-panels');
+	        }
+
 	        void BX.Landing.Utils.Show(this.overlay);
 	        return BX.Landing.Utils.Show(this.layout).then(function () {
 	          _this4.state = 'shown';
@@ -413,6 +423,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this5 = this;
 
 	      if (this.isShown()) {
+	        if (this.shouldAdjustActionsPanels()) {
+	          main_core.Dom.removeClass(document.body, 'landing-ui-hide-action-panels');
+	        }
+
 	        void BX.Landing.Utils.Hide(this.overlay);
 	        return BX.Landing.Utils.Hide(this.layout).then(function () {
 	          _this5.state = 'hidden';
@@ -470,6 +484,17 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    value: function appendSidebarButton(button) {
 	      this.sidebarButtons.add(button);
 	      main_core.Dom.append(button.layout, this.sidebar);
+	    }
+	  }, {
+	    key: "setOverlayClass",
+	    value: function setOverlayClass(className) {
+	      main_core.Dom.addClass(this.overlay, className);
+	    }
+	  }, {
+	    key: "renderTo",
+	    value: function renderTo(target) {
+	      babelHelpers.get(babelHelpers.getPrototypeOf(Content.prototype), "renderTo", this).call(this, target);
+	      main_core.Dom.append(this.overlay, target);
 	    }
 	  }]);
 	  return Content;

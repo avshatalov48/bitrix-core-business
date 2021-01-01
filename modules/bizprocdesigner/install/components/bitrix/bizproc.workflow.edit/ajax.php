@@ -54,6 +54,12 @@ class BizprocWorkflowEditAjaxController extends Main\Engine\Controller
 
 		$datum = CBPWorkflowTemplateLoader::ExportTemplate($templateId);
 
+		if (!$datum)
+		{
+			$response = new Main\HttpResponse();
+			return $response->setStatus(404);
+		}
+
 		$response = new Main\HttpResponse();
 
 		$response->setStatus('200 OK');

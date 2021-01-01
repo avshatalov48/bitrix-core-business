@@ -258,7 +258,7 @@ if(CModule::IncludeModule("bizproc") && CBPRuntime::isFeatureEnabled() && $arRes
 						"id" => "BIZPROC_STATE".$bizProcIndex,
 						"name" => GetMessage("CT_BLEE_BIZPROC_STATE"),
 						"type" => "label",
-						"value" => '<a href="'.htmlspecialcharsbx($url).'">'.($arDocumentState["STATE_TITLE"] <> ''? $arDocumentState["STATE_TITLE"] : $arDocumentState["STATE_NAME"]).'</a>',
+						"value" => '<a href="'.htmlspecialcharsbx($url).'">'.($arDocumentState["STATE_TITLE"] <> ''? htmlspecialcharsbx($arDocumentState["STATE_TITLE"]) : htmlspecialcharsbx($arDocumentState["STATE_NAME"])).'</a>',
 					);
 
 					$canDeleteWorkflow = CBPDocument::CanUserOperateDocument(

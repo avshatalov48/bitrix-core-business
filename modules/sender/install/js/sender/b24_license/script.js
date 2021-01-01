@@ -45,12 +45,23 @@
 				return;
 			}
 
-			B24.licenseInfoPopup.show(
-				code,
-				this.getTitle(code),
-				'<span>' + (this.getText(code) ? this.getText(code) : this.getText('Ad')) + '</span>',
-				true
-			);
+			switch (code)
+			{
+				case 'Ad':
+					code = 'limit_crm_marketing_adv';
+					break;
+				case 'Rc':
+					code = 'limit_crm_marketing_sales_generator';
+					break;
+				case 'Mailing':
+					code = 'limit_crm_marketing_email'
+					break;
+				default:
+					code = 'limit_crm_marketing_sms';
+					break;
+			}
+
+			BX.UI.InfoHelper.show(code);
 		}
 	};
 

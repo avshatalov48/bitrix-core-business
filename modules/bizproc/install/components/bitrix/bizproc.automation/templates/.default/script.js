@@ -484,6 +484,36 @@
 				);
 			}
 			return this;
+		},
+		getConstants: function()
+		{
+			if (!this.data.GLOBAL_CONSTANTS)
+			{
+				return [];
+			}
+			var constants = [];
+			Object.keys(this.data.GLOBAL_CONSTANTS).forEach(function(id)
+			{
+				var constant = BX.clone(this.data.GLOBAL_CONSTANTS[id]);
+				constant.Id = id;
+				constant.ObjectId = 'GlobalConst';
+				constant.SystemExpression = constant.Expression = '{=GlobalConst:' + id + '}';
+				constants.push(constant);
+			}, this);
+			return constants;
+		},
+		getConstant: function(id)
+		{
+			var constants = this.getConstants();
+			for (var i = 0; i < constants.length; ++i)
+			{
+				if (constants[i].Id === id)
+				{
+					return constants[i];
+				}
+			}
+
+			return null;
 		}
 	};
 
@@ -957,7 +987,7 @@
 			if (BX.getClass('BX.rest.Marketplace'))
 			{
 				menuItems['other'].push({
-					text: BX.message('BIZPROC_AUTOMATION_ROBOT_CATEGORY_OTHER_MARKETPLACE'),
+					text: BX.message('BIZPROC_AUTOMATION_ROBOT_CATEGORY_OTHER_MARKETPLACE_2'),
 					onclick: function()
 					{
 						BX.rest.Marketplace.open({}, me.component.data['MARKETPLACE_ROBOT_CATEGORY']);
@@ -968,7 +998,7 @@
 			else
 			{
 				menuItems['other'].push({
-					text: BX.message('BIZPROC_AUTOMATION_ROBOT_CATEGORY_OTHER_MARKETPLACE'),
+					text: BX.message('BIZPROC_AUTOMATION_ROBOT_CATEGORY_OTHER_MARKETPLACE_2'),
 					href:
 						'/marketplace/category/%category%/'
 						.replace('%category%', this.component.data['MARKETPLACE_ROBOT_CATEGORY']),
@@ -1148,11 +1178,20 @@
 				}
 			});
 
+			if (!BX.type.isPlainObject(context))
+			{
+				context = {};
+			}
+
+			Designer.setRobotSettingsDialog({
+				template: this,
+				context: context,
+				robot: robot,
+				form: form
+			});
+
 			form.appendChild(me.renderDelaySettings(robot));
 			form.appendChild(me.renderConditionSettings(robot));
-
-			if (!BX.type.isPlainObject(context))
-				context = {};
 
 			if (this.component)
 			{
@@ -1164,12 +1203,6 @@
 				context['DOCUMENT_CATEGORY_ID'] = this.component.documentCategoryId;
 			}
 
-			Designer.setRobotSettingsDialog({
-				template: this,
-				context: context,
-				robot: robot,
-				form: form
-			});
 			BX.ajax({
 				method: 'POST',
 				dataType: 'html',
@@ -1204,16 +1237,11 @@
 		{
 			var popupMinWidth = 580;
 			var popupWidth = popupMinWidth;
-			var overlay = false;
 
 			if (this.component)
 			{
 				BX.addClass(this.component.node, 'automation-base-blocked');
 				popupWidth = parseInt(this.component.getUserOption('defaults', 'robot_settings_popup_width', 580));
-			}
-			else
-			{
-				overlay = {backgroundColor: 'transparent'};
 			}
 
 			this.initRobotSettingsControls(robot, form);
@@ -1240,12 +1268,10 @@
 					minWidth: popupMinWidth,
 					minHeight: 100
 				},
-				// zIndex: 9,
 				offsetLeft: 0,
 				offsetTop: 0,
 				closeByEsc: true,
 				draggable: {restrict: false},
-				overlay: overlay,
 				events: {
 					onPopupClose: function(popup)
 					{
@@ -1363,6 +1389,11 @@
 		},
 		destroyRobotSettingsControls: function ()
 		{
+			if (this.conditionSelector)
+			{
+				this.conditionSelector.destroy();
+				this.conditionSelector = null;
+			}
 			if (BX.type.isArray(this.robotSettingsControls))
 			{
 				for (var i = 0; i < this.robotSettingsControls.length; ++i)
@@ -1474,7 +1505,8 @@
 					delayWorkTimeNode.value = delay.workTime ? 1 : 0;
 				},
 				basisFields: basisFields,
-				minLimitM: minLimitM
+				minLimitM: minLimitM,
+				useAfterBasis: true
 			});
 
 			var executeAfterPreviousBlock = null;
@@ -1522,7 +1554,6 @@
 									delayValueTypeNode,
 									delayBasisNode,
 									delayWorkTimeNode,
-									// delayLocalTimeNode,
 									BX.create("span", {
 										attrs: { className: "bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-left" },
 										text: BX.message('BIZPROC_AUTOMATION_CMP_TO_EXECUTE') + ":"
@@ -1553,7 +1584,6 @@
 			delay.setValueType(formFields['delay_value_type']);
 			delay.setBasis(formFields['delay_basis']);
 			delay.setWorkTime(formFields['delay_worktime'] === '1');
-			// delay.setLocalTime(formFields['delay_localtime'] === '1');
 			robot.setDelayInterval(delay);
 
 			if (robot.component)
@@ -1571,8 +1601,8 @@
 		renderConditionSettings: function(robot)
 		{
 			/** @var {ConditionGroup} conditionGroup */
-			var conditionGroup = BX.clone(robot.getCondition());
-			var selector = new ConditionGroupSelector(conditionGroup, {
+			var conditionGroup = robot.getCondition();
+			var selector = this.conditionSelector = new ConditionGroupSelector(conditionGroup, {
 				fields: this.component ? this.component.data['DOCUMENT_FIELDS'] : this.data['DOCUMENT_FIELDS']
 			});
 
@@ -1680,6 +1710,36 @@
 		isModified: function()
 		{
 			return this.modified;
+		},
+		getConstants: function()
+		{
+			if (!this.data.CONSTANTS)
+			{
+				return [];
+			}
+			var constants = [];
+			Object.keys(this.data.CONSTANTS).forEach(function(id)
+			{
+				var constant = BX.clone(this.data.CONSTANTS[id]);
+				constant.Id = id;
+				constant.ObjectId = 'Constant';
+				constant.SystemExpression = constant.Expression = '{=Constant:' + id + '}';
+				constants.push(constant);
+			}, this);
+			return constants;
+		},
+		getConstant: function(id)
+		{
+			var constants = this.getConstants();
+			for (var i = 0; i < constants.length; ++i)
+			{
+				if (constants[i].Id === id)
+				{
+					return constants[i];
+				}
+			}
+
+			return null;
 		}
 	};
 
@@ -1715,6 +1775,10 @@
 
 			this.delay = new DelayInterval(this.data.Delay);
 			this.condition = new ConditionGroup(this.data.Condition);
+			if (!this.data.Condition)
+			{
+				this.condition.type = ConditionGroup.Type.Mixed;
+			}
 			this.viewMode = (viewMode === undefined) ? Component.ViewMode.View : viewMode;
 			if (this.viewMode !== Component.ViewMode.None)
 			{
@@ -2390,12 +2454,17 @@
 						var field = description['RETURN'][fieldId];
 						fields.push({
 							Id: fieldId,
-							ParentId: this.getId(),
+							ObjectId: this.getId(),
 							Name: field['NAME'],
 							Type: field['TYPE'],
 							Expression: '{{~'+this.getId()+':'+fieldId+' # '+this.getTitle()+': '+field['NAME']+'}}',
 							SystemExpression: '{='+this.getId()+':'+fieldId+'}'
 						});
+
+						if (!this.appendPropertyMods)
+						{
+							continue;
+						}
 
 						//generate printable version
 						if (
@@ -2409,10 +2478,12 @@
 							var printableTag = (field['TYPE'] === 'user') ? 'friendly' : 'printable';
 							fields.push({
 								Id: fieldId + '_printable',
+								ObjectId: this.getId(),
 								Name: field['NAME'] + ' ' + BX.message('BIZPROC_AUTOMATION_CMP_MOD_PRINTABLE_PREFIX'),
 								Type: 'string',
 								Expression: '{{~'+this.getId()+':'+fieldId+' > '
-									+printableTag+' # '+this.getTitle()+': '+field['NAME']+'}}'
+									+printableTag+' # '+this.getTitle()+': '+field['NAME']+'}}',
+								SystemExpression: '{='+this.getId()+':'+fieldId+'>'+printableTag+'}'
 							});
 						}
 					}
@@ -2433,10 +2504,11 @@
 								var field = props[addProperty][fieldId];
 								fields.push({
 									Id: fieldId,
-									ParentId: this.getId(),
+									ObjectId: this.getId(),
 									Name: field['Name'],
 									Type: field['Type'],
-									Expression: '{{~'+this.getId()+':'+fieldId+' # '+this.getTitle()+': '+field['Name']+'}}'
+									Expression: '{{~'+this.getId()+':'+fieldId+' # '+this.getTitle()+': '+field['Name']+'}}',
+									SystemExpression: '{='+this.getId()+':'+fieldId+'}'
 								});
 
 								//generate printable version
@@ -2451,10 +2523,12 @@
 									var printableTag = (field['Type'] === 'user') ? 'friendly' : 'printable';
 									fields.push({
 										Id: fieldId + '_printable',
+										ObjectId: this.getId(),
 										Name: field['Name'] + ' ' + BX.message('BIZPROC_AUTOMATION_CMP_MOD_PRINTABLE_PREFIX'),
 										Type: 'string',
 										Expression: '{{~'+this.getId()+':'+fieldId+' > '
-											+printableTag+' # '+this.getTitle()+': '+field['Name']+'}}'
+											+printableTag+' # '+this.getTitle()+': '+field['Name']+'}}',
+										SystemExpression: '{='+this.getId()+':'+fieldId+'>'+printableTag+'}'
 									});
 								}
 							}
@@ -2463,6 +2537,18 @@
 				}, this);
 			}
 			return fields;
+		},
+		getReturnProperty: function(id)
+		{
+			var fields = this.getReturnFieldsDescription();
+			for (var i = 0; i < fields.length; ++i)
+			{
+				if (fields[i]['Id'] === id)
+				{
+					return fields[i];
+				}
+			}
+			return null;
 		}
 	};
 
@@ -2653,7 +2739,7 @@
 					menuItems.push({delimiter: true});
 
 				menuItems.push({
-					text: BX.message('BIZPROC_AUTOMATION_ROBOT_CATEGORY_OTHER_MARKETPLACE'),
+					text: BX.message('BIZPROC_AUTOMATION_ROBOT_CATEGORY_OTHER_MARKETPLACE_2'),
 					onclick: function()
 					{
 						BX.rest.Marketplace.open({PLACEMENT: me.component.data['MARKETPLACE_TRIGGER_PLACEMENT']});
@@ -3203,7 +3289,7 @@
 		{
 			/** @var {ConditionGroup} conditionGroup */
 			var conditionGroup = BX.clone(trigger.getCondition());
-			var selector = new ConditionGroupSelector(conditionGroup, {
+			var selector = this.conditionSelector = new ConditionGroupSelector(conditionGroup, {
 				fields: this.component.data['DOCUMENT_FIELDS']
 			});
 
@@ -3287,6 +3373,12 @@
 		},
 		destroySettingsDialogControls: function()
 		{
+			if (this.conditionSelector)
+			{
+				this.conditionSelector.destroy();
+				this.conditionSelector = null;
+			}
+
 			if (BX.type.isArray(this.settingsDialogControls))
 			{
 				for (var i = 0; i < this.settingsDialogControls.length; ++i)
@@ -3298,6 +3390,58 @@
 				}
 			}
 			this.settingsDialogControls = null;
+		},
+		getListByDocumentStatus: function(statusId)
+		{
+			var result = [];
+			this.triggers.forEach(function(trigger) {
+				if (trigger.getStatusId() === statusId)
+				{
+					result.push(trigger);
+				}
+			});
+			return result;
+		},
+		getReturnProperties: function(statusId)
+		{
+			var result = [];
+			var exists = {};
+			var triggers = this.getListByDocumentStatus(statusId);
+
+			triggers.forEach(function(trigger) {
+				var props = trigger.deleted ? [] : trigger.getReturnProperties();
+				if (props.length)
+				{
+					props.forEach(function(property) {
+						if (!exists[property.Id])
+						{
+							result.push({
+								Id: property.Id,
+								ObjectId: 'Template',
+								Name: property.Name,
+								ObjectName: trigger.getName(),
+								Type: property.Type,
+								Expression: '{{~*:'+property.Id+'}}',
+								SystemExpression: '{=Template:'+property.Id+'}'
+							});
+							exists[property.Id] = true;
+						}
+					});
+				}
+			});
+			return result;
+		},
+		getReturnProperty: function(statusId, propertyId)
+		{
+			var properties = this.getReturnProperties(statusId);
+			for (var i = 0; i < properties.length; ++i)
+			{
+				if (properties[i].Id === propertyId)
+				{
+					return properties[i];
+				}
+			}
+			return null;
 		}
 	};
 
@@ -3352,6 +3496,19 @@
 		getStatusId: function()
 		{
 			return this.data['DOCUMENT_STATUS'] || '';
+		},
+		getCode: function()
+		{
+			return this.data['CODE'];
+		},
+		getName: function()
+		{
+			var triggerName = this.data['NAME'];
+			if (!triggerName)
+			{
+				triggerName = this.manager.getTriggerName(this.data['CODE']);
+			}
+			return triggerName;
 		},
 		getLogStatus: function()
 		{
@@ -3408,11 +3565,7 @@
 				}
 			}
 
-			var triggerName = this.data['NAME'];
-			if (!triggerName)
-			{
-				triggerName = this.manager.getTriggerName(this.data['CODE']);
-			}
+			var triggerName = this.getName();
 
 			var div = BX.create('DIV', {
 				attrs: {
@@ -3660,6 +3813,11 @@
 			this.data['DOCUMENT_STATUS'] = statusId;
 			//TODO: ref.
 			this.manager.modified = true;
+		},
+		getReturnProperties: function()
+		{
+			var triggerData = this.manager.getAvailableTrigger(this.getCode());
+			return triggerData && BX.type.isArray(triggerData.RETURN) ? triggerData.RETURN : [];
 		}
 	};
 
@@ -4161,7 +4319,7 @@
 	/**
 	 * @param {Robot} robot
 	 * @param {Node} targetInput
-	 *
+	 * @param data
 	 */
 	var InlineSelector = function(robot, targetInput, data)
 	{
@@ -4176,6 +4334,7 @@
 				click: BX.delegate(me.openMenu, this)
 			}
 		});
+		this.appendPropertyMods = true;
 
 		var wrapper = BX.create('div', {
 			attrs: {className: 'bizproc-automation-popup-select'},
@@ -4201,6 +4360,11 @@
 		{
 			this.initFileControl();
 		}
+
+		this.selectCallback = function(item)
+		{
+			me.onFieldSelect(item.getCustomData().get('property'));
+		}
 	};
 	InlineSelector.prototype =
 	{
@@ -4214,17 +4378,20 @@
 		},
 		openMenu: function(e)
 		{
+			if (this.dialog)
+			{
+				this.dialog.show();
+				return;
+			}
+
 			var me = this, i, field, fields = this.getFields();
 
-			var itemClickHandler = function(e, item)
-			{
-				(this.getRootMenuWindow() || this.popupWindow).close();
-				me.onFieldSelect(item.field);
-			};
-
 			var menuItems = [], fileFields = [], menuGroups = {'ROOT': {
-				text: this.component ? this.component.data['ENTITY_NAME'] : API.documentName,
-				items: []
+				title: this.component ? this.component.data['ENTITY_NAME'] : API.documentName,
+				entityId: 'bp',
+				tabs: 'recents',
+				id: 'ROOT',
+				children: []
 			}};
 
 			for (i = 0; i < fields.length; ++i)
@@ -4255,8 +4422,12 @@
 				if (!menuGroups[groupKey])
 				{
 					menuGroups[groupKey] = {
-						text: groupName,
-						items: []
+						title: groupName,
+						entityId: 'bp',
+						tabs: 'recents',
+						tabId: 'bp',
+						id: groupName,
+						children: []
 					};
 				}
 
@@ -4265,157 +4436,181 @@
 					fileFields.push(field);
 				}
 
-				menuGroups[groupKey]['items'].push({
-					text: BX.util.htmlspecialchars(fieldName || field['Id']),
-					field: field,
-					onclick: itemClickHandler
+				menuGroups[groupKey]['children'].push({
+					title: fieldName || field['Id'],
+					customData: {property: field},
+					entityId: 'bp',
+					tabs: 'recents',
+					id: field['SystemExpression'],
 				});
 			}
 
-			var skipId = this.robot.getId();
-			var robotResults = [];
-			var tpl = this.robot.template;
-			var templateRobots = tpl ? tpl.robots : [];
-
-			templateRobots.forEach(function(robot)
+			if (!this.fieldsOnly)
 			{
-				if (robot.getId() !== skipId)
+				// ROBOT GROUP
+				if (this.robot)
 				{
-					var fields = [];
-					robot.getReturnFieldsDescription().forEach(function(field)
-					{
-						if (field['Type'] === 'file')
-						{
-							fileFields.push(field);
-						}
+					var skipId = this.robot.getId();
+					var robotResults = [];
+					var tpl = this.robot.template;
+					var templateRobots = tpl ? tpl.robots : [];
 
-						fields.push({
-							text: field['Name'] || field['Id'],
-							field: field,
-							onclick: itemClickHandler
-						});
-					});
-					if (fields.length)
+					templateRobots.forEach(function(robot)
 					{
-						robotResults.push({
-							text: robot.getTitle(),
-							items: fields
-						});
+						if (robot.getId() !== skipId)
+						{
+							var fields = [];
+							robot.getReturnFieldsDescription().forEach(function(field)
+							{
+								if (field['Type'] === 'file')
+								{
+									fileFields.push(field);
+								}
+
+								fields.push({
+									title: field['Name'] || field['Id'],
+									customData: {property: field},
+									entityId: 'bp',
+									tabs: 'recents',
+									id: field['SystemExpression'],
+								});
+							});
+							if (fields.length)
+							{
+								robotResults.push({
+									title: robot.getTitle(),
+									entityId: 'bp',
+									tabs: 'recents',
+									id: robot.getId(),
+									children: fields
+								});
+							}
+						}
+					});
+
+					if (robotResults.length)
+					{
+						menuGroups['__RESULT'] = {
+							title: BX.message('BIZPROC_AUTOMATION_CMP_ROBOT_LIST'),
+							entityId: 'bp',
+							tabs: 'recents',
+							id: '__RESULT',
+							children: robotResults
+						};
 					}
 				}
-			});
 
-			if (robotResults.length)
-			{
-				menuGroups['__RESULT'] = {
-					text: BX.message('BIZPROC_AUTOMATION_CMP_ROBOT_LIST'),
-					items: robotResults
-				};
-			}
-
-			if (fileFields.length)
-			{
-				menuGroups['__FILES'] = {
-					text: BX.message('BIZPROC_AUTOMATION_CMP_FILES_LINKS'),
-					items: this.prepareFilesMenu(fileFields)
-				};
-			}
-
-			if (tpl && tpl.data.PARAMETERS)
-			{
-				var parameterList = [];
-				Object.keys(tpl.data.PARAMETERS).forEach(function(paramId)
+				//TRIGGER GROUP
+				var triggerResults = this.getTriggerProperties().map(function(property)
 				{
-					var param = tpl.data.PARAMETERS[paramId];
-					parameterList.push({
-						text: param['Name'],
-						field: {Expression: '{=Parameter:'+paramId+'}'},
-						onclick: itemClickHandler
-					});
-				});
-
-				if (parameterList.length)
+					return {
+						title: property['Name'] || property['Id'],
+						subtitle: property['ObjectName'] || property['ObjectId'],
+						customData: {property: property},
+						entityId: 'bp',
+						tabs: 'recents',
+						id: property['SystemExpression']
+					}
+				})
+				if (triggerResults.length)
 				{
-					menuGroups['__PARAMETERS'] = {
-						text: BX.message('BIZPROC_AUTOMATION_CMP_PARAMETERS_LIST'),
-						items: parameterList
+					menuGroups['__TRESULT'] = {
+						title: BX.message('BIZPROC_AUTOMATION_CMP_TRIGGER_LIST'),
+						entityId: 'bp',
+						tabs: 'recents',
+						id: '__TRESULT',
+						children: triggerResults
 					};
 				}
-			}
 
-			if (tpl && tpl.data.CONSTANTS)
-			{
-				var constantList = [];
-				Object.keys(tpl.data.CONSTANTS).forEach(function(paramId)
+				//FILES GROUP
+				if (fileFields.length && this.appendPropertyMods)
 				{
-					var param = tpl.data.CONSTANTS[paramId];
-					constantList.push({
-						text: param['Name'],
-						field: {Expression: '{=Constant:'+paramId+'}'},
-						onclick: itemClickHandler
-					});
-				});
-
-				if (constantList.length)
-				{
-					menuGroups['__CONSTANTS'] = {
-						text: BX.message('BIZPROC_AUTOMATION_CMP_CONSTANTS_LIST'),
-						items: constantList
+					menuGroups['__FILES'] = {
+						title: BX.message('BIZPROC_AUTOMATION_CMP_FILES_LINKS'),
+						entityId: 'bp',
+						tabs: 'recents',
+						id: '__FILES',
+						children: this.prepareFilesMenu(fileFields)
 					};
 				}
-			}
 
-			if (this.component && this.component.data['GLOBAL_CONSTANTS'])
-			{
-				var globalConstantList = [];
-				Object.keys(this.component.data['GLOBAL_CONSTANTS']).forEach(function(paramId)
+				//CONSTANTS GROUP
+				if (tpl && tpl.data.CONSTANTS)
 				{
-					var param = this.component.data['GLOBAL_CONSTANTS'][paramId];
-					globalConstantList.push({
-						text: param['Name'],
-						field: {Expression: '{=GlobalConst:'+paramId+'}'},
-						onclick: itemClickHandler
+					var constantList = [];
+					tpl.getConstants().forEach(function(constant)
+					{
+						constantList.push({
+							title: constant['Name'],
+							customData: {property: constant},
+							entityId: 'bp',
+							tabs: 'recents',
+							id: constant.SystemExpression
+						});
 					});
-				}, this);
 
-				if (globalConstantList.length)
+					if (constantList.length)
+					{
+						menuGroups['__CONSTANTS'] = {
+							title: BX.message('BIZPROC_AUTOMATION_CMP_CONSTANTS_LIST'),
+							entityId: 'bp',
+							tabs: 'recents',
+							id: '__CONSTANTS',
+							children: constantList
+						};
+					}
+				}
+
+				//GLOBAL CONST GROUP
+				if (this.component && this.component.data['GLOBAL_CONSTANTS'])
 				{
-					menuGroups['__GLOB_CONSTANTS'] = {
-						text: BX.message('BIZPROC_AUTOMATION_CMP_GLOB_CONSTANTS_LIST'),
-						items: globalConstantList
-					};
+					var globalConstantList = [];
+					this.component.getConstants().forEach(function(constant)
+					{
+						globalConstantList.push({
+							title: constant['Name'],
+							customData: {property: constant},
+							entityId: 'bp',
+							tabs: 'recents',
+							id: constant.SystemExpression
+						});
+					}, this);
+
+					if (globalConstantList.length)
+					{
+						menuGroups['__GLOB_CONSTANTS'] = {
+							title: BX.message('BIZPROC_AUTOMATION_CMP_GLOB_CONSTANTS_LIST'),
+							entityId: 'bp',
+							tabs: 'recents',
+							id: '__GLOB_CONSTANTS',
+							children: globalConstantList
+						};
+					}
 				}
 			}
 
 			if (Object.keys(menuGroups).length < 2)
 			{
-				if (menuGroups['ROOT']['items'].length > 0)
+				if (menuGroups['ROOT']['children'].length > 0)
 				{
-					menuItems = menuGroups['ROOT']['items'];
+					menuItems = menuGroups['ROOT']['children'];
 				}
 			}
 			else
 			{
-				if (menuGroups['ROOT']['items'].length > 0)
+				if (menuGroups['ROOT']['children'].length > 0)
 				{
 					menuItems.push(menuGroups['ROOT']);
 				}
 				delete menuGroups['ROOT'];
 				for (groupKey in menuGroups)
 				{
-					if (menuGroups.hasOwnProperty(groupKey) && menuGroups[groupKey]['items'].length > 0)
+					if (menuGroups.hasOwnProperty(groupKey) && menuGroups[groupKey]['children'].length > 0)
 					{
 						menuItems.push(menuGroups[groupKey])
 					}
 				}
-			}
-
-			if (!menuItems.length)
-			{
-				menuItems.push({
-					text: BX.message('BIZPROC_AUTOMATION_NO_FIELDS'),
-					disabled: true
-				});
 			}
 
 			var menuId = this.menuButton.getAttribute('data-selector-id');
@@ -4425,44 +4620,49 @@
 				this.menuButton.setAttribute('data-selector-id', menuId);
 			}
 
-			BX.PopupMenu.show(
-				menuId,
-				this.menuButton,
-				menuItems,
-				{
-					zIndex: 200,
-					autoHide: true,
-					offsetLeft: (BX.pos(this.menuButton)['width'] / 2),
-					angle: { position: 'top', offset: 0 },
-					maxWidth: 300,
-					maxHeight: 500
+			this.dialog = new BX.UI.EntitySelector.Dialog({
+				targetNode: this.menuButton,
+				width: 500,
+				height: 300,
+				multiple: false,
+				dropdownMode: true,
+				enableSearch: true,
+				items: menuItems,
+				zIndex: this.dialogZindex,
+				events: {
+					'Item:onBeforeSelect': function(event)
+					{
+						event.preventDefault();
+						me.selectCallback(event.getData().item);
+					}
 				}
-			);
-			this.menu = BX.PopupMenu.currentItem;
+			});
+
+			this.dialog.show();
 		},
 		prepareFilesMenu: function(fileFields)
 		{
-			var me = this;
-			var itemClickHandler = function(e, item)
-			{
-				(this.getRootMenuWindow() || this.popupWindow).close();
-				me.onFieldSelect(item.field);
-			};
-
 			var menu = [];
 			fileFields.forEach(function(field)
 			{
+				var exp = field['ObjectId'] === 'Document' ?
+					'{{'+field['Name']+' > shortlink}}'
+					: '{{~'+field['ObjectId']+':'+field['Id']+' > shortlink}}';
 				menu.push({
-					text: BX.util.htmlspecialchars(field['Name'] || field['Id']),
-					field: {
-						Id: field['Id'] + '_shortlink',
-						Name: field['Name'],
-						Type: 'string',
-						Expression: field['ParentId'] === 'Document' ?
-							'{{'+field['Name']+' > shortlink}}'
-							: '{{~'+field['ParentId']+':'+field['Id']+' > shortlink}}'
+					title: field['Name'] || field['Id'],
+					customData: {
+						property: {
+							Id: field['Id'] + '_shortlink',
+							ObjectId: field['ObjectId'],
+							Name: field['Name'],
+							Type: 'string',
+							Expression: exp,
+							SystemExpression: '{='+field['ObjectId']+':'+field['Id']+' > shortlink}'
+						}
 					},
-					onclick: itemClickHandler
+					entityId: 'bp',
+					tabs: 'recents',
+					id: exp,
 				});
 			});
 			return menu;
@@ -4488,8 +4688,10 @@
 		},
 		destroy: function()
 		{
-			if (this.menu)
-				this.menu.popupWindow.close();
+			if (this.dialog)
+			{
+				this.dialog.destroy();
+			}
 		},
 		initDateTimeControl: function()
 		{
@@ -4560,13 +4762,18 @@
 
 			this.documentFields.forEach(function(field)
 			{
-				field.ParentId = 'Document';
+				field.ObjectId = 'Document';
 
 				var custom = (field['BaseType'] === 'string' && field['Type'] !== 'string');
 
-				if (!custom)
+				if (!custom || !this.appendPropertyMods)
 				{
 					fields.push(field);
+				}
+
+				if (!this.appendPropertyMods)
+				{
+					return;
 				}
 
 				//generate printable version
@@ -4613,12 +4820,44 @@
 
 					fields.push(responsibleField);
 				}
-			});
+			}, this);
 
 			return fields;
+		},
+		getTriggerProperties: function()
+		{
+			var result = [];
+			if (this.robot && this.robot.template && this.component && this.component.triggerManager)
+			{
+				result = this.component.triggerManager.getReturnProperties(this.robot.template.getStatusId());
+			}
+
+			return result;
 		}
 	};
 	// <- InlineSelector
+	// -> InlineSelectorCondition
+	var InlineSelectorCondition = function(menuButton, fields, cb, condition)
+	{
+		this.component = BX.Bizproc.Automation.Designer.component;
+		this.robot = BX.Bizproc.Automation.Designer.robot;
+		this.documentFields = fields;
+		this.menuButton = menuButton;
+		this.appendPropertyMods = false;
+		this.dialogZindex = 1101;
+		this.selectCallback = function(item)
+		{
+			cb(item.getCustomData().get('property'));
+		}
+
+		this.fieldsOnly = !(
+			condition
+			&& condition.parentGroup
+			&& condition.parentGroup.type === ConditionGroup.Type.Mixed
+		);
+	};
+	BX.extend(InlineSelectorCondition, InlineSelector);
+	// <- InlineSelectorCondition
 	// -> InlineSelectorHtml
 	var InlineSelectorHtml = function(robot, targetNode)
 	{
@@ -4635,6 +4874,10 @@
 		});
 		targetNode.firstElementChild.appendChild(this.menuButton);
 		this.bindEvents();
+		this.selectCallback = function(item)
+		{
+			me.onFieldSelect(item.getCustomData().get('property'));
+		}
 	};
 
 	BX.extend(InlineSelectorHtml, InlineSelector);
@@ -4839,6 +5082,7 @@
 	};
 	// <- SaveStateCheckbox
 	// -> DelayIntervalSelector
+
 	var DelayIntervalSelector = function(options)
 	{
 		this.basisFields = [];
@@ -5041,25 +5285,30 @@
 				if (formData['type'] === DelayInterval.Type.After)
 				{
 					if (this.useAfterBasis)
+					{
 						this.delay.setBasis(formData['basis_after']);
+					}
 					else
 					{
 						this.delay.setBasis(DelayInterval.Basis.CurrentDateTime);
-						if (
-							this.delay.valueType === 'i'
-							&& this.minLimitM > 0
-							&& this.delay.value < this.minLimitM
-						)
-						{
-							BX.UI.Notification.Center.notify({
-								content: BX.message('BIZPROC_AUTOMATION_DELAY_MIN_LIMIT_LABEL')
-							});
-							this.delay.setValue(this.minLimitM);
-						}
+					}
+					if (
+						this.minLimitM > 0
+						&& this.delay.basis === DelayInterval.Basis.CurrentDateTime
+						&& this.delay.valueType === 'i'
+						&& this.delay.value < this.minLimitM
+					)
+					{
+						BX.UI.Notification.Center.notify({
+							content: BX.message('BIZPROC_AUTOMATION_DELAY_MIN_LIMIT_LABEL')
+						});
+						this.delay.setValue(this.minLimitM);
 					}
 				}
 				else
+				{
 					this.delay.setBasis(formData['basis_before']);
+				}
 			}
 
 			this.delay.setWorkTime(formData['worktime']);
@@ -5250,7 +5499,7 @@
 						{
 							beforeBasisNode.textContent = field.Name;
 							beforeBasisValueNode.value = field.SystemExpression;
-						});
+						}, DelayInterval.Type.Before);
 					}
 				}
 			});
@@ -5451,16 +5700,6 @@
 						this.popupWindow.close();
 					}
 				},{
-					text: BX.message('BIZPROC_AUTOMATION_CMP_BASIS_NOW_LOCAL'),
-					field: {Name: BX.message('BIZPROC_AUTOMATION_CMP_BASIS_NOW_LOCAL'), SystemExpression: DelayInterval.Basis.CurrentDateTimeLocal},
-					onclick: function(e, item)
-					{
-						if (callback)
-							callback(item.field);
-
-						this.popupWindow.close();
-					}
-				},{
 					text: BX.message('BIZPROC_AUTOMATION_CMP_BASIS_DATE'),
 					field: {Name: BX.message('BIZPROC_AUTOMATION_CMP_BASIS_DATE'), SystemExpression: DelayInterval.Basis.CurrentDate},
 					onclick: function(e, item)
@@ -5475,6 +5714,14 @@
 
 			for (i = 0; i < this.basisFields.length; ++i)
 			{
+				if (
+					delayType !== DelayInterval.Type.After
+					&& this.basisFields[i]['Id'].indexOf('DATE_CREATE') > -1
+				)
+				{
+					continue;
+				}
+
 				menuItems.push({
 					text: BX.util.htmlspecialchars(this.basisFields[i].Name),
 					field: this.basisFields[i],
@@ -5512,12 +5759,14 @@
 		},
 		getBasisField: function(basis, system)
 		{
-			if (system && basis === DelayInterval.Basis.CurrentDateTime)
+			if (system && (basis === DelayInterval.Basis.CurrentDateTime || basis === DelayInterval.Basis.CurrentDateTimeLocal))
+			{
 				return {Name: BX.message('BIZPROC_AUTOMATION_CMP_BASIS_NOW'), SystemExpression: DelayInterval.Basis.CurrentDateTime};
-			if (system && basis === DelayInterval.Basis.CurrentDateTimeLocal)
-				return {Name: BX.message('BIZPROC_AUTOMATION_CMP_BASIS_NOW_LOCAL'), SystemExpression: DelayInterval.Basis.CurrentDateTimeLocal};
+			}
 			if (system && basis === DelayInterval.Basis.CurrentDate)
+			{
 				return {Name: BX.message('BIZPROC_AUTOMATION_CMP_BASIS_DATE'), SystemExpression: DelayInterval.Basis.CurrentDate};
+			}
 
 			var field = null;
 			for (var i = 0; i < this.basisFields.length; ++i)
@@ -5534,8 +5783,7 @@
 			{
 				fld = this.basisFields[i];
 				if (
-					fld['Id'].indexOf('DATE_CREATE') < 0
-					&& fld['Id'].indexOf('DATE_MODIFY') < 0
+					fld['Id'].indexOf('DATE_MODIFY') < 0
 					&& fld['Id'].indexOf('EVENT_DATE') < 0
 					&& fld['Id'].indexOf('BIRTHDATE') < 0
 				)
@@ -5550,6 +5798,7 @@
 		{
 			this.robotSettingsDialog = dialog;
 			this.component = dialog ? dialog.robot.component : null;
+			this.robot = dialog ? dialog.robot : null;
 		},
 		getRobotSettingsDialog: function()
 		{
@@ -5798,8 +6047,7 @@
 				value: this.value,
 				valueType: this.valueType,
 				basis: this.basis,
-				workTime: this.workTime ? 1 : 0//,
-				//localTime: this.localTime ? 1 : 0
+				workTime: this.workTime ? 1 : 0
 			}
 		},
 		toExpression: function(basisFields, workerExpression)
@@ -5868,14 +6116,21 @@
 	};
 
 	//Conditions
-	var Condition = function (params)
+	var Condition = function (params, group)
 	{
+		this.object = 'Document';
 		this.field = '';
 		this.operator = '!empty';
 		this.value = '';
 
+		this.parentGroup = null;
+
 		if (BX.type.isPlainObject(params))
 		{
+			if (params['object'])
+			{
+				this.setObject(params['object']);
+			}
 			if (params['field'])
 			{
 				this.setField(params['field']);
@@ -5889,9 +6144,20 @@
 				this.setValue(params['value']);
 			}
 		}
+		if (group)
+		{
+			this.parentGroup = group;
+		}
 	};
 
 	Condition.prototype = {
+		setObject: function(object)
+		{
+			if (BX.type.isNotEmptyString(object))
+			{
+				this.object = object;
+			}
+		},
 		setField: function(field)
 		{
 			if (BX.type.isNotEmptyString(field))
@@ -5921,13 +6187,11 @@
 		},
 		serialize: function()
 		{
-			var operator = this.operator;
-			var value = this.value;
-
 			return {
+				object: this.object,
 				field: this.field,
-				operator: operator,
-				value: value
+				operator: this.operator,
+				value: this.value
 			}
 		}
 	};
@@ -5948,14 +6212,14 @@
 				var me = this;
 				params['items'].forEach(function(item)
 				{
-					var condition = new Condition(item[0]);
+					var condition = new Condition(item[0], me);
 					me.addItem(condition, item[1]);
 				});
 			}
 		}
 	};
 
-	ConditionGroup.Type = {Field: 'field'};
+	ConditionGroup.Type = {Field: 'field', Mixed: 'mixed'};
 	ConditionGroup.Joiner = {
 		And: 'AND',
 		Or: 'OR',
@@ -5986,7 +6250,8 @@
 					continue;
 				}
 
-				var condition = new Condition();
+				var condition = new Condition({}, conditionGroup);
+				condition.setObject(formFields[prefix + 'object'][i]);
 				condition.setField(formFields[prefix + 'field'][i]);
 				condition.setOperator(formFields[prefix + 'operator'][i]);
 				condition.setValue(formFields[prefix + 'value'][i]);
@@ -6032,12 +6297,15 @@
 	};
 
 	// -> ConditionGroupSelector
-	/** @param {ConditionGroup} conditionGroup */
+	/** @param {ConditionGroup} conditionGroup
+	 * @param options
+	 */
 	var ConditionGroupSelector = function(conditionGroup, options)
 	{
 		this.conditionGroup = conditionGroup;
 		this.fields = [];
 		this.fieldPrefix = 'condition_';
+		this.itemSelectors = [];
 
 		if (BX.type.isPlainObject(options))
 		{
@@ -6065,8 +6333,9 @@
 					fieldPrefix: me.fieldPrefix
 				});
 
+				this.itemSelectors.push(conditionSelector);
 				conditionNodes.push(conditionSelector.createNode());
-			});
+			}, this);
 
 			conditionNodes.push(BX.create("a", {
 				attrs: { className: "bizproc-automation-popup-settings-link" },
@@ -6088,12 +6357,20 @@
 		},
 		addItem: function(buttonNode)
 		{
-			var conditionSelector = new ConditionSelector(new Condition(), {
+			var conditionSelector = new ConditionSelector(new Condition({}, this.conditionGroup), {
 				fields: this.fields,
 				fieldPrefix: this.fieldPrefix
 			});
+			this.itemSelectors.push(conditionSelector);
 
 			buttonNode.parentNode.insertBefore(conditionSelector.createNode(), buttonNode);
+		},
+		destroy: function()
+		{
+			this.itemSelectors.forEach(function(selector) {
+				selector.destroy();
+			});
+			this.itemSelectors = [];
 		}
 	};
 	// <- ConditionGroupSelector
@@ -6108,7 +6385,10 @@
 		{
 			if (BX.type.isArray(options.fields))
 			{
-				this.fields = options.fields;
+				this.fields = options.fields.map(function(field) {
+					field.ObjectId = 'Document';
+					return field;
+				});
 			}
 			if (options.joiner && options.joiner === ConditionGroup.Joiner.Or)
 			{
@@ -6124,6 +6404,13 @@
 	{
 		createNode: function()
 		{
+			var conditionObjectNode = this.objectNode = BX.create("input", {
+				attrs: {
+					type: "hidden",
+					name: this.fieldPrefix + "object[]",
+					value: this.condition.object
+				}
+			});
 			var conditionFieldNode = this.fieldNode = BX.create("input", {
 				attrs: {
 					type: "hidden",
@@ -6184,6 +6471,7 @@
 			this.node = BX.create("span", {
 				attrs: { className: "bizproc-automation-popup-settings-link-wrapper bizproc-automation-condition-wrapper" },
 				children: [
+					conditionObjectNode,
 					conditionFieldNode,
 					conditionOperatorNode,
 					conditionValueNode,
@@ -6196,7 +6484,6 @@
 
 			return this.node;
 		},
-
 		init: function(condition)
 		{
 			this.condition = condition;
@@ -6212,7 +6499,7 @@
 
 			if (this.condition.field !== '')
 			{
-				var field = this.getField(this.condition.field) || '?';
+				var field = this.getField(this.condition.object, this.condition.field) || '?';
 				var valueLabel = BX.Bizproc.FieldType.formatValuePrintable(
 					field,
 					this.condition.value
@@ -6263,22 +6550,47 @@
 		},
 		showPopup: function()
 		{
-			var me = this, fields = this.filterFields();
-			var fieldSelect = BX.create('select', {
-				attrs: {className: 'bizproc-automation-popup-settings-dropdown'}
-			});
-
-			for (var i = 0; i < fields.length; ++i)
+			if (this.popup)
 			{
-				fieldSelect.appendChild(BX.create('option', {
-					props: {value: fields[i]['Id']},
-					text: fields[i]['Name']
-				}));
+				this.popup.show();
+				return;
 			}
 
-			var selectedField = this.getField(this.condition.field);
-			if (!selectedField)
+			var me = this, fields = this.filterFields();
+			var objectSelect = BX.create('input', {
+				attrs: {
+					type: 'hidden',
+					className: 'bizproc-automation-popup-settings-dropdown'
+				}
+			});
+			var fieldSelect = BX.create('input', {
+				attrs: {
+					type: 'hidden',
+					className: 'bizproc-automation-popup-settings-dropdown'
+				}
+			});
+			var fieldSelectLabel = BX.create('div', {
+				attrs: {
+					className: 'bizproc-automation-popup-settings-dropdown',
+					readonly: 'readonly'
+				},
+				children: [fieldSelect]
+			});
+
+			BX.bind(
+				fieldSelectLabel,
+				'click',
+				this.onFieldSelectorClick.bind(this, fieldSelectLabel, fieldSelect, fields, objectSelect)
+			);
+
+			var selectedField = this.getField(this.condition.object, this.condition.field);
+			if (!this.condition.field)
+			{
 				selectedField = fields[0];
+			}
+			fieldSelect.value = selectedField.Id;
+			objectSelect.value = selectedField.ObjectId;
+			fieldSelectLabel.textContent = selectedField.Name;
 
 			var valueInput = (this.condition.operator.indexOf('empty') < 0)
 				? this.createValueNode(selectedField, this.condition.value) : null;
@@ -6294,7 +6606,6 @@
 
 			if (this.condition.field !== '')
 			{
-				fieldSelect.value = this.condition.field;
 				operatorSelect.value = this.condition.operator;
 			}
 
@@ -6302,7 +6613,7 @@
 				attrs: { className: "bizproc-automation-popup-select-block" },
 				children: [
 					BX.create('div', {attrs: {className: 'bizproc-automation-popup-settings'},
-						children: [fieldSelect]
+						children: [fieldSelectLabel]
 					}),
 					operatorWrapper,
 					valueWrapper
@@ -6313,18 +6624,19 @@
 				this,
 				fieldSelect,
 				operatorWrapper,
-				valueWrapper
+				valueWrapper,
+				objectSelect
 			));
 
-			var popup = new BX.PopupWindow('bizproc-automation-popup-set', this.labelNode, {
+			var popup = this.popup = new BX.PopupWindow('bizproc-automation-popup-set', this.labelNode, {
 				className: 'bizproc-automation-popup-set',
 				autoHide: false,
 				closeByEsc: true,
 				closeIcon: false,
 				titleBar: false,
-				zIndex: 0,
 				angle: true,
 				offsetLeft: 45,
+				overlay: { backgroundColor: 'transparent' },
 				content: form,
 				buttons: [
 					new BX.PopupWindowButton({
@@ -6332,6 +6644,7 @@
 						className: "webform-button webform-button-create" ,
 						events: {
 							click: function() {
+								me.condition.setObject(objectSelect.value);
 								me.condition.setField(fieldSelect.value);
 								me.condition.setOperator(operatorWrapper.firstChild.value);
 								var valueInput = valueWrapper.querySelector('[name^="'+me.fieldPrefix+'value"]');
@@ -6361,18 +6674,43 @@
 						}
 					})
 				],
-				overlay: { backgroundColor: 'transparent' },
 				events: {
-					onPopupClose: function() {this.destroy()}
+					onPopupClose: function() {
+						this.destroy();
+						if (me.fieldDialog)
+						{
+							me.fieldDialog.destroy();
+							delete(me.fieldDialog);
+						}
+						delete(me.popup);
+					}
 				}
 			});
 
 			popup.show()
 		},
+		onFieldSelectorClick: function(fieldSelectLabel, fieldSelect, fields, objectSelect, event)
+		{
+			if (!this.fieldDialog)
+			{
+				this.fieldDialog = new InlineSelectorCondition(fieldSelectLabel, fields, function(property)
+				{
+					fieldSelectLabel.textContent = property.Name
+					fieldSelect.value = property.Id;
+					objectSelect.value = property.ObjectId;
+					BX.fireEvent(fieldSelect, 'change');
+				}, this.condition);
+			}
+			this.fieldDialog.openMenu(event);
+		},
 		updateValueNodes: function()
 		{
 			if (this.condition)
 			{
+				if (this.objectNode)
+				{
+					this.objectNode.value = this.condition.object;
+				}
 				if (this.fieldNode)
 				{
 					this.fieldNode.value = this.condition.field;
@@ -6391,10 +6729,11 @@
 		 * @param {Node} selectNode
 		 * @param {Node} conditionWrapper
 		 * @param {Node} valueWrapper
+		 * @param objectSelect
 		 */
-		onFieldChange: function(selectNode, conditionWrapper, valueWrapper)
+		onFieldChange: function(selectNode, conditionWrapper, valueWrapper, objectSelect)
 		{
-			var field = this.getField(selectNode.value);
+			var field = this.getField(objectSelect.value, selectNode.value);
 			var operatorNode = this.createOperatorNode(field, valueWrapper);
 			conditionWrapper.replaceChild(operatorNode, conditionWrapper.firstChild);
 			this.onOperatorChange(operatorNode, field, valueWrapper);
@@ -6414,17 +6753,58 @@
 				valueWrapper.appendChild(valueNode);
 			}
 		},
-		getField: function(id)
+		getField: function(object, id)
 		{
-			var field = null;
-			for (var i = 0; i < this.fields.length; ++i)
+			var field;
+			var robot = Designer.robot;
+			var component = Designer.component;
+			var tpl = robot? robot.template : null;
+			switch (object)
 			{
-				if (id === this.fields[i].Id)
-				{
-					field = this.fields[i];
-				}
+				case 'Document':
+					for (var i = 0; i < this.fields.length; ++i)
+					{
+						if (id === this.fields[i].Id)
+						{
+							field = this.fields[i];
+						}
+					}
+				break;
+				case 'Template':
+					if (tpl && component && component.triggerManager)
+					{
+						field = component.triggerManager.getReturnProperty(tpl.getStatusId(), id);
+					}
+				break;
+				case 'Constant':
+					if (tpl)
+					{
+						field = tpl.getConstant(id);
+					}
+				break;
+				case 'GlobalConst':
+					if (component)
+					{
+						field = component.getConstant(id);
+					}
+				break;
+				default:
+					var foundRobot = tpl? tpl.getRobotById(object) : null;
+					if (foundRobot)
+					{
+						field = foundRobot.getReturnProperty(id);
+					}
+				break;
 			}
-			return field;
+
+			return field || {
+				Id: id,
+				ObjectId: object,
+				Name: id,
+				Type: 'string',
+				Expression: id,
+				SystemExpression: '{='+object+':'+id+'}'
+			};
 		},
 		getOperators: function(fieldType, multiple)
 		{
@@ -6575,6 +6955,13 @@
 			}
 
 			e.preventDefault();
+		},
+		destroy: function()
+		{
+			if (this.popup)
+			{
+				this.popup.close();
+			}
 		}
 	};
 	// <- ConditionSelector
@@ -6607,11 +6994,13 @@
 
 			if (BX.type.isArray(fields))
 			{
+				var fieldSuffix = delay.type == DelayInterval.Type.After ?
+					BX.message('BIZPROC_AUTOMATION_CMP_AFTER') : BX.message('BIZPROC_AUTOMATION_CMP_BEFORE_1');
 				for (var i = 0; i < fields.length; ++i)
 				{
 					if (delay.basis == fields[i].SystemExpression)
 					{
-						str += ' ' + BX.message('BIZPROC_AUTOMATION_CMP_BEFORE_1') + ' ' + fields[i].Name;
+						str += ' ' + fieldSuffix + ' ' + fields[i].Name;
 						break;
 					}
 				}

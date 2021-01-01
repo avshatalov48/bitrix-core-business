@@ -78,7 +78,7 @@
 
 .pagetitle-toolbar-field-view .ui-toolbar-star {
 	background-size: 20px auto;
-	margin-bottom: 2px;
+	margin-bottom: 0;
 	width: 20px;
 	min-width: 20px;
 	max-width: 20px;

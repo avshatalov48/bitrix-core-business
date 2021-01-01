@@ -56,7 +56,7 @@ return [
 			],
 			'style' => [
 				'#wrapper' => [
-					0 => 'landing-block landing-block-menu g-pl-auto g-pr-auto g-mt-auto g-pt-30 g-pb-30',
+					0 => 'landing-block landing-block-menu g-pt-30 g-pb-30 g-pl-60 g-pr-60 g-mt-60',
 				],
 			],
 		],

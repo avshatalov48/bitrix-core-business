@@ -398,6 +398,15 @@ class ListExportExcelComponent extends CBitrixComponent
 				}
 			}
 
+			$iblockSectionId = 0;
+			if (
+				!empty($data["IBLOCK_SECTION_ID"]) &&
+				array_key_exists($data["IBLOCK_SECTION_ID"], $this->arResult["SECTIONS"])
+			)
+			{
+				$iblockSectionId = $data["IBLOCK_SECTION_ID"];
+			}
+
 			foreach($this->arResult["FIELDS"] as $fieldId => $field)
 			{
 				switch($field["TYPE"])
@@ -413,12 +422,14 @@ class ListExportExcelComponent extends CBitrixComponent
 						break;
 				}
 				$valueKey = (mb_substr($fieldId, 0, 9) == "PROPERTY_") ? $fieldId : "~".$fieldId;
+				$field["ELEMENT_ID"] = $data["ID"];
 				$field["VALUE"] = $listValues[$data["ID"]][$valueKey];
+				$field["LIST_FILE_URL"] = $this->arParams["~LIST_FILE_URL"];
+				$field["SECTION_ID"] = $iblockSectionId;
 				$data[$fieldId] = \Bitrix\Lists\Field::renderField($field);
 			}
 
-			if(!empty($data["IBLOCK_SECTION_ID"]) &&
-				array_key_exists($data["IBLOCK_SECTION_ID"], $this->arResult["SECTIONS"]))
+			if ($iblockSectionId)
 			{
 				$iblockSectionId = $data["IBLOCK_SECTION_ID"];
 				$sectionName = array();

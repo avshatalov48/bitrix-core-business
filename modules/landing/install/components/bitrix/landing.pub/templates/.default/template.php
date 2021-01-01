@@ -5,7 +5,6 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 /** @var \LandingPubComponent $component */
-/** @var \Bitrix\Landing\Landing $landing */
 /** @var array $arResult */
 /** @var array $arParams */
 
@@ -19,7 +18,9 @@ use \Bitrix\Main\UI\Extension;
 Loc::loadMessages(__FILE__);
 
 $this->setFrameMode(true);
-$landing = $arResult['LANDING'];
+$landing = $arResult['LANDING'];/** @var \Bitrix\Landing\Landing $landing */
+$b24Installed = \Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24');
+$formEditor = $arResult['SPECIAL_TYPE'] == \Bitrix\Landing\Site\Type::PSEUDO_SCOPE_CODE_FORMS;
 
 Manager::setPageTitle(
 	Loc::getMessage('LANDING_TPL_TITLE')
@@ -31,18 +32,44 @@ if ($arResult['ERRORS'])
 	return;
 }
 
-if ($arParams['SHOW_EDIT_PANEL'] == 'Y')
+// load extensions
+$extensions = [];
+$extensions[] = 'sidepanel';
+if (
+	$arParams['SHOW_EDIT_PANEL'] == 'Y' ||
+	!$landing->getDomainId()// wiki mode
+)
 {
-	Extension::load([
-		'landing.wiki.public',
-		'sidepanel'
-	]);
+	$extensions[] = 'landing.wiki.public';
 }
-else
+if ($b24Installed)
 {
-	Extension::load([
-		'sidepanel'
-	]);
+	$extensions[] = 'landing.metrika';
+}
+
+Extension::load($extensions);
+
+// check frame parameter outside the frame
+if ($component->request('IFRAME'))
+{
+	?>
+	<script>
+		(function()
+		{
+			if (top.window.location.href === window.location.href)
+			{
+				top.window.location.href = BX.Uri.removeParam(
+					top.window.location.href,
+					'IFRAME'
+				);
+			}
+			else if (window.location.hash.indexOf('#landingId') === 0)
+			{
+				window.location.hash = '';
+			}
+		})();
+	</script>
+	<?
 }
 
 // edit menu
@@ -80,7 +107,7 @@ if ($arParams['SHOW_EDIT_PANEL'] === 'Y')
 			<?php if($arResult['CAN_EDIT'] === 'Y'): ?>
 				<div class="landing-pub-top-panel-right">
 					<div class="landing-pub-top-panel-actions">
-						<a href="<?= $arParams['PAGE_URL_LANDING_VIEW'];?>" class="ui-btn ui-btn-primary ui-btn-icon-edit landing-pub-top-panel-edit-button">
+						<a href="<?= $arParams['PAGE_URL_LANDING_VIEW'];?>" data-landingId="<?= $landing->getId();?>" class="ui-btn ui-btn-primary ui-btn-icon-edit landing-pub-top-panel-edit-button">
 							<?= $component->getMessageType('LANDING_TPL_EDIT_PAGE');?>
 						</a>
 					</div>
@@ -140,7 +167,7 @@ $enableHook = \Bitrix\Landing\Restriction\Manager::isAllowed(
 );
 if ($enableHook)
 {
-	$hooksSite = Hook::getForSite($arResult['LANDING']->getSiteId());
+	$hooksSite = Hook::getForSite($landing->getSiteId());
 }
 
 // assets
@@ -156,8 +183,17 @@ $assets->addAsset(
 $assets->addAsset('landing_critical_grid', Assets\Location::LOCATION_BEFORE_ALL);
 ?>
 
+<?if ($b24Installed):?>
+<script>
+	(function()
+	{
+		new BX.Landing.Metrika();
+	})();
+</script>
+<?endif;?>
+
 <?ob_start(); ?>
-<?if (!$enableHook || isset($hooksSite['COPYRIGHT']) && $hooksSite['COPYRIGHT']->enabled()):?>
+<?if (!$formEditor && (!$enableHook || isset($hooksSite['COPYRIGHT']) && $hooksSite['COPYRIGHT']->enabled())):?>
 <div class="bitrix-footer">
 	<?if (Manager::isB24()):?>
 		<span class="bitrix-footer-text">

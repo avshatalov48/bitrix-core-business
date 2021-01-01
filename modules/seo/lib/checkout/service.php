@@ -10,6 +10,7 @@ class Service implements IService
 {
 	const GROUP = 'checkout';
 	const TYPE_YANDEX = 'yandex';
+	const TYPE_YOOKASSA = 'yookassa';
 
 	/**
 	 * Get instance.
@@ -43,6 +44,7 @@ class Service implements IService
 	{
 		return [
 			static::TYPE_YANDEX,
+			static::TYPE_YOOKASSA,
 		];
 	}
 

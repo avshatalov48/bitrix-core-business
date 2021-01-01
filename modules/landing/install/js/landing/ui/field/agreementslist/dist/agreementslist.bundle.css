@@ -1,0 +1,101 @@
+.landing-ui-field-agreements-list-container .landing-ui-component-list-item-body {
+	padding-top: 21px;
+	padding-left: 21px;
+	padding-right: 21px;
+}
+
+.landing-ui-field-agreements-list-container .landing-ui-field-radio-button-item-icon {
+	background-color: #ffffff;
+}
+
+.landing-ui-field-agreements-list-container .landing-ui-component-list-item-body .landing-ui-form-description {
+	display: none;
+}
+
+.landing-ui-field-agreements-list-container .landing-ui-component-list-item-body .landing-ui-field-radio-button-item {
+	width: 112px;
+}
+
+.landing-ui-field-agreements-list-actions-container {
+	position: relative;
+	margin-top: 10px;
+}
+
+.landing-ui-field-agreements-list-actions-button {
+	display: inline-block;
+	font: 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #80868e;
+	border-bottom: 1px dashed #d8d8d8;
+	-webkit-transition: all 200ms ease;
+	-o-transition: all 200ms ease;
+	transition: all 200ms ease;
+	cursor: pointer;
+}
+
+.landing-ui-field-agreements-list-actions-button:first-child {
+	margin-right: 18px;
+}
+
+.landing-ui-field-agreements-list-actions-button:hover,
+.landing-ui-field-agreements-list-actions-button:active {
+	color: #333333;
+	border-bottom: 1px dashed #333333;
+}
+
+.landing-ui-agreement-type-1-icon {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='46' height='46' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M43 0a3 3 0 013 3v40a3 3 0 01-3 3H3a3 3 0 01-3-3V3a3 3 0 013-3h40zm-.4 3H3.4a.4.4 0 00-.392.32L3 3.4v39.2a.4.4 0 00.32.392L3.4 43h39.2a.4.4 0 00.392-.32L43 42.6V3.4a.4.4 0 00-.4-.4zM31 14a2 2 0 012 2v15a2 2 0 01-2 2H16a2 2 0 01-2-2V16a2 2 0 012-2h15zm-3.968 5.278l-5.085 5.11-2.035-1.943-1.69 1.58 3.725 3.697 6.83-6.88-1.745-1.564z' fill='%23A3B2C5' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+
+.landing-ui-agreement-type-1-icon:hover,
+.landing-ui-agreement-type-1-icon.landing-ui-field-radio-button-item-active {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='46' height='46' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M43 0a3 3 0 013 3v40a3 3 0 01-3 3H3a3 3 0 01-3-3V3a3 3 0 013-3h40zm-.4 3H3.4a.4.4 0 00-.392.32L3 3.4v39.2a.4.4 0 00.32.392L3.4 43h39.2a.4.4 0 00.392-.32L43 42.6V3.4a.4.4 0 00-.4-.4zM31 14a2 2 0 012 2v15a2 2 0 01-2 2H16a2 2 0 01-2-2V16a2 2 0 012-2h15zm-3.968 5.278l-5.085 5.11-2.035-1.943-1.69 1.58 3.725 3.697 6.83-6.88-1.745-1.564z' fill='%232FC6F6' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+
+.landing-ui-agreement-type-2-icon {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='46' height='46' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M43 0a3 3 0 013 3v40a3 3 0 01-3 3H3a3 3 0 01-3-3V3a3 3 0 013-3h40zm-.4 3H3.4a.4.4 0 00-.392.32L3 3.4v39.2a.4.4 0 00.32.392L3.4 43h39.2a.4.4 0 00.392-.32L43 42.6V3.4a.4.4 0 00-.4-.4zM22.7 22.633a.9.9 0 011.237-.301L35.48 29.36A.9.9 0 0135.244 31l-2.566.682a.9.9 0 00-.513 1.376l2.504 3.68A.9.9 0 0134.412 38l-2.03 1.303-.02.013a.9.9 0 01-1.236-.304l-2.263-3.74a.9.9 0 00-1.329-.24l-2.259 1.787a.9.9 0 01-1.454-.62l-1.248-13.012a.9.9 0 01.127-.554zM31 13a2 2 0 012 2v9.148l-3.158-1.529v-5.461a1 1 0 00-1-1H17.158a1 1 0 00-.993.883l-.007.117v11.684a1 1 0 00.883.993l.117.007h3.114L20.308 33H15a2 2 0 01-2-2V15a2 2 0 012-2h16z' fill='%23A3B2C5' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+
+.landing-ui-agreement-type-2-icon:hover,
+.landing-ui-agreement-type-2-icon.landing-ui-field-radio-button-item-active {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='46' height='46' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M43 0a3 3 0 013 3v40a3 3 0 01-3 3H3a3 3 0 01-3-3V3a3 3 0 013-3h40zm-.4 3H3.4a.4.4 0 00-.392.32L3 3.4v39.2a.4.4 0 00.32.392L3.4 43h39.2a.4.4 0 00.392-.32L43 42.6V3.4a.4.4 0 00-.4-.4zM22.7 22.633a.9.9 0 011.237-.301L35.48 29.36A.9.9 0 0135.244 31l-2.566.682a.9.9 0 00-.513 1.376l2.504 3.68A.9.9 0 0134.412 38l-2.03 1.303-.02.013a.9.9 0 01-1.236-.304l-2.263-3.74a.9.9 0 00-1.329-.24l-2.259 1.787a.9.9 0 01-1.454-.62l-1.248-13.012a.9.9 0 01.127-.554zM31 13a2 2 0 012 2v9.148l-3.158-1.529v-5.461a1 1 0 00-1-1H17.158a1 1 0 00-.993.883l-.007.117v11.684a1 1 0 00.883.993l.117.007h3.114L20.308 33H15a2 2 0 01-2-2V15a2 2 0 012-2h16z' fill='%232FC6F6' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+
+.landing-ui-agreement-type-3-icon {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='46' height='46' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M43 0a3 3 0 013 3v40a3 3 0 01-3 3H3a3 3 0 01-3-3V3a3 3 0 013-3h40zm-.4 3H3.4a.4.4 0 00-.392.32L3 3.4v39.2a.4.4 0 00.32.392L3.4 43h39.2a.4.4 0 00.392-.32L43 42.6V3.4a.4.4 0 00-.4-.4zM20.961 28.003a2 2 0 012 2V38a2 2 0 01-2 2H9a2 2 0 01-2-2v-7.997a2 2 0 012-2h11.961zm14.473 1.224l1.587 1.587-2.83 2.83 2.764 2.765-1.587 1.588-2.764-2.765-2.831 2.83-1.587-1.587 2.83-2.83-2.764-2.765 1.587-1.587 2.765 2.764 2.83-2.83zm-16.977 1.255l-4.615 4.235-1.845-1.61-1.533 1.31 3.378 3.065 6.198-5.704-1.583-1.296zM21 19a1 1 0 011 1v1a1 1 0 01-1 1H8a1 1 0 01-1-1v-1a1 1 0 011-1h13zm11-6a1 1 0 011 1v1a1 1 0 01-1 1H8a1 1 0 01-1-1v-1a1 1 0 011-1h24zm0-6a1 1 0 011 1v1a1 1 0 01-1 1H8a1 1 0 01-1-1V8a1 1 0 011-1h24z' fill='%23A3B2C5' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+
+.landing-ui-agreement-type-3-icon:hover,
+.landing-ui-agreement-type-3-icon.landing-ui-field-radio-button-item-active {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='46' height='46' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M43 0a3 3 0 013 3v40a3 3 0 01-3 3H3a3 3 0 01-3-3V3a3 3 0 013-3h40zm-.4 3H3.4a.4.4 0 00-.392.32L3 3.4v39.2a.4.4 0 00.32.392L3.4 43h39.2a.4.4 0 00.392-.32L43 42.6V3.4a.4.4 0 00-.4-.4zM20.961 28.003a2 2 0 012 2V38a2 2 0 01-2 2H9a2 2 0 01-2-2v-7.997a2 2 0 012-2h11.961zm14.473 1.224l1.587 1.587-2.83 2.83 2.764 2.765-1.587 1.588-2.764-2.765-2.831 2.83-1.587-1.587 2.83-2.83-2.764-2.765 1.587-1.587 2.765 2.764 2.83-2.83zm-16.977 1.255l-4.615 4.235-1.845-1.61-1.533 1.31 3.378 3.065 6.198-5.704-1.583-1.296zM21 19a1 1 0 011 1v1a1 1 0 01-1 1H8a1 1 0 01-1-1v-1a1 1 0 011-1h13zm11-6a1 1 0 011 1v1a1 1 0 01-1 1H8a1 1 0 01-1-1v-1a1 1 0 011-1h24zm0-6a1 1 0 011 1v1a1 1 0 01-1 1H8a1 1 0 01-1-1V8a1 1 0 011-1h24z' fill='%232FC6F6' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+
+.landing-ui-agreement-type-4-icon {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='46' height='46' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M43 0a3 3 0 013 3v40a3 3 0 01-3 3H3a3 3 0 01-3-3V3a3 3 0 013-3h40zm-.4 3H3.4a.4.4 0 00-.392.32L3 3.4v39.2a.4.4 0 00.32.392L3.4 43h39.2a.4.4 0 00.392-.32L43 42.6V3.4a.4.4 0 00-.4-.4zm-5.836 27.447l1.788 2.086-6.998 5.347-6.997-5.347 1.788-2.086 3.946 3.016 1.251.96 1.276-.96 3.946-3.016zM31.944 20c.583 0 1.056.473 1.056 1.056v5.555l3.764-2.876 1.788 2.086-6.998 5.347-6.997-5.347 1.788-2.086L30 26.528v-5.472c0-.583.473-1.056 1.056-1.056h.888zm-13.901-1a1 1 0 011 1v1a1 1 0 01-1 1H8a1 1 0 01-1-1v-1a1 1 0 011-1h10.043zM32 13a1 1 0 011 1v1a1 1 0 01-1 1H8a1 1 0 01-1-1v-1a1 1 0 011-1h24zm0-6a1 1 0 011 1v1a1 1 0 01-1 1H8a1 1 0 01-1-1V8a1 1 0 011-1h24z' fill='%23A3B2C5' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+
+.landing-ui-agreement-type-4-icon:hover,
+.landing-ui-agreement-type-4-icon.landing-ui-field-radio-button-item-active {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='46' height='46' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M43 0a3 3 0 013 3v40a3 3 0 01-3 3H3a3 3 0 01-3-3V3a3 3 0 013-3h40zm-.4 3H3.4a.4.4 0 00-.392.32L3 3.4v39.2a.4.4 0 00.32.392L3.4 43h39.2a.4.4 0 00.392-.32L43 42.6V3.4a.4.4 0 00-.4-.4zm-5.836 27.447l1.788 2.086-6.998 5.347-6.997-5.347 1.788-2.086 3.946 3.016 1.251.96 1.276-.96 3.946-3.016zM31.944 20c.583 0 1.056.473 1.056 1.056v5.555l3.764-2.876 1.788 2.086-6.998 5.347-6.997-5.347 1.788-2.086L30 26.528v-5.472c0-.583.473-1.056 1.056-1.056h.888zm-13.901-1a1 1 0 011 1v1a1 1 0 01-1 1H8a1 1 0 01-1-1v-1a1 1 0 011-1h10.043zM32 13a1 1 0 011 1v1a1 1 0 01-1 1H8a1 1 0 01-1-1v-1a1 1 0 011-1h24zm0-6a1 1 0 011 1v1a1 1 0 01-1 1H8a1 1 0 01-1-1V8a1 1 0 011-1h24z' fill='%232FC6F6' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+
+.landing-ui-field-agreements-list-item-body-actions {
+	margin-bottom: 20px;
+}
+
+.landing-ui-field-agreements-list-item-body-action {
+	display: inline-block;
+	font: 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #80868e;
+	border-bottom: 1px dashed #d8d8d8;
+	-webkit-transition: all 200ms ease;
+	-o-transition: all 200ms ease;
+	transition: all 200ms ease;
+	cursor: pointer;
+	margin-right: 18px;
+}
+
+.landing-ui-field-agreements-list-item-body-action:hover,
+.landing-ui-field-agreements-list-item-body-action:active {
+	color: #333333;
+	border-bottom: 1px dashed #333333;
+}

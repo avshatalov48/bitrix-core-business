@@ -255,12 +255,16 @@ class LandingLandingsComponent extends LandingBaseComponent
 			{
 				$folders[$row['SITE_ID']] = [];
 			}
-			$folders[$row['SITE_ID']][$row['ID']] = $row['TITLE'];;
+			$folders[$row['SITE_ID']][$row['ID']] = $row['TITLE'];
 		}
 
 		// fill tree with sites and folders
 		foreach ($sites as $site)
 		{
+			if ($site['SPECIAL'] == 'Y')
+			{
+				continue;
+			}
 			$tree[] = [
 				'TITLE' => $site['TITLE'],
 				'SITE_ID' => $site['ID'],
@@ -479,7 +483,7 @@ class LandingLandingsComponent extends LandingBaseComponent
 				if ($item['DELETED'] == 'Y')
 				{
 					$item['DATE_DELETED_DAYS'] = $deletedLTdays - intval((time() - $item['DATE_MODIFY']->getTimeStamp()) / 86400);
-					$item['DELETE_FINISH'] = $item['DATE_DELETED_DAYS'] <= 0;//@tmp
+					$item['DELETE_FINISH'] = $item['DATE_DELETED_DAYS'] <= 0;
 				}
 			}
 

@@ -16,6 +16,7 @@ $MESS["SONET_COMMENTAUX_CREATETASK_POST_INTRANET_NEW_USER"] = "Создана з
 $MESS["SONET_COMMENTAUX_CREATETASK_POST_BITRIX24_NEW_USER"] = "Создана задача \"#TASK_NAME#\" на основании записи о приеме на работу нового сотрудника.";
 $MESS["SONET_COMMENTAUX_CREATETASK_COMMENT_BLOG_COMMENT"] = "Создана задача \"#TASK_NAME#\" на основании #A_BEGIN#комментария к сообщению Живой ленты#A_END#.";
 $MESS["SONET_COMMENTAUX_CREATETASK_COMMENT_BLOG_COMMENT_2"] = "Создана задача \"#TASK_NAME#\" на основании #A_BEGIN#комментария к сообщению ленты новостей#A_END#.";
+$MESS["SONET_COMMENTAUX_CREATETASK_COMMENT_FORUM_POST_2"] = "Создана задача \"#TASK_NAME#\" на основании #A_BEGIN#комментария#A_END#.";
 $MESS["SONET_COMMENTAUX_CREATETASK_COMMENT_FORUM_POST_TASK"] = "Создана задача \"#TASK_NAME#\" на основании #A_BEGIN#комментария к задаче#A_END#.";
 $MESS["SONET_COMMENTAUX_CREATETASK_COMMENT_FORUM_POST_CALENDAR"] = "Создана задача \"#TASK_NAME#\" на основании #A_BEGIN#комментария к событию календаря#A_END#.";
 $MESS["SONET_COMMENTAUX_CREATETASK_COMMENT_FORUM_POST_FORUM_TOPIC"] = "Создана задача \"#TASK_NAME#\" на основании #A_BEGIN#комментария к сообщению форума#A_END#.";

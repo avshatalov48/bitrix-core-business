@@ -1,0 +1,26 @@
+.landing-ui-field-color-opacity {
+	background: url('images/opacity.png') left top repeat;
+	background-size: 8px;
+	position: relative;
+	width: 100%;
+	height: 32px;
+	border-radius: 2px;
+}
+
+.landing-ui-field-color-opacity-color {
+	width: 100%;
+	height: 100%;
+	border-radius: 2px;
+	box-shadow: inset 0 0 2px -1px #C6CDD3;
+}
+
+.landing-ui-field-color-opacity-picker {
+	position: absolute;
+	width: 8px;
+	top: -2px;
+	bottom: -2px;
+	border: 3px #ffffff solid;
+	border-radius: 4px;
+	box-shadow: 0 0 3px rgba(0, 0, 0, .3);
+	cursor: col-resize;
+}

@@ -192,45 +192,74 @@ export default class SyncInterfaceManager extends EventEmitter
 
 	refresh(event)
 	{
+		const activePopup = event.getTarget();
 		BX.ajax.runAction('calendar.api.calendarajax.updateConnection', {
 			data: {
 				type: 'user',
 			}
-		}).then(response => {
+		}).then((response) => {
 			this.syncInfo = response.data;
 			this.init();
-			this.calendarInstance.reload();
 
-			this.syncButton.refresh(this.status, this.connectionsProviders);
-
-			//popup refresh
-			if (event.getTarget().getId() === 'calendar-syncPanel-status')
-			{
-				event.getTarget().refresh(this.getConnections());
-			}
-
-			const openSliders = BX.SidePanel.Instance.getOpenSliders();
-			if (openSliders.length > 0)
-			{
-				const syncPanel = this.syncButton.getSyncPanel();
-				openSliders.forEach(slider => {
-					if (slider.getUrl() === 'calendar:sync-slider')
-					{
-						syncPanel.refresh(this.status, this.connectionsProviders);
-						slider.reload();
-					}
-					else
-					{
-						const itemInterface = slider.getData().get('itemInterface');
-						const connection = slider.getData().get('connection');
-						const updatedConnection = this.connectionsProviders[connection.getType()].getConnectionById(connection.getId());
-						event.getTarget().refresh([updatedConnection]);
-						itemInterface.setConnection(updatedConnection);
-						slider.reload();
-					}
-				});
-			}
+			this.refreshCalendarGrid();
+			this.refreshSyncButton();
+			this.refreshActivePopup(activePopup);
+			this.refreshOpenSliders(activePopup);
 		});
+	}
+
+	refreshCalendarGrid()
+	{
+		this.calendarInstance.reload();
+	}
+
+	refreshSyncButton()
+	{
+		this.syncButton.refresh(this.status, this.connectionsProviders);
+	}
+
+	refreshActivePopup(activePopup)
+	{
+		if (activePopup.getId() === 'calendar-syncPanel-status')
+		{
+			activePopup.refresh(this.getConnections());
+		}
+	}
+
+	refreshOpenSliders(activePopup)
+	{
+		const openSliders = BX.SidePanel.Instance.getOpenSliders();
+		if (openSliders.length > 0)
+		{
+			const syncPanel = this.syncButton.getSyncPanel();
+			openSliders.forEach(slider =>
+			{
+				if (slider.getUrl() === 'calendar:sync-slider')
+				{
+					this.refreshMainSlider(syncPanel, slider);
+				}
+				else
+				{
+					this.refreshConnectionSlider(slider, activePopup);
+				}
+			});
+		}
+	}
+
+	refreshConnectionSlider(slider, activePopup)
+	{
+		const itemInterface = slider.getData().get('itemInterface');
+		const connection = slider.getData().get('connection');
+		const updatedConnection = this.connectionsProviders[connection.getType()].getConnectionById(connection.getId());
+		activePopup.refresh([updatedConnection]);
+		itemInterface.setConnection(updatedConnection);
+		slider.reload();
+	}
+
+	refreshMainSlider(syncPanel, slider)
+	{
+		syncPanel.refresh(this.status, this.connectionsProviders);
+		slider.reload();
 	}
 
 	getConnections()

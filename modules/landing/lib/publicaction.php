@@ -172,7 +172,9 @@ class PublicAction
 		// check common permission
 		else if (
 			!Rights::hasAdditionalRight(
-				Rights::ADDITIONAL_RIGHTS['menu24']
+				Rights::ADDITIONAL_RIGHTS['menu24'],
+				null,
+				true
 			)
 		)
 		{

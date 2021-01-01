@@ -75,6 +75,7 @@
 			{
 				this.popup.close();
 			}
+			clearTimeout(this.searchTimeout);
 		},
 
 		createPopup: function()
@@ -118,8 +119,17 @@
 						}})
 				],
 				events: {
-					onPopupClose : function() { this.destroy() },
-					onPopupDestroy : function() { self.popup = null; self.elements.contactList = null; self.callbacks.onDestroy(); }
+					onPopupClose : function()
+					{
+						this.destroy()
+					},
+					onPopupDestroy : function()
+					{
+						self.popup = null;
+						self.elements.contactList = null;
+						clearTimeout(self.searchTimeout);
+						self.callbacks.onDestroy();
+					}
 				}
 			});
 			BX.addClass(this.popup.popupContainer, "bx-messenger-mark");
@@ -289,7 +299,10 @@
 		{
 			BX.cleanNode(this.elements.contactList);
 
-			this.elements.contactList.appendChild(this.renderContactList());
+			if (this.elements.contactList)
+			{
+				this.elements.contactList.appendChild(this.renderContactList());
+			}
 		},
 
 		showLoader: function()

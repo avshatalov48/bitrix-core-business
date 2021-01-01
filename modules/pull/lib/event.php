@@ -450,16 +450,7 @@ class Event
 
 	public static function onAfterEpilog()
 	{
-		if (
-			defined("BX_FORK_AGENTS_AND_EVENTS_FUNCTION")
-			&& \CMain::forkActions(array(__CLASS__, "sendInBackground"))
-		)
-		{
-			return true;
-		}
-
-		self::sendInBackground();
-
+		Main\Application::getInstance()->addBackgroundJob([__CLASS__, "sendInBackground"]);
 		return true;
 	}
 

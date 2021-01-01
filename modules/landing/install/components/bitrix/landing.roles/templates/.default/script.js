@@ -77,7 +77,7 @@ function deleteAccessRowExtended(link)
 									row.cells[3].classList.add('table-blue-td-action');
 
 									row.cells[0].innerHTML = BX.Access.GetProviderName(provider);
-									row.cells[1].innerHTML = obSelected[provider][id].name;
+									row.cells[1].textContent = obSelected[provider][id].name;
 									row.cells[2].innerHTML = '<input type="hidden" name="' + name + '[ACCESS_CODE][]" value="' + id + '">' +
 															select.replace('#inc#', inc++);
 									row.cells[3].innerHTML = '<span onclick="deleteAccessRow(this);" data-id="' + id + '" class="table-blue-delete table-blue-delete-landing-role bitrix24-metrika" data-metrika24="permission_delete"></span>';

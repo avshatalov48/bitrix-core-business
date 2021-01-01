@@ -24,13 +24,15 @@ final class GoogleApiSync
 	const CONNECTION_CHANNEL_TYPE = 'BX_CONNECTION';
 	const SECTION_CHANNEL_TYPE = 'BX_SECTION';
 	const SYNC_EVENTS_LIMIT = 50;
+	const SYNC_EVENTS_DATE_INTERVAL = '-4 months';
+	const DEFAULT_TIMEZONE = 'UTC';
 
 	/**
 	 * @var GoogleApiTransport
 	 */
 	private $syncTransport;
 	private $nextSyncToken = '',
-			$defaultTimezone = 'UTC',
+			$defaultTimezone = self::DEFAULT_TIMEZONE,
 			$userId = 0,
 			$calendarList = array(),
 			$defaultReminderData = array(),
@@ -318,11 +320,9 @@ final class GoogleApiSync
 		$this->setColors();
 		$this->nextSyncToken = $calendarData['SYNC_TOKEN'] ?? '';
 
-		$result = $this->runSyncEvents($calendarData['GAPI_CALENDAR_ID']);
-
-		if (!empty($result))
+		if (!empty($response = $this->runSyncEvents($calendarData['GAPI_CALENDAR_ID'])))
 		{
-			return $this->processResponseReceivingEvents($result);
+			return $this->processResponseReceivingEvents($response);
 		}
 
 		return [];
@@ -986,38 +986,14 @@ final class GoogleApiSync
 	}
 
 	/**
-	 * @param array $result
+	 * @param array $response
 	 * @return array
 	 */
-	private function processResponseReceivingEvents(array $result): array
+	private function processResponseReceivingEvents(array $response): array
 	{
-		if (!empty($result['defaultReminders']))
-		{
-			$this->defaultReminderData = $result['defaultReminders'];
-		}
+		$this->setSyncSettings($response);
 
-		if (!empty($result['timeZone']) && Util::isTimezoneValid($result['timeZone']))
-		{
-			$this->defaultTimezone = $result['timeZone'];
-		}
-
-		$eventsList = [];
-		if (!empty($result['items']) && is_array($result['items']))
-		{
-			foreach ($result['items'] as $item)
-			{
-				$eventData = $this->prepareEvent($item);
-				$eventsList[$eventData['G_EVENT_ID']] = $eventData;
-			}
-		}
-
-		$this->nextPageToken = !empty($result['nextPageToken']) ? $result['nextPageToken'] : '';
-		if (!empty($result['nextSyncToken']))
-		{
-			$this->nextSyncToken = $result['nextSyncToken'];
-		}
-
-		return $eventsList;
+		return $this->getEventsList($response['items']);
 	}
 
 	/**
@@ -1041,7 +1017,7 @@ final class GoogleApiSync
 			'pageToken' => $this->nextPageToken,
 			'showDeleted' => 'true',
 			'maxResults' => self::SYNC_EVENTS_LIMIT,
-			'timeMin' => (new Type\DateTime())->add('-4 months')->format(\DateTime::RFC3339),
+			'timeMin' => (new Type\DateTime())->add(self::SYNC_EVENTS_DATE_INTERVAL)->format(\DateTime::RFC3339),
 		];
 	}
 
@@ -1051,15 +1027,45 @@ final class GoogleApiSync
 	 */
 	private function runSyncEvents($gApiCalendarId)
 	{
-		$result = !empty($this->nextSyncToken)
+		$response = !empty($this->nextSyncToken)
 			? $this->syncTransport->getEvents($gApiCalendarId, $this->getRequestParamsWithSyncToken())
 			: $this->syncTransport->getEvents($gApiCalendarId, $this->getRequestParamsForFirstSync());
 
-		if (!$result && $this->hasExpiredSyncTokenError())
+		if (!$response && $this->hasExpiredSyncTokenError())
 		{
 			return $this->syncTransport->getEvents($gApiCalendarId, $this->getRequestParamsForFirstSync());
 		}
 
-		return $result;
+		return $response;
+	}
+
+	/**
+	 * @param iterable|null $items
+	 * @return array[]
+	 */
+	private function getEventsList(iterable $events = null): array
+	{
+		if (empty($events))
+			return [];
+
+		$eventsList = [];
+		foreach ($events as $event)
+		{
+			$preparedEvent = $this->prepareEvent($event);
+			$eventsList[$preparedEvent['G_EVENT_ID']] = $preparedEvent;
+		}
+
+		return $eventsList;
+	}
+
+	/**
+	 * @param array|null $result
+	 */
+	private function setSyncSettings(array $response = null): void
+	{
+		$this->nextPageToken = $response['nextPageToken'] ?? '';
+		$this->nextSyncToken = $response['nextSyncToken'] ?? '';
+		$this->defaultReminderData = $response['defaultReminders'] ?? $this->defaultReminderData;
+		$this->defaultTimezone = Util::isTimezoneValid($response['timeZone']) ? $response['timeZone'] : $this->defaultTimezone;
 	}
 }

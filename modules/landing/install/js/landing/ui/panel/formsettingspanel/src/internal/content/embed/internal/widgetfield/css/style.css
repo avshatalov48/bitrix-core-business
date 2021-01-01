@@ -1,0 +1,13 @@
+.landing-ui-filed-widget-wrapper {
+	display: flex;
+}
+
+.landing-ui-filed-widget-wrapper .landing-ui-field-input {
+	flex-grow: 1;
+	margin-right: 10px;
+}
+
+.landing-ui-filed-widget-wrapper .ui-btn:focus,
+.landing-ui-filed-widget-wrapper .ui-btn:active {
+	outline: none!important;
+}

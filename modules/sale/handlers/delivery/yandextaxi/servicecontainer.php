@@ -13,6 +13,8 @@ use Sale\Handlers\Delivery\YandexTaxi\Api\Transport\Client;
 use Sale\Handlers\Delivery\YandexTaxi\Api\Transport\OauthTokenProvider;
 use Sale\Handlers\Delivery\YandexTaxi\ClaimBuilder\ClaimBuilder;
 use Sale\Handlers\Delivery\YandexTaxi\Common\Logger;
+use Sale\Handlers\Delivery\YandexTaxi\Common\RegionCoordinatesMapper;
+use Sale\Handlers\Delivery\YandexTaxi\Common\RegionFinder;
 use Sale\Handlers\Delivery\YandexTaxi\Common\ShipmentDataExtractor;
 use Sale\Handlers\Delivery\YandexTaxi\Common\StatusMapper;
 use Sale\Handlers\Delivery\YandexTaxi\ContextDependent\IListenerRegisterer;
@@ -95,6 +97,12 @@ final class ServiceContainer
 
 	/** @var Crm\BindingsMaker */
 	private static $crmBindingsMaker;
+
+	/** @var RegionFinder */
+	private static $regionFinder;
+
+	/** @var RegionCoordinatesMapper */
+	private static $regionCoordinatesMapper;
 
 	/**
 	 * @return Logger
@@ -447,5 +455,31 @@ final class ServiceContainer
 		}
 
 		return static::$crmBindingsMaker;
+	}
+
+	/**
+	 * @return RegionFinder
+	 */
+	public static function getRegionFinder(): RegionFinder
+	{
+		if (is_null(static::$regionFinder))
+		{
+			static::$regionFinder = new RegionFinder();
+		}
+
+		return static::$regionFinder;
+	}
+
+	/**
+	 * @return RegionCoordinatesMapper
+	 */
+	public static function getRegionCoordinatesMapper(): RegionCoordinatesMapper
+	{
+		if (is_null(static::$regionCoordinatesMapper))
+		{
+			static::$regionCoordinatesMapper = new RegionCoordinatesMapper();
+		}
+
+		return static::$regionCoordinatesMapper;
 	}
 }

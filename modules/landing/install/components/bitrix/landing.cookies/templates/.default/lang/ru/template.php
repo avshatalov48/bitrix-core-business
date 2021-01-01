@@ -1,9 +1,11 @@
 <?php
 $MESS['LANDING_TPL_COOKIES_ACCEPT'] = 'Принять все';
+$MESS['LANDING_TPL_COOKIES_UNDERSTAND'] = 'Понятно';
 $MESS['LANDING_TPL_COOKIES_DECLINE'] = 'Отказаться от всех';
 $MESS['LANDING_TPL_COOKIES_ACCEPT_MODIFIED'] = 'Сохранить и принять';
 $MESS['LANDING_TPL_COOKIES_DECLINE_MODIFIED'] = 'Отменить';
 $MESS['LANDING_TPL_COOKIES_OPT'] = 'Настроить';
+$MESS['LANDING_TPL_COOKIES_DETAIL'] = 'Подробнее';
 $MESS['LANDING_TPL_COOKIES_HEADER'] = 'Cookie-файлы';
 $MESS['LANDING_TPL_COOKIES_ANALYTIC_AGREEMENTS'] = 'Аналитические Cookie-файлы';
 $MESS['LANDING_TPL_COOKIES_TECHNICAL_AGREEMENTS'] = 'Технические Cookie-файлы';

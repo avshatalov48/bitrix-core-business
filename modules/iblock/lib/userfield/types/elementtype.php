@@ -2,6 +2,7 @@
 
 namespace Bitrix\Iblock\UserField\Types;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UserField\Types\EnumType;
@@ -190,22 +191,76 @@ class ElementType extends EnumType
 			];
 		}
 
-		$elementEnum = new CIBlockElementEnum();
-		$elementEnumList = $elementEnum::getTreeList(
+		$elements = self::getElements(
 			(int)$userField['SETTINGS']['IBLOCK_ID'],
 			$userField['SETTINGS']['ACTIVE_FILTER']
 		);
 
-		if(!is_object($elementEnumList))
+		if(!is_array($elements))
 		{
 			return;
 		}
 
-		while($element = $elementEnumList->Fetch())
-		{
-			$result[$element['ID']] = $element['NAME'];
-		}
+		$result = array_replace($result, $elements);
 
 		$userField['USER_TYPE']['FIELDS'] = $result;
+	}
+
+	protected static function getElements($iblockId, $activeFilter = 'N')
+	{
+		$result = false;
+
+		if ($iblockId <= 0 || !Loader::includeModule('iblock'))
+		{
+			return $result;
+		}
+
+		$currentCache = \Bitrix\Main\Data\Cache::createInstance();
+
+		$cacheTtl = 86400;
+		$cacheId = md5('CIBlockElementEnum::getTreeList_'.$iblockId.'_'.$activeFilter);
+		$cacheDir = '/iblock/elementtype/'.$iblockId;
+
+		if ($currentCache->initCache($cacheTtl, $cacheId, $cacheDir))
+		{
+			$result = $currentCache->getVars();
+		}
+		else
+		{
+			$currentCache->startDataCache();
+
+			$taggedCache = Application::getInstance()->getTaggedCache();
+			$taggedCache->startTagCache($cacheDir);
+
+			$filter = ['IBLOCK_ID' => $iblockId];
+			if ($activeFilter === 'Y')
+			{
+				$filter['ACTIVE'] = 'Y';
+			}
+
+			$result = [];
+			$elements = \Bitrix\Iblock\ElementTable::getList([
+				'select' => ['ID', 'NAME'],
+				'filter' => $filter,
+				'order' => ['NAME' => 'ASC', 'ID' => 'ASC']
+			]);
+
+			while ($element = $elements->fetch())
+			{
+				$result[$element['ID']] = $element['NAME'];
+			}
+
+			$taggedCache->registerTag('iblock_id_'.$iblockId);
+			$taggedCache->endTagCache();
+
+			if (empty($result))
+			{
+				$result = false;
+			}
+
+			$currentCache->endDataCache($result);
+		}
+
+		return $result;
 	}
 }

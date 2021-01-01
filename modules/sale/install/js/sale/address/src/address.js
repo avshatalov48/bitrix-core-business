@@ -1,7 +1,8 @@
 import {Vue} from 'ui.vue';
 import {ControlMode, AddressStringConverter} from 'location.core';
-import {Factory, State} from 'location.widget';
+import {AutocompleteFeature, Factory, State} from 'location.widget';
 import {ClosableDirective} from './closabledirective';
+
 import './css/address.css';
 
 export const AddressControlConstructor = Vue.extend({
@@ -17,7 +18,7 @@ export const AddressControlConstructor = Vue.extend({
 	{
 		return {
 			id: null,
-			isEditMode: null,
+			isLoading: false,
 			value: null,
 			addressWidget: null,
 		}
@@ -84,8 +85,6 @@ export const AddressControlConstructor = Vue.extend({
 			{
 				map.closeMap();
 			}
-
-			this.isEditMode = false;
 		},
 		onInputControlClicked()
 		{
@@ -154,8 +153,6 @@ export const AddressControlConstructor = Vue.extend({
 		this.addressWidget.subscribeOnAddressChangedEvent((event) => {
 			let data = event.getData();
 
-			this.isEditMode = true;
-
 			let address = data.address;
 
 			if (!address.latitude || !address.longitude)
@@ -177,6 +174,23 @@ export const AddressControlConstructor = Vue.extend({
 			{
 				this.changeValue(null);
 				this.closeMap();
+			}
+			else if (data.state === State.DATA_LOADING)
+			{
+				this.isLoading = true;
+			}
+			else if (data.state === State.DATA_LOADED)
+			{
+				this.isLoading = false;
+			}
+		});
+
+		this.addressWidget.subscribeOnFeatureEvent((event) => {
+			let data = event.getData();
+
+			if (data.feature instanceof AutocompleteFeature)
+			{
+				this.isLoading = (data.eventCode === AutocompleteFeature.searchStartedEvent);
 			}
 		});
 
@@ -200,8 +214,13 @@ export const AddressControlConstructor = Vue.extend({
 		>
 			<div :class="wrapperClass" ref="control-wrapper">
 				<div
+					v-show="!isLoading"
 					@click="startOver"
 					class="ui-ctl-after ui-ctl-icon-btn ui-ctl-icon-clear"
+				></div>
+				<div
+					v-show="isLoading"
+					class="ui-ctl-after ui-ctl-icon-loader"
 				></div>
 				<input
 					@click="onInputControlClicked"

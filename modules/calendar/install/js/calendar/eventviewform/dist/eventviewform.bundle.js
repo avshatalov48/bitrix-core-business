@@ -97,6 +97,10 @@ this.BX = this.BX || {};
 
 	      return new Promise(function (resolve) {
 	        _this.BX.ajax.runAction('calendar.api.calendarajax.getViewEventSlider', {
+	          analyticsLabel: {
+	            calendarAction: 'view_event',
+	            formType: 'full'
+	          },
 	          data: {
 	            entryId: _this.entryId,
 	            dateFrom: calendar_util.Util.formatDate(_this.entryDateFrom),
@@ -370,17 +374,28 @@ this.BX = this.BX || {};
 	              src: user.AVATAR
 	            }
 	          }));
-	          userWrap.appendChild(this.BX.create("DIV", {
-	            props: {
-	              className: 'calendar-slider-sidebar-user-info'
-	            }
-	          })).appendChild(this.BX.create("A", {
-	            props: {
-	              href: user.URL ? user.URL : '#',
-	              className: 'calendar-slider-sidebar-user-info-name'
-	            },
-	            text: user.DISPLAY_NAME
-	          }));
+
+	          if (user.EMAIL_USER) {
+	            userWrap.appendChild(this.BX.create("DIV", {
+	              props: {
+	                className: 'calendar-slider-sidebar-user-info'
+	              }
+	            })).appendChild(this.BX.create("span", {
+	              text: user.DISPLAY_NAME
+	            }));
+	          } else {
+	            userWrap.appendChild(this.BX.create("DIV", {
+	              props: {
+	                className: 'calendar-slider-sidebar-user-info'
+	              }
+	            })).appendChild(this.BX.create("A", {
+	              props: {
+	                href: user.URL ? user.URL : '#',
+	                className: 'calendar-slider-sidebar-user-info-name'
+	              },
+	              text: user.DISPLAY_NAME
+	            }));
+	          }
 	        }, this);
 	        this.userListPopup = this.BX.PopupWindowManager.create("user-list-popup-" + Math.random(), node, {
 	          autoHide: true,

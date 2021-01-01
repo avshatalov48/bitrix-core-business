@@ -9,9 +9,21 @@
 	position: absolute;
 	left: 0;
 	top: 5px;
-	transform: translate3d(-100%, 14px, 0);
-	max-width: 37px;
+	transform: translate(-100%, 14px);
+	max-width: 42px; /* sync this value (+margin) with minLabelWidth in dialog.js */
 	transition: max-width 300ms ease;
+}
+
+/* Chrome sub-pixel bug */
+.ui-selector-tab-labels--active.ui-selector-tab-labels:before,
+.ui-selector-tab-labels--animate-show.ui-selector-tab-labels:before,
+.ui-selector-tab-labels--animate-hide.ui-selector-tab-labels:before {
+    content: '';
+    position: absolute;
+    width: 1px;
+    height: 100%;
+    background: #fff;
+    right: -1px;
 }
 
 .ui-selector-tab-labels--animate-show {
@@ -23,10 +35,11 @@
 }
 
 .ui-selector-tab-label {
-	background-color: #d9dcdf;
+	background-color: #e4ebed;
 	border-radius: 20px 0 0 20px;
+    box-shadow: 0 1px 1px rgba(82, 92, 105, 0.09);
 	height: 39px;
-	margin-bottom: 4px;
+	margin-bottom: 5px;
 	cursor: pointer;
 	display: flex;
 	align-items: center;
@@ -34,7 +47,7 @@
 }
 
 .ui-selector-tab-label-hover {
-	background-color: #e2e5e8;
+	background-color: #f2f6f7;
 }
 
 .ui-selector-tab-label-active {
@@ -42,7 +55,7 @@
 }
 
 .ui-selector-tab-label-active.ui-selector-tab-label-hover {
-	background-color: #42d0fd;
+	background-color: #4bd4ff;
 }
 
 .ui-selector-tab-label-hidden {
@@ -50,9 +63,9 @@
 }
 
 .ui-selector-tab-icon {
-	width: 20px;
-	min-width: 20px;
-	height: 20px;
+	width: 23px;
+	min-width: 23px;
+	height: 23px;
 	background-image: url(images/tab-icon.svg);
 	background-repeat: no-repeat;
 	background-position: center;

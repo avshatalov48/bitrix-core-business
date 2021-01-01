@@ -596,4 +596,24 @@ export class Util
 	{
 		return Util.eventWithEmailGuestLimit;
 	}
+
+	static setCurrentView(calendarView = null)
+	{
+		Util.currentCalendarView = calendarView;
+	}
+	static getCurrentView()
+	{
+		return Util.currentCalendarView || null;
+	}
+
+	static adjustDateForTimezoneOffset(date, timezoneOffset = 0, fullDay = false)
+	{
+		if (!Type.isDate(date))
+			throw new Error('Wrong type for date attribute. DateTime object expected.')
+
+		if (!parseInt(timezoneOffset) || fullDay === true)
+			return date;
+
+		return new Date(date.getTime() - parseInt(timezoneOffset)  * 1000);
+	}
 }

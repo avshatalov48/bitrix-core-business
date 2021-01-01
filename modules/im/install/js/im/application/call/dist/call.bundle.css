@@ -7,6 +7,16 @@
 	background-color: #000;
 }
 
+.bx-im-application-mobile-state .bx-im-application-call {
+	margin: 0;
+	overflow: hidden;
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	width: 100%;
+	height: 100%;
+}
+
 .bx-im-application-call-error-message {
 	width: 100%;
 	height: 100%;

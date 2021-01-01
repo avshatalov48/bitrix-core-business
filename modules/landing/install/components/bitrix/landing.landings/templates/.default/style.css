@@ -48,3 +48,11 @@
 .landing-site-selector-item-lower {
 	padding-left: 30px;
 }
+
+.landing-tile-pages {
+	padding: 0 20px;
+}
+
+.landing-tile-pages.bx-layout-inner-inner-table {
+	padding: 0;
+}

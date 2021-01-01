@@ -45,6 +45,11 @@ class File extends Base
 			'separator' => ', ',
 		];
 
+		$formats['name'] = [
+			'callable'  => 'formatValueName',
+			'separator' => ', ',
+		];
+
 		return $formats;
 	}
 
@@ -103,6 +108,22 @@ class File extends Base
 		if ($file && $file['SRC'])
 		{
 			return $file['SRC'];
+		}
+		return '';
+	}
+
+	/**
+	 * @param FieldType $fieldType
+	 * @param $value
+	 * @return string
+	 */
+	protected static function formatValueName(FieldType $fieldType, $value)
+	{
+		$value = (int) $value;
+		$file = \CFile::getFileArray($value);
+		if ($file && ($file['ORIGINAL_NAME'] || $file['FILE_NAME']))
+		{
+			return $file['ORIGINAL_NAME'] ?: $file['FILE_NAME'];
 		}
 		return '';
 	}

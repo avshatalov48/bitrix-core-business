@@ -28,6 +28,7 @@
 		this.instanceId = params.instanceId;
 		this.parentId = params.parentId || null;
 		this.direction = params.direction;
+		this.type = BX.prop.getInteger(params, "type", BX.Call.Type.Instant); // @see {BX.Call.Type}
 
 		this.ready = false;
 		this.userId = BX.Call.Engine.getInstance().getCurrentUserId();
@@ -36,6 +37,7 @@
 		this.users = BX.type.isArray(params.users) ? params.users.filter(function(userId){return userId != self.userId}) : [];
 
 		this.associatedEntity = BX.type.isPlainObject(params.associatedEntity) ? params.associatedEntity : {};
+		this.startDate = new Date(BX.prop.getString(params, "startDate", ""));
 
 		// media constraints
 		this.videoEnabled = params.videoEnabled === true;
@@ -117,9 +119,11 @@
 
 	BX.Call.AbstractCall.prototype.runCallback = function(eventName, eventFields)
 	{
+		//console.log(eventName, eventFields);
 		if(BX.type.isArray(this.eventListeners[eventName]) && this.eventListeners[eventName].length > 0)
 		{
-			if(!BX.type.isPlainObject(eventFields))
+
+			if(eventName === null || typeof (eventFields) !== "object")
 			{
 				eventFields = {};
 			}

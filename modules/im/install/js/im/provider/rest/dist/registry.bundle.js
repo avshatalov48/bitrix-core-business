@@ -289,6 +289,16 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	      });
 	    }
 	  }, {
+	    key: "handleImCallGetCallLimitsSuccess",
+	    value: function handleImCallGetCallLimitsSuccess(data) {
+	      this.store.commit('application/set', {
+	        call: {
+	          serverEnabled: data.callServerEnabled,
+	          maxParticipants: data.maxParticipants
+	        }
+	      });
+	    }
+	  }, {
 	    key: "handleImChatGetError",
 	    value: function handleImChatGetError(error) {
 	      if (error.ex.error === 'ACCESS_ERROR') {

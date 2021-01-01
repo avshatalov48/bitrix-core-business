@@ -13,7 +13,8 @@ class Hook
 		'gacounter' => 'limit_sites_google_analytics',
 		'yacounter' => 'limit_sites_google_analytics',
 		'copyright' => 'limit_sites_powered_by',
-		'headblock' => 'limit_sites_html_js'
+		'headblock' => 'limit_sites_html_js',
+		'theme' => 'limit_sites_change_color_palette',
 	];
 
 	/**

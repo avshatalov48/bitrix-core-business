@@ -259,7 +259,9 @@ class SiteTable extends Entity\DataManager
 		}
 
 		// build filter
-		$buildFilter = Rights::getAccessFilter();
+		$buildFilter = Rights::getAccessFilter(
+			['ID' => Rights::getAllowedSites()]
+		);
 		if (empty($buildFilter))
 		{
 			return $params;
@@ -410,6 +412,16 @@ class SiteTable extends Entity\DataManager
 		$deleteMode = false;
 
 		self::$touchMode = isset($fields['TOUCH']) && $fields['TOUCH'] == 'Y';
+
+		if ($actionType == self::ACTION_TYPE_ADD)
+		{
+			//@tmp log
+			\Bitrix\Landing\Debug::log(
+				$fields['TITLE'] ?? 'Noname',
+				print_r([$fields, \Bitrix\Main\Diag\Helper::getBackTrace(15)],  true),
+				'LANDING_SITE_CREATE'
+			);
+		}
 
 		if (
 			isset($fields['DOMAIN_ID']) &&
@@ -630,25 +642,37 @@ class SiteTable extends Entity\DataManager
 			{
 				$fields['TYPE'] = null;
 			}
-			$canPublicSite = Manager::checkFeature(
-				Manager::FEATURE_PUBLICATION_SITE,
-				$primary
-				? array(
-					'filter' => array(
-						'!ID' => $primary['ID']
-					),
-					'type' => $fields['TYPE']
-				)
-				: array(
-					'type' => $fields['TYPE']
-				)
+			$special = self::getValueByCode(
+				$primary['ID'],
+				$fields,
+				'SPECIAL'
 			);
+			if ($special == 'Y')
+			{
+				$canPublicSite = true;
+			}
+			else
+			{
+				$canPublicSite = Manager::checkFeature(
+					Manager::FEATURE_PUBLICATION_SITE,
+					$primary
+					? array(
+						'filter' => array(
+							'!ID' => $primary['ID']
+						),
+						'type' => $fields['TYPE']
+					)
+					: array(
+						'type' => $fields['TYPE']
+					)
+				);
+			}
 			if (!$canPublicSite)
 			{
 				$result->unsetFields($unsetFields);
 				$result->setErrors(array(
 					new Entity\EntityError(
-						Restriction\Manager::getSystemErrorMessage('limit_sites_number').'@',
+						Restriction\Manager::getSystemErrorMessage('limit_sites_number'),
 						'PUBLIC_SITE_REACHED'
 					)
 				));

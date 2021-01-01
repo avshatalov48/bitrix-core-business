@@ -1,0 +1,16 @@
+.landing-ui-field-stages {
+	display: flex;
+	justify-content: space-between;
+}
+
+.landing-ui-field-stages .landing-ui-field {
+	min-width: 48%;
+	max-width: 48%;
+}
+
+.landing-ui-field-stages .landing-ui-field-input {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	padding-right: 25px;
+}

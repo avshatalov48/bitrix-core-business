@@ -1,0 +1,23 @@
+.landing-ui-signin {
+	margin-left: 6px;
+}
+
+.landing-ui-sign {
+	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color: #A8ADB4;
+}
+
+.landing-ui-sign-in {
+	font-family: HelveticaNeue-Bold, Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color: #1EC6FA;
+	margin-left: -3px;
+}
+
+.landing-ui-sign-24 {
+	font-family: HelveticaNeue-Bold, Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color: #0769A5;
+	margin-left: -4px;
+}

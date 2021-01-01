@@ -173,12 +173,25 @@
 	position: absolute;
 	left: 0;
 	top: 5px;
-	-webkit-transform: translate3d(-100%, 14px, 0);
-	        transform: translate3d(-100%, 14px, 0);
-	max-width: 37px;
+	-webkit-transform: translate(-100%, 14px);
+	    -ms-transform: translate(-100%, 14px);
+	        transform: translate(-100%, 14px);
+	max-width: 42px; /* sync this value (+margin) with minLabelWidth in dialog.js */
 	-webkit-transition: max-width 300ms ease;
 	-o-transition: max-width 300ms ease;
 	transition: max-width 300ms ease;
+}
+
+/* Chrome sub-pixel bug */
+.ui-selector-tab-labels--active.ui-selector-tab-labels:before,
+.ui-selector-tab-labels--animate-show.ui-selector-tab-labels:before,
+.ui-selector-tab-labels--animate-hide.ui-selector-tab-labels:before {
+    content: '';
+    position: absolute;
+    width: 1px;
+    height: 100%;
+    background: #fff;
+    right: -1px;
 }
 
 .ui-selector-tab-labels--animate-show {
@@ -194,10 +207,12 @@
 }
 
 .ui-selector-tab-label {
-	background-color: #d9dcdf;
+	background-color: #e4ebed;
 	border-radius: 20px 0 0 20px;
+    -webkit-box-shadow: 0 1px 1px rgba(82, 92, 105, 0.09);
+            box-shadow: 0 1px 1px rgba(82, 92, 105, 0.09);
 	height: 39px;
-	margin-bottom: 4px;
+	margin-bottom: 5px;
 	cursor: pointer;
 	display: -webkit-box;
 	display: -ms-flexbox;
@@ -211,7 +226,7 @@
 }
 
 .ui-selector-tab-label-hover {
-	background-color: #e2e5e8;
+	background-color: #f2f6f7;
 }
 
 .ui-selector-tab-label-active {
@@ -219,7 +234,7 @@
 }
 
 .ui-selector-tab-label-active.ui-selector-tab-label-hover {
-	background-color: #42d0fd;
+	background-color: #4bd4ff;
 }
 
 .ui-selector-tab-label-hidden {
@@ -227,10 +242,10 @@
 }
 
 .ui-selector-tab-icon {
-	width: 20px;
-	min-width: 20px;
-	height: 20px;
-	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='17' height='16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M9.48 1.062a.3.3 0 00-.513.212v4.455H1.25a.3.3 0 00-.3.3v4.879a.3.3 0 00.3.3h7.717v4.455a.3.3 0 00.512.212l7.195-7.194a.3.3 0 000-.425L9.479 1.062z' fill='%23ACB2B8'/%3E%3C/svg%3E");
+	width: 23px;
+	min-width: 23px;
+	height: 23px;
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='23' height='23' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.479 4.062a.3.3 0 00-.512.212v4.455H4.249a.3.3 0 00-.3.3v4.879a.3.3 0 00.3.3h7.718v4.455a.3.3 0 00.512.212l7.195-7.194a.3.3 0 000-.425l-7.195-7.194z' fill='%23ABB1B8'/%3E%3C/svg%3E");
 	background-repeat: no-repeat;
 	background-position: center;
 	margin-left: 10px;
@@ -238,7 +253,7 @@
 }
 
 .ui-selector-tab-label-active .ui-selector-tab-icon {
-	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='17' height='16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M9.48 1.062a.3.3 0 00-.513.212v4.455H1.25a.3.3 0 00-.3.3v4.879a.3.3 0 00.3.3h7.717v4.455a.3.3 0 00.512.212l7.195-7.194a.3.3 0 000-.425L9.479 1.062z' fill='%23fff'/%3E%3C/svg%3E");
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='23' height='23' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.479 4.062a.3.3 0 00-.512.212v4.455H4.249a.3.3 0 00-.3.3v4.879a.3.3 0 00.3.3h7.718v4.455a.3.3 0 00.512.212l7.195-7.194a.3.3 0 000-.425l-7.195-7.194z' fill='%23FFF'/%3E%3C/svg%3E");
 }
 
 .ui-selector-tab-title {
@@ -850,7 +865,7 @@
 }
 
 .ui-selector-item-box-selected > .ui-selector-item > .ui-selector-item-indicator {
-	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='15' height='11' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5.153 10.817L.193 5.983 1.93 4.292l3.223 3.141L12.447.325l1.735 1.692z' fill='%2312B1E3' fill-rule='evenodd'/%3E%3C/svg%3E");
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='15' height='12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M5.14 11.461L.012 6.464l1.795-1.749L5.14 7.963 12.68.613l1.795 1.75L5.14 11.46z' fill='%230DB1E6'/%3E%3C/svg%3E");
 }
 
 .ui-selector-highlight-mark {

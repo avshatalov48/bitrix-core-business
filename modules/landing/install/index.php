@@ -27,9 +27,6 @@ class Landing extends \CModule
 
 	public $docRoot = '';
 	public $eventsData = [
-		'bitrix24' => [
-			'onDomainChange' => ['\Bitrix\Landing\Update\Block\NodeAttributes', 'updateFormDomain']
-		],
 		'intranet' => [
 			'onBuildBindingMenu' => ['\Bitrix\Landing\Connector\Intranet', 'onBuildBindingMenu']
 		],
@@ -61,9 +58,6 @@ class Landing extends \CModule
 			'onFillSocNetMenu' => ['\Bitrix\Landing\Connector\SocialNetwork', 'onFillSocNetMenu'],
 			'onSocNetGroupDelete' => ['\Bitrix\Landing\Connector\SocialNetwork', 'onSocNetGroupDelete']
 		],
-		'socialservices' => [
-			'\Bitrix\Socialservices\ApTable::OnAfterAdd' => ['\Bitrix\Landing\Update\Block\NodeAttributes', 'updateFormDomainByConnector']
-		]
 	];
 	public $installDirs = array(
 		'admin' => 'admin',

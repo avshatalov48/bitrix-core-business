@@ -66,6 +66,7 @@
 	}
 	Manager.prototype = {
 		attributeName: 'data-hint',
+		attributeHtmlName: 'data-hint-html',
 		attributeInitName: 'data-hint-init',
 		className: 'ui-hint',
 		classNameIcon: 'ui-hint-icon',
@@ -144,6 +145,11 @@
 				return;
 			}
 
+			if (!node.hasAttribute(this.attributeHtmlName))
+			{
+				text = BX.util.htmlspecialchars(text);
+			}
+
 			if (!node.hasAttribute('data-hint-no-icon'))
 			{
 				BX.addClass(node, this.className);
@@ -162,9 +168,9 @@
 		 * Show hint window. Automatically calls on `mouseenter` event.
 		 *
 		 * @param {Element} anchorNode - Anchor node for popup with text.
-		 * @param {string } text - Text of hint.
+		 * @param {string } html - Html of hint.
 		 */
-		show: function (anchorNode, text)
+		show: function (anchorNode, html)
 		{
 			if (!this.content)
 			{
@@ -205,7 +211,7 @@
 				this.popup = new BX.PopupWindow('ui-hint-popup', anchorNode, parameters);
 			}
 
-			this.content.innerHTML = text;
+			this.content.innerHTML = html;
 			this.popup.setBindElement(anchorNode);
 			this.popup.show();
 		},

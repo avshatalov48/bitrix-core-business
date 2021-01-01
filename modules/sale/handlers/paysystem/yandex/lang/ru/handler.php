@@ -1,6 +1,6 @@
 <?php
 $MESS["SALE_HPS_YANDEX_Smart"] = "Умный платеж";
-$MESS["SALE_HPS_YANDEX_YMoney"] = "Яндекс.Деньги";
+$MESS["SALE_HPS_YANDEX_YMoney"] = "ЮMoney";
 $MESS["SALE_HPS_YANDEX_Cards"] = "Банковские карты";
 $MESS["SALE_HPS_YANDEX_Terminals"] = "Терминалы";
 $MESS["SALE_HPS_YANDEX_Mobile"] = "Мобильные платежи";

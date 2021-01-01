@@ -21,9 +21,10 @@ this.BX.Landing = this.BX.Landing || {};
 	    value: function value(event) {
 	      event.preventDefault();
 	      var href = main_core.Dom.attr(event.currentTarget, 'href');
+	      var landingId = main_core.Dom.attr(event.currentTarget, 'data-landingId');
 
 	      if (main_core.Type.isString(href) && href !== '') {
-	        TopPanel.openSlider(href);
+	        TopPanel.openSlider(href, landingId);
 	      }
 	    }
 	  }, {
@@ -62,14 +63,14 @@ this.BX.Landing = this.BX.Landing || {};
 	    }
 	  }, {
 	    key: "openSlider",
-	    value: function openSlider(url) {
+	    value: function openSlider(url, landingId) {
 	      BX.SidePanel.Instance.open(url, {
 	        cacheable: false,
 	        customLeftBoundary: 240,
 	        allowChangeHistory: false,
 	        events: {
 	          onClose: function onClose() {
-	            void landing_sliderhacks.SliderHacks.reloadSlider(window.location.toString());
+	            void landing_sliderhacks.SliderHacks.reloadSlider(window.location.toString().split('#')[0] + '#landingId' + landingId);
 	          }
 	        }
 	      });

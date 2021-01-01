@@ -60,7 +60,7 @@
 
 			this.getField().setValue(this.getValue());
 		},
-		
+
 		isMenuMode: function()
 		{
 			return this.manifest.menuMode === true;
@@ -243,10 +243,7 @@
 					content: value,
 					options: {
 						siteId: BX.Landing.Main.getInstance().options.site_id,
-						landingId: BX.Landing.Main.getInstance().id,
-						filter: {
-							'=TYPE': BX.Landing.Main.getInstance().options.params.type
-						}
+						landingId: BX.Landing.Main.getInstance().id
 					},
 					allowedTypes: allowedTypes
 				});

@@ -629,94 +629,30 @@ final class NodeAttributes extends Stepper
 	
 	/**
 	 * Update form domain, when updated b24 connector
-	 * F.e., when user remove and new portal
-	 * Other method, because different params
-	 *
 	 * @param Event $event
+	 * @deprecated
 	 */
 	public static function updateFormDomainByConnector($event)
 	{
-		self::updateFormDomain();
+		trigger_error(
+			"Now using embedded forms, no need domain. You must remove updateFormDomainByConnector() call",
+			E_USER_WARNING
+		);
 	}
 	
 	/**
 	 * Set data for NodeUpdater to updating form domain
 	 *
 	 * @param array $domains
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
+	 * @deprecated
 	 */
 	public static function updateFormDomain($domains = array())
 	{
-//		method may call from event or manual
-		if (is_array($domains) && $domains['new_domain'])
-		{
-			$newDomain = $domains['new_domain'];
-		}
-		else
-		{
-			$newDomain = Form::getOriginalFormDomain();
-		}
-
-//		something wrong
-		if (!$newDomain)
-		{
-			return;
-		}
-
-//		find all CRM FORM blocks
-		$toUpdater = array(
-			'PARAMS' => array(
-				'UPDATE_PUBLISHED_SITES' => 'Y',
-				'BLOCKS' => array(),
-			),
+		trigger_error(
+			"Now using embedded forms, no need domain. You must remove updateFormDomain() call",
+			E_USER_WARNING
 		);
-
-//		collect form blocks by content
-		$resBlock = BlockTable::getList(array(
-			'filter' => array(
-				'DELETED' => 'N',
-				'%=CONTENT' => '%data-b24form-original-domain%',
-			),
-			'select' => array('ID', 'CODE'),
-		));
-		foreach ($resBlock as $block)
-		{
-			$toUpdater['BLOCKS'][$block['CODE']] = array(
-				'NODES' => array(
-					'.bitrix24forms ' => array(
-						'ATTRS_ADD' => array('data-b24form-original-domain' => $newDomain),
-					),
-				),
-			);
-		}
-
-//		register UPDATER
-		$updaterUniqueId = time();
-		while (true)
-		{
-			if (\Bitrix\Main\Config\Option::get('landing', self::OPTION_NAME . $updaterUniqueId) == '')
-			{
-				break;
-			}
-			$updaterUniqueId++;
-		}
-		\Bitrix\Main\Config\Option::set('landing', self::OPTION_NAME . $updaterUniqueId, serialize($toUpdater));
-		\Bitrix\Main\Update\Stepper::bindClass('\Bitrix\Landing\Update\Block\NodeAttributes', 'landing', 10);
 	}
-	
-	/**
-	 * Do nothing for fix bug.
-	 * @return string
-	 */
-//	dbg: try to fix. May del this
-//	public static function execAgent()
-//	{
-//		return '';
-//	}
 
 	/**
 	 * Code for updater.php see in landing/dev/updater/nodeattributesupdaters.pph

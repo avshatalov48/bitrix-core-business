@@ -41,6 +41,11 @@ export class ApplicationModel extends VuexBuilderModel
 				enabled: false,
 				maxFileSize: 5242880,
 			},
+			call:
+			{
+				serverEnabled: false,
+				maxParticipants: 24,
+			},
 			mobile:
 			{
 				keyboardShow: false,
@@ -244,6 +249,21 @@ export class ApplicationModel extends VuexBuilderModel
 			if (typeof fields.disk.maxFileSize === 'number')
 			{
 				result.disk.maxFileSize = fields.disk.maxFileSize;
+			}
+		}
+
+		if (typeof fields.call === 'object' && fields.call)
+		{
+			result.call = {};
+
+			if (typeof fields.call.serverEnabled === 'boolean')
+			{
+				result.call.serverEnabled = fields.call.serverEnabled;
+			}
+
+			if (typeof fields.call.maxParticipants === 'number')
+			{
+				result.call.maxParticipants = fields.call.maxParticipants;
 			}
 		}
 

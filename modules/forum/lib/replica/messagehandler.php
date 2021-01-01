@@ -486,7 +486,7 @@ if (Loader::includeModule('replica'))
 		 * @param string $string
 		 * @return string
 		 */
-		private function clearUserBbCodes(string $string): string
+		private function clearUserBbCodes($string)
 		{
 			// (\\/|\\\\\\/)
 			// \\/ if for usual messages with bb-code [USER=*]name[/USER]

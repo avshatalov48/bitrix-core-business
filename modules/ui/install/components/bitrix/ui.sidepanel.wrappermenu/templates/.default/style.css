@@ -1,12 +1,13 @@
 .ui-sidepanel-sidebar {
-    margin: 21px 0 0 -21px;
-    height: 100%;
+    margin: 21px 0;
+    /*height: 100%;*/
     width: 100%;
     box-sizing: border-box;
 }
 
 .ui-sidepanel-head {
-    margin: 0 0 0 27px;
+    margin: 0;
+	padding-left: 6px;
 	height: 50px;
 }
 
@@ -25,7 +26,7 @@
 .ui-sidepanel-submenu {
     display: block;
     padding: 0;
-    margin: 0;
+    margin: 0 0 0 -21px;
     list-style: none;
 }
 

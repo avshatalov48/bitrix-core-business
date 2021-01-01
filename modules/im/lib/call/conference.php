@@ -2,11 +2,549 @@
 
 namespace Bitrix\Im\Call;
 
+use Bitrix\Im\Alias;
+use Bitrix\Im\Chat;
+use Bitrix\Im\ChatTable;
+use Bitrix\Im\Common;
+use Bitrix\Im\Model\AliasTable;
+use Bitrix\Im\RelationTable;
+use Bitrix\Main\DB\ArrayResult;
+use Bitrix\Main\Entity;
+use Bitrix\Main\Error;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Fields\Relations\OneToMany;
+use Bitrix\Main\Result;
+use Bitrix\Main\Type\DateTime;
+use Bitrix\Im\Model\ConferenceTable;
+use CBitrix24;
+use CIMChat;
+use CUser;
+
 class Conference
 {
 	/* codes sync with im/install/js/im/const/src/call.js:25 */
-	const ERROR_USER_LIMIT_REACHED = "userLimitReached";
-	const ERROR_BITRIX24_ONLY = "bitrix24only";
-	const ERROR_DETECT_INTRANET_USER = "detectIntranetUser";
-	const ERROR_KICKED_FROM_CALL = "kickedFromCall";
+	public const ERROR_USER_LIMIT_REACHED = "userLimitReached";
+	public const ERROR_BITRIX24_ONLY = "bitrix24only";
+	public const ERROR_DETECT_INTRANET_USER = "detectIntranetUser";
+	public const ERROR_KICKED_FROM_CALL = "kickedFromCall";
+	public const ERROR_WRONG_ALIAS = "wrongAlias";
+
+	public const STATE_NOT_STARTED = "notStarted";
+	public const STATE_ACTIVE = "active";
+	public const STATE_FINISHED = "finished";
+
+	public const ALIAS_TYPE = 'VIDEOCONF';
+
+	protected $id;
+	protected $alias;
+	protected $aliasId;
+	protected $chatId;
+	protected $password;
+	protected $invitation;
+	protected $startDate;
+	protected $chatName;
+	protected $hostName;
+	protected $hostId;
+	protected $users;
+
+	protected function __construct()
+	{
+	}
+
+	public function getId()
+	{
+		return $this->id;
+	}
+
+	public function getAliasId()
+	{
+		return $this->aliasId;
+	}
+
+	public function getAlias()
+	{
+		return $this->alias;
+	}
+
+	public function getStartDate()
+	{
+		return $this->startDate;
+	}
+
+	public function getChatId()
+	{
+		return $this->chatId;
+	}
+
+	public function getChatName()
+	{
+		return $this->chatName;
+	}
+
+	public function getHostName()
+	{
+		return $this->hostName;
+	}
+
+	public function getHostId()
+	{
+		return $this->hostId;
+	}
+
+	public function isPasswordRequired(): bool
+	{
+		return $this->password !== '';
+	}
+
+	public function getPassword()
+	{
+		return $this->password;
+	}
+
+	public function getInvitation()
+	{
+		return $this->invitation;
+	}
+
+	public function getUsers(): array
+	{
+		$users = Chat::getUsers($this->getChatId(), ['SKIP_EXTERNAL' => true]);
+
+		return array_map(static function($user){
+			return [
+				'id' => $user['id'],
+				'title' => $user['name'],
+				'avatar' => $user['avatar']
+			];
+		}, $users);
+	}
+
+	public function isActive(): bool
+	{
+		//TODO
+		return true;
+	}
+
+	public function isFinished(): bool
+	{
+		return $this->getStatus() === static::STATE_FINISHED;
+	}
+
+	public function getStatus(): string
+	{
+		//todo
+		if (!($this->startDate instanceof DateTime))
+		{
+			return self::STATE_FINISHED;
+		}
+
+		$now = time();
+		$startTimestamp = $this->startDate->getTimestamp();
+
+		//TODO: active and finished
+		if ($startTimestamp > $now)
+		{
+			return self::STATE_NOT_STARTED;
+		}
+
+		return self::STATE_FINISHED;
+	}
+
+	public function getPublicLink(): string
+	{
+		return Common::getPublicDomain().'/video/'.$this->alias;
+	}
+
+	public function canUserEdit($userId): bool
+	{
+		if (Loader::includeModule('bitrix24'))
+		{
+			$isAdmin = CBitrix24::IsPortalAdmin($userId);
+		}
+		else
+		{
+			$user = new CUser();
+			$arGroups = $user::GetUserGroup($userId);
+			$isAdmin = in_array(1, $arGroups, true);
+		}
+
+//		return ($this->getStatus() !== static::STATE_FINISHED) &&
+		return ($isAdmin || $this->getHostId() === $userId);
+	}
+
+	public function canUserDelete($userId): bool
+	{
+		if (Loader::includeModule('bitrix24'))
+		{
+			$isAdmin = CBitrix24::IsPortalAdmin($userId);
+		}
+		else
+		{
+			$user = new CUser();
+			$arGroups = $user::GetUserGroup($userId);
+			$isAdmin = in_array(1, $arGroups, true);
+		}
+
+		return $isAdmin || $this->getHostId() === $userId;
+	}
+
+	protected function setFields(array $fields): bool
+	{
+		//set instance fields after update
+		return true;
+	}
+
+	protected function getChangedFields(array $fields): array
+	{
+		$result = [];
+
+		if (isset($fields['TITLE']) && $fields['TITLE'] !== $this->chatName)
+		{
+			$result['TITLE'] = $fields['TITLE'];
+		}
+
+		if (isset($fields['VIDEOCONF']['PASSWORD']) && $fields['VIDEOCONF']['PASSWORD'] !== $this->getPassword())
+		{
+			$result['VIDEOCONF']['PASSWORD'] = $fields['VIDEOCONF']['PASSWORD'];
+		}
+
+		if (isset($fields['VIDEOCONF']['INVITATION']) && $fields['VIDEOCONF']['INVITATION'] !== $this->getInvitation())
+		{
+			$result['VIDEOCONF']['INVITATION'] = $fields['VIDEOCONF']['INVITATION'];
+		}
+
+		if (isset($fields['USERS']))
+		{
+			$currentUsers = array_map(static function($user){
+				return $user['id'];
+			}, $this->users);
+
+			$result['NEW_USERS'] = array_diff($fields['USERS'], $currentUsers);
+			$result['DELETED_USERS'] = array_diff($currentUsers, $fields['USERS']);
+		}
+
+		return $result;
+	}
+
+	public function update(array $fields = []): Result
+	{
+		$result = new Result();
+
+		$validationResult = static::validateFields($fields);
+		if (!$validationResult->isSuccess())
+		{
+			return $result->addErrors($validationResult->getErrors());
+		}
+		$updateData = $validationResult->getData()['FIELDS'];
+
+		if (!isset($fields['ID']))
+		{
+			return $result->addError(new Error(Loc::getMessage('IM_CALL_CONFERENCE_ERROR_ID_NOT_PROVIDED')));
+		}
+
+		$updateData = $this->getChangedFields($updateData);
+		if (empty($updateData))
+		{
+			return $result;
+		}
+		$updateData['ID'] = $fields['ID'];
+
+		global $USER;
+		$chat = new CIMChat($USER->GetID());
+
+		//Chat update
+		if ($updateData['TITLE'])
+		{
+			$renameResult = $chat->Rename($this->getChatId(), $updateData['TITLE']);
+
+			if (!$renameResult)
+			{
+				return $result->addError(new Error(Loc::getMessage('IM_CALL_CONFERENCE_ERROR_RENAMING_CHAT')));
+			}
+
+			$this->chatName = $updateData['TITLE'];
+		}
+
+		//Adding users
+		if (isset($updateData['NEW_USERS']))
+		{
+			foreach ($updateData['NEW_USERS'] as $newUser)
+			{
+				$addingResult = $chat->AddUser($this->getChatId(), $newUser);
+
+				if (!$addingResult)
+				{
+					return $result->addError(new Error(Loc::getMessage('IM_CALL_CONFERENCE_ERROR_ADDING_USERS')));
+				}
+			}
+		}
+
+		//Deleting users
+		if (isset($updateData['DELETED_USERS']))
+		{
+			foreach ($updateData['DELETED_USERS'] as $deletedUser)
+			{
+				$addingResult = $chat->DeleteUser($this->getChatId(), $deletedUser);
+
+				if (!$addingResult)
+				{
+					return $result->addError(new Error(Loc::getMessage('IM_CALL_CONFERENCE_ERROR_DELETING_USERS')));
+				}
+			}
+		}
+
+		//Conference update
+		if (isset($updateData['VIDEOCONF']))
+		{
+			$updateResult = ConferenceTable::update($updateData['ID'], $updateData['VIDEOCONF']);
+
+			if (!$updateResult->isSuccess())
+			{
+				return $result->addErrors($updateResult->getErrors());
+			}
+		}
+
+		return $result;
+	}
+
+	public function delete(): Result
+	{
+		$result = new Result();
+
+		//hide chat
+		CIMChat::hide($this->getChatId());
+
+		//delete relations
+		RelationTable::deleteBatch(
+			['=CHAT_ID' => $this->getChatId()]
+		);
+
+		//delete conference
+		$deleteConferenceResult = ConferenceTable::delete($this->getId());
+		if (!$deleteConferenceResult->isSuccess())
+		{
+			return $result->addErrors($deleteConferenceResult->getErrors());
+		}
+
+		//delete alias
+		$deleteAliasResult = AliasTable::delete($this->getAliasId());
+		if (!$deleteAliasResult->isSuccess())
+		{
+			return $result->addErrors($deleteAliasResult->getErrors());
+		}
+
+		return $result;
+	}
+
+	protected static function validateFields(array $fields): Result
+	{
+		$result = new Result();
+		$validatedFields = [];
+
+		$fields = array_change_key_case($fields, CASE_UPPER);
+
+		if (isset($fields['TITLE']) && is_string($fields['TITLE']))
+		{
+			$fields['TITLE'] = trim($fields['TITLE']);
+			$validatedFields['TITLE'] = $fields['TITLE'];
+		}
+
+		if (
+			isset($fields['PASSWORD'], $fields['PASSWORD_NEEDED']) &&
+			$fields['PASSWORD_NEEDED'] === true &&
+			is_string($fields['PASSWORD']) &&
+			$fields['PASSWORD'] !== ''
+		)
+		{
+			$fields['PASSWORD'] = trim($fields['PASSWORD']);
+
+			if (strlen($fields['PASSWORD']) < 3)
+			{
+				return $result->addError(new Error(Loc::getMessage('IM_CALL_CONFERENCE_ERROR_PASSWORD_LENGTH')));
+			}
+
+			$validatedFields['VIDEOCONF']['PASSWORD'] = $fields['PASSWORD'];
+		}
+		else
+		{
+			$validatedFields['VIDEOCONF']['PASSWORD'] = '';
+		}
+
+		if (isset($fields['INVITATION']) && is_string($fields['INVITATION']))
+		{
+			$fields['INVITATION'] = trim($fields['INVITATION']);
+
+			if (strlen($fields['INVITATION']) > 255)
+			{
+				return $result->addError(new Error(Loc::getMessage('IM_CALL_CONFERENCE_ERROR_INVITATION_LENGTH')));
+			}
+
+			$validatedFields['VIDEOCONF']['INVITATION'] = $fields['INVITATION'];
+		}
+
+		if (isset($fields['USERS']) && is_array($fields['USERS']))
+		{
+			$validatedFields['USERS'] = [];
+			foreach ($fields['USERS'] as $userId)
+			{
+				$validatedFields['USERS'][] = (int)$userId;
+			}
+		}
+
+		if (isset($fields['ALIAS_DATA']))
+		{
+			$validatedFields['VIDEOCONF']['ALIAS_DATA'] = $fields['ALIAS_DATA'];
+		}
+
+		$result->setData(['FIELDS' => $validatedFields]);
+
+		return $result;
+	}
+
+	public static function add(array $fields = []): Result
+	{
+		$result = new Result();
+
+		$validationResult = static::validateFields($fields);
+		if (!$validationResult->isSuccess())
+		{
+			return $result->addErrors($validationResult->getErrors());
+		}
+
+		$addData = $validationResult->getData()['FIELDS'];
+		$addData['ENTITY_TYPE'] = static::ALIAS_TYPE;
+
+		$currentUser = \Bitrix\Im\User::getInstance();
+		$chat = new CIMChat($currentUser->getId());
+		$chatId = $chat->Add($addData);
+
+		if (!$chatId)
+		{
+			return $result->addError(new Error(Loc::getMessage('IM_CALL_CONFERENCE_ERROR_CREATING')));
+		}
+
+		$result->setData(['CHAT_ID' => $chatId]);
+
+		return $result;
+	}
+
+	public static function getByAlias(string $alias)
+	{
+		$conferenceFields = ConferenceTable::getRow(
+			[
+				'select' => self::getDefaultSelectFields(),
+				'runtime' => self::getRuntimeChatField(),
+				'filter' => ['=ALIAS.ALIAS' => $alias, '=ALIAS.ENTITY_TYPE' => static::ALIAS_TYPE]
+			]
+		);
+
+		if (!$conferenceFields)
+		{
+			return false;
+		}
+
+		return static::createWithArray($conferenceFields);
+	}
+
+	public static function getById(int $id): ?Conference
+	{
+		$conferenceFields = ConferenceTable::getRow(
+			[
+				'select' => self::getDefaultSelectFields(),
+				'runtime' => self::getRuntimeChatField(),
+				'filter' => ['=ID' => $id, '=ALIAS.ENTITY_TYPE' => static::ALIAS_TYPE]
+			]
+		);
+
+		if (!$conferenceFields)
+		{
+			return null;
+		}
+
+		return static::createWithArray($conferenceFields);
+	}
+
+	public static function createWithArray(array $fields): Conference
+	{
+		$instance = new static();
+
+		$instance->id = (int)$fields['ID'];
+		$instance->alias = $fields['ALIAS_CODE'];
+		$instance->aliasId = $fields['ALIAS_PRIMARY'];
+		$instance->chatId = (int)$fields['CHAT_ID'];
+		$instance->password = $fields['PASSWORD'];
+		$instance->invitation = $fields['INVITATION'];
+		$instance->startDate = $fields['CONFERENCE_START'];
+		$instance->chatName = $fields['CHAT_NAME'];
+		$instance->hostName = $fields['HOST_NAME']." ".$fields['HOST_LAST_NAME'];
+		$instance->hostId = $fields['HOST'];
+
+		$instance->users = $instance->getUsers();
+
+		return $instance;
+	}
+
+	public static function getAll(array $queryParams): ArrayResult
+	{
+		$result = [];
+		$list = ConferenceTable::getList($queryParams);
+
+		while ($item = $list->fetch())
+		{
+			$result[] = $item;
+		}
+
+		$dbResult = new ArrayResult($result);
+		$dbResult->setCount($list->getCount());
+
+		return $dbResult;
+	}
+
+	public static function getStatusList(): array
+	{
+		return [static::STATE_NOT_STARTED, static::STATE_ACTIVE, static::STATE_FINISHED];
+	}
+
+	public static function getDefaultSelectFields(): array
+	{
+		return [
+			'ID',
+			'CONFERENCE_START',
+			'PASSWORD',
+			'INVITATION',
+			'ALIAS_PRIMARY' => 'ALIAS.ID',
+			'ALIAS_CODE' => 'ALIAS.ALIAS',
+			'CHAT_ID' => 'ALIAS.ENTITY_ID',
+			'HOST' => 'CHAT.AUTHOR.ID',
+			'HOST_NAME' => 'CHAT.AUTHOR.NAME',
+			'HOST_LAST_NAME' => 'CHAT.AUTHOR.LAST_NAME',
+			'CHAT_NAME' => 'CHAT.TITLE'
+		];
+	}
+
+	public static function getRuntimeChatField(): array
+	{
+		return [
+			new Entity\ReferenceField(
+				'CHAT', 'Bitrix\Im\Model\ChatTable', ['=this.CHAT_ID' => 'ref.ID']
+			),
+			new Entity\ReferenceField(
+				'RELATION', 'Bitrix\Im\Model\RelationTable', ['=this.CHAT_ID' => 'ref.CHAT_ID'], ['join_type' => 'inner']
+			)
+		];
+	}
+
+	public static function removeTemporaryAliases()
+	{
+		AliasTable::deleteBatch(
+			[
+				'=ENTITY_TYPE' => Alias::ENTITY_TYPE_VIDEOCONF,
+				'=ENTITY_ID' => 0
+			],
+			1000
+		);
+
+		return '\Bitrix\Im\Call\Conference::removeTemporaryAliases();';
+	}
 }

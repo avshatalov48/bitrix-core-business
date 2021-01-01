@@ -81,7 +81,6 @@
 	var Group = BX.Landing.Group;
 	var BlockEvent = BX.Landing.Event.Block;
 	var TabCard = BX.Landing.UI.Card.TabCard;
-	var Menu = BX.Landing.UI.Tool.Menu;
 	var DynamicFieldsGroup = BX.Landing.UI.Card.DynamicFieldsGroup;
 
 	// noinspection JSUnusedLocalSymbols
@@ -261,6 +260,30 @@
 		this.initStyles();
 		this.initMenu();
 		this.adjustContextSensitivityStyles();
+
+		var specialType = BX.Landing.Env.getInstance().getOptions().specialType;
+		if (specialType === 'crm_forms')
+		{
+			var formId = this.getBlockFormId();
+			if (BX.Type.isPlainObject(formId))
+			{
+				var showOptions = {
+					formId: formId.id,
+					instanceId: formId.instanceId,
+					formOptions: this.getCrmFormOptions(),
+					block: this,
+				};
+				var uri = new BX.Uri(window.top.location.toString());
+				if (BX.Text.toBoolean(uri.getQueryParam('formCreated')))
+				{
+					showOptions.state = 'presets';
+				}
+
+				void BX.Landing.UI.Panel.FormSettingsPanel
+					.getInstance()
+					.show(showOptions);
+			}
+		}
 
 		BX.Landing.PageObject.getBlocks().push(this);
 
@@ -452,7 +475,6 @@
 			this.initCards();
 			this.initNodes();
 			this.initGroups();
-			this.initCardsLabels();
 			this.disableLinks();
 		},
 
@@ -555,7 +577,10 @@
 		initPanels: function()
 		{
 			// Make "add block after this block" button
-			if (!this.panels.get("create_action"))
+			if (
+				!this.panels.get("create_action")
+				&& !this.isCrmFormPage()
+			)
 			{
 				var createPanel = new BaseButtonPanel(
 					"create_action",
@@ -696,7 +721,7 @@
 
 			if (!this.sidebarActionsMenu)
 			{
-				this.sidebarActionsMenu = new Menu({
+				this.sidebarActionsMenu = BX.Main.MenuManager.create({
 					id: this.id + '_sidebar_actions',
 					bindElement: bindElement.layout,
 					className: "landing-ui-block-actions-popup",
@@ -1087,7 +1112,7 @@
 				blockPanel.addButton(
 					new ActionButton("remove", {
 						html: BX.Landing.Loc.getMessage("ACTION_BUTTON_REMOVE"),
-						disabled: this.access < ACCESS_X,
+						disabled: this.access < ACCESS_X || this.isCrmFormPage(),
 						onClick: this.deleteBlock.bind(this),
 						attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_BLOCK_ACTION_REMOVE")}
 					})
@@ -1173,7 +1198,7 @@
 					})
 				}, this);
 
-				this.blockPlacementsActionsMenu = new Menu({
+				this.blockPlacementsActionsMenu = new BX.PopupMenuWindow({
 					id: blockActionMenuId,
 					bindElement: blockActionButton.layout,
 					items: menuItems,
@@ -1359,7 +1384,7 @@
 				var blockActionMenuId = join("block_", this.id, "_actions_", random());
 				var landing = BX.Landing.Main.getInstance();
 
-				this.blockActionsMenu = new Menu({
+				this.blockActionsMenu = new BX.PopupMenuWindow({
 					id: blockActionMenuId,
 					bindElement: blockActionButton.layout,
 					className: "landing-ui-block-actions-popup",
@@ -1376,7 +1401,7 @@
 						new BX.Main.MenuItem({
 							id: "show_hide",
 							text: BX.Landing.Loc.getMessage(this.isEnabled() ? "ACTION_BUTTON_HIDE" : "ACTION_BUTTON_SHOW"),
-							className: this.access < ACCESS_W ? "landing-ui-disabled" : "",
+							className: (this.access < ACCESS_W) || this.isCrmFormPage() ? "landing-ui-disabled" : "",
 							onclick: function() {
 								this.onStateChange();
 								this.blockActionsMenu.close();
@@ -1384,7 +1409,7 @@
 						}),
 						new BX.Main.MenuItem({
 							text: BX.Landing.Loc.getMessage("ACTION_BUTTON_ACTIONS_CUT"),
-							className: this.access < ACCESS_X ? "landing-ui-disabled" : "",
+							className: (this.access < ACCESS_X) || this.isCrmFormPage() ? "landing-ui-disabled" : "",
 							onclick: function() {
 								landing.onCutBlock.bind(landing, this)();
 								this.blockActionsMenu.close();
@@ -1392,6 +1417,7 @@
 						}),
 						new BX.Main.MenuItem({
 							text: BX.Landing.Loc.getMessage("ACTION_BUTTON_ACTIONS_COPY"),
+							className: this.isCrmFormPage() ? "landing-ui-disabled" : "",
 							onclick: function() {
 								landing.onCopyBlock.bind(landing, this)();
 								this.blockActionsMenu.close();
@@ -1401,7 +1427,7 @@
 							id: "block_paste",
 							text: BX.Landing.Loc.getMessage("ACTION_BUTTON_ACTIONS_PASTE"),
 							title: window.localStorage.landingBlockName,
-							className: window.localStorage.landingBlockId ? "": "landing-ui-disabled",
+							className: window.localStorage.landingBlockId && !this.isCrmFormPage() ? "": "landing-ui-disabled",
 							onclick: function() {
 								landing.onPasteBlock.bind(landing, this)();
 								this.blockActionsMenu.close();
@@ -1539,6 +1565,108 @@
 			}
 		},
 
+		/**
+		 *
+		 * @return {{code: string, id: string, type: string}|null}
+		 */
+		getBlockFormId: function()
+		{
+			var formScriptNode = this.node.querySelector('script[data-b24-form]');
+			if (BX.Type.isDomNode(formScriptNode))
+			{
+				var formId = BX.Dom.attr(formScriptNode, 'data-b24-form');
+				if (BX.Type.isStringFilled(formId))
+				{
+					var parsedFormId = formId.split('/');
+					if (BX.Type.isArray(parsedFormId) && parsedFormId.length === 3)
+					{
+						var instanceId = '';
+						var formUid = BX.Dom.attr(
+							formScriptNode.previousSibling.firstChild,
+							'id'
+						);
+
+						if (formUid)
+						{
+							instanceId = formUid.replace('b24-', '');
+						}
+
+						return {
+							id: parsedFormId[1],
+							type: parsedFormId[0],
+							code: parsedFormId[2],
+							instanceId: instanceId
+						};
+					}
+				}
+			}
+
+			formScriptNode = this.node.querySelector('[data-b24form]');
+			if (BX.Type.isDomNode(formScriptNode))
+			{
+				formId = BX.Dom.attr(formScriptNode, 'data-b24form');
+				if (BX.Type.isStringFilled(formId))
+				{
+					parsedFormId = formId.split('|');
+					if (BX.Type.isArray(parsedFormId) && parsedFormId.length === 3)
+					{
+						instanceId = '';
+						formUid = BX.Dom.attr(
+							formScriptNode.querySelector('.b24-form > div[id]'),
+							'id'
+						);
+
+						if (formUid)
+						{
+							instanceId = formUid.replace('b24-', '');
+						}
+
+						return {
+							id: parsedFormId[0],
+							type: parsedFormId[2] || 'inline',
+							code: parsedFormId[1],
+							instanceId: instanceId
+						};
+					}
+				}
+			}
+
+			return null;
+		},
+
+		getCrmFormOptions: function()
+		{
+			var formNode = this.node.querySelector('[data-b24form-use-style]');
+			var useAllowed = BX.Dom.attr(formNode, 'data-b24form-use-style');
+
+			if (BX.Type.isDomNode(formNode) && BX.Text.toBoolean(useAllowed))
+			{
+				var designOptions = BX.Dom.attr(formNode, 'data-b24form-design');
+				if (BX.Type.isPlainObject(designOptions))
+				{
+					var primaryColor = BX.Dom.style(document.documentElement, '--primary').trim();
+					Object.entries(designOptions.color).forEach(function(entry) {
+						if (entry[1] === '--primary')
+						{
+							designOptions.color[entry[0]] = primaryColor;
+						}
+					});
+
+					return {
+						data: {
+							design: designOptions,
+						}
+					};
+				}
+			}
+
+			return {};
+		},
+
+		isCrmFormPage: function()
+		{
+			return BX.Landing.Env.getInstance().getOptions().specialType === 'crm_forms';
+		},
 
 		/**
 		 * Handles show panel event
@@ -1546,7 +1674,23 @@
 		 */
 		onShowContentPanel: function()
 		{
-			this.showContentPanel();
+			var formId = this.getBlockFormId();
+			if (BX.Type.isPlainObject(formId))
+			{
+				void BX.Landing.UI.Panel.FormSettingsPanel
+					.getInstance()
+					.show({
+						formId: formId.id,
+						instanceId: formId.instanceId,
+						formOptions: this.getCrmFormOptions(),
+						block: this,
+					});
+			}
+			else
+			{
+				this.showContentPanel();
+			}
+
 			BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
 		},
 
@@ -2197,6 +2341,8 @@
 		{
 			if (!isEmpty(data))
 			{
+				this.initStyles();
+
 				var queryParams = {code: this.manifest.code};
 				var requestBody = {};
 
@@ -2270,6 +2416,28 @@
 					]
 				});
 
+				if (this.getBlockFormId())
+				{
+					var button = new BX.UI.Button({
+						text: BX.Landing.Loc.getMessage('LANDING_SHOW_FORM_EDITOR'),
+						color: BX.UI.Button.Color.LIGHT_BORDER,
+						size: BX.UI.Button.Size.SMALL,
+						onclick: function() {
+							contentPanel.hide()
+								.then(function() {
+									this.onShowContentPanel();
+								}.bind(this));
+						}.bind(this)
+					});
+
+					BX.Dom.style(button.render(), {
+						position: 'absolute',
+						right: '50px',
+					});
+
+					BX.Dom.append(button.render(), contentPanel.header);
+				}
+
 				this.addPanel(contentPanel);
 			}
 
@@ -2304,6 +2472,7 @@
 
 			this.tmpContent.innerHTML = html;
 			this.initEntities();
+			this.initCardsLabels();
 
 			var forms = this.getEditForms({
 				nodes: nodes,
@@ -2731,14 +2900,42 @@
 		 */
 		showStylePanel: function(selector)
 		{
+			var isBlock = this.isBlockSelector(selector);
+			var options = this.getStyleOptions(selector);
+
 			BX.Landing.PageObject.getInstance().design()
 				.then(function(stylePanel) {
 					stylePanel.clearContent();
-					return stylePanel.show();
-				})
-				.then(function(stylePanel) {
-					var isBlock = this.isBlockSelector(selector);
-					var options = this.getStyleOptions(selector);
+
+					if (options.type === 'crm-form')
+					{
+						var formStyleAdapter = new BX.Landing.FormStyleAdapter({
+							formId: this.getBlockFormId().id,
+							instanceId: this.getBlockFormId().instanceId,
+							currentBlock: this,
+						});
+
+						return Promise.all([
+							stylePanel.show(),
+							formStyleAdapter.load()
+						]);
+					}
+
+					return stylePanel
+						.show()
+						.then(function(result) {
+							return [result];
+						});
+				}.bind(this))
+				.then(function(result) {
+					var stylePanel = result[0];
+					var formStyleAdapter = result[1];
+
+					if (formStyleAdapter)
+					{
+						stylePanel.appendForm(formStyleAdapter.getStyleForm());
+						return;
+					}
 
 					if (isArray(options.type) || isString(options.type))
 					{
@@ -2778,6 +2975,43 @@
 						}, this);
 					}
 				}.bind(this))
+				.catch(function(error) {
+					if (BX.Type.isArrayFilled(error))
+					{
+						var accessDeniedCode = 510;
+						var isAccessDenied = error.some(function(error) {
+							return String(error.code) === String(accessDeniedCode);
+						});
+
+						if (isAccessDenied)
+						{
+							BX.Dom.append(
+								this.getAccessMessage(),
+								BX.Landing.UI.Panel.StylePanel.getInstance().content
+							);
+						}
+					}
+				}.bind(this));
+		},
+
+		getAccessMessage: function()
+		{
+			if (!this.accessMessage)
+			{
+				this.accessMessage = BX.create({
+					tag: 'div',
+					props: {className: 'landing-ui-access-error-message'},
+					children: [
+						BX.create({
+							tag: 'div',
+							props: {className: 'landing-ui-access-error-message-text'},
+							text: BX.Landing.Loc.getMessage('LANDING_CRM_ACCESS_ERROR_MESSAGE')
+						})
+					]
+				})
+			}
+
+			return this.accessMessage;
 		},
 
 
@@ -3322,6 +3556,8 @@
 				);
 			}
 
+			var nodePromises = [];
+
 			if ('cards' in data && isPlainObject(data.cards))
 			{
 				fireCustomEvent("BX.Landing.Block:Cards:beforeUpdate", [
@@ -3423,35 +3659,50 @@
 												oldValue = node.getValue();
 											}
 
-											node.setValue(card[key], true, true);
-											card[join(key, "@", map[key])] = node.getValue();
+											var nodePromise = node.setValue(card[key], true, true) || Promise.resolve();
+												nodePromise.then(function(selectorKey, mapKey, cardKey) {
+													card[join(selectorKey, "@", mapKey)] = node.getValue();
 
-											if (node.manifest.type === "img" || node.manifest.type === "icon")
-											{
-												card[join(key, "@", map[key])]["url"] = encodeDataValue(card[key]["url"]);
-											}
+													if (node.manifest.type === "img" || node.manifest.type === "icon")
+													{
+														card[join(selectorKey, "@", mapKey)]["url"] = encodeDataValue(cardKey["url"]);
+													}
 
-											delete card[key];
+													delete card[key];
+												}.bind(this, key, map[key], card[key]));
+
+											nodePromises.push(nodePromise);
 										}
 									}, this);
 							}, this);
 
-						// Reinitialize additional entities
-						this.initCardsLabels();
-						this.initStyles();
+						Promise
+							.all(nodePromises)
+							.then(function() {
+								// Reinitialize additional entities
+								this.initCardsLabels();
+								this.initStyles();
 
-						// Remove unnecessary
-						delete data.cards[code].presets;
-						delete data.cards[code].indexes;
-
+								// Remove unnecessary
+								delete data.cards[code].presets;
+								delete data.cards[code].indexes;
+							}.bind(this));
 					}, this);
 
-				fireCustomEvent("BX.Landing.Block:Cards:update", [
-					this.createEvent()
-				]);
+				Promise
+					.all(nodePromises)
+					.then(function() {
+						fireCustomEvent("BX.Landing.Block:Cards:update", [
+							this.createEvent()
+						]);
+					}.bind(this));
 			}
 
-			return Promise.resolve(data);
+			return Promise
+				.all(nodePromises)
+				.then(function() {
+					return Promise.resolve(data);
+				});
 		},
 
 
@@ -3934,15 +4185,18 @@
 
 			blockNodes = selectors
 				.reduce(function(acc, selector) {
-					blockNodes
-						.matches(selector)
-						.getVisible()
-						.filter(function(node) {
-							return node.manifest.allowFormEdit !== false;
-						})
-						.forEach(function(node) {
-							acc.push(node);
-						});
+					if (!selector.includes(':'))
+					{
+						blockNodes
+							.matches(selector)
+							.getVisible()
+							.filter(function(node) {
+								return node.manifest.allowFormEdit !== false;
+							})
+							.forEach(function(node) {
+								acc.push(node);
+							});
+					}
 
 					return acc;
 				}, new NodeCollection());

@@ -68,8 +68,19 @@ if ($arResult["SHOW_BITRIX24_THEME"] == "Y")
 	$themePicker->showBodyAssets();
 }
 ?>
-<div class="ui-slider-page">
-	<div id="left-panel" class="ui-page-slider-left-panel"><? $APPLICATION->ShowViewContent("left-panel"); ?></div>
+<div class="ui-slider-page"><?
+		$APPLICATION->AddBufferContent(function() {
+			$content = trim($GLOBALS['APPLICATION']->getViewContent('left-panel-before'));
+			$content .= trim($GLOBALS['APPLICATION']->getViewContent('left-panel'));
+			$content .= trim($GLOBALS['APPLICATION']->getViewContent('left-panel-after'));
+			if (!empty($content))
+			{
+				return '<div id="left-panel" class="ui-page-slider-left-panel">'.$content.'</div>';
+			}
+
+			return '';
+		})
+	?>
 	<div id="ui-page-slider-content">
 		<div class="pagetitle-above"><?$APPLICATION->ShowViewContent("above_pagetitle")?></div>
 		<? if(!isset($arParams['USE_UI_TOOLBAR']) || $arParams['USE_UI_TOOLBAR'] !== 'Y')

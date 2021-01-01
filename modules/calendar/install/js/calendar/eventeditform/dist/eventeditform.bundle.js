@@ -88,7 +88,7 @@ this.BX = this.BX || {};
 	}
 
 	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\" name=\"attendeesEntityList[", "][id]\" value=\"", "\">"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input type=\"hidden\" name=\"attendeesEntityList[", "][id]\" value=\"", "\">\n\t\t\t"]);
 
 	  _templateObject3 = function _templateObject3() {
 	    return data;
@@ -98,7 +98,7 @@ this.BX = this.BX || {};
 	}
 
 	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\" name=\"attendeesEntityList[", "][entityId]\" value=\"", "\">"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input type=\"hidden\" name=\"attendeesEntityList[", "][entityId]\" value=\"", "\">\n\t\t\t"]);
 
 	  _templateObject2 = function _templateObject2() {
 	    return data;
@@ -347,7 +347,17 @@ this.BX = this.BX || {};
 	        _this2.DOM.userSelectorValueWarp.appendChild(main_core.Tag.render(_templateObject3(), index, entity.id));
 	      });
 	      this.BX.ajax.runAction('calendar.api.calendarajax.editEntry', {
-	        data: new FormData(this.DOM.form)
+	        data: new FormData(this.DOM.form),
+	        analyticsLabel: {
+	          calendarAction: this.entry.id ? 'edit_event' : 'create_event',
+	          formType: 'full',
+	          emailGuests: this.hasExternalEmailUsers() ? 'Y' : 'N',
+	          markView: calendar_util.Util.getCurrentView() || 'outside',
+	          markCrm: this.DOM.form['UF_CRM_CAL_EVENT[]'] && this.DOM.form['UF_CRM_CAL_EVENT[]'].value ? 'Y' : 'N',
+	          markRrule: this.repeatSelector.getType(),
+	          markMeeting: this.entry.isMeeting() ? 'Y' : 'N',
+	          markType: this.type
+	        }
 	      }).then(function (response) {
 	        main_core.Dom.removeClass(_this2.DOM.saveBtn, _this2.BX.UI.Button.State.CLOCKING);
 	        main_core.Dom.removeClass(_this2.DOM.closeBtn, _this2.BX.UI.Button.State.DISABLED);

@@ -8,6 +8,7 @@
 
 namespace Bitrix\Sender\Integration\Crm;
 
+use Bitrix\Crm\EntityAddressType;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 
@@ -109,7 +110,7 @@ class CompanyCard
 		// get address requisites
 		$addresses = EntityRequisite::getAddresses($data['ID']);
 		$addressTypes = array(
-			EntityAddress::Registered
+			EntityAddressType::Registered
 		);
 
 		$address = null;
@@ -142,11 +143,11 @@ class CompanyCard
 			}
 			if ($address['REG_ADDRESS'])
 			{
-				$addressTypeId =  EntityAddress::Registered;
+				$addressTypeId =  EntityAddressType::Registered;
 			}
 			else
 			{
-				$addressTypeId =  EntityAddress::Primary;
+				$addressTypeId =  EntityAddressType::Primary;
 			}
 
 			$address = Format\CompanyAddressFormatter::format($address, array(

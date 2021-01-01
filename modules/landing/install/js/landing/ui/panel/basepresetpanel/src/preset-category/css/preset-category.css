@@ -1,0 +1,16 @@
+.landing-ui-presets-category {
+	padding-bottom: 12px;
+}
+
+.landing-ui-presets-category-title {
+	font-family: 'OpenSans-Light', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	font-size: 18px;
+	color: #525C69;
+	line-height: 32px;
+	margin-bottom: 13px;
+}
+
+.landing-ui-presets-category-list {
+	display: flex;
+	flex-wrap: wrap;
+}

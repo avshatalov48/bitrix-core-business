@@ -45,6 +45,10 @@ class MessageTable extends Entity\DataManager
 				'data_type' => 'string',
 				'required' => true,
 			),
+			'UTM' => array(
+				'data_type' => MessageUtmTable::class,
+				'reference' => array('=this.ID' => 'ref.MESSAGE_ID'),
+			),
 		);
 	}
 

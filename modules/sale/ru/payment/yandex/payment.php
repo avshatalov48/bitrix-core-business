@@ -7,7 +7,7 @@ $orderDate = CSalePaySystemAction::GetParamValue("ORDER_DATE");
 $orderNumber = CSalePaySystemAction::GetParamValue("ORDER_ID");
 $Sum = number_format($Sum, 2, ',', '');
 ?>
-<p>Вы хотите оплатить через систему <strong>Яндекс.Деньги</strong>.</p>
+<p>Вы хотите оплатить через систему <strong>ЮMoney</strong>.</p>
 <p>Сумма к оплате по счету: <strong><?=$Sum?> р.</strong></p>
 <?if(CSalePaySystemAction::GetParamValue("IS_TEST") <> ''):
 	?>
@@ -27,5 +27,5 @@ $Sum = number_format($Sum, 2, ',', '');
 		<input name="OrderDetails" value="заказ №<?=$orderNumber?> (<?=$orderDate?>)" type="hidden">
 		<input name="BuyButton" value="Оплатить" type="submit" class="btn btn-primary">
 
-	<div class="alert alert-info mt-4"><strong>ВНИМАНИЕ!</strong> Возврат средств по платежной системе Яндекс.Деньги - невозможен, пожалуйста, будьте внимательны при оплате заказа.</div>
+	<div class="alert alert-info mt-4"><strong>ВНИМАНИЕ!</strong> Возврат средств по платежной системе ЮMoney - невозможен, пожалуйста, будьте внимательны при оплате заказа.</div>
 </form>

@@ -334,6 +334,9 @@ $tabControl->BeginNextTab();
 		<tr id="LOCATION_<?echo htmlspecialcharsbx($SERVICE_ID)?>" style="display:<?echo $arRes["SERVICE_ID"] === $SERVICE_ID || !$bServiceSet? "": "none"?>" class="location-tr">
 			<td><?echo GetMessage("CLO_STORAGE_EDIT_LOCATION")?>:</td>
 			<td>
+			<?
+			$locationList = CCloudStorage::GetServiceLocationList($SERVICE_ID);
+			if (is_array($locationList)):?>
 			<select name="LOCATION[<?echo htmlspecialcharsbx($SERVICE_ID)?>]">
 			<?
 			foreach(CCloudStorage::GetServiceLocationList($SERVICE_ID) as $LOCATION_ID => $LOCATION_NAME)
@@ -342,6 +345,9 @@ $tabControl->BeginNextTab();
 			}
 			?>
 			</select>
+			<?else:?>
+			<input type="text" name="LOCATION[<?echo htmlspecialcharsbx($SERVICE_ID)?>]" value="<?echo htmlspecialcharsbx($arRes["LOCATION"])?>">
+			<?endif;?>
 			</td>
 		</tr>
 		<?echo $obService->GetSettingsHTML($arRes, $bServiceSet, $arRes["SERVICE_ID"], $bVarsFromForm)?>

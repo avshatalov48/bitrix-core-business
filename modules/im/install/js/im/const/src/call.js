@@ -28,4 +28,8 @@ export const CallApplicationErrorCode = Object.freeze({
 	unsupportedBrowser: 'unsupportedBrowser',
 	missingMicrophone: 'missingMicrophone',
 	unsafeConnection: 'unsafeConnection',
+	wrongAlias: 'wrongAlias',
+	notStarted: 'notStarted',
+	finished: 'finished',
+	userLeftCall: 'userLeftCall'
 });

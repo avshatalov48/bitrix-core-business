@@ -6,8 +6,11 @@ use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Forum\MessageTable;
+use Bitrix\Main\Web\Json;
 use Bitrix\Socialnetwork\LogCommentTable;
 use Bitrix\Socialnetwork\LogTable;
+use Bitrix\Main\ORM\Fields\Relations\Reference;
+use Bitrix\Main\ORM\Query\Join;
 
 Loc::loadMessages(__FILE__);
 
@@ -15,6 +18,8 @@ final class ForumPost extends Provider
 {
 	const PROVIDER_ID = 'FORUM_POST';
 	const CONTENT_TYPE_ID = 'FORUM_POST';
+
+	public static $auxCommentsCache = [];
 
 	public static function getId()
 	{
@@ -54,7 +59,7 @@ final class ForumPost extends Provider
 				'filter' => [
 					'=ID' => $messageId
 				],
-				'select' => [ 'ID', 'POST_MESSAGE', 'SERVICE_TYPE' ]
+				'select' => [ 'ID', 'POST_MESSAGE', 'SERVICE_TYPE', 'SERVICE_DATA' ]
 			));
 			if ($message = $res->fetch())
 			{
@@ -65,7 +70,7 @@ final class ForumPost extends Provider
 						'SOURCE_ID' => $messageId,
 						'@EVENT_ID' => $this->getEventId(),
 					],
-					'select' => [ 'ID', 'LOG_ID', 'SHARE_DEST', 'MESSAGE', 'EVENT_ID' ]
+					'select' => [ 'ID', 'LOG_ID', 'SHARE_DEST', 'MESSAGE', 'EVENT_ID', 'RATING_TYPE_ID' ]
 				));
 				$auxData = [];
 				if ($logComentFields = $res->fetch())
@@ -122,6 +127,7 @@ final class ForumPost extends Provider
 							$auxData['SHARE_DEST'] = '';
 							$auxData['EVENT_ID'] = $logComentFields['EVENT_ID'];
 							$auxData['SOURCE_ID'] = $messageId;
+							$auxData['RATING_TYPE_ID'] = $logComentFields['RATING_TYPE_ID'];
 						}
 						else
 						{
@@ -402,7 +408,7 @@ final class ForumPost extends Provider
 
 	public function add($params = array())
 	{
-		global $USER, $DB;
+		global $USER;
 
 		static $parser = null;
 
@@ -415,8 +421,8 @@ final class ForumPost extends Provider
 
 		$authorId = (
 			isset($params['AUTHOR_ID'])
-			&& intval($params['AUTHOR_ID']) > 0
-				? intval($params['AUTHOR_ID'])
+			&& (int)$params['AUTHOR_ID'] > 0
+				? (int)$params['AUTHOR_ID']
 				: $USER->getId()
 		);
 
@@ -465,12 +471,24 @@ final class ForumPost extends Provider
 			$authorId
 		);
 
-		$forumComment = $feed->add(array(
+		$forumMessageFields = [
 			'POST_MESSAGE' => $message,
 			'AUTHOR_ID' => $authorId,
 			'USE_SMILES' => 'Y',
-			'AUX' => (isset($params['AUX']) && $params['AUX'] == 'Y' ? $params['AUX'] : 'N')
-		));
+			'AUX' => (isset($params['AUX']) && $params['AUX'] === 'Y' ? $params['AUX'] : 'N')
+		];
+
+		if ($message === \Bitrix\Socialnetwork\CommentAux\CreateTask::getPostText())
+		{
+			$forumMessageFields['SERVICE_TYPE'] = \Bitrix\Forum\Comments\Service\Manager::TYPE_TASK_CREATED;
+			$forumMessageFields['SERVICE_DATA'] = Json::encode(isset($params['AUX_DATA']) && is_array($params['AUX_DATA']) ? $params['AUX_DATA'] : []);
+			$forumMessageFields['POST_MESSAGE'] = \Bitrix\Forum\Comments\Service\Manager::find([
+				'SERVICE_TYPE' => \Bitrix\Forum\Comments\Service\Manager::TYPE_TASK_CREATED
+			])->getText($forumMessageFields['SERVICE_DATA']);
+			$params['SHARE_DEST'] = '';
+		}
+
+		$forumComment = $feed->add($forumMessageFields);
 
 		if (!$forumComment)
 		{
@@ -479,7 +497,7 @@ final class ForumPost extends Provider
 
 		$sonetCommentId = false;
 
-		if ($params['AUX'] == 'Y')
+		if ($params['AUX'] === 'Y')
 		{
 			if ($parser === null)
 			{
@@ -498,7 +516,7 @@ final class ForumPost extends Provider
 				"RATING_TYPE_ID" => "FORUM_POST",
 				"RATING_ENTITY_ID" => $forumComment['ID'],
 				"USER_ID" => $authorId,
-				"=LOG_DATE" => $DB->currentTimeFunction(),
+				"=LOG_DATE" => \CDatabase::currentTimeFunction(),
 			);
 
 			if (!empty($params['SHARE_DEST']))
@@ -578,7 +596,7 @@ final class ForumPost extends Provider
 					}
 				}
 			}
-			elseif (in_array($params['type'], array('TE', 'TR')))
+			elseif (in_array($params['type'], array('TM', 'TR')))
 			{
 				$result = Option::get('timeman', 'report_forum_id', 0, $siteId);
 			}
@@ -776,7 +794,7 @@ final class ForumPost extends Provider
 				if (in_array($logFields['EVENT_ID'], $providerTimemanEntry->getEventId()))
 				{
 					$result = array(
-						"type" => "TE",
+						"type" => "TM",
 						"id" => intval($logFields['SOURCE_ID']),
 						"xml_id" => "TIMEMAN_ENTRY_".intval($logFields['SOURCE_ID'])
 					);
@@ -872,6 +890,68 @@ final class ForumPost extends Provider
 			$result[$message['ID']] = $data;
 		}
 
+		return $result;
+	}
+
+	public function warmUpAuxCommentsStaticCache(array $params = [])
+	{
+		if (!Loader::includeModule('forum'))
+		{
+			return;
+		}
+
+		$logEventsData = (isset($params['logEventsData']) && is_array($params['logEventsData']) ? $params['logEventsData'] : []);
+
+		$forumCommentEventIdList = $this->getEventId();
+
+		$logIdList = [];
+		foreach($logEventsData as $logId => $logEventId)
+		{
+			$commentEvent = \CSocNetLogTools::findLogCommentEventByLogEventID($logEventId);
+			if (empty($commentEvent['EVENT_ID']))
+			{
+				continue;
+			}
+
+			if (in_array($commentEvent['EVENT_ID'], $forumCommentEventIdList))
+			{
+				$logIdList[] = $logId;
+			}
+		}
+
+		if (!empty($logIdList))
+		{
+			$query = MessageTable::query();
+			$query->setSelect([ 'ID', 'POST_MESSAGE', 'SERVICE_DATA', 'SERVICE_TYPE' ]);
+			$query->whereIn('SERVICE_TYPE', \Bitrix\Forum\Comments\Service\Manager::getTypesList());
+			$query->registerRuntimeField(
+				new Reference(
+					'LOG_COMMENT', LogCommentTable::class, Join::on('this.ID', 'ref.SOURCE_ID'), [ 'join_type' => 'INNER' ]
+				)
+			);
+			$query->whereIn('LOG_COMMENT.LOG_ID', $logIdList);
+			$query->setLimit(1000);
+
+			$messages = $query->exec()->fetchCollection();
+			while ($message = $messages->current())
+			{
+				$messageFields = $message->collectValues();
+				self::$auxCommentsCache[$messageFields['ID']] = $messageFields;
+				$messages->next();
+			}
+		}
+	}
+
+	public function getAuxCommentCachedData(int $messageId = 0): array
+	{
+		$result = [];
+
+		if ($messageId <= 0)
+		{
+			return $result;
+		}
+
+		$result = (isset(self::$auxCommentsCache[$messageId]) ? self::$auxCommentsCache[$messageId] : []);
 		return $result;
 	}
 }

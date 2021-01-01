@@ -40,26 +40,31 @@
 	 * Sets icon value or converts to span and sets value
 	 * @param {BX.Landing.Block.Node.Icon} node
 	 * @param {object} value
+	 * @return {Promise<any>}
 	 */
 	function setIconValue(node, value)
 	{
-		BX.Landing.UI.Panel.Icon.getInstance().libraries.forEach(function(library) {
-			library.categories.forEach(function(category) {
-				category.items.forEach(function(item) {
-					var classList = item.split(" ");
-					classList.forEach(function(className) {
-						if (className)
-						{
-							node.node.classList.remove(className);
-						}
+		return BX.Landing.UI.Panel.IconPanel
+			.getLibraries()
+			.then(function(libraries) {
+				libraries.forEach(function(library) {
+					library.categories.forEach(function(category) {
+						category.items.forEach(function(item) {
+							var classList = item.split(" ");
+							classList.forEach(function(className) {
+								if (className)
+								{
+									node.node.classList.remove(className);
+								}
+							});
+						});
 					});
 				});
-			});
-		});
 
-		value.classList.forEach(function(className) {
-			node.node.classList.add(className);
-		});
+				value.classList.forEach(function(className) {
+					node.node.classList.add(className);
+				});
+			});
 	}
 
 
@@ -102,32 +107,36 @@
 		 * @param value - Path to image
 		 * @param {?boolean} [preventSave = false]
 		 * @param {?boolean} [preventHistory = false]
+		 * @return {Promise<any>}
 		 */
 		setValue: function(value, preventSave, preventHistory)
 		{
 			this.lastValue = this.lastValue || this.getValue();
 			this.preventSave(preventSave);
-			setIconValue(this, value);
-			if (value.url)
-			{
-				attr(this.node, "data-pseudo-url", value.url);
-			}
-			this.onChange();
 
-			if (!preventHistory)
-			{
-				BX.Landing.History.getInstance().push(
-					new BX.Landing.History.Entry({
-						block: this.getBlock().id,
-						selector: this.selector,
-						command: "editIcon",
-						undo: this.lastValue,
-						redo: this.getValue()
-					})
-				);
-			}
+			return setIconValue(this, value)
+				.then(function() {
+					if (value.url)
+					{
+						attr(this.node, "data-pseudo-url", value.url);
+					}
+					this.onChange();
 
-			this.lastValue = this.getValue();
+					if (!preventHistory)
+					{
+						BX.Landing.History.getInstance().push(
+							new BX.Landing.History.Entry({
+								block: this.getBlock().id,
+								selector: this.selector,
+								command: "editIcon",
+								undo: this.lastValue,
+								redo: this.getValue()
+							})
+						);
+					}
+
+					this.lastValue = this.getValue();
+				}.bind(this));
 		},
 
 

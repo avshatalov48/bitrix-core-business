@@ -11,10 +11,14 @@ import "main.date";
 import './css/resourcebooking.css';
 import {PopupManager, MenuManager} from 'main.popup';
 
+import {BaseEvent, EventEmitter } from 'main.core.events';
+
+
 let CoreDate = window.BX && BX.Main && BX.Main.Date ? BX.Main.Date : null;
 export {CoreDate};
 
 export {Type, Loc, Dom, Event, Tag, Browser, Text, Runtime, PopupManager, MenuManager};
+export {BaseEvent, EventEmitter};
 export {BookingUtil, FieldViewControllerEdit, FieldViewControllerPreview, SelectInput};
 
 

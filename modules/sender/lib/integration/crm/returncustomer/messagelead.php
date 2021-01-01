@@ -9,6 +9,7 @@
 namespace Bitrix\Sender\Integration\Crm\ReturnCustomer;
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Sender\Integration\Crm\Connectors\Helper;
 use Bitrix\Sender\Internals\PrettyDate;
 use Bitrix\Sender\Message;
 use Bitrix\Sender\PostingRecipientTable;
@@ -58,13 +59,26 @@ class MessageLead extends MessageBase implements Message\iHideable
 					'menu' => array_map(
 						function ($item)
 						{
-							return [
+							return array(
 								'id' => '#' . $item['CODE'] . '#',
 								'text' => $item['NAME'],
 								'title' => $item['DESC'],
-							];
+								'items' => $item['ITEMS']?array_map(
+									function ($item)
+									{
+										return array(
+											'id' => '#' . $item['CODE'] . '#',
+											'text' => $item['NAME'],
+											'title' => $item['DESC']
+										);
+									}, $item['ITEMS']
+								) : []
+							);
 						},
-						PostingRecipientTable::getPersonalizeList()
+						array_merge(
+							Helper::getPersonalizeFieldsFromConnectors(),
+							PostingRecipientTable::getPersonalizeList()
+						)
 					),
 				],
 			],

@@ -1,0 +1,44 @@
+.landing-ui-field-rule-field-row {
+	display: flex;
+	flex-direction: column;
+	margin-bottom: 10px;
+}
+
+.landing-ui-field-rule-field-row-field-container {
+	position: relative;
+	width: 50%;
+	padding-right: 15px;
+}
+
+.landing-ui-field-rule-field-row-list {
+	position: relative;
+	padding-top: 7px;
+}
+
+.landing-ui-field-rule-field-row-list::before {
+	content: '';
+	position: absolute;
+	background-color: #82DDFA;
+	top: 0;
+	bottom: 0;
+	left: 2px;
+	width: 1px;
+}
+
+.landing-ui-field-rule-field-row-field-container-title {
+	display: none;
+	margin-bottom: 15px;
+}
+
+.landing-ui-field-rule-field-row:first-child .landing-ui-field-rule-field-row-field-container-title {
+	display: block;
+}
+
+.landing-ui-field-rule-field-row-field-container-action-title {
+	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	position: absolute;
+	left: 105%;
+	top: 70px;
+	width: 100%;
+}

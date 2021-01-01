@@ -69,6 +69,7 @@ $popupWindow->StartContent();
 $arWorkflowTemplate = $_POST['arWorkflowTemplate'];
 $arWorkflowParameters = $_POST['arWorkflowParameters'];
 $arWorkflowVariables = $_POST['arWorkflowVariables'];
+$arWorkflowConstants = $_POST['arWorkflowConstants'];
 
 $arErrors = array();
 
@@ -79,7 +80,8 @@ if ($_POST["save"] == "Y" && check_bitrix_sessid())
 	unset(
 		$currentRequest['arWorkflowTemplate'],
 		$currentRequest['arWorkflowParameters'],
-		$currentRequest['arWorkflowVariables']
+		$currentRequest['arWorkflowVariables'],
+		$currentRequest['arWorkflowConstants']
 	);
 	$currentRequest = \Bitrix\Bizproc\Automation\Helper::unConvertProperties(
 		$currentRequest,
@@ -96,7 +98,8 @@ if ($_POST["save"] == "Y" && check_bitrix_sessid())
 			&$arWorkflowParameters,
 			&$arWorkflowVariables,
 			$currentRequest,
-			&$arErrors
+			&$arErrors,
+			$arWorkflowConstants
 		)
 	);
 
@@ -150,6 +153,7 @@ function PHPToHiddens($ob, $name)
 echo PHPToHiddens($arWorkflowTemplate, 'arWorkflowTemplate');
 echo PHPToHiddens($arWorkflowParameters, 'arWorkflowParameters');
 echo PHPToHiddens($arWorkflowVariables, 'arWorkflowVariables');
+echo PHPToHiddens($arWorkflowConstants, 'arWorkflowConstants');
 
 CBPDocument::AddShowParameterInit(MODULE_ID, "all", $_POST['document_type'], ENTITY);
 ?>
@@ -242,7 +246,8 @@ $z = CBPActivity::CallStaticMethod(
 		($_POST["postback"] == "Y" ? $_POST : null),
 		$popupWindow->GetFormName(),
 		$popupWindow,
-		$currentSiteId
+		$currentSiteId,
+		$arWorkflowConstants
 	)
 );
 

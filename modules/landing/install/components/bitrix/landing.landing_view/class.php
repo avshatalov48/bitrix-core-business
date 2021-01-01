@@ -121,11 +121,13 @@ class LandingViewComponent extends LandingBaseComponent
 		return [
 			'type' => $this->arParams['TYPE'],
 			'id' => $landing->getId(),
+			'url' => $landing->getPublicUrl(),
 			'siteId' => $landing->getSiteId(),
 			'siteTitle' => $site['TITLE'],
 			'active' => $landing->isActive(),
 			'draftMode' => $this->arParams['DRAFT_MODE'] == 'Y',
 			'title' => $landing->getTitle(),
+			'specialType' => $this->arResult['SPECIAL_TYPE'],
 			'pagesCount' => $this->getPagesCount(
 				$landing->getSiteId()
 			),
@@ -510,6 +512,7 @@ class LandingViewComponent extends LandingBaseComponent
 				$options['folder_id'] = $landing->getFolderId();
 				$options['version'] = Manager::getVersion();
 				$options['default_section'] = $this->getCurrentBlockSection($type);
+				$options['specialType'] = $this->arResult['SPECIAL_TYPE'];
 				$options['params'] = (array)$params['PARAMS'];
 				$options['params']['type'] = $params['TYPE'];
 				$options['params']['draftMode'] = $params['DRAFT_MODE'] == 'Y';
@@ -993,13 +996,14 @@ class LandingViewComponent extends LandingBaseComponent
 
 			if ($landing->exist())
 			{
+				$this->arResult['SPECIAL_TYPE'] = $this->getSpecialTypeSite($landing->getSiteId());
 				$this->arResult['SITES_COUNT'] = $this->getSitesCount();
 				$this->arResult['PAGES_COUNT'] = $this->getPagesCount($landing->getSiteId());
 				$this->arResult['SITE'] = $this->getSites(array(
 					'filter' => array(
 						'ID' => $landing->getSiteId()
 					)
-				));
+				), true);
 				if ($this->arResult['SITE'])
 				{
 					$this->arResult['SITE'] = array_pop($this->arResult['SITE']);
@@ -1037,27 +1041,35 @@ class LandingViewComponent extends LandingBaseComponent
 					}
 				}
 				// can publication / edit settings for page?
-				$canPublication = Manager::checkFeature(
-					Manager::FEATURE_PUBLICATION_PAGE,
-					array(
-						'filter' => array(
-							'!ID' => $landing->getId()
-						)
-					)
-				);
-				$this->arResult['CAN_PUBLICATION_PAGE'] = $canPublication;
-				if ($canPublication)
+				if ($this->arResult['SPECIAL_TYPE'])
+				{
+					$this->arResult['CAN_PUBLICATION_PAGE'] = true;
+					$this->arResult['CAN_PUBLICATION_SITE'] = true;
+				}
+				else
 				{
 					$canPublication = Manager::checkFeature(
-						Manager::FEATURE_PUBLICATION_SITE,
+						Manager::FEATURE_PUBLICATION_PAGE,
 						array(
 							'filter' => array(
-								'!ID' => $landing->getSiteId()
-							),
-							'type' => $this->arParams['TYPE']
+								'!ID' => $landing->getId()
+							)
 						)
 					);
-					$this->arResult['CAN_PUBLICATION_SITE'] = $canPublication;
+					$this->arResult['CAN_PUBLICATION_PAGE'] = $canPublication;
+					if ($canPublication)
+					{
+						$canPublication = Manager::checkFeature(
+							Manager::FEATURE_PUBLICATION_SITE,
+							array(
+								'filter' => array(
+									'!ID' => $landing->getSiteId()
+								),
+								'type' => $this->arParams['TYPE']
+							)
+						);
+						$this->arResult['CAN_PUBLICATION_SITE'] = $canPublication;
+					}
 				}
 				$rights = Rights::getOperationsForSite(
 					$landing->getSiteId()

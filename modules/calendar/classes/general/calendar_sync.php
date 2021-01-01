@@ -211,7 +211,7 @@ class CCalendarSync
 		{
 			$eventsSyncToken = self::syncCalendarEvents($localCalendar);
 			// Exit if we've got an error during connection to Google API
-			if (empty($eventsSyncToken))
+			if ($eventsSyncToken === false)
 			{
 				return false;
 			}
@@ -227,19 +227,47 @@ class CCalendarSync
 		return $bShouldClearCache;
 	}
 
-	public static function syncCalendarEvents($localCalendar): string
+	public static function syncCalendarEvents($localCalendar)
 	{
 		$googleApiConnection = new GoogleApiSync($localCalendar['OWNER_ID']);
 		// If we've got error from Google: save it and exit.
 		if ($error = $googleApiConnection->getTransportConnectionError())
 		{
 			CDavConnection::Update($localCalendar['CAL_DAV_CON'], ["LAST_RESULT" => $error], false);
-			return '';
+			return false;
 		}
 
 		self::$doNotSendToGoogle = true;
 
-		$localEventsList = self::getLocalEventsList($localCalendar);
+		$localEventsList = CCalendarEvent::getList(array(
+			'userId' => $localCalendar['OWNER_ID'],
+			'arFilter' => [
+				'SECTION' => $localCalendar['ID']
+			],
+			'arSelect' => [
+				"ID",
+				"CAL_TYPE",
+				"DT_SKIP_TIME",
+				"DATE_FROM",
+				"DATE_TO",
+				"TZ_FROM",
+				"TZ_TO",
+				"PARENT_ID",
+				"IS_MEETING",
+				"MEETING_STATUS",
+				"LOCATION",
+				"RRULE",
+				"EXDATE",
+				"DAV_XML_ID",
+				"RECURRENCE_ID",
+				"G_EVENT_ID",
+				"ATTENDEES_CODES",
+			],
+			'getUserfields' => false,
+			'parseDescription' => false,
+			'fetchSection' => false,
+			'checkPermissions' => false
+		));
 
 		$localEvents = [];
 
@@ -355,7 +383,7 @@ class CCalendarSync
 				$arNewFields["LOCATION"] = CCalendar::UnParseTextLocation($arFields['PROPERTY_LOCATION']);
 			if (!empty($arFields['DETAIL_TEXT']))
 			{
-				$arNewFields['DESCRIPTION'] = self::CutAttendeesFromDescription($arFields['DETAIL_TEXT'], $currentEvent['ATTENDEES_CODES']);
+				$arNewFields['DESCRIPTION'] = self::CutAttendeesFromDescription($arFields['DETAIL_TEXT'], self::getAttendeesCodesForCut($currentEvent['ATTENDEES_CODES']));
 			}
 
 			$arNewFields["DESCRIPTION"] = CCalendar::ClearExchangeHtml($arNewFields["DESCRIPTION"]);
@@ -1153,8 +1181,18 @@ class CCalendarSync
 		return self::$mobileBannerDisplay === 'Y';
 	}
 
-	private static function CutAttendeesFromDescription(?string $description, ?array $attendeesCodes)
+	/**
+	 * @param string|null $description
+	 * @param array|null $attendeesCodes
+	 * @return string|null
+	 */
+	private static function CutAttendeesFromDescription(?string $description, ?array $attendeesCodes): ?string
 	{
+		if (empty($attendeesCodes))
+		{
+			return $description;
+		}
+
 		$deleteParts = \Bitrix\Calendar\Util::getAttendees($attendeesCodes, "%");
 		$countSeparators = count($attendeesCodes) - 1;
 		$deleteParts[] = '%' . GetMessage('EC_ATTENDEES_EVENT_TITLE_DESCRIPTION') . ':%';
@@ -1283,7 +1321,10 @@ class CCalendarSync
 						self::$doNotSendToGoogle = false;
 					}
 
-					$newParentData['arFields']['DESCRIPTION'] = self::CutAttendeesFromDescription($newParentData['arFields']['DESCRIPTION'], $localEvents[$externalEvent['G_EVENT_ID'] . '@google.com']['ATTENDEES_CODES']);
+					$newParentData['arFields']['DESCRIPTION'] = self::CutAttendeesFromDescription(
+						$newParentData['arFields']['DESCRIPTION'],
+						self::getAttendeesCodesForCut($localEvents[$externalEvent['G_EVENT_ID'] . '@google.com']['ATTENDEES_CODES'])
+					);
 
 					$newParentData['sync'] = true;
 
@@ -1326,7 +1367,10 @@ class CCalendarSync
 
 						if (isset($externalEvent['DESCRIPTION']))
 						{
-							$externalEvent['DESCRIPTION'] = self::CutAttendeesFromDescription($externalEvent['DESCRIPTION'], $localEvents[$externalEvent['recurringEventId']]['ATTENDEES_CODES']);
+							$externalEvent['DESCRIPTION'] = self::CutAttendeesFromDescription(
+								$externalEvent['DESCRIPTION'],
+								self::getAttendeesCodesForCut($localEvents[$externalEvent['recurringEventId']]['ATTENDEES_CODES'])
+							);
 						}
 
 						CCalendar::SaveEvent(array(
@@ -1347,42 +1391,50 @@ class CCalendarSync
 	}
 
 	/**
-	 * @param $localCalendar
-	 * @return array|mixed|null
+	 * @param int $userId
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
-	private static function getLocalEventsList($localCalendar)
+	private static function getUserOffset(int $userId): string
 	{
-		$localEventsList = CCalendarEvent::getList(array(
-			'userId' => $localCalendar['OWNER_ID'],
-			'arFilter' => [
-				'SECTION' => $localCalendar['ID']
+		$userDb = \Bitrix\Main\UserTable::getList([
+			'filter' => [
+				'=ID' => $userId,
+				'ACTIVE' => 'Y',
 			],
-			'arSelect' => [
-				"ID",
-				"CAL_TYPE",
-				"DT_SKIP_TIME",
-				"DATE_FROM",
-				"DATE_TO",
-				"TZ_FROM",
-				"TZ_TO",
-				"PARENT_ID",
-				"IS_MEETING",
-				"MEETING_STATUS",
-				"LOCATION",
-				"RRULE",
-				"EXDATE",
-				"DAV_XML_ID",
-				"RECURRENCE_ID",
-				"G_EVENT_ID",
-				"ATTENDEES_CODES",
-			],
-			'getUserfields' => false,
-			'parseDescription' => false,
-			'fetchSection' => false,
-			'checkPermissions' => false
-		));
+			'select' => [
+				'TIME_ZONE_OFFSET',
+			]
+		]);
 
-		return $localEventsList;
+		if (($user = $userDb->fetch()) && is_string($user['TIME_ZONE_OFFSET']))
+		{
+			return $user['TIME_ZONE_OFFSET'];
+		}
+
+		return '';
+	}
+
+	/**
+	 * @param $attendeesCodes
+	 * @return array|null
+	 */
+	private static function getAttendeesCodesForCut($attendeesCodes): ?array
+	{
+		if(is_array($attendeesCodes))
+		{
+			return $attendeesCodes;
+		}
+		elseif (is_string($attendeesCodes))
+		{
+			if ($res = explode(',', $attendeesCodes))
+			{
+				return $res;
+			}
+		}
+
+		return null;
 	}
 
 	public function GetUserSyncInfo($userId)
@@ -1418,6 +1470,14 @@ class CCalendarSync
 		return $hash;
 	}
 
+	private static function getTimestampWithUserOffset($userId): Closure
+	{
+		$offset = self::getUserOffset($userId);
+		return function($date) use ($offset){
+			return \CCalendar::Timestamp($date, false, true) - $offset;
+		};
+	}
+
 	public static function GetSyncInfo($params = [])
 	{
 		$userId = \CCalendar::getCurUserId();
@@ -1435,17 +1495,7 @@ class CCalendarSync
 			$bExchangeConnected = $bExchange && \CDavExchangeCalendar::IsExchangeEnabledForUser($userId);
 		}
 
-		if (!Loader::includeModule('bitrix24'))
-		{
-			$syncInfo['exchange'] = [
-				'active' => $bExchange,
-				'connected' => $bExchangeConnected,
-				'syncDate' => $exchangeSyncInfo['date'],
-				'status' => $exchangeSyncInfo['status'],
-				'syncTimestamp' => \CCalendar::Timestamp($exchangeSyncInfo['date'], false, true),
-				'type' => 'exchange',
-			];
-		}
+		$calculateTimestamp = self::getTimestampWithUserOffset($userId);
 
 		$syncInfo = [
 			'mac' => [
@@ -1453,7 +1503,7 @@ class CCalendarSync
 				'connected' => $macSyncInfo['connected'],
 				'syncDate' => $macSyncInfo['date'],
 				'status' => $macSyncInfo['status'],
-				'syncTimestamp' => \CCalendar::Timestamp($macSyncInfo['date'], false, true),
+				'syncTimestamp' => $calculateTimestamp($macSyncInfo['date']),
 				'type' => 'mac'
 			],
 			'iphone' => [
@@ -1461,7 +1511,7 @@ class CCalendarSync
 				'connected' => $iphoneSyncInfo['connected'],
 				'syncDate' => $iphoneSyncInfo['date'],
 				'status' => $iphoneSyncInfo['status'],
-				'syncTimestamp' => \CCalendar::Timestamp($iphoneSyncInfo['date'], false, true),
+				'syncTimestamp' => $calculateTimestamp($iphoneSyncInfo['date']),
 				'type' => 'iphone',
 			],
 			'android' => [
@@ -1469,14 +1519,14 @@ class CCalendarSync
 				'connected' => $androidSyncInfo['connected'],
 				'syncDate' => $androidSyncInfo['date'],
 				'status' => $androidSyncInfo['status'],
-				'syncTimestamp' => \CCalendar::Timestamp($androidSyncInfo['date'], false, true),
+				'syncTimestamp' => $calculateTimestamp($androidSyncInfo['date']),
 				'type' => 'android',
 			],
 			'outlook' => [
 				'active' => true,
 				'connected' => $outlookSyncInfo['connected'],
 				'status' => $outlookSyncInfo['status'],
-				'syncTimestamp' => \CCalendar::Timestamp($outlookSyncInfo['date'], false, true),
+				'syncTimestamp' => $calculateTimestamp($outlookSyncInfo['date']),
 				'infoBySections' => $outlookSyncInfo['infoBySections'],
 				'type' => 'outlook',
 			],
@@ -1487,7 +1537,19 @@ class CCalendarSync
 			],
 		];
 
-		$caldavConnections = CCalendarSync::GetCaldavItemsInfo($userId, $params['type']);
+		if (!Loader::includeModule('bitrix24'))
+		{
+			$syncInfo['exchange'] = [
+				'active' => $bExchange,
+				'connected' => $bExchangeConnected,
+				'syncDate' => $exchangeSyncInfo['date'],
+				'status' => $exchangeSyncInfo['status'],
+				'syncTimestamp' => $calculateTimestamp($exchangeSyncInfo['date']),
+				'type' => 'exchange',
+			];
+		}
+
+		$caldavConnections = CCalendarSync::GetCaldavItemsInfo($userId, $params['type'], $calculateTimestamp);
 		if (is_array($caldavConnections))
 		{
 			$syncInfo = array_merge($syncInfo, $caldavConnections);
@@ -1580,7 +1642,7 @@ class CCalendarSync
 		return $result;
 	}
 
-	public static function GetCaldavItemsInfo($userId, $type)
+	public static function GetCaldavItemsInfo($userId, $type, $calculateTimestamp)
 	{
 		$connections = [];
 		$googleConnectionTypes = ['caldav_google_oauth', 'google_api_oauth'];
@@ -1607,8 +1669,8 @@ class CCalendarSync
 							'id' => $connection['ID'],
 							'active' => true,
 							'connected' => true,
-							'syncDate' => $connection['SYNCHRONIZED'],
-							'syncTimestamp' => \CCalendar::Timestamp($connection['SYNCHRONIZED'], false, true),
+							'syncDate' => $calculateTimestamp($connection['SYNCHRONIZED']),
+							'syncTimestamp' => $calculateTimestamp($connection['SYNCHRONIZED']),
 							'userName' => $connection['SERVER_USERNAME'],
 							'connectionName' => $connection['NAME'],
 							'type' => 'yandex',
@@ -1622,13 +1684,13 @@ class CCalendarSync
 							'id' => $connection['ID'],
 							'active' => true,
 							'connected' => true,
-							'syncDate' => $connection['SYNCHRONIZED'],
-							'syncTimestamp' => \CCalendar::Timestamp($connection['SYNCHRONIZED'], false, true),
+							'syncDate' => $calculateTimestamp($connection['SYNCHRONIZED']),
+							'syncTimestamp' => $calculateTimestamp($connection['SYNCHRONIZED']),
 							'userName' => $connection['SERVER_USERNAME'],
 							'connectionName' => $connection['NAME'],
 							'type' => 'caldav',
 							'status' => self::isConnectionSuccess($connection['LAST_RESULT']),
-							'server' => $connection['SERVER']
+							'server' => self['SERVER']
 						];
 					}
 				}
@@ -1639,8 +1701,8 @@ class CCalendarSync
 						'id' => $connection['ID'],
 						'active' => true,
 						'connected' => true,
-						'syncDate' => $connection['SYNCHRONIZED'],
-						'syncTimestamp' => \CCalendar::Timestamp($connection['SYNCHRONIZED'], false, true),
+						'syncDate' => $calculateTimestamp($connection['SYNCHRONIZED']),
+						'syncTimestamp' => $calculateTimestamp($connection['SYNCHRONIZED']),
 						'userName' => $connection['SERVER_USERNAME'] ?? $googleAccountInfo['googleCalendarPrimaryId'],
 						'connectionName' => $connection['NAME'],
 						'type' => 'google',

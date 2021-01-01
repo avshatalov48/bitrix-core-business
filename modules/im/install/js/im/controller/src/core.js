@@ -16,7 +16,7 @@ import {VuexBuilder} from "ui.vue.vuex";
 
 // messenger files
 import {ApplicationModel, MessagesModel, DialoguesModel, UsersModel, FilesModel, RecentModel} from 'im.model';
-import {DeviceType} from 'im.const';
+import {DeviceType, DeviceOrientation} from 'im.const';
 import {Utils} from "im.lib.utils";
 import {ImBasePullHandler} from "im.provider.pull";
 import {CoreRestHandler} from "im.provider.rest";

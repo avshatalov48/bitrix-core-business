@@ -1,0 +1,54 @@
+.landing-ui-field-small-switch .landing-ui-field-input {
+	padding: 0;
+	display: flex;
+	min-height: auto;
+}
+
+.landing-ui-field-small-switch .landing-ui-field-switch-label {
+	height: 17px;
+}
+
+.landing-ui-field-small-switch .landing-ui-field-switch-slider {
+	background: #E3E5E8;
+	width: 43px;
+	height: 17px;
+	min-width: auto;
+	border: none;
+	margin-left: 2px;
+	margin-right: 10px;
+}
+
+.landing-ui-field-small-switch .landing-ui-field-switch-slider::before {
+	width: 11px;
+	height: 11px;
+	left: 4px;
+	transform: translateY(-45%);
+	background: #FFFFFF;
+	box-shadow: 0 1px 1px 0 rgba(0, 0, 0, .09);
+	border-radius: 50%;
+}
+
+.landing-ui-field-small-switch .landing-ui-field-switch-checkbox:checked + .landing-ui-field-switch-slider:before {
+	transform: translateX(25px) translateY(-45%);
+}
+
+.landing-ui-field-small-switch .landing-ui-field-switch-slider::after {
+	font-family: OpenSans-Bold, Helvetca, Arial, sans-sarif;
+	opacity: 0.25;
+	font-size: 7px;
+	color: #515C69;
+	letter-spacing: 0.24px;
+	content: attr(data-text);
+	position: absolute;
+	left: 17px;
+	top: 50%;
+	transform: translateY(-47%);
+	transition: all 200ms ease;
+	z-index: 0;
+}
+
+.landing-ui-field-small-switch .landing-ui-field-switch-checkbox:checked + .landing-ui-field-switch-slider::after {
+	color: #ffffff;
+	opacity: .7;
+	left: 8px;
+}

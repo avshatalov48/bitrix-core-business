@@ -113,6 +113,12 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 	];
 
 	/**
+	 * First call createPage.
+	 * @var bool
+	 */
+	protected $firstCreatePage = true;
+
+	/**
 	 * Relative url for new site.
 	 * @var string
 	 */
@@ -204,15 +210,40 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		// for new page in EXISTING SITES - match value
 		if ($this->request('theme'))
 		{
-			if ($this->request('theme_use_site') && $this->request('theme_use_site') == 'Y')
+			$color = $this->request('theme');
+			$color = $this->prepareColor($color);
+			if ($this->request('theme_use_site') && $this->request('theme_use_site') === 'Y')
 			{
-				unset($data['ADDITIONAL_FIELDS']['THEME_CODE']);
+				unset($data['ADDITIONAL_FIELDS']['THEME_CODE'], $data['ADDITIONAL_FIELDS']['THEME_COLOR']);
 			}
 			else
 			{
-				$data['ADDITIONAL_FIELDS']['THEME_CODE'] = $this->request('theme');
-				// not overwrite typo - always use theme from template
+				$data['ADDITIONAL_FIELDS']['THEME_COLOR'] = $color;
 			}
+		}
+
+		if ($this->request('theme_custom_color'))
+		{
+			$color = $this->request('theme_custom_color');
+			$color = $this->prepareColor($color);
+			unset($data['ADDITIONAL_FIELDS']['THEME_CODE']);
+			$data['ADDITIONAL_FIELDS']['THEME_COLOR'] = $color;
+			if($this->arParams['SITE_ID'] > 0)
+			{
+				$data['ADDITIONAL_FIELDS']['THEME_USE'] = 'Y';
+			}
+			else
+			{
+				$data['ADDITIONAL_FIELDS']['THEME_USE'] = 'N';
+			}
+		}
+
+		if ($this->request('theme_use_site'))
+		{
+			$color = $this->request('theme_use_site');
+			$color = $this->prepareColor($color);
+			$data['ADDITIONAL_FIELDS']['THEME_COLOR'] = $color;
+			$data['ADDITIONAL_FIELDS']['THEME_USE'] = 'N';
 		}
 
 		return $data;
@@ -231,8 +262,18 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 
 		if ($this->request('theme'))
 		{
-			$data['ADDITIONAL_FIELDS']['THEME_CODE'] = $this->request('theme');
+			$color = $this->request('theme');
+			$color = $this->prepareColor($color);
+			$data['ADDITIONAL_FIELDS']['THEME_COLOR'] = $color;
 			// not overwrite typo - always use theme from template
+		}
+
+		if ($this->request('theme_custom_color'))
+		{
+			$color = $this->request('theme_custom_color');
+			$color = $this->prepareColor($color);
+			unset($data['ADDITIONAL_FIELDS']['THEME_CODE']);
+			$data['ADDITIONAL_FIELDS']['THEME_COLOR'] = $color;
 		}
 
 		return $data;
@@ -366,7 +407,6 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 	 */
 	public function createPage($siteId, $code, &$landing = null)
 	{
-		static $firstPage = true;
 		$demo = $this->getDemoPage($code);
 		$siteId = intval($siteId);
 
@@ -391,11 +431,11 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			}
 			$pageData = $this->prepareMainFields(
 				$data['fields'],
-				$firstPage
+				$this->firstCreatePage
 			);
 			$pageData = $this->prepareAdditionalFieldsPage(
 				$pageData,
-				$firstPage
+				$this->firstCreatePage
 			);
 			$pageData['SITE_ID'] = $siteId;
 			$pageData['ACTIVE'] = 'N';
@@ -606,7 +646,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 							if (isset($data['items'][$blocks[$k]]))
 							{
 								$newData = $data['items'][$blocks[$k]];
-								// adjust cards
+								// adjustParams cards
 								if (isset($newData['cards']) && is_array($newData['cards']))
 								{
 									foreach ($newData['cards'] as $selector => $count)
@@ -741,7 +781,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 							);
 						}
 					}
-					$firstPage = false;
+					$this->firstCreatePage = false;
 					return $landing->getId();
 				}
 				else
@@ -786,6 +826,11 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		if ($this->isRepo())
 		{
 			return '';
+		}
+
+		if (isset($template['PREVIEW_URL']))
+		{
+			return $template['PREVIEW_URL'];
 		}
 
 		// first detect from rest
@@ -1648,6 +1693,50 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 						];
 					}
 				}
+
+				// fill from zip repository
+				if (
+					defined('LANDING_DEMO_ZIP_URL') &&
+					($subDir == $this::DEMO_DIR_SITE || mb_substr($code, 0, 7) == 'bitrix.') &&
+					$this->arParams['TYPE'] == 'PAGE'
+				)
+				{
+					$http = new HttpClient;
+					$zip = $http->get(LANDING_DEMO_ZIP_URL);
+					if ($zip)
+					{
+						$zip = Json::decode($zip);
+					}
+					if (is_array($zip))
+					{
+						foreach ($zip as $demoKey => $demoZip)
+						{
+							$demoKey = 'bitrix.' . $demoKey;
+							$data[$demoKey] = [
+								'ID' => $demoKey,
+								'SORT' => 0,
+								'XML_ID' =>'',
+								'TYPE' => $this->arParams['TYPE'],
+								'TITLE' => $demoZip['name'],
+								'ACTIVE' => true,
+								'AVAILABLE' => true,
+								'SECTION' => [],
+								'DESCRIPTION' => $demoZip['description'] ?? '',
+								'PREVIEW' => $demoZip['preview'] ?? '',
+								'PREVIEW2X' => $demoZip['preview'] ?? '',
+								'PREVIEW3X' => $demoZip['preview'] ?? '',
+								'PREVIEW_URL' => $demoZip['url'] ?? '',
+								'ZIP_ID' => $demoZip['id'] ?? '',
+								'APP_CODE' => $demoZip['app_code'] ?? '',
+								'DATA' => [],
+								'TIMESTAMP' => 0,
+								'DESIGNED_BY' => [],
+								'REST' => 0,
+								'LANG' => LANGUAGE_ID
+							];
+						}
+					}
+				}
 			}
 
 			uasort($data, function($a, $b)
@@ -2124,7 +2213,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 						'tmp_name' => Manager::getDocRoot() . $xmlPath . '/hl/' . $colorFile
 					),
 				'UF_SORT' => $sort,
-				'UF_DEF' => ($sort > 100) ? '0' : '1',
+				'UF_DEF' => '0',
 				'UF_XML_ID' => mb_strtolower($colorName)
 			);
 		}
@@ -3205,5 +3294,19 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		$row = $iterator->fetch();
 		unset($iterator);
 		return (!empty($row) ? (int)$row['ID'] : null);
+	}
+
+	/**
+	 * Checking first symbols # in hex color
+	 * @param string $color color in hex format.
+	 * @return string
+	 */
+	private function prepareColor($color)
+	{
+		if ($color[0] !== '#')
+		{
+			$color = '#'.$color;
+		}
+		return $color;
 	}
 }

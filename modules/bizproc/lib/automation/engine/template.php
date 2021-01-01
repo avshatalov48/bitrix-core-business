@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Bizproc\Automation\Engine;
 
+use Bitrix\Bizproc;
 use Bitrix\Bizproc\Workflow\Template\Tpl;
 use Bitrix\Bizproc\WorkflowTemplateTable;
 use Bitrix\Main\ArgumentException;
@@ -29,6 +30,7 @@ class Template
 	/** @var  null|Robot[] */
 	protected $robots;
 	protected $isExternalModified;
+	protected $isConverted = false;
 
 	/**
 	 * Template constructor.
@@ -192,13 +194,18 @@ class Template
 		return $saveResult;
 	}
 
-	public function save(array $robots, $userId)
+	public function save(array $robots, $userId, array $additional = [])
 	{
 		$userId = (int)$userId;
 		$result = new Result();
 		$templateId = !empty($this->template['ID']) ? $this->template['ID'] : 0;
 
 		$this->setRobots($robots);
+
+		if (isset($additional['PARAMETERS']) && is_array($additional['PARAMETERS']))
+		{
+			$this->template['PARAMETERS'] = $additional['PARAMETERS'];
+		}
 
 		$templateResult = $templateId ?
 			$this->updateBizprocTemplate($templateId, $userId) : $this->addBizprocTemplate($userId);
@@ -408,7 +415,7 @@ class Template
 
 				if ($activity['Type'] === static::$conditionActivityType)
 				{
-					$condition = ConditionGroup::convertBizprocActivity($activity, $this->getDocumentType());
+					$condition = ConditionGroup::convertBizprocActivity($activity, $this->getDocumentType(), $this);
 					if ($condition === false)
 					{
 						$this->isExternalModified = true;
@@ -449,6 +456,7 @@ class Template
 			}
 		}
 
+		$this->isConverted = true;
 		return $this->robots;
 	}
 
@@ -507,7 +515,7 @@ class Template
 
 				if ($condition && count($condition->getItems()) > 0)
 				{
-					$activity = $condition->createBizprocActivity($activity, $documentType);
+					$activity = $condition->createBizprocActivity($activity, $documentType, $this);
 				}
 
 				$sequence['Children'][] = $activity;
@@ -522,6 +530,8 @@ class Template
 
 			$this->template['TEMPLATE'][0]['Children'][] = $parallelActivity;
 		}
+		$this->robots = null;
+		$this->isConverted = false;
 	}
 
 	protected function isRobot(array $activity)
@@ -585,6 +595,83 @@ class Template
 	public function getDocumentType(): array
 	{
 		return [$this->template['MODULE_ID'], $this->template['ENTITY'], $this->template['DOCUMENT_TYPE']];
+	}
+
+	public function getProperty($object, $field): ?array
+	{
+		switch ($object)
+		{
+			case 'Template':
+				return $this->template['PARAMETERS'][$field] ?? null;
+				break;
+			case 'Variable':
+				return $this->template['VARIABLES'][$field] ?? null;
+				break;
+			case 'Constant':
+				return $this->template['CONSTANTS'][$field] ?? null;
+				break;
+			case 'GlobalConst':
+				return Bizproc\Workflow\Type\GlobalConst::getById($field);
+				break;
+			case 'Document':
+				static $fields;
+				if (!$fields)
+				{
+					$documentService = \CBPRuntime::GetRuntime(true)->getDocumentService();
+					$fields = $documentService->GetDocumentFields($this->getDocumentType());
+				}
+
+				return $fields[$field] ?? null;
+				break;
+			default:
+				if ($this->isConverted)
+				{
+					return $this->findRobotProperty($object, $field);
+				}
+				else
+				{
+					return $this->findActivityProperty($object, $field);
+				}
+				break;
+		}
+	}
+
+	private function findRobotProperty($object, $field): ?array
+	{
+		$robot = $this->getRobotByName($object);
+		return $robot ? $robot->getReturnProperty($field) : null;
+	}
+
+	private function findActivityProperty($object, $field): ?array
+	{
+		$activity = self::findTemplateActivity($this->template['TEMPLATE'], $object);
+		if (!$activity)
+		{
+			return null;
+		}
+
+		$props = \CBPRuntime::GetRuntime(true)->getActivityReturnProperties($activity['Type']);
+		return $props[$field] ?? null;
+	}
+
+	private static function findTemplateActivity(array $template, $id)
+	{
+		foreach ($template as $activity)
+		{
+			if ($activity['Name'] === $id)
+			{
+				return $activity;
+			}
+			if (is_array($activity['Children']))
+			{
+				$found = self::findTemplateActivity($activity['Children'], $id);
+				if ($found)
+				{
+					return $found;
+				}
+			}
+		}
+		return null;
 	}
 
 	private function createSequenceActivity()

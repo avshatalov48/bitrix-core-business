@@ -1418,6 +1418,26 @@ this.BX = this.BX || {};
 	    value: function getEventWithEmailGuestLimit() {
 	      return Util.eventWithEmailGuestLimit;
 	    }
+	  }, {
+	    key: "setCurrentView",
+	    value: function setCurrentView() {
+	      var calendarView = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+	      Util.currentCalendarView = calendarView;
+	    }
+	  }, {
+	    key: "getCurrentView",
+	    value: function getCurrentView() {
+	      return Util.currentCalendarView || null;
+	    }
+	  }, {
+	    key: "adjustDateForTimezoneOffset",
+	    value: function adjustDateForTimezoneOffset(date) {
+	      var timezoneOffset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+	      var fullDay = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+	      if (!main_core.Type.isDate(date)) throw new Error('Wrong type for date attribute. DateTime object expected.');
+	      if (!parseInt(timezoneOffset) || fullDay === true) return date;
+	      return new Date(date.getTime() - parseInt(timezoneOffset) * 1000);
+	    }
 	  }]);
 	  return Util;
 	}();

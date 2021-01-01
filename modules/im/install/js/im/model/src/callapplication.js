@@ -23,13 +23,19 @@ export class CallApplicationModel extends VuexBuilderModel
 			common:
 			{
 				inited: false,
+				passChecked: true,
 				showChat: false,
 				userCount: 0,
 				userInCallCount: 0,
 				state: CallStateType.preparation,
-				componentError: '',
-				callError: '',
-				showSmiles: false
+				showSmiles: false,
+				error: '',
+				conferenceTitle: '',
+				alias: '',
+				conferenceStarted: null,
+				conferenceStartDate: null,
+				joinWithVideo: null,
+				userReadyToJoin: false
 			},
 			user:
 			{
@@ -47,6 +53,10 @@ export class CallApplicationModel extends VuexBuilderModel
 				if (typeof payload.inited === 'boolean')
 				{
 					state.common.inited = payload.inited;
+				}
+				if (typeof payload.passChecked === 'boolean')
+				{
+					state.common.passChecked = payload.passChecked;
 				}
 				if (typeof payload.showChat === 'boolean')
 				{
@@ -92,17 +102,55 @@ export class CallApplicationModel extends VuexBuilderModel
 			{
 				state.common.state = CallStateType.preparation;
 			},
-			setCallError: (state, payload) =>
-			{
-				state.common.callError = payload.errorCode;
-			},
-			setComponentError: (state, payload) =>
-			{
-				state.common.componentError = payload.errorCode;
-			},
 			toggleSmiles: (state, payload) =>
 			{
 				state.common.showSmiles = !state.common.showSmiles;
+			},
+			setError: (state, payload) =>
+			{
+				if (typeof payload.errorCode === 'string')
+				{
+					state.common.error = payload.errorCode;
+				}
+			},
+			setConferenceTitle: (state, payload) =>
+			{
+				if (typeof payload.conferenceTitle === 'string')
+				{
+					state.common.conferenceTitle = payload.conferenceTitle;
+				}
+			},
+			setAlias: (state, payload) =>
+			{
+				if (typeof payload.alias === 'string')
+				{
+					state.common.alias = payload.alias;
+				}
+			},
+			setJoinType: (state, payload) =>
+			{
+				if (typeof payload.joinWithVideo === 'boolean')
+				{
+					state.common.joinWithVideo = payload.joinWithVideo;
+				}
+			},
+			setConferenceStatus: (state, payload) =>
+			{
+				if (typeof payload.conferenceStarted === 'boolean')
+				{
+					state.common.conferenceStarted = payload.conferenceStarted;
+				}
+			},
+			setConferenceStartDate: (state, payload) =>
+			{
+				if (payload.conferenceStartDate instanceof Date)
+				{
+					state.common.conferenceStartDate = payload.conferenceStartDate;
+				}
+			},
+			setUserReadyToJoin: (state, payload) =>
+			{
+				state.common.userReadyToJoin = true;
 			}
 		}
 	}
@@ -112,12 +160,17 @@ export class CallApplicationModel extends VuexBuilderModel
 		return {
 			common: {
 				inited: null,
-				callError: null,
 				state: null,
 				showSmiles: null,
 				userCount: null,
 				userInCallCount: null,
-				componentError: null
+				error: null,
+				conferenceTitle: null,
+				alias: null,
+				conferenceStarted: null,
+				conferenceStartDate: null,
+				joinWithVideo: null,
+				userReadyToJoin: null
 			},
 		}
 	}

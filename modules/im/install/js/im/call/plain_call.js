@@ -50,6 +50,7 @@
 		iceCandidate: 'Call::iceCandidate',
 		voiceStarted: 'Call::voiceStarted',
 		voiceStopped: 'Call::voiceStopped',
+		recordState: 'Call::recordState',
 		microphoneState: 'Call::microphoneState',
 		hangup: 'Call::hangup',
 		userInviteTimeout: 'Call::userInviteTimeout'
@@ -80,6 +81,15 @@
 		this.signaling = new BX.Call.PlainCall.Signaling({
 			call: this
 		});
+
+		this.recordState = {
+			state: 'stopped',
+			userId: 0,
+			date: {
+				start: null,
+				pause: []
+			},
+		}
 
 		this.deviceList = [];
 
@@ -123,16 +133,16 @@
 			userId: userId,
 			ready: userId == this.initiatorId,
 			signalingConnected: userId == this.initiatorId,
-			isMobile: userId == this.initiatorId && this.callFromMobile,
+			isLegacyMobile: userId == this.initiatorId && this.callFromMobile,
 
 			onStreamReceived: function(e)
 			{
-				//this.log("onStreamReceived: ", e);
+				//self.log("onStreamReceived: ", e);
 				self.runCallback(BX.Call.Event.onStreamReceived, e);
 			},
 			onStreamRemoved: function(e)
 			{
-				//this.log("onStreamRemoved: ", e);
+				//self.log("onStreamRemoved: ", e);
 				self.runCallback(BX.Call.Event.onStreamRemoved, e);
 			},
 			onStateChanged: this.__onPeerStateChanged.bind(this),
@@ -196,6 +206,11 @@
 		this.signaling.sendMicrophoneState(this.users, !this.muted);
 	};
 
+	BX.Call.PlainCall.prototype.isMuted = function()
+	{
+		return this.muted;
+	}
+
 	BX.Call.PlainCall.prototype.setCameraId = function(cameraId)
 	{
 		if(this.cameraId == cameraId)
@@ -246,6 +261,20 @@
 	BX.Call.PlainCall.prototype.useHdVideo = function(flag)
 	{
 		this.videoHd = (flag === true);
+	};
+
+	BX.Call.PlainCall.prototype.sendRecordState = function(recordState)
+	{
+		recordState.senderId = this.userId;
+
+		if (!this.__changeRecordState(recordState))
+		{
+			return false;
+		}
+
+		var users = [this.userId].concat(this.users);
+
+		this.signaling.sendRecordState(users, this.recordState);
 	};
 
 	BX.Call.PlainCall.prototype.setVideoQuality = function(videoQuality)
@@ -712,10 +741,10 @@
 		{
 			config = {};
 		}
-		if(this.direction !== BX.Call.Direction.Incoming)
+		/*if(this.direction !== BX.Call.Direction.Incoming)
 		{
 			throw new Error('Only incoming call could be answered');
-		}
+		}*/
 
 		this.ready = true;
 		this.videoEnabled = (config.useVideo == true);
@@ -807,7 +836,7 @@
 	{
 		if (this.ready)
 		{
-			this.signaling.sendPingToUsers({userId: this.users});
+			this.signaling.sendPingToUsers({userId: this.users.concat(this.userId)});
 		}
 	};
 
@@ -955,6 +984,64 @@
 		}
 	};
 
+	BX.Call.PlainCall.prototype.__changeRecordState = function(params)
+	{
+		if (params.action !== BX.Call.View.RecordState.Started && this.recordState.userId != params.senderId)
+		{
+			return false;
+		}
+
+		if (params.action === BX.Call.View.RecordState.Started)
+		{
+			if (this.recordState.state !== BX.Call.View.RecordState.Stopped)
+			{
+				return false;
+			}
+
+			this.recordState.state = BX.Call.View.RecordState.Started;
+			this.recordState.userId = params.senderId;
+			this.recordState.date.start = params.date;
+			this.recordState.date.pause = [];
+		}
+		else if (params.action === BX.Call.View.RecordState.Paused)
+		{
+			if (this.recordState.state !== BX.Call.View.RecordState.Started)
+			{
+				return false;
+			}
+
+			this.recordState.state = BX.Call.View.RecordState.Paused;
+			this.recordState.date.pause.push(
+				{start: params.date, finish: null}
+			);
+		}
+		else if (params.action === BX.Call.View.RecordState.Resumed)
+		{
+			if (this.recordState.state !== BX.Call.View.RecordState.Paused)
+			{
+				return false;
+			}
+
+			this.recordState.state = BX.Call.View.RecordState.Started;
+			var pauseElement = this.recordState.date.pause.find(function(element) {
+				return element.finish === null;
+			});
+			if (pauseElement)
+			{
+				pauseElement.finish = params.date;
+			}
+		}
+		else if (params.action === BX.Call.View.RecordState.Stopped)
+		{
+			this.recordState.state = BX.Call.View.RecordState.Stopped;
+			this.recordState.userId = 0;
+			this.recordState.date.start = null;
+			this.recordState.date.pause = [];
+		}
+
+		return true;
+	}
+
 	BX.Call.PlainCall.prototype.__onPullEvent = function(command, params, extra)
 	{
 		var handlers = {
@@ -968,6 +1055,7 @@
 			'Call::voiceStarted': this.__onPullEventVoiceStarted.bind(this),
 			'Call::voiceStopped': this.__onPullEventVoiceStopped.bind(this),
 			'Call::microphoneState': this.__onPullEventMicrophoneState.bind(this),
+			'Call::recordState': this.__onPullEventRecordState.bind(this),
 			'Call::usersJoined': this.__onPullEventUsersJoined.bind(this),
 			'Call::usersInvited': this.__onPullEventUsersInvited.bind(this),
 			'Call::userInviteTimeout': this.__onPullEventUserInviteTimeout.bind(this),
@@ -1034,9 +1122,15 @@
 			return;
 		}
 
+		if (this.peers[senderId].isReady())
+		{
+			this.log("Received answer for user " + senderId + " in ready state, ignoring");
+			return;
+		}
+
 		this.peers[senderId].setSignalingConnected(true);
 		this.peers[senderId].setReady(true);
-		this.peers[senderId].isMobile = params.isMobile === true;
+		this.peers[senderId].isLegacyMobile = params.isLegacyMobile === true;
 		if(this.ready)
 		{
 			this.sendAllStreams(senderId);
@@ -1047,6 +1141,12 @@
 	{
 		if(params.callInstanceId === this.instanceId)
 			return;
+
+		if (this.ready)
+		{
+			this.log("Received remote self-answer in ready state, ignoring");
+			return;
+		}
 
 		// call was answered elsewhere
 		this.log("Call was answered elsewhere");
@@ -1088,6 +1188,12 @@
 
 	BX.Call.PlainCall.prototype.__onPullEventPing = function(params)
 	{
+		if (params.callInstanceId == this.instanceId)
+		{
+			// ignore self ping
+			return;
+		}
+
 		var peer = this.peers[params.senderId];
 		if(!peer)
 			return;
@@ -1101,7 +1207,7 @@
 		{
 			return;
 		}
-		/** @var BX.Call.PlainCall.Peer */
+		/** @var {BX.Call.PlainCall.Peer} peer*/
 		var peer = this.peers[params.senderId];
 		if(!peer)
 		{
@@ -1196,6 +1302,14 @@
 		this.runCallback(BX.Call.Event.onUserMicrophoneState, {
 			userId: params.senderId,
 			microphoneState: params.microphoneState
+		})
+	};
+
+	BX.Call.PlainCall.prototype.__onPullEventRecordState = function(params)
+	{
+		this.runCallback(BX.Call.Event.onUserRecordState, {
+			userId: params.senderId,
+			recordState: params.recordState
 		})
 	};
 
@@ -1393,11 +1507,22 @@
 		}
 	};
 
+	BX.Call.PlainCall.Signaling.prototype.sendRecordState = function(users, recordState)
+	{
+		if(BX.CallEngine.getPullClient().isPublishingSupported())
+		{
+			return this.__sendPullEvent(pullEvents.recordState, {
+				userId: users,
+				recordState: recordState
+			}, 0);
+		}
+	};
+
 	BX.Call.PlainCall.Signaling.prototype.sendPingToUsers = function(data)
 	{
 		if (BX.CallEngine.getPullClient().isPublishingEnabled())
 		{
-			this.__sendPullEvent(pullEvents.ping, data, 0);
+			this.__sendPullEvent(pullEvents.ping, data, 5);
 		}
 	};
 
@@ -1419,7 +1544,7 @@
 	{
 		if(BX.CallEngine.getPullClient().isPublishingSupported())
 		{
-			this.__sendPullEvent(pullEvents.hangup, data);
+			this.__sendPullEvent(pullEvents.hangup, data, 3600);
 			data.retransmit = false;
 			return this.__runRestAction(ajaxActions.hangup, data);
 		}
@@ -1483,7 +1608,7 @@
 		this.userAgent = '';
 		this.isFirefox = false;
 		this.isChrome = false;
-		this.isMobile = params.isMobile === true;
+		this.isLegacyMobile = params.isLegacyMobile === true;
 
 		/*sums up from signaling, ready and connection states*/
 		this.calculatedState = this.calculateState();
@@ -1495,6 +1620,7 @@
 
 		this.senderMediaStream = null;
 		this.peerConnection = null;
+		this.peerConnectionId = null;
 		this.pendingIceCandidates = {};
 		this.localIceCandidates = [];
 
@@ -1525,15 +1651,16 @@
 		this._onPeerConnectionIceCandidateHandler = this._onPeerConnectionIceCandidate.bind(this);
 		this._onPeerConnectionIceConnectionStateChangeHandler = this._onPeerConnectionIceConnectionStateChange.bind(this);
 		this._onPeerConnectionIceGatheringStateChangeHandler = this._onPeerConnectionIceGatheringStateChange.bind(this);
+		this._onPeerConnectionSignalingStateChangeHandler = this._onPeerConnectionSignalingStateChange.bind(this);
 		//this._onPeerConnectionNegotiationNeededHandler = this._onPeerConnectionNegotiationNeeded.bind(this);
 		this._onPeerConnectionTrackHandler = this._onPeerConnectionTrack.bind(this);
 		this._onPeerConnectionRemoveStreamHandler = this._onPeerConnectionRemoveStream.bind(this);
+
+		this._sendStreamDebounced = BX.debounce(this._sendStream.bind(this), 50);
 	};
 
 	BX.Call.PlainCall.Peer.prototype.sendMedia = function(skipOffer)
 	{
-		var tracksToSend = [];
-
 		if(!this.peerConnection)
 		{
 			if(!this.isInitiator())
@@ -1544,59 +1671,97 @@
 			}
 		}
 
-		if(this.call.localStreams["main"])
-		{
-			tracksToSend = tracksToSend.concat(this.call.localStreams["main"].getAudioTracks());
-		}
-		if(this.call.localStreams["screen"])
-		{
-			tracksToSend = tracksToSend.concat(this.call.localStreams["screen"].getVideoTracks());
-		}
-		else if(this.call.localStreams["main"])
-		{
-			tracksToSend = tracksToSend.concat(this.call.localStreams["main"].getVideoTracks());
-		}
-
-		this.log("User: " + this.userId + '; Sending media streams. Tracks: ' + tracksToSend.map(function(track){return track.id}).join('; '));
-
-		if(tracksToSend.length === 0)
-		{
-			this.log("No media streams to send");
-			return;
-		}
-
-		if(this.peerConnection)
-		{
-			this.peerConnection.getSenders().forEach(function(sender)
-			{
-				this.peerConnection.removeTrack(sender);
-			}.bind(this));
-		}
-		else
+		if(!this.peerConnection)
 		{
 			var connectionId = BX.Call.Engine.getInstance().getUuidv4();
 			this._createPeerConnection(connectionId);
 		}
-
-		if(this.senderMediaStream && this.senderMediaStream.getTracks().length > 0)
-		{
-			this.log('removing old tracks');
-			this.senderMediaStream.getTracks().forEach(function(track)
-			{
-				this.senderMediaStream.removeTrack(track);
-			}, this);
-		}
-
-		this.senderMediaStream = new MediaStream();
-		tracksToSend.forEach(function(track)
-		{
-			this.senderMediaStream.addTrack(track);
-			this.peerConnection.addTrack(track, this.senderMediaStream);
-		}, this);
+		this.updateOutgoingTracks();
 
 		if(!skipOffer)
 		{
 			this.createAndSendOffer();
+		}
+	};
+
+	BX.Call.PlainCall.Peer.prototype.updateOutgoingTracks = function()
+	{
+		if (!this.peerConnection)
+		{
+			return;
+		}
+
+		var audioTrack;
+		var audioStream;
+		var videoTrack;
+		var videoStream;
+
+		if(this.call.localStreams["main"] && this.call.localStreams["main"].getAudioTracks().length > 0)
+		{
+			audioTrack = this.call.localStreams["main"].getAudioTracks()[0];
+			audioStream = this.call.localStreams["main"];
+		}
+		if(this.call.localStreams["screen"] && this.call.localStreams["screen"].getVideoTracks().length > 0)
+		{
+			videoTrack = this.call.localStreams["screen"].getVideoTracks()[0];
+			videoStream = this.call.localStreams["screen"];
+		}
+		else if(this.call.localStreams["main"] && this.call.localStreams["main"].getVideoTracks().length > 0)
+		{
+			videoTrack =this.call.localStreams["main"].getVideoTracks()[0];
+			videoStream = this.call.localStreams["main"];
+		}
+
+		var tracksToSend = [];
+		if (audioTrack)
+		{
+			tracksToSend.push(audioTrack.id)
+		}
+		if (videoTrack)
+		{
+			tracksToSend.push(videoTrack.id)
+		}
+
+		this.log("User: " + this.userId + '; Sending media streams. Tracks: ' + tracksToSend.join('; '));
+
+		// search for video sender
+		// if found - replace track
+		// if not found - add track
+		var videoSender = this.peerConnection.getSenders().find(function(sender)
+		{
+			return sender.track && sender.track.kind == "video"
+		});
+		if (videoSender && videoTrack)
+		{
+			videoSender.replaceTrack(videoTrack);
+		}
+		if (!videoSender && videoTrack)
+		{
+			this.peerConnection.addTrack(videoTrack, videoStream);
+		}
+		if (videoSender && !videoTrack)
+		{
+			this.peerConnection.removeTrack(videoSender);
+		}
+
+		// search for audio sender
+		// if found - replace track
+		// if not found - add track
+		var audioSender = this.peerConnection.getSenders().find(function(sender)
+		{
+			return sender.track && sender.track.kind == "audio"
+		});
+		if (audioSender && audioTrack)
+		{
+			audioSender.replaceTrack(audioTrack);
+		}
+		if (!audioSender && audioTrack)
+		{
+			this.peerConnection.addTrack(audioTrack, audioStream);
+		}
+		if (audioSender && !audioTrack)
+		{
+			this.peerConnection.removeTrack(audioSender);
 		}
 	};
 
@@ -1620,6 +1785,7 @@
 
 	BX.Call.PlainCall.Peer.prototype.isRenegotiationSupported = function()
 	{
+		return  true;
 		return (BX.browser.IsChrome() && this.isChrome);
 	};
 
@@ -1681,7 +1847,7 @@
 		this.userAgent = userAgent;
 		this.isFirefox = userAgent.toLowerCase().indexOf('firefox') != -1;
 		this.isChrome = userAgent.toLowerCase().indexOf('chrome') != -1;
-		this.isMobile = userAgent === 'Bitrix Mobile';
+		this.isLegacyMobile = userAgent === 'Bitrix Legacy Mobile';
 	};
 
 	BX.Call.PlainCall.Peer.prototype.getUserAgent = function()
@@ -1763,7 +1929,7 @@
 				userId: this.userId,
 				state: calculatedState,
 				previousState: this.calculatedState,
-				isMobile: this.isMobile
+				isLegacyMobile: this.isLegacyMobile
 			});
 			this.calculatedState = calculatedState;
 		}
@@ -1848,15 +2014,14 @@
 
 	BX.Call.PlainCall.Peer.prototype.sendIceCandidates = function()
 	{
-		this.candidatesTimeout = null;
-
 		this.log("User " + this.userId + ": sending ICE candidates due to the timeout");
 
+		this.candidatesTimeout = null;
 		if(this.localIceCandidates.length > 0)
 		{
 			this.getSignaling().sendIceCandidate({
 				userId: this.userId,
-				connectionId: this.peerConnection._id,
+				connectionId: this.peerConnectionId,
 				candidates: this.localIceCandidates
 			});
 			this.localIceCandidates = [];
@@ -1885,17 +2050,17 @@
 		};
 
 		this.localIceCandidates = [];
-		var peerConnection = new RTCPeerConnection(connectionConfig);
-		peerConnection._id = id;
+		this.peerConnection = new RTCPeerConnection(connectionConfig);
+		this.peerConnectionId = id;
 
-		peerConnection.addEventListener("icecandidate", this._onPeerConnectionIceCandidateHandler);
-		peerConnection.addEventListener("iceconnectionstatechange", this._onPeerConnectionIceConnectionStateChangeHandler);
-		peerConnection.addEventListener("icegatheringstatechange", this._onPeerConnectionIceGatheringStateChangeHandler);
-		peerConnection.addEventListener("negotiationneeded", this._onPeerConnectionNegotiationNeededHandler);
-		peerConnection.addEventListener("track", this._onPeerConnectionTrackHandler);
-		peerConnection.addEventListener("removestream", this._onPeerConnectionRemoveStreamHandler);
+		this.peerConnection.addEventListener("icecandidate", this._onPeerConnectionIceCandidateHandler);
+		this.peerConnection.addEventListener("iceconnectionstatechange", this._onPeerConnectionIceConnectionStateChangeHandler);
+		this.peerConnection.addEventListener("icegatheringstatechange", this._onPeerConnectionIceGatheringStateChangeHandler);
+		this.peerConnection.addEventListener("signalingstatechange", this._onPeerConnectionSignalingStateChangeHandler);
+		// this.peerConnection.addEventListener("negotiationneeded", this._onPeerConnectionNegotiationNeededHandler);
+		this.peerConnection.addEventListener("track", this._onPeerConnectionTrackHandler);
+		this.peerConnection.addEventListener("removestream", this._onPeerConnectionRemoveStreamHandler);
 
-		this.peerConnection = peerConnection;
 		this.failureReason = '';
 		this.updateCalculatedState();
 
@@ -1907,32 +2072,31 @@
 		if(!this.peerConnection)
 			return;
 
-		var connectionId = this.peerConnection._id;
-
-		this.log("User " + this.userId + ": Destroying peer connection " + connectionId);
+		this.log("User " + this.userId + ": Destroying peer connection " + this.peerConnectionId);
 		this.stopStatisticsGathering();
 
 		this.peerConnection.removeEventListener("icecandidate", this._onPeerConnectionIceCandidateHandler);
 		this.peerConnection.removeEventListener("iceconnectionstatechange", this._onPeerConnectionIceConnectionStateChangeHandler);
 		this.peerConnection.removeEventListener("icegatheringstatechange", this._onPeerConnectionIceGatheringStateChangeHandler);
-		this.peerConnection.removeEventListener("negotiationneeded", this._onPeerConnectionNegotiationNeededHandler);
+		this.peerConnection.removeEventListener("signalingstatechange", this._onPeerConnectionSignalingStateChangeHandler);
+		// this.peerConnection.removeEventListener("negotiationneeded", this._onPeerConnectionNegotiationNeededHandler);
 		this.peerConnection.removeEventListener("track", this._onPeerConnectionTrackHandler);
 		this.peerConnection.removeEventListener("removestream", this._onPeerConnectionRemoveStreamHandler);
 
 		this.localIceCandidates = [];
-		if(this.pendingIceCandidates[connectionId])
+		if(this.pendingIceCandidates[this.peerConnectionId])
 		{
-			delete this.pendingIceCandidates[connectionId];
+			delete this.pendingIceCandidates[this.peerConnectionId];
 		}
 
 		this.peerConnection.close();
 		this.peerConnection = null;
+		this.peerConnectionId = null;
 	};
 
 	BX.Call.PlainCall.Peer.prototype._onPeerConnectionIceCandidate = function(e)
 	{
 		var candidate = e.candidate;
-		var connection = e.target;
 		this.log("User " + this.userId +  ": ICE candidate discovered. Candidate: " + (candidate ? candidate.candidate : candidate));
 
 		if(candidate)
@@ -1941,7 +2105,7 @@
 			{
 				this.getSignaling().sendIceCandidate({
 					userId: this.userId,
-					connectionId: connection._id,
+					connectionId: this.peerConnectionId,
 					candidates: [candidate.toJSON()]
 				});
 			}
@@ -1957,10 +2121,11 @@
 	{
 		this.log("User " + this.userId +  ": ICE connection state changed. New state: " + this.peerConnection.iceConnectionState);
 
-		if(this.peerConnection.iceConnectionState === "connected")
+		if(this.peerConnection.iceConnectionState === "connected" || this.peerConnection.iceConnectionState === "completed")
 		{
 			this.connectionAttempt = 0;
 			clearTimeout(this.reconnectAfterDisconnectTimeout);
+			this._sendStreamDebounced();
 		}
 		else if(this.peerConnection.iceConnectionState === "failed")
 		{
@@ -1995,7 +2160,7 @@
 				{
 					this.getSignaling().sendIceCandidate({
 						userId: this.userId,
-						connectionId: connection._id,
+						connectionId: this.peerConnectionId,
 						candidates: this.localIceCandidates
 					});
 					this.localIceCandidates = [];
@@ -2005,6 +2170,15 @@
 					this.log("User " + this.userId +  ": ICE candidates already sent");
 				}
 			}
+		}
+	};
+
+	BX.Call.PlainCall.Peer.prototype._onPeerConnectionSignalingStateChange = function(e)
+	{
+		this.log("User " + this.id + " PC signalingState: " + this.peerConnection.signalingState);
+		if (this.peerConnection.signalingState === "stable")
+		{
+			this._sendStreamDebounced();
 		}
 	};
 
@@ -2037,11 +2211,14 @@
 	{
 		this.log("User " + this.userId + ": media track received: ", e.track.id + " (" + e.track.kind + ")");
 
-		this.callbacks.onStreamReceived({
-			userId: this.userId,
-			kind: e.track.kind,
-			stream: e.streams[0]
-		});
+		if (e.track.kind == "video")
+		{
+			e.track.addEventListener("mute", this._onVideoTrackMuted.bind(this));
+			e.track.addEventListener("unmute", this._onVideoTrackUnMuted.bind(this));
+			e.track.addEventListener("ended", this._onVideoTrackEnded.bind(this));
+		}
+
+		this._sendStreamDebounced();
 	};
 
 	BX.Call.PlainCall.Peer.prototype._onPeerConnectionRemoveStream = function(e)
@@ -2049,8 +2226,55 @@
 		this.log("User: " + this.userId + "_onPeerConnectionRemoveStream: ", e);
 		this.callbacks.onStreamRemoved({
 			userId: this.userId,
-			stream: e.stream
 		})
+	};
+
+	BX.Call.PlainCall.Peer.prototype._onVideoTrackMuted = function()
+	{
+		this.log("Video track muted");
+		//this._sendStreamDebounced();
+	};
+
+	BX.Call.PlainCall.Peer.prototype._onVideoTrackUnMuted = function()
+	{
+		this.log("Video track unmuted");
+		//this._sendStreamDebounced();
+	};
+
+	BX.Call.PlainCall.Peer.prototype._onVideoTrackEnded = function()
+	{
+		this.log("Video track ended");
+	};
+
+	BX.Call.PlainCall.Peer.prototype._sendStream = function()
+	{
+		this.callbacks.onStreamReceived({
+			userId: this.userId,
+			stream: this._buildMediaStream()
+		})
+	};
+
+	BX.Call.PlainCall.Peer.prototype._buildMediaStream = function()
+	{
+		if (!this.peerConnection)
+		{
+			return null;
+		}
+		var result = new MediaStream();
+		this.peerConnection.getTransceivers().forEach(function(tr)
+		{
+			this.call.log("[debug] tr direction: " + tr.direction + " currentDirection: " + tr.currentDirection);
+
+			if (tr.currentDirection == "sendrecv" || tr.currentDirection == "recvonly")
+			{
+				if (tr.receiver && tr.receiver.track)
+				{
+					result.addTrack(tr.receiver.track)
+				}
+			}
+		}, this);
+
+		return result;
 	};
 
 	BX.Call.PlainCall.Peer.prototype.stopSignalingTimeout = function()
@@ -2098,7 +2322,7 @@
 
 		if(this.peerConnection)
 		{
-			if(this.peerConnection._id !== connectionId)
+			if(this.peerConnectionId !== connectionId)
 			{
 				this._destroyPeerConnection();
 				this._createPeerConnection(connectionId);
@@ -2135,19 +2359,18 @@
 
 	BX.Call.PlainCall.Peer.prototype.sendOffer = function()
 	{
-		var connectionId = this.peerConnection._id;
 		clearTimeout(this.connectionOfferReplyTimeout);
 		this.connectionOfferReplyTimeout = setTimeout(
 			function()
 			{
-				this._onConnectionOfferReplyTimeout(connectionId);
+				this._onConnectionOfferReplyTimeout(this.peerConnectionId);
 			}.bind(this),
 			signalingWaitReplyPeriod
 		);
 
 		this.getSignaling().sendConnectionOffer({
 			userId: this.userId,
-			connectionId: connectionId,
+			connectionId: this.peerConnectionId,
 			sdp: this.peerConnection.localDescription.sdp,
 			userAgent: navigator.userAgent
 		})
@@ -2207,7 +2430,7 @@
 			self.applyPendingIceCandidates();
 			self.getSignaling().sendConnectionAnswer({
 				userId: self.userId,
-				connectionId: self.peerConnection._id,
+				connectionId: self.peerConnectionId,
 				sdp: self.peerConnection.localDescription.sdp,
 				userAgent: navigator.userAgent
 			});
@@ -2226,7 +2449,7 @@
 		if(!this.peerConnection)
 			return;
 
-		if(this.peerConnection._id != connectionId)
+		if(this.peerConnectionId != connectionId)
 		{
 			this.log("Could not apply answer, for unknown connection " + connectionId);
 			return;
@@ -2262,7 +2485,7 @@
 		if(!this.peerConnection)
 			return;
 
-		if(this.peerConnection._id != connectionId)
+		if(this.peerConnectionId != connectionId)
 		{
 			this.log("Error: Candidate for unknown connection " + connectionId);
 			return;
@@ -2294,10 +2517,9 @@
 		if(!this.peerConnection || !this.peerConnection.remoteDescription.type)
 			return;
 
-		var connectionId = this.peerConnection._id;
-		if(BX.type.isArray(this.pendingIceCandidates[connectionId]))
+		if(BX.type.isArray(this.pendingIceCandidates[this.peerConnectionId]))
 		{
-			this.pendingIceCandidates[connectionId].forEach(function(candidate)
+			this.pendingIceCandidates[this.peerConnectionId].forEach(function(candidate)
 			{
 				self.peerConnection.addIceCandidate(candidate).then(function()
 				{
@@ -2305,7 +2527,7 @@
 				}.bind(this));
 			}, this);
 
-			self.pendingIceCandidates[connectionId] = [];
+			self.pendingIceCandidates[this.peerConnectionId] = [];
 		}
 	};
 

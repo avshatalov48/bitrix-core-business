@@ -246,9 +246,17 @@ class CBPAllStateService
 		}
 
 		$sqlAdditionalFilter = "";
-		$workflowId = trim($workflowId);
-		if ($workflowId <> '')
-			$sqlAdditionalFilter = " AND WS.ID = '".$DB->ForSql($workflowId)."' ";
+		if (is_array($workflowId) && count($workflowId) > 0)
+		{
+			$workflowId = array_map(function ($id) use ($DB) {
+				return '\''.$DB->ForSql((string)$id).'\'';
+			}, $workflowId);
+			$sqlAdditionalFilter = " AND WS.ID IN (".implode(',', $workflowId).")";
+		}
+		elseif (is_string($workflowId) && $workflowId)
+		{
+			$sqlAdditionalFilter = " AND WS.ID = '".$DB->ForSql(trim($workflowId))."' ";
+		}
 
 		$dbResult = $DB->Query(
 			"SELECT WS.ID, WS.WORKFLOW_TEMPLATE_ID, WS.STATE, WS.STATE_TITLE, WS.STATE_PARAMETERS, ".

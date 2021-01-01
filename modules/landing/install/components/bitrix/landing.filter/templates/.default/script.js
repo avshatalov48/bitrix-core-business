@@ -200,7 +200,7 @@ BX.ready(function()
 			}
 			var menu = (
 				BX.PopupMenu.getMenuById('landing-menu-settings') ||
-				new BX.Landing.UI.Tool.Menu({
+				BX.Main.MenuManager.create({
 					id: 'landing-menu-settings',
 					bindElement: event.currentTarget,
 					autoHide: true,
@@ -232,7 +232,7 @@ BX.ready(function()
 		}
 		var menu = (
 			BX.PopupMenu.getMenuById('landing-menu-action') ||
-			new BX.Landing.UI.Tool.Menu({
+			BX.Main.MenuManager.create({
 				id: 'landing-menu-action',
 				bindElement: event.currentTarget,
 				autoHide: true,

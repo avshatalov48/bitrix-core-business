@@ -4,6 +4,7 @@
 
 ## История версий (Главный модуль)
 
+* 20.200.550 (18.12.2020)
 * 20.200.300 (26.11.2020)
 * 20.5.475 (28.09.2020)
 * 20.5.462 (08.10.2020)
@@ -44,8 +45,8 @@
 
 * [История версий. Последние изменения в "1С-Битрикс: Управление сайтом"](https://dev.1c-bitrix.ru/docs/versions.php)
 * [Ядро "1С-Битрикс24" Корпоративный портал. Каталог /modules/](https://github.com/avshatalov48/bitrix24-core-corp/)
-* [Комплексный компонент для работы с элементами Highload-блоков Битрикс](https://github.com/avshatalov48/highloadblock.complex/)
 * [Скачать "1С-Битрикс: Управление сайтом"](https://www.1c-bitrix.ru/download/cms.php)
 * [Регистрация пробных версий продуктов и решений «1С-Битрикс»](https://www.1c-bitrix.ru/bsm_register.php)
 * [bxApiDocs](https://github.com/matiaspub/bxApiDocs/)
-* [bxApiDocs-1](https://github.com/nordeveloper/bxApiDocs-1/)
+
+Если данный репозиторий помог Вам, поставьте звездочку! :thumbsup:

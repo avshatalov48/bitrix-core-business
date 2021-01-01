@@ -69,17 +69,24 @@ class Runtime
 			$documentId = $this->getTarget()->getDocumentId();
 			$documentComplexId = [$documentType[0], $documentType[1], $documentId];
 
+			$startParameters = [
+				\CBPDocument::PARAM_TAGRET_USER => null, //Started by System
+				\CBPDocument::PARAM_USE_FORCED_TRACKING => !$template->isExternalModified(),
+				\CBPDocument::PARAM_IGNORE_SIMULTANEOUS_PROCESSES_LIMIT => true,
+				\CBPDocument::PARAM_DOCUMENT_TYPE => $documentType,
+				\CBPDocument::PARAM_DOCUMENT_EVENT_TYPE => \CBPDocumentEventType::Automation,
+			];
+
+			if (isset($trigger['RETURN']) && is_array($trigger['RETURN']))
+			{
+				$startParameters += $trigger['RETURN'];
+			}
+
 			$this->setStarted($documentType[2], $documentId, $documentStatus);
 			$workflowId = \CBPDocument::startWorkflow(
 				$template->getId(),
 				$documentComplexId,
-				array(
-					\CBPDocument::PARAM_TAGRET_USER => null, //Started by System
-					\CBPDocument::PARAM_USE_FORCED_TRACKING => !$template->isExternalModified(),
-					\CBPDocument::PARAM_IGNORE_SIMULTANEOUS_PROCESSES_LIMIT => true,
-					\CBPDocument::PARAM_DOCUMENT_TYPE => $documentType,
-					\CBPDocument::PARAM_DOCUMENT_EVENT_TYPE => \CBPDocumentEventType::Automation,
-				),
+				$startParameters,
 				$errors
 			);
 

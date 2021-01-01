@@ -432,6 +432,8 @@ this.BX = this.BX || {};
 	      this.private = !!this.data.PRIVATE_EVENT;
 	      this.setSectionId(this.data.SECT_ID);
 	      this.name = this.data.NAME;
+	      this.userTimezoneOffsetFrom = parseInt(this.data['~USER_OFFSET_FROM']) || 0;
+	      this.userTimezoneOffsetTo = parseInt(this.data['~USER_OFFSET_TO']) || this.userTimezoneOffsetFrom;
 
 	      if (!this.data.DT_LENGTH) {
 	        this.data.DT_LENGTH = this.data.DURATION || 0;

@@ -24,6 +24,8 @@
 		BX.Landing.UI.Field.BaseField.apply(this, arguments);
 		addClass(this.layout, "landing-ui-field-font");
 
+		this.value = data.value;
+		this.headlessMode = data.headlessMode === true;
 		this.frame = data.frame;
 		this.items = [];
 
@@ -39,9 +41,16 @@
 		this.onChangeHandler = isFunction(data.onChange) ? data.onChange : (function() {});
 		this.onValueChangeHandler = isFunction(data.onValueChange) ? data.onValueChange : (function() {});
 
-		// Set display field value
-		this.content = escapeHtml(this.content);
-		this.input.innerHTML = this.content;
+		if (this.value)
+		{
+			this.content = escapeHtml(this.value.family);
+			this.input.innerHTML = this.value.family;
+		}
+		else
+		{
+			this.content = escapeHtml(this.content);
+			this.input.innerHTML = this.content;
+		}
 
 		if (this.frame)
 		{
@@ -101,56 +110,76 @@
 			if (isPlainObject(value))
 			{
 				var className = makeFontClassName(value.family);
+				var family = value.family.replace(/ /g, "+");
 				var href = BX.Landing.UI.Panel.GoogleFonts.getInstance().client.makeUrl({
-					family: value.family.replace(/ /g, "+")
-				});
-				var FontManager = BX.Landing.UI.Tool.FontManager.getInstance();
-
-				// Add font to current document
-				FontManager.addFont({
-					className: className,
-					family: value.family,
-					href: href,
-					category: value.category
-				}, window);
-
-				// Update display field value
-				this.input.innerHTML = escapeHtml(value.family);
-
-				// Call handlers
-				this.onChangeHandler(className, this.items, this.postfix, this.property);
-				this.onValueChangeHandler(this);
-
-				// Remove unused handlers
-				FontManager.removeUnusedFonts();
-
-				var headString = "";
-				FontManager.getUsedLoadedFonts().forEach(function(item) {
-					if (item.element)
-					{
-						item.element.setAttribute("rel", "stylesheet");
-						item.element.removeAttribute("media");
-						headString += "<noscript>"+item.element.outerHTML+"</noscript>\n";
-
-						item.element.setAttribute("rel", "preload");
-						item.element.setAttribute("onload", "this.removeAttribute('onload');this.rel='stylesheet'");
-						item.element.setAttribute("as", "style");
-						headString += item.element.outerHTML + "\n";
-					}
-
-					if (item.CSSDeclaration)
-					{
-						headString += item.CSSDeclaration.outerHTML;
-					}
+					family: family
 				});
 
-				headString = headString
-					.replace("async@load", "all")
-					.replace(/data-loadcss="true"/g, "");
+				if (this.headlessMode)
+				{
+					this.value = {
+						family: value.family,
+						public: 'https://fonts.google.com/specimen/' + family,
+						uri: href,
+					};
+					this.input.innerHTML = escapeHtml(value.family);
+					this.emit('onChange');
+				}
+				else
+				{
+					var FontManager = BX.Landing.UI.Tool.FontManager.getInstance();
 
-				BX.Landing.Backend.getInstance()
-					.action("Landing::updateHead", {content: headString});
+					// Add font to current document
+					FontManager.addFont({
+						className: className,
+						family: value.family,
+						href: href,
+						category: value.category
+					}, window);
+
+					// Update display field value
+					this.input.innerHTML = escapeHtml(value.family);
+
+					// Call handlers
+					this.onChangeHandler(className, this.items, this.postfix, this.property);
+					this.onValueChangeHandler(this);
+
+					// Remove unused handlers
+					FontManager.removeUnusedFonts();
+
+					var headString = "";
+					FontManager.getUsedLoadedFonts().forEach(function(item) {
+						if (item.element)
+						{
+							item.element.setAttribute("rel", "stylesheet");
+							item.element.removeAttribute("media");
+							headString += "<noscript>"+item.element.outerHTML+"</noscript>\n";
+
+							item.element.setAttribute("rel", "preload");
+							item.element.setAttribute("onload", "this.removeAttribute('onload');this.rel='stylesheet'");
+							item.element.setAttribute("as", "style");
+							headString += item.element.outerHTML + "\n";
+						}
+
+						if (item.CSSDeclaration)
+						{
+							headString += item.CSSDeclaration.outerHTML;
+						}
+					});
+
+					headString = headString
+						.replace("async@load", "all")
+						.replace(/data-loadcss="true"/g, "");
+
+					BX.Landing.Backend.getInstance()
+						.action("Landing::updateHead", {content: headString});
+				}
 			}
+		},
+
+		getValue: function()
+		{
+			return this.value;
 		}
 	}
 })();

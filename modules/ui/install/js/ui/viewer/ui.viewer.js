@@ -53,6 +53,8 @@
 			}.bind(this)
 		});
 
+		this.eventsAlreadyBinded = false;
+
 		this.init();
 	};
 
@@ -180,6 +182,13 @@
 
 		bindEvents: function ()
 		{
+			if (this.eventsAlreadyBinded)
+			{
+				return;
+			}
+
+			this.eventsAlreadyBinded = true;
+
 			this.handlers.keyPress = this.handleKeyPress.bind(this);
 			this.handlers.touchStart = this.handleTouchStart.bind(this);
 			this.handlers.touchEnd = this.handleTouchEnd.bind(this);
@@ -302,6 +311,7 @@
 			}
 			else
 			{
+				console.trace();
 				console.log('reset zIndex by originalZIndex', this.originalZIndex);
 				this.setZindex(this.originalZIndex);
 				this.originalZIndex = null;
@@ -368,6 +378,8 @@
 
 		unbindEvents: function()
 		{
+			this.eventsAlreadyBinded = false;
+
 			BX.unbind(document, 'keydown', this.handlers.keyPress);
 			BX.unbind(window, 'resize', this.handlers.resize);
 			BX.unbind(this.getItemContainer(), 'touchstart', this.handlers.touchStart);

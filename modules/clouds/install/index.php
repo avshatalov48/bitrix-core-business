@@ -172,6 +172,33 @@ Class clouds extends CModule
 		return true;
 	}
 
+	function migrateToBox()
+	{
+		global $DB, $CACHE_MANAGER;
+
+		// Delete delayed resize
+		COption::RemoveOption("clouds", "delayed_resize");
+		$DB->Query("DELETE FROM b_clouds_file_resize");
+		// Cancel any backup sync jobs
+		$DB->Query("DELETE FROM b_clouds_copy_queue");
+		$DB->Query("DELETE FROM b_clouds_delete_queue");
+		// Cancel all multipart uploads in progress
+		$DB->Query("DELETE FROM b_clouds_file_upload");
+		// Remove file upload in progress info
+		$DB->Query("DELETE FROM b_clouds_file_save");
+		// Cleanup obsolete hash info
+		$DB->Query("DELETE FROM b_clouds_file_hash");
+
+		// Remove any cloud storage defined
+		$DB->Query("DELETE FROM b_clouds_file_bucket");
+		$CACHE_MANAGER->CleanDir("b_clouds_file_bucket");
+		$DB->Query("UPDATE b_file SET HANDLER_ID=NULL WHERE HANDLER_ID is not null");
+
+		// B24 cloud specific info
+		COption::RemoveOption("clouds", "ISSUE_TIME");
+		COption::RemoveOption("clouds", "master_bucket");
+	}
+
 	function InstallEvents()
 	{
 		return true;

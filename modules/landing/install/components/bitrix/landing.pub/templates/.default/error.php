@@ -130,3 +130,21 @@ if (
 	</div>
 
 <?endif;?>
+
+<script>
+	(function()
+	{
+		if (window.location.hash.indexOf('#landingId') === 0)
+		{
+			window.location.href = BX.Uri.addParam(
+				window.location.href,
+				{
+					forceLandingId: window.location.hash.substr(
+						'#landingId'.length
+					)
+				}
+			);
+			window.location.hash = '';
+		}
+	})();
+</script>

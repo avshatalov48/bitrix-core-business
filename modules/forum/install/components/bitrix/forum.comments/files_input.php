@@ -1,17 +1,30 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 $this->IncludeComponentLang("files.php");
-class CCommentFiles
+include_once __DIR__."/base.php";
+class CCommentFiles extends CCommentBase
 {
 	var $imageSize = 100;
-	var $component = null;
+	protected $mfiParams = [];
 
 	function __construct(&$component)
 	{
-		global $APPLICATION;
-		$this->component = &$component;
+		parent::__construct($component);
+
+		global $APPLICATION, $USER;
+
 		$arResult =& $component->arResult;
 		$arParams =& $component->arParams;
 		$arParams["mfi"] = md5("forum.comments");
+		$this->mfiParams = [
+			"FORUM_ID" => $arParams["FORUM_ID"],
+			"TOPIC_ID" => $arResult["FORUM_TOPIC_ID"],
+			"MESSAGE_ID" => 0,
+			"USER_ID" => $USER->getId(),
+			"ALLOW" => [
+				"ALLOW_UPLOAD" => ($arParams["ALLOW_UPLOAD"] == "I" ? "Y" : $arParams["ALLOW_UPLOAD"]),
+				"ALLOW_UPLOAD_EXT" => $arParams["ALLOW_UPLOAD_EXT"]
+			]
+		];
 
 		$_REQUEST["FILE_NEW"] = is_array($_REQUEST["FILE_NEW"]) ? $_REQUEST["FILE_NEW"] : array();
 
@@ -20,42 +33,47 @@ class CCommentFiles
 
 		$APPLICATION->AddHeadScript("/bitrix/js/main/utils.js");
 
-		AddEventHandler("forum", "OnPrepareComments", Array(&$this, "OnPrepareComments"));
-		AddEventHandler("forum", "OnCommentPreview", Array(&$this, "OnCommentPreview"));
-		AddEventHandler("forum", "OnCommentError", Array(&$this, "OnCommentError"));
-
-		if ($arParams["ALLOW_UPLOAD"] !== "N")
+		if (true || $this->mfiParams["ALLOW"]["ALLOW_UPLOAD"] === "N")
 		{
-			AddEventHandler("forum", "OnCommentsInit", Array(&$this, "OnCommentsInit"));
-
-			if ($arParams["ALLOW_UPLOAD"] != $arResult["FORUM"]["ALLOW_UPLOAD"] ||
-				$arParams["ALLOW_UPLOAD_EXT"] != $arResult["FORUM"]["ALLOW_UPLOAD_EXT"])
-				AddEventHandler("forum", "OnAfterCommentAdd", Array(&$this, "OnAfterCommentAdd"));
-			else
-				AddEventHandler("forum", "OnCommentAdd", Array(&$this, "OnCommentAdd"));
+			$this->removeHandler("OnCommentFormDisplay");
+			$this->removeHandler("OnCommentsInit");
+			$this->removeHandler("OnCommentAdd");
 		}
 	}
 
-	public static function OnFileUploadToMFI(&$arCustomFile, $arParams = null)
+	public function OnFileUploadToMFI(&$file)
 	{
-		static $arFileParams = array();
-		if ($arParams !== null)
-			$arFileParams = $arParams;
-		$arFiles = array(array("FILE_ID" => $arCustomFile["fileID"]));
-		if ((!is_array($arCustomFile)) || !isset($arCustomFile['fileID'])):
+		if (!is_array($file) || !isset($file["fileID"]))
+		{
 			return false;
-		elseif(!CForumFiles::CheckFields($arFiles, $arFileParams, "NOT_CHECK_DB", array("FORUM" => $arFileParams["ALLOW"]))):
-			$ex = $GLOBALS["APPLICATION"]->GetException();
-			$res = ($ex ? $ex->GetString() : "File upload error.");
-			return $res;
-		elseif(!empty($arFiles)):
-			$GLOBALS["APPLICATION"]->RestartBuffer();
-			CForumFiles::Add($arCustomFile["fileID"], $arFileParams);
-		endif;
+		}
+
+		global $APPLICATION;
+		$params = $this->mfiParams;
+		$files = [["FILE_ID" => $file["fileID"]] + $file];
+		if (!CForumFiles::CheckFields($files, $params, "NOT_CHECK_DB", ["FORUM" => $params["ALLOW"]]))
+		{
+			$error = "File upload error.";
+			if ($ex = $APPLICATION->GetException())
+			{
+				$error = $ex->GetString();
+			}
+			return $error;
+		}
+
+		if (!empty($files))
+		{
+			CForumFiles::Add($file["fileID"], $params);
+		}
+		return true;
 	}
 
-	function OnPrepareComments()
+	function OnPrepareComments($component)
 	{
+		if ($this->component !== $component)
+		{
+			return;
+		}
 		$arResult =& $this->component->arResult;
 		$arParams =& $this->component->arParams;
 
@@ -96,11 +114,6 @@ class CCommentFiles
 	function OnCommentError()
 	{
 		$arResult =& $this->component->arResult;
-		$arParams =& $this->component->arParams;
-
-		$arDummy = array();
-		$this->OnCommentAdd(null, null, $arDummy);
-
 		$arResult["REVIEW_FILES"] = array();
 		foreach ($_REQUEST["FILE_NEW"] as $val)
 			$arResult["REVIEW_FILES"][$val] = CFile::GetFileArray($val);
@@ -154,24 +167,18 @@ class CCommentFiles
 		return array(array('DISPLAY' => 'AFTER', 'SORT' => '50', 'TEXT' => ob_get_clean()));
 	}
 
-	function OnCommentsInit()
+	function OnCommentsInit($component)
 	{
-		$arResult =& $this->component->arResult;
-		$arParams =& $this->component->arParams;
+		if ($this->component !== $component)
+		{
+			return;
+		}
 		if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_REQUEST["mfi_mode"]))
 		{
 			$arResult['DO_NOT_CACHE'] = true;
 			if ($_REQUEST['mfi_mode'] == "upload")
 			{
-				AddEventHandler('main', "main.file.input.upload", 'CCommentFiles::OnFileUploadToMFI');
-				$Null = null;
-				self::OnFileUploadToMFI($Null, array(
-					"FORUM_ID" => $arParams["FORUM_ID"],
-					"TOPIC_ID" => $arResult['FORUM_TOPIC_ID'],
-					"MESSAGE_ID" => 0,
-					"USER_ID" => intval($GLOBALS["USER"]->GetID()),
-					"ALLOW" => $arParams["ALLOW"]
-				));
+				$this->addHandler("main.file.input.upload", [$this, "OnFileUploadToMFI"], "main");
 			}
 		}
 	}
@@ -179,7 +186,6 @@ class CCommentFiles
 	function OnCommentDisplay($arComment)
 	{
 		$arResult =& $this->component->arResult;
-		$arParams =& $this->component->arParams;
 
 		if (empty($arComment["FILES"]))
 			return null;
@@ -215,7 +221,7 @@ class CCommentFiles
 		$arParams =& $this->component->arParams;
 
 		ob_start();
-		if ($arParams["ALLOW_UPLOAD"] != "N")
+		if ($this->mfiParams["ALLOW"]["ALLOW_UPLOAD"] != "N")
 		{
 ?>
 		<div class="comments-reply-field comments-reply-field-upload">
@@ -225,9 +231,9 @@ class CCommentFiles
 
 ?>
 			<div class="comments-upload-info" id="upload_files_info_<?=$arParams["form_index"]?>"><?
-			if ($arParams["ALLOW_UPLOAD"] == "F")
+			if ($this->mfiParams["ALLOW"]["ALLOW_UPLOAD"] == "F")
 			{
-				?><span><?=str_replace("#EXTENSION#", $arParams["ALLOW_UPLOAD_EXT"], GetMessage("F_FILE_EXTENSION"))?></span><?
+				?><span><?=str_replace("#EXTENSION#", $this->mfiParams["ALLOW"]["ALLOW_UPLOAD_EXT"], GetMessage("F_FILE_EXTENSION"))?></span><?
 			}
 				?><span><?=str_replace("#SIZE#", $sFileSize, GetMessage("F_FILE_SIZE"))?></span>
 			</div>
@@ -239,10 +245,10 @@ class CCommentFiles
 				'MAX_FILE_SIZE' => $iFileSize,
 				'MODULE_ID' => 'forum',
 				'CONTROL_ID' => 'fcomments_'.$arParams["ENTITY_TYPE"]."_".$arParams["ENTITY_ID"],
-				'ALLOW_UPLOAD' => $arParams['ALLOW_UPLOAD'],
-				'ALLOW_UPLOAD_EXT' => $arParams['ALLOW_UPLOAD_EXT']
+				'ALLOW_UPLOAD' => $this->mfiParams["ALLOW"]['ALLOW_UPLOAD'],
+				'ALLOW_UPLOAD_EXT' => $this->mfiParams["ALLOW"]['ALLOW_UPLOAD_EXT']
 			);
-			if ($arParams['ALLOW_UPLOAD'] == 'Y')
+			if ($this->mfiParams["ALLOW"]['ALLOW_UPLOAD'] == 'Y')
 				$componentParams['ALLOW_UPLOAD'] = 'I';
 			$GLOBALS['APPLICATION']->IncludeComponent('bitrix:main.file.input', '', $componentParams, $this->component, array("HIDE_ICONS" => true));
 ?>
@@ -251,57 +257,33 @@ class CCommentFiles
 		}
 		return array(array('DISPLAY' => 'AFTER', 'SORT' => '50', 'TEXT' => ob_get_clean()));
 	}
+
 	function OnCommentAdd($entityType, $entityID, &$arPost)
 	{
-		global $USER;
-
-		$arParams =& $this->component->arParams;
-		$arResult =& $this->component->arResult;
-
-		$iFileSize = intval(COption::GetOptionString("forum", "file_max_size", 5242880));
-		$_REQUEST['FILE_NEW'] = (isset($_REQUEST['FILE_NEW']) && is_array($_REQUEST['FILE_NEW']) ? $_REQUEST['FILE_NEW'] : array());
-		$arPost["FILES"] = array();
-
-		foreach($_REQUEST['FILE_NEW'] as $fileID)
+		if (!is_array($_REQUEST["FILE_NEW"]) || empty($_REQUEST["FILE_NEW"]))
 		{
-			$arPost["FILES"][$fileID] = array("FILE_ID" => $fileID);
-			$attach_file = CFile::MakeFileArray(intval($fileID));
-			$attach = "";
-			if ($attach_file && is_set($attach_file, "name"))
+			return true;
+		}
+
+		$arPost["FILES"] = array();
+		foreach($_REQUEST["FILE_NEW"] as $fileID)
+		{
+			if (($file = CFile::MakeFileArray((int) $fileID)) &&
+				array_key_exists("name", $file))
 			{
-				if ($arParams["ALLOW_UPLOAD"]=="Y")
-					$attach = CFile::CheckImageFile($attach_file, $iFileSize, 0, 0);
-				elseif ($arParams["ALLOW_UPLOAD"]=="F")
-					$attach = CFile::CheckFile($attach_file, $iFileSize, false, $arParams["ALLOW_UPLOAD_EXT"]);
-				elseif ($arParams["ALLOW_UPLOAD"]=="A")
-					$attach = CFile::CheckFile($attach_file, $iFileSize, false, false);
-				if ($attach != '')
+				$file = ["fileID" => $fileID] + $file;
+				if ($this->OnFileUploadToMFI($file) === true)
 				{
-					unset($arPost['FILES'][$fileID]);
-					$arPost['ERROR'] = $attach_file['name'].': '.$attach;
-					return false;
+					$arPost["FILES"][$fileID] = array("FILE_ID" => $fileID);
+				}
+				else
+				{
+					$arPost["ERROR"] = $file["name"].": errored. ";
+					break;
 				}
 			}
 		}
-		return true;
-	}
-
-	function OnAfterCommentAdd ($entityType, $entityID, $params = array())
-	{
-		$arPost = array();
-		$arParams =& $this->component->arParams;
-		$arResult =& $this->component->arResult;
-		if (!!$this->OnCommentAdd($entityType, $entityID, $arPost) && !!$arPost["FILES"])
-		{
-			CForumFiles::UpdateByID(
-				array_keys($arPost["FILES"]),
-				array(
-					"FORUM_ID" => $arParams["FORUM_ID"],
-					"TOPIC_ID" => $params["TOPIC_ID"],
-					"MESSAGE_ID" => $params["MESSAGE_ID"]
-				)
-			);
-		}
+		return !array_key_exists("ERROR", $arPost);
 	}
 }
 ?>

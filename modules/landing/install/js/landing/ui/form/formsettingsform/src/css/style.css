@@ -1,0 +1,57 @@
+.landing-ui-form-form-settings {
+	margin-bottom: 26px;
+}
+
+.landing-ui-form-form-settings .landing-ui-panel-content-body-content {
+	padding-right: 6px;
+}
+
+.landing-ui-form-form-settings .landing-ui-form-header {
+	font-family: 'OpenSans-Regular', Helvetca, Arial, sans-sarif, serif;
+	font-size: 18px;
+	padding-top: 0;
+	padding-bottom: 14px;
+	padding-left: 4px;
+	align-items: center;
+	justify-content: normal;
+	border-bottom: 1px rgba(82, 92, 105, .1) solid;
+}
+
+.landing-ui-form-form-settings .landing-ui-form-header:empty {
+	display: none;
+}
+
+.landing-ui-form-form-settings .landing-ui-field-switch {
+	margin-bottom: 0;
+}
+
+.landing-ui-form-help {
+	margin-top: -7px;
+	margin-left: 3px;
+}
+
+.landing-ui-form-help a {
+	position: relative;
+	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color: #9B9B9B;
+	transition: opacity 200ms ease;
+}
+
+.landing-ui-form-help a:hover,
+.landing-ui-form-help a:active {
+	color: #9B9B9B;
+	opacity: .8;
+}
+
+.landing-ui-form-help a::before {
+	background: url("images/help-icon.svg") center no-repeat;
+	content: '';
+	display: inline-block;
+	position: relative;
+	width: 13px;
+	height: 13px;
+	opacity: .74;
+	top: 2px;
+	margin-right: 6px;
+}

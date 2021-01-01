@@ -99,15 +99,6 @@ class EventHandler
 		{
 			Crm\EventHandler::onAfterPostingSendRecipientMultiple($eventDataArray, $letter);
 		}
-
-		foreach($eventDataArray as $eventData)
-		{
-
-			if (Bitrix24\Service::isCloud() && $eventData['SEND_RESULT'] && $letter->getMessage()->getCode() === Message\iBase::CODE_MAIL)
-			{
-				Bitrix24\Limitation\DailyLimit::increment();
-			}
-		}
 	}
 
 	/**

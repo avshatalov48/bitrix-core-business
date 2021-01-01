@@ -17,6 +17,12 @@ class Config
 	const SERVER_ADDRESS = 'shared_server_address';
 	const SHARED_SERVER_KEY = 'shared_server_key';
 	const IS_REGISTERED_ON_SHARED_SERVER = 'registered_on_shared_server';
+	const CLOUD_SERVER_VERSION = 4;
+
+	public static function getServerVersion()
+	{
+		return static::CLOUD_SERVER_VERSION;
+	}
 
 	public static function getServerAddress()
 	{
@@ -70,11 +76,6 @@ class Config
 	public static function getWebPublishUrl()
 	{
 		return "https://" . static::getServerAddress() . static::REST_URL;
-	}
-
-	public static function getServerVersion()
-	{
-		return 4;
 	}
 
 	public static function setSignatureKey($signatureKey)

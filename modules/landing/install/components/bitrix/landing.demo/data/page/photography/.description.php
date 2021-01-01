@@ -167,11 +167,8 @@ return array(
 				<div class="h-100 g-pb-15 g-pb-0--md">
 					<div class="landing-block-node-img-container h-100 g-pos-rel g-parent u-block-hover js-animation fadeIn animated">
 						<img class="landing-block-node-img img-fluid g-object-fit-cover h-100 w-100 u-block-hover__main--zoom-v1" src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x700/img1.jpg" />
-						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0
-							g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20
-							g-transition-0_2 g-transition--ease-in">
-							<article class="landing-block-node-img-title-border h-100 g-flex-middle text-center
-								g-brd-around g-brd-white-opacity-0_2 text-uppercase g-color-white">
+						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0 g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
+							<article class="landing-block-node-img-title-border h-100 g-flex-middle text-center g-brd-around g-brd-white-opacity-0_2 text-uppercase g-color-white">
 								<div class="g-flex-middle-item">
 									<h3 class="landing-block-node-img-title g-color-white h3 g-line-height-1_4 g-letter-spacing-5 g-font-size-20 g-mb-20">
 										Professional<br />Photography
@@ -193,11 +190,8 @@ return array(
 				<div class="h-100 g-pb-0">
 					<div class="landing-block-node-img-container h-100 g-pos-rel g-parent u-block-hover js-animation fadeIn animated">
 						<img class="landing-block-node-img img-fluid g-object-fit-cover h-100 w-100 u-block-hover__main--zoom-v1" src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x700/img2.jpg" />
-						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0
-							g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20
-							g-transition-0_2 g-transition--ease-in">
-							<article class="landing-block-node-img-title-border h-100 g-flex-middle text-center
-								g-brd-around g-brd-white-opacity-0_2 text-uppercase g-color-white">
+						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0 g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
+							<article class="landing-block-node-img-title-border h-100 g-flex-middle text-center g-brd-around g-brd-white-opacity-0_2 text-uppercase g-color-white">
 								<div class="g-flex-middle-item">
 									<h3 class="landing-block-node-img-title g-color-white h3 g-line-height-1_4 g-letter-spacing-5 g-font-size-20 g-mb-20">
 										Work<br />Presentations
@@ -518,9 +512,7 @@ return array(
 				<div class="h-100 g-pb-15 g-pb-0--md">
 					<div class="landing-block-node-img-container h-100 g-pos-rel g-parent u-block-hover landing-block-node-img-container-left js-animation fadeInLeft animated">
 						<img data-fancybox="gallery" class="landing-block-node-img-big img-fluid g-object-fit-cover h-100 w-100 u-block-hover__main--zoom-v1" src="https://cdn.bitrix24.site/bitrix/images/landing/business/570x770/img1.jpg" />
-						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0
-					g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20
-					g-transition-0_2 g-transition--ease-in">
+						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0 g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
 							<div class="h-100 g-flex-middle g-brd-around g-brd-white-opacity-0_2 text-uppercase">
 								<h3 class="landing-block-node-img-title g-flex-middle-item text-center h3 g-color-white g-line-height-1_4 g-letter-spacing-5 g-font-size-20">Amazing<br />views</h3>
 							</div>
@@ -533,9 +525,7 @@ return array(
 				<div class="h-50 g-pb-15">
 					<div class="landing-block-node-img-container h-100 g-pos-rel g-parent u-block-hover landing-block-node-img-container-right-top js-animation fadeInRight animated">
 						<img data-fancybox="gallery" class="landing-block-node-img-small img-fluid g-object-fit-cover h-100 w-100 u-block-hover__main--zoom-v1" src="https://cdn.bitrix24.site/bitrix/images/landing/business/570x370/img1.jpg" />
-						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0
-						g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20
-						g-transition-0_2 g-transition--ease-in">
+						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0 g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
 							<div class="h-100 g-flex-middle g-brd-around g-brd-white-opacity-0_2 text-uppercase">
 								<h3 class="landing-block-node-img-title g-flex-middle-item text-center h3 g-color-white g-line-height-1_4 g-letter-spacing-5 g-font-size-20">People<br />in the park
 								</h3>
@@ -547,9 +537,7 @@ return array(
 				<div class="h-50 g-pt-0 g-pt-15--md">
 					<div class="landing-block-node-img-container h-100 g-pos-rel g-parent u-block-hover landing-block-node-img-container-right-bottom js-animation fadeInRight animated">
 						<img data-fancybox="gallery" class="landing-block-node-img-small img-fluid g-object-fit-cover h-100 w-100 u-block-hover__main--zoom-v1" src="https://cdn.bitrix24.site/bitrix/images/landing/business/570x370/img2.jpg" />
-						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0
-						g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20
-						g-transition-0_2 g-transition--ease-in">
+						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0 g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
 							<div class="h-100 g-flex-middle g-brd-around g-brd-white-opacity-0_2 text-uppercase">
 								<h3 class="landing-block-node-img-title g-flex-middle-item text-center h3 g-color-white g-line-height-1_4 g-letter-spacing-5 g-font-size-20">Sunset<br />and sea</h3>
 							</div>
@@ -574,12 +562,9 @@ return array(
 				<div class="h-100 g-pb-15 g-pb-0--sm">
 					<div class="landing-block-node-img-container landing-block-node-img-container-left js-animation fadeInLeft h-100 g-pos-rel g-parent u-block-hover animated">
 						<img data-fancybox="gallery" class="landing-block-node-img img-fluid g-object-fit-cover h-100 w-100 u-block-hover__main--zoom-v1" src="https://cdn.bitrix24.site/bitrix/images/landing/business/370x370/img1.jpg" />
-						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0
-							g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20
-							g-transition-0_2 g-transition--ease-in">
+						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0 g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
 							<div class="h-100 g-flex-middle g-brd-around g-brd-white-opacity-0_2 text-uppercase">
-								<h3 class="landing-block-node-img-title g-flex-middle-item text-center h3
-							g-color-white g-line-height-1_4 g-letter-spacing-5 g-font-size-20">Industrial<br />photos</h3>
+								<h3 class="landing-block-node-img-title g-flex-middle-item text-center h3 g-color-white g-line-height-1_4 g-letter-spacing-5 g-font-size-20">Industrial<br />photos</h3>
 							</div>
 						</div>
 					</div>
@@ -590,12 +575,9 @@ return array(
 				<div class="h-100 g-pb-15 g-pb-0--sm">
 					<div class="landing-block-node-img-container landing-block-node-img-container-center js-animation fadeInLeft h-100 g-pos-rel g-parent u-block-hover animated">
 						<img data-fancybox="gallery" class="landing-block-node-img img-fluid g-object-fit-cover h-100 w-100 u-block-hover__main--zoom-v1" src="https://cdn.bitrix24.site/bitrix/images/landing/business/370x370/img2.jpg" />
-						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0
-							g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20
-							g-transition-0_2 g-transiti	on--ease-in">
+						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0 g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transiti	on--ease-in">
 							<div class="h-100 g-flex-middle g-brd-around g-brd-white-opacity-0_2 text-uppercase">
-								<h3 class="landing-block-node-img-title g-flex-middle-item text-center h3
-							g-color-white g-line-height-1_4 g-letter-spacing-5 g-font-size-20">Nature<br />and people</h3>
+								<h3 class="landing-block-node-img-title g-flex-middle-item text-center h3 g-color-white g-line-height-1_4 g-letter-spacing-5 g-font-size-20">Nature<br />and people</h3>
 							</div>
 						</div>
 					</div>
@@ -606,12 +588,9 @@ return array(
 				<div class="h-100 g-pb-0">
 					<div class="landing-block-node-img-container landing-block-node-img-container-right js-animation fadeInLeft h-100 g-pos-rel g-parent u-block-hover animated">
 						<img data-fancybox="gallery" class="landing-block-node-img img-fluid g-object-fit-cover h-100 w-100 u-block-hover__main--zoom-v1" src="https://cdn.bitrix24.site/bitrix/images/landing/business/370x370/img3.jpg" />
-						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0
-							g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20
-							g-transition-0_2 g-transition--ease-in">
+						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0 g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
 							<div class="h-100 g-flex-middle g-brd-around g-brd-white-opacity-0_2 text-uppercase">
-								<h3 class="landing-block-node-img-title g-flex-middle-item text-center h3
-							g-color-white g-line-height-1_4 g-letter-spacing-5 g-font-size-20">Alone<br />in the desert</h3>
+								<h3 class="landing-block-node-img-title g-flex-middle-item text-center h3 g-color-white g-line-height-1_4 g-letter-spacing-5 g-font-size-20">Alone<br />in the desert</h3>
 							</div>
 						</div>
 					</div>

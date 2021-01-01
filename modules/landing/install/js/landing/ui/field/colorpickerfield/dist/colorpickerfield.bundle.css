@@ -1,0 +1,95 @@
+.landing-ui-field-colorpicker > .landing-ui-field-input {
+	border: none;
+	padding-left: 0;
+	padding-right: 0;
+}
+
+.landing-ui-field-colorpicker-layout {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	position: relative;
+}
+
+.landing-ui-field-colorpicker-label {
+	background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAEKADAAQAAAABAAAAEAAAAAAXnVPIAAAAWUlEQVQ4Ee1SIRLAMAhLoZ7/vxGNhG3MTaRmlUUSEjiS4e4XSKkqzAwiQiYAjlDKFzgCG5442ypWbV9VMfjtj8ykOWhyRCxF5iokvaJFniX0ipODDTn4/cQbfNsZ6D655GsAAAAASUVORK5CYII=');
+	background-position: left top;
+	background-repeat: repeat;
+	background-size: 8px;
+	position: relative;
+	min-width: 32px;
+	max-width: 32px;
+	min-height: 32px;
+	max-height: 32px;
+	border-radius: 2px;
+	margin-right: 11px;
+	margin-bottom: 0;
+	cursor: pointer;
+	z-index: 1;
+}
+
+.landing-ui-field-colorpicker-label::before {
+	position: absolute;
+	content: '';
+	left: -2px;
+	right: -2px;
+	top: -2px;
+	bottom: -2px;
+	border: 1px rgba(0, 0, 0, .1) solid;
+	border-radius: 2px;
+}
+
+.landing-ui-field-colorpicker-label-inner {
+	position: absolute;
+	display: inline-block;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 2;
+	border-radius: 2px;
+}
+
+.landing-ui-field-colorpicker-input {
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	opacity: 0;
+}
+
+.landing-ui-field-colorpicker-code-input {
+	-webkit-box-flex: 1;
+	    -ms-flex-positive: 1;
+	        flex-grow: 1;
+}
+.landing-ui-field-color-opacity {
+	background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAEKADAAQAAAABAAAAEAAAAAAXnVPIAAAAWUlEQVQ4Ee1SIRLAMAhLoZ7/vxGNhG3MTaRmlUUSEjiS4e4XSKkqzAwiQiYAjlDKFzgCG5442ypWbV9VMfjtj8ykOWhyRCxF5iokvaJFniX0ipODDTn4/cQbfNsZ6D655GsAAAAASUVORK5CYII=') left top repeat;
+	background-size: 8px;
+	position: relative;
+	width: 100%;
+	height: 32px;
+	border-radius: 2px;
+}
+
+.landing-ui-field-color-opacity-color {
+	width: 100%;
+	height: 100%;
+	border-radius: 2px;
+	-webkit-box-shadow: inset 0 0 2px -1px #C6CDD3;
+	        box-shadow: inset 0 0 2px -1px #C6CDD3;
+}
+
+.landing-ui-field-color-opacity-picker {
+	position: absolute;
+	width: 8px;
+	top: -2px;
+	bottom: -2px;
+	border: 3px #ffffff solid;
+	border-radius: 4px;
+	-webkit-box-shadow: 0 0 3px rgba(0, 0, 0, .3);
+	        box-shadow: 0 0 3px rgba(0, 0, 0, .3);
+	cursor: col-resize;
+}

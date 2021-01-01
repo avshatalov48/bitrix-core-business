@@ -3,6 +3,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Delivery\ExtraServices;
+use Bitrix\Sale\Delivery\ExtraServices\Base;
 
 Loc::loadMessages(__FILE__);
 Bitrix\Main\Loader::includeModule('sale');
@@ -41,10 +42,21 @@ if($saleModulePermissions == "W" && check_bitrix_sessid())
 		if(isset($_POST["RIGHTS"])) 		$fields["RIGHTS"] = $_POST["RIGHTS"];
 		if(isset($_POST["ACTIVE"]))			$fields["ACTIVE"] = trim($_POST["ACTIVE"]);
 		if(isset($_POST["INIT_VALUE"]))		$fields["INIT_VALUE"] = trim($_POST["INIT_VALUE"]);
-		if(isset($_POST["CLASS_NAME"]))		$fields["CLASS_NAME"] = trim($_POST["CLASS_NAME"]);
 		if(isset($_POST["DESCRIPTION"]))	$fields["DESCRIPTION"] = trim($_POST["DESCRIPTION"]);
 		if(isset($_POST["DELIVERY_ID"]))	$fields["DELIVERY_ID"] = intval($_POST["DELIVERY_ID"]);
 		if(isset($_POST["PARAMS"], $_POST["PARAMS"]["PARAMS"]))	$fields["PARAMS"] = $_POST["PARAMS"]["PARAMS"];
+
+		if(isset($_POST["CLASS_NAME"]))
+		{
+			if(!is_subclass_of($_POST["CLASS_NAME"], Base::class))
+			{
+				throw new \Bitrix\Main\SystemException(
+					'Class "' . htmlspecialcharsbx( $_POST["CLASS_NAME"] ) . '" is not a subclass of the \Bitrix\Sale\Delivery\ExtraServices\Base'
+				);
+			}
+
+			$fields["CLASS_NAME"] = trim($_POST["CLASS_NAME"]);
+		}
 
 		if($isItSavingProcess)
 		{
@@ -176,6 +188,13 @@ if($deliveryService && $ID <= 0)
 	}
 	elseif(isset($_REQUEST["CLASS_NAME"]) && $_REQUEST["CLASS_NAME"] <> '')
 	{
+		if(!is_subclass_of($_REQUEST["CLASS_NAME"], Base::class))
+		{
+			throw new \Bitrix\Main\SystemException(
+				'Class "' . htmlspecialcharsbx($_REQUEST["CLASS_NAME"]) . '" is not a subclass of the \Bitrix\Sale\Delivery\ExtraServices\Base'
+			);
+		}
+
 		$fields["CLASS_NAME"] = $_REQUEST["CLASS_NAME"];
 		$fields["ID"] = strval(mktime());
 		$fields["RIGHTS"] = "YYY";

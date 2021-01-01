@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IM_CHAT_CHANGE_COLOR_F"] = "#USER_NAME# changed chat color to \"#CHAT_COLOR#\"";
 $MESS["IM_CHAT_CHANGE_COLOR_M"] = "#USER_NAME# changed chat color to \"#CHAT_COLOR#\"";
 $MESS["IM_CHAT_CHANGE_TITLE"] = "Chat \"#CHAT_TITLE#\" subject changed";
@@ -48,8 +48,11 @@ $MESS["IM_MESSAGE_FORMAT_TIME"] = "g:i a";
 $MESS["IM_PATH_TITLE_SONET"] = "View group";
 $MESS["IM_PATH_TITLE_TASKS"] = "View task";
 $MESS["IM_PERSONAL_DESCRIPTION"] = "Only you can see messages in this chat.[br] Post here message drafts, notes, links and files to keep them handy.";
+$MESS["IM_VIDEOCONF_COPY_LINK"] = "Copy link";
+$MESS["IM_VIDEOCONF_JOIN_LINK"] = "Open video conference";
 $MESS["IM_VIDEOCONF_LINK_TITLE"] = "Public link";
 $MESS["IM_VIDEOCONF_NAME_FORMAT"] = "Video conference ##NUMBER# - #DATE_CREATE#";
+$MESS["IM_VIDEOCONF_NAME_FORMAT_NEW"] = "Video conference ##NUMBER#";
+$MESS["IM_VIDEOCONF_NEW_GUEST"] = "New guest joined the conference \"#CHAT_TITLE#\".";
 $MESS["IM_VIDEOCONF_SHARE_LINK"] = "Invite colleagues and partners to video conference!";
 $MESS["IM_VIDEOCONF_SHARE_UPDATED_LINK"] = "#USER_NAME# changed the video conference link";
-?>

@@ -28,6 +28,7 @@ this.BX.Landing = this.BX.Landing || {};
 
 	        if (urlParams.target === '_self') {
 	          event.stopImmediatePropagation();
+	          BX.Landing.Pub.TopPanel.pushHistory(urlParams.href);
 	          void landing_sliderhacks.SliderHacks.reloadSlider(urlParams.href);
 	        } else {
 	          top.open(urlParams.href, urlParams.target);

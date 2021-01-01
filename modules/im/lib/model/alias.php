@@ -1,8 +1,11 @@
 <?php
 namespace Bitrix\Im\Model;
 
+use Bitrix\Im\Internals\Query;
 use Bitrix\Main,
 	Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Application;
+
 Loc::loadMessages(__FILE__);
 
 /**
@@ -51,6 +54,11 @@ class AliasTable extends Main\Entity\DataManager
 				'validation' => array(__CLASS__, 'validateAlias'),
 				'title' => Loc::getMessage('ALIAS_ENTITY_ALIAS_FIELD'),
 			),
+			'DATE_CREATE' => array(
+				'data_type' => 'datetime',
+				'required' => true,
+				'title' => Loc::getMessage('ALIAS_ENTITY_ENTITY_DATE_CREATE_FIELD'),
+			),
 			'ENTITY_TYPE' => array(
 				'data_type' => 'string',
 				'required' => true,
@@ -97,5 +105,28 @@ class AliasTable extends Main\Entity\DataManager
 		return array(
 			new Main\Entity\Validator\Length(null, 255),
 		);
+	}
+
+	public static function deleteBatch(array $filter, $limit = 0)
+	{
+		$tableName = static::getTableName();
+		$connection = Application::getConnection();
+		$sqlHelper = $connection->getSqlHelper();
+
+		$query = new Query(static::getEntity());
+		$query->setFilter($filter);
+		$query->getQuery();
+
+		$alias = $sqlHelper->quote($query->getInitAlias()) . '.';
+		$where = str_replace($alias, '', $query->getWhere());
+
+		$sql = 'DELETE FROM ' . $tableName . ' WHERE ' . $where;
+		if($limit > 0)
+		{
+			$sql .= ' LIMIT ' . $limit;
+		}
+
+		$connection->queryExecute($sql);
+		return $connection->getAffectedRowsCount();
 	}
 }

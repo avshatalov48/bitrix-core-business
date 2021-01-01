@@ -430,23 +430,27 @@ export class UserPlannerSelector extends EventEmitter
 				});
 
 				groupUsers.forEach((user) => {
+					user.toString = () => {return user.ID};
 					menuItems.push(
 						{
 							text: BX.util.htmlspecialchars(user.DISPLAY_NAME),
 							dataset: {user: user},
 							className: 'calendar-add-popup-user-menu-item',
 							onclick: () => {
-								BX.SidePanel.Instance.open(
-									user.URL,
-									{
-										loader: "intranet:profile",
-										cacheable: false,
-										allowChangeHistory: false,
-										contentClassName: "bitrix24-profile-slider-content",
-										width: 1100
-									}
-								);
-								this.morePopup.close();
+								if (!user.EMAIL_USER)
+								{
+									BX.SidePanel.Instance.open(
+										user.URL,
+										{
+											loader: "intranet:profile",
+											cacheable: false,
+											allowChangeHistory: false,
+											contentClassName: "bitrix24-profile-slider-content",
+											width: 1100
+										}
+									);
+									this.morePopup.close();
+								}
 							}
 						}
 					);

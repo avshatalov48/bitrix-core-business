@@ -1,10 +1,11 @@
-import {Type, Event, Tag, Text, Dom, Runtime} from 'main.core';
+import {Type, Event, Tag, Text, Dom, Runtime, Cache} from 'main.core';
+import {EventEmitter} from 'main.core.events';
 import './css/style.css';
 
 /**
  * @memberOf BX.Landing.UI.Field
  */
-export class BaseField extends Event.EventEmitter
+export class BaseField extends EventEmitter
 {
 	static createLayout(): HTMLDivElement
 	{
@@ -33,6 +34,7 @@ export class BaseField extends Event.EventEmitter
 		this.setEventNamespace('BX.Landing.UI.Field');
 
 		this.data = {...options};
+		this.options = this.data;
 		this.id = Reflect.has(this.data, 'id') ? this.data.id : Text.getRandom();
 		this.selector = Reflect.has(this.data, 'selector') ? this.data.selector : Text.getRandom();
 		this.content = Reflect.has(this.data, 'content') ? this.data.content : '';
@@ -45,6 +47,7 @@ export class BaseField extends Event.EventEmitter
 		this.hidden = Text.toBoolean(this.data.hidden);
 		this.property = Type.isString(this.data.property) ? this.data.property : '';
 		this.style = Reflect.has(this.data, 'style') ? this.data.style : '';
+		this.cache = new Cache.MemoryCache();
 
 		const {onValueChange} = this.data;
 		this.onValueChangeHandler = Type.isFunction(onValueChange) ? onValueChange : (() => {});
@@ -53,7 +56,7 @@ export class BaseField extends Event.EventEmitter
 		this.layout = BaseField.createLayout();
 		this.header = BaseField.createHeader();
 		this.input = this.createInput();
-		this.header.innerHTML = Text.encode(this.title);
+		this.setTitle(this.title);
 
 		Dom.append(this.header, this.layout);
 		Dom.append(this.input, this.layout);
@@ -85,6 +88,11 @@ export class BaseField extends Event.EventEmitter
 		this.init();
 	}
 
+	setTitle(title: string)
+	{
+		this.header.innerHTML = Text.encode(title);
+	}
+
 	createInput(): HTMLDivElement
 	{
 		return Tag.render`
@@ -95,20 +103,34 @@ export class BaseField extends Event.EventEmitter
 	// eslint-disable-next-line class-methods-use-this
 	init() {}
 
+	getContext(): Window
+	{
+		if (this.input.ownerDocument)
+		{
+			return this.input.ownerDocument.defaultView;
+		}
+
+		return window;
+	}
+
 	// eslint-disable-next-line class-methods-use-this
 	onPaste(event)
 	{
 		event.preventDefault();
+		event.stopPropagation();
 
 		if (event.clipboardData && event.clipboardData.getData)
 		{
-			const text = event.clipboardData.getData('text/plain');
-			document.execCommand('insertHTML', false, Text.encode(text));
+			const sourceText = event.clipboardData.getData('text/plain');
+			const encodedText = BX.Text.encode(sourceText);
+			const formattedHtml = encodedText.replace(new RegExp('\n', 'g'), '<br>');
+			this.getContext().document.execCommand('insertHTML', false, formattedHtml);
 		}
 		else
 		{
+			// ie11
 			const text = window.clipboardData.getData('text');
-			document.execCommand('paste', true, Text.encode(text));
+			this.getContext().document.execCommand('paste', true, BX.Text.encode(text));
 		}
 	}
 
@@ -158,7 +180,7 @@ export class BaseField extends Event.EventEmitter
 
 	enable()
 	{
-		Dom.attr(this.layout, 'disabled', false);
+		Dom.attr(this.layout, 'disabled', null);
 		Dom.removeClass(this.layout, 'landing-ui-disabled');
 	}
 
@@ -176,5 +198,15 @@ export class BaseField extends Event.EventEmitter
 		return new this.constructor(
 			Runtime.clone(data || this.data),
 		);
+	}
+
+	getLayout(): HTMLElement
+	{
+		return this.layout;
+	}
+
+	setLayoutClass(className: string)
+	{
+		Dom.addClass(this.layout, className);
 	}
 }

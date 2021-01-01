@@ -26,6 +26,11 @@ class Manager
 				'\Bitrix\Landing\Restriction\Hook', 'isAllowed'
 			]
 		],
+		'limit_sites_change_color_palette' => [
+			'check_callback' => [
+				'\Bitrix\Landing\Restriction\Hook', 'isAllowed'
+			]
+		],
 		'limit_sites_access_permissions' => [
 			'check_callback' => [
 				'\Bitrix\Landing\Restriction\Rights', 'isAllowed'
@@ -73,7 +78,7 @@ class Manager
 			'check_callback' => [
 				'\Bitrix\Landing\Restriction\Block', 'isDynamicEnabled'
 			]
-		]
+		],
 	];
 
 	/**

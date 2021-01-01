@@ -408,5 +408,4 @@ create table b_sender_timeline_queue
 	STATUS          varchar(1) default 'N' not null,
 	DATE_INSERT     datetime               not null
 );
-CREATE INDEX IX_SENDER_TIMELINE_QUEUE_STATUS_POSTING_ID on b_sender_timeline_queue (POSTING_ID, STATUS)
 

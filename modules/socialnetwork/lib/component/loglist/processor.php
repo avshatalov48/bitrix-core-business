@@ -1489,5 +1489,29 @@ class Processor
 		}
 	}
 
+	public function warmUpStaticCache($result)
+	{
+		$logEventsData = [];
+
+		if (is_array($result['Events']))
+		{
+			foreach($result['Events'] as $eventFields)
+			{
+				$logEventsData[(int)$eventFields['ID']] = $eventFields['EVENT_ID'];
+			}
+		}
+		if (is_array($result['pinnedEvents']))
+		{
+			foreach($result['pinnedEvents'] as $eventFields)
+			{
+				$logEventsData[(int)$eventFields['ID']] = $eventFields['EVENT_ID'];
+			}
+		}
+
+		$forumPostLivefeedProvider = new \Bitrix\Socialnetwork\Livefeed\ForumPost();
+		$forumPostLivefeedProvider->warmUpAuxCommentsStaticCache([
+			'logEventsData' => $logEventsData
+		]);
+	}
 }
 ?>

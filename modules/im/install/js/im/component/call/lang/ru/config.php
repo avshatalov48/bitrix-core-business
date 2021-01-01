@@ -1,7 +1,7 @@
-<?
+<?php
+$MESS["BX_IM_COMPONENT_CALL_ROTATE_DEVICE"] = "Переверните устройство";
 $MESS["BX_IM_COMPONENT_CALL_CLOSE_CONFIRM"] = "Вы уверены, что хотите закрыть страницу? В случае закрытия вы отключитесь от звонка.";
-
-$MESS["BX_IM_COMPONENT_CALL_LOADING"] = "Присоединяемся к конференции...";
+$MESS["BX_IM_COMPONENT_CALL_LOADING"] = "Загрузка...";
 $MESS["BX_IM_COMPONENT_CALL_CHAT_TITLE"] = "Чат";
 $MESS["BX_IM_COMPONENT_CALL_CHAT_CLOSE_TITLE"] = "Закрыть чат";
 $MESS["BX_IM_COMPONENT_CALL_DEFAULT_USER_NAME"] = "Гость";
@@ -16,27 +16,52 @@ $MESS["BX_IM_COMPONENT_CALL_BUTTON_START"] = "Начать звонок";
 $MESS["BX_IM_COMPONENT_CALL_BUTTON_JOIN"] = "Присоединиться";
 $MESS["BX_IM_COMPONENT_CALL_BUTTON_RELOAD"] = "Перезагрузить";
 $MESS["BX_IM_COMPONENT_CALL_BUTTON_CHECK_DEVICES"] = "Проверить оборудование";
-$MESS["BX_IM_COMPONENT_CALL_ERROR_MESSAGE_B24_ONLY"] = "Видеоконференции доступны только для Битрикс24.";
-$MESS["BX_IM_COMPONENT_CALL_ERROR_MESSAGE_PLEASE_LOG_IN"] = "Мы заметили, что у вас есть аккаунт в этом Битрикс24. Пожалуйста, авторизуйтесь.";
+$MESS["BX_IM_COMPONENT_CALL_ERROR_MESSAGE_B24_ONLY"] = "Видеоконференции доступны только для Битрикс24";
+$MESS["BX_IM_COMPONENT_CALL_ERROR_MESSAGE_PLEASE_LOG_IN"] = "Мы заметили, что у вас есть аккаунт в этом Битрикс24";
 $MESS["BX_IM_COMPONENT_CALL_BUTTON_AUTHORIZE"] = "Авторизоваться";
 $MESS["BX_IM_COMPONENT_CALL_BUTTON_AS_GUEST"] = "Войти как гость";
-$MESS["BX_IM_COMPONENT_CALL_BUTTON_DOWNLOAD_APP"] = "Ещё нет приложения?";
-$MESS["BX_IM_COMPONENT_CALL_BUTTON_DOWNLOAD_APP_LINK"] = "Скачать";
-$MESS["BX_IM_COMPONENT_CALL_BUTTON_OPEN_APP"] = "Вы можете открыть конференцию";
-$MESS["BX_IM_COMPONENT_CALL_BUTTON_OPEN_APP_LINK"] = "в приложении Битрикс24.";
-$MESS["BX_IM_COMPONENT_CALL_ERROR_MESSAGE_USER_LIMIT"] = "Видеоконференция заполнена.";
-$MESS["BX_IM_COMPONENT_CALL_ERROR_MESSAGE_KICKED"] = "Вы были исключены из видеоконференции.";
-$MESS["BX_IM_COMPONENT_CALL_ERROR_UNSUPPORTED_BROWSER"] = "К сожалению, ваш браузер не поддерживает участие в видеоконференциях.";
-$MESS["BX_IM_COMPONENT_CALL_ERROR_NO_HTTPS"] = "Пожалуйста, используйте протокол https";
+$MESS["BX_IM_COMPONENT_CALL_BUTTON_DETAILS"] = "Узнать подробнее";
+$MESS["BX_IM_COMPONENT_CALL_BUTTON_OPEN_APP_LINK"] = "Вы можете открыть конференцию в приложении Битрикс24";
+$MESS["BX_IM_COMPONENT_CALL_BUTTON_CREATE_OWN"] = "Создавайте свои конференции в Битрикс24";
+$MESS["BX_IM_COMPONENT_CALL_ERROR_MESSAGE_USER_LIMIT"] = "В конференции не осталось свободных мест";
+$MESS["BX_IM_COMPONENT_CALL_ERROR_MESSAGE_KICKED"] = "Вы были исключены из конференции";
+$MESS["BX_IM_COMPONENT_CALL_ERROR_FINISHED"] = "Конференция закончилась";
+$MESS["BX_IM_COMPONENT_CALL_ERROR_NOT_STARTED"] = "Видеоконференция ещё не началась.";
+$MESS["BX_IM_COMPONENT_CALL_ERROR_UNSUPPORTED_BROWSER"] = "Ваш браузер не поддерживается";
+$MESS["BX_IM_COMPONENT_CALL_ERROR_NO_HTTPS"] = "Неверная ссылка, используйте протокол HTTPS";
 $MESS["BX_IM_COMPONENT_CALL_ERROR_NO_MIC"] = "Для участия в видеоконференции необходим микрофон.";
 $MESS["BX_IM_COMPONENT_CALL_ERROR_KICK_FROM_CALL"] = "Вас исключили из данной видеоконференции.";
 $MESS["BX_IM_COMPONENT_CALL_ERROR_NO_SIGNAL_FROM_CAMERA"] = "Мы не смогли получить видео с камеры. Нажмите кнопку ниже, чтобы повторить попытку.";
-
+$MESS["BX_IM_COMPONENT_CALL_ERROR_MAX_FILE_SIZE"] = "Превышен максимальный размер файла (#LIMIT# Мб).";
+$MESS["BX_IM_COMPONENT_CALL_ERROR_USER_LEFT_THE_CALL"] = "Вы вышли из конференции. Закройте вкладку или обновите страницу, чтобы присоединиться снова";
+$MESS["BX_IM_COMPONENT_CALL_PASSWORD_TITLE"] = "Требуется пароль для входа";
+$MESS["BX_IM_COMPONENT_CALL_PASSWORD_PLACEHOLDER"] = "Введите пароль";
+$MESS["BX_IM_COMPONENT_CALL_PASSWORD_JOIN"] = "Присоединиться";
+$MESS["BX_IM_COMPONENT_CALL_PASSWORD_WRONG"] = "Неправильный пароль";
+$MESS["BX_IM_COMPONENT_CALL_STATUS_NOT_STARTED"] = "Ещё не началась";
+$MESS["BX_IM_COMPONENT_CALL_STATUS_LOADING"] = "Получаем статус";
+$MESS["BX_IM_COMPONENT_CALL_STATUS_STARTED"] = "Началась";
+$MESS["BX_IM_COMPONENT_CALL_PERMISSIONS_TEXT"] = "Для участия в конференции необходимо разрешить использование камеры и микрофона";
+$MESS["BX_IM_COMPONENT_CALL_PERMISSIONS_BUTTON"] = "Разрешить использование";
+$MESS["BX_IM_COMPONENT_CALL_PERMISSIONS_LOADING"] = "Получаем доступ к камере и микрофону...";
+$MESS["BX_IM_COMPONENT_CALL_INTRANET_NAME_TITLE"] = "Вы вошли через аккаунт Битрикс24";
+$MESS["BX_IM_COMPONENT_CALL_INTRANET_LOGOUT"] = "выйти";
+$MESS["BX_IM_COMPONENT_CALL_NAME_PLACEHOLDER"] = "Введите ваше имя";
+$MESS["BX_IM_COMPONENT_CALL_JOIN_WITH_VIDEO"] = "Присоединиться с видео";
+$MESS["BX_IM_COMPONENT_CALL_START_WITH_VIDEO"] = "Начать с видео";
+$MESS["BX_IM_COMPONENT_CALL_JOIN_WITH_AUDIO"] = "Присоединиться только с аудио";
+$MESS["BX_IM_COMPONENT_CALL_START_WITH_AUDIO"] = "Начать только с аудио";
+$MESS["BX_IM_COMPONENT_CALL_WAIT_START_TITLE"] = "Ожидайте начала конференции";
+$MESS["BX_IM_COMPONENT_CALL_WAIT_START_USER_COUNT"] = "В чате есть пользователи:";
+$MESS["BX_IM_COMPONENT_CALL_HARDWARE_ERROR"] = "Произошла ошибка во время проверки устройств";
+$MESS["BX_IM_COMPONENT_CALL_OPEN_CHAT"] = "Открыть чат";
 $MESS["BX_IM_COMPONENT_CALL_CHECK_DEVICES_VIDEO_SETTINGS"] = "Настройки видео";
 $MESS["BX_IM_COMPONENT_CALL_CHECK_DEVICES_CAMERA"] = "Камера";
 $MESS["BX_IM_COMPONENT_CALL_CHECK_DEVICES_NO_CAMERA"] = "Камера не найдена";
 $MESS["BX_IM_COMPONENT_CALL_CHECK_DEVICES_CHOOSE_CAMERA"] = "Выберите камеру";
-$MESS["BX_IM_COMPONENT_CALL_CHECK_DEVICES_NO_VIDEO"] = "Нет видео";
+$MESS["BX_IM_COMPONENT_CALL_CHECK_DEVICES_NO_VIDEO"] = "У вас нет камеры или она не работает";
+$MESS["BX_IM_COMPONENT_CALL_CHECK_DEVICES_DISABLED_CAMERA"] = "Вы отключили камеру";
+$MESS["BX_IM_COMPONENT_CALL_CHECK_DEVICES_GETTING_CAMERA"] = "Получаем изображение с камеры...";
 $MESS["BX_IM_COMPONENT_CALL_CHECK_DEVICES_RECEIVE_HD"] = "Запрашивать видео в HD качестве";
 $MESS["BX_IM_COMPONENT_CALL_CHECK_DEVICES_AUDIO_SETTINGS"] = "Настройки аудио";
 $MESS["BX_IM_COMPONENT_CALL_CHECK_DEVICES_MICRO"] = "Микрофон";
@@ -48,7 +73,7 @@ $MESS["BX_IM_COMPONENT_CALL_CHECK_DEVICES_NO_SPEAKER"] = "Устройства �
 $MESS["BX_IM_COMPONENT_CALL_CHECK_DEVICES_CHOOSE_SPEAKER"] = "Выберите устройство вывода звука";
 $MESS["BX_IM_COMPONENT_CALL_CHECK_DEVICES_BUTTON_SAVE"] = "Сохранить";
 $MESS["BX_IM_COMPONENT_CALL_CHECK_DEVICES_BUTTON_BACK"] = "Назад";
-
 $MESS["BX_IM_COMPONENT_CALL_FILE"] = "[Файл]";
-
-?>
+$MESS["BX_IM_COMPONENT_CALL_BUTTON_DOWNLOAD_APP"] = "Ещё нет приложения?";
+$MESS["BX_IM_COMPONENT_CALL_BUTTON_DOWNLOAD_APP_LINK"] = "Скачать";
+$MESS["BX_IM_COMPONENT_CALL_BUTTON_OPEN_APP"] = "Вы можете открыть конференцию";

@@ -58,6 +58,14 @@
 			}
 		}
 
+		var onMouseUp = function(event) {
+			this.jsDD.stopDrag(event);
+		}.bind(this);
+
+		BX.Event.bind(window, 'mouseup', onMouseUp);
+		BX.Event.bind(rootWindow, 'mouseup', onMouseUp);
+		BX.Event.bind(window.top, 'mouseup', onMouseUp);
+
 		this.setValue(this.content, true);
 	};
 
@@ -369,10 +377,10 @@
 						this.sliderTo.style.transform = "translateX(-" + result.valuePercent + "%)";
 						this.sliderTo.style.left = result.valuePercent + "%";
 					}.bind(this));
-				}
 
-				this.value = value;
-				this.updateValuePosition(result.valuePercent);
+					this.value = value;
+					this.updateValuePosition(result.valuePercent);
+				}
 			}
 
 			if (!preventEvent)

@@ -13,7 +13,6 @@ if (!Loader::includeModule('landing'))
 	return;
 }
 
-Manager::setTheme();
 $assets = Assets\Manager::getInstance();
 $assets->addAsset('landing_auto_font_scale');
 

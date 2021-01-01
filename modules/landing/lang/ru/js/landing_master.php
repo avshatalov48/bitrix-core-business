@@ -386,3 +386,5 @@ $MESS['LANDING_EMBED_FIELD_DESCRIPTION'] = 'Пример: https://www.youtube.co
 $MESS['LANDING_EMBED_FIELD_PLACEHOLDER'] = 'Ссылка на видео';
 $MESS['LANDING_EMBED_ERROR_TEXT'] = 'Укажите ссылку на страницу с видео. Код и другие способы вставки не поддерживаются.';
 
+$MESS['LANDING_SHOW_FORM_EDITOR'] = 'Настроить форму';
+

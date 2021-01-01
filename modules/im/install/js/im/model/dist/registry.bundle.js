@@ -46,6 +46,10 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          enabled: false,
 	          maxFileSize: 5242880
 	        },
+	        call: {
+	          serverEnabled: false,
+	          maxParticipants: 24
+	        },
 	        mobile: {
 	          keyboardShow: false
 	        },
@@ -224,6 +228,18 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        }
 	      }
 
+	      if (babelHelpers.typeof(fields.call) === 'object' && fields.call) {
+	        result.call = {};
+
+	        if (typeof fields.call.serverEnabled === 'boolean') {
+	          result.call.serverEnabled = fields.call.serverEnabled;
+	        }
+
+	        if (typeof fields.call.maxParticipants === 'number') {
+	          result.call.maxParticipants = fields.call.maxParticipants;
+	        }
+	      }
+
 	      if (babelHelpers.typeof(fields.mobile) === 'object' && fields.mobile) {
 	        result.mobile = {};
 
@@ -287,13 +303,19 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      return {
 	        common: {
 	          inited: false,
+	          passChecked: true,
 	          showChat: false,
 	          userCount: 0,
 	          userInCallCount: 0,
 	          state: im_const.CallStateType.preparation,
-	          componentError: '',
-	          callError: '',
-	          showSmiles: false
+	          showSmiles: false,
+	          error: '',
+	          conferenceTitle: '',
+	          alias: '',
+	          conferenceStarted: null,
+	          conferenceStartDate: null,
+	          joinWithVideo: null,
+	          userReadyToJoin: false
 	        },
 	        user: {
 	          id: -1,
@@ -310,6 +332,10 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        common: function common(state, payload) {
 	          if (typeof payload.inited === 'boolean') {
 	            state.common.inited = payload.inited;
+	          }
+
+	          if (typeof payload.passChecked === 'boolean') {
+	            state.common.passChecked = payload.passChecked;
 	          }
 
 	          if (typeof payload.showChat === 'boolean') {
@@ -352,14 +378,41 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        returnToPreparation: function returnToPreparation(state, payload) {
 	          state.common.state = im_const.CallStateType.preparation;
 	        },
-	        setCallError: function setCallError(state, payload) {
-	          state.common.callError = payload.errorCode;
-	        },
-	        setComponentError: function setComponentError(state, payload) {
-	          state.common.componentError = payload.errorCode;
-	        },
 	        toggleSmiles: function toggleSmiles(state, payload) {
 	          state.common.showSmiles = !state.common.showSmiles;
+	        },
+	        setError: function setError(state, payload) {
+	          if (typeof payload.errorCode === 'string') {
+	            state.common.error = payload.errorCode;
+	          }
+	        },
+	        setConferenceTitle: function setConferenceTitle(state, payload) {
+	          if (typeof payload.conferenceTitle === 'string') {
+	            state.common.conferenceTitle = payload.conferenceTitle;
+	          }
+	        },
+	        setAlias: function setAlias(state, payload) {
+	          if (typeof payload.alias === 'string') {
+	            state.common.alias = payload.alias;
+	          }
+	        },
+	        setJoinType: function setJoinType(state, payload) {
+	          if (typeof payload.joinWithVideo === 'boolean') {
+	            state.common.joinWithVideo = payload.joinWithVideo;
+	          }
+	        },
+	        setConferenceStatus: function setConferenceStatus(state, payload) {
+	          if (typeof payload.conferenceStarted === 'boolean') {
+	            state.common.conferenceStarted = payload.conferenceStarted;
+	          }
+	        },
+	        setConferenceStartDate: function setConferenceStartDate(state, payload) {
+	          if (payload.conferenceStartDate instanceof Date) {
+	            state.common.conferenceStartDate = payload.conferenceStartDate;
+	          }
+	        },
+	        setUserReadyToJoin: function setUserReadyToJoin(state, payload) {
+	          state.common.userReadyToJoin = true;
 	        }
 	      };
 	    }
@@ -369,12 +422,17 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      return {
 	        common: {
 	          inited: null,
-	          callError: null,
 	          state: null,
 	          showSmiles: null,
 	          userCount: null,
 	          userInCallCount: null,
-	          componentError: null
+	          error: null,
+	          conferenceTitle: null,
+	          alias: null,
+	          conferenceStarted: null,
+	          conferenceStartDate: null,
+	          joinWithVideo: null,
+	          userReadyToJoin: null
 	        }
 	      };
 	    }
@@ -1892,6 +1950,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        dialogId: '0',
 	        chatId: 0,
 	        counter: 0,
+	        userCounter: 0,
 	        unreadId: 0,
 	        unreadLastId: 0,
 	        managerList: [],
@@ -2362,6 +2421,14 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        result.counter = parseInt(fields.counter);
 	      }
 
+	      if (typeof fields.user_counter === "number" || typeof fields.user_counter === "string") {
+	        result.userCounter = parseInt(fields.user_counter);
+	      }
+
+	      if (typeof fields.userCounter === "number" || typeof fields.userCounter === "string") {
+	        result.userCounter = parseInt(fields.userCounter);
+	      }
+
 	      if (typeof fields.unread_id !== 'undefined') {
 	        fields.unreadId = fields.unread_id;
 	      }
@@ -2430,7 +2497,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	            }
 
 	            record.userId = parseInt(element.userId);
-	            record.userName = element.userName;
+	            record.userName = im_lib_utils.Utils.text.htmlspecialcharsback(element.userName);
 	            result.writingList.push(record);
 	          });
 	        }
@@ -2862,7 +2929,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        update: function update(state, payload) {
 	          _this3.initCollection(state, payload);
 
-	          if (typeof payload.fields.lastActivityDate !== 'undefined') {
+	          if (typeof payload.fields.lastActivityDate !== 'undefined' && state.collection[payload.id].lastActivityDate) {
 	            var lastActivityDate = state.collection[payload.id].lastActivityDate.getTime();
 	            var newActivityDate = payload.fields.lastActivityDate.getTime();
 
@@ -3373,7 +3440,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        urlPreview: "",
 	        urlShow: "",
 	        urlDownload: "",
-	        init: false
+	        init: false,
+	        viewerAttrs: {}
 	      };
 	    }
 	  }, {
@@ -3854,7 +3922,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      }
 
 	      if (typeof fields.urlPreview === 'string') {
-	        if (!fields.urlPreview || fields.urlPreview.startsWith('http') || fields.urlPreview.startsWith('bx') || fields.urlPreview.startsWith('file')) {
+	        if (!fields.urlPreview || fields.urlPreview.startsWith('http') || fields.urlPreview.startsWith('bx') || fields.urlPreview.startsWith('file') || fields.urlPreview.startsWith('blob')) {
 	          result.urlPreview = fields.urlPreview;
 	        } else {
 	          result.urlPreview = options.host + fields.urlPreview;
@@ -3874,6 +3942,16 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          result.urlShow = fields.urlShow;
 	        } else {
 	          result.urlShow = options.host + fields.urlShow;
+	        }
+	      }
+
+	      if (babelHelpers.typeof(fields.viewerAttrs) === 'object') {
+	        if (result.type === 'image' && !im_lib_utils.Utils.platform.isBitrixMobile()) {
+	          result.viewerAttrs = fields.viewerAttrs;
+	        }
+
+	        if (result.type === 'video' && !im_lib_utils.Utils.platform.isBitrixMobile() && result.size > FilesModel.maxDiskFileSize) {
+	          result.viewerAttrs = fields.viewerAttrs;
 	        }
 	      }
 
@@ -4002,6 +4080,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  }]);
 	  return FilesModel;
 	}(ui_vue_vuex.VuexBuilderModel);
+	babelHelpers.defineProperty(FilesModel, "maxDiskFileSize", 5242880);
 
 	/**
 	 * Bitrix Messenger

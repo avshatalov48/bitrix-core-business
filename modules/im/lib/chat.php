@@ -570,12 +570,21 @@ class Chat
 	public static function getUsers($chatId, $options = [])
 	{
 		$users = [];
+		$externalTypes = \Bitrix\Main\UserTable::getExternalUserTypes();
 
 		$relations = self::getRelation($chatId, ['SELECT' => ['ID', 'USER_ID']]);
 		foreach ($relations as $user)
 		{
 			$instance = \Bitrix\Im\User::getInstance($user['USER_ID']);
 			if (!$instance->isExists() || !$instance->isActive())
+			{
+				continue;
+			}
+
+			if (
+				$options['SKIP_EXTERNAL'] &&
+				in_array($instance->getExternalAuthId(), $externalTypes, true)
+			)
 			{
 				continue;
 			}
@@ -735,6 +744,7 @@ class Chat
 			}
 
 			$counter = (int)$row['RELATION_COUNTER'];
+			$userCounter = (int)$row['USER_COUNT'];
 			$unreadId = (int)$row['RELATION_UNREAD_ID'];
 			$unreadLastId = (int)$row['LAST_MESSAGE_ID'];
 
@@ -756,6 +766,7 @@ class Chat
 				'COLOR' => $color,
 				'TYPE' => $chatType,
 				'COUNTER' => $counter,
+				'USER_COUNTER' => $userCounter,
 				'UNREAD_ID' => $unreadId,
 				'UNREAD_LAST_ID' => $unreadLastId,
 				'DISK_FOLDER_ID' => (int)$row['DISK_FOLDER_ID'],

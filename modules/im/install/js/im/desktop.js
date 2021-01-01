@@ -250,6 +250,62 @@
 		});
 	}
 
+	Desktop.prototype.hideLoader = function()
+	{
+		BX.remove(BX('bx-desktop-loader'));
+	}
+
+	Desktop.prototype.getBackgroundImage = function()
+	{
+		if (!this.apiReady)
+		{
+			return {id: 'none', source: ''};
+		}
+
+		return {
+			id: BXDesktopSystem.QuerySettings("bxd_camera_background_id") || 'none',
+			source: BXDesktopSystem.QuerySettings("bxd_camera_background") || '',
+		};
+	}
+
+	Desktop.prototype.setBackgroundImage = function(id, source)
+	{
+		if (source === 'none' || source === '')
+		{
+			source = '';
+		}
+		else if (source === 'blur')
+		{
+		}
+		else if(source === 'gaussianBlur')
+		{
+			source = 'GaussianBlur';
+		}
+		else
+		{
+			try
+			{
+				var url = new URL(source, location.origin);
+				source = url.href;
+			}
+			catch(e)
+			{
+				source = '';
+			}
+		}
+
+		var promise = new BX.Promise();
+
+		setTimeout(function() {
+			BXDesktopSystem.StoreSettings("bxd_camera_background_id", id);
+			BXDesktopSystem.StoreSettings("bxd_camera_background", source);
+
+			promise.resolve();
+		}, 100);
+
+		return promise;
+	}
+
 	Desktop.prototype.getCurrentUrl = function ()
 	{
 		return document.location.protocol+'//'+document.location.hostname+(document.location.port == ''?'':':'+document.location.port)
@@ -729,9 +785,34 @@
 		return true;
 	}
 
-	Desktop.prototype.getHtmlPage = function(content, jsContent, bodyClass)
+	Desktop.prototype.isPopupPageLoaded = function()
+	{
+		if (!this.enableInVersion(45))
+			return false;
+
+		if (("BXIM" in window) && !window.BXIM.isUtfMode)
+			return false;
+
+		if (!BXInternals)
+			return false;
+
+		if (!BXInternals.PopupTemplate)
+			return false;
+
+		if (BXInternals.PopupTemplate === '#PLACEHOLDER#')
+			return false;
+
+		return true;
+	}
+
+	Desktop.prototype.getHtmlPage = function(content, jsContent, initImJs, bodyClass)
 	{
 		if (!this.ready()) return;
+
+		if (("BXIM" in window))
+		{
+			return window.BXIM.desktop.getHtmlPage(content, jsContent, initImJs, bodyClass);
+		}
 
 		content = content || '';
 		jsContent = jsContent || '';
@@ -753,7 +834,7 @@
 			jsContent = '<script type="text/javascript">BX.ready(function(){'+jsContent+'});</script>';
 		}
 
-		if (this.enableInVersion(45))
+		if (this.isPopupPageLoaded())
 		{
 			return '<div class="im-desktop im-desktop-popup '+bodyClass+'">'+content+jsContent+'</div>';
 		}
@@ -960,14 +1041,15 @@
 
 		if (!this.ready()) return def;
 
-		var result = BXDesktopSystem.QuerySettings(name, def+'');
+		var querySetting = BXDesktopSystem.QuerySettings(name, def+'');
 
-		if (typeof(result) == 'string' && result.length > 0)
+		var result = def;
+		if (typeof(querySetting) == 'string' && querySetting.length > 0)
 		{
 			try {
-				result = JSON.parse(result);
+				result = JSON.parse(querySetting);
 			}
-			catch(e) { result = def; }
+			catch(e) { result = querySetting; }
 		}
 
 		return result;

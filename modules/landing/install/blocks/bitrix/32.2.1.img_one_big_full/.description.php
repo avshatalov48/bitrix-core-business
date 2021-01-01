@@ -27,7 +27,7 @@ return array(
 		'nodes' => array(
 			'.landing-block-node-img' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_32.2.1.IMG_ONE_BIG_FULL__NODES_LANDINGBLOCKNODEIMG'),
-				'type' => 'background-attachment',
+				'type' => ['background-attachment', 'background-size'],
 			),
 		),
 	),

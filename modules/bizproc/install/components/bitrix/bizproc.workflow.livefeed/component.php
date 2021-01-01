@@ -31,6 +31,14 @@ if (!empty($arResult['TASKS']['RUNNING']))
 }
 $arResult['noWrap'] = isset($arParams['NOWRAP']) && $arParams['NOWRAP'] == 'Y';
 
+if (
+	isset($arParams['SITE_TEMPLATE_ID'])
+	&& $arParams['SITE_TEMPLATE_ID'] <> ''
+)
+{
+	$this->setSiteTemplateId($arParams['SITE_TEMPLATE_ID']);
+}
+
 ob_start();
 $this->IncludeComponentTemplate();
 $message = ob_get_contents();

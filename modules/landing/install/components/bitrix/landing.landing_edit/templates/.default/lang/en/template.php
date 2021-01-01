@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["LANDING_FIELD_TITLE_METAOG_NAME"] = "Rich formatting for social media";
 $MESS["LANDING_FIELD_TITLE_METAOG_NAME_GROUP"] = "Rich formatting";
 $MESS["LANDING_FIELD_TITLE_METAOG_NAME_KNOWLEDGE"] = "Rich formatting";
@@ -27,6 +27,7 @@ $MESS["LANDING_TPL_HTML_DISABLED_TITLE"] = "Plan restrictions";
 $MESS["LANDING_TPL_LAYOUT"] = "Page Template";
 $MESS["LANDING_TPL_LAYOUT_AREA"] = "Area";
 $MESS["LANDING_TPL_LAYOUT_USE"] = "Apply to this page";
+$MESS["LANDING_TPL_MY_COLOR"] = "Custom color";
+$MESS["LANDING_TPL_OTHER_COLORS"] = "More colors";
 $MESS["LANDING_TPL_TITLE_ADD"] = "New Page";
 $MESS["LANDING_TPL_TITLE_EDIT"] = "Page settings";
-?>

@@ -20,52 +20,52 @@ export default class MouseSensor extends Sensor
 
 	enable()
 	{
-		document.addEventListener('mousedown', this.onMouseDown, true);
+		this.getDocument().addEventListener('mousedown', this.onMouseDown, true);
 	}
 
 	disable()
 	{
-		document.removeEventListener('mousedown', this.onMouseDown, true);
+		this.getDocument().removeEventListener('mousedown', this.onMouseDown, true);
 	}
 
 	startHandleMouseUp()
 	{
-		document.addEventListener('mouseup', this.onMouseUp);
+		this.getDocument().addEventListener('mouseup', this.onMouseUp);
 	}
 
 	stopHandleMouseUp()
 	{
-		document.removeEventListener('mouseup', this.onMouseUp);
+		this.getDocument().removeEventListener('mouseup', this.onMouseUp);
 	}
 
 	startHandleMouseMove()
 	{
-		document.addEventListener('mousemove', this.onMouseMove);
+		this.getDocument().addEventListener('mousemove', this.onMouseMove);
 	}
 
 	stopHandleMouseMove()
 	{
-		document.removeEventListener('mousemove', this.onMouseMove);
+		this.getDocument().removeEventListener('mousemove', this.onMouseMove);
 	}
 
 	startPreventContextMenu()
 	{
-		document.addEventListener('contextmenu', this.preventDefaultEventAction, true);
+		this.getDocument().addEventListener('contextmenu', this.preventDefaultEventAction, true);
 	}
 
 	stopPreventContextMenu()
 	{
-		document.removeEventListener('contextmenu', this.preventDefaultEventAction, true);
+		this.getDocument().removeEventListener('contextmenu', this.preventDefaultEventAction, true);
 	}
 
 	startPreventNativeDragAndDrop()
 	{
-		document.addEventListener('dragstart', this.preventDefaultEventAction);
+		this.getDocument().addEventListener('dragstart', this.preventDefaultEventAction);
 	}
 
 	stopPreventNativeDragAndDrop()
 	{
-		document.removeEventListener('dragstart', this.preventDefaultEventAction);
+		this.getDocument().removeEventListener('dragstart', this.preventDefaultEventAction);
 	}
 
 	onMouseDown(event: MouseEvent)

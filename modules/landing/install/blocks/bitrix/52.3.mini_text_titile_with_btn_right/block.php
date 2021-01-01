@@ -2,7 +2,7 @@
 	<div class="container">
 		<div class="landing-block-node-container row g-flex-centered align-items-end">
 			<div class="landing-block-node-text-container text-left col-8 js-animation slideInLeft">
-				<h6 class="landing-block-node-title landing-semantic-text-medium h6 g-mb-0 g-font-size-26 g-color-black">
+				<h6 class="landing-block-node-title landing-semantic-text-medium h6 g-mb-0">
 					Contact us
 				</h6>
 				<div class="landing-block-node-text landing-semantic-text-small g-font-size-16 g-color-black">

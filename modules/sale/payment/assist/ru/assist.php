@@ -69,7 +69,7 @@ $MESS["SALE_ASSIST_PAYMENT_AssistIDCCPayment_DESC"] = "1 - использова�
 $MESS["SALE_ASSIST_PAYMENT_EPBeelinePayment_NAME"] = "Использовать мобильный кошелек Билайн";
 $MESS["SALE_ASSIST_PAYMENT_EPBeelinePayment_DESC"] = "1 - использовать, 0 - не использовать";
 
-$MESS["SALE_ASSIST_PAYMENT_YMPayment_NAME"] = "использовать платежную систему YandexMoney";
+$MESS["SALE_ASSIST_PAYMENT_YMPayment_NAME"] = "использовать платежную систему ЮMoney";
 $MESS["SALE_ASSIST_PAYMENT_QIWIPayment_NAME"] = "Использовать платежную систему QIWI";
 $MESS["SALE_ASSIST_PAYMENT_YMPayment_DESC"] = "1 - использовать, 0 - не использовать";
 $MESS["SALE_ASSIST_PAYMENT_QIWIPayment_DESC"] = "1 - использовать, 0 - не использовать";

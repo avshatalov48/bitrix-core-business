@@ -1143,6 +1143,7 @@ if (!function_exists('__SLEGetLogCommentRecord'))
 					'SHARE_DEST' => $arComment['SHARE_DEST'],
 					'SOURCE_ID' => (int)$arComment['SOURCE_ID'],
 					'EVENT_ID' => $arComment['EVENT_ID'],
+					'RATING_TYPE_ID' => $arComment['RATING_TYPE_ID'],
 				),
 				array(
 					'eventId' => $arComment['EVENT_ID']

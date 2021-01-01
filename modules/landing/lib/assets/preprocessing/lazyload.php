@@ -23,6 +23,7 @@ class Lazyload
 		$this->block = $block;
 		$this->manifest = $block->getManifest();
 		$this->content = $block->getContent();
+		// todo: block->getDom()?
 		$this->dom = new Dom\Document();
 		$this->dom->loadHTML($this->content);
 	}

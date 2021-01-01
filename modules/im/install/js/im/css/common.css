@@ -529,6 +529,7 @@
 
 .bx-messenger-keyboard-button-progress  { opacity: .5 }
 .bx-messenger-keyboard-button-ajax { display: inline-block; width: 29px; height: 29px; background: url("./../images/im-sprite-v37.png") no-repeat scroll -73px -998px; -webkit-animation: imRotate360 1.2s linear infinite; animation: imRotate360 1.2s linear infinite; position: absolute;}
+.bx-messenger-keyboard-button-disabled { opacity: .6 }
 .bx-messenger-keyboard-new-line { display: block; }
 
 /* message colors */

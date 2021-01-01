@@ -11,6 +11,7 @@ use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sender\Internals\Model\MessageFieldTable;
 use Bitrix\Sender\Internals\Model\MessageTable;
+use Bitrix\Sender\Internals\Model\MessageUtmTable;
 use Bitrix\Sender\Message\Configuration;
 use Bitrix\Sender\Message\Result;
 
@@ -173,6 +174,33 @@ class Message extends Base
 	}
 
 	/**
+	 * Get fields.
+	 */
+	public function getUtm()
+	{
+		$result = array();
+		$data = $this->getData();
+		foreach ($data['UTM'] as $field)
+		{
+			$result[$field['CODE']] = $field['VALUE'];
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Set fields.
+	 *
+	 * @param array $fields Fields.
+	 * @return $this
+	 */
+	public function setUtm(array $utm)
+	{
+		$this->set('UTM', $utm);
+		return $this;
+	}
+
+	/**
 	 * Get code.
 	 */
 	public function getCode()
@@ -200,7 +228,8 @@ class Message extends Base
 	{
 		return array(
 			'CODE' => '',
-			'FIELDS' => array(),
+			'FIELDS' => [],
+			'UTM' => []
 		);
 	}
 
@@ -252,7 +281,9 @@ class Message extends Base
 	protected function saveData($id = null, array $data)
 	{
 		$fields = $data['FIELDS'];
+		$utmTags = $data['UTM'];
 		unset($data['FIELDS']);
+		unset($data['UTM']);
 
 		if(!is_array($fields) && count($fields) == 0)
 		{
@@ -301,6 +332,20 @@ class Message extends Base
 			));
 		}
 
+		MessageUtmTable::deleteByMessageId($id);
+		if($utmTags)
+		{
+			foreach ($utmTags as $utm)
+			{
+				MessageUtmTable::add(
+					[
+						'MESSAGE_ID' => $id,
+						'CODE'       => $utm['CODE'],
+						'VALUE'      => $utm['VALUE']
+					]
+				);
+			}
+		}
 
 		return $id;
 	}

@@ -436,9 +436,16 @@ class forumTextParser extends CTextParser
 		return '<a class="blog-p-user-name'.$classAdditional.'" id="bp_'.$anchorId.'" href="'.CComponentEngine::MakePathFromTemplate($pathToUser, array("user_id" => $userId)).'" bx-tooltip-user-id="'.(!$this->bMobile ? $userId : '').'">'.$userName.'</a>';
 	}
 }
-class_alias("forumTextParser", "textParser");
 
-//===========================
+/***
+ * @deprecated
+ */
+class textParser extends forumTextParser {
+	public function killAllTags($text)
+	{
+		return parent::clearAllTags($text);
+	}
+}
 
 class CForumSimpleHTMLParser
 {

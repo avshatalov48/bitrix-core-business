@@ -41,6 +41,8 @@
 		{
 			this.type = options.type || '';
 			this.title = options.title || '';
+			this.url = options.url || '';
+			this.formEditor = options.specialType === 'crm_forms';
 			this.topInit = options.topInit || false;
 			this.active = options.active || false;
 			this.draftMode = options.draftMode || false;
@@ -195,6 +197,11 @@
 				rules: [
 					{
 						condition: conditions,
+						stopParameters: [
+							'action',
+							'fields%5Bdelete%5D',
+							'nav'
+						],
 						options: {
 							allowChangeHistory: false
 						}
@@ -346,6 +353,26 @@
 		},
 
 		/**
+		 * Show publication dialog.
+		 * @param {string} mode Option: site|landing.
+		 */
+		publicationDialog: function(mode)
+		{
+			return;
+			var instance = new BX.Landing.Dialog.Publication.getInstance({
+				landingId: this.id,
+				siteId: this.siteId,
+				url: this.url
+			});
+
+			instance.publication(
+				(mode !== 'landing') ? 'site' : 'landing'
+			);
+
+			BX.PreventDefault();
+		},
+
+		/**
 		 * Change top panel.
 		 * @param options Some additional options.
 		 */
@@ -420,9 +447,9 @@
 						{
 							BX.PreventDefault();
 						}
-						else if (BX('landing-publication').getAttribute('target') === '_self')
+						else
 						{
-							BX.addClass(document.querySelector(".ui-btn-primary.landing-btn-menu"), 'ui-btn-wait');
+							this.publicationDialog('landing');
 						}
 					}.bind(this)
 				);
@@ -472,7 +499,7 @@
 			else
 			{
 				this.popupMenuIds.push('landing-menu-publication');
-				var menu = new BX.Landing.UI.Tool.Menu({
+				var menu = BX.Main.MenuManager.create({
 					id: 'landing-menu-publication',
 					bindElement: element,
 					autoHide: true,
@@ -487,7 +514,11 @@
 							target: '_blank',
 							dataset: {
 								sliderIgnoreAutobinding: true
-							}
+							},
+							onclick: function()
+							{
+								this.publicationDialog('landing');
+							}.bind(this)
 						},
 						{
 							href: this.urls['publicationAll'],
@@ -495,7 +526,11 @@
 							target: '_blank',
 							dataset: {
 								sliderIgnoreAutobinding: true
-							}
+							},
+							onclick: function()
+							{
+								this.publicationDialog('site');
+							}.bind(this)
 						}
 					]
 				})
@@ -523,11 +558,13 @@
 						text: BX.message('LANDING_TPL_SETTINGS_PAGE_URL'),
 						disabled: !this.rights.settings
 					},
-					{
+					!this.formEditor
+					? {
 						href: this.urls['landingSiteEdit'],
 						text: BX.message('LANDING_TPL_SETTINGS_SITE_URL'),
 						disabled: !this.rights.settings
-					},
+					}
+					: null,
 					this.storeEnabled
 					? {
 						href: this.urls['landingCatalogEdit'],
@@ -535,7 +572,7 @@
 						disabled: !this.rights.settings
 					}
 					: null,
-					!this.draftMode
+					!this.draftMode && !this.formEditor
 					? {
 						href: this.urls['unpublic'],
 						text: BX.message('LANDING_TPL_SETTINGS_UNPUBLIC'),
@@ -565,7 +602,7 @@
 						}.bind(placementItem, __this)
 					});
 				}
-				var menu = new BX.Landing.UI.Tool.Menu({
+				var menu = BX.Main.MenuManager.create({
 						id: 'landing-menu-settings' + index,
 						bindElement: BX('landing-panel-settings'),
 						autoHide: true,
@@ -640,14 +677,17 @@ var landingAlertMessage = function landingAlertMessage(errorText, payment, error
 {
 	if (payment === true && errorCode === 'PUBLIC_SITE_REACHED')
 	{
-		if (BX.message('LANDING_SITE_TYPE') === 'STORE')
+		(function()
 		{
-			top.BX.UI.InfoHelper.show('limit_shop_number');
-		}
-		else
-		{
-			top.BX.UI.InfoHelper.show('limit_sites_number');
-		}
+			if (BX.message('LANDING_SITE_TYPE') === 'STORE')
+			{
+				top.BX.UI.InfoHelper.show('limit_shop_number');
+			}
+			else
+			{
+				top.BX.UI.InfoHelper.show('limit_sites_number');
+			}
+		})();
 	}
 	else if (payment === true && typeof BX.Landing.PaymentAlertShow !== 'undefined')
 	{

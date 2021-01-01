@@ -20,6 +20,11 @@ export default class Sensor extends EventEmitter
 		this.options = {delay: 0, ...options};
 	}
 
+	getDocument(): HTMLDocument
+	{
+		return this.options.context.document;
+	}
+
 	addContainer(...containers: Array<HTMLElement>)
 	{
 		this.containers = [...this.containers, ...containers];
@@ -61,7 +66,7 @@ export default class Sensor extends EventEmitter
 	// eslint-disable-next-line class-methods-use-this
 	getElementFromPoint(x: number, y: number): HTMLElement
 	{
-		return document.elementFromPoint(x, y);
+		return this.getDocument().elementFromPoint(x, y);
 	}
 
 	// eslint-disable-next-line class-methods-use-this

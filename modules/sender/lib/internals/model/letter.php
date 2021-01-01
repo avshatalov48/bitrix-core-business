@@ -151,6 +151,10 @@ class LetterTable extends Entity\DataManager
 				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 
+			'MESSAGE' => array(
+				'data_type' => MessageTable::class,
+				'reference' => array('=this.MESSAGE_ID' => 'ref.ID'),
+			),
 			'CAMPAIGN' => array(
 				'data_type' => 'Bitrix\Sender\MailingTable',
 				'reference' => array('=this.CAMPAIGN_ID' => 'ref.ID'),

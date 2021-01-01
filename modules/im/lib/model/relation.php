@@ -1,6 +1,8 @@
 <?php
 namespace Bitrix\Im\Model;
 
+use Bitrix\Im\Internals\Query;
+use Bitrix\Main\Application;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
 Loc::loadMessages(__FILE__);
@@ -183,6 +185,29 @@ class RelationTable extends Entity\DataManager
 			->build();
 
 		return $result;
+	}
+
+	public static function deleteBatch(array $filter, $limit = 0): int
+	{
+		$tableName = static::getTableName();
+		$connection = Application::getConnection();
+		$sqlHelper = $connection->getSqlHelper();
+
+		$query = new Query(static::getEntity());
+		$query->setFilter($filter);
+		$query->getQuery();
+
+		$alias = $sqlHelper->quote($query->getInitAlias()) . '.';
+		$where = str_replace($alias, '', $query->getWhere());
+
+		$sql = 'DELETE FROM ' . $tableName . ' WHERE ' . $where;
+		if($limit > 0)
+		{
+			$sql .= ' LIMIT ' . $limit;
+		}
+
+		$connection->queryExecute($sql);
+		return $connection->getAffectedRowsCount();
 	}
 }
 

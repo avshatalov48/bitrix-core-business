@@ -260,9 +260,13 @@ class Cookies
 	 */
 	public static function acceptAgreement(int $siteId, array $accepted = []): void
 	{
-		$agreement = self::getMainAgreement(
-			\Bitrix\Landing\Hook\Page\Cookies::getAgreementIdBySiteId($siteId)
-		);
+		$agreementId = \Bitrix\Landing\Hook\Page\Cookies::getAgreementIdBySiteId($siteId);
+		if (!$agreementId)
+		{
+			return;
+		}
+
+		$agreement = self::getMainAgreement($agreementId);
 		if (!$agreement)
 		{
 			return;

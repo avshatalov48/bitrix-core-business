@@ -35,6 +35,8 @@
 		}
 
 		this.callerName = config.callerName;
+		this.callerType = config.callerType;
+		this.callerColor = config.callerColor;
 		this.video = config.video;
 		this.hasCamera = config.hasCamera == true;
 
@@ -59,7 +61,9 @@
 				video: this.video,
 				hasCamera: this.hasCamera,
 				callerAvatar: this.callerAvatar,
-				callerName: this.callerName
+				callerName: this.callerName,
+				callerType: this.callerType,
+				callerColor: this.callerColor
 			};
 
 			if(this.window)
@@ -81,6 +85,8 @@
 				hasCamera: this.hasCamera,
 				callerAvatar: this.callerAvatar,
 				callerName: this.callerName,
+				callerType: this.callerType,
+				callerColor: this.callerColor,
 				onClose: this.callbacks.onClose,
 				onDestroy: this.callbacks.onDestroy,
 				onButtonClick: this.callbacks.onButtonClick
@@ -159,6 +165,8 @@
 		this.hasCamera = config.hasCamera;
 		this.callerAvatar = config.callerAvatar;
 		this.callerName = config.callerName;
+		this.callerType = config.callerType;
+		this.callerColor = config.callerColor;
 
 		this.elements = {
 			root: null,
@@ -174,47 +182,111 @@
 
 	BX.Call.NotificationContent.prototype.render = function()
 	{
+		var backgroundImage = this.callerAvatar || '/bitrix/js/im/images/default-call-background.png';
+		var avatar;
+		var callerPrefix;
+
+		if (this.video)
+		{
+			if (this.callerType === 'chat')
+			{
+				callerPrefix = BX.message("IM_M_VIDEO_CALL_FROM_CHAT");
+			}
+			else if (this.callerType === 'private')
+			{
+				callerPrefix = BX.message("IM_M_VIDEO_CALL_FROM");
+			}
+		}
+		else
+		{
+			if (this.callerType === 'chat')
+			{
+				callerPrefix = BX.message("IM_M_CALL_FROM_CHAT");
+			}
+			else if (this.callerType === 'private')
+			{
+				callerPrefix = BX.message("IM_M_CALL_FROM");
+			}
+		}
+
+		if (this.callerAvatar)
+		{
+			avatar = this.callerAvatar;
+		}
+		else
+		{
+			if (this.callerType === 'chat')
+			{
+				avatar = '/bitrix/js/im/images/default-avatar-chat-big.png';
+			}
+			else if (this.callerType === 'private')
+			{
+				avatar = '/bitrix/js/im/images/hidef-avatar-v3.png';
+			}
+		}
+
 		this.elements.root = BX.create("div", {
 			props: {className: "bx-messenger-call-window"},
 			children: [
 				BX.create("div", {
+					props: {className: "bx-messenger-call-window-background"},
+					style: {
+						backgroundImage: 'url(' + backgroundImage + ')'
+					},
+				}),
+				BX.create("div", {
+					props: {className: "bx-messenger-call-window-background-blur"}
+				}),
+				BX.create("div", {
+					props: {className: "bx-messenger-call-window-background-gradient"},
+					style: {
+						backgroundImage: "url('/bitrix/js/im/images/call-background-gradient.png')"
+					}
+				}),
+				BX.create("div", {
+					props: {className: "bx-messenger-call-window-bottom-background"}
+				}),
+				BX.create("div", {
 					props: {className: "bx-messenger-call-window-body"},
 					children: [
 						BX.create("div", {
-							props: {className: "bx-messenger-call-window-photo"},
+							props: {className: "bx-messenger-call-window-top"},
 							children: [
 								BX.create("div", {
-									props: {className: "bx-messenger-call-window-photo-left"},
+									props: {className: "bx-messenger-call-window-photo"},
 									children: [
 										BX.create("div", {
-											props: {className: "bx-messenger-call-window-photo-block"},
+											props: {className: "bx-messenger-call-window-photo-left"},
 											children: [
-												this.elements.avatar = BX.create("img", {
-													props: {
-														className: "bx-messenger-call-window-overlay-photo-img",
-														src: this.callerAvatar || "/bitrix/js/im/images/hidef-avatar-v3.png"
-													},
-													style: {
-														backgroundColor: "#df532d"
-													}
+												BX.create("div", {
+													props: {className: "bx-messenger-call-window-photo-block"},
+													children: [
+														this.elements.avatar = BX.create("img", {
+															props: {
+																className: "bx-messenger-call-window-overlay-photo-img",
+																src: avatar
+															},
+															style: {
+																backgroundColor: this.callerColor
+															}
+														}),
+													]
 												}),
 											]
 										}),
 									]
 								}),
-							]
-						}),
-						BX.create("div", {
-							props: {className: "bx-messenger-call-window-info"},
-							children: [
 								BX.create("div", {
 									props: {className: "bx-messenger-call-window-title"},
 									children: [
 										BX.create("div", {
 											props: {className: "bx-messenger-call-window-title-block"},
 											children: [
-												document.createTextNode(this.video ? BX.message("IM_M_VIDEO_CALL_FROM") : BX.message("IM_M_CALL_FROM")),
-												BX.create("span", {
+												BX.create("div", {
+													props: {className: "bx-messenger-call-overlay-title-caller-prefix"},
+													text: callerPrefix
+												}),
+												BX.create("div", {
 													props: {className: "bx-messenger-call-overlay-title-caller"},
 													text: BX.util.htmlspecialcharsback(this.callerName)
 												})
@@ -222,27 +294,56 @@
 										}),
 									]
 								}),
+							]
+						}),
+						BX.create("div", {
+							props: {className: "bx-messenger-call-window-bottom"},
+							children: [
 								BX.create("div", {
 									props: {className: "bx-messenger-call-window-buttons"},
 									children: [
 										BX.create("div", {
 											props: {className: "bx-messenger-call-window-buttons-block"},
 											children: [
-												BX.create("button", {
-													props: {className: "ui-btn ui-btn-sm ui-btn-round ui-btn-primary-dark ui-btn-icon-camera bx-messenger-call-window-button" + (!this.hasCamera ? " ui-btn-disabled" : "")},
-													text: BX.message("IM_M_CALL_BTN_ANSWER_VIDEO"),
+												BX.create("div", {
+													props: {className: "bx-messenger-call-window-button" + (!this.hasCamera ? " bx-messenger-call-window-button-disabled" : "")},
+													children: [
+														BX.create("div", {
+															props: {className: "bx-messenger-call-window-button-icon bx-messenger-call-window-button-icon-camera"}
+														}),
+														BX.create("div", {
+															props: {className: "bx-messenger-call-window-button-text"},
+															text: BX.message("IM_M_CALL_BTN_ANSWER_VIDEO"),
+														}),
+													],
 													events: {click: this._onAnswerWithVideoButtonClick.bind(this)}
 												}),
-												BX.create("button", {
-													props: {className: "ui-btn ui-btn-sm ui-btn-round ui-btn-primary-dark ui-btn-icon-phone-up bx-messenger-call-window-button"},
-													text: BX.message("IM_M_CALL_BTN_ANSWER"),
+												BX.create("div", {
+													props: {className: "bx-messenger-call-window-button"},
+													children: [
+														BX.create("div", {
+															props: {className: "bx-messenger-call-window-button-icon bx-messenger-call-window-button-icon-phone-up"}
+														}),
+														BX.create("div", {
+															props: {className: "bx-messenger-call-window-button-text"},
+															text: BX.message("IM_M_CALL_BTN_ANSWER"),
+														}),
+													],
 													events: {click: this._onAnswerButtonClick.bind(this)}
 												}),
-												BX.create("button", {
-													props: {className: "ui-btn ui-btn-sm ui-btn-round ui-btn-danger-dark ui-btn-icon-phone-down"},
-													text: BX.message("IM_M_CALL_BTN_DECLINE"),
+												BX.create("div", {
+													props: {className: "bx-messenger-call-window-button bx-messenger-call-window-button-danger"},
+													children: [
+														BX.create("div", {
+															props: {className: "bx-messenger-call-window-button-icon bx-messenger-call-window-button-icon-phone-down"}
+														}),
+														BX.create("div", {
+															props: {className: "bx-messenger-call-window-button-text"},
+															text: BX.message("IM_M_CALL_BTN_DECLINE"),
+														}),
+													],
 													events: {click: this._onDeclineButtonClick.bind(this)}
-												}),
+												})
 											]
 										}),
 									]
@@ -261,7 +362,7 @@
 	{
 		this.render();
 		document.body.appendChild(this.elements.root);
-		BX.desktop.setWindowPosition({X:STP_CENTER, Y:STP_VCENTER, Width: 635, Height: 125});
+		BX.desktop.setWindowPosition({X:STP_CENTER, Y:STP_VCENTER, Width: 351, Height: 510});
 	};
 
 	BX.Call.NotificationContent.prototype._onAnswerButtonClick = function(e)

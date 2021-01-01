@@ -13,6 +13,7 @@ $MESS['LANDING_TPL_SETTINGS_CATALOG_URL'] = 'Настройки каталога
 $MESS['LANDING_TPL_SETTINGS_UNPUBLIC'] = 'Снять с публикации';
 $MESS['LANDING_TPL_START_PAGE'] = 'Мои сайты';
 $MESS['LANDING_TPL_START_PAGE_PAGE'] = 'Мои сайты';
+$MESS['LANDING_TPL_START_PAGE_FORM'] = 'Мои формы';
 $MESS['LANDING_TPL_START_PAGE_STORE'] = 'Мои магазины';
 $MESS['LANDING_TPL_START_PAGE_KNOWLEDGE'] = 'Базы знаний';
 $MESS['LANDING_TPL_START_PAGE_GROUP'] = 'Базы знаний';

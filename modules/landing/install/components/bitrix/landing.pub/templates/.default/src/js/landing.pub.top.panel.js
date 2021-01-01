@@ -38,14 +38,15 @@ export class TopPanel
 		event.preventDefault();
 
 		const href = Dom.attr(event.currentTarget, 'href');
+		const landingId = Dom.attr(event.currentTarget, 'data-landingId');
 
 		if (Type.isString(href) && href !== '')
 		{
-			TopPanel.openSlider(href);
+			TopPanel.openSlider(href, landingId);
 		}
 	}
 
-	static openSlider(url)
+	static openSlider(url, landingId)
 	{
 		BX.SidePanel.Instance.open(url, {
 			cacheable: false,
@@ -53,7 +54,9 @@ export class TopPanel
 			allowChangeHistory: false,
 			events: {
 				onClose() {
-					void SliderHacks.reloadSlider(window.location.toString());
+					void SliderHacks.reloadSlider(
+						window.location.toString().split('#')[0] + '#landingId' + landingId
+					);
 				},
 			},
 		});

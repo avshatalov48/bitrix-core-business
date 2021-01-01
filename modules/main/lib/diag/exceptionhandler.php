@@ -256,13 +256,14 @@ class ExceptionHandler
 	 *
 	 * @param \Exception|\Error $exception Exception object.
 	 *
+	 * @param int $logType
 	 * @return void
 	 * @see \Bitrix\Main\Diag\ExceptionHandler::writeToLog
 	 * @see \Bitrix\Main\Diag\ExceptionHandler::initialize
 	 */
-	public function handleException($exception)
+	public function handleException($exception, $logType = ExceptionHandlerLog::UNCAUGHT_EXCEPTION)
 	{
-		$this->writeToLog($exception, ExceptionHandlerLog::UNCAUGHT_EXCEPTION);
+		$this->writeToLog($exception, $logType);
 		$out = $this->getHandlerOutput();
 		$out->renderExceptionMessage($exception, $this->debug);
 		die();
@@ -346,7 +347,7 @@ class ExceptionHandler
 				if(($error['type'] & $this->handledErrorsTypes))
 				{
 					$exception = new \ErrorException($error['message'], 0, $error['type'], $error['file'], $error['line']);
-					$this->writeToLog($exception, ExceptionHandlerLog::FATAL);
+					$this->handleException($exception, ExceptionHandlerLog::FATAL);
 				}
 			}
 		}

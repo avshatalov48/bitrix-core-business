@@ -196,9 +196,9 @@ function __logShowPostMenu(bindElement, ind, entity_type, entity_id, event_id, f
 
 	if (BX.message('sonetLbUseFavorites') != 'N')
 	{
-		itemFavorites = { 
+		itemFavorites = {
 			text : (bFavorites ? BX.message('SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_Y') : BX.message('SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_N')),
-			className : "menu-popup-no-icon", 
+			className : "menu-popup-no-icon",
 			onclick : function(e) {
 				__logChangeFavorites(
 					log_id,
@@ -218,7 +218,7 @@ function __logShowPostMenu(bindElement, ind, entity_type, entity_id, event_id, f
 		(
 			menuElement.getAttribute("data-log-entry-url").length > 0 ?
 			{
-				text : '<span id="post-menu-' + ind + '-href-text">' + BX.message("sonetLMenuHref") + '</span>',
+				html : '<span id="post-menu-' + ind + '-href-text">' + BX.message("sonetLMenuHref") + '</span>',
 				className : "menu-popup-no-icon feed-entry-popup-menu feed-entry-popup-menu-href",
 				href : menuElement.getAttribute("data-log-entry-url")
 			} : null
@@ -226,13 +226,13 @@ function __logShowPostMenu(bindElement, ind, entity_type, entity_id, event_id, f
 		(
 			menuElement.getAttribute("data-log-entry-url").length > 0
 			? {
-				text : '<span id="post-menu-' + ind + '-link-text">' + BX.message("sonetLMenuLink") + '</span>' +
+				html : '<span id="post-menu-' + ind + '-link-text">' + BX.message("sonetLMenuLink") + '</span>' +
 					'<span id="post-menu-' + ind + '-link-icon-animate" class="post-menu-link-icon-wrap">' +
 						'<span class="post-menu-link-icon" id="post-menu-' + ind + '-link-icon-done" style="display: none;">' +
 
 						'</span>' +
 					'</span>',
-				className : "menu-popup-no-icon feed-entry-popup-menu feed-entry-popup-menu-link", 
+				className : "menu-popup-no-icon feed-entry-popup-menu feed-entry-popup-menu-link",
 				onclick : function() {
 
 					var id = 'post-menu-' + ind + '-link',
@@ -297,13 +297,13 @@ function __logShowPostMenu(bindElement, ind, entity_type, entity_id, event_id, f
 
 							BX.adjust(it, {
 								attrs : {"bx-height" : it.offsetHeight},
-								style : { 
-									overflow : "hidden", 
+								style : {
+									overflow : "hidden",
 									display : 'block'
 								},
 								children : [
 									BX.create('BR'),
-									BX.create('DIV', { 
+									BX.create('DIV', {
 										attrs : {id : id},
 										children : [
 											BX.create('SPAN', {attrs : {"className" : "menu-popup-item-left"}}),
@@ -532,7 +532,7 @@ function __logDelete(log_id, node, ind)
 function __logDeleteSuccess(node)
 {
 	if (
-		typeof node == 'undefined' 
+		typeof node == 'undefined'
 		|| !node
 		|| !BX(node)
 	)
@@ -546,10 +546,10 @@ function __logDeleteSuccess(node)
 		type: 'linear',
 		start: BX(node).offsetHeight,
 		finish: 56,
-		callback: BX.delegate(function(height) { 
+		callback: BX.delegate(function(height) {
 			this.style.height = height + 'px';
 		}, BX(node)),
-		callback_start: BX.delegate(function() { 
+		callback_start: BX.delegate(function() {
 			this.style.overflow = 'hidden';
 			this.style.minHeight = 0;
 		}, BX(node)),
@@ -586,7 +586,7 @@ function __logDeleteSuccess(node)
 function __logDeleteFailure(node)
 {
 	if (
-		typeof node == 'undefined' 
+		typeof node == 'undefined'
 		|| !node
 		|| !BX(node)
 	)
@@ -1641,7 +1641,7 @@ BitrixLF.prototype.LazyLoadCheckVisibility = function(image) // to check if expa
 	{
 		var moreBlock = BX.findChild(textBlock, {'tag':'div', 'className': 'feed-post-text-more'}, false);
 		if (
-			moreBlock 
+			moreBlock
 			&& moreBlock.style.display != 'none'
 		)
 		{

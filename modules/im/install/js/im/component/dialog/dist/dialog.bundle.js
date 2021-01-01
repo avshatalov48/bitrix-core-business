@@ -432,7 +432,7 @@ this.BX = this.BX || {};
 	    onDialogMessageClickByChatTeaser: function onDialogMessageClickByChatTeaser(event) {
 	      var _this4 = this;
 
-	      this.$root.$bitrixController.application.joinParentChat(data.message.id, 'chat' + data.message.params.CHAT_ID).then(function (dialogId) {
+	      this.$root.$bitrixController.application.joinParentChat(event.message.id, 'chat' + event.message.params.CHAT_ID).then(function (dialogId) {
 	        _this4.openDialog(dialogId);
 	      }).catch(function () {});
 	      return true;

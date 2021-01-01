@@ -1,0 +1,14 @@
+.landing-ui-access-error-message {
+	font-family: 'OpenSans-Light', Helvetica, Arial, sans-serif;
+	font-size: 21px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	padding-top: 40px;
+	padding-bottom: 40px;
+}
+
+.landing-ui-access-error-message-text {
+	max-width: 500px;
+}

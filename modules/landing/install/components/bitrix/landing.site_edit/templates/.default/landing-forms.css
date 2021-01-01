@@ -343,7 +343,7 @@
 }
 
 .ui-checkbox-hidden-input .ui-checkbox-label {
-	margin-bottom: 12px;
+	margin-bottom: 16px;
 	vertical-align: top;
 }
 
@@ -423,7 +423,6 @@
 
 .ui-colorpicker {
 	position: relative;
-	width: 179px;
 }
 
 .ui-input-color {

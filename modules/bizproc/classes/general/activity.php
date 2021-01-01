@@ -203,6 +203,11 @@ abstract class CBPActivity
 		}
 	}
 
+	public function getPropertyType($propertyName): ?array
+	{
+		return $this->arPropertiesTypes[$propertyName] ?? null;
+	}
+
 	/**********************************************************/
 	protected function ClearVariables()
 	{
@@ -694,11 +699,7 @@ abstract class CBPActivity
 			if ($activity)
 			{
 				$result = $activity->__get($fieldName);
-				//if mapping is set, we can apply modifiers (type converting & formatting like `printable`, `bool` etc.)
-				if (isset($activity->arPropertiesTypes[$fieldName]))
-				{
-					$property = $activity->arPropertiesTypes[$fieldName];
-				}
+				$property = $activity->getPropertyType($fieldName);
 			}
 			else
 				$return = false;

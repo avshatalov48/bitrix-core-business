@@ -99,6 +99,24 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	        return false;
 	      }
 
+	      var collection = this.store.state.messages.collection[params.chatId];
+
+	      if (!collection) {
+	        collection = [];
+	      }
+
+	      var message = collection.find(function (element) {
+	        if (params.message.templateId && element.id === params.message.templateId) {
+	          return true;
+	        }
+
+	        return element.id === params.message.id;
+	      });
+
+	      if (message && params.message.push) {
+	        return false;
+	      }
+
 	      if (params.chat && params.chat[params.chatId]) {
 	        this.store.dispatch('dialogues/update', {
 	          dialogId: params.dialogId,
@@ -141,27 +159,10 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	        });
 	      }
 
-	      var collection = this.store.state.messages.collection[params.chatId];
-
-	      if (!collection) {
-	        collection = [];
-	      }
-
-	      var update = false;
-
-	      if (params.message.templateId && collection.length > 0) {
-	        for (var index = collection.length - 1; index >= 0; index--) {
-	          if (collection[index].id === params.message.templateId) {
-	            update = true;
-	            break;
-	          }
-	        }
-	      }
-
-	      if (update) {
+	      if (message) {
 	        this.store.dispatch('messages/update', {
-	          id: params.message.templateId,
-	          chatId: params.chatId,
+	          id: message.id,
+	          chatId: message.chatId,
 	          fields: babelHelpers.objectSpread({
 	            push: false
 	          }, params.message, {
@@ -318,6 +319,34 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	        dialogId: params.dialogId,
 	        fields: {
 	          ownerId: params.userId
+	        }
+	      });
+	    }
+	  }, {
+	    key: "handleChatUserAdd",
+	    value: function handleChatUserAdd(params, extra) {
+	      if (this.skipExecute(params, extra)) {
+	        return false;
+	      }
+
+	      this.store.dispatch('dialogues/update', {
+	        dialogId: params.dialogId,
+	        fields: {
+	          userCounter: params.userCount
+	        }
+	      });
+	    }
+	  }, {
+	    key: "handleChatUserLeave",
+	    value: function handleChatUserLeave(params, extra) {
+	      if (this.skipExecute(params, extra)) {
+	        return false;
+	      }
+
+	      this.store.dispatch('dialogues/update', {
+	        dialogId: params.dialogId,
+	        fields: {
+	          userCounter: params.userCount
 	        }
 	      });
 	    }
@@ -561,6 +590,15 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	  }, {
 	    key: "handleCallUserNameUpdate",
 	    value: function handleCallUserNameUpdate(params) {
+	      var currentUser = this.store.getters['users/get'](params.userId);
+
+	      if (!currentUser) {
+	        this.store.dispatch('users/set', {
+	          id: params.userId,
+	          lastActivityDate: new Date()
+	        });
+	      }
+
 	      this.store.dispatch('users/update', {
 	        id: params.userId,
 	        fields: {
@@ -579,7 +617,7 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	  }, {
 	    key: "handleMessageChat",
 	    value: function handleMessageChat(params) {
-	      if (params.chatId === this.application.getChatId() && !this.store.state.callApplication.common.showChat && params.message.senderId !== this.controller.getUserId()) {
+	      if (params.chatId === this.application.getChatId() && !this.store.state.callApplication.common.showChat && params.message.senderId !== this.controller.getUserId() && !this.store.state.callApplication.common.error) {
 	        var text = '';
 
 	        if (params.message.senderId === 0 || params.message.system === 'Y') {

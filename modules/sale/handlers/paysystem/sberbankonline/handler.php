@@ -10,7 +10,7 @@ use Bitrix\Main,
 	Bitrix\Sale\PaySystem,
 	Bitrix\Sale\PriceMaths,
 	Bitrix\Sale\PaymentCollection,
-	Bitrix\Sale\PaySystem\ServiceResult;
+	Bitrix\Currency;
 
 Localization\Loc::loadMessages(__FILE__);
 
@@ -18,32 +18,31 @@ Localization\Loc::loadMessages(__FILE__);
  * Class SberbankOnlineHandler
  * @package Sale\Handlers\PaySystem
  */
-class SberbankOnlineHandler
-	extends PaySystem\ServiceHandler
-	implements PaySystem\IRefund
+class SberbankOnlineHandler extends PaySystem\ServiceHandler implements PaySystem\IRefund
 {
-	const PAYMENT_OPERATION_DEPOSITED = 'deposited';
-	const PAYMENT_STATUS_SUCCESS = 1;
-	const PAYMENT_STATUS_FAIL = 0;
+	protected const PAYMENT_OPERATION_DEPOSITED = 'deposited';
+	protected const PAYMENT_STATUS_SUCCESS = 1;
 
-	const RESPONSE_CODE_SUCCESS = 0;
+	protected const RESPONSE_CODE_SUCCESS = 0;
 
-	const PAYMENT_STATE_CREATED = 'CREATED';
+	protected const PAYMENT_STATE_CREATED = 'CREATED';
 
-	const PAYMENT_DELIMITER = '_';
+	protected const PAYMENT_DELIMITER = '_';
 
 	/**
 	 * @param Payment $payment
 	 * @param Request|null $request
-	 * @return ServiceResult
+	 * @return PaySystem\ServiceResult
 	 * @throws Main\ArgumentException
 	 * @throws Main\ArgumentNullException
 	 * @throws Main\ArgumentOutOfRangeException
 	 * @throws Main\ArgumentTypeException
 	 * @throws Main\NotImplementedException
 	 * @throws Main\ObjectException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
 	 */
-	public function initiatePay(Payment $payment, Request $request = null)
+	public function initiatePay(Payment $payment, Request $request = null): PaySystem\ServiceResult
 	{
 		$result = new PaySystem\ServiceResult();
 		$params = [];
@@ -88,7 +87,7 @@ class SberbankOnlineHandler
 		$params['SUM'] = PriceMaths::roundPrecision($payment->getSum());
 		$this->setExtraParams($params);
 
-		$template = "template_bank_card";
+		$template = 'template_bank_card';
 		$showTemplateResult = $this->showTemplate($payment, $template);
 		if ($showTemplateResult->isSuccess())
 		{
@@ -109,14 +108,14 @@ class SberbankOnlineHandler
 
 	/**
 	 * @param Payment $payment
-	 * @return ServiceResult
+	 * @return PaySystem\ServiceResult
 	 * @throws Main\ArgumentException
 	 * @throws Main\ArgumentNullException
 	 * @throws Main\ArgumentOutOfRangeException
 	 * @throws Main\ArgumentTypeException
 	 * @throws Main\ObjectException
 	 */
-	private function checkOrder(Payment $payment)
+	private function checkOrder(Payment $payment): PaySystem\ServiceResult
 	{
 		$result = new PaySystem\ServiceResult();
 
@@ -128,7 +127,7 @@ class SberbankOnlineHandler
 			{
 				$paymentState = $orderStatusData['paymentAmountInfo']['paymentState'];
 				if (($paymentState === self::PAYMENT_STATE_CREATED)
-					&& ((int)$payment->getSum() === (int)($orderStatusData["amount"] / 100))
+					&& ((int)$payment->getSum() === (int)($orderStatusData['amount'] / 100))
 				)
 				{
 					$formUrl = $this->getUrl($payment, 'formUrl');
@@ -138,7 +137,7 @@ class SberbankOnlineHandler
 
 			$orderNumber = $orderStatusData['orderNumber'];
 			$orderNumber = explode(self::PAYMENT_DELIMITER, $orderNumber);
-			$params['ORDER_ATTEMPT_NUMBER'] = (isset($orderNumber[1]) ? $orderNumber[1] : 0);
+			$params['ORDER_ATTEMPT_NUMBER'] = $orderNumber[1] ?? 0;
 
 			$result->setData($params);
 		}
@@ -149,15 +148,17 @@ class SberbankOnlineHandler
 	/**
 	 * @param Payment $payment
 	 * @param $orderAttemptNumber
-	 * @return ServiceResult
+	 * @return PaySystem\ServiceResult
 	 * @throws Main\ArgumentException
 	 * @throws Main\ArgumentNullException
 	 * @throws Main\ArgumentOutOfRangeException
 	 * @throws Main\ArgumentTypeException
 	 * @throws Main\NotImplementedException
 	 * @throws Main\ObjectException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
 	 */
-	private function createOrder(Payment $payment, $orderAttemptNumber)
+	private function createOrder(Payment $payment, $orderAttemptNumber): PaySystem\ServiceResult
 	{
 		$result = new PaySystem\ServiceResult();
 
@@ -179,7 +180,7 @@ class SberbankOnlineHandler
 	/**
 	 * @return array
 	 */
-	public function getCurrencyList()
+	public function getCurrencyList(): array
 	{
 		return ['RUB'];
 	}
@@ -187,29 +188,29 @@ class SberbankOnlineHandler
 	/**
 	 * @param Payment $payment
 	 * @param Request $request
-	 * @return ServiceResult
+	 * @return PaySystem\ServiceResult
 	 * @throws Main\ArgumentException
 	 * @throws Main\ArgumentNullException
 	 * @throws Main\ArgumentOutOfRangeException
 	 * @throws Main\ArgumentTypeException
 	 * @throws Main\ObjectException
 	 */
-	public function processRequest(Payment $payment, Request $request)
+	public function processRequest(Payment $payment, Request $request): PaySystem\ServiceResult
 	{
 		$result = new PaySystem\ServiceResult();
 
 		$inputJson = self::encode($request->toArray());
-		PaySystem\Logger::addDebugInfo('Sberbank: request: '.$inputJson);
+		PaySystem\Logger::addDebugInfo(static::class.': request: '.$inputJson);
 
-		$secretKey = $this->getBusinessValue($payment, 'SBERBANK_SECRET_KEY');
+		$secretKey = $this->getBusinessValue($payment, static::getDescriptionCode('SECRET_KEY'));
 		if ($secretKey && !$this->isCheckSumCorrect($request, $secretKey))
 		{
 			$result->addError(new Main\Error(Localization\Loc::getMessage('SALE_HPS_SBERBANK_ERROR_CHECK_SUM')));
 			return $result;
 		}
 
-		if ($request->get('operation') == static::PAYMENT_OPERATION_DEPOSITED
-			&& $request->get('status') == static::PAYMENT_STATUS_SUCCESS
+		if ($request->get('operation') === static::PAYMENT_OPERATION_DEPOSITED
+			&& (int)$request->get('status') === static::PAYMENT_STATUS_SUCCESS
 		)
 		{
 			$orderStatus = $this->getOrderStatus($payment);
@@ -219,22 +220,22 @@ class SberbankOnlineHandler
 				$description = Localization\Loc::getMessage('SALE_HPS_SBERBANK_ORDER_ID', [
 					'#ORDER_ID#' => $request->get('mdOrder')
 				]);
-				$fields = array(
+				$fields = [
 					'PS_INVOICE_ID' => $request->get('mdOrder'),
-					"PS_STATUS_CODE" => $request->get('operation'),
-					"PS_STATUS_DESCRIPTION" => $description,
-					"PS_SUM" => $orderStatusData['amount'] / 100,
-					"PS_STATUS" => 'N',
-					"PS_CURRENCY" => $orderStatusData['currency'],
-					"PS_RESPONSE_DATE" => new Main\Type\DateTime()
-				);
+					'PS_STATUS_CODE' => $request->get('operation'),
+					'PS_STATUS_DESCRIPTION' => $description,
+					'PS_SUM' => $orderStatusData['amount'] / 100,
+					'PS_STATUS' => 'N',
+					'PS_CURRENCY' => $orderStatusData['currency'],
+					'PS_RESPONSE_DATE' => new Main\Type\DateTime()
+				];
 
 				if ($this->isSumCorrect($payment, $orderStatusData))
 				{
-					$fields["PS_STATUS"] = 'Y';
+					$fields['PS_STATUS'] = 'Y';
 
 					PaySystem\Logger::addDebugInfo(
-						'Sberbank: PS_CHANGE_STATUS_PAY='.$this->getBusinessValue($payment, 'PS_CHANGE_STATUS_PAY')
+						static::class.': PS_CHANGE_STATUS_PAY='.$this->getBusinessValue($payment, 'PS_CHANGE_STATUS_PAY')
 					);
 
 					if ($this->getBusinessValue($payment, 'PS_CHANGE_STATUS_PAY') === 'Y')
@@ -275,7 +276,7 @@ class SberbankOnlineHandler
 	public function getPaymentIdFromRequest(Request $request)
 	{
 		$paymentId = $request->get('orderNumber');
-		list($paymentId) = explode(self::PAYMENT_DELIMITER, $paymentId);
+		[$paymentId] = explode(self::PAYMENT_DELIMITER, $paymentId);
 
 		return $paymentId;
 	}
@@ -283,7 +284,7 @@ class SberbankOnlineHandler
 	/**
 	 * @return array
 	 */
-	static public function getIndicativeFields()
+	public static function getIndicativeFields(): array
 	{
 		return ['mdOrder', 'orderNumber', 'checksum', 'operation', 'status'];
 	}
@@ -293,15 +294,10 @@ class SberbankOnlineHandler
 	 * @param $paySystemId
 	 * @return bool
 	 */
-	protected static function isMyResponseExtended(Request $request, $paySystemId)
+	protected static function isMyResponseExtended(Request $request, $paySystemId): bool
 	{
 		$bxPaySystemCode = (int)$request->get('bx_paysystem_code');
-		if ((int)$paySystemId === $bxPaySystemCode)
-		{
-			return true;
-		}
-
-		return false;
+		return (int)$paySystemId === $bxPaySystemCode;
 	}
 
 	/**
@@ -313,11 +309,11 @@ class SberbankOnlineHandler
 	 * @throws Main\ArgumentTypeException
 	 * @throws Main\ObjectException
 	 */
-	private function isSumCorrect(Payment $payment, array $paymentData)
+	private function isSumCorrect(Payment $payment, array $paymentData): bool
 	{
 		$sberbankAmount = $paymentData['amount'] / 100;
 		PaySystem\Logger::addDebugInfo(
-			'Sberbank: sberbankSum='.PriceMaths::roundPrecision($sberbankAmount)."; paymentSum=".PriceMaths::roundPrecision($payment->getSum())
+			static::class.': requestSum='.PriceMaths::roundPrecision($sberbankAmount).'; paymentSum='.PriceMaths::roundPrecision($payment->getSum())
 		);
 
 		return PriceMaths::roundPrecision($sberbankAmount) === PriceMaths::roundPrecision($payment->getSum());
@@ -328,7 +324,7 @@ class SberbankOnlineHandler
 	 * @param $secretKey
 	 * @return bool
 	 */
-	protected function isCheckSumCorrect(Request $request, $secretKey)
+	protected function isCheckSumCorrect(Request $request, $secretKey): bool
 	{
 		$requestParamList = $request->toArray();
 		$checksum = $requestParamList['checksum'];
@@ -355,15 +351,17 @@ class SberbankOnlineHandler
 	/**
 	 * @param Payment $payment
 	 * @param int $attempt
-	 * @return ServiceResult
+	 * @return PaySystem\ServiceResult
 	 * @throws Main\ArgumentException
 	 * @throws Main\ArgumentNullException
 	 * @throws Main\ArgumentOutOfRangeException
 	 * @throws Main\ArgumentTypeException
 	 * @throws Main\NotImplementedException
 	 * @throws Main\ObjectException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
 	 */
-	protected function registerOrder(Payment $payment, $attempt = 0)
+	protected function registerOrder(Payment $payment, $attempt = 0): PaySystem\ServiceResult
 	{
 		$result = new PaySystem\ServiceResult();
 
@@ -386,14 +384,14 @@ class SberbankOnlineHandler
 
 	/**
 	 * @param Payment $payment
-	 * @return ServiceResult
+	 * @return PaySystem\ServiceResult
 	 * @throws Main\ArgumentException
 	 * @throws Main\ArgumentNullException
 	 * @throws Main\ArgumentOutOfRangeException
 	 * @throws Main\ArgumentTypeException
 	 * @throws Main\ObjectException
 	 */
-	protected function getOrderStatus(Payment $payment)
+	protected function getOrderStatus(Payment $payment): PaySystem\ServiceResult
 	{
 		$result = new PaySystem\ServiceResult();
 
@@ -417,14 +415,14 @@ class SberbankOnlineHandler
 	/**
 	 * @param Payment $payment
 	 * @param $refundableSum
-	 * @return ServiceResult
+	 * @return PaySystem\ServiceResult
 	 * @throws Main\ArgumentException
 	 * @throws Main\ArgumentNullException
 	 * @throws Main\ArgumentOutOfRangeException
 	 * @throws Main\ArgumentTypeException
 	 * @throws Main\ObjectException
 	 */
-	public function refund(Payment $payment, $refundableSum)
+	public function refund(Payment $payment, $refundableSum): PaySystem\ServiceResult
 	{
 		$result = new PaySystem\ServiceResult();
 
@@ -438,7 +436,7 @@ class SberbankOnlineHandler
 		{
 			$result->addErrors($sendResult->getErrors());
 
-			$error = 'Sberbank: refund: '.join('\n', $sendResult->getErrorMessages());
+			$error = static::class.': refund: '.implode("\n", $sendResult->getErrorMessages());
 			PaySystem\Logger::addError($error);
 
 			return $result;
@@ -452,7 +450,6 @@ class SberbankOnlineHandler
 	/**
 	 * @param $url
 	 * @param array $params
-	 * @param array $headers
 	 * @return PaySystem\ServiceResult
 	 * @throws Main\ArgumentException
 	 * @throws Main\ArgumentNullException
@@ -460,19 +457,18 @@ class SberbankOnlineHandler
 	 * @throws Main\ArgumentTypeException
 	 * @throws Main\ObjectException
 	 */
-	private function send($url, array $params = array(), array $headers = array())
+	private function send($url, array $params = []): PaySystem\ServiceResult
 	{
 		$result = new PaySystem\ServiceResult();
 
 		$httpClient = new HttpClient();
-		foreach ($headers as $name => $value)
-		{
-			$httpClient->setHeader($name, $value);
-		}
 
 		$postData = static::encode($params);
-		PaySystem\Logger::addDebugInfo('Sberbank: request data: '.$postData);
+		PaySystem\Logger::addDebugInfo(
+			static::class.': request data: '.Main\Text\Encoding::convertEncoding($postData, 'UTF-8', LANG_CHARSET)
+		);
 
+		$params = (array)Main\Text\Encoding::convertEncoding($params, LANG_CHARSET, 'UTF-8');
 		$response = $httpClient->post($url, $params);
 		if ($response === false)
 		{
@@ -485,12 +481,14 @@ class SberbankOnlineHandler
 			return $result;
 		}
 
-		PaySystem\Logger::addDebugInfo('Sberbank: response data: '.$response);
+		PaySystem\Logger::addDebugInfo(
+			static::class.': response data: '.Main\Text\Encoding::convertEncoding($response, 'UTF-8', LANG_CHARSET)
+		);
 
 		$response = static::decode($response);
 		if ($response)
 		{
-			if (isset($response['errorCode']) && $response['errorCode'] != self::RESPONSE_CODE_SUCCESS)
+			if (!empty($response['errorCode']) && (int)$response['errorCode'] !== self::RESPONSE_CODE_SUCCESS)
 			{
 				$result->addError(new Main\Error($response['errorMessage'], $response['errorCode']));
 			}
@@ -501,19 +499,19 @@ class SberbankOnlineHandler
 		}
 		else
 		{
-			$result->addError(new Main\Error(Localization\Loc::getMessage("SALE_HPS_SBERBANK_ERROR_DECODE_RESPONSE")));
+			$result->addError(new Main\Error(Localization\Loc::getMessage('SALE_HPS_SBERBANK_ERROR_DECODE_RESPONSE')));
 		}
 
 		return $result;
 	}
 
 	/**
-	 * @param Payment $payment
+	 * @param Payment|null $payment
 	 * @return bool
 	 */
-	protected function isTestMode(Payment $payment = null)
+	protected function isTestMode(Payment $payment = null): bool
 	{
-		return ($this->getBusinessValue($payment, 'SBERBANK_TEST_MODE') == 'Y');
+		return $this->getBusinessValue($payment, static::getDescriptionCode('TEST_MODE')) === 'Y';
 	}
 
 	/**
@@ -527,20 +525,20 @@ class SberbankOnlineHandler
 		return [
 			'register.do' => [
 				self::TEST_URL => $testUrl.'rest/register.do',
-				self::ACTIVE_URL => $activeUrl.'rest/register.do'
+				self::ACTIVE_URL => $activeUrl.'rest/register.do',
 			],
 			'getOrderStatusExtended.do' => [
 				self::TEST_URL => $testUrl.'rest/getOrderStatusExtended.do',
-				self::ACTIVE_URL => $activeUrl.'rest/getOrderStatusExtended.do'
+				self::ACTIVE_URL => $activeUrl.'rest/getOrderStatusExtended.do',
 			],
 			'refund.do' => [
 				self::TEST_URL => $testUrl.'rest/refund.do',
-				self::ACTIVE_URL => $activeUrl.'rest/refund.do'
+				self::ACTIVE_URL => $activeUrl.'rest/refund.do',
 			],
 			'formUrl' => [
 				self::TEST_URL => $testUrl.'merchants/sbersafe_cardholder/payment_ru.html?mdOrder=',
 				self::ACTIVE_URL => $activeUrl.'merchants/sbersafe_cardholder/payment_ru.html?mdOrder=',
-			]
+			],
 		];
 	}
 
@@ -548,11 +546,11 @@ class SberbankOnlineHandler
 	 * @param Payment $payment
 	 * @return array
 	 */
-	protected function getMerchantParams(Payment $payment)
+	protected function getMerchantParams(Payment $payment): array
 	{
 		return [
-			'userName' => $this->getBusinessValue($payment, 'SBERBANK_LOGIN'),
-			'password' => $this->getBusinessValue($payment, 'SBERBANK_PASSWORD'),
+			'userName' => $this->getBusinessValue($payment, static::getDescriptionCode('LOGIN')),
+			'password' => $this->getBusinessValue($payment, static::getDescriptionCode('PASSWORD')),
 		];
 	}
 
@@ -564,17 +562,20 @@ class SberbankOnlineHandler
 	 * @throws Main\ArgumentNullException
 	 * @throws Main\ArgumentOutOfRangeException
 	 * @throws Main\NotImplementedException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
 	 */
-	protected function getRegisterOrderParams(Payment $payment, $attempt)
+	protected function getRegisterOrderParams(Payment $payment, int $attempt): array
 	{
 		$jsonParams = [
 			'bx_paysystem_code' => $this->service->getField('ID'),
+			'bx_label' => $this->getLabelName(),
 		];
 
 		$orderNumber = $payment->getId();
 		if ($attempt)
 		{
-			$orderNumber = $orderNumber.self::PAYMENT_DELIMITER.$attempt;
+			$orderNumber .= self::PAYMENT_DELIMITER . $attempt;
 		}
 		$params = [
 			'orderNumber' => $orderNumber,
@@ -584,10 +585,24 @@ class SberbankOnlineHandler
 			'jsonParams' => self::encode($jsonParams)
 		];
 
+		$currency = Currency\CurrencyTable::getById($payment->getField('CURRENCY'))->fetch();
+		if (!empty($currency['NUMCODE']))
+		{
+			$params['currency'] = $currency['NUMCODE'];
+		}
+
 		$params['language'] = LANGUAGE_ID;
 		$params['description'] = $this->getOrderDescription($payment);
 
 		return $params;
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getLabelName(): string
+	{
+		return '1c_bitrix_'.$this->service->getField('ACTION_FILE');
 	}
 
 	/**
@@ -596,7 +611,8 @@ class SberbankOnlineHandler
 	 */
 	private function getSuccessUrl(Payment $payment)
 	{
-		return $this->getBusinessValue($payment, 'SBERBANK_RETURN_SUCCESS_URL') ?: $this->service->getContext()->getUrl();
+		return $this->getBusinessValue($payment, static::getDescriptionCode('RETURN_SUCCESS_URL'))
+			?: $this->service->getContext()->getUrl();
 	}
 
 	/**
@@ -605,7 +621,8 @@ class SberbankOnlineHandler
 	 */
 	private function getFailUrl(Payment $payment)
 	{
-		return $this->getBusinessValue($payment, 'SBERBANK_RETURN_FAIL_URL') ?: $this->service->getContext()->getUrl();
+		return $this->getBusinessValue($payment, static::getDescriptionCode('RETURN_FAIL_URL'))
+			?: $this->service->getContext()->getUrl();
 	}
 
 	/**
@@ -614,6 +631,8 @@ class SberbankOnlineHandler
 	 * @throws Main\ArgumentException
 	 * @throws Main\ArgumentOutOfRangeException
 	 * @throws Main\NotImplementedException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
 	 */
 	protected function getOrderDescription(Payment $payment)
 	{
@@ -622,7 +641,7 @@ class SberbankOnlineHandler
 		$order = $collection->getOrder();
 		$userEmail = $order->getPropertyCollection()->getUserEmail();
 
-		$description =  str_replace(
+		return str_replace(
 			[
 				'#PAYMENT_NUMBER#',
 				'#ORDER_NUMBER#',
@@ -637,11 +656,8 @@ class SberbankOnlineHandler
 				$order->getId(),
 				($userEmail) ? $userEmail->getValue() : ''
 			],
-			$this->getBusinessValue($payment, 'SBERBANK_ORDER_DESCRIPTION')
+			$this->getBusinessValue($payment, static::getDescriptionCode('ORDER_DESCRIPTION'))
 		);
-
-		$description = Main\Text\Encoding::convertEncoding($description, LANG_CHARSET, "UTF-8");
-		return $description;
 	}
 
 	/**
@@ -655,7 +671,7 @@ class SberbankOnlineHandler
 	}
 
 	/**
-	 * @param string $data
+	 * @param $data
 	 * @return mixed
 	 */
 	private static function decode($data)
@@ -668,5 +684,30 @@ class SberbankOnlineHandler
 		{
 			return false;
 		}
+	}
+
+	/**
+	 * @param string $code
+	 * @return string|null
+	 */
+	protected static function getDescriptionCode(string $code): ?string
+	{
+		return static::getDescriptionCodesMap()[$code] ?? null;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	protected static function getDescriptionCodesMap(): array
+	{
+		return [
+			'LOGIN' => 'SBERBANK_LOGIN',
+			'PASSWORD' => 'SBERBANK_PASSWORD',
+			'SECRET_KEY' => 'SBERBANK_SECRET_KEY',
+			'RETURN_SUCCESS_URL' => 'SBERBANK_RETURN_SUCCESS_URL',
+			'RETURN_FAIL_URL' => 'SBERBANK_RETURN_FAIL_URL',
+			'ORDER_DESCRIPTION' => 'SBERBANK_ORDER_DESCRIPTION',
+			'TEST_MODE' => 'SBERBANK_TEST_MODE',
+		];
 	}
 }

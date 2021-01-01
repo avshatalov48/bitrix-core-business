@@ -207,14 +207,14 @@ export class SourceField extends BaseField
 		});
 	}
 
-	getMenu(): BX.Landing.UI.Tool.Menu
+	getMenu(): BX.PopupMenuWindow
 	{
 		return this.cache.remember('menu', () => {
 			const form = this.input.closest(
 				'.landing-ui-field-source',
 			);
 
-			const menu = new BX.Landing.UI.Tool.Menu({
+			const menu = new BX.PopupMenuWindow({
 				id: `${this.selector}_${Text.getRandom()}`,
 				bindElement: this.getButtonField().layout,
 				autoHide: true,

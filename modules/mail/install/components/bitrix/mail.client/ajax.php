@@ -584,11 +584,12 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 		}
 
 		$maxSize = (int) Main\Config\Option::get('main', 'max_file_size', 0);
+		$maxSizeAfterEncoding = floor($maxSize/4)*3;
 		if ($maxSize > 0 && $maxSize <= ceil($totalSize / 3) * 4) // base64 coef.
 		{
 			$this->errorCollection[] = new \Bitrix\Main\Error(Loc::getMessage(
 				'MAIL_MESSAGE_MAX_SIZE_EXCEED',
-				['#SIZE#' => \CFile::formatSize($maxSize)]
+				['#SIZE#' => \CFile::formatSize($maxSizeAfterEncoding,1)]
 			));
 			return;
 		}

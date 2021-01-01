@@ -121,7 +121,7 @@ final class TaskEntity extends Entity
 				}
 
 			}
-			catch(\TasksException $e)
+			catch(\TasksException | \CTaskAssertException $e)
 			{
 				return false;
 			}

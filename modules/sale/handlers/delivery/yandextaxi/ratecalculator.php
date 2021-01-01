@@ -9,6 +9,7 @@ use Bitrix\Sale\Shipment;
 use Sale\Handlers\Delivery\YandexTaxi\Api\Api;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\Address;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\Estimation;
+use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\TariffsOptions;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\TransportClassification;
 use Sale\Handlers\Delivery\YandexTaxi\ClaimBuilder\ClaimBuilder;
 
@@ -75,6 +76,14 @@ final class RateCalculator
 		{
 			return $result->addError(
 				new Error(Loc::getMessage('SALE_YANDEX_TAXI_AUTO_CLASS_NOT_SPECIFIED'), static::ERROR_CODE)
+			);
+		}
+
+		$tariffsResult = $this->api->getTariffs((new TariffsOptions)->setStartPoint($addressFrom->getCoordinates()));
+		if (!$tariffsResult->isSuccess() || !in_array($vehicleType, $tariffsResult->getTariffs()))
+		{
+			return $result->addError(
+				new Error(Loc::getMessage('SALE_YANDEX_TAXI_TARIFF_NOT_SUPPORTED'), static::ERROR_CODE)
 			);
 		}
 

@@ -1785,10 +1785,10 @@ create table if not exists b_sale_cashbox_check (
 	DATE_CREATE datetime NOT NULL,
 	DATE_PRINT_START datetime NULL,
 	DATE_PRINT_END datetime NULL,
-	SUM decimal(18, 4) NULL,
+	`SUM` decimal(18, 4) NULL,
 	CURRENCY char(3) NULL,
 	STATUS char(1) not null default 'N',
-	TYPE varchar(255) not null,
+	`TYPE` varchar(255) not null,
 	ENTITY_REGISTRY_TYPE varchar(255) not null,
 	LINK_PARAMS text NULL,
 	PRIMARY KEY (ID),
@@ -1796,6 +1796,18 @@ create table if not exists b_sale_cashbox_check (
 	INDEX IX_SALE_CHECK_PAYMENT_ID (PAYMENT_ID),
 	INDEX IX_SALE_CHECK_SHIPMENT_ID (SHIPMENT_ID),
 	INDEX IX_SALE_CHECK_STATUS (STATUS)
+);
+
+create table if not exists b_sale_cashbox_check_correction (
+	ID int(11) unsigned not null auto_increment,
+	CHECK_ID int(11) not null,
+	CORRECTION_TYPE varchar(50) not null,
+	DOCUMENT_NUMBER varchar(35) not null,
+	DOCUMENT_DATE date not null,
+	DESCRIPTION varchar(255) default '',
+	CORRECTION_PAYMENT text default '',
+	CORRECTION_VAT text default '',
+	PRIMARY KEY (ID)
 );
 
 create table if not exists b_sale_check2cashbox(

@@ -7,6 +7,7 @@ use Bitrix\Bizproc\FieldType;
 
 class Condition extends Bizproc\Activity\Condition
 {
+	protected $object = 'Document';
 	protected $field;
 
 	public function __construct(array $params = null)
@@ -17,13 +18,17 @@ class Condition extends Bizproc\Activity\Condition
 		{
 			$this->setField($params['field']);
 		}
+		if ($params && isset($params['object']))
+		{
+			$this->setObject($params['object']);
+		}
 	}
 
 	/**
 	 * @param string $field The field name.
 	 * @return Condition
 	 */
-	public function setField($field)
+	public function setField(string $field)
 	{
 		$this->field = (string)$field;
 		return $this;
@@ -35,6 +40,24 @@ class Condition extends Bizproc\Activity\Condition
 	public function getField()
 	{
 		return $this->field;
+	}
+
+	/**
+	 * @param string $objectName The object name.
+	 * @return Condition
+	 */
+	public function setObject(string $objectName)
+	{
+		$this->object = $objectName;
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getObject()
+	{
+		return $this->object;
 	}
 
 	/**
@@ -59,6 +82,7 @@ class Condition extends Bizproc\Activity\Condition
 	{
 		$array = parent::toArray();
 		$array['field'] = $this->getField();
+		$array['object'] = $this->getObject();
 
 		return $array;
 	}

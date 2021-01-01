@@ -55,6 +55,7 @@ export default class Dialog extends EventEmitter
 	multiple: boolean = true;
 	hideOnSelect: boolean = null;
 	hideOnDeselect: boolean = null;
+	clearSearchOnSelect: boolean = true;
 	context: string = null;
 	selectedItems: Set<Item> = new Set();
 	preselectedItems: ItemId[] = [];
@@ -75,7 +76,7 @@ export default class Dialog extends EventEmitter
 	height: number = 420;
 
 	maxLabelWidth: number = 160;
-	minLabelWidth: number = 40;
+	minLabelWidth: number = 45;
 
 	activeTab: Tab = null;
 	recentTab: Tab = null;
@@ -155,6 +156,7 @@ export default class Dialog extends EventEmitter
 		this.setTargetNode(options.targetNode);
 		this.setHideOnSelect(options.hideOnSelect);
 		this.setHideOnDeselect(options.hideOnDeselect);
+		this.setClearSearchOnSelect(options.clearSearchOnSelect);
 		this.setWidth(options.width);
 		this.setHeight(options.height);
 		this.setAutoHide(options.autoHide);
@@ -798,7 +800,7 @@ export default class Dialog extends EventEmitter
 		return this.multiple;
 	}
 
-	setHideOnSelect(flag): void
+	setHideOnSelect(flag: boolean): void
 	{
 		if (Type.isBoolean(flag))
 		{
@@ -816,7 +818,7 @@ export default class Dialog extends EventEmitter
 		return !this.isMultiple();
 	}
 
-	setHideOnDeselect(flag): void
+	setHideOnDeselect(flag: boolean): void
 	{
 		if (Type.isBoolean(flag))
 		{
@@ -832,6 +834,19 @@ export default class Dialog extends EventEmitter
 		}
 
 		return false;
+	}
+
+	setClearSearchOnSelect(flag: boolean): void
+	{
+		if (Type.isBoolean(flag))
+		{
+			this.clearSearchOnSelect = flag;
+		}
+	}
+
+	shouldClearSearchOnSelect(): boolean
+	{
+		return this.clearSearchOnSelect;
 	}
 
 	addEntity(entity: Entity | EntityOptions)
@@ -936,6 +951,11 @@ export default class Dialog extends EventEmitter
 		if (this.getTagSelector())
 		{
 			this.getTagSelector().clearTextBox();
+
+			if (this.getActiveTab() === this.getSearchTab())
+			{
+				this.selectFirstTab();
+			}
 		}
 	}
 
@@ -1111,7 +1131,7 @@ export default class Dialog extends EventEmitter
 		this.observeTabOverlapping();
 	}
 
-	handlePopupClose(): void
+	handlePopupAfterClose(): void
 	{
 		if (this.isTagSelectorOutside())
 		{
@@ -1508,7 +1528,7 @@ export default class Dialog extends EventEmitter
 			events: {
 				onFirstShow: this.handlePopupFirstShow.bind(this),
 				onAfterShow: this.handlePopupAfterShow.bind(this),
-				onClose: this.handlePopupClose.bind(this),
+				onAfterClose: this.handlePopupAfterClose.bind(this),
 				onDestroy: this.handlePopupDestroy.bind(this)
 			},
 			content: this.getContainer()
@@ -1683,6 +1703,8 @@ export default class Dialog extends EventEmitter
 					{
 						this.focusOnFirstNode();
 					}
+
+					this.emit('onLoad');
 				}
 			})
 			.catch((error) => {
@@ -1695,6 +1717,8 @@ export default class Dialog extends EventEmitter
 
 				this.focusSearch();
 				this.destroyLoader();
+
+				this.emit('onLoadError', { error });
 
 				console.error(error);
 			});

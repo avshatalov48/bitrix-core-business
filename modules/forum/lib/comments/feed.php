@@ -175,7 +175,44 @@ class Feed extends BaseObject
 		}
 		return false;
 	}
-
+	/**
+	 * Render comment through the component and send into pull
+	 * @param integer $id Message id.
+	 * @param array $params Params for component including.
+	 * @return bool
+	 */
+	public function send($id, array $params)
+	{
+		ob_start();
+		try{
+			global $APPLICATION;
+			$APPLICATION->IncludeComponent(
+				"bitrix:forum.comments",
+				"bitrix24",
+				[
+					"FORUM_ID" => $this->getForum()["ID"],
+					"ENTITY_TYPE" => $this->getEntity()->getType(),
+					"ENTITY_ID" => $this->getEntity()->getId(),
+					"ENTITY_XML_ID" => $this->getEntity()->getXmlId(),
+					"MID" => $id,
+					"ACTION" => "SEND",
+					"SHOW_POST_FORM" => "N"] + $params + [
+					"SHOW_RATING" => "Y",
+					"URL_TEMPLATES_PROFILE_VIEW" => "",
+					"CHECK_ACTIONS" => "N",
+					"RECIPIENT_ID" => $this->getUser()->getId()],
+				null,
+				array("HIDE_ICONS" => "Y")
+			);
+			$result = true;
+		}
+		catch (\Throwable $e)
+		{
+			$result = false;
+		}
+		ob_get_clean();
+		return $result;
+	}
 	/**
 	 * Mainly this function for forum entity. In this case params have to from the list: A < E < I < M < Q < U < Y
 	 * A - NO ACCESS		E - READ			I - ANSWER

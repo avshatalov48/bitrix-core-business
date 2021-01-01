@@ -15,6 +15,8 @@ import {Utils} from "im.lib.utils";
 
 export class FilesModel extends VuexBuilderModel
 {
+	static maxDiskFileSize = 5242880;
+
 	getName()
 	{
 		return 'files';
@@ -56,7 +58,8 @@ export class FilesModel extends VuexBuilderModel
 			urlPreview: "",
 			urlShow: "",
 			urlDownload: "",
-			init: false
+			init: false,
+			viewerAttrs: {}
 		};
 	}
 
@@ -558,6 +561,7 @@ export class FilesModel extends VuexBuilderModel
 				|| fields.urlPreview.startsWith('http')
 				|| fields.urlPreview.startsWith('bx')
 				|| fields.urlPreview.startsWith('file')
+				|| fields.urlPreview.startsWith('blob')
 			)
 			{
 				result.urlPreview = fields.urlPreview;
@@ -599,6 +603,19 @@ export class FilesModel extends VuexBuilderModel
 			else
 			{
 				result.urlShow = options.host+fields.urlShow;
+			}
+		}
+
+		if (typeof fields.viewerAttrs === 'object')
+		{
+			if (result.type === 'image' && !Utils.platform.isBitrixMobile())
+			{
+				result.viewerAttrs = fields.viewerAttrs;
+			}
+
+			if (result.type === 'video' && !Utils.platform.isBitrixMobile() && result.size > FilesModel.maxDiskFileSize)
+			{
+				result.viewerAttrs = fields.viewerAttrs;
 			}
 		}
 

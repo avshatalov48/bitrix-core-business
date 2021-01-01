@@ -1,4 +1,4 @@
-<header class="landing-block g-pt-20 g-pb-20 u-header u-header--sticky u-header--relative g-brd-top g-theme-bitrix-brd-v4 g-brd-4 g-theme-bitrix-bg-dark-v2 g-bg-transparent">
+<header class="landing-block g-pt-20 g-pb-20 u-header u-header--sticky u-header--relative g-brd-top g-brd-primary g-brd-4 g-theme-bitrix-bg-dark-v2 g-bg-transparent">
 	<div class="container">
 		<nav class="landing-block-node-navbar u-navbar-modal container navbar u-navbar-color-white u-navbar-color-white--hover g-brd-0 g-pa-0 g-mb-0 u-navbar-bg-gray-dark-v2--hover u-navbar-marker--arrow">
 
@@ -73,7 +73,7 @@
 							<span class="hamburger-inner"></span>
 						</span>
 					</span>
-					<span class="landing-block-node-hamburger-text g-pointer-events-all g-theme-bitrix-color-v4 g-pos-rel">Navigation</span>
+					<span class="landing-block-node-hamburger-text g-pointer-events-all g-color-primary g-pos-rel">Navigation</span>
 				</span>
 			</button>
 

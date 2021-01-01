@@ -11,6 +11,7 @@ type LabelOptions = {
 	link: string;
 	fill: boolean;
 	customClass: string;
+	icon: Object;
 };
 
 export default class Label {
@@ -24,6 +25,7 @@ export default class Label {
 	link: string;
 	fill: boolean;
 	customClass: string;
+	icon: Object;
 
 	constructor(options: LabelOptions)
 	{
@@ -31,6 +33,7 @@ export default class Label {
 		this.color = options.color;
 		this.size = options.size;
 		this.link = options.link;
+		this.icon = options.icon;
 		this.fill = !!options.fill ? true : options.fill;
 		this.customClass = options.customClass;
 		this.classList = "ui-label";
@@ -183,17 +186,37 @@ export default class Label {
 		this.container.setAttribute("class", this.classList);
 	}
 
+	getIconAction()
+	{
+		this.iconNode = Tag.render`<div class="ui-label-icon"></div>`;
+
+		for(let key in this.icon)
+		{
+			this.iconNode.addEventListener(key, this.icon[key])
+		}
+
+		return this.iconNode;
+	}
+
 	// endregion
 
 	getContainer()
 	{
-		if (this.getLink())
+		if(!this.container)
 		{
-			this.container = Tag.render`<a href="${this.link}" class="${this.getClassList()}">${this.getTextContainer()}</a>`;
-		}
-		else
-		{
-			this.container = Tag.render`<div class="${this.getClassList()}">${this.getTextContainer()}</div>`;
+			if (this.getLink())
+			{
+				this.container = Tag.render`<a href="${this.link}" class="${this.getClassList()}">${this.getTextContainer()}</a>`;
+			}
+			else
+			{
+				this.container = Tag.render`<div class="${this.getClassList()}">${this.getTextContainer()}</div>`;
+			}
+
+			if (typeof this.icon === 'object')
+			{
+				this.container.appendChild(this.getIconAction());
+			}
 		}
 
 		return this.container;

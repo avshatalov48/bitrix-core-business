@@ -39,7 +39,7 @@ abstract class Base
 	 * if ($ob->process($someValue))
 	 *     $someValue = $ob->getFilteredValue();
 	 * </code>
-	 * @param string $value
+	 * @param string $value A value to filter.
 	 * @return bool
 	 */
 	public function process($value)
@@ -52,15 +52,15 @@ abstract class Base
 		$strX = $value;
 		while ($str2 != $strX)
 		{
-				$str2 = $strX;
-				$strX = preg_replace($this->filters['search'], $this->filters['replace'], $str2);
+			$str2 = $strX;
+			$strX = preg_replace($this->filters['search'], $this->filters['replace'], $str2);
 		}
 
 		if ($str2 != $value)
 		{
 			$this->setFilteredValue($str2);
 			$found = true;
-		} 
+		}
 		return $found;
 	}
 

@@ -16,10 +16,6 @@ class CCalendarReminder
 		{
 			$event = false;
 			$nowTime = time();
-			$tmpUser = CCalendar::TempUser(false, true);
-
-			// We have to use this to set timezone offset to local user's timezone
-			CCalendar::SetOffset(false, CCalendar::GetOffset($userId));
 
 			$events = CCalendarEvent::GetList([
 				'arFilter' => [
@@ -29,6 +25,7 @@ class CCalendarReminder
 					"TO_LIMIT" => CCalendar::Date(CCalendar::GetMaxTimestamp(), false),
 					"ACTIVE_SECTION" => "Y"
 				],
+				'userId' => $userId,
 				'parseRecursion' => true,
 				'maxInstanceCount' => 3,
 				'preciseLimits' => true,
@@ -99,11 +96,6 @@ class CCalendarReminder
 			}
 
 			CCalendar::SetOffset(false, null);
-
-			if ($tmpUser)
-			{
-				CCalendar::TempUser($tmpUser, false);
-			}
 		}
 	}
 

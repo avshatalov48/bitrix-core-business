@@ -176,7 +176,9 @@ class LandingTable extends Entity\DataManager
 		}
 
 		// build filter
-		$buildFilter = Rights::getAccessFilter();
+		$buildFilter = Rights::getAccessFilter(
+			['SITE_ID' => Rights::getAllowedSites()]
+		);
 		if (empty($buildFilter))
 		{
 			return $params;

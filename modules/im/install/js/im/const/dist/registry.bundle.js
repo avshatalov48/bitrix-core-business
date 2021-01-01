@@ -91,7 +91,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  imDiskFileCommit: 'im.disk.file.commit',
 	  mobileBrowserConstGet: 'mobile.browser.const.get',
 	  imRecentGet: 'im.recent.get',
-	  imRecentList: 'im.recent.list'
+	  imRecentList: 'im.recent.list',
+	  imCallGetCallLimits: 'im.call.getCallLimits'
 	});
 	var RestMethodHandler = Object.freeze({
 	  imChatGet: 'im.chat.get',
@@ -107,7 +108,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  imUserListGet: 'im.user.list.get',
 	  mobileBrowserConstGet: 'mobile.browser.const.get',
 	  imRecentGet: 'im.recent.get',
-	  imRecentList: 'im.recent.list'
+	  imRecentList: 'im.recent.list',
+	  imCallGetCallLimits: 'im.call.getCallLimits'
 	});
 
 	/**
@@ -222,7 +224,25 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  kickedFromCall: 'kickedFromCall',
 	  unsupportedBrowser: 'unsupportedBrowser',
 	  missingMicrophone: 'missingMicrophone',
-	  unsafeConnection: 'unsafeConnection'
+	  unsafeConnection: 'unsafeConnection',
+	  wrongAlias: 'wrongAlias',
+	  notStarted: 'notStarted',
+	  finished: 'finished',
+	  userLeftCall: 'userLeftCall'
+	});
+
+	/**
+	 * Bitrix Messenger
+	 * Conference constants
+	 *
+	 * @package bitrix
+	 * @subpackage im
+	 * @copyright 2001-2020 Bitrix
+	 */
+	var ConferenceFieldState = Object.freeze({
+	  view: 'view',
+	  edit: 'edit',
+	  create: 'create'
 	});
 
 	exports.DateFormat = DateFormat;
@@ -243,6 +263,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	exports.CallLimit = CallLimit;
 	exports.CallErrorCode = CallErrorCode;
 	exports.CallApplicationErrorCode = CallApplicationErrorCode;
+	exports.ConferenceFieldState = ConferenceFieldState;
 
 }((this.BX.Messenger.Const = this.BX.Messenger.Const || {})));
 //# sourceMappingURL=registry.bundle.js.map

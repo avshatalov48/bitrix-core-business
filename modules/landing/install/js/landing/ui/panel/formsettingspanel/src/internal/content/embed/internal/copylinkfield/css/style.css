@@ -1,0 +1,16 @@
+.landing-ui-field-copy-link {
+	background-color: #EBFAFF;
+	padding-top: 14px;
+	padding-left: 20px;
+	padding-right: 20px;
+	padding-bottom: 20px;
+	border-radius: 4px;
+}
+
+.landing-ui-field-copy-link-preview {
+	padding-bottom: 10px;
+}
+
+.landing-ui-field-copy-link .ui-btn:focus {
+	outline: none!important;
+}

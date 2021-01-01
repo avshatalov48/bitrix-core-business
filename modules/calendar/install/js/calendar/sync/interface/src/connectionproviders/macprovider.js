@@ -1,7 +1,7 @@
-import {Connection} from "./connection";
+import {ConnectionProvider} from "./connectionprovider";
 import {Loc} from "main.core";
 
-export class MacProvider extends Connection
+export class MacProvider extends ConnectionProvider
 {
 	constructor(options)
 	{

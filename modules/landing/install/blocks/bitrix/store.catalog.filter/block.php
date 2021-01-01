@@ -6,6 +6,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 /**
  * @var StoreCatalogFilterBlock $classBlock
+ * @var \CMain $APPLICATION
  */
 ?>
 <section class="landing-block g-pt-0 g-pb-0">
@@ -29,8 +30,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 					'SECTION_DESCRIPTION' => 'DESCRIPTION',
 					'HIDE_NOT_AVAILABLE' => 'N',
 					'TEMPLATE_THEME' => 'vendor',
-					'CONVERT_CURRENCY' => 'N',
-					'CURRENCY_ID' => '',
+					'CONVERT_CURRENCY' => 'Y',
+					'CURRENCY_ID' => $classBlock->get('CURRENCY_ID'),
 					'SEF_MODE' => 'N',
 					'SEF_RULE' => '',
 					//'SEF_RULE' => '/store/catalog/#SECTION_CODE#/filter/#SMART_FILTER_PATH#/apply/'

@@ -350,6 +350,7 @@ BizProcActivity = function()
 				JSToPHP(arWorkflowParameters, 'arWorkflowParameters')  + '&' +
 				JSToPHP(arWorkflowVariables, 'arWorkflowVariables')  + '&' +
 				JSToPHP(Array(rootActivity.Serialize()), 'arWorkflowTemplate') + '&' +
+				JSToPHP(arWorkflowConstants, 'arWorkflowConstants') + '&' +
 				'current_site_id=' + encodeURIComponent(CURRENT_SITE_ID) + '&' +
 				'sessid=' + BX.bitrix_sessid(),
 			'height': 500,

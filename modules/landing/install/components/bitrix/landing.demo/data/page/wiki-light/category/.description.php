@@ -82,6 +82,15 @@ return [
 				],
 			],
 		],
+		'#block3530' => [
+			'old_id' => 3354,
+			'code' => '59.2.search_sidebar',
+			'access' => 'X',
+			'nodes' => [
+			],
+			'style' => [
+			],
+		],
 		'#block3526' => [
 			'old_id' => 3526,
 			'code' => '27.2.one_col_full_title',

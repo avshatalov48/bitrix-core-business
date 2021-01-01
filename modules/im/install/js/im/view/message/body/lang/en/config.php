@@ -1,4 +1,5 @@
-<?
-$MESS["IM_MESSENGER_MESSAGE_LIKE"] = "Like";
+<?php
 $MESS["IM_MESSENGER_MESSAGE_DELETED"] = "This message was deleted.";
-?>
+$MESS["IM_MESSENGER_MESSAGE_DOWNLOAD"] = "Download";
+$MESS["IM_MESSENGER_MESSAGE_LIKE"] = "Like";
+$MESS["IM_MESSENGER_MESSAGE_SAVE_TO_DISK"] = "Save to Drive";

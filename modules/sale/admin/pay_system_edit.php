@@ -57,6 +57,8 @@ $lheStyle = '
 	}
 </style>';
 
+\CJSCore::init(['admin_sidepanel']);
+
 Asset::getInstance()->addString($lheStyle);
 Asset::getInstance()->addJs("/bitrix/js/sale/pay_system.js");
 

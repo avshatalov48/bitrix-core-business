@@ -1,6 +1,7 @@
 <?php
 $MESS["SONET_COMMENTAUX_CREATETASK_COMMENT_BLOG_COMMENT"] = "Task \"#TASK_NAME#\" has been created based on an #A_BEGIN#Activity Stream post comment#A_END#.";
 $MESS["SONET_COMMENTAUX_CREATETASK_COMMENT_BLOG_COMMENT_2"] = "Task \"#TASK_NAME#\" has been created based on a #A_BEGIN#Feed post comment#A_END#.";
+$MESS["SONET_COMMENTAUX_CREATETASK_COMMENT_FORUM_POST_2"] = "Task \"#TASK_NAME#\" has been created based on a #A_BEGIN#comment#A_END#.";
 $MESS["SONET_COMMENTAUX_CREATETASK_COMMENT_FORUM_POST_CALENDAR"] = "Task \"#TASK_NAME#\" has been created based on a #A_BEGIN#calendar event comment#A_END#.";
 $MESS["SONET_COMMENTAUX_CREATETASK_COMMENT_FORUM_POST_FORUM_TOPIC"] = "Task \"#TASK_NAME#\" has been created based on a #A_BEGIN#forum post comment#A_END#.";
 $MESS["SONET_COMMENTAUX_CREATETASK_COMMENT_FORUM_POST_LISTS_NEW_ELEMENT"] = "Task \"#TASK_NAME#\" has been created based on a #A_BEGIN#comment to the workflow entry#A_END#.";

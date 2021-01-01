@@ -386,6 +386,14 @@
 			return text;
 		},
 
+		getUuidv4: function()
+		{
+			return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+				var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+				return v.toString(16);
+			});
+		},
+
 		alterSDP: function(sdp, options)
 		{
 			if(!options)
@@ -469,5 +477,18 @@
 	function isBlank(url)
 	{
 		return typeof (url) !== "string" || url == "" || url.endsWith(blankAvatar);
+	}
+
+	function stopMediaStream(mediaStream)
+	{
+		if (!mediaStream instanceof MediaStream)
+		{
+			return;
+		}
+
+		mediaStream.getTracks().forEach(function(track)
+		{
+			track.stop()
+		});
 	}
 })();

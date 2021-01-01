@@ -58,6 +58,12 @@ if (($isItReloadingProcess || $isItSavingProcess) && $saleModulePermissions == "
 	if(isset($_POST["CLASS_NAME"]))     $fields["CLASS_NAME"] = trim($_POST["CLASS_NAME"]);
 	if(isset($_POST["DESCRIPTION"]))    $fields["DESCRIPTION"] = htmlspecialcharsback(trim($_POST["DESCRIPTION"]));
 
+	if(!empty($fields["CLASS_NAME"]))
+	{
+		if(!is_subclass_of($fields["CLASS_NAME"], 'Bitrix\Sale\Delivery\Services\Base'))
+			throw new \Bitrix\Main\SystemException('Class "'.$fields["CLASS_NAME"].'" is not a subclass of the Bitrix\Sale\Delivery\Services\Base');
+	}
+
 	if(isset($_POST["TRACKING_PARAMS"]) && is_array($_POST["TRACKING_PARAMS"]))
 		$fields["TRACKING_PARAMS"] = $_POST["TRACKING_PARAMS"];
 	else

@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,main_core) {
+(function (exports,main_core,main_core_events) {
 	'use strict';
 
 	function _templateObject() {
@@ -17,8 +17,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	 * @memberOf BX.Landing.UI.Panel
 	 */
 
-	var BasePanel = /*#__PURE__*/function (_Event$EventEmitter) {
-	  babelHelpers.inherits(BasePanel, _Event$EventEmitter);
+	var BasePanel = /*#__PURE__*/function (_EventEmitter) {
+	  babelHelpers.inherits(BasePanel, _EventEmitter);
 	  babelHelpers.createClass(BasePanel, null, [{
 	    key: "makeId",
 	    value: function makeId() {
@@ -121,11 +121,16 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    value: function clear() {
 	      main_core.Dom.clean(this.layout);
 	    }
+	  }, {
+	    key: "setLayoutClass",
+	    value: function setLayoutClass(className) {
+	      main_core.Dom.addClass(this.layout, className);
+	    }
 	  }]);
 	  return BasePanel;
-	}(main_core.Event.EventEmitter);
+	}(main_core_events.EventEmitter);
 
 	exports.BasePanel = BasePanel;
 
-}((this.BX.Landing.UI.Panel = this.BX.Landing.UI.Panel || {}),BX));
+}((this.BX.Landing.UI.Panel = this.BX.Landing.UI.Panel || {}),BX,BX.Event));
 //# sourceMappingURL=base.bundle.js.map

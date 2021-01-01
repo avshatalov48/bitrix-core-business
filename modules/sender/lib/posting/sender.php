@@ -18,9 +18,11 @@ use Bitrix\Main\Type;
 use Bitrix\Sender\Entity\Campaign;
 use Bitrix\Sender\Entity\Letter;
 use Bitrix\Sender\Integration;
+use Bitrix\Sender\Integration\Bitrix24;
 use Bitrix\Sender\Internals\Model;
 use Bitrix\Sender\Internals\Model\PostingThreadTable;
 use Bitrix\Sender\MailingTable;
+use Bitrix\Sender\Message;
 use Bitrix\Sender\Message\Adapter;
 use Bitrix\Sender\Posting\ThreadStrategy\IThreadStrategy;
 use Bitrix\Sender\PostingRecipientTable;
@@ -537,7 +539,11 @@ class Sender
 
 				$this->setPostingDateSend();
 
-				if (empty($recipient['CONTACT_CODE']) || $recipient['CONTACT_BLACKLISTED'] === 'Y' || $recipient['CONTACT_UNSUBSCRIBED'] === 'Y')
+				if (
+					empty($recipient['CONTACT_CODE']) ||
+					$recipient['CONTACT_BLACKLISTED'] === 'Y' ||
+					$recipient['CONTACT_UNSUBSCRIBED'] === 'Y'
+				)
 				{
 					$sendResult = false;
 				}
@@ -573,6 +579,14 @@ class Sender
 				];
 				$event = new Event('sender', 'OnAfterPostingSendRecipient', [$eventData, $this->letter]);
 				$event->send();
+
+				if (
+					Bitrix24\Service::isCloud()
+					&& $eventData['SEND_RESULT']
+					&& $this->letter->getMessage()->getCode() === Message\iBase::CODE_MAIL)
+				{
+					Bitrix24\Limitation\DailyLimit::increment();
+				}
 
 				$dataToInsert[] = $eventData;
 

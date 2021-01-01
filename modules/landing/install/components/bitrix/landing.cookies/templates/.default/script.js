@@ -16,6 +16,7 @@
 		this.currentStorage = this.storage;
 
 		this.enable = params.enable === true;
+		this.onlyInformation = params.onlyInformation === true;
 		this.siteId = parseInt(params.siteId);
 		this.availableCodes = params.availableCodes || [];
 		this.idButtonOpt = params.idButtonOpt || 'bx-landing-cookies-opt';
@@ -618,7 +619,7 @@
 
 		showCookiesNotice: function()
 		{
-			if (BX(this.idAgreementSmallPopup))
+			if (BX(this.idAgreementSmallPopup) && !this.onlyInformation)
 			{
 				this.cookiesNotice.style.display = 'flex';
 			}

@@ -2,7 +2,6 @@
 namespace Bitrix\Calendar\Controller;
 
 use Bitrix\Calendar\Util;
-use Bitrix\Intranet\Util as IntranetUtil;
 use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Error;
 use Bitrix\Calendar\Internals;
@@ -308,38 +307,8 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		if ($entryId > 0)
 		{
 			$fromTs = !empty($_REQUEST['date_from_offset']) ? \CCalendar::Timestamp($_REQUEST['date_from']) - $_REQUEST['date_from_offset'] : \CCalendar::Timestamp($_REQUEST['date_from']);
-
-			$entry = \CCalendarEvent::GetList([
-				'arFilter' => [
-					"ID" => $entryId,
-					"DELETED" => "N",
-					"FROM_LIMIT" => \CCalendar::Date($fromTs),
-					"TO_LIMIT" => \CCalendar::Date($fromTs)
-				],
-				'parseRecursion' => true,
-				'maxInstanceCount' => 1,
-				'preciseLimits' => true,
-				'fetchAttendees' => true,
-				'checkPermissions' => true,
-				'setDefaultLimit' => false
-			]);
-
-			if (!$entry || !is_array($entry[0]))
-			{
-				$entry = \CCalendarEvent::GetList([
-					'arFilter' => [
-						"ID" => $entryId,
-						"DELETED" => "N"
-					],
-					'parseRecursion' => true,
-					'maxInstanceCount' => 1,
-					'fetchAttendees' => true,
-					'checkPermissions' => true,
-					'setDefaultLimit' => false
-				]);
-			}
-
-			$entry = $entry[0];
+			$entry = \CCalendarEvent::getEventForEditInterface($entryId, ['eventDate' => \CCalendar::Date($fromTs)]);
+			$entryId = is_array($entry['ID']) && isset($entry['ID']) ? $entry['ID'] : $entryId;
 		}
 		else
 		{
@@ -537,7 +506,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		$isExtranetUser = Util::isExtranetUser($userId);
 
 		if (!Loader::includeModule('intranet')
-			&& (!IntranetUtil::isIntranetUser($userId) || (!$isExtranetUser))
+			|| (!\Bitrix\Intranet\Util::isIntranetUser($userId) && !$isExtranetUser)
 		)
 		{
 			$this->addError(new Error('[up01]'.Loc::getMessage('EC_ACCESS_DENIED'), 'access_denied'));
@@ -1463,6 +1432,19 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 			$this->addError(new Error(Loc::getMessage('EC_CALENDAR_IM_NOT_FOUND'), 'create_chat_error'));
 		}
 
+		return $result;
+	}
+
+	public function getCompactFormDataAction($entryId)
+	{
+		$userId = \CCalendar::GetCurUserId();
+		$request = $this->getRequest();
+		$loadSectionId = intval($request['loadSectionId']);
+		$result = [];
+		if ($loadSectionId > 0)
+		{
+			$result['section'] = \CCalendarSect::GetById($loadSectionId);
+		}
 		return $result;
 	}
 }

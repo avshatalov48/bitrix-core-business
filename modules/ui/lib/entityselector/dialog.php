@@ -396,7 +396,8 @@ class Dialog implements \JsonSerializable
 			'searchable' => false,
 			'saveable' => false,
 			'link' => '',
-			'avatar' => ''
+			'avatar' => '',
+			'availableInRecentTab' => false
 		]);
 	}
 

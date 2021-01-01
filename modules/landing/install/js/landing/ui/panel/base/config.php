@@ -9,6 +9,7 @@ return [
 	'js' => 'dist/base.bundle.js',
 	'rel' => [
 		'main.core',
+		'main.core.events',
 		'landing.utils',
 	],
 	'skip_core' => false,

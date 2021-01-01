@@ -33,6 +33,7 @@ if(typeof BX.UI.EntityUserFieldManager === "undefined")
 		this._creationSignature = "";
 		this._creationUrl = "";
 		this._activeFields = {};
+		this._validationEnabled = true;
 		this._validationResult = null;
 		this._validationPromise = null;
 
@@ -429,6 +430,10 @@ if(typeof BX.UI.EntityUserFieldManager === "undefined")
 			}
 			BX.Main.UF.EditManager.unRegisterField(name);
 		},
+		setValidationEnabled: function(isEnabled)
+		{
+			this._validationEnabled = !!isEnabled;
+		},
 		validate: function(result)
 		{
 			var names = [];
@@ -440,7 +445,7 @@ if(typeof BX.UI.EntityUserFieldManager === "undefined")
 				}
 			}
 
-			if(names.length > 0)
+			if(this._validationEnabled && names.length > 0)
 			{
 				this._validationResult = result;
 				BX.Main.UF.EditManager.validate(
@@ -514,6 +519,10 @@ if(typeof BX.UI.EntityUserFieldManager === "undefined")
 		this.items[id] = self;
 		return self;
 	};
+	BX.UI.EntityUserFieldManager.getById = function(id)
+	{
+		return this.items.hasOwnProperty(id) ? this.items[id] : null;
+	}
 }
 
 if(typeof BX.UI.EntityUserFieldLayoutLoader === "undefined")
@@ -1421,8 +1430,13 @@ if(typeof(BX.UI.UserFieldTypeMenu) === "undefined")
 		},
 		onItemSelect: function(item)
 		{
-			var callback = BX.prop.getFunction(this._settings, "callback", null);
-			if(callback)
+			var callback = item.getCallback();
+			if (!BX.type.isFunction(callback))
+			{
+				callback = BX.prop.getFunction(this._settings, "callback", null);
+			}
+
+			if (callback)
 			{
 				callback(this, item);
 			}
@@ -1566,6 +1580,7 @@ if(typeof(BX.UI.UserFieldTypeMenuItem) === "undefined")
 		this._value = "";
 		this._text = "";
 		this._legend = "";
+		this._callback = null;
 	};
 	BX.UI.UserFieldTypeMenuItem.prototype =
 	{
@@ -1577,6 +1592,7 @@ if(typeof(BX.UI.UserFieldTypeMenuItem) === "undefined")
 			this._value = BX.prop.getString(settings, "value");
 			this._text = BX.prop.getString(settings, "text");
 			this._legend = BX.prop.getString(settings, "legend");
+			this._callback = BX.prop.getFunction(settings, "callback", null);
 		},
 		getId: function()
 		{
@@ -1593,6 +1609,10 @@ if(typeof(BX.UI.UserFieldTypeMenuItem) === "undefined")
 		getLegend: function()
 		{
 			return this._legend;
+		},
+		getCallback: function()
+		{
+			return this._callback;
 		},
 		prepareContent: function()
 		{
@@ -1665,7 +1685,7 @@ if(typeof BX.UI.EntityEditorUserFieldConfigurator === "undefined")
 		this._enableMandatoryControl = true;
 		this._mandatoryConfigurator = null;
 	};
-	
+
 	BX.extend(BX.UI.EntityEditorUserFieldConfigurator, BX.UI.EntityEditorFieldConfigurator);
 
 	BX.UI.EntityEditorUserFieldConfigurator.prototype.checkField = function()

@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,main_core,landing_env) {
+(function (exports,main_core,main_core_events,landing_env) {
 	'use strict';
 
 	function _templateObject9() {
@@ -93,12 +93,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	  return data;
 	}
+
 	/**
 	 * @memberOf BX.Landing.UI.Form
 	 */
-
-	var BaseForm = /*#__PURE__*/function (_Event$EventEmitter) {
-	  babelHelpers.inherits(BaseForm, _Event$EventEmitter);
+	var BaseForm = /*#__PURE__*/function (_EventEmitter) {
+	  babelHelpers.inherits(BaseForm, _EventEmitter);
 
 	  function BaseForm() {
 	    var _this;
@@ -110,6 +110,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    _this.setEventNamespace('BX.Landing.UI.Form.BaseForm');
 
 	    _this.data = babelHelpers.objectSpread({}, data);
+	    _this.options = _this.data;
 	    _this.id = Reflect.has(_this.data, 'id') ? _this.data.id : main_core.Text.getRandom();
 	    _this.selector = Reflect.has(_this.data, 'selector') ? _this.data.selector : '';
 	    _this.title = Reflect.has(_this.data, 'title') ? _this.data.title : '';
@@ -117,17 +118,26 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    _this.type = Reflect.has(_this.data, 'type') ? _this.data.type : 'content';
 	    _this.code = Reflect.has(_this.data, 'code') ? _this.data.code : '';
 	    _this.descriptionText = Reflect.has(_this.data, 'description') ? _this.data.description : '';
+
+	    _this.serializeModifier = _this.options.serializeModifier || function (value) {
+	      return value;
+	    };
+
 	    _this.headerCheckbox = _this.data.headerCheckbox;
 	    _this.cache = new main_core.Cache.MemoryCache();
 	    _this.fields = new BX.Landing.Collection.BaseCollection();
 	    _this.cards = new BX.Landing.Collection.BaseCollection();
 	    _this.layout = BaseForm.createLayout();
-	    _this.description = BaseForm.createDescription();
 	    _this.header = BaseForm.createHeader();
 	    _this.body = BaseForm.createBody();
 	    _this.footer = BaseForm.createFooter();
 	    main_core.Dom.append(_this.header, _this.layout);
-	    main_core.Dom.append(_this.description, _this.layout);
+
+	    if (_this.descriptionText !== null) {
+	      _this.description = BaseForm.createDescription();
+	      main_core.Dom.append(_this.description, _this.layout);
+	    }
+
 	    main_core.Dom.append(_this.body, _this.layout);
 	    main_core.Dom.append(_this.footer, _this.layout);
 
@@ -156,6 +166,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }
 
 	  babelHelpers.createClass(BaseForm, [{
+	    key: "getLayout",
+	    value: function getLayout() {
+	      return this.layout;
+	    }
+	  }, {
 	    key: "getHeaderCheckbox",
 	    value: function getHeaderCheckbox() {
 	      var _this2 = this;
@@ -277,16 +292,29 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "serialize",
 	    value: function serialize() {
-	      return this.fields.reduce(function (acc, field) {
-	        acc[field.selector] = field.getValue();
+	      return this.serializeModifier(this.fields.reduce(function (acc, field) {
+	        if (main_core.Type.isFunction(field.getValue)) {
+	          acc[field.selector] = field.getValue();
+	        }
+
 	        return acc;
-	      }, {});
+	      }, {}));
 	    }
 	  }, {
 	    key: "removeField",
 	    value: function removeField(field) {
 	      this.fields.remove(field);
 	      main_core.Dom.remove(field.layout);
+	    }
+	  }, {
+	    key: "disable",
+	    value: function disable() {
+	      main_core.Dom.addClass(this.getLayout(), 'landing-ui-disabled');
+	    }
+	  }, {
+	    key: "enable",
+	    value: function enable() {
+	      main_core.Dom.removeClass(this.getLayout(), 'landing-ui-disabled');
 	    }
 	  }], [{
 	    key: "createLayout",
@@ -315,9 +343,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    }
 	  }]);
 	  return BaseForm;
-	}(main_core.Event.EventEmitter);
+	}(main_core_events.EventEmitter);
 
 	exports.BaseForm = BaseForm;
 
-}((this.BX.Landing.UI.Form = this.BX.Landing.UI.Form || {}),BX,BX.Landing));
+}((this.BX.Landing.UI.Form = this.BX.Landing.UI.Form || {}),BX,BX.Event,BX.Landing));
 //# sourceMappingURL=baseform.bundle.js.map

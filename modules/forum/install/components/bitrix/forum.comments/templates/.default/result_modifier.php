@@ -22,42 +22,65 @@ $arParams["FORM_ID"] = "COMMENTS_".$arParams["form_index"];
 $arParams["jsObjName"] = "oLHE_FC".$arParams["form_index"];
 $arParams["LheId"] = "idLHE_FC".$arParams["form_index"];
 $arParams["tplID"] = 'COMMENT_'.$arParams["ENTITY_TYPE"].'_'.$arParams["form_index"];
-
+$visibleRecordsCount = 3;
 include_once(__DIR__."/functions.php");
 include_once(__DIR__."/../mobile_app/functions.php");
 
-$arResult["PUSH&PULL"] = false;
+$arResult["PUSH&PULL"] = isset($arResult["PUSH&PULL"]) ? $arResult["PUSH&PULL"] : false;
 
 $request = \Bitrix\Main\Context::getCurrent()->getRequest();
 $post = array_merge($request->getQueryList()->toArray(), $request->getPostList()->toArray());
-
 if (!empty($arResult["MESSAGES"]))
 {
-	if ($arResult["MID"] > 0)
+	if ($arResult["NAV_RESULT"]->NavRecordCount > $visibleRecordsCount)
 	{
-		$messages = [];
-		foreach($arResult["MESSAGES"] as $id => $fields)
+		$allMessages = 0;
+		$regularMessages = 0;
+		$findMessageId = intval($arResult["MID"]);
+		$limitMessageCount = !is_array($request->get("FILTER"));
+		foreach($arResult["MESSAGES"] as $id => $message)
 		{
-			$messages[$id] = $fields;
-			if ($id == $arResult["MID"])
+			if ((int)$message["~SERVICE_TYPE"] <= 0)
 			{
-				break;
+				$regularMessages++;
+			}
+			$allMessages++;
+
+			if ($limitMessageCount)
+			{
+				if ($findMessageId <= 0 && $regularMessages >= $visibleRecordsCount)
+				{
+					break;
+				}
+				elseif ($findMessageId > 0 && $id == $findMessageId)
+				{
+					if ($regularMessages >= $visibleRecordsCount)
+					{
+						break;
+					}
+					$findMessageId = 0;
+				}
 			}
 		}
-
-		$arResult["VISIBLE_RECORDS_COUNT"] = count($messages);
-		if ($arResult["VISIBLE_RECORDS_COUNT"] < 3)
+		$arResult["MESSAGES"] = array_slice($arResult["MESSAGES"], 0, $allMessages, true);
+		$arResult["VISIBLE_RECORDS_COUNT"] = count($arResult["MESSAGES"]);
+		$arResult["NAV_RESULT"]->bShowAll = $arResult["NAV_RESULT"]->NavRecordCount <= $regularMessages;
+		if ($limitMessageCount)
 		{
-			$arResult["VISIBLE_RECORDS_COUNT"] = 3;
+			$arResult["NAV_RESULT"]->NavRecordCount += ($allMessages - $regularMessages);
 		}
-
-		if (count($arResult["MESSAGES"]) > $arResult["VISIBLE_RECORDS_COUNT"])
-		{
-			$arResult["MESSAGES"] = array_slice($arResult["MESSAGES"], 0, $arResult["VISIBLE_RECORDS_COUNT"], true);
-		}
-
-		$arResult["NAV_RESULT"]->bShowAll = false;
 	}
+	else
+	{
+		$arResult["NAV_RESULT"]->nSelectedCount = $arResult["NAV_RESULT"]->NavRecordCount;
+		$arResult["NAV_RESULT"]->bShowAll = true;
+	}
+
+	array_walk($arResult["MESSAGES"], function(&$item) {
+		$item["COLLAPSED"] = ($item["~SERVICE_TYPE"] > 0 && $item["NEW"] !== "Y"? "Y" : "N");
+		return $item;
+	});
+
 
 	$arResult["NAV_STRING"] = GetPagePath(false, false);
 	if ($arResult["NAV_RESULT"])

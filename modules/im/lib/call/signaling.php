@@ -8,16 +8,20 @@ use Bitrix\Main\Localization\Loc;
 
 class Signaling
 {
-	protected  $call;
+	protected $call;
 
 	public function __construct(Call $call)
 	{
 		$this->call = $call;
 	}
 
-	public function sendInvite(int $senderId, array $toUserIds, $isMobile, $video = false)
+	public function sendInvite(int $senderId, array $toUserIds, $isLegacyMobile, $video = false)
 	{
 		$users = $this->call->getUsers();
+
+		$parentCall = $this->call->getParentId() ? Call::loadWithId($this->call->getParentId()) : null;
+		$skipPush = $parentCall ?  $parentCall->getUsers() : [];
+		$skipPush = array_flip($skipPush);
 
 		foreach ($toUserIds as $toUserId)
 		{
@@ -28,81 +32,43 @@ class Signaling
 				'userData' => Util::getUsers($users),
 				'senderId' => $senderId,
 				'publicIds' => $this->getPublicIds($users),
-				'isMobile' => $isMobile,
+				'isLegacyMobile' => $isLegacyMobile,
 				'video' => $video,
 				'logToken' => $this->call->getLogToken($toUserId)
 			);
-
-			if(count($users) === 2 && $this->call->getProvider() === Call::PROVIDER_PLAIN)
+			if (!isset($skipPush[$toUserId]))
 			{
-				$push = $this->getInvitePush($senderId, $toUserId, $isMobile, $video);
-			}
-			else
-			{
-				$push = null;
+				$push = $this->getInvitePush($senderId, $toUserId, $isLegacyMobile, $video);
 			}
 
 			$this->send('Call::incoming', $toUserId, $config, $push);
 		}
 	}
 
-	protected function getInvitePush(int $senderId, int $toUserId, $isMobile, $video)
+	protected function getInvitePush(int $senderId, int $toUserId, $isLegacyMobile, $video)
 	{
 		$users = $this->call->getUsers();
-		if(count($users) > 2 && $this->call->getProvider() !== Call::PROVIDER_PLAIN)
-		{
-			return null;
-		}
-		$name = '';
-		if($this->call->getAssociatedEntity())
-		{
-			$name = $this->call->getAssociatedEntity()->getName($toUserId);
-			}
-			else
-		{
-			$name = Loc::getMessage('IM_CALL_INVITE_NA');
-		}
 
-			$pushText = Loc::getMessage('IM_CALL_INVITE', ['#USER_NAME#' => $name]);
+		$name = $this->call->getAssociatedEntity() ?
+			$this->call->getAssociatedEntity()->getName($toUserId)
+			: Loc::getMessage('IM_CALL_INVITE_NA');
 
-		$senderUserData = \CIMContactList::getUserData(['ID' => $users, 'DEPARTMENT' => 'N', 'HR_PHOTO' => 'Y']);
-		$senderUserData = [
-			'users' => [
-				$senderId => $senderUserData['users'][$senderId]
-			],
-			'hrphoto' => [
-				$senderId => $senderUserData['hrphoto'][$senderId]
-			],
-		];
-		$userDataForPush = [
-			'users' => array_map(
-				function($element)
-				{
-					return[
-						'id' => $element['id'],
-						'name' => $element['name']
-					];
-				},
-				$senderUserData['users']
-			),
-			'hrphoto' => $senderUserData['hrphoto']
-		];
+		$pushText = Loc::getMessage('IM_CALL_INVITE', ['#USER_NAME#' => $name]);
 
 		$push = [
 			'message' => $pushText,
 			'expiry' => 0,
 			'params' => [
-				'ACTION' => 'IMINV_' . $this->call->getId() . "_" . time() . "_" . ($video ? 'Y' : 'N'),
+				'ACTION' => 'IMINV_'.$this->call->getId()."_".time()."_".($video ? 'Y' : 'N'),
 				'PARAMS' => [
 					'callerName' => $name,
-						'call' => [
+					'call' => [
 						'ID' => $this->call->getId(),
 						'PROVIDER' => $this->call->getProvider()
 					],
 					'video' => $video,
 					'users' => $users,
-					'userData' => $userDataForPush,
-					'isMobile' => $isMobile,
+					'isLegacyMobile' => $isLegacyMobile,
 					'senderId' => $senderId
 				]
 			],
@@ -111,7 +77,7 @@ class Signaling
 				'notificationsToCancel' => ['IM_CALL_'.$this->call->getId()],
 				'androidHighPriority' => true,
 				'useVibration' => true,
-					'isVoip' => true
+				'isVoip' => true
 			],
 			'sound' => 'call.aif',
 			'send_immediately' => 'Y'
@@ -139,7 +105,7 @@ class Signaling
 		$config = array(
 			'call' => $this->call->toArray(),
 			'users' => $users,
-			'userData' => \CIMContactList::GetUserData(Array('ID' => $users, 'DEPARTMENT' => 'N', 'HR_PHOTO' => 'Y')),
+			'userData' => Util::getUsers($users),
 			'senderId' => $senderId,
 			'publicIds' => $this->getPublicIds($users),
 		);
@@ -159,36 +125,28 @@ class Signaling
 		return $this->send('Call::associatedEntityReplaced', $toUserIds, $config);
 	}
 
-	public function sendAnswer(int $senderId, $callInstanceId, $isMobile)
+	public function sendAnswer(int $senderId, $callInstanceId, $isLegacyMobile)
 	{
 		$config = array(
 			'call' => $this->call->toArray(),
 			'senderId' => $senderId,
 			'callInstanceId' => $callInstanceId,
-			'isMobile' => $isMobile,
+			'isLegacyMobile' => $isLegacyMobile,
 		);
 
 		$toUserIds = $this->call->getUsers();
+		$push = [
+			'send_immediately' => 'Y',
+			'expiry' => 0,
+			'params' => [],
+			'advanced_params' => [
+				'id' => 'IM_CALL_'.$this->call->getId().'_ANSWER',
+				'notificationsToCancel' => ['IM_CALL_'.$this->call->getId()],
+				'isVoip' => true
+			]
+		];
 
-		if(count($this->call->getUsers()) == 2 && $this->call->getProvider() === Call::PROVIDER_PLAIN)
-		{
-			$push = [
-				'send_immediately' => 'Y',
-				'expiry' => 0,
-				'params' => [],
-				'advanced_params' => [
-					'id' => 'IM_CALL_'.$this->call->getId().'_ANSWER',
-					'notificationsToCancel' => ['IM_CALL_'.$this->call->getId()],
-					'isVoip' => true
-				]
-			];
-		}
-		else
-		{
-			$push = null;
-		}
-
-		return $this->send('Call::answer', $toUserIds, $config, $push);
+		return $this->send('Call::answer', $toUserIds, $config, $push, 3600);
 	}
 
 	public function sendPing(int $senderId, $requestId)
@@ -200,7 +158,7 @@ class Signaling
 		);
 
 		$toUserIds = $this->call->getUsers();
-		$toUserIds = array_filter($toUserIds, function($value) use ($senderId) {
+		$toUserIds = array_filter($toUserIds, function ($value) use ($senderId) {
 			return $value != $senderId;
 		});
 		return $this->send('Call::ping', $toUserIds, $config, null, 0);
@@ -245,58 +203,45 @@ class Signaling
 
 	public function sendHangup(int $senderId, array $toUserIds, string $callInstanceId, $code = 200)
 	{
-		if(count($this->call->getUsers()) == 2 && $this->call->getProvider() === Call::PROVIDER_PLAIN)
-		{
-			$push = [
-				'send_immediately' => 'Y',
-				'expiry' => 0,
-				'params' => [],
-				'advanced_params' => [
-					'id' => 'IM_CALL_'.$this->call->getId().'_FINISH',
-					'notificationsToCancel' => ['IM_CALL_'.$this->call->getId()],
-					'isVoip' => true
-				]
-			];
-		}
-		else
-		{
-			$push = null;
-		}
-
-		return $this->send('Call::hangup', $toUserIds, array(
+		$config = [
 			'senderId' => $senderId,
 			'callInstanceId' => $callInstanceId,
 			'code' => $code,
-			'push' => $push
-		));
+		];
+
+		$push = [
+			'send_immediately' => 'Y',
+			//'expiry' => 0,
+			'params' => [],
+			'advanced_params' => [
+				'id' => 'IM_CALL_'.$this->call->getId().'_FINISH',
+				'notificationsToCancel' => ['IM_CALL_'.$this->call->getId()],
+				'isVoip' => true
+			]
+		];
+
+		return $this->send('Call::hangup', $toUserIds, $config, $push, 3600);
 	}
 
 	public function sendFinish()
 	{
-		if(count($this->call->getUsers()) == 2 && $this->call->getProvider() === Call::PROVIDER_PLAIN)
-		{
-			$push = [
-				'send_immediately' => 'Y',
-				'expiry' => 0,
-				'params' => [],
-				'advanced_params' => [
-					'id' => 'IM_CALL_'.$this->call->getId().'_FINISH',
-					'notificationsToCancel' => ['IM_CALL_'.$this->call->getId()],
-					'isVoip' => true
-				]
-			];
-		}
-		else
-		{
-			$push = null;
-		}
+		$push = [
+			'send_immediately' => 'Y',
+			//'expiry' => 0,
+			'params' => [],
+			'advanced_params' => [
+				'id' => 'IM_CALL_'.$this->call->getId().'_FINISH',
+				'notificationsToCancel' => ['IM_CALL_'.$this->call->getId()],
+				'isVoip' => true
+			]
+		];
 
-		return $this->send('Call::finish', $this->call->getUsers(), [], $push);
+		return $this->send('Call::finish', $this->call->getUsers(), [], $push, 3600);
 	}
 
 	protected function getPublicIds(array $userIds)
 	{
-		if(!Loader::includeModule('pull'))
+		if (!Loader::includeModule('pull'))
 		{
 			return [];
 		}
@@ -309,13 +254,13 @@ class Signaling
 
 	protected function send(string $command, $users, array $params = [], $push = null, $ttl = 5)
 	{
-		if(!Loader::includeModule('pull'))
+		if (!Loader::includeModule('pull'))
 			return false;
 
-		if(!isset($params['call']))
+		if (!isset($params['call']))
 			$params['call'] = ['ID' => $this->call->getId()];
 
-		if(!isset($params['callId']))
+		if (!isset($params['callId']))
 			$params['callId'] = $this->call->getId();
 
 		\Bitrix\Pull\Event::add($users, array(

@@ -5,18 +5,15 @@
 		<div class="landing-block-node-card js-slide align-self-center">
 			<div class="landing-block-node-card-container js-animation fadeIn container text-center g-max-width-670">
 				<div class="row justify-content-center g-mb-25">
-					<img class="landing-block-node-card-photo g-brd-around g-width-50 g-height-50 g-object-fit-cover g-brd-3
-							g-brd-white-opacity-0_3 g-rounded-50x g-mr-20"
+					<img class="landing-block-node-card-photo g-brd-around g-width-50 g-height-50 g-object-fit-cover g-brd-3 g-brd-white-opacity-0_3 g-rounded-50x g-mr-20"
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/100x100/img1.jpg">
 
-					<a href="#" class="landing-block-node-card-name g-color-white g-color-primary--hover
-						align-self-center text-uppercase g-font-size-13 g-font-weight-700">
+					<a href="#" class="landing-block-node-card-name g-color-white g-color-primary--hover align-self-center text-uppercase g-font-size-13 g-font-weight-700">
 						@company24
 					</a>
 				</div>
 
-				<blockquote class="landing-block-node-card-text g-line-height-1_6 g-font-weight-700
-						g-font-size-27 g-color-white g-mb-30">
+				<blockquote class="landing-block-node-card-text g-line-height-1_6 g-font-weight-700 g-font-size-27 g-color-white g-mb-30">
 					In eu augue massa. Phasellus
 					<a class="g-color-primary" href="#!">#rutrum</a>
 					velit diam, quis pellentesque libero hendrerit a.
@@ -28,18 +25,15 @@
 		<div class="landing-block-node-card js-slide align-self-center">
 			<div class="landing-block-node-card-container js-animation fadeIn container text-center g-max-width-670">
 				<div class="row justify-content-center g-mb-25">
-					<img class="landing-block-node-card-photo g-brd-around g-height-50 g-width-50 g-brd-3
-							g-brd-white-opacity-0_3 g-rounded-50x g-mr-20"
+					<img class="landing-block-node-card-photo g-brd-around g-height-50 g-width-50 g-brd-3 g-brd-white-opacity-0_3 g-rounded-50x g-mr-20"
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/100x100/img2.jpg">
 
-					<a href="#" class="landing-block-node-card-name g-color-white g-color-primary--hover
-						align-self-center text-uppercase g-font-size-13 g-font-weight-700">
+					<a href="#" class="landing-block-node-card-name g-color-white g-color-primary--hover align-self-center text-uppercase g-font-size-13 g-font-weight-700">
 						@company24
 					</a>
 				</div>
 
-				<blockquote class="landing-block-node-card-text g-line-height-1_6 g-font-weight-700
-						g-font-size-27 g-color-white g-mb-30">
+				<blockquote class="landing-block-node-card-text g-line-height-1_6 g-font-weight-700 g-font-size-27 g-color-white g-mb-30">
 					In eu augue massa. Phasellus
 					<a class="g-color-primary" href="#!">#rutrum</a>
 					velit diam, quis pellentesque libero hendrerit a.

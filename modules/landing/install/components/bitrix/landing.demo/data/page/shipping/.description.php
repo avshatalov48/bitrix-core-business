@@ -205,39 +205,34 @@ return array(
 				'CODE' => '33.32.form_light_bgimg_right_text',
 				'SORT' => '500',
 				'CONTENT' => '<section class="g-pos-rel landing-block g-bg-primary-dark-v1">
-	<div class="landing-block-node-bgimg g-bg-size-cover g-bg-img-hero g-bg-cover g-bg-black-opacity-0_3--after g-py-20" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1732x1155/img1.jpg);">
-
-		<div class="landing-block-form-styles" hidden="">
-			<div class="g-bg-transparent h1 g-color-white g-brd-none g-pa-0" data-form-style-wrapper-padding="1" data-form-style-bg="1" data-form-style-bg-content="1" data-form-style-bg-block="1" data-form-style-header-font-size="1" data-form-style-main-font-weight="1" data-form-style-button-font-color="1" data-form-style-border-block="1">
-			</div>
-			<div class="g-bg-primary g-color-primary g-brd-primary" data-form-style-main-bg="1" data-form-style-main-border-color="1" data-form-style-main-font-color-hover="1">
-			</div>
-			<div class="g-bg-gray-light-v5 g-color-gray-dark-v5 g-brd-around g-brd-white g-rounded-4" data-form-style-input-bg="1" data-form-style-input-select-bg="1" data-form-style-input-border="1" data-form-style-input-border-radius="1" data-form-style-main-font-color="1">
-			</div>
-			<div class="g-brd-around g-brd-gray-light-v2 g-color-black g-brd-bottom g-bg-black-opacity-0_7" data-form-style-input-border-color="1" data-form-style-input-border-hover="1" data-form-style-second-font-color="1">
-			</div>
-		</div>
+	<div class="landing-block-node-bgimg landing-semantic-color-overlay g-bg-size-cover g-bg-img-hero g-bg-cover g-bg-black-opacity-0_3--after g-py-20"
+		 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1732x1155/img1.jpg);">
 
 		<div class="container g-pos-rel g-z-index-1 g-py-100">
 			<div class="row">
-				<div class="col-sm-12 col-lg-6 js-animation fadeInLeft landing-block-node-form align-self-center animated">
+				<div class="col-sm-12 col-lg-6 js-animation fadeInLeft landing-block-node-form align-self-center">
 					<div class="g-bg-white g-rounded-5 g-pa-0">
-						<div class="bitrix24forms g-py-30 g-brd-white-opacity-0_6 u-form-alert-v2" data-b24form="" data-b24form-use-style="Y" data-b24form-show-header="N" data-b24form-original-domain=""></div>
+						<div class="bitrix24forms g-brd-white-opacity-0_6 u-form-alert-v2"
+							data-b24form-use-style="Y"
+							data-b24form-embed
+							data-b24form-design=\'{"dark":false,"style":"classic","shadow":false,"compact":false,"color":{"primary":"--primary","primaryText":"#fff","text":"#000","background":"#ffffff00","fieldBorder":"#fff","fieldBackground":"#f7f7f7","fieldFocusBackground":"#eee"},"border":{"top":false,"bottom":false,"left":false,"right":false}}\'
+						></div>
 					</div>
 				</div>
 
 				<!-- Promo Block - Info -->
-				<div class="col-sm-12 col-lg-6 g-pt-30 g-pt-0--lg align-self-center g-color-white">
-					<h2 class="landing-block-node-title js-animation fadeInRight text-uppercase g-line-height-1 g-font-weight-700 g-font-size-55 g-color-white g-mb-30 animated">
-						Planning <br />&amp; Shipping</h2>
-					<h3 class="landing-block-node-subtitle text-uppercase g-font-weight-700 g-font-size-18 g-color-white g-mb-20">
+				<div class="col-sm-12 col-lg-6 g-pt-30 g-pt-0--lg align-self-center">
+					<h2 class="landing-block-node-title landing-semantic-title-medium js-animation fadeInRight text-uppercase g-line-height-1 g-font-weight-700 g-font-size-55 g-color-white g-mb-30">
+						Planning <br>&amp; Shipping</h2>
+					<h3 class="landing-block-node-subtitle landing-semantic-subtitle-medium text-uppercase g-font-weight-700 g-font-size-18 g-color-white g-mb-20">
 						Delivering
 						anything to anywhere</h3>
-					<div class="landing-block-node-text js-animation fadeInRight g-color-white-opacity-0_8 g-mb-35 animated">
+					<div class="landing-block-node-text landing-semantic-text-medium js-animation fadeInRight g-color-white-opacity-0_8 g-mb-35">
 						<p>Maecenas lacus magna, pretium in congue a, pharetra at lacus. Nulla neque justo, sodales
 							vitae dui non, imperdiet luctus libero.</p>
 					</div>
-					<a class="landing-block-node-button js-animation fadeInRight btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-rounded-4 g-py-12 animated" href="#">Learn more</a>
+					<a class="landing-block-node-button landing-semantic-link-medium js-animation fadeInRight btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-rounded-4 g-py-12"
+					   href="#">Learn more</a>
 				</div>
 				<!-- End Promo Block - Info -->
 			</div>
@@ -382,8 +377,7 @@ return array(
 					<!-- Article Content -->
 					<div class="info-v3-3__description-sm u-link-v2 g-pos-cover g-flex-middle g-white-space-normal">
 						<div class="g-flex-middle-item g-pa-30">
-							<h4 class="landing-block-node-card-title h3 text-uppercase g-line-height-1 g-font-weight-700
-							g-mb-20 info-v3-3__title g-color-gray-dark-v2 g-color-white--parent-hover g-text-underline--none--hover g-transition-0_3">
+							<h4 class="landing-block-node-card-title h3 text-uppercase g-line-height-1 g-font-weight-700 g-mb-20 info-v3-3__title g-color-gray-dark-v2 g-color-white--parent-hover g-text-underline--none--hover g-transition-0_3">
 								<span style="font-weight: bold;" class="g-transition-0_3 g-color-gray-dark-v2 g-color-white--parent-hover">Small</span><br>
 								Objects
 							</h4>
@@ -415,8 +409,7 @@ return array(
 					<!-- Article Content -->
 					<div class="info-v3-3__description-sm u-link-v2 g-pos-cover g-flex-middle g-white-space-normal">
 						<div class="g-flex-middle-item g-pa-30">
-							<h4 class="landing-block-node-card-title h3 text-uppercase g-line-height-1 g-font-weight-700
-							g-mb-20 info-v3-3__title g-color-gray-dark-v2 g-color-white--parent-hover g-text-underline--none--hover g-transition-0_3">
+							<h4 class="landing-block-node-card-title h3 text-uppercase g-line-height-1 g-font-weight-700 g-mb-20 info-v3-3__title g-color-gray-dark-v2 g-color-white--parent-hover g-text-underline--none--hover g-transition-0_3">
 								<span style="font-weight: bold;" class="g-transition-0_3 g-color-gray-dark-v2 g-color-white--parent-hover">Medium</span><br>
 								Objects
 							</h4>
@@ -448,8 +441,7 @@ return array(
 					<!-- Article Content -->
 					<div class="info-v3-3__description-sm u-link-v2 g-pos-cover g-flex-middle g-white-space-normal">
 						<div class="g-flex-middle-item g-pa-30">
-							<h4 class="landing-block-node-card-title h3 text-uppercase g-line-height-1 g-font-weight-700
-							g-mb-20 info-v3-3__title g-color-gray-dark-v2 g-color-white--parent-hover g-text-underline--none--hover g-transition-0_3">
+							<h4 class="landing-block-node-card-title h3 text-uppercase g-line-height-1 g-font-weight-700 g-mb-20 info-v3-3__title g-color-gray-dark-v2 g-color-white--parent-hover g-text-underline--none--hover g-transition-0_3">
 								<span style="font-weight: bold;" class="g-transition-0_3 g-color-gray-dark-v2 g-color-white--parent-hover">Large</span><br>
 								Objects
 							</h4>
@@ -481,8 +473,7 @@ return array(
 					<!-- Article Content -->
 					<div class="info-v3-3__description-sm u-link-v2 g-pos-cover g-flex-middle g-white-space-normal">
 						<div class="g-flex-middle-item g-pa-30">
-							<h4 class="landing-block-node-card-title h3 text-uppercase g-line-height-1 g-font-weight-700
-							g-mb-20 info-v3-3__title g-color-gray-dark-v2 g-color-white--parent-hover g-text-underline--none--hover g-transition-0_3">
+							<h4 class="landing-block-node-card-title h3 text-uppercase g-line-height-1 g-font-weight-700 g-mb-20 info-v3-3__title g-color-gray-dark-v2 g-color-white--parent-hover g-text-underline--none--hover g-transition-0_3">
 								<span style="font-weight: bold;" class="g-transition-0_3 g-color-gray-dark-v2 g-color-white--parent-hover">XXXXL</span><br>
 								Objects
 							</h4>
@@ -1339,88 +1330,80 @@ return array(
 			array (
 				'CODE' => '33.10.form_2_light_left_text',
 				'SORT' => '9000',
-				'CONTENT' => '<section class="g-pos-rel landing-block text-center g-py-100 g-pt-20 g-pb-60">
+				'CONTENT' => '<section class="g-pos-rel landing-block g-pt-20 g-pb-60">
 
 	<div class="container">
-
-		<div class="landing-block-form-styles" hidden="">
-			<div class="g-bg-transparent h1 g-color-white g-brd-none g-pa-0" data-form-style-wrapper-padding="1" data-form-style-bg="1" data-form-style-bg-content="1" data-form-style-bg-block="1" data-form-style-header-font-size="1" data-form-style-main-font-weight="1" data-form-style-button-font-color="1" data-form-style-border-block="1">
-			</div>
-			<div class="g-bg-primary g-color-primary g-brd-primary" data-form-style-main-bg="1" data-form-style-main-border-color="1" data-form-style-main-font-color-hover="1">
-			</div>
-			<div class="g-bg-gray-light-v5 g-color-gray-dark-v1 g-brd-around g-brd-white rounded-0" data-form-style-input-bg="1" data-form-style-input-select-bg="1" data-form-style-input-border="1" data-form-style-input-border-radius="1" data-form-style-main-font-color="1">
-			</div>
-			<div class="g-brd-around g-brd-gray-light-v2 g-color-gray-dark-v5 g-brd-bottom g-bg-black-opacity-0_7" data-form-style-input-border-color="1" data-form-style-input-border-hover="1" data-form-style-icon-font-color="1">
-			</div>
-		</div>
 
 		<div class="row">
 			<div class="col-md-6">
 				<div class="text-center g-overflow-hidden">
-					<h3 class="landing-block-node-main-title h3 text-uppercase g-font-weight-700 g-mb-20 g-color-black"> </h3>
-					
-					<div class="landing-block-node-text g-line-height-1_5 text-left g-mb-40 g-color-gray-dark-v5" data-form-style-main-font-family="1" data-form-style-main-font-weight="1" data-form-style-header-text-font-size="1"> </div>
+					<h3 class="landing-block-node-main-title landing-semantic-title-medium h3 text-uppercase g-font-weight-700 g-mb-20 g-color-black"></h3>
+
+					<div class="landing-block-node-text landing-semantic-text-medium g-line-height-1_5 text-left g-mb-40 g-color-gray-dark-v5">
+						<p>
+							Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor.
+							Vivamus a fringilla lorem, vel faucibus ante. Nunc ullamcorper, justo a iaculis elementum,
+							enim orci viverra eros, fringilla porttitor lorem eros vel odio.
+						</p>
+					</div>
 					<div class="g-mx-minus-2 g-my-minus-2">
 						<div class="row mx-0">
-							<div class="landing-block-card-contact js-animation fadeIn col-sm-6 g-brd-left g-brd-bottom g-brd-gray-light-v4 g-px-15 g-py-25">
-							<span class="landing-block-card-contact-icon-container g-color-primary">
-								<i class="landing-block-card-contact-icon icon-anchor d-inline-block g-font-size-50 g-color-primary g-mb-30"></i>
+
+							<div class="landing-block-card-contact js-animation fadeIn col-sm-6 g-brd-left g-brd-bottom g-brd-gray-light-v4 g-px-15 g-py-25"
+								 data-card-preset="text">
+								<span class="landing-block-card-contact-icon-container g-color-primary g-line-height-1 d-inline-block g-font-size-50 g-mb-30">
+									<i class="landing-block-card-contact-icon icon-anchor"></i>
 								</span>
-								<h3 class="landing-block-card-contact-title text-uppercase g-font-size-11 g-color-gray-dark-v5 mb-0"
-									data-form-style-label-font-weight="1"
-									data-form-style-label-font-size="1"
-									data-form-style-second-font-color="1"
-								>
-									Address</h3>
-								<div class="landing-block-card-contact-text g-font-size-11 g-color-gray-dark-v1">
-									<span style="font-weight: bold;">Sit amet adipiscing</span>
-								</div>
+								<span class="landing-block-card-contact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 g-color-gray-dark-v5 mb-0">
+									Address</span>
+								<span class="landing-block-card-contact-text landing-semantic-text-medium g-font-weight-700 g-font-size-11 g-color-gray-dark-v1">
+									Sit amet adipiscing
+								</span>
 							</div>
 
-							<div class="landing-block-card-contact js-animation fadeIn col-sm-6 g-brd-left g-brd-bottom g-brd-gray-light-v4 g-px-15 g-py-25">
-							<span class="landing-block-card-contact-icon-container g-color-primary">
-								<i class="landing-block-card-contact-icon icon-call-in d-inline-block g-font-size-50 g-color-primary g-mb-30"></i>
-								</span>
-								<h3 class="landing-block-card-contact-title text-uppercase g-font-size-11 g-color-gray-dark-v5 mb-0"
-									data-form-style-label-font-weight="1"
-									data-form-style-label-font-size="1"
-									data-form-style-second-font-color="1"
-								>
-									Phone
-									number</h3>
-								<div class="landing-block-card-contact-text g-font-size-11 g-color-gray-dark-v1">
-									<span style="font-weight: bold;"><a href="tel:+4025448569">+402 5448 569</a></span>
-								</div>
+							<div class="landing-block-card-contact js-animation fadeIn col-sm-6 g-brd-left g-brd-bottom g-brd-gray-light-v4 g-px-15 g-py-25"
+								 data-card-preset="link">
+								<a href="tel:#PHONE1#" class="landing-block-card-linkcontact-link g-text-decoration-none--hover">
+									<span class="landing-block-card-contact-icon-container g-color-primary g-line-height-1 d-inline-block g-font-size-50 g-mb-30">
+										<i class="landing-block-card-linkcontact-icon icon-call-in"></i>
+									</span>
+									<span class="landing-block-card-linkcontact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 g-color-gray-dark-v5 mb-0">
+										Phone number
+									</span>
+									<span class="landing-block-card-linkcontact-text landing-semantic-link-medium g-text-decoration-none g-text-underline--hover g-font-weight-700 g-font-size-11 g-color-gray-dark-v1">
+										#PHONE1#
+									</span>
+								</a>
 							</div>
 
-							<div class="landing-block-card-contact js-animation fadeIn col-sm-6 g-brd-left g-brd-bottom g-brd-gray-light-v4 g-px-15 g-py-25">
-							<span class="landing-block-card-contact-icon-container g-color-primary">
-								<i class="landing-block-card-contact-icon icon-line icon-envelope-letter d-inline-block g-font-size-50 g-color-primary g-mb-30"></i>
-								</span>
-								<h3 class="landing-block-card-contact-title text-uppercase g-font-size-11 g-color-gray-dark-v5 mb-0"
-									data-form-style-label-font-weight="1"
-									data-form-style-label-font-size="1"
-									data-form-style-second-font-color="1"
-								>
-									Email</h3>
-								<div class="landing-block-card-contact-text g-font-size-11 g-color-gray-dark-v1">
-									<span style="font-weight: bold;"><a href="mailto:info@company24.com">info@company24.com</a></span>
-								</div>
+							<div class="landing-block-card-contact js-animation fadeIn col-sm-6 g-brd-left g-brd-bottom g-brd-gray-light-v4 g-px-15 g-py-25"
+								 data-card-preset="link">
+								<a href="mailto:#EMAIL1#" class="landing-block-card-linkcontact-link g-text-decoration-none--hover">
+									<span class="landing-block-card-contact-icon-container g-color-primary g-line-height-1 d-inline-block g-font-size-50 g-mb-30">
+										<i class="landing-block-card-linkcontact-icon icon-line icon-envelope-letter"></i>
+									</span>
+									<span class="landing-block-card-linkcontact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 g-color-gray-dark-v5 mb-0">
+										Email
+									</span>
+									<span class="landing-block-card-linkcontact-text landing-semantic-link-medium g-text-decoration-none g-text-underline--hover g-font-weight-700 g-font-size-11 g-color-gray-dark-v1">
+										#EMAIL1#
+									</span>
+								</a>
 							</div>
 
-							<div class="landing-block-card-contact js-animation fadeIn col-sm-6 g-brd-left g-brd-bottom g-brd-gray-light-v4 g-px-15 g-py-25">
-							<span class="landing-block-card-contact-icon-container g-color-primary">
-								<i class="landing-block-card-contact-icon icon-earphones-alt d-inline-block g-font-size-50 g-color-primary g-mb-30"></i>
-								</span>
-								<h3 class="landing-block-card-contact-title text-uppercase g-font-size-11 g-color-gray-dark-v5 mb-0"
-									data-form-style-label-font-weight="1"
-									data-form-style-label-font-size="1"
-									data-form-style-second-font-color="1"
-								>
-									Toll free</h3>
-								<div class="landing-block-card-contact-text g-font-size-11 g-color-gray-dark-v1">
-									<span style="font-weight: bold;"><a href="tel:+4025897660">+402 5897 660</a></span>
-								</div>
+							<div class="landing-block-card-contact js-animation fadeIn col-sm-6 g-brd-left g-brd-bottom g-brd-gray-light-v4 g-px-15 g-py-25"
+								 data-card-preset="link">
+								<a href="tel:#PHONE2#" class="landing-block-card-linkcontact-link g-text-decoration-none--hover">
+									<span class="landing-block-card-contact-icon-container g-color-primary g-line-height-1 d-inline-block g-font-size-50 g-mb-30">
+										<i class="landing-block-card-linkcontact-icon icon-earphones-alt"></i>
+									</span>
+									<span class="landing-block-card-linkcontact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 g-color-gray-dark-v5 mb-0">
+										Toll free
+									</span>
+									<span class="landing-block-card-linkcontact-text landing-semantic-link-medium g-text-decoration-none g-text-underline--hover g-font-weight-700 g-font-size-11 g-color-gray-dark-v1">
+										#PHONE2#
+									</span>
+								</a>
 							</div>
 						</div>
 					</div>
@@ -1428,7 +1411,12 @@ return array(
 			</div>
 
 			<div class="col-md-6">
-				<div class="bitrix24forms g-brd-white-opacity-0_6 u-form-alert-v4" data-b24form="" data-b24form-use-style="Y" data-b24form-show-header="N" data-b24form-original-domain=""></div>
+				<div class="bitrix24forms g-brd-white-opacity-0_6 u-form-alert-v4"
+					data-b24form-use-style="Y"
+					data-b24form-embed
+					data-b24form-design=\'{"dark":false,"style":"classic","shadow":false,"compact":false,"color":{"primary":"--primary","primaryText":"#fff","text":"#000","background":"#ffffff00","fieldBorder":"#fff","fieldBackground":"#f7f7f7","fieldFocusBackground":"#eee"},"border":{"top":false,"bottom":false,"left":false,"right":false}}\'
+				>
+				</div>
 			</div>
 		</div>
 	</div>

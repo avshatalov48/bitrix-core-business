@@ -937,7 +937,6 @@ class Field
 		$urlTemplate = \CList::getUrlByIblockId($field['LINK_IBLOCK_ID']);
 		if(!$urlTemplate && !empty($field["LIST_ELEMENT_URL"]))
 			$urlTemplate = $field["LIST_ELEMENT_URL"];
-		$filter['ACTIVE'] = 'Y';
 		$filter['CHECK_PERMISSIONS'] = 'Y';
 		if ($field['LINK_IBLOCK_ID'] > 0)
 			$filter['IBLOCK_ID'] = $field['LINK_IBLOCK_ID'];

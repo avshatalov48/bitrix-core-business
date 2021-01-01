@@ -110,7 +110,7 @@ CModule::AddAutoloadClasses(
 	)
 );
 
-$jsCoreRel = array('resize_observer', 'im_common', 'im_phone_call_view', 'im.lib.localstorage', 'clipboard', 'sidepanel', 'loader', 'ui.notification', 'ui.alerts', 'ui.vue', 'ui.buttons');
+$jsCoreRel = array('resize_observer', 'im_common', 'im_phone_call_view', 'im.lib.localstorage', 'clipboard', 'sidepanel', 'loader', 'ui.notification', 'ui.alerts', 'ui.vue', 'ui.buttons', 'ui.switcher', 'ui.hint');
 $jsCoreRelMobile = array('im_common', 'uploader', 'mobile.pull.client');
 if (IsModuleInstalled('voximplant'))
 {
@@ -158,6 +158,7 @@ $jsImCall = [
 	'/bitrix/js/im/call/notification_conference.js',
 	'/bitrix/js/im/call/invite_popup.js',
 	'/bitrix/js/im/call/floating_video.js',
+	'/bitrix/js/im/call/floating_screenshare.js',
 	'/bitrix/js/im/call/logger.js',
 	'/bitrix/js/im/call/video_strategy.js',
 ];
@@ -247,7 +248,7 @@ CJSCore::RegisterExt('im_window', array(
 	'js' => '/bitrix/js/im/window.js',
 	'css' => '/bitrix/js/im/css/window.css',
 	'lang' => '/bitrix/modules/im/js_window.php',
-	'rel' => Array('popup', 'fx', 'json', 'translit'),
+	'rel' => Array('popup', 'fx', 'json', 'translit', 'im.component.conference.conference-create', 'ui.alerts'),
 ));
 
 CJSCore::RegisterExt('im_desktop', array(
@@ -261,7 +262,7 @@ CJSCore::RegisterExt('im_timecontrol', array(
 	'rel' => array('timecontrol'),
 ));
 
-$imCallRel = ['loader', 'resize_observer', 'webrtc_adapter', 'im.lib.localstorage'];
+$imCallRel = ['loader', 'resize_observer', 'webrtc_adapter', 'im.lib.localstorage', 'ui.hint'];
 if(Loader::includeModule('voximplant'))
 {
 	$imCallRel[] = 'voximplant';

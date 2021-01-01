@@ -1,0 +1,20 @@
+.landing-ui-field-order-wrapper {
+	display: flex;
+}
+
+.landing-ui-field-order-wrapper .landing-ui-field-dropdown {
+	flex-grow: 1;
+	margin-right: 10px;
+}
+
+.landing-ui-field-order-wrapper .landing-ui-field-dropdown .landing-ui-field-header {
+	display: none;
+}
+
+.landing-ui-field-order-wrapper .landing-ui-field-dropdown::after {
+	top: 50%;
+}
+
+.landing-ui-field-order-wrapper .ui-btn {
+	max-height: 38px;
+}

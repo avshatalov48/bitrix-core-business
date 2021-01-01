@@ -89,8 +89,8 @@ if ($arParams["SHOW_AUTH_FORM"] == "Y"):
 	if ($USER->isAuthorized())
 	{
 	?><a href="<?
-		?><?=htmlspecialcharsbx($APPLICATION->GetCurPageParam("logout=yes",
-		array("login", "logout", "register", "forgot_password", "change_password", BX_AJAX_PARAM_ID, "forum_auth")))?><?
+		?><?=htmlspecialcharsbx($APPLICATION->GetCurPageParam("logout=yes&".bitrix_sessid_get(),
+		array("login", "logout", "register", "forgot_password", "change_password", BX_AJAX_PARAM_ID, "forum_auth", "sessid")))?><?
 		?>" rel="nofollow"><span><?=GetMessage("AUTH_LOGOUT_BUTTON")?></span></a>
 		<?
 	}

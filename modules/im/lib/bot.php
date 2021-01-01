@@ -765,6 +765,30 @@ class Bot
 		return true;
 	}
 
+	/**
+	 * @param array $bot <pre>[
+	 * 	(int) BOT_ID
+	 * 	(string) MODULE_ID
+	 * 	(string) APP_ID
+	 * ]</pre>
+	 * @param array $messageFields <pre>[
+	 * 	(int) MESSAGE_ID
+	 * 	(int) FROM_USER_ID
+	 * 	(int) TO_USER_ID
+	 * 	(string|int) DIALOG_ID
+	 * 	(array) PARAMS
+	 * 	(array) ATTACH
+	 * 	(array) KEYBOARD
+	 * 	(array) MENU
+	 * 	(string) MESSAGE
+	 * 	(string) URL_PREVIEW - Y|N
+	 * 	(string) SYSTEM - Y|N
+	 * 	(string) SKIP_CONNECTOR - Y|N
+	 * 	(string) EDIT_FLAG - Y|N
+	 * ]</pre>
+	 *
+	 * @return bool
+	 */
 	public static function addMessage(array $bot, array $messageFields)
 	{
 		$botId = $bot['BOT_ID'];
@@ -894,6 +918,25 @@ class Bot
 		return $id;
 	}
 
+	/**
+	 * @param array $bot <pre>[
+	 * 	(int) BOT_ID
+	 * 	(string) MODULE_ID
+	 * 	(string) APP_ID
+	 * ]</pre>
+	 * @param array $messageFields <pre>[
+	 * 	(int) MESSAGE_ID
+	 * 	(array) ATTACH
+	 * 	(array) KEYBOARD
+	 * 	(array) MENU
+	 * 	(string) MESSAGE
+	 * 	(string) URL_PREVIEW - Y|N
+	 * 	(string) SKIP_CONNECTOR - Y|N
+	 * 	(string) EDIT_FLAG - Y|N
+	 * ]</pre>
+	 *
+	 * @return bool
+	 */
 	public static function updateMessage(array $bot, array $messageFields)
 	{
 		$botId = $bot['BOT_ID'];

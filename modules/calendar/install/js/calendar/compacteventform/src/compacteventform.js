@@ -74,19 +74,26 @@ export class CompactEventForm extends EventEmitter
 
 		Event.bind(this.popup.popupContainer, 'transitionend', ()=>{Dom.removeClass(this.popup.popupContainer, 'calendar-simple-view-popup-show');});
 
-		this.setFormValues();
+		this.prepareData()
+			.then(()=>{
+				this.setFormValues();
 
-		this.popup.show();
+				this.popup.show();
 
-		this.checkDataBeforeCloseMode = true;
-		if (this.canDo('edit') && this.DOM.titleInput && mode === CompactEventForm.EDIT_MODE)
-		{
-			this.DOM.titleInput.focus();
-			this.DOM.titleInput.select();
-		}
+				this.checkDataBeforeCloseMode = true;
+				if (this.canDo('edit') && this.DOM.titleInput && mode === CompactEventForm.EDIT_MODE)
+				{
+					this.DOM.titleInput.focus();
+					this.DOM.titleInput.select();
+				}
 
-		//this.emit('onShow');
-		this.displayed = true;
+				this.displayed = true;
+
+				if (this.getMode() === CompactEventForm.VIEW_MODE)
+				{
+					Util.sendAnalyticLabel({calendarAction: 'view_event', formType: 'compact'});
+				}
+			});
 	}
 
 	getPopup(params)
@@ -185,11 +192,8 @@ export class CompactEventForm extends EventEmitter
 					${this.createRemindersControl()}
 				</div>`}
 				${this.getRRuleInfoControl()}
-				${this.getTimezoneInfoControl()}
 			</div>
 		</div>`;
-
-		//this.DOM.loader = this.DOM.wrap.appendChild(Util.getLoader(50));
 
 		return this.DOM.wrap;
 	}
@@ -478,7 +482,6 @@ export class CompactEventForm extends EventEmitter
 		{
 			this.setMode(CompactEventForm.EDIT_MODE);
 			this.popup.setButtons(this.getButtons());
-			//this.updateSetMeetingButtons();
 		}
 		else if (!this.isNewEntry()
 			&& this.getMode() === CompactEventForm.EDIT_MODE
@@ -486,7 +489,6 @@ export class CompactEventForm extends EventEmitter
 		{
 			this.setMode(CompactEventForm.VIEW_MODE);
 			this.popup.setButtons(this.getButtons());
-			//this.updateSetMeetingButtons();
 		}
 		this.emitOnChange();
 	}
@@ -624,16 +626,41 @@ export class CompactEventForm extends EventEmitter
 
 		if (Type.isArray(sections))
 		{
-			sections.forEach((value, ind) => {this.sectionIndex[parseInt(value.ID || value.id)] = ind;}, this);
+			sections.forEach((value, ind) => {
+				const id = parseInt(value.ID || value.id);
+				if (id > 0)
+				{
+					this.sectionIndex[id] = ind;
+				}
+			}, this);
 		}
 	}
 
 	prepareData(params = {})
 	{
 		return new Promise((resolve) => {
-				setTimeout(() => {
-					resolve();
-				}, 0);
+			const section = this.getCurrentSection();
+			if (section && section.canDo)
+			{
+				resolve();
+			}
+			else
+			{
+				this.BX.ajax.runAction('calendar.api.calendarajax.getCompactFormData', {
+					data: {
+						entryId: this.entry.id,
+						loadSectionId: this.entry.sectionId
+					}
+				}).then((response) => {
+					if (response && response.data && response.data.section)
+					{
+						// todo: refactor this part to new Section entities
+						this.sections.push(new window.BXEventCalendar.Section(Util.getCalendarContext(), response.data.section));
+						this.setSections(this.sections);
+						resolve();
+					}
+				});
+			}
 		});
 	}
 
@@ -719,12 +746,11 @@ export class CompactEventForm extends EventEmitter
 			selectCallback: (sectionValue) => {
 				if (sectionValue)
 				{
-					if (this.colorSelector )
+					if (this.colorSelector)
 					{
 						this.colorSelector.setValue(sectionValue.color);
 					}
 					this.sectionValue = sectionValue.id;
-					//this.entry.setSectionId(sectionValue.id);
 					this.checkForChanges();
 				}
 			}
@@ -979,8 +1005,8 @@ export class CompactEventForm extends EventEmitter
 
 		// Date time
 		this.dateTimeControl.setValue({
-			from: new Date(entry.from.getTime() - (parseInt(entry.data['~USER_OFFSET_FROM']) || 0) * 1000),
-			to: new Date(entry.to.getTime() - (parseInt(entry.data['~USER_OFFSET_TO']) || 0) * 1000),
+			from: Util.adjustDateForTimezoneOffset(entry.from, entry.userTimezoneOffsetFrom, entry.fullDay),
+			to: Util.adjustDateForTimezoneOffset(entry.to, entry.userTimezoneOffsetTo, entry.fullDay),
 			fullDay: entry.fullDay,
 			timezoneFrom: entry.getTimezoneFrom() || '',
 			timezoneTo: entry.getTimezoneTo() || '',
@@ -1032,18 +1058,13 @@ export class CompactEventForm extends EventEmitter
 		}
 
 		// Timezone
-		const timezoneName = this.mode === 'view'
-			? this.userSettings.timezoneName
-			: entry.getTimezoneFrom()
-		;
-
-		if (Type.isStringFilled(entry.getTimezoneFrom())
-			&& entry.getTimezoneFrom() !== this.userSettings.timezoneName
-			&& !this.isNewEntry())
-		{
-			this.DOM.timezoneInfoWrap.style = '';
-			Dom.adjust(this.DOM.timezoneInfo, {text: timezoneName});
-		}
+		// if (Type.isStringFilled(entry.getTimezoneFrom())
+		// 	&& entry.getTimezoneFrom() !== this.userSettings.timezoneName
+		// 	&& !this.isNewEntry())
+		// {
+		// 	this.DOM.timezoneInfoWrap.style = '';
+		// 	Dom.adjust(this.DOM.timezoneInfo, {text: entry.getTimezoneFrom()});
+		// }
 
 		// Location
 		let location = entry.getLocation();
@@ -1169,8 +1190,8 @@ export class CompactEventForm extends EventEmitter
 			date_from: dateTime.fromDate,
 			date_to: dateTime.toDate,
 			skip_time: dateTime.fullDay ? 'Y' : 'N',
-			time_from: dateTime.fromTime,
-			time_to: dateTime.toTime,
+			time_from: Util.formatTime(Util.adjustDateForTimezoneOffset(dateTime.from, -entry.userTimezoneOffsetFrom, dateTime.fullDay)),
+			time_to: Util.formatTime(Util.adjustDateForTimezoneOffset(dateTime.to, -entry.userTimezoneOffsetTo, dateTime.fullDay)),
 			location: this.locationSelector.getTextValue(),
 			tz_from: entry.getTimezoneFrom(),
 			tz_to: entry.getTimezoneTo(),
@@ -1199,7 +1220,17 @@ export class CompactEventForm extends EventEmitter
 		this.state = this.STATE.REQUEST;
 
 		this.BX.ajax.runAction('calendar.api.calendarajax.editEntry', {
-			data: data
+				data: data,
+				analyticsLabel: {
+					calendarAction: this.isNewEntry() ? 'create_event' : 'edit_event',
+					formType: 'compact',
+					emailGuests: this.userPlannerSelector.hasExternalEmailUsers() ? 'Y' : 'N',
+					markView: Util.getCurrentView() || 'outside',
+					markCrm: 'N',
+					markRrule: 'NONE',
+					markMeeting: this.entry.isMeeting() ? 'Y' : 'N',
+					markType: this.type
+				}
 		})
 			.then((response) => {
 				// Dom.removeClass(this.DOM.saveBtn, this.BX.UI.Button.State.CLOCKING);
@@ -1376,7 +1407,6 @@ export class CompactEventForm extends EventEmitter
 	editEntryInSlider()
 	{
 		this.checkDataBeforeCloseMode = false;
-
 		const dateTime = this.dateTimeControl.getValue();
 		BX.Calendar.EntryManager.openEditSlider({
 			entry: this.entry,
@@ -1388,8 +1418,8 @@ export class CompactEventForm extends EventEmitter
 				name: this.DOM.titleInput.value,
 				reminder: this.remindersControl.getSelectedRawValues(),
 				color: this.colorSelector.getValue(),
-				from: dateTime.from,
-				to: dateTime.to,
+				from: Util.adjustDateForTimezoneOffset(dateTime.from, -this.entry.userTimezoneOffsetFrom, dateTime.fullDay),
+				to: Util.adjustDateForTimezoneOffset(dateTime.to, -this.entry.userTimezoneOffsetTo, dateTime.fullDay),
 				fullDay: dateTime.fullDay,
 				location: this.locationSelector.getTextValue(),
 				meetingNotify: this.userPlannerSelector.getInformValue() ? 'Y' : 'N',

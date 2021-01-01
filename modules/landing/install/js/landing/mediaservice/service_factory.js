@@ -24,7 +24,7 @@
 			// googleMapsPlace: "BX.Landing.MediaService.GoogleMapsPlace",
 			facebookVideos: "BX.Landing.MediaService.FacebookVideos",
 			facebookPosts: "BX.Landing.MediaService.FacebookPosts",
-			facebookPages: "BX.Landing.MediaService.FacebookPages"
+			// facebookPages: "BX.Landing.MediaService.FacebookPages"
 		},
 
 

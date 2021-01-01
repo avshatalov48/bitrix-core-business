@@ -6,9 +6,11 @@ BX.UI.InfoHelper =
 	frameNode : null,
 	popupLoader : null,
 	frameUrl: "",
+	inited: false,
 
 	init : function(params)
 	{
+		this.inited = true;
 		this.frameUrlTemplate = params.frameUrlTemplate || '';
 
 		BX.bind(window, 'message', BX.proxy(function(event)
@@ -168,5 +170,10 @@ BX.UI.InfoHelper =
 	isOpen: function()
 	{
 		return this.getSlider() && this.getSlider().isOpen();
-	}
+	},
+
+	isInited: function ()
+	{
+		return this.inited;
+	},
 };

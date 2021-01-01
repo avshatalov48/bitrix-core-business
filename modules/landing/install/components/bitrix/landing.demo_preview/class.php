@@ -59,7 +59,7 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 					// for first load preview
 					$code = $this->arResult['SITE_GROUP'][0]['code'] . '/' . $this->arResult['SITE_GROUP'][0]['page'];
 				}
-				
+
 				if ($demo[$code]['REST'] > 0)
 				{
 					$demo[$code]['DATA'] = $this->getTemplateManifest(
@@ -108,7 +108,7 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 						\Bitrix\Landing\Hook::setEditMode();
 						$hooks = $classFull::getHooks($this->arParams['SITE_ID']);
 					}
-					
+
 					if (isset($hooks['THEME']) && isset($hooks['THEME']->getPageFields()['THEME_CODE']))
 					{
 						$this->arResult['THEME_SITE'] = $hooks['THEME']->getPageFields()['THEME_CODE']->getValue();
@@ -116,6 +116,12 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 					else
 					{
 						$this->arResult['THEME_SITE'] = $this->arResult['THEME_CURRENT'];
+					}
+
+					$this->arResult['THEME_COLOR'] = '#34bcf2';
+					if (isset($hooks['THEME']) && isset($hooks['THEME']->getPageFields()['THEME_COLOR']))
+					{
+						$this->arResult['THEME_COLOR'] = $hooks['THEME']->getPageFields()['THEME_COLOR']->getValue();
 					}
 
 					$this->checkColorExists($this->arResult['THEME_SITE']);
@@ -135,7 +141,7 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 						$this->arResult['THEME_CURRENT'] = $this->arResult['TEMPLATE']['DATA']['fields']['ADDITIONAL_FIELDS']['THEME_CODE'];
 					}
 				}
-				
+
 				$this->checkColorExists($this->arResult['THEME_CURRENT']);
 				$this->addColorToPallete($this->arResult['THEME_CURRENT']);
 
@@ -231,7 +237,7 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 			$this->arResult['COLORS'][$color]['base'] = true;
 		}
 	}
-	
+
 	/**
 	 * If try to using unknown color - set default from pallete
 	 * @param $color

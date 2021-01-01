@@ -33,12 +33,12 @@ export default class TouchSensor extends Sensor
 
 	enable()
 	{
-		document.addEventListener('touchstart', this.onTouchStart);
+		this.getDocument().addEventListener('touchstart', this.onTouchStart);
 	}
 
 	disable()
 	{
-		document.removeEventListener('touchstart', this.onTouchStart);
+		this.getDocument().removeEventListener('touchstart', this.onTouchStart);
 	}
 
 	isTouchMoved(): boolean
@@ -60,26 +60,26 @@ export default class TouchSensor extends Sensor
 
 	startPreventContextMenu()
 	{
-		document.addEventListener('contextmenu', this.preventDefaultEventAction, true);
+		this.getDocument().addEventListener('contextmenu', this.preventDefaultEventAction, true);
 	}
 
 	stopPreventContextMenu()
 	{
-		document.removeEventListener('contextmenu', this.preventDefaultEventAction, true);
+		this.getDocument().removeEventListener('contextmenu', this.preventDefaultEventAction, true);
 	}
 
 	startHandleTouchEvents()
 	{
-		document.addEventListener('touchmove', this.onTouchMove);
-		document.addEventListener('touchend', this.onTouchEnd);
-		document.addEventListener('touchcancel', this.onTouchEnd);
+		this.getDocument().addEventListener('touchmove', this.onTouchMove);
+		this.getDocument().addEventListener('touchend', this.onTouchEnd);
+		this.getDocument().addEventListener('touchcancel', this.onTouchEnd);
 	}
 
 	stopHandleTouchEvents()
 	{
-		document.removeEventListener('touchmove', this.onTouchMove);
-		document.removeEventListener('touchend', this.onTouchEnd);
-		document.removeEventListener('touchcancel', this.onTouchEnd);
+		this.getDocument().removeEventListener('touchmove', this.onTouchMove);
+		this.getDocument().removeEventListener('touchend', this.onTouchEnd);
+		this.getDocument().removeEventListener('touchcancel', this.onTouchEnd);
 	}
 
 	onTouchStart(event)

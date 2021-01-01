@@ -26,6 +26,7 @@ class UrlPreview
 		'vimeo.com' => 'vimeo.com',
 		'rutube.ru' => 'rutube.ru',
 		'facebook.com' => 'facebook.com',
+		'fb.watch' => 'fb.watch',
 		'vk.com' => 'vk.com',
 		'instagram.com' => 'instagram.com',
 	];

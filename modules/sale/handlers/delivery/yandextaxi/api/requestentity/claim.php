@@ -73,7 +73,7 @@ final class Claim extends RequestEntity
 	protected $updatedTs;
 
 	/** @var string */
-	private $referralSource;
+	protected $referralSource;
 
 	/**
 	 * @return Contact

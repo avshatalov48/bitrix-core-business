@@ -2346,7 +2346,7 @@ class CIMChat
 						unset($arUserId[$id]);
 				}
 
-				if (count($arUserId) == 2)
+				if (count($arUserId) <= 1)
 				{
 					$GLOBALS["APPLICATION"]->ThrowException(GetMessage("IM_ERROR_MIN_USER_BY_PRIVACY"), "MIN_USER_BY_PRIVACY");
 					return false;
@@ -2374,7 +2374,7 @@ class CIMChat
 			CGlobalCounter::Increment('im_videoconf_count', CGlobalCounter::ALL_SITES, false);
 			$videoconfCount = CGlobalCounter::GetValue('im_videoconf_count', CGlobalCounter::ALL_SITES);
 
-			if ($videoconfCount === 99)
+			if ($videoconfCount === 999)
 			{
 				CGlobalCounter::Set('im_videoconf_count', 1, CGlobalCounter::ALL_SITES, '', false);
 			}
@@ -2404,10 +2404,8 @@ class CIMChat
 		{
 			if ($entityType === 'VIDEOCONF')
 			{
-				$dateCreated = date('d.m.Y');
-				$chatTitle = GetMessage('IM_VIDEOCONF_NAME_FORMAT', [
-					'#NUMBER#' => $videoconfCount,
-					'#DATE_CREATE#' => $dateCreated
+				$chatTitle = GetMessage('IM_VIDEOCONF_NAME_FORMAT_NEW', [
+					'#NUMBER#' => $videoconfCount
 				]);
 			}
 			else if (IM\Color::isEnabled())
@@ -2519,13 +2517,28 @@ class CIMChat
 				));
 			}
 
-			$aliasData = null;
 			if ($entityType === 'VIDEOCONF')
 			{
-				$aliasData = IM\Alias::addUnique([
-					"ENTITY_TYPE" => IM\Alias::ENTITY_TYPE_VIDEOCONF,
-					"ENTITY_ID" => $chatId
+				$aliasData = $arParams['VIDEOCONF']['ALIAS_DATA'];
+				IM\Model\AliasTable::update($aliasData['ID'], [
+					'ENTITY_ID' => $chatId
 				]);
+
+				$conferenceData = [
+					'ALIAS_ID' => $aliasData['ID']
+				];
+
+				if (isset($arParams['VIDEOCONF']['PASSWORD']))
+				{
+					$conferenceData['PASSWORD'] = $arParams['VIDEOCONF']['PASSWORD'];
+				}
+
+				if (isset($arParams['VIDEOCONF']['INVITATION']))
+				{
+					$conferenceData['INVITATION'] = $arParams['VIDEOCONF']['INVITATION'];
+				}
+
+				IM\Model\ConferenceTable::add($conferenceData);
 
 				$attach = new CIMMessageParamAttach(null, Bitrix\Im\Color::getColor($chatColorCode));
 				$attach->AddLink([
@@ -2534,12 +2547,25 @@ class CIMChat
 					"LINK" => $aliasData['LINK']
 				]);
 
+				$keyboard = new \Bitrix\Im\Bot\Keyboard();
+				$keyboard->addButton(
+					[
+						"TEXT" => GetMessage("IM_VIDEOCONF_COPY_LINK"),
+						"ACTION" => "COPY",
+						"ACTION_VALUE" => $aliasData['LINK'],
+						"DISPLAY" => "LINE",
+						"BG_COLOR" => "#A4C31E",
+						"TEXT_COLOR" => "#FFF"
+					]
+				);
+
 				self::AddMessage([
 					"TO_CHAT_ID" => $chatId,
 					"SYSTEM" => 'Y',
 					"FROM_USER_ID" => $this->user_id,
 					"MESSAGE" => GetMessage("IM_VIDEOCONF_LINK_TITLE"),
-					"ATTACH" => $attach
+					"ATTACH" => $attach,
+					"KEYBOARD" => $keyboard
 				]);
 			}
 
@@ -2882,8 +2908,6 @@ class CIMChat
 			$arUserSelect[] = $this->user_id;
 		}
 
-		$newUsersCount = count($arExistUser) + count($arUserId);
-
 		if ($chatEntityType === 'VIDEOCONF')
 		{
 			if (\Bitrix\Im\Call\Call::isCallServerEnabled())
@@ -2895,17 +2919,36 @@ class CIMChat
 				$callUserLimit = \Bitrix\Main\Config\Option::get('im', 'turn_server_max_users');
 			}
 
-			if ($newUsersCount > $callUserLimit)
+			$currentUsersCount = $this->getChatActiveUserCount($chatId);
+			$potentialUsersCount = $currentUsersCount + count($arUserId);
+			if ($potentialUsersCount > $callUserLimit)
 			{
 				$GLOBALS["APPLICATION"]->ThrowException(GetMessage("IM_ERROR_VIDEOCONF_MAX_USER", ['#COUNT#' => $callUserLimit]), "VIDEOCONF_MAX_USER");
 				return false;
 			}
-		}
 
-		IM\Model\ChatTable::update(
-			$chatId,
-			['USER_COUNT' => $newUsersCount]
-		);
+			$wasUserBlocked = IM\Model\BlockUserTable::getList(
+				[
+					'select' => ['ID'],
+					'filter' => [
+						'=CHAT_ID' => $chatId,
+						'@USER_ID' => new Bitrix\Main\DB\SqlExpression(implode(', ', $arUserId))
+					]
+				]
+			)->fetchAll();
+
+			if (count($wasUserBlocked) === 1)
+			{
+				IM\Model\BlockUserTable::delete($wasUserBlocked[0]['ID']);
+			}
+			else if (count($wasUserBlocked) > 1)
+			{
+				foreach ($wasUserBlocked as $blockedUser)
+				{
+					IM\Model\BlockUserTable::delete($blockedUser['ID']);
+				}
+			}
+		}
 
 		$arUsers = CIMContactList::GetUserData(array(
 			'ID' => array_values($arUserSelect),
@@ -3063,6 +3106,9 @@ class CIMChat
 			CIMContactList::CleanAllChatCache();
 		}
 
+		$newUsersCount = $this->getChatActiveUserCount($chatId);
+		$this->updateChatUserCount($chatId, $newUsersCount);
+
 		if (CModule::IncludeModule("pull"))
 		{
 			$pushMessage = Array(
@@ -3070,6 +3116,7 @@ class CIMChat
 				'command' => 'chatUserAdd',
 				'params' => Array(
 					'chatId' => $chatId,
+					'dialogId' => 'chat'.$chatId,
 					'chatTitle' => $chatTitle,
 					'chatOwner' => $chatAuthorId,
 					'chatExtranet' => $extranetFlag == 'Y',
@@ -3168,6 +3215,31 @@ class CIMChat
 		return true;
 	}
 
+	private function getChatActiveUserCount($chatId): int
+	{
+		$chatUserCount = IM\Model\RelationTable::getList(
+			[
+				'select' => ['CNT', 'CHAT_ID'],
+				'filter' => [
+					['=CHAT_ID' => $chatId],
+					['=USER.ACTIVE' => 'Y']
+				],
+				'runtime' => [
+					new Bitrix\Main\Entity\ExpressionField('CNT', 'COUNT(*)')
+				]
+			]
+		)->fetch();
+
+		return (int)$chatUserCount['CNT'];
+	}
+
+	private function updateChatUserCount($chatId, $newCount): \Bitrix\Main\ORM\Data\UpdateResult
+	{
+		return IM\Model\ChatTable::update($chatId, [
+			'USER_COUNT' => $newCount
+		]);
+	}
+
 	public function MuteNotify($chatId, $mute = true)
 	{
 		return \Bitrix\Im\Chat::mute($chatId, $mute, $this->user_id);
@@ -3260,17 +3332,15 @@ class CIMChat
 		));
 		$arUsers = $arUsers['users'];
 
-		IM\Model\ChatTable::update($chatId, [
-			'USER_COUNT' => count($arUsers) - 1
-		]);
-
-		IM\Model\BlockUserTable::add(
-			[
-				'CHAT_ID' => $chatId,
-				'USER_ID' => $userId
-			]
-		);
-
+		if ($chatEntityType === 'VIDEOCONF')
+		{
+			IM\Model\BlockUserTable::add(
+				[
+					'CHAT_ID' => $chatId,
+					'USER_ID' => $userId
+				]
+			);
+		}
 
 		$message = '';
 		if ($skipMessage)
@@ -3379,6 +3449,9 @@ class CIMChat
 			CIMContactList::CleanChatCache($userId);
 		}
 
+		$newUsersCount = $this->getChatActiveUserCount($chatId);
+		$this->updateChatUserCount($chatId, $newUsersCount);
+
 		$pushMessage = Array(
 			'module_id' => 'im',
 			'command' => 'chatUserLeave',
@@ -3388,7 +3461,7 @@ class CIMChat
 				'chatTitle' => $chatTitle,
 				'userId' => (int)$userId,
 				'message' => $bSelf? '': htmlspecialcharsbx($message),
-				'userCount' => count($arUsers) - 1
+				'userCount' => $newUsersCount
 			),
 			'extra' => \Bitrix\Im\Common::getPullExtra()
 		);
@@ -3734,5 +3807,14 @@ class CIMChat
 		\Bitrix\Im\Model\ChatTable::indexRecord($chatId);
 
 		return true;
+	}
+
+	public static function getNextConferenceDefaultTitle()
+	{
+		$counter = CGlobalCounter::GetValue('im_videoconf_count', CGlobalCounter::ALL_SITES) + 1;
+
+		return GetMessage('IM_VIDEOCONF_NAME_FORMAT_NEW', [
+			'#NUMBER#' => $counter
+		]);
 	}
 }

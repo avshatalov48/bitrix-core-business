@@ -180,7 +180,7 @@ this.BX = this.BX || {};
 	      var imageEditor = BX.Main.ImageEditor.getInstance();
 	      var preparedOptions = buildOptions(options);
 	      return imageEditor.edit(preparedOptions).then(function (file) {
-	        file.name = getFilename(options.image);
+	        file.name = decodeURIComponent(getFilename(options.image));
 	        return file;
 	      });
 	    }

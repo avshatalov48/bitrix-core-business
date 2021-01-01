@@ -86,7 +86,7 @@
 	transition: transform 0.2s ease-out;
 	transition: transform 0.2s ease-out, -webkit-transform 0.2s ease-out;
 	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2214%22%20height%3D%2214%22%20viewBox%3D%220%200%2014%2014%22%3E%0A%20%20%3Cpath%20fill%3D%22%23FFFFFF%22%20fill-rule%3D%22evenodd%22%20d%3D%22M16.093021%2C13.906979%20L22.6511473%2C13.906979%20L22.6511473%2C16.093021%20L16.093021%2C16.093021%20L16.093021%2C22.6511473%20L13.906979%2C22.6511473%20L13.906979%2C16.093021%20L7.34885266%2C16.093021%20L7.34885266%2C13.906979%20L13.906979%2C13.906979%20L13.906979%2C7.34885266%20L16.093021%2C7.34885266%20L16.093021%2C13.906979%20Z%22%20transform%3D%22rotate%2845%2020.657%201.343%29%22/%3E%0A%3C/svg%3E%0A');
-	cursor: default;
+	cursor: pointer;
 }
 
 .ui-file-progressbar-cloud {

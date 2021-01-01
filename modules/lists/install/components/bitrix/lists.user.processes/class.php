@@ -187,7 +187,7 @@ class ListsSelectElementComponent extends CBitrixComponent
 
 		$filter['CREATED_BY'] = $this->arParams['USER_ID'];
 		$iblockTypeId = COption::GetOptionString("lists", "livefeed_iblock_type_id");
-		$filter['IBLOCK_TYPE'] = $iblockTypeId;
+		$filter['=IBLOCK_TYPE'] = $iblockTypeId;
 		$filter['CHECK_PERMISSIONS'] = ($this->arParams['LIST_PERM'] >= CListPermissions::CAN_READ ? "N": "Y");
 		$elementObject = CIBlockElement::getList(
 			$gridSort['sort'],
@@ -218,7 +218,7 @@ class ListsSelectElementComponent extends CBitrixComponent
 					$this->arResult['DATA'][$documentState['ID']]['DOCUMENT_STATE'] = true;
 					$this->arResult['DATA'][$documentState['ID']]['WORKFLOW_ID'] = $documentState['ID'];
 					$this->arResult['DATA'][$documentState['ID']]["WORKFLOW_NAME"] = $documentState["TEMPLATE_NAME"];
-					$this->arResult['DATA'][$documentState['ID']]["WORKFLOW_STATE"] = $documentState["STATE_TITLE"];
+					$this->arResult['DATA'][$documentState['ID']]["WORKFLOW_STATE"] = htmlspecialcharsbx($documentState["STATE_TITLE"]);
 					$this->arResult['DATA'][$documentState['ID']]["WORKFLOW_STARTED"] = FormatDateFromDB($documentState["STARTED_FORMATTED"]);
 					$this->arResult['DATA'][$documentState['ID']]["WORKFLOW_STARTED_BY"] = "";
 					if (intval($documentState["STARTED_BY"]) > 0)

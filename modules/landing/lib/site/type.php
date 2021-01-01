@@ -17,6 +17,11 @@ class Type
 	const SCOPE_CODE_KNOWLEDGE = 'KNOWLEDGE';
 
 	/**
+	 * Pseudo scope for crm forms.
+	 */
+	const PSEUDO_SCOPE_CODE_FORMS = 'crm_forms';
+
+	/**
 	 * Current scope class name.
 	 * @var Scope
 	 */

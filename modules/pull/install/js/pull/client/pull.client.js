@@ -11,7 +11,7 @@
 
 	/****************** ATTENTION *******************************
 	 * Please do not use Bitrix CoreJS in this class.
-	 * This class can be called on page without Bitrix Framework
+	 * This class can be called on a page without Bitrix Framework
 	*************************************************************/
 
 	if (!window.BX)
@@ -35,6 +35,7 @@
 	var RESTORE_WEBSOCKET_TIMEOUT = 30 * 60;
 	var CONFIG_TTL = 24 * 60 * 60;
 	var CONFIG_CHECK_INTERVAL = 60000;
+	var MAX_IDS_TO_STORE = 10;
 
 	var LS_SESSION = "bx-pull-session";
 	var LS_SESSION_CACHE_TIME = 20;
@@ -174,6 +175,7 @@
 			tag : null,
 			time : null,
 			history: {},
+			lastMessageIds: [],
 			messageCount: 0
 		};
 
@@ -632,7 +634,6 @@
 			return false;
 		}
 
-		var messages = [];
 		var userIds = {};
 		for(var i = 0; i < messageBatch.length; i++)
 		{
@@ -644,33 +645,37 @@
 
 		this.channelManager.getPublicIds(Object.keys(userIds)).then(function(publicIds)
 		{
-			messageBatch.forEach(function(messageFields)
-			{
-				var messageBody = {
-					module_id: messageFields.moduleId,
-					command: messageFields.command,
-					params: messageFields.params
-				};
-				var message = IncomingMessage.create({
-					receivers: this.createMessageReceivers(messageFields.users, publicIds),
-					body: JSON.stringify(messageBody),
-					expiry: messageFields.expiry || 0
-				});
-				messages.push(message);
-			}, this);
-
-			var requestBatch = RequestBatch.create({
-				requests: [{
-					incomingMessages: {
-						messages: messages
-					}
-				}]
-			});
-
-			var buffer = RequestBatch.encode(requestBatch).finish();
-			return this.connector.send(buffer);
-
+			return this.connector.send(this.encodeMessageBatch(messageBatch, publicIds));
 		}.bind(this))
+	};
+
+	Pull.prototype.encodeMessageBatch = function(messageBatch, publicIds)
+	{
+		var messages = [];
+		messageBatch.forEach(function(messageFields)
+		{
+			var messageBody = {
+				module_id: messageFields.moduleId,
+				command: messageFields.command,
+				params: messageFields.params
+			};
+			var message = IncomingMessage.create({
+				receivers: this.createMessageReceivers(messageFields.users, publicIds),
+				body: JSON.stringify(messageBody),
+				expiry: messageFields.expiry || 0
+			});
+			messages.push(message);
+		}, this);
+
+		var requestBatch = RequestBatch.create({
+			requests: [{
+				incomingMessages: {
+					messages: messages
+				}
+			}]
+		});
+
+		return RequestBatch.encode(requestBatch).finish();
 	};
 
 	Pull.prototype.createMessageReceivers = function(users, publicIds)
@@ -1051,8 +1056,6 @@
 
 	Pull.prototype.parseResponse = function (response)
 	{
-		var text;
-
 		var events = this.extractMessages(response);
 		var messages = [];
 		if (events.length === 0)
@@ -1064,11 +1067,19 @@
 		for (var i = 0; i < events.length; i++)
 		{
 			var event = events[i];
+			if (event.mid && this.session.lastMessageIds.includes(event.mid))
+			{
+				console.warn("Duplicate message " + event.mid + " skipped");
+				continue;
+			}
 
 			this.session.mid = event.mid || null;
 			this.session.tag = event.tag || null;
 			this.session.time = event.time || null;
-
+			if (event.mid)
+			{
+				this.session.lastMessageIds.push(event.mid);
+			}
 			messages.push(event.text);
 
 			if (!this.session.history[event.text.module_id])
@@ -1083,6 +1094,10 @@
 			this.session.messageCount++;
 		}
 
+		if (this.session.lastMessageIds.length > MAX_IDS_TO_STORE)
+		{
+			this.session.lastMessageIds = this.session.lastMessageIds.slice( - MAX_IDS_TO_STORE);
+		}
 		this.broadcastMessages(messages);
 	};
 

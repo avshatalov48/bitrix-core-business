@@ -477,36 +477,6 @@ export class Reminder extends EventEmitter
 		}
 	}
 
-	static showCustomInputCalendar(e, input)
-	{
-		if (!Type.isDomNode(input) && e)
-		{
-			input = e.target || e.srcElement;
-		}
-
-		if (Type.isDomNode(input) && input.nodeName.toLowerCase() === 'input')
-		{
-			BX.calendar({
-				node: input.parentNode,
-				value: Util.formatDateTime(Util.getUsableDateTime(new Date())),
-				field: input,
-				bTime: true,
-				bHideTime: false
-			});
-			BX.onCustomEvent(window, 'onCalendarControlChildPopupShown');
-
-			let calendarPopup = BX.calendar.get().popup;
-			if (calendarPopup)
-			{
-				// Apply hack for calendar z-index
-				calendarPopup.params.zIndex = 4200;
-				calendarPopup.popupContainer.style.zIndex = calendarPopup.params.zIndex;
-				BX.removeCustomEvent(calendarPopup, 'onPopupClose', Reminder.inputCalendarClosePopupHandler);
-				BX.addCustomEvent(calendarPopup, 'onPopupClose', Reminder.inputCalendarClosePopupHandler);
-			}
-		}
-	}
-
 	static inputCalendarClosePopupHandler(e)
 	{
 		BX.onCustomEvent(window, 'onCalendarControlChildPopupClosed');
@@ -591,9 +561,8 @@ export class Reminder extends EventEmitter
 		if (Type.isDomNode(textNode))
 		{
 			Dom.clean(textNode);
-			let input = textNode.appendChild(Tag.render`<input id="inp-${Math.round(Math.random() * 100000)}" type="text" class="calendar-field calendar-field-datetime" value="" autocomplete="off" placeholder="${Loc.getMessage('EC_REMIND1_CUSTOM_PLACEHOLDER')}"/>`);
-
-			let calendarControl = BX.calendar.get();
+			const input = textNode.appendChild(Tag.render`<input id="inp-${Math.round(Math.random() * 100000)}" type="text" class="calendar-field calendar-field-datetime" value="" autocomplete="off" placeholder="${Loc.getMessage('EC_REMIND1_CUSTOM_PLACEHOLDER')}"/>`);
+			const calendarControl = BX.calendar.get();
 
 			// Hacks for BX.calendar - it works as singleton and has troubles with using inside menupopups
 			// We trying to reinitialize it everytime

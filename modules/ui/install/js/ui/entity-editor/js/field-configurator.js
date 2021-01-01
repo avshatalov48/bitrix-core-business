@@ -542,6 +542,13 @@ if (typeof BX.UI.EntityEditorFieldConfigurator === "undefined")
 		}
 
 		params["showAlways"] = this._showAlwaysCheckBox.checked;
+		params['settings'] = (params['settings'] || []);
+
+		if (this._useTimezoneCheckBox)
+		{
+			params['settings']['USE_TIMEZONE'] = (this._useTimezoneCheckBox.checked ? 'Y' : 'N');
+		}
+
 		return params;
 	};
 	BX.UI.EntityEditorFieldConfigurator.prototype.onCancelButtonClick = function(e)

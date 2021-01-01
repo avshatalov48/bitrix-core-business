@@ -3,6 +3,7 @@
 IncludeModuleLangFile(__FILE__);
 
 use Bitrix\Main\Localization\Loc;
+use \Bitrix\Main\Loader;
 
 class CCalendarNotify
 {
@@ -10,7 +11,7 @@ class CCalendarNotify
 
 	public static function Send($params)
 	{
-		if (!\Bitrix\Main\Loader::includeModule("im"))
+		if (!Loader::includeModule("im"))
 			return false;
 
 		$params['rrule'] = CCalendarEvent::GetRRULEDescription($params['fields'], false, false);
@@ -46,9 +47,14 @@ class CCalendarNotify
 			$notifyFields['TO_USER_ID'] = $toUser;
 		}
 
-		$rs = CUser::GetList(($by="id"), ($order="asc"), ["ID_EQUAL_EXACT"=>$toUser, "ACTIVE" => "Y"]);
-		if (!$rs->Fetch())
+		$userOrm = \Bitrix\Main\UserTable::getList([
+			'filter' => ['=ID' => $toUser, 'ACTIVE' => 'Y'],
+			'select' => ['ID']
+		]);
+		if (!$userOrm->fetch())
+		{
 			return false;
+		}
 
 		$eventId = intval($params["eventId"]);
 		$params["pathToCalendar"] = CCalendar::GetPathForCalendarEx($notifyFields['TO_USER_ID']);
@@ -233,6 +239,17 @@ class CCalendarNotify
 					break;
 
 				case 'DATE_FROM':
+					if ($params['fields']['DT_SKIP_TIME'] === 'N')
+					{
+						$userOffset = \CCalendar::GetTimezoneOffset($params['fields']['TZ_FROM'])
+										 - \CCalendar::GetCurrentOffsetUTC($params['guestId']);
+
+						$change['oldValue'] = \CCalendar::Date(\CCalendar::Timestamp($change['oldValue'])
+												   - $userOffset, true, true, true);
+						$change['newValue'] = \CCalendar::Date(\CCalendar::Timestamp($change['newValue'])
+												   - $userOffset, true, true, true);
+					}
+
 					$fields['MESSAGE'] = Loc::getMessage('EC_NOTIFY_DATE_FROM_CHANGED',
 						array(
 							'#TITLE#' => "[url=".$params["pathToEvent"]."]".$params["name"]."[/url]",
@@ -251,6 +268,17 @@ class CCalendarNotify
 					break;
 
 				case 'DATE_TO':
+					if ($params['fields']['DT_SKIP_TIME'] === 'N')
+					{
+						$userOffset = \CCalendar::GetTimezoneOffset($params['fields']['TZ_TO'])
+									  - \CCalendar::GetCurrentOffsetUTC($params['guestId']);
+
+						$change['oldValue'] = \CCalendar::Date(\CCalendar::Timestamp($change['oldValue'])
+															   - $userOffset, true, true, true);
+						$change['newValue'] = \CCalendar::Date(\CCalendar::Timestamp($change['newValue'])
+															   - $userOffset, true, true, true);
+					}
+
 					$fields['MESSAGE'] = Loc::getMessage('EC_NOTIFY_DATE_TO_CHANGED',
 						array(
 							'#TITLE#' => "[url=".$params["pathToEvent"]."]".$params["name"]."[/url]",
@@ -515,7 +543,7 @@ class CCalendarNotify
 
 	public static function NotifyComment($eventId, $params)
 	{
-		if (!\Bitrix\Main\Loader::includeModule("im") || intval($eventId) <= 0)
+		if (!Loader::includeModule("im") || intval($eventId) <= 0)
 		{
 			return;
 		}
@@ -527,7 +555,7 @@ class CCalendarNotify
 
 			if (
 				!isset($params['LOG'])
-				&& \Bitrix\Main\Loader::includeModule('socialnetwork')
+				&& Loader::includeModule('socialnetwork')
 			)
 			{
 				$dbResult = CSocNetLog::GetList(
@@ -559,20 +587,16 @@ class CCalendarNotify
 				}
 			}
 
-			$rsUser = CUser::GetList(
-				$by = 'id',
-				$order = 'asc',
-				['ID_EQUAL_EXACT' => $userId],
-				['FIELDS' => ['PERSONAL_GENDER']]
-			);
-
 			$strMsgAddComment = Loc::getMessage('EC_COMMENT_MESSAGE_ADD');
-			if ($arUser = $rsUser->fetch())
+
+			$res = \Bitrix\Main\UserTable::getList([
+				'filter' => ['=ID' => $userId],
+				'select' => ['ID', 'PERSONAL_GENDER']
+			]);
+
+			if (($user = $res->fetch()) && in_array($user['PERSONAL_GENDER'], ['F', 'M']))
 			{
-				if (['PERSONAL_GENDER'] && in_array($arUser['PERSONAL_GENDER'], ['F', 'M']))
-				{
-					$strMsgAddComment = Loc::getMessage('EC_COMMENT_MESSAGE_ADD_'.$arUser['PERSONAL_GENDER']);
-				}
+				$strMsgAddComment = Loc::getMessage('EC_COMMENT_MESSAGE_ADD_'.$user['PERSONAL_GENDER']);
 			}
 
 			$imMessageFields = array(
@@ -599,7 +623,7 @@ class CCalendarNotify
 
 				if (
 					$arLog
-					&& \Bitrix\Main\Loader::includeModule('socialnetwork')
+					&& Loader::includeModule('socialnetwork')
 				)
 				{
 					$res = \Bitrix\Socialnetwork\LogFollowTable::getList(array(
@@ -664,7 +688,7 @@ class CCalendarNotify
 
 	public static function ClearNotifications($eventId = false, $userId = false)
 	{
-		if (\Bitrix\Main\Loader::includeModule("im"))
+		if (Loader::includeModule("im"))
 		{
 			if ($eventId && $userId)
 			{

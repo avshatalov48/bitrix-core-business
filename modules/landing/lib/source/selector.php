@@ -203,6 +203,10 @@ class Selector
 	 */
 	public function findSource($index)
 	{
+		if (!is_string($index) || $index === '')
+		{
+			return null;
+		}
 		$this->initSourceList();
 		return isset($this->sourceList[$index]) ? $this->sourceList[$index] : null;
 	}

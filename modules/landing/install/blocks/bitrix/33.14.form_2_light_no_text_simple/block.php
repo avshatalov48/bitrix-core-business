@@ -1,81 +1,13 @@
-<section class="g-pos-rel landing-block text-center g-color-gray-dark-v1 g-pt-30 g-pb-30">
+<section class="g-pos-rel landing-block g-color-gray-dark-v1 g-pt-30 g-pb-30">
 
 	<div class="container px-0">
 
-		<div class="landing-block-form-styles" hidden>
-			<div class="g-bg-transparent h1 g-color-white g-brd-none g-pa-0"
-				 data-form-style-wrapper-padding="1"
-				 data-form-style-bg="1"
-				 data-form-style-bg-content="1"
-				 data-form-style-bg-block="1"
-				 data-form-style-header-font-size="1"
-				 data-form-style-main-font-weight="1"
-				 data-form-style-button-font-color="1"
-				 data-form-style-border-block="1"
-			>
-			</div>
-			<div class="g-bg-primary g-color-primary g-brd-primary"
-				 data-form-style-main-bg="1"
-				 data-form-style-main-border-color="1"
-				 data-form-style-main-font-color-hover="1"
-			>
-			</div>
-			<div class="g-bg-gray-light-v5 g-color-gray-dark-v1 g-brd-around g-brd-white rounded-0"
-				 data-form-style-input-bg="1"
-				 data-form-style-input-select-bg="1"
-				 data-form-style-input-border="1"
-				 data-form-style-input-border-radius="1"
-				 data-form-style-main-font-color="1"
-			>
-			</div>
-			<div class="g-brd-around g-brd-gray-light-v2 g-color-gray-dark-v5 g-bg-black-opacity-0_7"
-				 data-form-style-input-border-color="1"
-				 data-form-style-input-border-hover="1"
-				 data-form-style-icon-font-color="1"
-			>
-			</div>
-
-			<!--			for resource booking-->
-			<div class="g-bg-gray-dark-v5"
-				 data-form-style-bg-as-text="1"
-			>
-			</div>
-
-			<div class="g-bg-gray-light-v5"
-				 data-form-style-input-bg-light="1"
-			>
-			</div>
-
-			<div class="g-bg-gray-light-v4"
-				 data-form-style-input-bg-light2="1"
-			>
-			</div>
-
-			<div class="g-bg-primary-opacity-0_4"
-				 data-form-style-main-bg-light="1"
-			>
-			</div>
-			<div class="g-bg-white"
-				 data-form-style-light-bg="1"
-			>
-			</div>
-			<p class="landing-semantic-text-medium"
-			   data-form-style-main-font-weight="1"
-			   data-form-style-header-text-font-size="1"
-			   data-form-style-label-font-weight="1"
-			   data-form-style-label-font-size="1"
-			   data-form-style-second-font-color="1"
-			>
-			</p>
-		</div>
-
 		<div class="mx-auto"
 			<div class="bitrix24forms g-brd-white-opacity-0_6 u-form-alert-v4"
-				 data-b24form=""
-				 data-b24form-use-style="Y"
-				 data-b24form-show-header="N"
+				data-b24form-use-style="Y"
+				data-b24form-embed
+				data-b24form-design='{"dark":false,"style":"classic","shadow":false,"compact":false,"color":{"primary":"--primary","primaryText":"#fff","text":"#000","background":"#ffffff00","fieldBorder":"#fff","fieldBackground":"#f7f7f7","fieldFocusBackground":"#eee"},"border":{"top":false,"bottom":false,"left":false,"right":false}}'
 			>
-				<div class="g-landing-alert">MESS[LANDING_BLOCK_WEBFORM_PRELOADER]</div>
 			</div>
 		</div>
 	</div>

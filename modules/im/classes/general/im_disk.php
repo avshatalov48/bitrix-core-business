@@ -145,6 +145,7 @@ class CIMDisk
 	{
 		$post = \Bitrix\Main\Context::getCurrent()->getRequest()->getPostList()->toArray();
 		$post['PARAMS'] = CUtil::JsObjectToPhp($post['REG_PARAMS']);
+		$post['PARAMS'] = \Bitrix\Main\Text\Encoding::convertEncoding($post['PARAMS'], 'UTF-8', LANG_CHARSET);
 		$post['MESSAGE_HIDDEN'] = $post['REG_MESSAGE_HIDDEN'] == 'Y'? 'Y': 'N';
 		$post['PARAMS']['TEXT'] = $post['PARAMS']['TEXT']? trim($post['PARAMS']['TEXT']): '';
 
@@ -210,7 +211,7 @@ class CIMDisk
 
 		if (!$fileTmpId || !$messageTmpId)
 		{
-			$error = "exemplarId Is not defined";
+			$error = "exemplarId is not defined";
 			return false;
 		}
 		$uploadRealResult = self::UploadFileFromDisk(
@@ -224,8 +225,27 @@ class CIMDisk
 			]
 		);
 
+		if (!$uploadRealResult)
+		{
+			return true;
+		}
+
+		$fileModel = $folderModel->getChild(['ID' => $fileModel->getId()]);
+
 		$file['fileParams'] = self::GetFileParams($chatId, $fileModel);
 		$file['fileParams']['date'] = date('c', $file['fileParams']['date']->getTimestamp());
+
+		foreach(GetModuleEvents("im", "OnAfterFileUpload", true) as $arEvent)
+		{
+			ExecuteModuleEventEx($arEvent, [[
+				'CHAT_ID' => $chatId,
+				'FILE_ID' => $fileModel->getId(),
+				'MESSAGE_ID' => $uploadRealResult['MESSAGE_ID'],
+				'MESSAGE_OUT' => $post['PARAMS']['TEXT'],
+				'MESSAGE_HIDDEN' => $isMessageHidden,
+				'FILE' => $file['fileParams'],
+			]]);
+		}
 
 		return true;
 	}
@@ -416,6 +436,7 @@ class CIMDisk
 
 		$skipUserCheck = $options['SKIP_USER_CHECK'] === true;
 		$linesSilentMode = $options['LINES_SILENT_MODE'] === true;
+		$makeSymlink = $options['SYMLINK'] === true;
 		$templateId = $options['TEMPLATE_ID'] <> ''? $options['TEMPLATE_ID']: '';
 		$fileTemplateId = $options['FILE_TEMPLATE_ID'] <> ''? $options['FILE_TEMPLATE_ID']: '';
 
@@ -447,7 +468,7 @@ class CIMDisk
 			}
 			else
 			{
-				$newFile = self::SaveFromLocalDisk($chatId, mb_substr($fileId, 4), $skipUserCheck? 0: $userId);
+				$newFile = self::SaveFromLocalDisk($chatId, mb_substr($fileId, 4), $makeSymlink, $skipUserCheck? 0: $userId);
 			}
 
 			if ($newFile)
@@ -525,7 +546,7 @@ class CIMDisk
 
 		if ($chat['ENTITY_TYPE'] == 'LIVECHAT')
 		{
-			list($lineId) = explode("|", $chat['ENTITY_ID']);
+			[$lineId] = explode("|", $chat['ENTITY_ID']);
 			$ar["EXTRA_PARAMS"] = [
 				"CONTEXT" => "LIVECHAT",
 				"LINE_ID" => $lineId
@@ -559,7 +580,7 @@ class CIMDisk
 
 			if ($chat['ENTITY_TYPE'] == 'LIVECHAT' && CModule::IncludeModule('imopenlines'))
 			{
-				list($lineId, $clientUserId) = explode("|", $chat['ENTITY_ID']);
+				[$lineId, $clientUserId] = explode("|", $chat['ENTITY_ID']);
 
 				$session = new \Bitrix\Imopenlines\Session();
 				if ($session->load([
@@ -595,7 +616,7 @@ class CIMDisk
 			}
 			else if ($chat['ENTITY_TYPE'] == 'LINES')
 			{
-				list($connectorId, $lineId, $connectorChatId) = explode("|", $chat['ENTITY_ID']);
+				[$connectorId, $lineId, $connectorChatId] = explode("|", $chat['ENTITY_ID']);
 				if ($connectorId == 'livechat')
 				{
 					$uploadResult = self::UploadFileFromDisk(
@@ -706,7 +727,7 @@ class CIMDisk
 		if(!$fileModel->canRead($storageModel->getCurrentUserSecurityContext()))
 			return false;
 
-		$folderModel = self::GetLocalDiskMolel();
+		$folderModel = self::GetLocalDiskSavedModel();
 		if (!$folderModel)
 			return false;
 
@@ -765,7 +786,7 @@ class CIMDisk
 		return $fileModel;
 	}
 
-	public static function SaveFromLocalDisk($chatId, $fileId, int $userId = null)
+	public static function SaveFromLocalDisk($chatId, $fileId, bool $symlink = false, int $userId = null)
 	{
 		if (!self::Enabled())
 			return false;
@@ -803,7 +824,18 @@ class CIMDisk
 			return false;
 		}
 
-		$newFileModel = $fileModel->copyTo($folderModel, (int)$userId, true);
+		if (false && $symlink)
+		{
+			$newFileModel = $folderModel->addFileLink($fileModel, [
+				'CREATED_BY' => (int)$userId,
+				'GLOBAL_CONTENT_VERSION' => 1
+			], [], true);
+		}
+		else
+		{
+			$newFileModel = $fileModel->copyTo($folderModel, (int)$userId, true);
+		}
+
 		if (!$newFileModel)
 		{
 			return false;
@@ -1476,12 +1508,93 @@ class CIMDisk
 		return $result;
 	}
 
-	public static function GetLocalDiskMolel()
+	public static function GetBackgroundFolderModel($userId = null)
 	{
 		if (!self::Enabled())
-			return false;
+		{
+			return null;
+		}
 
-		$storageModel = \Bitrix\Disk\Driver::getInstance()->getStorageByUserId(self::GetUserId());
+		$userId = IM\Common::getUserId($userId);
+		if (!$userId)
+		{
+			return null;
+		}
+
+		$storageModel = self::GetStorage();
+		if (!$storageModel)
+		{
+			return null;
+		}
+
+		$folderModel = $storageModel->getSpecificFolderByCode('CALL_BACKGROUND_'.$userId);
+		if ($folderModel)
+		{
+			return $folderModel;
+		}
+
+		$backgroundFolderModel = $storageModel->getSpecificFolderByCode('CALL_BACKGROUND');
+		if (!$backgroundFolderModel)
+		{
+			$backgroundFolderModel = $storageModel->addFolder([
+				'NAME' => 'CALL_BACKGROUND',
+				'CODE' => 'CALL_BACKGROUND',
+				'CREATED_BY' => \Bitrix\Disk\SystemUser::SYSTEM_USER_ID,
+			], [], true);
+		}
+		if (!$backgroundFolderModel)
+		{
+			return null;
+		}
+
+		$rightsManager = \Bitrix\Disk\Driver::getInstance()->getRightsManager();
+		$fullAccessTaskId = $rightsManager->getTaskIdByName($rightsManager::TASK_FULL);
+
+		$folderModel = $backgroundFolderModel->addSubFolder([
+			'NAME' => 'CALL_BACKGROUND_'.$userId,
+			'CODE' => 'CALL_BACKGROUND_'.$userId,
+			'CREATED_BY' => $userId,
+		], [
+			['ACCESS_CODE' => 'AU', 'TASK_ID' => $fullAccessTaskId, 'NEGATIVE' => 1],
+			['ACCESS_CODE' => 'U'.$userId, 'TASK_ID' => $fullAccessTaskId],
+		], true);
+
+		return $folderModel;
+	}
+
+	public static function CommitBackgroundFile($userId, $fileId)
+	{
+		$folderModel = self::GetBackgroundFolderModel($userId);
+		if (!$folderModel)
+		{
+			return false;
+		}
+
+		$fileModel = \Bitrix\Disk\File::getById($fileId);
+		if (!$fileModel || $fileModel->getParentId() != $folderModel->getId())
+		{
+			return false;
+		}
+
+		$fileModel->increaseGlobalContentVersion();
+
+		return true;
+	}
+
+	public static function GetLocalDiskSavedModel($userId = null)
+	{
+		if (!self::Enabled())
+		{
+			return false;
+		}
+
+		$userId = IM\Common::getUserId($userId);
+		if (!$userId)
+		{
+			return false;
+		}
+
+		$storageModel = \Bitrix\Disk\Driver::getInstance()->getStorageByUserId($userId);
 		if (!$storageModel)
 		{
 			return false;
@@ -1519,7 +1632,7 @@ class CIMDisk
 		if (!self::Enabled())
 			return '';
 
-		$folderModel = self::GetLocalDiskMolel();
+		$folderModel = self::GetLocalDiskSavedModel();
 		if (!$folderModel)
 			return '';
 
@@ -1536,16 +1649,19 @@ class CIMDisk
 		return \Bitrix\Disk\Driver::getInstance()->getUrlManager()->getUrlFocusController('showObjectInGrid', array('objectId' => $fileId? $fileId: '_FILE_ID_'));
 	}
 
-	public static function GetPublicPath($type, \Bitrix\Disk\File $fileModel)
+	public static function GetPublicPath($type, \Bitrix\Disk\File $fileModel, $checkContentVersion = true)
 	{
 		$result = '';
 
 		if (!in_array($type, Array(self::PATH_TYPE_DOWNLOAD, self::PATH_TYPE_SHOW, self::PATH_TYPE_PREVIEW)))
+		{
 			return $result;
+		}
 
-		if ($fileModel->getGlobalContentVersion() <= 1)
+		if ($checkContentVersion && $fileModel->getGlobalContentVersion() <= 1)
+		{
 			return $result;
-
+		}
 
 		$urlManager = \Bitrix\Main\Engine\UrlManager::getInstance();
 
@@ -1614,7 +1730,6 @@ class CIMDisk
 		return $result;
 	}
 
-	//
 	public static function GetFileLink(\Bitrix\Disk\File $fileModel)
 	{
 		if (!\Bitrix\Main\Loader::includeModule('disk'))

@@ -61,6 +61,26 @@ export class CallRestClient
 		this.queryParams.call_chat_id = chatId;
 	}
 
+	setConfId(alias)
+	{
+		if (typeof this.queryParams !== 'object')
+		{
+			this.queryParams = {};
+		}
+
+		this.queryParams.videoconf_id = alias;
+	}
+
+	setPassword(password)
+	{
+		if (typeof this.queryParams !== 'object')
+		{
+			this.queryParams = {};
+		}
+
+		this.queryParams.videoconf_password = password;
+	}
+
 	callMethod(method, params, callback, sendCallback, logTag = null)
 	{
 		if (!logTag)

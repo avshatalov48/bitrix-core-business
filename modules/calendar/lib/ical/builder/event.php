@@ -202,7 +202,7 @@ class Event extends BasicComponent implements BuilderComponent
 		foreach ($attendees as $attendee)
 		{
 			$this->attendees[] = new AttendeesProperty(
-				null,
+				$attendee['EMAIL'],
 				$attendee['NAME'].( $attendee['LAST_NAME'] ? ' '.$attendee['LAST_NAME'] : ''),
 				$attendee['STATUS'],
 				'REQ-PARTICIPANT',//$attendee['ROLE'],

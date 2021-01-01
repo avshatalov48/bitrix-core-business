@@ -10,7 +10,7 @@ UI\Extension::load("ui.tooltip");
 	?>
 	<div class="wiki-errors wiki-note-box wiki-note-error">
 		<div class="wiki-error-text">
-			<?=$arResult['FATAL_MESSAGE']?>
+			<?= htmlspecialcharsEx($arResult['FATAL_MESSAGE'])?>
 		</div>
 	</div>
 	<?
@@ -34,20 +34,20 @@ else:
 
 ?>
 	<div id="wiki-post-content">
-	<span> <?=GetMessage('WIKI_VERSION_FROM')?> <a href="<?=$arResult['VERSION_DIFF']['SHOW_LINK']?>"><?=$arResult['VERSION_DIFF']['MODIFIED']?></a>
+	<span> <?=GetMessage('WIKI_VERSION_FROM')?> <a href="<?= htmlspecialcharsbx($arResult['VERSION_DIFF']['SHOW_LINK'])?>"><?= htmlspecialcharsbx($arResult['VERSION_DIFF']['MODIFIED'])?></a>
 	<? if (!empty($arResult['VERSION_DIFF']['USER_LINK'])): ?>
-		<a href="<?=$arResult['VERSION_DIFF']['USER_LINK']?>" id="anchor_<?=$arResult['VERSION_DIFF']['ID']?>" bx-tooltip-user-id="<?=$arResult['VERSION_DIFF']["USER_ID"]?>"><?=$arResult['VERSION_DIFF']['USER_LOGIN']?></a>
+		<a href="<?= htmlspecialcharsbx($arResult['VERSION_DIFF']['USER_LINK'])?>" id="anchor_<?= htmlspecialcharsbx($arResult['VERSION_DIFF']['ID'])?>" bx-tooltip-user-id="<?=$arResult['VERSION_DIFF']["USER_ID"]?>"><?= htmlspecialcharsbx($arResult['VERSION_DIFF']['USER_LOGIN'])?></a>
 	<? else: ?>
-		<?=$arResult['VERSION_DIFF']['USER_LOGIN']?>
+		<?= htmlspecialcharsbx($arResult['VERSION_DIFF']['USER_LOGIN'])?>
 	<? endif; ?>
 	<hr />
-	<span> <?=GetMessage('WIKI_DIFF_VERSION_FROM')?> <a href="<?=$arResult['VERSION_OLD']['SHOW_LINK']?>"><?=$arResult['VERSION_OLD']['MODIFIED']?></a>
+	<span> <?=GetMessage('WIKI_DIFF_VERSION_FROM')?> <a href="<?= htmlspecialcharsbx($arResult['VERSION_OLD']['SHOW_LINK'])?>"><?= htmlspecialcharsbx($arResult['VERSION_OLD']['MODIFIED'])?></a>
 	<? if (!empty($arResult['VERSION_OLD']['USER_LINK'])): ?>
-		<a href="<?=$arResult['VERSION_OLD']['USER_LINK']?>" id="anchor_<?=$arResult['VERSION_OLD']['ID']?>" bx-tooltip-user-id="<?=$arResult['VERSION_OLD']["USER_ID"]?>"><?=$arResult['VERSION_OLD']['USER_LOGIN']?></a>
+		<a href="<?= htmlspecialcharsbx($arResult['VERSION_OLD']['USER_LINK'])?>" id="anchor_<?=htmlspecialcharsbx($arResult['VERSION_OLD']['ID'])?>" bx-tooltip-user-id="<?=$arResult['VERSION_OLD']["USER_ID"]?>"><?= htmlspecialcharsbx($arResult['VERSION_OLD']['USER_LOGIN'])?></a>
 	<? else: ?>
-		<?=$arResult['VERSION_OLD']['USER_LOGIN']?>
+		<?= htmlspecialcharsbx($arResult['VERSION_OLD']['USER_LOGIN'])?>
 	<? endif; ?>
-	(<a href="<?=$arResult['CANCEL_LINK']?>"><?=GetMessage('WIKI_RESTORE_TO_CURRENT')?></a>)
+	(<a href="<?= htmlspecialcharsbx($arResult['CANCEL_LINK'])?>"><?=GetMessage('WIKI_RESTORE_TO_CURRENT')?></a>)
 	<hr />
 	<b><?=GetMessage('WIKI_DIFF_TITLE')?></b><br/>
 	<?=$arResult['DIFF_NAME']?>

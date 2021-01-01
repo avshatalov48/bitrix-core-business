@@ -728,33 +728,18 @@ return array(
 			array (
 				'CODE' => '33.13.form_2_light_no_text',
 				'SORT' => '8000',
-				'CONTENT' => '<section class="g-pos-rel landing-block text-center g-color-gray-dark-v1 g-py-100 g-pt-0 g-pb-0">
+				'CONTENT' => '<section class="g-pos-rel landing-block g-color-gray-dark-v1 g-pt-100 g-pb-100">
 
 	<div class="container">
 
-		<div class="landing-block-form-styles" hidden="">
-			<div class="g-bg-transparent h1 g-color-white g-brd-none g-pa-0" data-form-style-wrapper-padding="1" data-form-style-bg="1" data-form-style-bg-content="1" data-form-style-bg-block="1" data-form-style-header-font-size="1" data-form-style-main-font-weight="1" data-form-style-button-font-color="1" data-form-style-border-block="1">
-			</div>
-			<div class="g-bg-primary g-color-primary g-brd-primary" data-form-style-main-bg="1" data-form-style-main-border-color="1" data-form-style-main-font-color-hover="1">
-			</div>
-			<div class="g-bg-gray-light-v5 g-brd-around g-brd-white rounded-0" data-form-style-input-bg="1" data-form-style-input-select-bg="1" data-form-style-input-border="1" data-form-style-input-border-radius="1">
-			</div>
-			<div class="g-brd-around g-brd-gray-light-v2 g-brd-bottom g-bg-black-opacity-0_7" data-form-style-input-border-color="1" data-form-style-input-border-hover="1">
-			</div>
-
-				<p class="g-color-gray-dark-v5" data-form-style-main-font-family="1" data-form-style-main-font-weight="1" data-form-style-header-text-font-size="1">
-				</p>
-
-			<h3 class="g-font-size-11 g-color-gray-dark-v5" data-form-style-label-font-weight="1" data-form-style-label-font-size="1" data-form-style-second-font-color="1">
-				</h3>
-
-			<div class="g-font-size-11" data-form-style-main-font-color="1">
-			</div>
-		</div>
-
 		<div class="row">
 			<div class="col-md-6 mx-auto">
-				<div class="bitrix24forms g-brd-white-opacity-0_6 u-form-alert-v4" data-b24form="" data-b24form-use-style="Y" data-b24form-show-header="N" data-b24form-original-domain=""></div>
+				<div class="bitrix24forms g-brd-white-opacity-0_6 u-form-alert-v4"
+					data-b24form-use-style="Y"
+					data-b24form-embed
+					data-b24form-design=\'{"dark":false,"style":"classic","shadow":false,"compact":false,"color":{"primary":"--primary","primaryText":"#fff","text":"#000","background":"#ffffff00","fieldBorder":"#fff","fieldBackground":"#f7f7f7","fieldFocusBackground":"#eee"},"border":{"top":false,"bottom":false,"left":false,"right":false}}\'
+				>
+				</div>
 			</div>
 		</div>
 	</div>

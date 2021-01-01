@@ -3,8 +3,6 @@
 
 	BX.namespace("BX.Landing.UI.Field");
 
-	var Menu = BX.Landing.UI.Tool.Menu;
-
 	/**
 	 * Implements interface for works with inline dropdown
 	 *
@@ -16,6 +14,8 @@
 	{
 		this.items = "items" in data && data.items ? data.items : {};
 		BX.Landing.UI.Field.BaseField.apply(this, arguments);
+		this.setEventNamespace('BX.Landing.UI.Field.DropdownInline');
+		this.subscribeFromOptions(BX.Landing.UI.Component.fetchEventsFromOptions(data));
 		this.popup = null;
 		this.input.addEventListener("click", this.onInputClick.bind(this));
 
@@ -31,7 +31,7 @@
 
 		this.input.innerText = this.items[0].name;
 		this.input.dataset.value = this.items[0].value;
-		this.setValue(this.content);
+		this.setValue(this.content, this.options.skipInitialEvent);
 	};
 
 	BX.Landing.UI.Field.DropdownInline.prototype = {
@@ -42,7 +42,7 @@
 		{
 			if (!this.popup)
 			{
-				this.popup = new Menu({
+				this.popup = new BX.PopupMenuWindow({
 					id: this.selector+"_dropdown_popup_",
 					bindElement: this.input,
 					items: this.items.map(function(item) {
@@ -79,6 +79,7 @@
 			this.input.dataset.value = item.value;
 			this.popup.close();
 			BX.fireEvent(this.input, "input");
+			this.emit('onChange');
 		},
 
 		/**
@@ -89,13 +90,17 @@
 			return typeof this.input.dataset.value !== "undefined" ? this.input.dataset.value : this.items[0].value;
 		},
 
-		setValue: function(value)
+		setValue: function(value, preventEvent)
 		{
 			this.items.forEach(function(item) {
 				if (value === item.value)
 				{
 					this.input.innerText = item.name;
 					this.input.dataset.value = item.value;
+					if (!preventEvent)
+					{
+						this.emit('onChange');
+					}
 				}
 			}, this);
 		},

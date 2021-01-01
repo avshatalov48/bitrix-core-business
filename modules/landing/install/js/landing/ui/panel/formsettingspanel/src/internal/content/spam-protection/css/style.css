@@ -1,0 +1,35 @@
+.landing-ui-spam-protection-icon-compact-phone {
+	background-image: url("images/compact-phone-icon.svg");
+}
+
+.landing-ui-field-radio-button-item:hover .landing-ui-spam-protection-icon-compact-phone,
+.landing-ui-field-radio-button-item-active .landing-ui-spam-protection-icon-compact-phone {
+	background-image: url("images/compact-phone-active-icon.svg");
+}
+
+.landing-ui-spam-protection-icon-compact-all {
+	background-image: url("images/compact-all-icon.svg");
+}
+
+.landing-ui-field-radio-button-item:hover .landing-ui-spam-protection-icon-compact-all,
+.landing-ui-field-radio-button-item-active .landing-ui-spam-protection-icon-compact-all {
+	background-image: url("images/compact-all-active-icon.svg");
+}
+
+.landing-ui-spam-protection-icon-hidden {
+	background-image: url("images/hidden-icon.svg");
+}
+
+.landing-ui-field-radio-button-item:hover .landing-ui-spam-protection-icon-hidden,
+.landing-ui-field-radio-button-item-active .landing-ui-spam-protection-icon-hidden {
+	background-image: url("images/hidden-active-icon.svg");
+}
+
+.landing-ui-spam-protection-icon-disabled {
+	background-image: url("images/disabled-icon.svg");
+}
+
+.landing-ui-field-radio-button-item:hover .landing-ui-spam-protection-icon-disabled,
+.landing-ui-field-radio-button-item-active .landing-ui-spam-protection-icon-disabled {
+	background-image: url("images/disabled-active-icon.svg");
+}

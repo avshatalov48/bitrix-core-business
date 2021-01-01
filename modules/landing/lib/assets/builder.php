@@ -12,7 +12,7 @@ abstract class Builder
 	protected const TYPE_STANDART = 'STANDART';
 	protected const TYPE_WEBPACK = 'WEBPACK';
 
-	public const PACKAGE_NAME = 'landing_assets';
+	protected const PACKAGE_NAME = 'landing_assets';
 
 	/**
 	 * @var ResourceCollection

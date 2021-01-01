@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="28px" height="28px" viewBox="0 0 28 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 63.1 (92452) - https://sketch.com -->
+    <title>Group</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <rect id="path-1" x="0" y="0" width="20" height="20" rx="10"></rect>
+        <filter x="-35.0%" y="-25.0%" width="170.0%" height="170.0%" filterUnits="objectBoundingBox" id="filter-2">
+            <feOffset dx="0" dy="2" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="2" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.11404611 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="ui-/-common-/-misc-/-contact-center-/-tiles-/-status-on" transform="translate(3.000000, 1.000000)">
+            <rect id="Rectangle" fill="#FFFFFF" x="5" y="5" width="14" height="13" rx="6"></rect>
+            <g id="Group" transform="translate(1.000000, 1.000000)">
+                <g id="Combined-Shape">
+                    <use fill="black" fill-opacity="1" filter="url(#filter-2)" xlink:href="#path-1"></use>
+                    <use fill="#9DCF00" fill-rule="evenodd" xlink:href="#path-1"></use>
+                </g>
+                <polygon id="Path" fill="#FFFFFF" points="8.6267146 11.8108248 14.4017239 6 16 7.60714343 8.65168766 15 8.6267146 14.9748884 8.60174153 15 4 10.3727276 5.59827604 8.76558418"></polygon>
+            </g>
+        </g>
+    </g>
+</svg>

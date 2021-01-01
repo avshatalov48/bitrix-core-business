@@ -46,7 +46,7 @@ $MESS["CAL_MAC_INSTRUCTION_CONCLUSION"] = "Your calendars will automatically sho
 $MESS["CAL_MAC_INSTRUCTION_DESCRIPTION"] = "To connect calendars in iCal";
 $MESS["CAL_MAC_INSTRUCTION_HEADER"] = "Calendar connection instructions";
 $MESS["CAL_MAC_INSTRUCTION_POINT_FIFTH"] = "In the account parameters, specify this site's address <span class=\"calendar-sync-slider-info-item-link\">(<a href=#PORTAL_ADDRESS#>#PORTAL_ADDRESS#</a>)</span> as a server and enter your login and password to connect your calendars in iCal app.";
-$MESS["CAL_MAC_INSTRUCTION_POINT_FIRST"] = "Open Calendar> Settings and go to Accounts tab.";
+$MESS["CAL_MAC_INSTRUCTION_POINT_FIRST"] = "Open Calendar > Settings and go to Accounts tab.";
 $MESS["CAL_MAC_INSTRUCTION_POINT_FOURTH"] = "Select Manual account type.";
 $MESS["CAL_MAC_INSTRUCTION_POINT_SECOND"] = "Click Add new account.";
 $MESS["CAL_MAC_INSTRUCTION_POINT_SEVENTH"] = "If you have to specify a port number to connect to, save the account and open it for editing again.";

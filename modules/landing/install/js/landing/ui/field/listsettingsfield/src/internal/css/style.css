@@ -1,0 +1,24 @@
+.landing-ui-field-list-settings-item-container {
+	display: flex;
+	flex-direction: row;
+}
+
+.landing-ui-field-list-settings-item-container > .landing-ui-field {
+	margin-bottom: 0;
+}
+
+.landing-ui-field-list-settings-item-container > .landing-ui-field:first-child {
+	flex-grow: 1;
+}
+
+.landing-ui-field-list-settings-item-container .landing-ui-field-checkbox {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	margin-top: 0!important;
+}
+
+.landing-ui-field-list-settings-item-container .landing-ui-field-checkbox-item {
+	width: 13px;
+}

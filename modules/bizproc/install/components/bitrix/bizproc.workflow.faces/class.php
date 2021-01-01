@@ -108,6 +108,15 @@ class BizprocWorkflowFaces extends \CBitrixComponent
 				'LAST_USER_STATUS' => $lastUserStatus,
 			);
 		}
+
+		if (
+			isset($this->arParams['SITE_TEMPLATE_ID'])
+			&& $this->arParams['SITE_TEMPLATE_ID'] <> ''
+		)
+		{
+			$this->setSiteTemplateId($this->arParams['SITE_TEMPLATE_ID']);
+		}
+
 		$this->includeComponentTemplate();
 	}
 

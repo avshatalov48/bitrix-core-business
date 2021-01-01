@@ -1,0 +1,90 @@
+.landing-ui-field-radio-button {
+
+}
+
+.landing-ui-field-radio-button .landing-ui-field-header {
+	margin-bottom: 32px;
+}
+
+.landing-ui-field-radio-button-layout {
+	padding-bottom: 16px;
+}
+
+.landing-ui-field-radio-button-item {
+	position: relative;
+	display: inline-block;
+	width: 120px;
+	margin: 5px;
+	vertical-align: top;
+	cursor: pointer;
+}
+
+.landing-ui-field-radio-button-item-icon {
+	display: block;
+	position: relative;
+	margin: 0 auto 10px;
+	width: 80px;
+	height: 80px;
+	border-radius: 4px;
+	background-color: #fff;
+	background: no-repeat center;
+	border: 1px solid rgba(82, 92, 105, .42);
+	transition: background 200ms ease;
+}
+
+.landing-ui-field-radio-button-item:hover .landing-ui-field-radio-button-item-text {
+	color: #2067b0;
+	border-color: #2067b0;
+}
+
+.landing-ui-field-radio-button-item-text {
+	font: 14px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	display: block;
+	text-align: center;
+	transition: 200ms ease all;
+}
+
+.landing-ui-field-radio-button-item-text span {
+	color: #2066b0;
+	border-bottom: 1px dashed rgba(82, 92, 105, 0.4);
+}
+
+.landing-ui-field-radio-button-item-active .landing-ui-field-radio-button-item-icon {
+	border: 2px solid #9dcf00;
+}
+
+.landing-ui-field-radio-button-item-active .landing-ui-field-radio-button-item-icon::before {
+	background: url("images/active-icon.svg") center no-repeat;
+	position: absolute;
+	content: '';
+	bottom: 14px;
+	top: -12px;
+	right: -13px;
+	width: 28px;
+	height: 28px;
+}
+
+.landing-ui-field-radio-button-item-soon-label {
+	font-family: OpenSans-SemiBold, Helvetca, Arial, sans-sarif, serif;
+	background: #3BC6F3;
+	border-radius: 11px;
+	font-size: 9px;
+	color: #FFFFFF;
+	letter-spacing: 0.17px;
+	line-height: 21px;
+	padding-left: 7px;
+	padding-right: 7px;
+	position: absolute;
+	top: -12px;
+	right: 2px;
+}
+
+.landing-ui-field-radio-button-item.landing-ui-disabled {
+	opacity: 1;
+}
+
+.landing-ui-field-radio-button-item.landing-ui-disabled .landing-ui-field-radio-button-item-icon,
+.landing-ui-field-radio-button-item.landing-ui-disabled .landing-ui-field-radio-button-item-text,
+.landing-ui-field-radio-button-item.landing-ui-disabled .ui-btn {
+	opacity: .5;
+}

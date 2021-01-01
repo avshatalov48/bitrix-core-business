@@ -108,12 +108,12 @@ if(
 		{
 			if (
 				(
-					$arCommentTmp["DATE_CREATE_TS"] > $arParams["LAST_LOG_TS"]
+					$arCommentTmp["DATE_CREATE_TS"] > ($arParams["LAST_LOG_TS"] - $arResult["TZ_OFFSET"])
 					&& $key >= $arParams["PAGE_SIZE"]
 				) // new comments, no more than 20
 				|| (
 					(
-						$arCommentTmp["DATE_CREATE_TS"] <= $arParams["LAST_LOG_TS"]
+						$arCommentTmp["DATE_CREATE_TS"] <= ($arParams["LAST_LOG_TS"] - $arResult["TZ_OFFSET"])
 						|| $arParams["LAST_LOG_TS"] <= 0
 					)
 					&& $key >= $arParams["PAGE_SIZE_MIN"]

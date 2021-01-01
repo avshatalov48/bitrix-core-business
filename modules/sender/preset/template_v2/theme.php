@@ -132,6 +132,7 @@
 			padding-right: 0;
 			padding-bottom: 0;
 			padding-left: 0;
+			word-break: break-word;
 		}
 		.bxBlockContentBlockText{
 			font-size: 13px;
@@ -144,7 +145,8 @@
 			font-size: 20px;
 			text-align: right;
 			vertical-align: middle;
-			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+			font-family: Helvetica, Arial, sans-serif;
+			word-break: break-word;
 		}
 
 		.bxBlockContentLine{

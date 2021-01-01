@@ -96,6 +96,66 @@ class Repository
 				'MAILBOX_USER_ID' => $mailbox['USER_ID']
 			];
 		}
+
+		// @TODO: make a log optional
+		/*$messagesForRemove = Mail\MailMessageUidTable::getList([
+			'runtime' => [
+			   new Main\ORM\Fields\Relations\Reference(
+				   'B_MAIL_MESSAGE', Mail\MailMessageTable::class, [
+				   '=this.MAILBOX_ID' => 'ref.MAILBOX_ID',
+				   '=this.MESSAGE_ID' => 'ref.ID',
+			   ], [
+					   'join_type' => 'INNER',
+				   ]
+			   ),
+			],
+			'select' => [
+			   'MESSAGE_ID',
+			   'MAILBOX_ID',
+			   'DIR_MD5',
+			   'DIR_UIDV',
+			   'MSG_UID',
+			   'INTERNALDATE',
+			   'HEADER_MD5',
+			   'SESSION_ID',
+			   'TIMESTAMP_X',
+			   'DATE_INSERT',
+			   'B_MAIL_MESSAGE.DATE_INSERT',
+			   'B_MAIL_MESSAGE.FIELD_DATE',
+			   'B_MAIL_MESSAGE.FIELD_FROM',
+			   'B_MAIL_MESSAGE.SUBJECT',
+			   'B_MAIL_MESSAGE.MSG_ID',
+		   ],
+		   'filter' => [
+			   '=MAILBOX_ID' => intval($this->mailboxId),
+			   '@ID' => $messagesIds,
+		   ],
+		])->fetchAll();
+
+		for($i=0; $i < count($messagesForRemove); $i++)
+		{
+			foreach ($messagesForRemove[$i] as $key => $value)
+			{
+				if ($messagesForRemove[$i][$key] instanceof \Bitrix\Main\Type\DateTime)
+				{
+					$messagesForRemove[$i][$key] = $messagesForRemove[$i][$key]->toString();
+				}
+			}
+		}
+
+		if(count($messagesForRemove)>0)
+		{
+			$toLog = [
+				'filter'=>[
+					'cause' => 'updateMessageFieldsAfterMove',
+					'=MAILBOX_ID' => intval($this->mailboxId),
+					'@ID' => $messagesIds,
+				],
+				'removedMessages'=>$messagesForRemove,
+			];
+			AddMessage2Log($toLog);
+		}*/
+
 		Mail\MailMessageUidTable::updateList(
 			[
 				'=MAILBOX_ID' => intval($this->mailboxId),
@@ -116,8 +176,24 @@ class Repository
 		return $result;
 	}
 
+	/**
+	 * Used to delete small sample of messages from the database ( at the user's request ).
+	 *
+	 * @param array $messagesToDelete Each message in the array must be represented by an associative array containing the "MESSAGE_ID" field.
+	 * @param $mailboxUserId
+	 *
+	 * @return null - if messages are missing
+	 */
 	public function deleteMailsCompletely($messagesToDelete, $mailboxUserId)
 	{
+		// @TODO: make a log optional
+		/*$messageToLog = [
+			'cause' => 'deleteMailsCompletely',
+			'filter' => 'manual deletion of messages',
+			'removedMessages'=>$messagesToDelete,
+		];
+		AddMessage2Log($messageToLog);*/
+
 		$ids = array_map(
 			function ($mail)
 			{

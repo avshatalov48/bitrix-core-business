@@ -5,11 +5,14 @@ namespace Bitrix\Landing\Assets;
 use Bitrix\Landing\File;
 use Bitrix\Main;
 use Bitrix\Main\FileTable;
+use Bitrix\Main\Security\Random;
 use Bitrix\Main\Web\WebPacker;
 
 class WebpackFile
 {
 	protected const MODULE_ID = 'landing';
+	protected const DIR_NAME = 'assets';
+	protected const DEFAULT_NAME = 'assets_webpack';
 	protected const CORE_EXTENSION = 'ui.webpacker';
 	protected const LANG_RESOURCE = '/bitrix/js/landing/webpackassets/message_loader.js';
 
@@ -38,9 +41,15 @@ class WebpackFile
 
 	/**
 	 * Name of file. If not set - will be using default
-	 * @var
+	 * @var string
 	 */
 	protected $filename;
+
+	/**
+	 * Unique string of current assets package
+	 * @var string
+	 */
+	protected $packageHash;
 
 	/**
 	 * WebpackFile constructor.
@@ -62,6 +71,15 @@ class WebpackFile
 	}
 
 	/**
+	 * Set unique string for current assets package
+	 * @param string $hash
+	 */
+	public function setPackageHash(string $hash): void
+	{
+		$this->packageHash = $hash;
+	}
+
+	/**
 	 * Set unique name of file. If not set - will be using default
 	 * @param string $name
 	 */
@@ -72,7 +90,16 @@ class WebpackFile
 
 	protected function getFileName(): string
 	{
-		return $this->filename ?: WebpackBuilder::PACKAGE_NAME . WebpackBuilder::PACKAGE_NAME_SUFFIX . '.js';
+		if($this->packageHash)
+		{
+			$this->filename = self::DEFAULT_NAME . '_' . $this->packageHash . '_' . time() . '.js';
+		}
+		else
+		{
+			$this->filename = self::DEFAULT_NAME . '_' . Random::getString(16) . '.js';
+		}
+
+		return $this->filename;
 	}
 
 	/**
@@ -112,47 +139,52 @@ class WebpackFile
 		if ($fileId = $this->findExistFile())
 		{
 			$this->fileId = $fileId;
+			$file = \CFile::GetByID($fileId)->Fetch();
+			$this->setFileName($file['ORIGINAL_NAME'] ?: $this->filename);
 		}
 
 		$this->fileController->configureFile(
 			$this->fileId,
 			self::MODULE_ID,
-			'',
+			self::DIR_NAME,
 			$this->getFileName()
 		);
 	}
 
 	/**
 	 * Search existing asset file for current landing
-	 * @return bool|int - ID of file or false if not exist
+	 * @return null|int - ID of file or false if not exist
 	 */
-	protected function findExistFile()
+	protected function findExistFile(): ?int
 	{
+		if ($this->landingId)
+		{
+			foreach(File::getFilesFromAsset($this->landingId) as $fileId)
+			{
+				if(
+					$fileId > 0
+					&& $this->packageHash
+					&& ($file = \CFile::GetByID($fileId)->Fetch())
+					&& strpos($file['ORIGINAL_NAME'], self::DEFAULT_NAME . '_' . $this->packageHash) === 0
+				)
+				{
+					return $fileId;
+				}
+			}
+
+			return null;
+		}
+
+		// if have not landing ID - old variant, find something
 		$fileQuery = FileTable::query()
 			->addSelect('ID')
 			->addSelect('ORIGINAL_NAME')
 			->where('MODULE_ID', self::MODULE_ID)
-			->where('ORIGINAL_NAME', $this->getFileName())
+			->where('%ORIGINAL_NAME', self::DEFAULT_NAME)
 		;
-		// if have not landing ID - old variant, find something
-		if ($this->landingId)
-		{
-			if ($fileIds = File::getFilesFromAsset($this->landingId))
-			{
-				$fileQuery->whereIn('ID', $fileIds);
-			}
-			else
-			{
-				return false;
-			}
-		}
+		$file = $fileQuery->fetch();
 
-		if ($file = $fileQuery->fetch())
-		{
-			return $file['ID'];
-		}
-
-		return false;
+		return $file ? $file['ID'] : null;
 	}
 
 	public function setUseLang(): void
@@ -166,7 +198,7 @@ class WebpackFile
 		$this->fileController->addExtension(self::CORE_EXTENSION);    // need core ext always
 		$this->fileController->addModule(
 			new WebPacker\Module(
-				WebpackBuilder::PACKAGE_NAME,
+				self::DEFAULT_NAME,
 				$this->package,
 				$this->profile
 			)

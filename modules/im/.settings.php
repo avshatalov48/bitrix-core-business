@@ -2,7 +2,7 @@
 return [
 	'controllers' => [
 		'value' => [
-			'defaultNamespace' => '\\Bitrix\\Im\\Rest\\v1',
+			'defaultNamespace' => '\\Bitrix\\Im\\Controller',
 			'restIntegration' => [
 				'enabled' => true
 			]

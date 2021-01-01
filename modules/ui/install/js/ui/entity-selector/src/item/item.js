@@ -1,4 +1,4 @@
-import { Type, Loc } from 'main.core';
+import { Type, Loc, Text } from 'main.core';
 import { EventEmitter, BaseEvent } from 'main.core.events';
 
 import ItemNode from './item-node';
@@ -144,7 +144,7 @@ export default class Item extends EventEmitter
 
 	getSubtitle(): ?string
 	{
-		return this.subtitle !== null ? this.subtitle : this.getEntity().getItemOption(this, 'subtitle');
+		return this.subtitle !== null ? this.subtitle : this.getEntityItemOption('subtitle');
 	}
 
 	setSubtitle(subtitle: string): void
@@ -165,7 +165,7 @@ export default class Item extends EventEmitter
 
 	getSupertitle(): ?string
 	{
-		return this.supertitle !== null ? this.supertitle : this.getEntity().getItemOption(this, 'supertitle');
+		return this.supertitle !== null ? this.supertitle : this.getEntityItemOption('supertitle');
 	}
 
 	setSupertitle(supertitle: string): void
@@ -186,7 +186,7 @@ export default class Item extends EventEmitter
 
 	getAvatar(): ?string
 	{
-		return this.avatar !== null ? this.avatar : this.getEntity().getItemOption(this, 'avatar');
+		return this.avatar !== null ? this.avatar : this.getEntityItemOption('avatar');
 	}
 
 	setAvatar(avatar: ?string): void
@@ -207,7 +207,7 @@ export default class Item extends EventEmitter
 
 	getTextColor(): ?string
 	{
-		return this.textColor !== null ? this.textColor : this.getEntity().getItemOption(this, 'textColor');
+		return this.textColor !== null ? this.textColor : this.getEntityItemOption('textColor');
 	}
 
 	setTextColor(textColor: ?string): void
@@ -228,7 +228,7 @@ export default class Item extends EventEmitter
 
 	getCaption(): ?string
 	{
-		return this.caption !== null ? this.caption : this.getEntity().getItemOption(this, 'caption');
+		return this.caption !== null ? this.caption : this.getEntityItemOption('caption');
 	}
 
 	setCaption(caption: ?string): void
@@ -249,7 +249,7 @@ export default class Item extends EventEmitter
 
 	getLink(): ?string
 	{
-		const link = this.link !== null ? this.link : this.getEntity().getItemOption(this, 'link');
+		const link = this.link !== null ? this.link : this.getEntityItemOption('link');
 
 		return this.replaceMacros(link);
 	}
@@ -269,7 +269,7 @@ export default class Item extends EventEmitter
 			return this.linkTitle;
 		}
 
-		const linkTitle = this.getEntity().getItemOption(this, 'linkTitle');
+		const linkTitle = this.getEntityItemOption('linkTitle');
 
 		return linkTitle !== null ? linkTitle : Loc.getMessage('UI_SELECTOR_ITEM_LINK_TITLE');
 	}
@@ -568,12 +568,22 @@ export default class Item extends EventEmitter
 		return this.getDialog() && this.getDialog().isRendered();
 	}
 
+	getEntityItemOption(option): any
+	{
+		return this.getEntity().getItemOption(option, this.getEntityType());
+	}
+
+	getEntityTagOption(option): any
+	{
+		return this.getEntity().getTagOption(option, this.getEntityType());
+	}
+
 	getTagOptions(): Map<string, any>
 	{
 		return this.tagOptions;
 	}
 
-	getTagOption(option: string, useEntityOptions: boolean = true): any
+	getTagOption(option: string): any
 	{
 		const value = this.getTagOptions().get(option);
 
@@ -581,46 +591,74 @@ export default class Item extends EventEmitter
 		{
 			return value;
 		}
-		else if (useEntityOptions !== false)
-		{
-			return this.getEntity().getTagOption(this, option);
-		}
 
 		return null;
 	}
 
-	getTagGlobalOption(propName: string): any
+	getTagGlobalOption(option: string, useItemOptions: boolean = false): any
 	{
-		let value = null;
+		if (!Type.isStringFilled(option))
+		{
+			return null;
+		}
 
-		if (this.getTagOption(propName, false) !== null)
+		let value = this.getTagOption(option);
+
+		if (value === null && useItemOptions === true && this[option] !== null)
 		{
-			value = this.getTagOption(propName);
+			value = this[option];
 		}
-		else if (this[propName] !== null)
+
+		if (value === null && this.getDialog().getTagSelector())
 		{
-			value = this[propName];
+			const fn = `getTag${Text.toPascalCase(option)}`;
+			if (Type.isFunction(this.getDialog().getTagSelector()[fn]))
+			{
+				value = this.getDialog().getTagSelector()[fn]();
+			}
 		}
-		else if (this.getEntity().getTagOption(this, propName) !== null)
+
+		if (value === null)
 		{
-			value = this.getEntity().getTagOption(this, propName);
+			value = this.getEntityTagOption(option);
 		}
-		else
+
+		if (value === null && useItemOptions === true)
 		{
-			value = this.getEntity().getItemOption(this, propName);
+			value = this.getEntityItemOption(option);
 		}
 
 		return value;
 	}
 
+	getTagBgColor(): ?string
+	{
+		return this.getTagGlobalOption('bgColor');
+	}
+
+	getTagTextColor(): ?string
+	{
+		return this.getTagGlobalOption('textColor');
+	}
+
+	getTagMaxWidth(): ?number
+	{
+		return this.getTagGlobalOption('maxWidth');
+	}
+
+	getTagFontWeight(): ?string
+	{
+		return this.getTagGlobalOption('fontWeight');
+	}
+
 	getTagAvatar(): ?string
 	{
-		return this.getTagGlobalOption('avatar');
+		return this.getTagGlobalOption('avatar', true);
 	}
 
 	getTagLink(): ?string
 	{
-		return this.replaceMacros(this.getTagGlobalOption('link'));
+		return this.replaceMacros(this.getTagGlobalOption('link', true));
 	}
 
 	replaceMacros(str: string): string
@@ -642,16 +680,18 @@ export default class Item extends EventEmitter
 		return {
 			id: this.getId(),
 			entityId: this.getEntityId(),
-			title: this.getTagOption('title', false) || this.getTitle(),
+			entityType: this.getEntityType(),
+			title: this.getTagOption('title') || this.getTitle(),
 			deselectable: this.isDeselectable(),
 			customData: this.getCustomData(),
 
 			avatar: this.getTagAvatar(),
 			link: this.getTagLink(),
-			maxWidth: this.getTagOption('maxWidth'),
-			textColor: this.getTagOption('textColor'),
-			bgColor: this.getTagOption('bgColor'),
-			fontWeight: this.getTagOption('fontWeight'),
+
+			maxWidth: this.getTagMaxWidth(),
+			textColor: this.getTagTextColor(),
+			bgColor: this.getTagBgColor(),
+			fontWeight: this.getTagFontWeight(),
 		};
 	}
 

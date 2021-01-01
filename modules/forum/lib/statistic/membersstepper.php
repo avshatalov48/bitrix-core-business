@@ -8,7 +8,7 @@ Loc::loadMessages(__FILE__);
 class MembersStepper extends \Bitrix\Main\Update\Stepper
 {
 	protected static $moduleId = "forum";
-	private static $offset = 50;
+	private static $offset = 100;
 
 	public static function getTitle()
 	{

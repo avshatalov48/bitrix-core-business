@@ -550,7 +550,7 @@
 .bx-messenger-dark .bx-messenger-content-item-notice a,
 .bx-messenger-dark .bx-messenger-content-item-notice .bx-messenger-highlight,
 .bx-messenger-dark .bx-messenger-content-item-notice .bx-messenger-ajax {
-	color: #c7c7c7 !important;
+	color: #c7c7c7;
 }
 
 .bx-messenger-dark .bx-messenger-record-phone {

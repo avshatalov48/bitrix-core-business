@@ -250,7 +250,7 @@
 		if (matches = html.match(/--filter--([^-]+)--/))
 		{
 			randomId = matches[1];
-			if (this.getItemByFilterId(connectorData.ID + '_' + randomId))
+			if (this.getItemByFilterId(connectorData.ID + '_' + '--filter--' + randomId + '--'))
 			{
 				randomId = randomId + Math.floor(Math.random() * (10000 - 100 + 1)) + 100;
 			}
@@ -262,8 +262,8 @@
 		{
 			randomId = Math.floor(Math.random() * (10000 - 100 + 1)) + 100;
 		}
-		html = html.replace(new RegExp("%CONNECTOR_NUM%",'g'), randomId);
 
+		html = html.replace(new RegExp("%CONNECTOR_NUM%",'g'), randomId);
 
 		html = this.getConnectorForm(
 			{

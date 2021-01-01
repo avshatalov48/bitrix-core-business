@@ -1,0 +1,214 @@
+.landing-ui-form-cards-item {
+	background: #ffffff;
+	position: relative;
+	height: 42px;
+	overflow: hidden;
+	border-radius: 2px;
+	margin-bottom: 6px;
+	-webkit-box-shadow: 0 1px 2px 0 rgba(0,0,0,.2);
+	box-shadow: 0 1px 2px 0 rgba(0,0,0,.2);
+	transition: height 200ms ease-out, margin 300ms ease-out, box-shadow 300ms ease-out, color 200ms ease, translate 200ms ease;
+	cursor: pointer;
+}
+
+.landing-ui-form-cards-item::after {
+	background-color: #ffffff;
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	border-radius: 2px;
+	transition: opacity 300ms ease;
+}
+
+
+.landing-ui-form-card-item-header {
+	position: relative;
+	display: flex;
+	justify-content: space-between;
+	height: 42px;
+	z-index: 2;
+	border-bottom: 1px transparent solid;
+	transition: border 300ms ease, background-color 300ms ease;
+	line-height: 42px;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.landing-ui-form-card-item-header-left {
+	display: flex;
+	flex-grow: 1;
+	justify-content: space-between;
+}
+
+.landing-ui-form-card-item-header-left-inner {
+	display: flex;
+}
+
+.landing-ui-form-card-item-header > div {
+	display: flex;
+}
+
+.landing-ui-form-card-item-header-drag {
+	width: 22px!important;
+	cursor: move!important;
+}
+
+.landing-ui-form-card-item-header-title {
+	display: flex;
+	height: 42px;
+	transition: color 200ms ease;
+}
+
+.landing-ui-form-card-item-header-title .landing-card-title-icon,
+.landing-ui-form-card-item-header-title .landing-card-title-icon span {
+	color: rgba(0,0,0,.3) !important;
+	position: static!important;
+	transform: none!important;
+}
+
+.landing-ui-form-card-item-header-edit,
+.landing-ui-form-card-item-header-remove {
+	width: 34px;
+	transition: color 200ms ease, background-color 200ms ease;
+	text-align: center;
+	color: rgba(0,0,0,.3);
+}
+
+.landing-ui-form-card-item-header-remove {
+	border-top-right-radius: 2px;
+	border-bottom-right-radius: 2px;
+}
+
+.landing-ui-form-card-item-header-edit {
+	width: 24px;
+}
+
+.landing-ui-form-card-item-header-remove:hover {
+	color: #d0021b;
+	background-color: rgba(208, 2, 27, .1);
+}
+
+
+.landing-ui-disallow-remove .landing-ui-form-card-item-header-remove {
+	color: rgba(0,0,0,.1);
+	background-color: transparent!important;
+}
+
+
+.landing-ui-form-cards-item:hover {
+	-webkit-box-shadow: 0 1px 4px 0 rgba(0,0,0,.4);
+	box-shadow: 0 1px 4px 0 rgba(0,0,0,.4);
+}
+
+.landing-ui-form-cards-item:hover .landing-ui-form-card-item-header-title {
+	color: #000;
+}
+
+.landing-ui-form-cards-item:active {
+	-webkit-box-shadow: 0 1px 2px 0 rgba(0,0,0,.2);
+	box-shadow: 0 1px 2px 0 rgba(0,0,0,.2);
+}
+
+
+.landing-ui-form-card-item-header-left:hover .landing-ui-form-card-item-header-edit,
+.landing-ui-form-cards-item.landing-ui-form-cards-item-expand .landing-ui-form-card-item-header-edit {
+	color: rgba(245, 127, 23, .6);
+}
+
+
+
+.landing-ui-form-cards-item.landing-ui-form-cards-item-expand {
+	margin-top: 10px;
+	margin-bottom: 10px;
+	-webkit-box-shadow: 0 1px 4px 0 rgba(0,0,0,0);
+	box-shadow: 0 1px 4px 0 rgba(0,0,0,0);
+	cursor: default;
+}
+
+.landing-ui-form-cards-item.landing-ui-form-cards-item-expand .landing-ui-form-card-item-header {
+	border-bottom-color: rgba(0, 0, 0, .05);
+	color: #000!important;
+	cursor: pointer;
+}
+
+.landing-ui-form-cards-item.landing-ui-form-cards-item-expand::after {
+	opacity: 0;
+	pointer-events: none;
+}
+
+.landing-ui-form-cards-item.landing-ui-form-card-item-draggable {
+	-webkit-box-shadow: 0 1px 8px 0 rgba(0,0,0,.4);
+	box-shadow: 0 1px 8px 0 rgba(0,0,0,.4);
+	cursor: grabbing;
+	cursor: -moz-grabbing;
+	cursor: -webkit-grabbing;
+	z-index: 300;
+}
+
+.landing-ui-form-card-item-draggable .landing-ui-form-card-item-header-drag {
+	cursor: grabbing;
+	cursor: -moz-grabbing;
+	cursor: -webkit-grabbing;
+}
+
+.landing-card-title {
+	display: flex;
+	align-items: center;
+	max-width: 300px;
+}
+
+.landing-card-title > * {
+	margin-right: 6px;
+}
+
+.landing-card-title-img {
+	max-width: 100px;
+	min-width: 30px;
+	height: 30px;
+	line-height: 0;
+	text-align: center;
+}
+
+.landing-card-title-img img {
+	height: 100%;
+	width: auto;
+}
+
+.landing-card-title-text, .landing-card-title-link {
+	max-width: 210px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.landing-ui-form-cards .landing-ui-form-footer {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-height: 40px;
+}
+
+.landing-ui-card-add-button {
+	background: #fafafa;
+	border-radius: 100px;
+	border: none!important;
+	transition: background-color 200ms ease;
+}
+
+.landing-ui-card-add-button:hover,
+.landing-ui-card-add-button.landing-ui-active {
+	background: #f6f8f9;
+}
+
+.landing-ui-form-cards-preset-popup-item {
+	min-width: 200px;
+}
+
+.landing-ui-form-cards-preset-popup-item .fa {
+	min-width: 20px;
+}

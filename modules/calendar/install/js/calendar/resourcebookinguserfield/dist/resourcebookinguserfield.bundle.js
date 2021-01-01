@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,main_core,calendar_resourcebookinguserfield,calendar_resourcebooking) {
+(function (exports,helper,socnetlogdest,main_core,calendar_resourcebookinguserfield,calendar_resourcebooking) {
 	'use strict';
 
 	var FormFieldTunnerAbstract = /*#__PURE__*/function () {
@@ -2463,47 +2463,68 @@ this.BX = this.BX || {};
 	  return TimeStatePopup;
 	}(FormFieldTunnerPopupAbstract);
 
-	var AdjustFieldController = /*#__PURE__*/function () {
+	var AdjustFieldController = /*#__PURE__*/function (_EventEmitter) {
+	  babelHelpers.inherits(AdjustFieldController, _EventEmitter);
+
 	  function AdjustFieldController(params) {
+	    var _this;
+
 	    babelHelpers.classCallCheck(this, AdjustFieldController);
-	    this.params = params;
-	    this.complexFields = {};
-	    this.userFieldParams = null;
-	    this.id = 'resbook-settings-popup-' + Math.round(Math.random() * 100000);
-	    this.settingsData = AdjustFieldController.getSettingsData(this.params.settings.data);
-	    this.params.settings.data = this.settingsData;
-	    this.DOM = {
-	      innerWrap: this.params.innerWrap,
-	      settingsWrap: this.params.innerWrap.appendChild(calendar_resourcebooking.Dom.create("div", {
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(AdjustFieldController).call(this));
+
+	    _this.setEventNamespace('BX.Calendar.ResourcebookingUserfield.AdjustFieldController');
+
+	    _this.params = params;
+	    _this.complexFields = {};
+	    _this.userFieldParams = null;
+	    _this.id = 'resbook-settings-popup-' + Math.round(Math.random() * 100000);
+	    _this.settingsData = AdjustFieldController.getSettingsData(_this.params.settings.data);
+	    _this.params.settings.data = _this.settingsData;
+	    _this.DOM = {
+	      innerWrap: _this.params.innerWrap,
+	      settingsWrap: _this.params.innerWrap.appendChild(calendar_resourcebooking.Dom.create("div", {
 	        attrs: {
 	          'data-bx-resource-field-settings': 'Y'
 	        }
 	      })),
-	      captionNode: this.params.captionNode,
+	      captionNode: _this.params.captionNode,
 	      settingsInputs: {}
 	    };
+	    return _this;
 	  }
 
 	  babelHelpers.createClass(AdjustFieldController, [{
 	    key: "init",
 	    value: function init() {
+	      var _this2 = this;
+
 	      // Request field params
 	      this.showFieldLoader();
 	      ResourcebookingUserfield.getUserFieldParams({
 	        fieldName: this.params.entityName,
 	        selectedUsers: this.getSelectedUsers()
 	      }).then(function (fieldParams) {
-	        this.hideFieldLoader();
-	        this.userFieldParams = fieldParams;
-	        this.fieldLayout = new calendar_resourcebooking.FieldViewControllerEdit({
-	          wrap: this.DOM.innerWrap,
+	        _this2.hideFieldLoader();
+
+	        _this2.userFieldParams = fieldParams;
+	        _this2.fieldLayout = new calendar_resourcebooking.FieldViewControllerEdit({
+	          wrap: _this2.DOM.innerWrap,
 	          displayTitle: false,
-	          title: this.getCaption(),
-	          settings: this.getSettings()
+	          title: _this2.getCaption(),
+	          settings: _this2.getSettings()
 	        });
-	        this.fieldLayout.build();
-	        this.updateSettingsDataInputs();
-	      }.bind(this));
+
+	        _this2.fieldLayout.build();
+
+	        _this2.updateSettingsDataInputs();
+
+	        _this2.emit('afterInit', new calendar_resourcebooking.BaseEvent({
+	          data: {
+	            fieldName: _this2.params.entityName,
+	            settings: _this2.getSettings()
+	          }
+	        }));
+	      });
 	    }
 	  }, {
 	    key: "showSettingsPopup",
@@ -2983,7 +3004,7 @@ this.BX = this.BX || {};
 	    }
 	  }]);
 	  return AdjustFieldController;
-	}();
+	}(calendar_resourcebooking.EventEmitter);
 
 	var ResourceSelectorFieldEditControl = /*#__PURE__*/function () {
 	  function ResourceSelectorFieldEditControl(params) {
@@ -6372,7 +6393,7 @@ this.BX = this.BX || {};
 	      bookingFieldParams.settings = {
 	        caption: params.field.captionValue || params.field.dict.caption,
 	        required: params.field.isRequired || params.field.dict.required,
-	        data: params.field.settingsData || []
+	        data: main_core.Type.isPlainObject(params.field.booking) && main_core.Type.isPlainObject(params.field.booking.settings_data) ? params.field.booking.settings_data : params.field.settingsData || []
 	      };
 	      var adjustFieldController = new AdjustFieldController(bookingFieldParams);
 	      adjustFieldController.init();
@@ -6491,5 +6512,5 @@ this.BX = this.BX || {};
 	exports.AdminSettingsViewer = AdminSettingsViewer;
 	exports.ResourcebookingUserfield = ResourcebookingUserfield;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX,BX.Calendar,BX.Calendar));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX,BX,BX,BX.Calendar,BX.Calendar));
 //# sourceMappingURL=resourcebookinguserfield.bundle.js.map

@@ -1,17 +1,17 @@
 <?
 global $MESS;
 
-$MESS["SPCP_DTITLE"] = "Яндекс.Деньги";
-$MESS["SPCP_DDESCR"] = "Работа через Центр Приема Платежей <a href=\"http://money.yandex.ru\" target=\"_blank\">http://money.yandex.ru</a>";
+$MESS["SPCP_DTITLE"] = "ЮMoney";
+$MESS["SPCP_DDESCR"] = "Работа через Центр Приема Платежей <a href=\"https://yookassa.ru\" target=\"_blank\">https://yookassa.ru</a>";
 $MESS["SHOP_ID"] = "Идентификатор магазина в ЦПП (ShopID)";
-$MESS["SHOP_ID_DESCR"] = "Код магазина, который получен от Яндекс";
+$MESS["SHOP_ID_DESCR"] = "Код магазина, который получен от ЮKassa";
 $MESS["SCID"] = "Номер витрины магазина в ЦПП (scid)";
 $MESS["SCID_DESCR"] = "";
 $MESS["SCID_DESCT"] = "";
 $MESS["ORDER_ID"] = "Номер заказа";
 $MESS["ORDER_ID_DESCR"] = "";
 $MESS["SHOP_KEY"] = "Пароль магазина";
-$MESS["SHOP_KEY_DESCR"] = "Пароль магазина на Яндекс";
+$MESS["SHOP_KEY_DESCR"] = "Пароль магазина на ЮKassa";
 $MESS["SHOULD_PAY"] = "Сумма заказа";
 $MESS["SHOULD_PAY_DESCR"] = "Сумма к оплате";
 $MESS["ORDER_DATE"] = "Дата создания заказа";

@@ -25,7 +25,6 @@
 	var findParent = BX.Landing.Utils.findParent;
 	var offsetTop = BX.Landing.Utils.offsetTop;
 	var offsetLeft = BX.Landing.Utils.offsetLeft;
-	var Popup = BX.Landing.UI.Tool.Popup;
 
 
 	/**
@@ -209,7 +208,7 @@
 
 			if (!this.popup)
 			{
-				this.popup = new Popup({
+				this.popup = new BX.Main.Popup({
 					id: "catalog_blocks_list",
 					bindElement: this.addButton.layout,
 					content: this.itemsArea,

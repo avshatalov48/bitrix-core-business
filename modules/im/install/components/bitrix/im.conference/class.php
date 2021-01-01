@@ -1,9 +1,19 @@
 <?php
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 
+use Bitrix\Im\Call\Call;
+use Bitrix\Im\Call\Conference;
+use Bitrix\Im\Chat;
+use Bitrix\Intranet\Util;
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\Context;
+use Bitrix\Main\Data\LocalStorage\SessionLocalStorage;
 use \Bitrix\Main\Loader,
 	\Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Page\Asset;
 
 class ImComponentConference extends CBitrixComponent
 {
@@ -13,33 +23,13 @@ class ImComponentConference extends CBitrixComponent
 	private $userLimit = 0;
 	private $startupErrorCode = '';
 	private $isIntranetOrExtranet = false;
-	private $language = 'en';
+	private $isPasswordRequired = false;
+	/** @var $conference Bitrix\Im\Call\Conference **/
+	private $conference = null;
 
-	protected function checkModules()
-	{
-		if (!Loader::includeModule('im'))
-		{
-			\ShowError(Loc::getMessage('IM_COMPONENT_MODULE_IM_NOT_INSTALLED'));
-			return false;
-		}
-		return true;
-	}
-
-	protected function addUserToChat()
-	{
-		global $USER;
-
-		if ($this->userCount + 1 > $this->userLimit)
-		{
-			$this->startupErrorCode = \Bitrix\Im\Call\Conference::ERROR_USER_LIMIT_REACHED;
-		}
-		else
-		{
-			$chat = new \CIMChat(0);
-			$chat->AddUser($this->chatId, $USER->GetID());
-			$this->userCount++;
-		}
-	}
+	const OPTION_ENABLED = 'enabled';
+	const OPTION_DISABLED = 'disabled';
+	const OPTION_LIMITED = 'limited';
 
 	public function executeComponent()
 	{
@@ -52,157 +42,296 @@ class ImComponentConference extends CBitrixComponent
 			return false;
 		}
 
-		$this->chatId = (int)$this->arParams['CHAT_ID'];
-		if (!$this->chatId)
+		if (!$this->prepareParams())
 		{
 			return false;
 		}
 
-		\Bitrix\Main\UI\Extension::load("im.application.call");
-
-		$this->arResult['ALIAS'] = $this->arParams['ALIAS'];
-		$this->arResult['CHAT_ID'] = $this->chatId;
-		$this->arResult['SITE_ID'] = Context::getCurrent()->getSite();
-
-		$this->language = \Bitrix\Main\Localization\Loc::getCurrentLang();
-		$this->userCount = CIMChat::getUserCount($this->chatId);
-
-		if (\Bitrix\Im\Call\Call::isCallServerEnabled())
+		if ($this->arParams['WRONG_ALIAS'])
 		{
-			$this->userLimit = \Bitrix\Im\Call\Call::getMaxCallServerParticipants();
+			$this->startupErrorCode = Conference::ERROR_WRONG_ALIAS;
 		}
+		else if (!Loader::includeModule('intranet'))
+		{
+			$this->startupErrorCode = Conference::ERROR_BITRIX24_ONLY;
+		}
+//		else if ($this->conference && !$this->conference->isActive())
+//		{
+//			//finished or not started yet
+//			$this->startupErrorCode = $this->conference->getStatus();
+//		}
 		else
 		{
-			$this->userLimit = \Bitrix\Main\Config\Option::get('im', 'turn_server_max_users');
-		}
+			if ($this->conference->isPasswordRequired())
+			{
+				//if password is required - we check if user already had entered the password (this fact will be saved in session storage)
+				$storage = $this->getLocalSession();
+				if ($storage->get('checked') !== true)
+				{
+					$this->isPasswordRequired = true;
+				}
+			}
 
-		if (!\Bitrix\Main\Loader::includeModule('intranet'))
-		{
-			$this->startupErrorCode = \Bitrix\Im\Call\Conference::ERROR_BITRIX24_ONLY;
-		}
-		else
-		{
 			if ($USER->IsAuthorized())
 			{
-				$wasKickedFromChat = \Bitrix\Im\Chat::isUserKickedFromChat($this->chatId);
+				$wasKickedFromChat = Chat::isUserKickedFromChat($this->chatId);
 				if ($wasKickedFromChat)
 				{
-					$this->startupErrorCode = \Bitrix\Im\Call\Conference::ERROR_KICKED_FROM_CALL;
+					$this->startupErrorCode = Conference::ERROR_KICKED_FROM_CALL;
 				}
 				else
 				{
-					if (\Bitrix\Intranet\Util::isIntranetUser() || \Bitrix\Intranet\Util::isExtranetUser())
-					{
-						$this->userId = $USER->GetID();
-						$this->isIntranetOrExtranet = true;
-
-						$isUserInChat = \Bitrix\Im\Chat::isUserInChat($this->chatId);
-						if (!$isUserInChat)
-						{
-							$this->addUserToChat();
-						}
-					}
-					else if (!\Bitrix\Intranet\Util::isIntranetUser() &&
-						!\Bitrix\Intranet\Util::isExtranetUser() &&
-						$USER->GetParam('EXTERNAL_AUTH_ID') !== 'call')
-					{
-						$USER->Logout();
-					}
-					else
-					{
-						//it is authorized guest
-						$this->userId = $USER->GetID();
-
-						$isUserInChat = \Bitrix\Im\Chat::isUserInChat($this->chatId);
-						if (!$isUserInChat)
-						{
-							$this->addUserToChat();
-						}
-					}
+					$this->checkLoggedInUser();
 				}
 			}
 			else
 			{
-				$guest_cookie = isset($_COOKIE['VIDEOCONF_GUEST']);
-				$cookie_prefix = COption::GetOptionString('main', 'cookie_name', 'BITRIX_SM');
-				$cookie_login = (string)$_COOKIE[$cookie_prefix.'_UIDL'];
-				if ($cookie_login === '')
-				{
-					$cookie_login = (string)$_COOKIE[$cookie_prefix.'_LOGIN'];
-				}
-				if (!$guest_cookie && $cookie_login !== '' && mb_strpos($cookie_login, 'im_call') !== 0)
-				{
-					$USER->LoginByCookies();
+				//if user with intranet cookies clicked "continue as guest"
+				$guestCookieName = 'VIDEOCONF_GUEST_' . $this->conference->getAlias();
+				$guestCookie = isset($_COOKIE[$guestCookieName]);
 
+				$cookieLogin = $this->getLoginCookies();
+				if (!$guestCookie && $cookieLogin !== '' && mb_strpos($cookieLogin, 'im_call') !== 0)
+				{
+					//try to login by login cookies
+					$USER->LoginByCookies();
 					if ($USER->GetID() <= 0)
 					{
-						$this->startupErrorCode = \Bitrix\Im\Call\Conference::ERROR_DETECT_INTRANET_USER;
+						$this->startupErrorCode = Conference::ERROR_DETECT_INTRANET_USER;
 					}
 					else
 					{
-						if (\Bitrix\Intranet\Util::isIntranetUser() || \Bitrix\Intranet\Util::isExtranetUser())
-						{
-							$this->isIntranetOrExtranet = true;
-						}
-
-						if (!\Bitrix\Intranet\Util::isIntranetUser() &&
-							!\Bitrix\Intranet\Util::isExtranetUser() &&
-							$USER->GetParam('EXTERNAL_AUTH_ID') !== 'call')
-						{
-							$USER->Logout();
-						}
-						else
-						{
-							$this->userId = $USER->GetID();
-						}
+						$this->checkLoggedInUser();
 					}
 				}
-				else
+				else if ($this->userCount + 1 > $this->userLimit)
 				{
-					//it is new user
-					if ($this->userCount + 1 > $this->userLimit)
-					{
-						$this->startupErrorCode = \Bitrix\Im\Call\Conference::ERROR_USER_LIMIT_REACHED;
-					}
+					$this->startupErrorCode = Conference::ERROR_USER_LIMIT_REACHED;
 				}
 			}
 		}
 
+		$this->setRichLink();
+		$this->prepareResult();
+		$this->includeComponentTemplate();
+
+		return true;
+	}
+
+	protected function checkModules(): bool
+	{
+		if (!Loader::includeModule('im'))
+		{
+			\ShowError(Loc::getMessage('IM_COMPONENT_MODULE_IM_NOT_INSTALLED'));
+
+			return false;
+		}
+
+		return true;
+	}
+
+	protected function prepareParams(): bool
+	{
+		$this->chatId = (int)$this->arParams['CHAT_ID'];
+		if ($this->arParams['WRONG_ALIAS'])
+		{
+			return true;
+		}
+
+		if (!isset($this->chatId) && !$this->arParams['WRONG_ALIAS'])
+		{
+			return false;
+		}
+		$this->userCount = CIMChat::getUserCount($this->chatId);
+		if ($this->userCount === false)
+		{
+			return false;
+		}
+		$this->conference = Conference::getByAlias($this->arParams['ALIAS']);
+		if ($this->conference === false)
+		{
+			return false;
+		}
+
+		if (Call::isCallServerEnabled())
+		{
+			$this->userLimit = Call::getMaxCallServerParticipants();
+		}
+		else
+		{
+			$this->userLimit = Option::get('im', 'turn_server_max_users');
+		}
+
+		return true;
+	}
+
+	protected function prepareResult(): bool
+	{
+		$this->arResult['ALIAS'] = $this->arParams['ALIAS'];
+		$this->arResult['CHAT_ID'] = $this->chatId;
+		$this->arResult['PASSWORD_REQUIRED'] = $this->isPasswordRequired;
+		$this->arResult['SITE_ID'] = Context::getCurrent()->getSite();
 		$this->arResult['USER_ID'] = $this->userId;
 		$this->arResult['USER_COUNT'] = $this->userCount;
 		$this->arResult['STARTUP_ERROR_CODE'] = $this->startupErrorCode;
 		$this->arResult['IS_INTRANET_OR_EXTRANET'] = $this->isIntranetOrExtranet;
-		$this->arResult['LANGUAGE'] = $this->language;
+		$this->arResult['LANGUAGE'] = Loc::getCurrentLang();
+		$this->arResult['FEATURE_CONFIG'] = $this->getFeatureConfig();
 
-
-		$chatName = Loc::getMessage('IM_COMPONENT_DEFAULT_OG_TITLE');
-		$chatData = \Bitrix\Im\Chat::getById($this->chatId);
-		if ($chatData && $chatData['NAME'])
+		if ($this->conference)
 		{
-			$chatName = $chatData['NAME'];
+			$this->arResult['CONFERENCE_ID'] = $this->conference->getId();
+			$this->arResult['CONFERENCE_TITLE'] = $this->conference->getChatName();
 		}
 
-		\Bitrix\Main\Page\Asset::getInstance()->addString(
-			'<meta name="viewport" content="width=device-width, initial-scale=0.6"/>'
+		return true;
+	}
+
+	protected function getFeatureConfig()
+	{
+		$result = [];
+
+		/* feature screen sharing */
+
+		$screenSharingLimit = \Bitrix\Im\Limit::getTypeCallScreenSharing();
+		$screenSharingState = self::OPTION_ENABLED;
+
+		if ($screenSharingLimit['ACTIVE'])
+		{
+			if (\Bitrix\Im\User::getInstance($this->userId)->isExtranet())
+			{
+				$screenSharingState = self::OPTION_DISABLED;
+			}
+			else
+			{
+				$screenSharingState = self::OPTION_LIMITED;
+			}
+		}
+
+		$result[] = [
+			'id' => 'screenSharing',
+			'state' => $screenSharingState,
+			'articleCode' => $screenSharingLimit['ARTICLE_CODE'],
+		];
+
+		/* feature record */
+
+		$recordLimit = \Bitrix\Im\Limit::getTypeCallRecord();
+		$recordState = self::OPTION_ENABLED;
+
+		if ($recordLimit['ACTIVE'])
+		{
+			if (\Bitrix\Im\User::getInstance($this->userId)->isExtranet())
+			{
+				$recordState = self::OPTION_DISABLED;
+			}
+			else
+			{
+				$recordState = self::OPTION_LIMITED;
+			}
+		}
+
+		$result[] = [
+			'id' => 'record',
+			'state' => $recordState,
+			'articleCode' => $recordLimit['ARTICLE_CODE'],
+		];
+
+		return $result;
+	}
+
+	protected function addUserToChat(): bool
+	{
+		global $USER;
+
+		if ($this->userCount + 1 > $this->userLimit)
+		{
+			$this->startupErrorCode = Conference::ERROR_USER_LIMIT_REACHED;
+
+			return true;
+		}
+
+		$chat = new \CIMChat(0);
+		$addingResult = $chat->AddUser($this->chatId, $USER->GetID());
+
+		if (!$addingResult)
+		{
+			\ShowError(Loc::getMessage('IM_COMPONENT_MODULE_IM_NOT_INSTALLED'));
+
+			return false;
+		}
+		$this->userCount++;
+
+		return true;
+	}
+
+	protected function checkLoggedInUser(): void
+	{
+		global $USER;
+
+		if (Util::isIntranetUser() || Util::isExtranetUser())
+		{
+			$this->userId = $USER->GetID();
+			$this->isIntranetOrExtranet = true;
+
+			$isUserInChat = Chat::isUserInChat($this->chatId);
+			if (!$isUserInChat)
+			{
+				$this->addUserToChat();
+			}
+		}
+		//if not intranet/extranet/call-user - it is different external type, log him out and treat as guest
+		else if (!Util::isIntranetUser() && !Util::isExtranetUser() && $USER->GetParam('EXTERNAL_AUTH_ID') !== 'call')
+		{
+			$USER->Logout();
+		}
+		else
+		{
+			$this->userId = $USER->GetID();
+
+			$isUserInChat = Chat::isUserInChat($this->chatId);
+			if (!$isUserInChat)
+			{
+				$this->addUserToChat();
+			}
+		}
+	}
+
+	protected function getLoginCookies(): string
+	{
+		$cookiePrefix = COption::GetOptionString('main', 'cookie_name', 'BITRIX_SM');
+		$cookieLogin = (string)$_COOKIE[$cookiePrefix.'_UIDL'];
+		if ($cookieLogin === '')
+		{
+			$cookieLogin = (string)$_COOKIE[$cookiePrefix.'_LOGIN'];
+		}
+
+		return $cookieLogin;
+	}
+
+	protected function setRichLink(): bool
+	{
+		Asset::getInstance()->addString(
+			'<meta property="og:title" content="' . Loc::getMessage('IM_COMPONENT_OG_TITLE_2') . '" />'
 		);
-		\Bitrix\Main\Page\Asset::getInstance()->addString(
-			'<meta property="og:title" content="' . htmlspecialcharsbx($chatName) . '" />'
-		);
-		\Bitrix\Main\Page\Asset::getInstance()->addString(
-			'<meta property="og:description" content="' . Loc::getMessage('IM_COMPONENT_OG_DESCRIPTION') . '" />'
+		Asset::getInstance()->addString(
+			'<meta property="og:description" content="' . Loc::getMessage('IM_COMPONENT_OG_DESCRIPTION_2') . '" />'
 		);
 
-		$imagePath = $this->getPath() . '/images/og_image.jpg';
-		\Bitrix\Main\Page\Asset::getInstance()->addString(
+		$imagePath = $this->getPath() . '/images/og_image_3.jpg';
+		Asset::getInstance()->addString(
 			'<meta property="og:image" content="' . $imagePath . '" />'
 		);
 
-		\Bitrix\Main\Page\Asset::getInstance()->addString(
+		Asset::getInstance()->addString(
 			'<meta name="robots" content="noindex, nofollow" />'
 		);
 
-		$this->includeComponentTemplate();
-
 		return true;
+	}
+
+	protected function getLocalSession(): SessionLocalStorage
+	{
+		return \Bitrix\Main\Application::getInstance()->getLocalSession('conference_check_' . $this->conference->getId());
 	}
 };

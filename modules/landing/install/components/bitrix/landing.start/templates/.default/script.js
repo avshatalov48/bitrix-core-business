@@ -10,7 +10,7 @@
 		{
 			return;
 		}
-		
+
 		for (var i = 0, c = params.nodes.length; i < c; i++)
 		{
 			BX.bind(params.nodes[i], 'click', function(e)
@@ -55,10 +55,11 @@
 		{
 			BX.bind(querySelector[i], 'click', function(e)
 			{
-				BX.ajax({
-					url: '/bitrix/images/1.gif?action=' + this
-				});
-			}.bind(BX.data(querySelector[i], 'metrika24')));
+				BX.Landing.Utils.AnalyticLabel(
+					BX.data(this, 'metrika24'),
+					BX.data(this, 'metrika24value')
+				);
+			}.bind(querySelector[i]));
 		}
 	});
 

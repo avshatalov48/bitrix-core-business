@@ -1,11 +1,12 @@
-import {Type, Text, Tag, Dom, Event} from 'main.core';
+import {Type, Text, Tag, Dom} from 'main.core';
+import {EventEmitter} from 'main.core.events';
 import './css/style.css';
 import 'landing.utils';
 
 /**
  * @memberOf BX.Landing.UI.Panel
  */
-export class BasePanel extends Event.EventEmitter
+export class BasePanel extends EventEmitter
 {
 	static makeId(): string
 	{
@@ -111,5 +112,10 @@ export class BasePanel extends Event.EventEmitter
 	clear()
 	{
 		Dom.clean(this.layout);
+	}
+
+	setLayoutClass(className: string)
+	{
+		Dom.addClass(this.layout, className);
 	}
 }

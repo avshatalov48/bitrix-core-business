@@ -4,7 +4,6 @@ namespace Sale\Handlers\Delivery;
 
 use Bitrix\Crm\Timeline\DeliveryCategoryType;
 use Bitrix\Main\Error;
-use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Result;
@@ -394,16 +393,10 @@ final class YandextaxiHandler extends Taxi implements ICrmActivityProvider, ICrm
 		/**
 		 * Region Usage Restriction
 		 */
-		$currentRegion = null;
-		if (Loader::includeModule('bitrix24'))
-		{
-			$currentRegion = \CBitrix24::getLicensePrefix();
-		}
-		elseif (Loader::includeModule('intranet'))
-		{
-			$currentRegion = \CIntranetUtils::getPortalZone();
-		}
-		$isAvailableInCurrentRegion = in_array($currentRegion, ['ru', 'kz', 'by']);
+		$isAvailableInCurrentRegion = in_array(
+			ServiceContainer::getRegionFinder()->getCurrentRegion(),
+			['ru', 'kz']
+		);
 
 		/**
 		 * Context Usage Restriction

@@ -1,0 +1,36 @@
+.landing-ui-card-headercard {
+	margin-top: 0;
+	margin-left: 0;
+	margin-right: 0;
+	margin-bottom: 17px;
+	padding: 0;
+}
+
+.landing-ui-card-headercard .landing-ui-card-body:empty {
+	display: none;
+}
+
+.landing-ui-card-headercard-description {
+	font-family: OpenSans-Light, Helvetca, Arial, sans-sarif;
+	font-size: 11px;
+	padding-top: 7px;
+	display: inline-block;
+}
+
+.landing-ui-card-headercard .landing-ui-card-header {
+	font-family: OpenSans-Light, Helvetca, Arial, sans-sarif;
+	font-size: 22px;
+	color: #333333;
+	line-height: 28px;
+	padding-bottom: 21px;
+	border-bottom: 1px rgba(82, 92, 105, .1) solid;
+}
+
+.landing-ui-card-headercard-without-bottom-margin {
+	margin-bottom: 0!important;
+}
+
+.landing-ui-card-headercard-2 .landing-ui-card-header {
+	font-size: 18px;
+	padding-bottom: 15px;
+}

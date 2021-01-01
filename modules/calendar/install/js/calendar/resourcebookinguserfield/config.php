@@ -8,6 +8,8 @@ return [
 	'css' => 'dist/resourcebookinguserfield.bundle.css',
 	'js' => 'dist/resourcebookinguserfield.bundle.js',
 	'rel' => [
+		'helper',
+		'socnetlogdest',
 		'main.core',
 		'calendar.resourcebookinguserfield',
 		'calendar.resourcebooking',

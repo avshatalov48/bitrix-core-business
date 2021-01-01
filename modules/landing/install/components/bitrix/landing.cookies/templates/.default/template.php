@@ -4,6 +4,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+/** @var array $arParams */
+/** @var array $arResult */
+
 use \Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
@@ -45,9 +48,9 @@ Loc::loadMessages(__FILE__);
 		</div>
 		<div class="bx-landing-cookies-popup-footer">
 			<button class="ui-btn ui-btn-lg ui-btn-primary ui-btn-round bx-landing-cookies-button-save">
-				<?= Loc::getMessage('LANDING_TPL_COOKIES_ACCEPT');?>
+				<?= Loc::getMessage(($arParams['INFORMATION'] == 'Y') ? 'LANDING_TPL_COOKIES_UNDERSTAND' : 'LANDING_TPL_COOKIES_ACCEPT');?>
 			</button>
-			<button class="ui-btn ui-btn-lg ui-btn-light-border ui-btn-round bx-landing-cookies-button-cancel">
+			<button class="ui-btn ui-btn-lg ui-btn-light-border ui-btn-round bx-landing-cookies-button-cancel"<?if ($arParams['INFORMATION'] == 'Y') {?> style="display: none;" <?}?>>
 				<?= Loc::getMessage('LANDING_TPL_COOKIES_DECLINE');?>
 			</button>
 		</div>
@@ -60,8 +63,12 @@ Loc::loadMessages(__FILE__);
 				<span class="bx-landing-cookies-popup-warning-link" id="bx-landing-cookies-opt-link"><?= Loc::getMessage('LANDING_TPL_COOKIES_DETAIL_LINK');?></span>
 			</div>
 			<div class="bx-landing-cookies-popup-warning-right">
-				<span class="ui-btn ui-btn-lg ui-btn-light-border ui-btn-round" id="bx-landing-cookies-opt"><?= Loc::getMessage('LANDING_TPL_COOKIES_OPT');?></span>
-				<span class="ui-btn ui-btn-lg ui-btn-primary ui-btn-round" id="bx-landing-cookies-accept"><?= Loc::getMessage('LANDING_TPL_COOKIES_ACCEPT');?></span>
+				<span class="ui-btn ui-btn-lg ui-btn-light-border ui-btn-round" id="bx-landing-cookies-opt">
+					<?= Loc::getMessage(($arParams['INFORMATION'] == 'Y') ? 'LANDING_TPL_COOKIES_DETAIL' : 'LANDING_TPL_COOKIES_OPT');?>
+				</span>
+				<span class="ui-btn ui-btn-lg ui-btn-primary ui-btn-round" id="bx-landing-cookies-accept">
+					<?= Loc::getMessage(($arParams['INFORMATION'] == 'Y') ? 'LANDING_TPL_COOKIES_UNDERSTAND' : 'LANDING_TPL_COOKIES_ACCEPT');?>
+				</span>
 			</div>
 		</div>
 	</div>
@@ -81,6 +88,15 @@ Loc::loadMessages(__FILE__);
 	</div>
 <?endif;?>
 
+<?if ($arParams['INFORMATION'] == 'Y'):?>
+<style>
+	.bx-landing-cookies-popup-content .ui-switcher,
+	.bx-landing-cookies-popup-content .bx-landing-cookies-switcher {
+		display: none;
+	}
+</style>
+<?endif;?>
+
 <script>
 	// don't use BX.ready here
 	window.addEventListener('load', function()
@@ -88,6 +104,7 @@ Loc::loadMessages(__FILE__);
 		new BX.Landing.Cookies({
 			enable: <?= $arParams['USE'] == 'Y' ? 'true' : 'false';?>,
 			siteId: <?= $arParams['SITE_ID'];?>,
+			onlyInformation: <?= ($arParams['INFORMATION'] == 'Y') ? 'true' : 'false';?>,
 			availableCodes: <?= json_encode($arResult['AVAILABLE_AGREEMENTS']);?>,
 			idButtonOpt: 'bx-landing-cookies-opt',
 			idButtonOptLink: 'bx-landing-cookies-opt-link',

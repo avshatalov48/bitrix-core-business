@@ -1067,7 +1067,7 @@ CalendarPlanner.prototype =
 			entry.rowWrap = this.entriesListWrap.appendChild(BX.create("DIV", {
 				attrs: {
 					'data-bx-planner-entry' : entry.uid,
-					className: 'calendar-planner-user'
+					className: 'calendar-planner-user' + (entry.emailUser ? ' calendar-planner-email-user' : '')
 				}
 			}));
 

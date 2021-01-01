@@ -188,7 +188,7 @@
 	max-width: 250px;
 	left: 0;
 	top: 0;
-	overflow-y: scroll;
+	overflow-y: auto;
 	margin-left: 14px;
 	margin-right: 5px;
 	transform: translateZ(0);
@@ -238,3 +238,8 @@
 	opacity: 1;
 }
 
+.landing-ui-hide-action-panels .landing-ui-panel-create-action,
+.landing-ui-hide-action-panels .landing-ui-panel-content-action,
+.landing-ui-hide-action-panels .landing-ui-panel-block-action {
+	display: none!important;
+}

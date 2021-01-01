@@ -279,6 +279,7 @@ CREATE TABLE b_im_alias
 (
 	ID int(18) not null auto_increment,
 	ALIAS varchar(255) not null,
+	DATE_CREATE datetime,
 	ENTITY_TYPE varchar(255) not null,
 	ENTITY_ID varchar(255) not null,
 	PRIMARY KEY PK_B_IM_ALIAS (ID),
@@ -383,4 +384,14 @@ CREATE TABLE b_im_block_user(
 	CHAT_ID int(18) not null,
 	USER_ID int(18) not null,
 	PRIMARY KEY PK_B_IM_BLOCK_USER (ID)
+);
+
+CREATE TABLE b_im_conference(
+	ID int(18) not null auto_increment,
+	ALIAS_ID int(18) not null,
+	PASSWORD text,
+	INVITATION text,
+	CONFERENCE_START datetime,
+	CONFERENCE_END datetime,
+	PRIMARY KEY PK_B_IM_CONFERENCE(ID)
 );

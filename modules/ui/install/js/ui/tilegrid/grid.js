@@ -295,6 +295,11 @@ BX.TileGrid.Grid.prototype =
 		}
 	},
 
+	getItemHeight: function()
+	{
+		return this.itemHeight;
+	},
+
 	changeTileSize: function(tileSize)
 	{
 		this.tileSize = tileSize;

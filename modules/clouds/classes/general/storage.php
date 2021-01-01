@@ -59,7 +59,7 @@ class CCloudStorage
 
 	/**
 	 * @param string $ID
-	 * @return array[string]string
+	 * @return array[string]string|false
 	 */
 	public static function GetServiceLocationList($ID)
 	{

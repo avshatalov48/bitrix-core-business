@@ -44,6 +44,12 @@ class Rights
 	];
 
 	/**
+	 * Allowed site ids with full access.
+	 * @var int[]
+	 */
+	protected static $allowedSites = [];
+
+	/**
 	 * If true, rights is not checking.
 	 * @var bool
 	 */
@@ -128,6 +134,15 @@ class Rights
 			return Manager::isAdmin();
 		}
 		return false;
+	}
+
+	/**
+	 * Returns allowed sites with full access.
+	 * @return int[]
+	 */
+	public static function getAllowedSites(): array
+	{
+		return self::$allowedSites;
 	}
 
 	/**
@@ -369,6 +384,17 @@ class Rights
 	 */
 	protected static function getOperations($entityId, $entityType)
 	{
+		// full access for allowed sites
+		if (
+			$entityType == self::ENTITY_TYPE_SITE &&
+			in_array($entityId, self::$allowedSites)
+		)
+		{
+			$types = self::ACCESS_TYPES;
+			unset($types[self::ACCESS_TYPES['delete']]);
+			return array_values($types);
+		}
+
 		$operations = [];
 		$operationsDefault = [];
 		$wasChecked = false;
@@ -666,9 +692,10 @@ class Rights
 
 	/**
 	 * Gets access filter for current user.
+	 * @param array $additionalFilterOr Additional filter for OR section.
 	 * @return array
 	 */
-	public static function getAccessFilter()
+	public static function getAccessFilter(array $additionalFilterOr = [])
 	{
 		$filter = [];
 
@@ -693,7 +720,8 @@ class Rights
 					],
 					[
 						'=RIGHTS.TASK_ID' => null
-					]
+					],
+					$additionalFilterOr
 				];
 			}
 			else
@@ -708,7 +736,8 @@ class Rights
 						'=RIGHTS.TASK_ID' => null,
 						'!RIGHTS_COMMON.TASK_ID' => $tasks[Rights::ACCESS_TYPES['denied']],
 						'RIGHTS_COMMON.USER_ACCESS.USER_ID' => $uid
-					]
+					],
+					$additionalFilterOr
 				];
 			}
 		}
@@ -906,7 +935,7 @@ class Rights
 		{
 			if (mb_strpos($right, '_') > 0)
 			{
-				list($prefix, ) = explode('_', $right);
+				[$prefix, ] = explode('_', $right);
 				$prefix = mb_strtoupper($prefix);
 				if ($prefix != $type)
 				{
@@ -924,14 +953,57 @@ class Rights
 	}
 
 	/**
+	 * Has user some extra access?
+	 * @return bool
+	 */
+	protected static function hasExtraRights(): bool
+	{
+		// has context user access to crm forms
+		if (\Bitrix\Main\Loader::includeModule('crm'))
+		{
+			$access = new \CCrmPerms(self::getContextUserId());
+			if (!$access->havePerm('WEBFORM', BX_CRM_PERM_NONE, 'WRITE'))
+			{
+				// grant access to crm forms sites
+				$res = Site::getList([
+					'select' => [
+						'ID'
+					],
+					'filter' => [
+						'=CODE' => [
+							'/' . Site\Type::PSEUDO_SCOPE_CODE_FORMS . '/',
+							'/' . Site\Type::PSEUDO_SCOPE_CODE_FORMS . '2/'// :(
+						],
+						'=SPECIAL' => 'Y',
+						'CHECK_PERMISSIONS' => 'N'
+					]
+				]);
+				while ($row = $res->fetch())
+				{
+					self::$allowedSites[] = $row['ID'];
+				}
+
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Has current user additional right or not.
 	 * @param string $code Code from ADDITIONAL_RIGHTS.
 	 * @param string $type Scope type.
+	 * @param bool $checkExtraRights Check extra rights.
 	 * @return bool
 	 */
-	public static function hasAdditionalRight($code, $type = null)
+	public static function hasAdditionalRight($code, $type = null, bool $checkExtraRights = false)
 	{
 		static $options = [];
+
+		if ($checkExtraRights && self::hasExtraRights())
+		{
+			return true;
+		}
 
 		if (!is_string($code))
 		{

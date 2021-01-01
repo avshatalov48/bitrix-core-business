@@ -413,13 +413,14 @@ $title = <<<HTML
 	</div>
 HTML;
 
+$APPLICATION->AddViewContent("left-panel-before", $title);
+
 if(!empty($arResult["CATEGORIES"])):
 	?><? $APPLICATION->IncludeComponent(
 		"bitrix:ui.sidepanel.wrappermenu",
 		'',
 		[
 			"ID" => "mp-left-menu",
-			"TITLE_HTML" => $title,
 			"ITEMS" => $items
 		]
 	);?>

@@ -238,7 +238,10 @@ final class Manager
 		$cacheManager = Main\Application::getInstance()->getManagedCache();
 		$cacheManager->clean(Manager::CACHE_ID);
 
-		if (is_subclass_of($data['HANDLER'], '\Bitrix\Sale\Cashbox\ICheckable'))
+		if (
+			is_subclass_of($data['HANDLER'], ICheckable::class)
+			|| is_subclass_of($data['HANDLER'], ICorrection::class)
+		)
 		{
 			static::addCheckStatusAgent();
 		}
@@ -328,43 +331,58 @@ final class Manager
 	{
 		$cashboxList = static::getListFromCache();
 		if (!$cashboxList)
+		{
 			return '';
+		}
 
-		$availableCashboxList = array();
+		$availableCashboxList = [];
 		foreach ($cashboxList as $item)
 		{
 			$cashbox = Cashbox::create($item);
-			if ($cashbox instanceof ICheckable)
+			if (
+				$cashbox instanceof ICheckable
+				|| $cashbox instanceof ICorrection
+			)
 			{
 				$availableCashboxList[$item['ID']] = $cashbox;
 			}
 		}
 
 		if (!$availableCashboxList)
+		{
 			return '';
+		}
 
-		$parameters = array(
-			'filter' => array(
+		$parameters = [
+			'filter' => [
 				'=STATUS' => 'P',
-				'CASHBOX_ID' => array_keys($availableCashboxList),
+				'@CASHBOX_ID' => array_keys($availableCashboxList),
 				'=CASHBOX.ACTIVE' => 'Y'
-			),
+			],
 			'limit' => 5
-		);
+		];
 		$dbRes = CheckManager::getList($parameters);
 		while ($checkInfo = $dbRes->fetch())
 		{
-			/** @var Cashbox|ICheckable $cashbox */
+			/** @var Cashbox|ICheckable|ICorrection $cashbox */
 			$cashbox = $availableCashboxList[$checkInfo['CASHBOX_ID']];
 			if ($cashbox)
 			{
-				$checkTypeMap = CheckManager::getCheckTypeMap();
-				$check = Check::create($checkTypeMap[$checkInfo['TYPE']]);
-				if (!$check)
-					continue;
+				$check = CheckManager::getObjectById($checkInfo['ID']);
 
-				$check->init($checkInfo);
-				$result = $cashbox->check($check);
+				if ($check instanceof CorrectionCheck)
+				{
+					$result = $cashbox->checkCorrection($check);
+				}
+				elseif ($check instanceof Check)
+				{
+					$result = $cashbox->check($check);
+				}
+				else
+				{
+					continue;
+				}
+
 				if (!$result->isSuccess())
 				{
 					foreach ($result->getErrors() as $error)

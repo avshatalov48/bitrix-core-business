@@ -5,12 +5,14 @@ namespace Bitrix\Landing\Assets\PreProcessing;
 use Bitrix\Landing\Assets;
 use \Bitrix\Landing\Block;
 use \Bitrix\Landing\Internals\BlockTable;
+use Bitrix\Main\Web\Json;
 
 class CustomExtensions
 {
 	protected const EXT_POPUP = 'landing_popup_link';
 	protected const EXT_JQUERY = 'landing_jquery';
 	protected const CRITICAL_EXTENSIONS = ['landing_jquery'];
+	protected const HTML_BLOCK_CODE = 'html';
 
 	/**
 	 * @param Block $block Bock instance.
@@ -25,18 +27,37 @@ class CustomExtensions
 			return;
 		}
 
-		// todo: decode and check "enable" flag
-		if (
-			preg_match('/target=["\']_popup["\']/i', $content)
-			|| preg_match('/data-pseudo-url=["\'][^"\']*target&quot;:&quot;_popup[^"\']*["\']/i', $content)
-		)
+		// <a href=> and data-url=""
+		if (preg_match('/target=["\']_popup["\']/i', $content))
 		{
 			$newExtensions[] = self::EXT_POPUP;
+		}
+		// pseudo-urls
+		if(preg_match_all('/data-pseudo-url=["\'][^"\']*_popup[^"\']*["\']/i', $content, $pseudoUrls))
+		{
+			foreach ($pseudoUrls[0] as $pseudoUrl)
+			{
+				$params = htmlspecialcharsback($pseudoUrl);
+				$params = str_replace('data-pseudo-url=', '', $params);
+				$params = substr($params,0,-1);
+				$params = substr($params,1);
+				$params = Json::decode($params);
+				if($params['enabled'])
+				{
+					$newExtensions[] = self::EXT_POPUP;
+					break;
+				}
+			}
 		}
 
 		// for partners using jQuery always
 		// todo: add flag 'no_jq' for different jq?
 		if ($block->getRepoId())
+		{
+			$newExtensions[] = self::EXT_JQUERY;
+		}
+
+		if ($block->getCode() === self::HTML_BLOCK_CODE)
 		{
 			$newExtensions[] = self::EXT_JQUERY;
 		}

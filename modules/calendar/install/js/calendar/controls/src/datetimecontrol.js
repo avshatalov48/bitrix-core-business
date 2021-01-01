@@ -275,14 +275,24 @@ export class DateTimeControl extends EventEmitter
 		let target = e.target || e.srcElement;
 		if (Type.isDomNode(target) && target.nodeName.toLowerCase() === 'input')
 		{
-			BX.calendar({node: target.parentNode, field: target, bTime: false});
+			const calendarControl = BX.calendar.get();
+			if (calendarControl.popup)
+			{
+				// Workaround hack for BX.calendar - it works as singleton and we trying to reinit it
+				calendarControl.popup.destroy();
+				calendarControl.popup = null;
+				calendarControl._current_layer = null;
+				calendarControl._layers = {};
+			}
+			calendarControl.Show({node: target.parentNode, field: target, bTime: false});
 			BX.onCustomEvent(window, 'onCalendarControlChildPopupShown');
 
-			if (BX.calendar.get().popup)
+			const calendarPopup = calendarControl.popup;
+			if (calendarPopup)
 			{
-				BX.removeCustomEvent(BX.calendar.get().popup, 'onPopupClose', DateTimeControl.inputCalendarClosePopupHandler);
-				BX.addCustomEvent(BX.calendar.get().popup, 'onPopupClose', DateTimeControl.inputCalendarClosePopupHandler);
-				BX.calendar.get().popup.popupContainer.style.zIndex = zIndex;
+				BX.removeCustomEvent(calendarPopup, 'onPopupClose', DateTimeControl.inputCalendarClosePopupHandler);
+				BX.addCustomEvent(calendarPopup, 'onPopupClose', DateTimeControl.inputCalendarClosePopupHandler);
+				calendarPopup.popupContainer.style.zIndex = zIndex;
 			}
 		}
 	}

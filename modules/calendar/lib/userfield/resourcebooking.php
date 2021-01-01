@@ -1245,7 +1245,9 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 
 		if (isset($data['users']))
 		{
-			$userIdList = explode('|', $data['users']['value']);
+			$userIdList = is_array($data['users']['value'])
+				? $data['users']['value']
+				: explode('|', $data['users']['value']);
 			array_walk($userIdList, 'intval');
 
 			$resultData['usersAccessibility'] = [];
@@ -1315,7 +1317,10 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 		{
 			$resultData['resourcesAccessibility'] = [];
 
-			$resourceIdList = explode('|', $data['resources']['value']);
+			$resourceIdList = is_array($data['resources']['value'])
+				? $data['resources']['value']
+				: explode('|', $data['resources']['value']);
+
 			array_walk($resourceIdList, 'intval');
 
 			$resEntries = \CCalendarEvent::getList(

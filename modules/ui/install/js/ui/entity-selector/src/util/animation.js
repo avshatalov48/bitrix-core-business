@@ -32,7 +32,7 @@ export default class Animation
 				if (!animationName || (event.animationName === animationName))
 				{
 					resolve(event);
-					Event.bind(element, 'animationend', handler);
+					Event.unbind(element, 'animationend', handler);
 				}
 			};
 

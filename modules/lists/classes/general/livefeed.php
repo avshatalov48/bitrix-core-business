@@ -268,6 +268,7 @@ class CListsLiveFeed
 					'',
 					Array(
 						'WORKFLOW_ID' => $fields['MESSAGE'],
+						'SITE_TEMPLATE_ID' => (isset($params['SITE_TEMPLATE_ID']) ? $params['SITE_TEMPLATE_ID'] : '')
 					),
 					null,
 					array('HIDE_ICONS' => 'Y')

@@ -31,6 +31,7 @@ Vue.component('bx-socialvideo',
 		containerClass: { default: null },
 		containerStyle: { default: null },
 		elementStyle: { default: null },
+		showControls: { default: true }
 	},
 	data()
 	{
@@ -547,12 +548,12 @@ Vue.component('bx-socialvideo',
 				'ui-vue-socialvideo-mobile': isMobile,
 			}]" :style="containerStyle" @click="click">
 			<transition name="ui-vue-socialvideo-animation-fade">
-				<div v-if="showStartButton" class="ui-vue-socialvideo-button-start">
+				<div v-if="showStartButton && showControls" class="ui-vue-socialvideo-button-start">
 					<span class="ui-vue-socialvideo-button-start-icon"></span>
 				</div>
 			</transition>
 			<transition name="ui-vue-socialvideo-animation-fade">
-				<div v-if="showInterface" class="ui-vue-socialvideo-overlay-container">
+				<div v-if="showInterface && showControls" class="ui-vue-socialvideo-overlay-container">
 					<div class="ui-vue-socialvideo-controls-container" @click="clickToButton">
 						<button :class="['ui-vue-socialvideo-control', {
 							'ui-vue-socialvideo-control-loader': loading,

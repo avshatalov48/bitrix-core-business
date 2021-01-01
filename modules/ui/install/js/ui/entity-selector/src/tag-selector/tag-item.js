@@ -365,12 +365,12 @@ export default class TagItem
 
 	getEntityTagOption(option: string): any
 	{
-		return Entity.getTagOption(this.getEntityId(), this.getEntityType(), option);
+		return Entity.getTagOption(this.getEntityId(), option, this.getEntityType());
 	}
 
 	getEntityItemOption(option: string): any
 	{
-		return Entity.getItemOption(this.getEntityId(), this.getEntityType(), option);
+		return Entity.getItemOption(this.getEntityId(), option, this.getEntityType());
 	}
 
 	isRendered()

@@ -146,11 +146,14 @@ class Domain
 		}
 
 		$puny = new \CBXPunycode;
-		$domain = trim($domain);
+		$domain = $puny->encode(trim($domain));
+		$tld = DomainCore::getTLD($domain);
 		$return = [
 			'available' => true,
-			'domain' => $puny->encode($domain),
-			'deleted' => false
+			'deleted' => false,
+			'domain' => $domain,
+			'tld' => $tld,
+			'dns' => Register::getDNSRecords($tld)
 		];
 
 		// additional filter

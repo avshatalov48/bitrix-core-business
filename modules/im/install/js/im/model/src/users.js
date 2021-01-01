@@ -240,7 +240,7 @@ export class UsersModel extends VuexBuilderModel
 			{
 				this.initCollection(state, payload);
 
-				if (typeof payload.fields.lastActivityDate !== 'undefined')
+				if (typeof payload.fields.lastActivityDate !== 'undefined' && state.collection[payload.id].lastActivityDate)
 				{
 					let lastActivityDate = state.collection[payload.id].lastActivityDate.getTime();
 					let newActivityDate = payload.fields.lastActivityDate.getTime();

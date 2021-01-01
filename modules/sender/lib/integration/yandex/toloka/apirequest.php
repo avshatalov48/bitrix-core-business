@@ -16,7 +16,7 @@ class ApiRequest extends BaseApiObject
 	public const ACCESS_CODE = 'toloka_access_code';
 
 	/**
-	 * ApiRequest constructor.
+	 * Ya.Toloka ApiRequest constructor.
 	 */
 	public function __construct()
 	{
@@ -36,6 +36,12 @@ class ApiRequest extends BaseApiObject
 		$this->setClientSecret($authorizeData['client_secret']);
 	}
 
+	/**
+	 * Get task list from Ya.Toloka
+	 * @param array $params
+	 *
+	 * @return mixed
+	 */
 	public function getTaskList($params = [])
 	{
 		$this->sendRequest(
@@ -51,6 +57,12 @@ class ApiRequest extends BaseApiObject
 		return $this->result;
 	}
 
+	/**
+	 *  Get Pool list from Ya.Toloka
+	 * @param array $params
+	 *
+	 * @return mixed
+	 */
 	public function getPoolList($params = [])
 	{
 		$this->sendRequest(
@@ -67,6 +79,12 @@ class ApiRequest extends BaseApiObject
 		return $this->result;
 	}
 
+	/**
+	 * Get Project list from Ya.Toloka
+	 * @param array $params
+	 *
+	 * @return mixed
+	 */
 	public function getProjectList($params = [])
 	{
 		$this->sendRequest(
@@ -84,6 +102,12 @@ class ApiRequest extends BaseApiObject
 		return $this->result;
 	}
 
+	/**
+	 * Get Geo list from Ya.Toloka
+	 * @param array $params
+	 *
+	 * @return mixed
+	 */
 	public function getGeoList($params = [])
 	{
 		$this->sendRequest(
@@ -101,6 +125,12 @@ class ApiRequest extends BaseApiObject
 		return $this->result;
 	}
 
+	/**
+	 * Get Project information from Ya.Toloka by project id
+	 * @param array $params
+	 *
+	 * @return mixed
+	 */
 	public function getProjectInfo($params = [])
 	{
 		$this->sendRequest(
@@ -113,6 +143,12 @@ class ApiRequest extends BaseApiObject
 		return $this->result;
 	}
 
+	/**
+	 * Create Ya.Toloka Project
+	 * @param Project $project
+	 *
+	 * @return mixed
+	 */
 	public function createProject(Project $project)
 	{
 		$this->sendRequest(
@@ -125,6 +161,12 @@ class ApiRequest extends BaseApiObject
 		return $this->result;
 	}
 
+	/**
+	 * Create Ya.Toloka Pool
+	 * @param Pool $pool
+	 *
+	 * @return mixed
+	 */
 	public function createPool(Pool $pool)
 	{
 		$this->sendRequest(
@@ -137,6 +179,12 @@ class ApiRequest extends BaseApiObject
 		return $this->result;
 	}
 
+	/**
+	 * Edit Ya.Toloka Project
+	 * @param Project $project
+	 *
+	 * @return mixed
+	 */
 	public function editProject(Project $project)
 	{
 
@@ -153,6 +201,12 @@ class ApiRequest extends BaseApiObject
 		return $this->result;
 	}
 
+	/**
+	 * Edit Ya.Toloka Pool
+	 * @param Pool $pool
+	 *
+	 * @return mixed
+	 */
 	public function editPool(Pool $pool)
 	{
 		$this->sendRequest(
@@ -168,6 +222,12 @@ class ApiRequest extends BaseApiObject
 		return $this->result;
 	}
 
+	/**
+	 * Create Ya.Toloka task
+	 * @param Task $task
+	 *
+	 * @return mixed
+	 */
 	public function createTask(Task $task)
 	{
 		$this->sendRequest(
@@ -181,6 +241,12 @@ class ApiRequest extends BaseApiObject
 		return $this->result;
 	}
 
+	/**
+	 * Create Ya.Toloka Task Suite
+	 * @param TaskSuite $taskSuite
+	 *
+	 * @return mixed
+	 */
 	public function createTaskSuite(TaskSuite $taskSuite)
 	{
 		$this->sendRequest(
@@ -205,6 +271,12 @@ class ApiRequest extends BaseApiObject
 		return $this->result;
 	}
 
+	/**
+	 * Create Ya.Toloka tasks
+	 * @param Task[] $taskList
+	 *
+	 * @return mixed
+	 */
 	public function createTasks(array $taskList)
 	{
 		$tasks = [];
@@ -223,6 +295,12 @@ class ApiRequest extends BaseApiObject
 		return $this->result;
 	}
 
+	/**
+	 * Stop Ya.Toloka Task suite
+	 * @param string $suiteId
+	 *
+	 * @return mixed
+	 */
 	public function stopTaskSuite(string $suiteId)
 	{
 		$this->sendRequest(
@@ -238,6 +316,12 @@ class ApiRequest extends BaseApiObject
 		return $this->result;
 	}
 
+	/**
+	 * Delete Ya.Toloka Tasks by pool id
+	 * @param int $poolId
+	 *
+	 * @return mixed
+	 */
 	public function deleteTasks(int $poolId)
 	{
 		$this->sendRequest(
@@ -252,6 +336,12 @@ class ApiRequest extends BaseApiObject
 		return $this->result;
 	}
 
+	/**
+	 * Open Ya.Toloka pool by poolId
+	 * @param $poolId
+	 *
+	 * @return mixed
+	 */
 	public function openPool($poolId)
 	{
 		$this->sendRequest(
@@ -264,6 +354,12 @@ class ApiRequest extends BaseApiObject
 		return $this->result;
 	}
 
+	/**
+	 * Close Ya.Toloka pool by poolId
+	 * @param $poolId
+	 *
+	 * @return mixed
+	 */
 	public function closePool($poolId)
 	{
 		$this->sendRequest(

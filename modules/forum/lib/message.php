@@ -127,8 +127,12 @@ class MessageTable extends Main\Entity\DataManager
 			(new TextField("HTML")),
 			(new TextField("MAIL_HEADER")),
 			(new IntegerField("SERVICE_TYPE")),
+			(new TextField("SERVICE_DATA")),
 
-			(new Reference("TOPIC", TopicTable::class, Join::on("this.TOPIC_ID", "ref.ID")))
+			(new Reference("TOPIC", TopicTable::class, Join::on("this.TOPIC_ID", "ref.ID"))),
+			(new Reference("FORUM_USER", UserTable::class, Join::on("this.AUTHOR_ID", "ref.USER_ID"))),
+			(new Reference("FORUM_USER_TOPIC", UserTopicTable::class, Join::on("this.TOPIC_ID", "ref.TOPIC_ID"))),
+			(new Reference("USER", \Bitrix\Main\UserTable::class, Join::on("this.AUTHOR_ID", "ref.ID")))
 		);
 	}
 
@@ -720,6 +724,10 @@ class Message extends Internals\Entity
 		if (isset($fields['SERVICE_TYPE']))
 		{
 			$data['SERVICE_TYPE'] = $fields['SERVICE_TYPE'];
+		}
+		if (isset($fields['SERVICE_DATA']))
+		{
+			$data['SERVICE_DATA'] = $fields['SERVICE_DATA'];
 		}
 
 		if ($realIp = \Bitrix\Main\Service\GeoIp\Manager::getRealIp())

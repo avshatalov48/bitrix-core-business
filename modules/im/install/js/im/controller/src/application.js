@@ -64,6 +64,11 @@ export class ApplicationController
 		return this.controller.getStore().state.application.dialog.dialogId;
 	}
 
+	getData()
+	{
+		return this.controller.getStore().state.application;
+	}
+
 	getDialogData(dialogId = this.getDialogId())
 	{
 		if (this.controller.getStore().state.dialogues.collection[dialogId])
@@ -511,6 +516,16 @@ export class ApplicationController
 			'TYPE': type,
 		});
 
+		return true;
+	}
+
+	replyToUser(userId, user)
+	{
+		return true;
+	}
+
+	openMessageReactionList(messageId, values)
+	{
 		return true;
 	}
 

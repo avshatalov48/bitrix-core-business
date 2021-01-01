@@ -3212,24 +3212,25 @@ class AjaxProcessor
 			return ;
 		}
 
-		$typeList = Cashbox\CheckManager::getCheckTypeMap();
+		$typeList = Cashbox\CheckManager::getSalesCheckList();
 		$checkType = null;
 		$typeListHtml = '';
-		/** @var Cashbox\Check $typeClass */
-		foreach ($typeList as $id => $typeClass)
+
+		/** @var Cashbox\Check $check */
+		foreach ($typeList as $check)
 		{
-			if (class_exists($typeClass))
+			if (class_exists($check))
 			{
-				if ($typeClass::getSupportedEntityType() === Cashbox\Check::SUPPORTED_ENTITY_TYPE_SHIPMENT)
+				if ($check::getSupportedEntityType() === Cashbox\Check::SUPPORTED_ENTITY_TYPE_SHIPMENT)
 					continue;
 
 				if ($checkType === null)
 				{
-					$checkType = $id;
+					$checkType = $check::getType();
 				}
 
-				$type = $typeClass::getName();
-				$typeListHtml .= "<option value='".$id."'>".$type."</option>";
+				$type = $check::getName();
+				$typeListHtml .= "<option value='".$check::getType()."'>".$type."</option>";
 			}
 		}
 
@@ -3327,23 +3328,23 @@ class AjaxProcessor
 		}
 
 		$checkType = null;
-		$typeList = Cashbox\CheckManager::getCheckTypeMap();
+		$checkList = Cashbox\CheckManager::getSalesCheckList();
 		$typeListHtml = '';
-		/** @var Cashbox\Check $typeClass */
-		foreach ($typeList as $id => $typeClass)
+		/** @var Cashbox\Check $check */
+		foreach ($checkList as $check)
 		{
-			if (class_exists($typeClass))
+			if (class_exists($check))
 			{
-				if ($typeClass::getSupportedEntityType() === Cashbox\Check::SUPPORTED_ENTITY_TYPE_PAYMENT)
+				if ($check::getSupportedEntityType() === Cashbox\Check::SUPPORTED_ENTITY_TYPE_PAYMENT)
 					continue;
 
 				if ($checkType === null)
 				{
-					$checkType = $id;
+					$checkType = $check::getType();
 				}
 
-				$type = $typeClass::getName();
-				$typeListHtml .= "<option value='".$id."'>".$type."</option>";
+				$type = $check::getName();
+				$typeListHtml .= "<option value='".$check::getType()."'>".$type."</option>";
 			}
 		}
 

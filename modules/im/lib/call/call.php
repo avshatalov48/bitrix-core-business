@@ -2,6 +2,7 @@
 
 namespace Bitrix\Im\Call;
 
+use Bitrix\Im\Call\Integration\Chat;
 use Bitrix\Im\Call\Integration\EntityFabric;
 use Bitrix\Im\Call\Integration\EntityType;
 use Bitrix\Im\Dialog;
@@ -241,6 +242,14 @@ class Call
 	}
 
 	/**
+	 * @return int|false
+	 */
+	public function getParentId()
+	{
+		return $this->parentId;
+	}
+
+	/**
 	 * @param string $state
 	 */
 	public function updateState($state)
@@ -277,6 +286,8 @@ class Call
 		}
 
 		$this->endDate = new DateTime();
+
+
 		if ($this->updateState(static::STATE_FINISHED))
 		{
 			$this->getSignaling()->sendFinish();
@@ -420,6 +431,11 @@ class Call
 			}
 		}
 
+		if ($callLength > 30 && $finishStatus == 'normal')
+		{
+			\Bitrix\Im\Limit::incrementCounter(\Bitrix\Im\Limit::COUNTER_CALL_SUCCESS);
+		}
+
 		AddEventToStatFile("im", "im_call_finish", $this->id, $userCountChat, "user_count_chat");
 		AddEventToStatFile("im", "im_call_finish", $this->id, $usersActive, "user_count_call");
 		AddEventToStatFile("im", "im_call_finish", $this->id, $mobileUsers, "user_count_mobile");
@@ -479,6 +495,18 @@ class Call
 	public static function getLogService() : string
 	{
 		return (string)Option::get('im', 'call_log_service');
+	}
+
+	public static function getMaxParticipants()
+	{
+		if (static::isCallServerEnabled())
+		{
+			return static::getMaxCallServerParticipants();
+		}
+		else
+		{
+			return Option::get('im', 'turn_server_max_users');
+		}
 	}
 
 	public static function getMaxCallServerParticipants()
@@ -547,27 +575,37 @@ class Call
 	 * @param string $provider
 	 * @param string $entityType
 	 * @param string $entityId
+	 * @param int $currentUserId
 	 * @return Call|null
 	 *
 	 * @throws ArgumentException
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	public static function searchActive($type, $provider, $entityType, $entityId)
+	public static function searchActive($type, $provider, $entityType, $entityId, $currentUserId = 0)
 	{
-		$callFields = CallTable::getRow([
-			'select' => ['*'],
-			'filter' => [
-				'=TYPE' => $type,
-				'=PROVIDER' => $provider,
-				'=ENTITY_TYPE' => $entityType,
-				'=ENTITY_ID' => $entityId,
-				'=END_DATE' => null
-			],
-			'order' => [
-				'ID' => 'desc'
-			],
-		]);
+		if (!$currentUserId)
+		{
+			$currentUserId = \Bitrix\Im\User::getInstance()->getId();
+		}
+		$query = CallTable::query()
+			->addSelect("*")
+			->where("TYPE", $type)
+			->where("PROVIDER", $provider)
+			->where("ENTITY_TYPE", $entityType)
+			->whereNull("END_DATE")
+			->setOrder(["ID" => "DESC"]);
+
+		if ($entityType === EntityType::CHAT && strpos($entityId, "chat") !== 0)
+		{
+			$query->where("INITIATOR_ID", $entityId);
+			$query->where("ENTITY_ID", $currentUserId);
+		}
+		else
+		{
+			$query->where("ENTITY_ID", $entityId);
+		}
+		$callFields = $query->exec()->fetch();
 
 		if(!$callFields)
 		{
@@ -602,7 +640,7 @@ class Call
 		$instance->entityId = $fields['ENTITY_ID'];
 		$instance->startDate = $fields['START_DATE'];
 		$instance->endDate = $fields['END_DATE'];
-		$instance->parentId = $fields['PARENT_ID'];
+		$instance->parentId = (int)$fields['PARENT_ID'] ?: null;
 		$instance->state = $fields['STATE'];
 		$instance->logUrl = $fields['LOG_URL'];
 		$instance->chatId = $fields['CHAT_ID'];

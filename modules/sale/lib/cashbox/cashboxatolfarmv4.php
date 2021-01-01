@@ -4,9 +4,7 @@ namespace Bitrix\Sale\Cashbox;
 
 use Bitrix\Main;
 use Bitrix\Main\Localization;
-use Bitrix\Sale\Cashbox\Internals\CashboxTable;
 use Bitrix\Sale\Result;
-use Bitrix\Catalog;
 
 Localization\Loc::loadMessages(__FILE__);
 
@@ -14,7 +12,7 @@ Localization\Loc::loadMessages(__FILE__);
  * Class CashboxAtolFarmV4
  * @package Bitrix\Sale\Cashbox
  */
-class CashboxAtolFarmV4 extends CashboxAtolFarm
+class CashboxAtolFarmV4 extends CashboxAtolFarm implements ICorrection
 {
 	const SERVICE_URL = 'https://online.atol.ru/possystem/v4';
 	const SERVICE_TEST_URL = 'https://testonline.atol.ru/possystem/v4';
@@ -125,10 +123,10 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm
 				'price' => (float)$item['price'],
 				'sum' => (float)$item['sum'],
 				'quantity' => $item['quantity'],
-				'payment_method' => $checkTypeMap[$check::getType()],
+				'payment_method' => $checkTypeMap[$data['type']],
 				'payment_object' => $paymentObjectMap[$item['payment_object']],
 				'vat' => [
-					'type' => $this->mapVatValue($check::getType(), $vat)
+					'type' => $this->mapVatValue($data['type'], $vat)
 				],
 			];
 
@@ -143,6 +141,94 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm
 		return $result;
 	}
 
+	/**
+	 * @param CorrectionCheck $check
+	 * @return Result
+	 * @throws Main\SystemException
+	 */
+	public function printCorrectionImmediately(CorrectionCheck $check)
+	{
+		$checkQuery = $this->buildCorrectionCheckQuery($check);
+
+		$operation = 'sell_correction';
+		if ($check::getCalculatedSign() === Check::CALCULATED_SIGN_CONSUMPTION)
+		{
+			$operation = 'sell_refund';
+		}
+
+		return $this->registerCheck($operation, $checkQuery);
+	}
+
+	/**
+	 * @param CorrectionCheck $check
+	 * @return array
+	 */
+	public function buildCorrectionCheckQuery(CorrectionCheck $check)
+	{
+		$data = $check->getDataForCheck();
+
+		/** @var Main\Type\DateTime $dateTime */
+		$dateTime = $data['date_create'];
+
+		$result = [
+			'timestamp' => $dateTime->format('d.m.Y H:i:s'),
+			'external_id' => static::buildUuid(static::UUID_TYPE_CHECK, $data['unique_id']),
+			'service' => [
+				'callback_url' => $this->getCallbackUrl(),
+			],
+			'correction' => [
+				'company' => [
+					'sno' => $this->getValueFromSettings('TAX', 'SNO'),
+					'inn' => $this->getValueFromSettings('SERVICE', 'INN'),
+					'payment_address' => $this->getValueFromSettings('SERVICE', 'P_ADDRESS'),
+				],
+				'correction_info' => [
+					'type' => $data['correction_info']['type'],
+					'base_date' => $data['correction_info']['document_date'],
+					'base_number' => $data['correction_info']['document_number'],
+					'base_name' => mb_substr(
+						$data['correction_info']['description'],
+						0,
+						255
+					),
+				],
+				'payments' => [],
+				'vats' => []
+			]
+		];
+
+		$paymentTypeMap = $this->getPaymentTypeMap();
+		foreach ($data['payments'] as $payment)
+		{
+			$result['correction']['payments'][] = [
+				'type' => $paymentTypeMap[$payment['type']],
+				'sum' => (float)$payment['sum']
+			];
+		}
+
+		foreach ($data['vats'] as $item)
+		{
+			$vat = $this->getValueFromSettings('VAT', $item['vat']);
+			if ($vat === null)
+			{
+				$vat = $this->getValueFromSettings('VAT', 'NOT_VAT');
+			}
+
+			$result['correction']['vats'][] = [
+				'type' => $vat,
+				'sum' => (float)$item['sum']
+			];
+		}
+
+		return $result;
+	}
+
+	public function checkCorrection(CorrectionCheck $check)
+	{
+		return $this->checkByUuid(
+			$check->getField('EXTERNAL_UUID')
+		);
+	}
 	/**
 	 * @param $checkType
 	 * @param $vat
@@ -236,6 +322,8 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm
 			CreditCheck::getType() => 'credit',
 			CreditReturnCheck::getType() => 'credit',
 			CreditPaymentCheck::getType() => 'credit_payment',
+			CreditPaymentReturnCashCheck::getType() => 'credit_payment',
+			CreditPaymentReturnCheck::getType() => 'credit_payment',
 		);
 	}
 

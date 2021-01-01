@@ -15,7 +15,7 @@ return [
 	'nodes' => [],
 	'style' => [
 		'block' => [
-			'type' => ['display', 'height-vh--md', 'fill-first', 'fill-second'],
+			'type' => ['display', 'height-increased--md', 'fill-first', 'fill-second'],
 		],
 		'nodes' => [],
 	],

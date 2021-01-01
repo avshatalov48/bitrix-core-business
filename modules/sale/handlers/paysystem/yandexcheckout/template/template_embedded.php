@@ -13,7 +13,7 @@ $sum = round($params['SUM'], 2);
 	<p class="mb-4"><?=Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_YANDEX_CHECKOUT_WARNING_RETURN');?></p>
 </div>
 
-<script src="https://kassa.yandex.ru/checkout-ui/v2.js"></script>
+<script src="https://yookassa.ru/checkout-ui/v2.js"></script>
 <script>
 	BX.message(<?=CUtil::PhpToJSObject($messages)?>);
 	var checkout = new window.YandexCheckout({

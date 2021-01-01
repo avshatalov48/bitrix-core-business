@@ -685,9 +685,18 @@ class BitrixVue
 	}
 }
 
-let Vue = new BitrixVue;
+let Vue;
+let VueVendor;
 
-export {
-	Vue,
-	VueVendorV2 as VueVendor
-};
+if (typeof exports !== 'undefined' && ('Vue' in exports))
+{
+	Vue = exports.Vue;
+	VueVendor = exports.VueVendor;
+}
+else
+{
+	Vue = new BitrixVue;
+	VueVendor = VueVendorV2;
+}
+
+export {Vue, VueVendor};

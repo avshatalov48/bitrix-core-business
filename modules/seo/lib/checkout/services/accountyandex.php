@@ -12,6 +12,7 @@ Loc::loadMessages(__FILE__);
 
 /**
  * Class AccountYandex
+ * @deprecated
  * @package Bitrix\Seo\Checkout\Services
  */
 class AccountYandex extends BaseApiObject
@@ -71,21 +72,20 @@ class AccountYandex extends BaseApiObject
 	 */
 	public function getProfile()
 	{
-		$token = $this->getRequest()->getAuthAdapter()->getToken();
-		$response = $this->getRequest()->getClient()->get('https://login.yandex.ru/info?format=json&oauth_token='.$token);
+		$response = $this->getRequest()->send([
+			'methodName' => 'profile.info',
+			'parameters' => []
+		]);
 
-		if ($response)
+		$response = $response->getData();
+		if (\is_array($response))
 		{
-			$response = Web\Json::decode($response);
-			if (is_array($response))
-			{
-				return [
-					'ID' => $response['id'],
-					'NAME' => $response['login'],
-					'LINK' => '',
-					'PICTURE' => 'https://avatars.mds.yandex.net/get-yapic/0/0-0/islands-50',
-				];
-			}
+			return [
+				'ID' => $response['id'],
+				'NAME' => $response['login'],
+				'LINK' => '',
+				'PICTURE' => '',
+			];
 		}
 
 		return null;

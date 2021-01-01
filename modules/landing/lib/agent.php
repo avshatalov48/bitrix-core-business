@@ -108,6 +108,20 @@ class Agent
 					'FOLDER_ID' => 0
 				]);
 			}
+			// sub pages
+			$resSub = Landing::getList([
+				'select' => [
+					'ID'
+				],
+				'filter' => [
+					'FOLDER_ID' => $row['ID']
+				]
+			]);
+			while ($rowSub = $resSub->fetch())
+			{
+				$resDel = Landing::delete($rowSub['ID'], true);
+				$resDel->isSuccess();// for trigger
+			}
 			$resDel = Landing::delete($row['ID'], true);
 			$resDel->isSuccess();// for trigger
 		}

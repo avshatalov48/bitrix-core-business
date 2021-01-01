@@ -84,6 +84,64 @@
 .bx-desktop-tab-active .bx-desktop-tab-icon-account,
 .bx-desktop-tab-icon-account:hover { background-position: -13px -200px; }
 
+.bx-desktop-loader-wrap {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: #fff;
+	z-index: 1000;
+}
+.bx-messenger-dark .bx-desktop-loader-wrap { background-color: #3d3d3d}
+.bx-desktop-loader {
+	position: relative;
+    width: 110px;
+    height: 110px;
+    margin: 0 auto;
+    margin-top: calc(50vh - 55px);
+}
+.bx-desktop-loader-circular {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	animation: desktop-loader-rotate 2s linear infinite;
+	transform-origin: center center;
+}
+
+.bx-desktop-loader-path {
+	stroke: #bfc3c8;
+	stroke-width: 1.5;
+	stroke-dasharray: 20, 200;
+	stroke-dashoffset: 0;
+	animation: desktop-loader-dash 1.5s ease-in-out infinite;
+	stroke-linecap: round;
+}
+
+@keyframes desktop-loader-rotate {
+	100% {
+		-webkit-transform: rotate(360deg);
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes desktop-loader-dash {
+	0% {
+		stroke-dasharray: 1, 200;
+		stroke-dashoffset: 0;
+	}
+	50% {
+		stroke-dasharray: 89, 200;
+		stroke-dashoffset: -35px;
+	}
+	100% {
+		stroke-dasharray: 89, 200;
+		stroke-dashoffset: -124px;
+	}
+}
+
 .im-desktop-popup .bx-messenger-settings { width: auto; display: block; }
 .im-desktop-popup .bx-messenger-settings { width: auto; }
 

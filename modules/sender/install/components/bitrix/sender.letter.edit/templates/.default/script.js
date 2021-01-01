@@ -88,6 +88,7 @@
 	};
 	Letter.prototype.onPopupClose = function(event) {
 		var slider = event.getSlider();
+		var _this = this;
 
 		if(!this.isSaved)
 		{
@@ -109,8 +110,12 @@
 							className: "popup-window-button-accept",
 							events: {
 								click: function() {
-									slider.data = {close: true}
+									BX.removeCustomEvent("SidePanel.Slider::onClose", _this.onPopupClose);
+									event.allowAction();
 									slider.close();
+									setTimeout(function() {
+										slider.destroy();
+									}, 500);
 								}
 							}
 						}),

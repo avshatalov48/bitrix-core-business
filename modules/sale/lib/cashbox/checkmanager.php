@@ -49,7 +49,7 @@ final class CheckManager
 		}
 
 		$check = static::createByType($type);
-		if ($check === null)
+		if (!$check instanceof Check)
 		{
 			$result->addError(new Error(Loc::getMessage('SALE_CASHBOX_ERROR_CHECK')));
 			return $result;
@@ -163,6 +163,104 @@ final class CheckManager
 		else
 		{
 			$result->addErrors($saveResult->getErrors());
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public static function isAvailableCorrection() : bool
+	{
+		foreach (Manager::getListFromCache() as $item)
+		{
+			if ($item['ACTIVE'] !== 'Y')
+			{
+				continue;
+			}
+
+			$cashbox = Manager::getObjectById($item['ID']);
+			if ($cashbox instanceof ICorrection)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public static function addCorrection($type, $cashboxId, array $correction)
+	{
+		$result = new Result();
+
+		if (!self::isAvailableCorrection())
+		{
+			return $result->addError(
+				new Error(
+					Loc::getMessage('SALE_CASHBOX_CHECK_CORRECTION_NOT_AVAILABLE')
+				)
+			);
+		}
+
+		/** @var CorrectionCheck $check */
+		$check = static::createByType($type);
+		if (!$check instanceof CorrectionCheck)
+		{
+			$result->addError(new Error(Loc::getMessage('SALE_CASHBOX_ERROR_CHECK')));
+			return $result;
+		}
+
+		$check->setField('CASHBOX_ID', $cashboxId);
+		$check->setAvailableCashbox([
+			Manager::getCashboxFromCache($cashboxId)
+		]);
+
+		$check->setCorrectionFields($correction);
+
+		$r = $check->save();
+		if ($r->isSuccess())
+		{
+			$result->setId($check->getField('ID'));
+
+			$cashbox = Manager::getObjectById($cashboxId);
+			if ($cashbox instanceof ICorrection)
+			{
+				CashboxCheckTable::update(
+					$check->getField('ID'),
+					[
+						'STATUS' => 'P', 'DATE_PRINT_START' => new Type\DateTime()
+					]
+				);
+
+				$printResult = $cashbox->printCorrectionImmediately($check);
+				if ($printResult->isSuccess())
+				{
+					$data = $printResult->getData();
+					CashboxCheckTable::update($check->getField('ID'), ['EXTERNAL_UUID' => $data['UUID']]);
+				}
+				else
+				{
+					static::savePrintResult(
+						$check->getField('ID'),
+						[
+							'ID' => $check->getField('ID'),
+							'ERROR' => [
+								'TYPE' =>  Errors\Error::TYPE,
+								'MESSAGE' => implode("\n", $printResult->getErrorMessages())
+							]
+						]
+					);
+				}
+
+				global $CACHE_MANAGER;
+				$CACHE_MANAGER->Read(CACHED_b_sale_order, 'sale_checks_'.$cashboxId);
+				$CACHE_MANAGER->SetImmediate('sale_checks_'.$cashboxId, true);
+			}
+		}
+		else
+		{
+			$result->addErrors($r->getErrors());
 		}
 
 		return $result;
@@ -511,6 +609,8 @@ final class CheckManager
 			$checkList = array_merge(
 				$checkList,
 				array(
+					'\Bitrix\Sale\Cashbox\CorrectionSellCheck',
+					'\Bitrix\Sale\Cashbox\CorrectionBuyCheck',
 					'\Bitrix\Sale\Cashbox\AdvancePaymentCheck',
 					'\Bitrix\Sale\Cashbox\AdvanceReturnCheck',
 					'\Bitrix\Sale\Cashbox\AdvanceReturnCashCheck',
@@ -581,10 +681,26 @@ final class CheckManager
 	public static function getCheckList()
 	{
 		static $checkList = array();
-		if (empty($checkList))
-			$checkList = array_merge(static::getBuildInCheckList(), array_keys(static::getUserCheckList()));
+		if (!$checkList)
+		{
+			$checkList = array_merge(
+				static::getBuildInCheckList(),
+				array_keys(static::getUserCheckList())
+			);
+		}
 
 		return $checkList;
+	}
+
+	public static function getSalesCheckList()
+	{
+		return array_filter(
+			self::getCheckList(),
+			function ($value)
+			{
+				return is_subclass_of($value, Check::class);
+			}
+		);
 	}
 
 	/**
@@ -601,7 +717,9 @@ final class CheckManager
 		foreach ($checkMap as $className)
 		{
 			if (class_exists($className))
+			{
 				$result[$className::getType()] = $className;
+			}
 		}
 
 		return $result;

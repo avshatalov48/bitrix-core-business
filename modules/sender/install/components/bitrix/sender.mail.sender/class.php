@@ -9,7 +9,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-if (!Bitrix\Main\Loader::IncludeModule('sender'))
+if (!Bitrix\Main\Loader::includeModule('sender'))
 {
 	ShowError('Module `sender` not installed');
 	die();
@@ -32,6 +32,9 @@ class SenderUiMailboxSelectorComponent extends CBitrixComponent
 		$this->arParams['INPUT_NAME'] = isset($this->arParams['INPUT_NAME']) ? $this->arParams['INPUT_NAME'] : '';
 		$this->arParams['~VALUE'] = isset($this->arParams['~VALUE']) ? $this->arParams['~VALUE'] : '';
 		$this->arParams['VALUE'] = (new Address($this->arParams['~VALUE']))->get();
+		$this->arParams['PATH_TO_SENDER_EDIT_GRID'] = isset($this->arParams['PATH_TO_SENDER_EDIT_GRID'])?
+			$this->arParams['PATH_TO_SENDER_EDIT_GRID']:'';
+
 
 		$this->arParams['ID'] = isset($this->arParams['ID']) ? $this->arParams['ID'] : '';
 		$this->arParams['LIST'] = isset($this->arParams['LIST']) ? $this->arParams['LIST'] : null;
@@ -116,59 +119,34 @@ class SenderUiMailboxSelectorComponent extends CBitrixComponent
 				'ICON' => $userIcon
 			);
 		}
-
 		return $users[$userId];
 	}
 
 	protected function prepareResult()
 	{
-		$this->arResult['LIST'] = [];
-		$this->arResult['ACTION_URL'] = $this->getPath() . '/ajax.php';
-
-
-		$address = new Address();
-
-		$list = \Bitrix\Sender\Integration\Sender\AllowedSender::getList();
-		foreach ($list as $item)
-		{
-			$item['sender'] = $address
-				->setEmail($item['email'])
-				->setName($item['name'])
-				->get();
-
-			if (!$item['sender'])
-			{
-				continue;
-			}
-			$item['id'] = base64_encode($item['sender']);
-			$this->arResult['LIST'][] = $item;
-		}
-
-		$this->arResult['CURRENT'] = null;
-		if ($this->arParams['VALUE'])
-		{
-			foreach ($this->arResult['LIST'] as $item)
-			{
-				if ($item['sender'] == $this->arParams['VALUE'])
-				{
-					$this->arResult['CURRENT'] = $item;
-					break;
-				}
-			}
-		}
-
-		if (!$this->arResult['CURRENT'] && count($this->arResult['LIST']) > 0)
-		{
-			$this->arResult['CURRENT'] = $this->arResult['LIST'][0];
-		}
-
-		$this->arResult['CURRENT']['sender'] = $this->arResult['CURRENT']['name'];
-		$this->arResult['CURRENT']['sender'] .= '<' . $this->arResult['CURRENT']['email'] . '>';
-
 		$userInfo = $this->getUserInfo($GLOBALS['USER']->GetID());
 		$this->arResult['CURRENT']['icon'] = $userInfo['ICON'];
+		$this->arResult['ADDITIONAL_SENDERS'] = [];
 
-
+		if (!\Bitrix\Sender\Integration\Bitrix24\Service::isCloud())
+		{
+			$address = new Address();
+			foreach (\Bitrix\Sender\MailingChainTable::getEmailFromList() as $email)
+			{
+				$address->set($email);
+				$formatted = $address->get();
+				if (!$formatted)
+				{
+					continue;
+				}
+				$this->arResult['ADDITIONAL_SENDERS'][] = [
+					'id' => base64_encode($address->get()),
+					'name' => $address->getName(),
+					'email' => $address->getEmail(),
+					'formated' => $address->get(),
+				];
+			}
+		}
 		return true;
 	}
 

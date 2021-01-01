@@ -84,10 +84,12 @@ $pagen = (
 		: 1
 );
 
-if (intval($_REQUEST["LAST_LOG_TS"]) > 0)
+$arResult["TZ_OFFSET"] = CTimeZone::GetOffset();
+
+if ((int)$_REQUEST["LAST_LOG_TS"] > 0)
 {
-	$arParams["LAST_LOG_TS"] = intval($_REQUEST["LAST_LOG_TS"]);
-	if ($arParams["MOBILE"] != "Y")
+	$arParams["LAST_LOG_TS"] = (int)$_REQUEST["LAST_LOG_TS"] + (isset($_REQUEST["AJAX_CALL"]) ? $arResult["TZ_OFFSET"] : 0); // next mobile livefeed page or get_empty_comments
+	if ($arParams["MOBILE"] !== "Y")
 	{
 		$arParams["MARK_NEW_COMMENTS"] = "Y";
 	}
@@ -179,8 +181,6 @@ $arResult["userID"] = $user_id = $USER->GetID();
 $arResult["canModerate"] = false;
 $arResult["ajax_comment"] = 0;
 $arResult["is_ajax_post"] = "N";
-
-$arResult["TZ_OFFSET"] = CTimeZone::GetOffset();
 
 $a = new CAccess;
 $a->UpdateCodes();

@@ -71,7 +71,7 @@ abstract class CAllDatabase
 	 *
 	 * @return boolean|CDatabase
 	 */
-	function GetDBNodeConnection($node_id, $bIgnoreErrors = false, $bCheckStatus = true)
+	public static function GetDBNodeConnection($node_id, $bIgnoreErrors = false, $bCheckStatus = true)
 	{
 		global $DB;
 
@@ -129,11 +129,24 @@ abstract class CAllDatabase
 		}
 		else
 		{
-			if(file_exists($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/dbconn_error.php"))
-				include($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/dbconn_error.php");
-			else
-				include($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/dbconn_error.php");
+			static::showConnectionError();
 			die();
+		}
+	}
+
+	public static function showConnectionError()
+	{
+		$response = new Main\HttpResponse();
+		$response->setStatus('500 Internal Server Error');
+		$response->writeHeaders();
+
+		if(file_exists($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/dbconn_error.php"))
+		{
+			include($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/dbconn_error.php");
+		}
+		else
+		{
+			echo "Error connecting to database. Please try again later.";
 		}
 	}
 

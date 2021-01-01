@@ -5,6 +5,9 @@
 	margin-top: 2px;
 	margin-bottom: 7px;
 }
+.bx-im-message-type-system .bx-im-element-keyboard {
+	margin-left: 15px;
+}
 .bx-im-element-keyboard-mobile
 {
 	margin-bottom: 10px;

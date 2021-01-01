@@ -1,21 +1,21 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
-class CCommentUFs
+include_once __DIR__."/base.php";
+class CCommentUFs extends CCommentBase
 {
-	var $component = null;
-
 	function __construct(&$component)
 	{
-		global $APPLICATION;
-		$this->component = &$component;
-		$arResult =& $component->arResult;
-		$arParams =& $component->arParams;
+		parent::__construct($component);
 
-		AddEventHandler("forum", "OnCommentsInit", Array(&$this, "OnCommentsInit"));
-		AddEventHandler("forum", "OnPrepareComments", Array(&$this, "OnPrepareComments"));
+		$this->removeHandler("OnCommentFormDisplay");
+		$this->removeHandler("OnCommentPreviewDisplay");
 	}
 
-	function OnCommentsInit()
+	function OnCommentsInit($component)
 	{
+		if ($this->component !== $component)
+		{
+			return;
+		}
 		$arResult =& $this->component->arResult;
 		$arParams =& $this->component->arParams;
 		$arParams["USER_FIELDS_SETTINGS"] = (is_array($arParams["USER_FIELDS_SETTINGS"]) ? $arParams["USER_FIELDS_SETTINGS"] : array());
@@ -32,8 +32,13 @@ class CCommentUFs
 		$arResult['UFS'] = array();
 	}
 
-	function OnPrepareComments()
+	function OnPrepareComments($component)
 	{
+		if ($this->component !== $component)
+		{
+			return;
+		}
+
 		$arResult =& $this->component->arResult;
 		$arParams =& $this->component->arParams;
 
@@ -66,7 +71,6 @@ class CCommentUFs
 	function OnCommentPreviewDisplay()
 	{
 		$arResult =& $this->component->arResult;
-		$arParams =& $this->component->arParams;
 		if (empty($arResult["USER_FIELDS"]))
 			return null;
 
@@ -89,9 +93,6 @@ class CCommentUFs
 
 	function OnCommentDisplay($arComment)
 	{
-		$arResult =& $this->component->arResult;
-		$arParams =& $this->component->arParams;
-
 		if (empty($arComment["PROPS"]))
 			return null;
 
@@ -113,7 +114,6 @@ class CCommentUFs
 	function OnCommentFormDisplay()
 	{
 		$arResult =& $this->component->arResult;
-		$arParams =& $this->component->arParams;
 		if (empty($arResult["USER_FIELDS"]))
 			return null;
 

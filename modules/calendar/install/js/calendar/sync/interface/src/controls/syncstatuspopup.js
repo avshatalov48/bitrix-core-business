@@ -67,6 +67,7 @@ export default class SyncStatusPopup extends EventEmitter
 
 			const options = {};
 
+			$
 			options.syncTime = this.getTime(connection.getSyncTimestamp());
 			options.classStatus = connection.getSyncStatus()
 				? 'calendar-sync-popup-item-status-success'
@@ -106,7 +107,7 @@ export default class SyncStatusPopup extends EventEmitter
 		return this.popup;
 	}
 
-	getTime(time)
+	getTime(timestamp)
 	{
 		var format = [
 			["tommorow", "tommorow, H:i:s"],
@@ -120,38 +121,7 @@ export default class SyncStatusPopup extends EventEmitter
 			["-", ""]
 		];
 
-		return BX.date.format(format, time);
-	}
-
-	getTitle(key)
-	{
-		let title;
-		switch (key)
-		{
-			case 'google':
-				title = Loc.getMessage('CALENDAR_TITLE_GOOGLE');
-				break;
-			case 'mac':
-				title = Loc.getMessage('CALENDAR_TITLE_MAC');
-				break;
-			case 'iphone':
-				title = Loc.getMessage('CALENDAR_TITLE_IPHONE');
-				break;
-			case 'android':
-				title = Loc.getMessage('CALENDAR_TITLE_ANDROID');
-				break;
-			case 'outlook':
-				title = Loc.getMessage('CALENDAR_TITLE_OUTLOOK');
-				break;
-			case 'office365':
-				title = Loc.getMessage('CALENDAR_TITLE_OFFICE365');
-				break;
-			case 'exchange':
-				title = Loc.getMessage('CALENDAR_TITLE_EXCHANGE');
-				break;
-		}
-
-		return title;
+		return BX.date.format(format, timestamp);
 	}
 
 	getSyncElement(options)

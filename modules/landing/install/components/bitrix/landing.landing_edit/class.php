@@ -4,7 +4,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use \Bitrix\Landing\Hook;
 use \Bitrix\Landing\Landing;
+use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\Rights;
 use \Bitrix\Landing\TemplateRef;
 use \Bitrix\Main\Localization\Loc;
@@ -75,7 +77,7 @@ class LandingEditComponent extends LandingBaseFormComponent
 			$content = ob_get_contents();
 			ob_end_clean();
 
-			$docRoot = \Bitrix\Landing\Manager::getDocRoot();
+			$docRoot = Manager::getDocRoot();
 
 			if (preg_match_all('/(<img.*?src="([^"]+)"[^>]+>)/is', $content, $matches))
 			{
@@ -239,13 +241,16 @@ class LandingEditComponent extends LandingBaseFormComponent
 
 			$this->arResult['TEMPLATES'] = $this->getTemplates();
 			$this->arResult['LANDING'] = $this->getRow();
+			$this->arResult['SPECIAL_TYPE'] = $this->getSpecialTypeSite(
+				$this->arParams['SITE_ID']
+			);
 			$this->arResult['LANDINGS'] = $this->arParams['SITE_ID'] > 0
-										? $this->getLandings(array(
-												'filter' => array(
-													'SITE_ID' => $this->arParams['SITE_ID']
-												)
-											))
-										: array();
+				? $this->getLandings(array(
+						'filter' => array(
+							'SITE_ID' => $this->arParams['SITE_ID']
+						)
+					))
+				: array();
 
 			// if access denied, or not found
 			if (!$this->arResult['LANDING'])
@@ -345,7 +350,7 @@ class LandingEditComponent extends LandingBaseFormComponent
 					{
 						if (mb_strpos($ref, ':') !== false)
 						{
-							list($a, $lid) = explode(':', $ref);
+							[$a, $lid] = explode(':', $ref);
 							$data[$a] = $lid;
 						}
 					}
@@ -369,6 +374,10 @@ class LandingEditComponent extends LandingBaseFormComponent
 					$primary['ID'],
 					$data
 				);
+				if (Manager::getOption('public_hook_on_save') == 'Y')
+				{
+					Hook::publicationLanding($primary['ID']);
+				}
 			}
 		);
 

@@ -2056,9 +2056,9 @@
 				this.newEntry.timeTo = {h: 23, m: 59};
 			else
 				this.newEntry.timeTo = {h: this.newEntry.timeFrom.h + 1, m: this.newEntry.timeFrom.m};
-			this.newEntry.changeTimeCallback(this.newEntry.timeFrom, this.newEntry.timeTo);
 
-			this.newEntry.entryNode.style.top = this.startMousePos + 'px';
+			this.newEntry.changeTimeCallback(this.newEntry.timeFrom, this.newEntry.timeTo);
+			this.newEntry.entryNode.style.top = (this.startMousePos - BX.pos(this.outerGrid).top) + 'px';
 		}
 	};
 
@@ -2148,17 +2148,17 @@
 		partWrap.style.borderColor = color;
 		partWrap.style.opacity = 0;
 
-		var pos = BX.pos(partWrap);
-		var entryClone = BX.adjust(document.body.appendChild(partWrap.cloneNode(true)), {
+		var entryClone = BX.adjust(this.fullDayEventsCont.appendChild(partWrap.cloneNode(true)), {
 			props: {className: 'calendar-event-line-clone'},
 			style: {
-				width: (pos.width + 1) + 'px',
-				height: pos.height + 'px',
-				top : pos.top + 'px',
-				left : pos.left + 'px',
+				width: (partWrap.offsetWidth - 4) + 'px',
+				height: partWrap.offsetHeight + 'px',
+				top : 3 + 'px',
+				left : (partWrap.offsetLeft + 43)+ 'px',
 				opacity: 1
 			}
 		});
+
 		if (partWrap)
 		{
 			BX.remove(partWrap, true);
@@ -2236,14 +2236,12 @@
 		}));
 		bgNode.style.backgroundColor = color;
 
-		var pos = BX.pos(partWrap);
-		var entryClone = BX.adjust(document.body.appendChild(partWrap.cloneNode(true)), {
+		var entryClone = BX.adjust(this.outerGrid.appendChild(partWrap.cloneNode(true)), {
 			props: {className: 'calendar-event-line-clone calendar-event-block-wrap active'},
 			style: {
-				width: (pos.width + 1) + 'px',
-				height: pos.height + 'px',
-				top : pos.top + 'px',
-				left : pos.left + 'px',
+				width: (partWrap.offsetWidth - 3) + 'px',
+				height: partWrap.offsetHeight + 'px',
+				left : (partWrap.offsetLeft + 42)+ 'px',
 				opacity: 1
 			}
 		});

@@ -69,13 +69,13 @@ function showMenuLinkInput(ind, url)
 
 			BX.adjust(it, {
 				attrs : {"bx-height" : it.offsetHeight},
-				style : { 
-					overflow : "hidden", 
+				style : {
+					overflow : "hidden",
 					display : 'block'
 				},
 				children : [
 					BX.create('BR'),
-					BX.create('DIV', { 
+					BX.create('DIV', {
 						attrs : {id : id},
 						children : [
 							BX.create('SPAN', {attrs : {"className" : "menu-popup-item-left"}}),
@@ -86,7 +86,7 @@ function showMenuLinkInput(ind, url)
 											attrs : {
 												id : id + '-input',
 												type : "text",
-												value : url 
+												value : url
 											},
 											style : {
 												height : pos["height"] + 'px',
@@ -190,7 +190,7 @@ function blogShowImagePopup(src)
 		offsetLeft: 0
 	});
 
-	setTimeout(function(){waitPopupBlogImage.adjustPosition()}, 100);	
+	setTimeout(function(){waitPopupBlogImage.adjustPosition()}, 100);
 	waitPopupBlogImage.show();
 
 }
@@ -413,7 +413,7 @@ function __blogPostSetFollow(log_id)
 				});
 
 				menuItems.push({
-					text: '<span id="post-menu-' + postData.logId + '-link-text">' + BX.message('BLOG_LINK') + '</span>' +
+					html: '<span id="post-menu-' + postData.logId + '-link-text">' + BX.message('BLOG_LINK') + '</span>' +
 						'<span id="post-menu-' + postData.logId + '-link-icon-animate" class="post-menu-link-icon-wrap">' +
 						'<span class="post-menu-link-icon" id="post-menu-' + postData.logId + '-link-icon-done" style="display: none;">' +
 

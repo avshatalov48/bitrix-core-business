@@ -4,7 +4,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 CUtil::InitJSCore(
 	['tooltip', 'admin_interface', 'date', 'uploader', 'file_dialog', 'bp_user_selector', 'bp_field_type']
 );
-\Bitrix\Main\UI\Extension::load(['ui.buttons', 'ui.hint']);
+\Bitrix\Main\UI\Extension::load(['ui.buttons', 'ui.hint', 'ui.entity-selector']);
 /**
  * @var array $arResult
  * @var array $arParams

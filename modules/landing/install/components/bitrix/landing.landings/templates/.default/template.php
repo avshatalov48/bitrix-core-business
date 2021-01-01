@@ -159,11 +159,6 @@ if ($arParams['TILE_MODE'] == 'view')
 
 <?foreach (array_values($arResult['LANDINGS']) as $i => $item):
 
-	if ($item['DELETE_FINISH'])//@tmp
-	{
-		continue;
-	}
-
 	$uriFolder = null;
 	$areaCode = '';
 	$areaTitle = '';

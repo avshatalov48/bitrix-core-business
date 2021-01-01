@@ -46,10 +46,10 @@ if ($arResult['IS_FREE_DOMAIN'] == 'Y')
 			</tr>
 			<tr class="landing-domain-table-content">
 				<td>
-					<?= $arResult['~DOMAIN_NAME'] ? $arResult['~DOMAIN_NAME'] : 'landing.mydomain.ru';?>
+					<?= $arResult['~DOMAIN_NAME'] ? $arResult['~DOMAIN_NAME'] : 'landing.mydomain.tld';?>
 				</td>
 				<td>A</td>
-				<td><?= $arResult['IP_FOR_DNS'];?></td>
+				<td id="domain-ina-ip"><?= $arResult['IP_FOR_DNS'];?></td>
 			</tr>
 		</table>
 	</div>
@@ -80,7 +80,8 @@ if ($arResult['IS_FREE_DOMAIN'] == 'Y')
 			idDomainLoader: BX('domain-edit-loader'),
 			idDomainDnsInfo: BX('domain-edit-dnsinfo'),
 			idDomainSubmit: BX('domain-edit-submit'),
-			idDomainErrorAlert: BX('domain-error-alert')
+			idDomainErrorAlert: BX('domain-error-alert'),
+			idDomainINA: BX('domain-ina-ip')
 		});
 	});
 </script>

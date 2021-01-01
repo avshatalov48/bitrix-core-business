@@ -174,7 +174,6 @@ class PinnedPanel
 			newState: newState,
 			event: event
 		});
-
 	}
 
 	initEvents()

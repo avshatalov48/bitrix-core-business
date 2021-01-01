@@ -95,7 +95,8 @@ class CIMRestService extends IRestService
 				'im.call.user.update' => array('callback' => array(__CLASS__, 'callUserUpdate'), 'options' => array()),
 				'im.call.channel.public.list' => array('callback' => array(__CLASS__, 'callChannelPublicList'), 'options' => array()),
 
-				'im.videoconf.share.change' => array('callback' => array(__CLASS__, 'videoconfShareChange'), 'options' => array())
+				'im.videoconf.share.change' => array('callback' => array(__CLASS__, 'videoconfShareChange'), 'options' => array()),
+				'im.videoconf.password.check' => array('callback' => array(__CLASS__, 'videoconfPasswordCheck'), 'options' => array()),
 			),
 			'imbot' => Array(
 				'imbot.register' => array(__CLASS__, 'botRegister'),
@@ -2376,49 +2377,47 @@ class CIMRestService extends IRestService
 
 	public static function notifyDelete($arParams, $n, CRestServer $server)
 	{
-		if ($server->getAuthType() == \Bitrix\Rest\SessionAuth\Auth::AUTH_TYPE)
-		{
-			throw new \Bitrix\Rest\RestException("Access for this method not allowed by session authorization.", "WRONG_AUTH_TYPE", \CRestServer::STATUS_FORBIDDEN);
-		}
-
 		$arParams = array_change_key_case($arParams, CASE_UPPER);
 
 		if (isset($arParams['ID']) && intval($arParams['ID']) > 0)
 		{
 			$CIMNotify = new CIMNotify();
-			$result = $CIMNotify->DeleteWithCheck($arParams['ID']);
+			return $CIMNotify->DeleteWithCheck($arParams['ID']);
 		}
-		else
-		{
-			$clientId = $server->getClientId();
-			if (!$clientId)
-			{
-				if (!empty($arParams['CLIENT_ID']))
-				{
-					$clientId = 'custom'.$arParams['CLIENT_ID'];
-				}
-				else
-				{
-					throw new \Bitrix\Rest\AccessException("Client ID not specified");
-				}
-			}
 
-			if (!empty($arParams['TAG']))
+		if ($server->getAuthType() == \Bitrix\Rest\SessionAuth\Auth::AUTH_TYPE)
+		{
+			throw new Bitrix\Rest\RestException("Incorrect params", "PARAMS_ERROR", CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$clientId = $server->getClientId();
+		if (!$clientId)
+		{
+			if (!empty($arParams['CLIENT_ID']))
 			{
-				$appKey = mb_substr(md5($clientId), 0, 5);
-				$result = CIMNotify::DeleteByTag('MP|'.$appKey.'|'.$arParams['TAG']);
-			}
-			else if (!empty($arParams['SUB_TAG']))
-			{
-				$appKey = mb_substr(md5($clientId), 0, 5);
-				$result = CIMNotify::DeleteBySubTag('MP|'.$appKey.'|'.$arParams['SUB_TAG']);
+				$clientId = 'custom'.$arParams['CLIENT_ID'];
 			}
 			else
 			{
-				throw new Bitrix\Rest\RestException("Incorrect params", "PARAMS_ERROR", CRestServer::STATUS_WRONG_REQUEST);
+				throw new \Bitrix\Rest\AccessException("Client ID not specified");
 			}
 		}
 
+		if (!empty($arParams['TAG']))
+		{
+			$appKey = mb_substr(md5($clientId), 0, 5);
+			$result = CIMNotify::DeleteByTag('MP|'.$appKey.'|'.$arParams['TAG']);
+		}
+		else if (!empty($arParams['SUB_TAG']))
+		{
+			$appKey = mb_substr(md5($clientId), 0, 5);
+			$result = CIMNotify::DeleteBySubTag('MP|'.$appKey.'|'.$arParams['SUB_TAG']);
+		}
+		else
+		{
+			throw new Bitrix\Rest\RestException("Incorrect params", "PARAMS_ERROR", CRestServer::STATUS_WRONG_REQUEST);
+		}
+		
 		return $result;
 	}
 
@@ -2545,6 +2544,11 @@ class CIMRestService extends IRestService
 			{
 				$files[$fileId] = 'disk'.$fileId;
 			}
+
+			if (isset($arParams['SYMLINK']))
+			{
+				$arParams['SYMLINK'] = $arParams['SYMLINK'] == 'Y';
+			}
 		}
 		else if (isset($arParams['UPLOAD_ID']))
 		{
@@ -2577,6 +2581,7 @@ class CIMRestService extends IRestService
 			'LINES_SILENT_MODE' => $arParams['SILENT_MODE'],
 			'TEMPLATE_ID' => $arParams['TEMPLATE_ID']?:'',
 			'FILE_TEMPLATE_ID' => $arParams['FILE_TEMPLATE_ID']?:'',
+			'SYMLINK' => $arParams['SYMLINK']?:false,
 		]);
 	}
 
@@ -5165,6 +5170,22 @@ class CIMRestService extends IRestService
 
 		$_SESSION['CALL']['REGISTER'] = $result;
 
+		//6. send notification to chat owner
+		$chatData = CIMChat::GetChatData(['ID' => $aliasData['ENTITY_ID']]);
+		$chatTitle = $chatData['chat'][$aliasData['ENTITY_ID']]['name'];
+		$chatOwnerId = $chatData['chat'][$aliasData['ENTITY_ID']]['owner'];
+		$notificationText = GetMessage("IM_VIDEOCONF_NEW_GUEST", ['#CHAT_TITLE#' => $chatTitle]);
+
+		$publicLink = $aliasData['LINK'];
+		$conferenceLinkText = GetMessage("IM_VIDEOCONF_JOIN_LINK");
+		$conferenceLink = "<a href='{$publicLink}'>{$conferenceLinkText}</a>";
+		CIMNotify::Add(
+			[
+				'TO_USER_ID' => $chatOwnerId,
+				'MESSAGE' => $notificationText . "[br]" . $conferenceLink
+			]
+		);
+
 		return $result;
 	}
 
@@ -5362,6 +5383,34 @@ class CIMRestService extends IRestService
 		}
 
 		return true;
+	}
+
+	public static function videoconfPasswordCheck($params, $n, \CRestServer $server)
+	{
+		$params = array_change_key_case($params, CASE_UPPER);
+
+		if (!$params['PASSWORD'])
+		{
+			throw new Bitrix\Rest\RestException("Password can't be empty", "PASSWORD_EMPTY", CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		if (!$params['ALIAS'])
+		{
+			throw new Bitrix\Rest\RestException("Alias can't be empty", "ALIAS_EMPTY", CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+
+		$conference = \Bitrix\Im\Call\Conference::getByAlias($params['ALIAS']);
+		if ($conference && $conference->getPassword() === $params['PASSWORD'])
+		{
+			//create cache for current confId and sessId
+			$storage = \Bitrix\Main\Application::getInstance()->getLocalSession('conference_check_' . $conference->getId());
+			$storage->set('checked', true);
+
+			return true;
+		}
+
+		return false;
 	}
 
 	private static function getBotId($arParams, \CRestServer $server)

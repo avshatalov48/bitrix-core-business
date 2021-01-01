@@ -24,7 +24,7 @@ return [
 		'TITLE' => Loc::getMessage("LANDING_DEMO_WIKI_DARK_TITLE"),
 		'RULE' => null,
 		'ADDITIONAL_FIELDS' => [
-			'THEME_CODE' => '3corporate',
+			'THEME_CODE' => 'wiki-dark',
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'METAMAIN_USE' => 'N',
@@ -100,10 +100,10 @@ return [
 			'access' => 'X',
 			'style' => [
 				'.landing-block-node-button-container' => [
-					0 => 'landing-block-node-button-container input-group-append g-z-index-4 g-theme-bitrix-bg-v3 g-theme-bitrix-bg-v3--hover g-color-white g-color-white--hover g-font-size-15',
+					0 => 'landing-block-node-button-container input-group-append g-z-index-4 g-bg-primary-dark-v3 g-bg-primary--hover g-color-white g-color-white--hover g-font-size-15',
 				],
 				'.landing-block-node-input-container' => [
-					0 => 'landing-block-node-input-container form-control g-brd-primary--focus g-px-20 g-height-45 g-theme-bitrix-bg-dark-v2--hover g-color-white--hover g-color-white g-theme-bitrix-brd-v3 g-theme-bitrix-bg-dark-v2',
+					0 => 'landing-block-node-input-container form-control g-brd-primary--focus g-px-20 g-height-45 g-theme-bitrix-bg-dark-v2--hover g-color-white--hover g-color-white g-brd-primary g-theme-bitrix-bg-dark-v2',
 				],
 				'#wrapper' => [
 					0 => 'landing-block g-pt-30 g-pb-80 g-pl-15 g-pr-15 g-bg-transparent',
@@ -236,7 +236,7 @@ return [
 					0 => 'landing-block-img u-bg-overlay g-flex-centered g-min-height-70vh g-bg-img-hero',
 					],
 				'.landing-block-link' => [
-					0 => 'landing-block-link u-link-v5 g-font-size-18 g-font-weight-700 g-color-white g-color-white--hover',
+					0 => 'landing-block-link u-link-v5 g-font-size-18 g-font-weight-700 g-color-primary g-color-primary--hover',
 					],
 				'.landing-block-link-container' => [
 					0 => 'landing-block-link-container',
@@ -306,7 +306,7 @@ return [
 					0 => 'landing-block-img u-bg-overlay g-flex-centered g-min-height-70vh g-bg-img-hero',
 					],
 				'.landing-block-link' => [
-					0 => 'landing-block-link u-link-v5 g-font-size-18 g-font-weight-700 g-color-white--hover g-color-white',
+					0 => 'landing-block-link u-link-v5 g-font-size-18 g-font-weight-700 g-color-primary--hover g-color-primary',
 					],
 				'.landing-block-link-container' => [
 					0 => 'landing-block-link-container',

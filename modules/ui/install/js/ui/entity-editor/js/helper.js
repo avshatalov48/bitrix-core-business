@@ -16,7 +16,16 @@ if(typeof BX.UI.EditorTextHelper === "undefined")
 
 			if(BX.type.isFunction(input.setSelectionRange))
 			{
+				var type = input.type;
+				if (type === 'number')
+				{
+					input.type = 'text';
+				}
 				input.setSelectionRange(0, input.value.length);
+				if (type === 'number')
+				{
+					input.type = 'number';
+				}
 			}
 			else
 			{

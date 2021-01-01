@@ -91,10 +91,6 @@ return array(
 				'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.1_NODE_CONTACT_LINK'),
 				'type' => 'typo',
 			),
-			'.landing-block-node-form' => array(
-				'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.1_NODE_FORM'),
-				'type' => 'animation',
-			),
 			'.landing-block-card-linkcontact-link' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.1_NODE_CONTACT_LINK'),
 				'type' => 'typo-link',
@@ -104,8 +100,5 @@ return array(
 				'type' => 'background-attachment',
 			),
 		),
-	),
-	'assets' => array(
-		'ext' => array('landing_form'),
 	),
 );

@@ -1,0 +1,51 @@
+.landing-ui-field-preset {
+	margin-bottom: 0;
+}
+
+.landing-ui-field-preset-layout {
+	display: flex;
+}
+
+.landing-ui-field-preset-left {
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+.landing-ui-field-preset-icon {
+	display: inline-block;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: contain;
+	width: 26px;
+	height: 26px;
+}
+
+.landing-ui-field-preset-icon-default {
+	background-image: url("images/default-case-icon.svg");
+}
+
+.landing-ui-field-preset-right .landing-ui-field-header {
+	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-size: 11px;
+	color: #858C96;
+	opacity: 0.7;
+	line-height: 7px;
+	margin-bottom: 4px;
+}
+
+.landing-ui-field-preset-link {
+	position: relative;
+	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color: #2066B0;
+	line-height: 13px;
+	float: left;
+	margin-left: -1px;
+	border-bottom: 1px dashed rgba(39, 107, 179, .4);
+	cursor: pointer;
+	transition: 200ms opacity ease;
+}
+
+.landing-ui-field-preset-link:hover {
+	opacity: .8;
+}

@@ -75,6 +75,8 @@ export class Content extends BasePanel
 		return getDeltaFromEvent(event);
 	}
 
+	adjustActionsPanels: boolean = true;
+
 	constructor(id: string, data = {})
 	{
 		super(id, data);
@@ -270,11 +272,21 @@ export class Content extends BasePanel
 		return this.state === 'shown';
 	}
 
+	shouldAdjustActionsPanels(): boolean
+	{
+		return this.adjustActionsPanels;
+	}
+
 	// eslint-disable-next-line no-unused-vars
 	show(options?: any): Promise<any>
 	{
 		if (!this.isShown())
 		{
+			if (this.shouldAdjustActionsPanels())
+			{
+				Dom.addClass(document.body, 'landing-ui-hide-action-panels');
+			}
+
 			void BX.Landing.Utils.Show(this.overlay);
 			return BX.Landing.Utils.Show(this.layout).then(() => {
 				this.state = 'shown';
@@ -288,6 +300,11 @@ export class Content extends BasePanel
 	{
 		if (this.isShown())
 		{
+			if (this.shouldAdjustActionsPanels())
+			{
+				Dom.removeClass(document.body, 'landing-ui-hide-action-panels');
+			}
+
 			void BX.Landing.Utils.Hide(this.overlay);
 			return BX.Landing.Utils.Hide(this.layout).then(() => {
 				this.state = 'hidden';
@@ -346,5 +363,16 @@ export class Content extends BasePanel
 	{
 		this.sidebarButtons.add(button);
 		Dom.append(button.layout, this.sidebar);
+	}
+
+	setOverlayClass(className: string)
+	{
+		Dom.addClass(this.overlay, className);
+	}
+
+	renderTo(target: HTMLElement)
+	{
+		super.renderTo(target);
+		Dom.append(this.overlay, target);
 	}
 }

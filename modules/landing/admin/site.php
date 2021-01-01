@@ -58,13 +58,13 @@ $filter = [
 	'=TYPE' => $type,
 	'CHECK_PERMISSIONS' => 'N'
 ];
-if ($site)
-{
-	$filter['=SMN_SITE_ID'] = $site;
-}
-else if ($siteId)
+if ($siteId)
 {
 	$filter['ID'] = $siteId;
+}
+else if ($site)
+{
+	$filter['=SMN_SITE_ID'] = $site;
 }
 else
 {

@@ -12,8 +12,6 @@
 	var style = BX.Landing.Utils.style;
 	var encodeDataValue = BX.Landing.Utils.encodeDataValue;
 
-	var Menu = BX.Landing.UI.Tool.Menu;
-
 	/**
 	 * Implements preview panel interface
 	 *
@@ -326,7 +324,7 @@
 			if (!this.siteMenu)
 			{
 				var loader = new BX.Loader({size: 40});
-				this.siteMenu = new Menu({
+				this.siteMenu = new BX.PopupMenuWindow({
 					id: "site_list_menu",
 					bindElement: this.siteButton,
 					events: {
@@ -406,7 +404,7 @@
 			if (!this.pageMenu)
 			{
 				var loader = new BX.Loader({size: 40});
-				this.pageMenu = new Menu({
+				this.pageMenu = new BX.PopupMenuWindow({
 					id: "page_list_menu",
 					bindElement: this.pageButton,
 					events: {

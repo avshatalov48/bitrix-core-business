@@ -5,13 +5,14 @@ namespace Bitrix\Forum\Comments\Service;
 class Manager
 {
 	const TYPE_TASK_INFO = 1;
-//	const TYPE_TASK_CREATED = 2;
+	const TYPE_TASK_CREATED = 2;
+	const TYPE_FORUM_DEFAULT = 1000;
 
 	public static function getTypesList()
 	{
 		return [
 			static::TYPE_TASK_INFO,
-//			static::TYPE_TASK_CREATED
+			static::TYPE_TASK_CREATED
 		];
 	}
 
@@ -29,9 +30,9 @@ class Manager
 			case static::TYPE_TASK_INFO:
 				$result = new TaskInfo();
 				break;
-//			case static::TYPE_TASK_CREATED:
-//				$result = new TaskCreated();
-//				break;
+			case static::TYPE_TASK_CREATED:
+				$result = new TaskCreated();
+				break;
 			default:
 				$result = false;
 		}

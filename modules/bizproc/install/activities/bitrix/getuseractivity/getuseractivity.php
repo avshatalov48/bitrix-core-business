@@ -192,7 +192,9 @@ class CBPGetUserActivity
 			$skipTimeman = false;
 		}
 
-		$arReserveUsers = $this->GetUsersList($this->ReserveUserParameter, $skipAbsent, $skipTimeman);
+		$arReserveUsers = $this->getActiveUsers(
+			$this->GetUsersList($this->ReserveUserParameter, $skipAbsent, $skipTimeman)
+		);
 		if (count($arReserveUsers) > 0)
 		{
 			if ($this->UserType == 'random')

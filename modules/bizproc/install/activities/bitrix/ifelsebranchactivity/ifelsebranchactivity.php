@@ -70,7 +70,10 @@ class CBPIfElseBranchActivity
 		return array_merge($arErrors, parent::ValidateProperties($arTestProperties, $user));
 	}
 
-	public static function GetPropertiesDialog($documentType, $activityName, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $arCurrentValues = null, $formName = "")
+	public static function GetPropertiesDialog(
+		$documentType, $activityName, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables,
+		$arCurrentValues = null, $formName = "", $popupWindow = null, $currentSiteId = null, $arWorkflowConstants = null
+	)
 	{
 		if (!is_array($arWorkflowParameters))
 			$arWorkflowParameters = array();
@@ -113,7 +116,11 @@ class CBPIfElseBranchActivity
 			$v = CBPActivityCondition::CallStaticMethod(
 				$activityKey,
 				"GetPropertiesDialog",
-				array($documentType, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, (($defaultCondition == $activityKey) ? $defaultConditionValue : null), $arCurrentValues, $formName)
+				[
+					$documentType, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables,
+					(($defaultCondition == $activityKey) ? $defaultConditionValue : null),
+					$arCurrentValues, $formName, $popupWindow, $currentSiteId, $arWorkflowConstants
+				]
 			);
 			if ($v == null)
 			{
@@ -140,7 +147,10 @@ class CBPIfElseBranchActivity
 		);
 	}
 
-	public static function GetPropertiesDialogValues($documentType, $activityName, &$arWorkflowTemplate, &$arWorkflowParameters, &$arWorkflowVariables, $arCurrentValues, &$arErrors)
+	public static function GetPropertiesDialogValues(
+		$documentType, $activityName, &$arWorkflowTemplate, &$arWorkflowParameters, &$arWorkflowVariables,
+		$arCurrentValues, &$arErrors, $arWorkflowConstants = null
+	)
 	{
 		$runtime = CBPRuntime::GetRuntime();
 		$arActivities = $runtime->SearchActivitiesByType("condition", $documentType);
@@ -167,7 +177,10 @@ class CBPIfElseBranchActivity
 		$condition = CBPActivityCondition::CallStaticMethod(
 			$arCurrentValues["condition_type"],
 			"GetPropertiesDialogValues",
-			array($documentType, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $arCurrentValues, &$arErrors)
+			[
+				$documentType, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables,
+				$arCurrentValues, &$arErrors, $arWorkflowConstants
+			]
 		);
 
 		if ($condition != null)
@@ -179,4 +192,3 @@ class CBPIfElseBranchActivity
 		return false;
 	}
 }
-?>

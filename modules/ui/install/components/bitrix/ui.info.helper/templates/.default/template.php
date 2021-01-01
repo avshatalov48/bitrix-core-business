@@ -7,9 +7,7 @@
 
 <script>
 	BX.ready(function () {
-		BX.UI.InfoHelper.init({
-			frameUrlTemplate: '<?=$arResult["NOTIFY_URL"]?>'
-		});
+		BX.UI.InfoHelper.init(<?=\Bitrix\Main\Web\Json::encode($arResult["CONFIG"]);?>);
 	});
 </script>
 

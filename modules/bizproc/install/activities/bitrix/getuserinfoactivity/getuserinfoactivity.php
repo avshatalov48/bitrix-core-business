@@ -176,7 +176,7 @@ class CBPGetUserInfoActivity
 			$ufMap = str_replace('USER_', '', $uf);
 			if($fieldMap['Type'] === 'bool')
 			{
-				$user[$ufMap] = $user[$ufMap] ? 'Y' : 'N';
+				$user[$ufMap] = CBPHelper::getBool($user[$ufMap]) ? 'Y' : 'N';
 			}
 			else if($fieldMap['Type'] === 'select')
 			{

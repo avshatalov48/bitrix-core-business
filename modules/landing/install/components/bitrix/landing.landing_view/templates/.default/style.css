@@ -382,7 +382,7 @@
 }
 
 @media all and (max-width: 1000px) {
-	.landing-ui-panel-top-chain {
+	.landing-ui-panel-top-chain:not(.landing-ui-panel-top-chain) {
 		display: none;
 	}
 }
@@ -540,4 +540,9 @@
 
 .landing-ui-panel-top-light .landing-ui-panel-top-chain .landing-ui-panel-top-chain-link-sites {
 	display: none;
+}
+
+.landing-ui-panel-top-form .landing-ui-panel-top-history {
+	opacity: 0!important;
+	pointer-events: none!important;
 }

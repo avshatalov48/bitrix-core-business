@@ -37,7 +37,7 @@ class Config
 
 		$isSharedMode = \CPullOptions::IsServerShared();
 		$serverConfig = Array(
-			'VERSION' => \CPullOptions::GetQueueServerVersion(),
+			'VERSION' => $isSharedMode ? \Bitrix\Pull\SharedServer\Config::getServerVersion(): \CPullOptions::GetQueueServerVersion(),
 			'SERVER_ENABLED' => \CPullOptions::GetQueueServerStatus(),
 			'MODE' => \CPullOptions::GetQueueServerMode(),
 			'LONG_POLLING' => $isSharedMode ? \Bitrix\Pull\SharedServer\Config::getLongPollingUrl(): \CPullOptions::GetListenUrl(),

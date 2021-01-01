@@ -755,12 +755,9 @@ BX.ImMobile.prototype.mobileActionReady = function()
 				console.warn('onImDetailShowed (onAppActive)', {visible: data.status, dialogId: this.messenger.currentTab});
 				BXMobileApp.onCustomEvent('onImDetailShowed', {dialogId: this.messenger.currentTab}, true);
 
-				if (this.settings.loadLastMessage)
-				{
-					BX.MessengerCommon.loadLastMessage(this.messenger.currentTab, function(userId) {
-						BX.MessengerCommon.readMessage(userId, false, false);
-					});
-				}
+				BX.MessengerCommon.loadLastMessage(this.messenger.currentTab, function(userId) {
+					BX.MessengerCommon.readMessage(userId, false, false);
+				});
 			}
 		},this)});
 	}, this));
@@ -776,12 +773,9 @@ BX.ImMobile.prototype.mobileActionReady = function()
 				console.warn('onImDetailShowed (onOpenPageAfter)', {visible: data.status, dialogId: this.messenger.currentTab});
 				BXMobileApp.onCustomEvent('onImDetailShowed', {dialogId: this.messenger.currentTab}, true);
 
-				if (this.settings.loadLastMessage)
-				{
-					BX.MessengerCommon.loadLastMessage(this.messenger.currentTab, function(userId) {
-						BX.MessengerCommon.readMessage(userId, false, false);
-					});
-				}
+				BX.MessengerCommon.loadLastMessage(this.messenger.currentTab, function(userId) {
+					BX.MessengerCommon.readMessage(userId, false, false);
+				});
 			}
 		},this)});
 	}, this));

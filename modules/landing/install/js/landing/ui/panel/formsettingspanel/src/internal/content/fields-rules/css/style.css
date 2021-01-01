@@ -1,0 +1,42 @@
+.landing-ui-form-form-settings + .landing-ui-component-action-panel {
+	margin-top: -12px;
+	margin-bottom: 30px;
+}
+
+.landing-ui-rules-type1-icon {
+	background-image: url("images/type1.svg");
+}
+
+.landing-ui-rules-type2-icon {
+	background-image: url("images/type2.svg");
+}
+
+.landing-ui-rules-type3-icon {
+	background-image: url("images/type3.svg");
+}
+
+.landing-ui-field-radio-button-layout[data-selector="rules-type"] {
+	text-align: center;
+}
+
+.landing-ui-field-radio-button-layout[data-selector="rules-type"] .landing-ui-field-radio-button-item {
+	width: 150px;
+}
+
+.landing-ui-field-radio-button-layout[data-selector="rules-type"] .landing-ui-field-radio-button-item-active .landing-ui-field-radio-button-item-icon {
+	border: 1px solid rgba(82, 92, 105, .42);
+}
+
+.landing-ui-field-radio-button-layout[data-selector="rules-type"] .landing-ui-field-radio-button-item-active .landing-ui-field-radio-button-item-icon::before {
+	display: none;
+}
+
+.landing-ui-field-radio-button-layout[data-selector="rules-type"] .landing-ui-field-radio-button-item-text span {
+	color: #333333;
+	border: none;
+}
+
+.landing-ui-field-radio-button-layout[data-selector="rules-type"] .ui-btn {
+	margin-top: 10px;
+	outline: none!important;
+}

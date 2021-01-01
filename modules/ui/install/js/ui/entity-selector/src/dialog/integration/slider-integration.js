@@ -26,6 +26,8 @@ export default class SliderIntegration
 
 	bindEvents()
 	{
+		this.unbindEvents();
+
 		EventEmitter.subscribe('SidePanel.Slider:onOpen', this.handleSliderOpen);
 		EventEmitter.subscribe('SidePanel.Slider:onCloseComplete', this.handleSliderClose);
 		EventEmitter.subscribe('SidePanel.Slider:onDestroy', this.handleSliderClose);

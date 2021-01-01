@@ -288,7 +288,9 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 
 <script type="text/javascript">
 
-	<? $emailMaxSize = (int)\Bitrix\Main\Config\Option::get('main', 'max_file_size', 0); ?>
+	<? $emailMaxSize = (int)\Bitrix\Main\Config\Option::get('main', 'max_file_size', 0);
+		$maxSizeAfterEncoding = floor($emailMaxSize/4)*3;
+	?>
 
 	BX.message({
 		MAIL_MESSAGE_AJAX_ERROR: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_AJAX_ERROR')) ?>',
@@ -298,7 +300,7 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 		MAIL_MESSAGE_MAX_SIZE_EXCEED: '<?=\CUtil::jsEscape(
 			Loc::getMessage(
 				'MAIL_MESSAGE_MAX_SIZE_EXCEED',
-				['#SIZE#' => \CFile::formatSize($emailMaxSize)]
+				['#SIZE#' => \CFile::formatSize($maxSizeAfterEncoding,1)]
 			)
 		) ?>',
 		MAIL_MESSAGE_SEND_SUCCESS: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_SEND_SUCCESS')) ?>',

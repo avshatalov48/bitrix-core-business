@@ -256,6 +256,21 @@ abstract class BaseObject
 		return $this->user;
 	}
 
+	public function getUserUnreadMessageId()
+	{
+		return $this->user->getUnreadMessageId($this->getTopic() ? $this->getTopic()["ID"] : 0);
+	}
+
+	public function setUserAsRead()
+	{
+		$this->user->readTopic($this->getTopic() ? $this->getTopic()["ID"] : 0);
+	}
+
+	public function setUserLocation()
+	{
+		$this->user->setLocation($this->forum["ID"], $this->getTopic() ? $this->getTopic()["ID"] : 0);
+	}
+
 	/**
 	 * @return \CMain
 	 */

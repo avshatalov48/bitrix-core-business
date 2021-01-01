@@ -55,41 +55,70 @@ final class TaskInfo extends Base
 			}
 			else
 			{
-				$res = MessageTable::getList([
-					'filter' => [
-						'=ID' => $messageId
-					],
-					'select' => ['TOPIC_ID']
-				]);
+				$forumPostLivefeedProvider = new \Bitrix\Socialnetwork\Livefeed\ForumPost();
+				$commentData = $forumPostLivefeedProvider->getAuxCommentCachedData($messageId);
 				if (
-					($forumMessageFields = $res->fetch())
-					&& !empty($forumMessageFields['TOPIC_ID'])
+					!empty($commentData)
+					&& isset($commentData['SERVICE_TYPE'])
+					&& $commentData['SERVICE_TYPE'] === \Bitrix\Forum\Comments\Service\Manager::TYPE_TASK_INFO
+					&& (
+						!empty($commentData['SERVICE_DATA'])
+						|| !empty($commentData['POST_MESSAGE'])
+					)
 				)
+				{
+					try
+					{
+						$messageParams = Json::decode(!empty($commentData['SERVICE_DATA']) ? $commentData['SERVICE_DATA'] : $commentData['POST_MESSAGE']);
+					}
+					catch(\Bitrix\Main\ArgumentException $e)
+					{
+						$messageParams = [];
+					}
+
+					$cacheData[$messageId] = $params = $messageParams;
+				}
+				else
 				{
 					$res = MessageTable::getList([
 						'filter' => [
-							'=TOPIC_ID' => (int)$forumMessageFields['TOPIC_ID']
+							'=ID' => $messageId
 						],
-						'select' => ['ID', 'POST_MESSAGE']
+						'select' => ['TOPIC_ID']
 					]);
-					while (
+					if (
 						($forumMessageFields = $res->fetch())
-						&& !empty($forumMessageFields['POST_MESSAGE'])
+						&& !empty($forumMessageFields['TOPIC_ID'])
 					)
 					{
-						try
+						$res = MessageTable::getList([
+							'filter' => [
+								'=TOPIC_ID' => (int)$forumMessageFields['TOPIC_ID']
+							],
+							'select' => [ 'ID', 'SERVICE_DATA', 'POST_MESSAGE' ]
+						]);
+						while (
+							($forumMessageFields = $res->fetch())
+							&& (
+								!empty($forumMessageFields['SERVICE_DATA'])
+								|| !empty($forumMessageFields['POST_MESSAGE'])
+							)
+						)
 						{
-							$messageParams = Json::decode($forumMessageFields['POST_MESSAGE']);
-						}
-						catch(\Bitrix\Main\ArgumentException $e)
-						{
-							$messageParams = [];
+							try
+							{
+								$messageParams = Json::decode(!empty($forumMessageFields['SERVICE_DATA']) ? $forumMessageFields['SERVICE_DATA'] : $forumMessageFields['POST_MESSAGE']);
+							}
+							catch(\Bitrix\Main\ArgumentException $e)
+							{
+								$messageParams = [];
+							}
+
+							$cacheData[$forumMessageFields['ID']] = $messageParams;
 						}
 
-						$cacheData[$forumMessageFields['ID']] = $messageParams;
+						$params = $cacheData[$messageId];
 					}
-
-					$params = $cacheData[$messageId];
 				}
 			}
 		}

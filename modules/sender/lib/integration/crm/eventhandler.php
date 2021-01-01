@@ -109,7 +109,7 @@ class EventHandler
 			$recipient = $eventData['RECIPIENT'];
 			$fields = $eventData['RECIPIENT']['FIELDS'];
 
-			$entityId = $fields['CRM_ENTITY_ID'];
+			$entityId = $fields['CRM_ENTITY_ID']??$recipient['CONTACT_ID'];
 			if(!$entityId)
 			{
 				continue;

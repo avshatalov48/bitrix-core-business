@@ -341,6 +341,10 @@ class Site
 			if ($blocks)
 			{
 				$replace = [];
+				ksort($blocks);
+				ksort($landings);
+				$blocks = array_reverse($blocks, true);
+				$landings = array_reverse($landings, true);
 				foreach ($blocks as $oldId => $newId)
 				{
 					$replace['#block' . $oldId] = '#block' . $newId;

@@ -1,6 +1,8 @@
 <?php
 namespace Bitrix\Im;
 
+use Bitrix\Main\Type\DateTime;
+
 class Alias
 {
 	const ENTITY_TYPE_USER = 'USER';
@@ -22,7 +24,10 @@ class Alias
 		$entityType = $fields['ENTITY_TYPE'];
 		$entityId = $fields['ENTITY_ID'];
 
-		if (empty($entityId) || empty($entityType) || empty($alias))
+		if (
+			($fields['ENTITY_TYPE'] !== self::ENTITY_TYPE_VIDEOCONF && empty($entityId))
+			|| empty($entityType)
+			|| empty($alias))
 		{
 			return false;
 		}
@@ -35,6 +40,7 @@ class Alias
 			'ALIAS' => $alias,
 			'ENTITY_TYPE' => $entityType,
 			'ENTITY_ID' => $entityId,
+			'DATE_CREATE' => new DateTime()
 		));
 		if (!$result->isSuccess())
 		{
@@ -134,6 +140,18 @@ class Alias
 		$result['LINK'] = self::getPublicLink($result['ENTITY_TYPE'], $result['ALIAS']);
 
 		return $result;
+	}
+
+	public static function getByIdAndCode($id, $code)
+	{
+		return \Bitrix\Im\Model\AliasTable::getList(
+			[
+				'filter' => [
+					'ID' => $id,
+					'ALIAS' => $code
+				]
+			]
+		)->fetch();
 	}
 
 	public static function getByEntity($entityType, $entityId)

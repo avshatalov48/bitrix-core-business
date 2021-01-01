@@ -1617,6 +1617,10 @@
 	-ms-appearance: none;
 	appearance: none !important;
 	vertical-align: middle;
+	text-align: left;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .bizproc-automation-popup-settings-dropdown-flexible {

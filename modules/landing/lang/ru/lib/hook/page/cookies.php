@@ -7,3 +7,7 @@ $MESS['LANDING_HOOK_COOKIES_COLOR_TEXT'] = 'Цвет иконки и текст�
 $MESS['LANDING_HOOK_COOKIES_POSITION'] = 'Расположение ссылки';
 $MESS['LANDING_HOOK_COOKIES_POSITION_BL'] = 'Снизу слева';
 $MESS['LANDING_HOOK_COOKIES_POSITION_BR'] = 'Снизу справа';
+$MESS['LANDING_HOOK_COOKIES_MODE'] = 'Режим работы';
+$MESS['LANDING_HOOK_COOKIES_MODE_A'] = 'требуется согласие пользователя';
+$MESS['LANDING_HOOK_COOKIES_MODE_I'] = 'информирование о сборе cookies';
+$MESS['LANDING_HOOK_COOKIES_MODE_HELP'] = 'подробнее';

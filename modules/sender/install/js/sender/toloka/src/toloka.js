@@ -32,7 +32,6 @@ export class Toloka
 	#templateTypeNode;
 	#templateIdNode;
 	#templateData;
-	#preset;
 	#REGION_BY_IP = 'REGION_BY_IP';
 	#REGION_BY_PHONE = 'REGION_BY_PHONE';
 
@@ -55,20 +54,6 @@ export class Toloka
 			const selector = BX.Sender.Template.Selector;
 			BX.addCustomEvent(selector, selector.events.templateSelect, this.onTemplateSelect.bind(this));
 			BX.addCustomEvent(selector, selector.events.selectorClose, this.closeTemplateSelector.bind(this));
-		}
-
-		if (this.#filterNode)
-		{
-			BX.bind(
-				this.#filterNode,
-				'click',
-				this.initAddressWidget.bind(this, this.#REGION_BY_IP)
-			);
-			BX.bind(
-				this.#filterNode,
-				'click',
-				this.initAddressWidget.bind(this, this.#REGION_BY_PHONE)
-			);
 		}
 
 		if(this._saveBtn)
@@ -98,6 +83,20 @@ export class Toloka
 				});
 			}
 		}
+
+		this.initWidget();
+
+		const filter = this.getFilter();
+		filter.getAddPresetButton().style.display = 'none';
+
+		filter.getPreset().getPresets().forEach(preset => {
+			preset.style.display = 'none';
+		})
+
+		BX.bind(filter.getResetButton(), 'click', this.reInitAddressWidget.bind(this));
+
+		const clearFilterBtn = document.querySelector('.main-ui-delete');
+		BX.bind(clearFilterBtn, 'click', this.reInitAddressWidget.bind(this));
 	}
 
 	initialize(params)
@@ -128,6 +127,7 @@ export class Toloka
 		this.#letterTile = params.letterTile || {};
 		this.#templateData = [];
 		this.#messageFields = this.objectKeysToLowerCase(JSON.parse(params.preset));
+		this.optionData = [];
 
 		this.prepareNodes();
 		this.buildDispatchNodes();
@@ -189,17 +189,81 @@ export class Toloka
 		this._taskSuiteNode.parentNode.parentNode.style = 'display:none';
 	}
 
-	initAddressWidget(name)
+	reInitAddressWidget()
 	{
-		this._filterNode[name] = document.querySelectorAll(`div[data-name=${name}]`)[0];
+		if(this._filterNode[this.#REGION_BY_IP] && this._autocomplete[this.#REGION_BY_IP])
+		{
+			this._autocomplete[this.#REGION_BY_IP].removeAutocompleteNode();
+			this._autocomplete[this.#REGION_BY_IP] = null;
+		}
+
+		if(this._filterNode[this.#REGION_BY_PHONE] && this._autocomplete[this.#REGION_BY_PHONE])
+		{
+			this._autocomplete[this.#REGION_BY_PHONE].removeAutocompleteNode();
+			this._autocomplete[this.#REGION_BY_PHONE] = null;
+		}
+
+		this.initWidget();
+	}
+
+	initWidget()
+	{
+		if (this.#filterNode)
+		{
+			BX.bind(
+				this.#filterNode,
+				'click',
+				this.initAddressWidget.bind(this, this.#REGION_BY_IP)
+			);
+			BX.bind(
+				this.#filterNode,
+				'click',
+				this.initAddressWidget.bind(this, this.#REGION_BY_PHONE)
+			);
+			BX.bind(
+				this.getFilter().getPopup().popupContainer,
+				'click',
+				this.initAddressWidget.bind(this, this.#REGION_BY_IP)
+			);
+			BX.bind(
+				this.getFilter().getPopup().popupContainer,
+				'click',
+				this.initAddressWidget.bind(this, this.#REGION_BY_PHONE)
+			);
+		}
+	}
+
+	initAddressWidget(name, event)
+	{
+		if(event.target && this.getFilter().getSearch().isSquareRemoveButton(event.target))
+		{
+			this.reInitAddressWidget();
+		}
+
+
+		this._filterNode[name] = document.querySelectorAll(`.main-ui-filter-field-container-list > div[data-name=${name}]`)[0];
+
+		if(!this._filterNode[name])
+		{
+			if(this._autocomplete[name])
+			{
+				this._autocomplete[name].removeAutocompleteNode();
+				this._autocomplete[this.#REGION_BY_IP] = null;
+			}
+
+			return;
+		}
+
 		if (this._autocomplete[name])
 		{
 			return;
 		}
+
 		const self = this;
+		this.optionData[name] = this.optionData[name] || [];
 
 		this._autocomplete[name] = new Autocomplete(this._filterNode[name], {
-			options: [],
+			options: this.optionData[name],
 			multiple: true,
 			autocomplete: true,
 			onChange: (value, preparedValue) => {
@@ -208,8 +272,8 @@ export class Toloka
 				this.#filter.getFieldByName(name).VALUE = preparedValue;
 			}
 		});
-
 		this._regionInput[name] = document.querySelectorAll(`input[data-name=autocomplete-${name}]`)[0];
+
 		BX.bind(
 			this._regionInput[name],
 			'keyup',
@@ -342,31 +406,52 @@ export class Toloka
 		{
 			return;
 		}
+		this.usedWords = this.usedWords || [];
+		const value = this._regionInput[name].value;
+
+		if(this.usedWords.includes(value))
+		{
+			return;
+		}
+		this.usedWords.push(value);
 
 		const self = this;
 		this.#ajaxAction.request({
 			action: 'getGeoList',
 			data: {
-				name: this._regionInput[name].value
+				name: value
 			},
-			onsuccess: function(response) {
-				let data = [];
-
+			onsuccess: response => {
+				if(!this.optionData[name])
+				{
+					this.optionData[name] = [];
+				}
 				for (const value in response)
 				{
 					const responseData = response[value];
 					if (typeof responseData === 'object' && 'id' in responseData)
 					{
-						data.push(responseData);
+						this.optionData[name].push(responseData);
 					}
 				}
 
 				if (self._autocomplete[name])
 				{
-					self._autocomplete[name].setOptions(data);
+
+					this.optionData[name] = this.optionData[name].reduce((acc, current) => {
+						const x = acc.find(item => item.id === current.id);
+						if (!x) {
+							return acc.concat([current]);
+						} else {
+							return acc;
+						}
+					}, []);
+					self._autocomplete[name].setOptions(this.optionData[name]);
 				}
+
 			}
 		});
+
 	}
 
 	validateRequiredFields()

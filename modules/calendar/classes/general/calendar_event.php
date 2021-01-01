@@ -6,7 +6,6 @@ use Bitrix\Calendar\ICal\{IncomingEventManager, OutcomingEventManager};
 use \Bitrix\Main\Loader;
 use \Bitrix\Disk\Uf\FileUserType;
 use \Bitrix\Disk\AttachedObject;
-use \Bitrix\Main\Localization\Loc;
 use Bitrix\Calendar\Internals;
 use \Bitrix\Calendar\Integration\Bitrix24\Limitation;
 
@@ -82,7 +81,7 @@ class CCalendarEvent
 		$currentEvent = [];
 		if ($entryFields['IS_MEETING'] && !isset($entryFields['ATTENDEES']) && isset($entryFields['ATTENDEES_CODES']))
 		{
-			$entryFields['ATTENDEES'] = \CCalendar::getDestinationUsers($entryFields['ATTENDEES_CODES']);
+			$entryFields['ATTENDEES'] = CCalendar::getDestinationUsers($entryFields['ATTENDEES_CODES']);
 		}
 
 		if (!$isNewEvent)
@@ -132,7 +131,7 @@ class CCalendarEvent
 		if (self::CheckFields($entryFields, $currentEvent, $userId))
 		{
 			$attendees = is_array($entryFields['ATTENDEES']) ? $entryFields['ATTENDEES'] : array();
-			if ($entryFields['CAL_TYPE'] !== \CCalendarLocation::TYPE &&
+			if ($entryFields['CAL_TYPE'] !== CCalendarLocation::TYPE &&
 				(!$entryFields['PARENT_ID']
 					|| intval($entryFields['PARENT_ID']) === intval($entryFields['ID'])))
 			{
@@ -2388,7 +2387,7 @@ class CCalendarEvent
 						}
 					}
 					$sender = self::getSenderForIcal($userIndex, $childParams['arFields']['MEETING_HOST']);
-					if ($email = self::getSenderEmailForIcal($arFields['MEETING'], $sender['EMAIL']))
+					if ($email = self::getSenderEmailForIcal($arFields['MEETING']))
 					{
 						$sender['EMAIL'] = $email;
 					}
@@ -2529,7 +2528,7 @@ class CCalendarEvent
 				if ($att['EXTERNAL_AUTH_ID'] === 'email')
 				{
 					$sender = self::getSenderForIcal($currentAttendeesIndex, $att['MEETING_HOST']);
-					if ($email = self::getSenderEmailForIcal($arFields['MEETING'], $sender['EMAIL']))
+					if ($email = self::getSenderEmailForIcal($arFields['MEETING']))
 					{
 						$sender['EMAIL'] = $email;
 					}
@@ -2989,12 +2988,11 @@ class CCalendarEvent
 
 									return !empty($usersId) ? ICalUtil::getUsersById($usersId) : null;
 								};
-
 								$attendees = $prepareAttendees($chEvent['ATTENDEE_LIST']);
 								$sender = self::getSenderForIcal($attendees, $chEvent['MEETING_HOST']);
-								if ($email = self::getSenderEmailForIcal($chEvent['MEETING'], $sender['EMAIL']))
+								if (!empty($chEvent['MEETING']['MAIL_FROM']))
 								{
-									$sender['EMAIL'] = $email;
+									$sender['EMAIL'] = $chEvent['MEETING']['MAIL_FROM'];
 								}
 								else
 								{
@@ -4545,6 +4543,10 @@ class CCalendarEvent
 		return $attaches;
 	}
 
+	/**
+	 * @param string|null $serializedMeetingInfo
+	 * @return string|null
+	 */
 	private static function getSenderEmailForIcal(string $serializedMeetingInfo = null): ?string
 	{
 		$meetingInfo = CheckSerializedData($serializedMeetingInfo) ? unserialize($serializedMeetingInfo) : null;
@@ -4556,7 +4558,6 @@ class CCalendarEvent
 		{
 			CCalendar::ThrowError(GetMessage("EC_ICAL_NOTICE_DO_NOT_SET_EMAIL"));
 			self::$isAddIcalFailEmailError = true;
-			return null;
 		}
 
 		return null;

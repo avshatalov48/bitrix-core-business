@@ -11,9 +11,7 @@
 	var offsetLeft = BX.Landing.Utils.offsetLeft;
 	var bind = BX.Landing.Utils.bind;
 	var unbind = BX.Landing.Utils.unbind;
-
-	var Menu = BX.Landing.UI.Tool.Menu;
-
+	
 	/**
 	 * Implements interface for works with dropdown
 	 *
@@ -25,6 +23,8 @@
 	{
 		this.items = "items" in options && options.items ? options.items : {};
 		BX.Landing.UI.Field.BaseField.apply(this, arguments);
+		this.setEventNamespace('BX.Landing.UI.Field.Dropdown');
+		this.subscribeFromOptions(BX.Landing.UI.Component.fetchEventsFromOptions(options));
 		this.onChangeHandler = typeof options.onChange === "function" ? options.onChange : (function() {});
 		this.layout.classList.add("landing-ui-field-dropdown");
 		this.popup = null;
@@ -60,7 +60,7 @@
 			event.stopPropagation();
 			if (!this.popup || (this.popupRoot && !this.popupRoot.contains(this.popup.popupWindow.popupContainer)))
 			{
-				this.popup = new Menu({
+				this.popup = new BX.PopupMenuWindow({
 					id: "dropdown_" + (+new Date()),
 					bindElement: this.input,
 					items: this.items.map(function(item) {
@@ -119,6 +119,7 @@
 			this.onChangeHandler(item.value, this.items, this.postfix, this.property);
 			this.onValueChangeHandler(this);
 			BX.fireEvent(this.input, "input");
+			this.emit('onChange');
 		},
 
 		/**

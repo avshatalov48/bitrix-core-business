@@ -7,6 +7,7 @@ import {DialogType, DialogCrmType, DialogReferenceClassName} from "./dialog";
 import {FileStatus, FileType} from "./file";
 import {MessageType} from "./message";
 import {CallStateType, CallLimit, CallErrorCode, CallApplicationErrorCode} from "./call";
+import {ConferenceFieldState} from "./conference";
 
 export {
 	DateFormat,
@@ -18,4 +19,5 @@ export {
 	FileStatus, FileType,
 	MessageType,
 	CallStateType, CallLimit, CallErrorCode, CallApplicationErrorCode,
+	ConferenceFieldState
 }

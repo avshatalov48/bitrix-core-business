@@ -105,6 +105,12 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 	protected $lid = 0;
 
 	/**
+	 * Parent id of block (public version id).
+	 * @var int
+	 */
+	protected $parentId = 0;
+
+	/**
 	 * Id of site of landing.
 	 * @var int
 	 */
@@ -269,6 +275,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 
 		$this->id = intval($id);
 		$this->lid = isset($data['LID']) ? intval($data['LID']) : 0;
+		$this->parentId = isset($data['PARENT_ID']) ? intval($data['PARENT_ID']) : 0;
 		$this->siteId = isset($data['SITE_ID']) ? intval($data['SITE_ID']) : 0;
 		$this->sort = isset($data['SORT']) ? intval($data['SORT']) : '';
 		$this->code = isset($data['CODE']) ? trim($data['CODE']) : '';
@@ -411,7 +418,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 							'HEADER' => Loc::getMessage('LANDING_BLOCK_SUBSCRIBE_EXP_HEADER'),
 							'BUTTON' => Loc::getMessage('LANDING_BLOCK_SUBSCRIBE_EXP_BUTTON'),
 							'LINK' => Manager::BUY_LICENSE_PATH,
-							'MESSAGE' => Restriction\Manager::getSystemErrorMessage('block_subscribe_expired')
+							'MESSAGE' => Restriction\Manager::getSystemErrorMessage('block_subscribe_expired_2')
 			  			], 'locked'));
 					}
 					$landing->addBlockToCollection($block);
@@ -443,7 +450,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			$res = parent::getList(array(
 				'select' => array(
 					'ID', 'LID', 'CODE', 'SORT', 'ACTIVE',
-					'CONTENT', 'PUBLIC', 'ACCESS'
+					'CONTENT', 'PUBLIC', 'ACCESS', 'ANCHOR'
 				),
 				'filter' => array(
 					'LID' => $landing->getId()
@@ -458,6 +465,10 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				}
 				else
 				{
+					if (!$row['ANCHOR'])
+					{
+						$row['ANCHOR'] = $row['ID'];
+					}
 					$row['PUBLIC'] = 'N';
 					$row['PARENT_ID'] = $row['ID'];
 					unset($row['ID']);
@@ -682,6 +693,10 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		{
 			$block = new self($res->getId());
 			$manifest = $block->getManifest();
+			if (!$block->getLocalAnchor())
+			{
+				$block->setAnchor('b' . $block->getId());
+			}
 			Assets\PreProcessing::blockAddProcessing($block);
 			if (
 				isset($manifest['callbacks']['afteradd']) &&
@@ -1193,7 +1208,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		if (!empty($blocksRepo))
 		{
 			$blocksCats['separator_apps'] = array(
-				'name' => Loc::getMessage('LANDING_BLOCK_SEPARATOR_PARTNER'),
+				'name' => Loc::getMessage('LANDING_BLOCK_SEPARATOR_PARTNER_2'),
 				'separator' => true,
 				'items' => array()
 			);
@@ -2084,6 +2099,37 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				}
 			}
 
+			// prepare by subtype
+			if (
+				isset($manifest['block']['subtype']) &&
+				(
+					!isset($params['miss_subtype']) ||
+					$params['miss_subtype'] !== true
+				)
+			)
+			{
+				$subtypes = $manifest['block']['subtype'];
+				if (!is_array($subtypes))
+				{
+					$subtypes = [$subtypes];
+				}
+
+				foreach ($subtypes as $subtype)
+				{
+					$subtypeClass = '\\Bitrix\\Landing\\Subtype\\';
+					$subtypeClass .= $subtype;
+					if (class_exists($subtypeClass))
+					{
+						$manifest = $subtypeClass::prepareManifest(
+							$manifest,
+							$this,
+							isset($manifest['block']['subtype_params'])
+								? (array)$manifest['block']['subtype_params']
+								: array()
+						);
+					}
+				}
+			}
 
 			foreach (array_keys($asset[$this->code]) as $ass)
 			{
@@ -2418,6 +2464,13 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				{
 					$manifest['requiredUserAction'] = $this->runtimeRequiredUserAction;
 				}
+				$anchor = $this->anchor;
+				if (!$anchor)
+				{
+					$anchor = $this->parentId
+						? 'block' . $this->parentId
+						: 'b' . $this->id;
+				}
 				echo '<script type="text/javascript">'
 						. 'BX.ready(function(){'
 							. 'if (typeof BX.Landing.Block !== "undefined")'
@@ -2427,7 +2480,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 									. '{'
 										. 'id: ' . $this->id  . ', '
 										. 'active: ' . ($this->active ? 'true' : 'false')  . ', '
-										. 'anchor: ' . '"' . \CUtil::jsEscape($this->anchor) . '"' . ', '
+										. 'anchor: ' . '"' . \CUtil::jsEscape($anchor) . '"' . ', '
 										. 'access: ' . '"' . $this->access . '"' . ', '
 					 					. 'dynamicParams: ' . Json::encode($this->dynamicParams) . ','
 					 					. 'manifest: ' . Json::encode($manifest)

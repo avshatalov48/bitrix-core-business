@@ -1052,6 +1052,12 @@ export default class ItemNode
 			else
 			{
 				this.getItem().select();
+
+				if (this.getDialog().shouldClearSearchOnSelect())
+				{
+					this.getDialog().clearSearch();
+				}
+
 				if (this.getDialog().shouldHideOnSelect())
 				{
 					this.getDialog().hide();

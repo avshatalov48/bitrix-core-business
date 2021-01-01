@@ -52,11 +52,22 @@ final class Context
 			if ($landingInstance)
 			{
 				$context = Main\Context::getCurrent();
-				$realFilePath = str_replace('/index.php', '/', $context->getServer()->get('REAL_FILE_PATH'));
+
+				$realFilePath = $context->getServer()->get('REAL_FILE_PATH');
+				if (!$realFilePath)
+				{
+					$realFilePath = $_SERVER['REAL_FILE_PATH'] ?? null;
+				}
+				if (!$realFilePath)
+				{
+					$realFilePath = $context->getServer()->get('SCRIPT_NAME');
+				}
+
+				$realFilePath = str_replace('/index.php', '/', $realFilePath);
 				$requestUri = $request->getRequestUri();
 
 				$landingUrl = \Bitrix\Landing\Site::getPublicUrl($landingInstance['SITE_ID']);
-				if (strpos($landingUrl, $realFilePath) === false)
+				if (mb_strpos($landingUrl, $realFilePath) === false)
 				{
 					$requestUri = str_replace($realFilePath.$landingInstance['SITE_ID'], '', $requestUri);
 				}

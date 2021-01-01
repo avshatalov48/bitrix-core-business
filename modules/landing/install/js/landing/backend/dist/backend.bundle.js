@@ -206,10 +206,7 @@ this.BX = this.BX || {};
 	          params: {
 	            order: {
 	              ID: 'DESC'
-	            },
-	            filter: babelHelpers.objectSpread({
-	              TYPE: _this2.getSitesType()
-	            }, filter)
+	            }
 	          }
 	        }).then(function (response) {
 	          return response;

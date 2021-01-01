@@ -41,4 +41,17 @@ final class Response
 	{
 		return $this->body;
 	}
+
+	/**
+	 * @return string
+	 */
+	public function toString(): string
+	{
+		return serialize(
+			[
+				'status' => $this->status,
+				'body' => $this->body,
+			]
+		);
+	}
 }

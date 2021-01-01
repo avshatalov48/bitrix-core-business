@@ -5,6 +5,7 @@ namespace Bitrix\Sale\Cashbox;
 use Bitrix\Main;
 use Bitrix\Main\Text;
 use Bitrix\Main\Localization;
+use Bitrix\Sale;
 use Bitrix\Sale\Cashbox\Errors;
 use Bitrix\Sale\Result;
 use Bitrix\Catalog;
@@ -17,7 +18,7 @@ Localization\Loc::loadMessages(__FILE__);
  */
 class CashboxOrangeData
 	extends Cashbox
-	implements IPrintImmediately, ICheckable, ITestConnection
+	implements IPrintImmediately, ICheckable, ITestConnection, ICorrection
 {
 	private const PARTNER_CODE_BITRIX = '3010144';
 
@@ -69,6 +70,8 @@ class CashboxOrangeData
 			CreditCheck::getType() => 6,
 			CreditReturnCheck::getType() => 6,
 			CreditPaymentCheck::getType() => 7,
+			CreditPaymentReturnCheck::getType() => 7,
+			CreditPaymentReturnCashCheck::getType() => 7,
 		];
 	}
 
@@ -86,34 +89,33 @@ class CashboxOrangeData
 	/**
 	 * @param Check $check
 	 * @return array
-	 * @throws Main\NotImplementedException
 	 */
 	public function buildCheckQuery(Check $check)
 	{
-		$checkInfo = $check->getDataForCheck();
+		$data = $check->getDataForCheck();
 
 		$calculatedSignMap = $this->getCalculatedSignMap();
 
 		$result = [
-			'id' => static::buildUuid(static::UUID_TYPE_CHECK, $checkInfo['unique_id']),
+			'id' => static::buildUuid(static::UUID_TYPE_CHECK, $data['unique_id']),
 			'inn' => $this->getValueFromSettings('SERVICE', 'INN'),
 			'group' => $this->getField('NUMBER_KKM') ?: null,
 			'key' => $this->getValueFromSettings('SECURITY', 'KEY_SIGN') ?: null,
 			'content' => [
-				'type' => $calculatedSignMap[$check::getCalculatedSign()],
+				'type' => $calculatedSignMap[$data['calculated_sign']],
 				'positions' => [],
 				'checkClose' => [
 					'payments' => [],
 					'taxationSystem' => $this->getValueFromSettings('TAX', 'SNO'),
 				],
-				'customerContact' => $this->getCustomerContact($checkInfo),
+				'customerContact' => $this->getCustomerContact($data),
 			],
 			'meta' => self::PARTNER_CODE_BITRIX
 		];
 
 		$checkType = $this->getCheckTypeMap();
 		$paymentObjectMap = $this->getPaymentObjectMap();
-		foreach ($checkInfo['items'] as $item)
+		foreach ($data['items'] as $item)
 		{
 			$vat = $this->getValueFromSettings('VAT', $item['vat']);
 			if ($vat === null)
@@ -125,8 +127,8 @@ class CashboxOrangeData
 				'text' => mb_substr($item['name'], 0, self::MAX_TEXT_LENGTH),
 				'quantity' => $item['quantity'],
 				'price' => $item['price'],
-				'tax' => $this->mapVatValue($check::getType(), $vat),
-				'paymentMethodType' => $checkType[$check::getType()],
+				'tax' => $this->mapVatValue($data['type'], $vat),
+				'paymentMethodType' => $checkType[$data['type']],
 				'paymentSubjectType' => $paymentObjectMap[$item['payment_object']]
 			];
 
@@ -139,7 +141,7 @@ class CashboxOrangeData
 		}
 
 		$paymentTypeMap = $this->getPaymentTypeMap();
-		foreach ($checkInfo['payments'] as $payment)
+		foreach ($data['payments'] as $payment)
 		{
 			$result['content']['checkClose']['payments'][] = [
 				'type' => $paymentTypeMap[$payment['type']],
@@ -282,16 +284,27 @@ class CashboxOrangeData
 	 * @param Check $check
 	 * @return Result
 	 * @throws Main\ArgumentException
-	 * @throws Main\NotImplementedException
+	 * @throws Main\ObjectException
 	 */
 	public function printImmediately(Check $check)
 	{
+		return $this->registerCheck(
+			$this->getUrl().'/documents/',
+			$this->buildCheckQuery($check)
+		);
+	}
+
+	/**
+	 * @param $url
+	 * @param $data
+	 * @return Result
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectException
+	 */
+	protected function registerCheck($url, $data)
+	{
 		$result = new Result();
 
-		$url = $this->getUrl();
-		$url .= '/documents/';
-
-		$data = $this->buildCheckQuery($check);
 		$encodedData = $this->encode($data);
 
 		$headers = $this->getPostQueryHeaders($url, $encodedData);
@@ -452,13 +465,24 @@ class CashboxOrangeData
 	/**
 	 * @param Check $check
 	 * @return Result
+	 * @throws Main\ObjectException
 	 */
 	public function check(Check $check)
 	{
-		$result = new Result();
-
 		$url = $this->getUrl();
 		$url .= '/documents/'.$this->getValueFromSettings('SERVICE', 'INN').'/status/'.$check->getField('EXTERNAL_UUID');
+
+		return $this->checkInternal($url);
+	}
+
+	/**
+	 * @param $url
+	 * @return Result
+	 * @throws Main\ObjectException
+	 */
+	protected function checkInternal($url)
+	{
+		$result = new Result();
 
 		$header = $this->getCheckQueryHeaders($url);
 		$queryResult = $this->send($url, $header);
@@ -822,4 +846,113 @@ class CashboxOrangeData
 		return true;
 	}
 
+	/**
+	 * @param CorrectionCheck $check
+	 * @return Result
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectException
+	 */
+	public function printCorrectionImmediately(CorrectionCheck $check)
+	{
+		return $this->registerCheck(
+			$this->getUrl().'/corrections/',
+			$this->buildCorrectionCheckQuery($check)
+		);
+	}
+
+	/**
+	 * @param CorrectionCheck $check
+	 * @return array
+	 * @throws Main\ObjectException
+	 */
+	public function buildCorrectionCheckQuery(CorrectionCheck $check)
+	{
+		$data = $check->getDataForCheck();
+
+		$calculatedSignMap = $this->getCalculatedSignMap();
+
+		$documentDate = new Main\Type\DateTime($data['correction_info']['document_date']);
+
+		$result = [
+			'id' => static::buildUuid(static::UUID_TYPE_CHECK, $data['unique_id']),
+			'inn' => $this->getValueFromSettings('SERVICE', 'INN'),
+			'group' => $this->getField('NUMBER_KKM') ?: null,
+			'key' => $this->getValueFromSettings('SECURITY', 'KEY_SIGN') ?: null,
+			'content' => [
+				'type' => $calculatedSignMap[$data['calculated_sign']],
+				'correctionType' => $this->getCorrectionTypeMap($data['correction_info']['type']),
+				'causeDocumentDate' => $documentDate->format('Y-m-d\TH:i:s'),
+				'causeDocumentNumber' => $data['correction_info']['document_number'],
+				'totalSum' => $data['correction_info']['total_sum'],
+				'taxationSystem' => $this->getValueFromSettings('TAX', 'SNO')
+			],
+		];
+
+		foreach ($data['payments'] as $payment)
+		{
+			if ($payment['type'] === Check::PAYMENT_TYPE_CASH)
+			{
+				$result['content']['cashSum'] = (float)$payment['sum'];
+			}
+			else
+			{
+				$result['content']['eCashSum'] = (float)$payment['sum'];
+			}
+		}
+
+		foreach ($data['vats'] as $item)
+		{
+			$vat = $this->getValueFromSettings('VAT', $item['vat']);
+			if ($vat === null)
+			{
+				$vat = $this->getValueFromSettings('VAT', 'NOT_VAT');
+			}
+
+			if ($vat === self::CODE_VAT_0)
+			{
+				$result['content']['tax3Sum'] = $item['SUM'];
+			}
+			elseif ($vat === self::CODE_VAT_10)
+			{
+				$result['content']['tax2Sum'] = $item['SUM'];
+			}
+			elseif ($vat === self::CODE_VAT_20)
+			{
+				$result['content']['tax1Sum'] = $item['SUM'];
+			}
+			else
+			{
+				$result['content']['tax4Sum'] = $item['SUM'];
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param $type
+	 * @return int
+	 */
+	protected function getCorrectionTypeMap($type)
+	{
+		$map = [
+			CorrectionCheck::CORRECTION_TYPE_INSTRUCTION => 1,
+			CorrectionCheck::CORRECTION_TYPE_SELF => 0
+		];
+
+		return $map[$type] ?? 0;
+	}
+
+	/**
+	 * @param CorrectionCheck $check
+	 * @return Result
+	 * @throws Main\ObjectException
+	 */
+	public function checkCorrection(CorrectionCheck $check)
+	{
+		$url = $this->getUrl();
+		$url .= '/corrections/'.$this->getValueFromSettings('SERVICE', 'INN').'/status/'.$check->getField('EXTERNAL_UUID');
+
+		return $this->checkInternal($url);
+	}
 }

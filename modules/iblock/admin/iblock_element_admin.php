@@ -4119,14 +4119,21 @@ if($bBizproc && IsModuleInstalled("bizprocdesigner"))
 }
 
 $lAdmin->setContextSettings(array("pagePath" => $pageConfig['CONTEXT_PATH']));
+$contextConfig = array();
 $excelExport = ((string)Main\Config\Option::get("iblock", "excel_export_rights") == "Y"
 	? CIBlockRights::UserHasRightTo($IBLOCK_ID, $IBLOCK_ID, "iblock_export")
 	: true
 );
-$lAdmin->AddAdminContextMenu(
-	$aContext,
-	$excelExport
-);
+if ($excelExport)
+{
+	$contextConfig['excel'] = true;
+}
+$additional = $urlBuilder->getContextMenuItems($urlBuilder::PAGE_ELEMENT_LIST);
+if ($additional === null)
+{
+	$additional = [];
+}
+$lAdmin->SetContextMenu($aContext, $additional, $contextConfig);
 
 $lAdmin->CheckListMode();
 

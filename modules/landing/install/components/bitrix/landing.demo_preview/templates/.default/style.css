@@ -79,9 +79,9 @@ body {
 	padding-right: 6px;
 }
 
-.landing-template-preview-sitecolor-container {
+.landing-template-preview-setting-container {
 	margin-top: 21px;
-	padding-left: 6px;
+	padding-left: 0px;
 	display: flex;
 }
 
@@ -99,10 +99,11 @@ body {
 }
 
 .landing-template-preview-sitecolor-item {
-	width: 21px;
-	height: 21px;
+	width: 35px;
+	height: 35px;
 	margin-right: 10px;
 }
+
 .landing-template-preview-site-group-item
 {
 	max-width: 35px;
@@ -142,6 +143,7 @@ body {
 	padding-top: 20px;
 	padding-bottom: 12px;
 	color: #828B95;
+	align-self: center;
 }
 
 .landing-template-preview-header-sitecolor {
@@ -325,4 +327,8 @@ body {
 	position: absolute;
 	left: 0;
 	top: -2px;
+}
+
+.main-color-picker-preview {
+	background: #f25a8f;
 }

@@ -1,0 +1,65 @@
+.landing-ui-field-element-blue,
+.landing-ui-field-element-red,
+.landing-ui-field-element-green {
+	background: #FFFFFF;
+	display: flex;
+	align-items: center;
+	height: 52px;
+	padding-right: 10px;
+	box-shadow: 0 1px 3px 0 rgba(0,0,0,0.08);
+	border-radius: 2px;
+}
+
+.landing-ui-field-element-blue {
+	border-left: 4px #83DDF9 solid;
+}
+
+.landing-ui-field-element-red {
+	border-left: 4px #FF9B98 solid;
+}
+
+.landing-ui-field-element-green {
+	border-left: 4px #C4E268 solid;
+}
+
+.landing-ui-field-element-text {
+	max-width: calc(100% - 36px);
+	margin-left: 12px;
+}
+
+.landing-ui-field-element-text-action {
+	margin-top: -4px;
+}
+
+.landing-ui-field-element-text-action .landing-ui-field-dropdown-inline .landing-ui-field-header,
+.landing-ui-field-element-text-action .landing-ui-field-dropdown-inline .landing-ui-field-input {
+	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	opacity: 0.5;
+	font-size: 14px;
+	color: #333333;
+	line-height: 15px;
+}
+
+.landing-ui-field-element-text-title {
+	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-size: 15px;
+	color: #333333;
+	line-height: 20px;
+	flex-grow: 1;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.landing-ui-field-element-text-action + .landing-ui-field-element-text-title {
+	position: relative;
+	top: -2px;
+}
+
+.landing-ui-button-icon-drag + .landing-ui-field-element-text {
+	margin-left: 7px;
+}
+
+/*.landing-ui-field-element-text .landing-ui-field-dropdown-inline {*/
+/*	position: unset;*/
+/*}*/

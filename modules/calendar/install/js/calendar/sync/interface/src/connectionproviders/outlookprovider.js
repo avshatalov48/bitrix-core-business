@@ -1,8 +1,8 @@
-import {Connection} from "./connection";
+import {ConnectionProvider} from "./connectionprovider";
 import {Loc} from "main.core";
 import {Menu} from "main.popup";
 
-export class OutlookProvider extends Connection
+export class OutlookProvider extends ConnectionProvider
 {
 	constructor(options)
 	{
@@ -86,5 +86,4 @@ export class OutlookProvider extends Connection
 			}
 		}
 	}
-
 }

@@ -363,7 +363,7 @@ class CPullOptions
 	 */
 	public static function GetQueueServerVersion()
 	{
-		return intval(COption::GetOptionInt("pull", "nginx_version", self::GetDefaultOption("nginx_version")));
+		return static::IsServerShared() ? \Bitrix\Pull\SharedServer\Config::getServerVersion() : intval(COption::GetOptionInt("pull", "nginx_version", self::GetDefaultOption("nginx_version")));
 	}
 
 	public static function SetQueueServerVersion($version)

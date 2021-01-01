@@ -53,7 +53,6 @@ class im extends CModule
 		}
 		else
 		{
-			$this->errors = false;
 			if(!$DB->Query("SELECT 'x' FROM b_im_chat", true))
 				$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/im/install/db/".mb_strtolower($DB->type)."/install.sql");
 		}
@@ -90,13 +89,14 @@ class im extends CModule
 		CAgent::AddAgent("CIMDisk::RemoveTmpFileAgent();", "im", "N", 43200);
 		CAgent::AddAgent("\\Bitrix\\Im\\Bot::deleteExpiredTokenAgent();", "im", "N", 86400);
 		CAgent::AddAgent("\\Bitrix\\Im\\Disk\\NoRelationPermission::cleaningAgent();", "im", "N", 3600);
+		CAgent::AddAgent("\\Bitrix\\Im\\Call\\Conference::removeTemporaryAliases();", "im", "N", 86400);
 
 		$eventManager = \Bitrix\Main\EventManager::getInstance();
 		$eventManager->registerEventHandler('pull', 'onGetMobileCounter', 'im', '\Bitrix\Im\Counter', 'onGetMobileCounter');
 		$eventManager->registerEventHandler('pull', 'onGetMobileCounterTypes', 'im', '\Bitrix\Im\Counter', 'onGetMobileCounterTypes');
 		$eventManager->registerEventHandler('voximplant', 'onConferenceFinished', 'im', '\Bitrix\Im\Call\Call', 'onVoximplantConferenceFinished');
 
-		$eventManager->registerEventHandler('rest', 'onRestCheckAuth', 'im', 'Bitrix\Im\Call\Auth', 'onRestCheckAuth');
+		$eventManager->registerEventHandler('rest', 'onRestCheckAuth', 'im', '\Bitrix\Im\Call\Auth', 'onRestCheckAuth');
 
 		$solution = COption::GetOptionString("main", "wizard_solution", false);
 		if ($solution == 'community')
@@ -105,6 +105,11 @@ class im extends CModule
 		}
 
 		CModule::IncludeModule("im");
+
+		if(\Bitrix\Main\Entity\CryptoField::cryptoAvailable())
+		{
+			\Bitrix\Im\Model\ConferenceTable::enableCrypto("PASSWORD");
+		}
 
 		\Bitrix\Im\Integration\Intranet\User::registerEventHandler();
 
@@ -371,6 +376,7 @@ class im extends CModule
 		CAgent::RemoveAgent("CIMDisk::RemoveTmpFileAgent();", "im");
 		CAgent::RemoveAgent("\\Bitrix\\Im\\Bot::deleteExpiredTokenAgent();", "im");
 		CAgent::RemoveAgent("\\Bitrix\\Im\\Disk\\NoRelationPermission::cleaningAgent();", "im");
+		CAgent::RemoveAgent("\\Bitrix\\Im\\Call\\Conference::removeTemporaryAliases();", "im");
 		UnRegisterModuleDependences("im", "OnGetNotifySchema", "im", "CIMNotifySchema", "OnGetNotifySchema");
 		UnRegisterModuleDependences("main", "OnFileDelete", "im", "CIMEvent", "OnFileDelete");
 		UnRegisterModuleDependences("disk", "onAfterDeleteFile", "im", "CIMDisk", "OnAfterDeleteFile");

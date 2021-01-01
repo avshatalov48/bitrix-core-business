@@ -11,6 +11,10 @@
 	margin: 0 0 6px 0;
 	min-height: 23px;
 }
+.calendar-planner-user.calendar-planner-email-user
+{
+	pointer-events: none;
+}
 
 .calendar-planner-users-header {
 	padding: 13px 0 26px 0;

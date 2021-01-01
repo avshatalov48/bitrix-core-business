@@ -1,0 +1,32 @@
+.landing-ui-field-variables {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: horizontal;
+	-webkit-box-direction: normal;
+	    -ms-flex-direction: row;
+	        flex-direction: row;
+}
+
+.landing-ui-field-variables-left {
+	-webkit-box-flex: 1;
+	    -ms-flex-positive: 1;
+	        flex-grow: 1;
+}
+
+.landing-ui-field-variables-button {
+	background: url("data:image/svg+xml;charset=utf-8,%3Csvg width='16' height='4' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath fill='%23FFF' d='M-541-374H39v975h-580z'/%3E%3Cpath d='M2 0a2 2 0 110 4 2 2 0 010-4zm6 0a2 2 0 110 4 2 2 0 010-4zm6 0a2 2 0 110 4 2 2 0 010-4z' fill='%23525C69'/%3E%3C/g%3E%3C/svg%3E") center center no-repeat;
+	width: 36px;
+	height: 36px;
+	margin-right: -8px;
+	cursor: pointer;
+	opacity: .5;
+	-webkit-transition: 200ms opacity ease;
+	-o-transition: 200ms opacity ease;
+	transition: 200ms opacity ease;
+}
+
+.landing-ui-field-variables-button:hover {
+	opacity: 1;
+}

@@ -37,6 +37,10 @@
 	        return false;
 	      }
 
+	      if (BX.UI && BX.UI.Viewer && Object.keys(file.viewerAttrs).length > 0) {
+	        return false;
+	      }
+
 	      if (file.type === im_const.FileType.image && file.urlShow) {
 	        if (im_lib_utils.Utils.platform.isBitrixMobile()) {
 	          BXMobileApp.UI.Photo.show({
@@ -305,7 +309,7 @@
 	      return this.file.urlPreview;
 	    }
 	  },
-	  template: "\n\t\t<div class=\"bx-im-element-file-image\" @click=\"download(file, $event)\" :style=\"styleBoxSizes\" ref=\"container\">\n\t\t\t<img v-bx-lazyload\n\t\t\t\tclass=\"bx-im-element-file-image-source\"\n\t\t\t\t:data-lazyload-src=\"fileSource\"\n\t\t\t\t:title=\"localize.IM_MESSENGER_ELEMENT_FILE_SHOW_TITLE.replace('#NAME#', file.name).replace('#SIZE#', fileSize)\"\n\t\t\t\t:style=\"styleFileSizes\"\n\t\t\t/>\n\t\t</div>\n\t"
+	  template: "\n\t\t<div class=\"bx-im-element-file-image\" @click=\"download(file, $event)\" :style=\"styleBoxSizes\" ref=\"container\">\n\t\t\t<img v-bx-lazyload\n\t\t\t\tclass=\"bx-im-element-file-image-source\"\n\t\t\t\t:data-lazyload-src=\"fileSource\"\n\t\t\t\t:title=\"localize.IM_MESSENGER_ELEMENT_FILE_SHOW_TITLE.replace('#NAME#', file.name).replace('#SIZE#', fileSize)\"\n\t\t\t\t:style=\"styleFileSizes\"\n\t\t\t\t:data-viewer=\"file.viewerAttrs.viewer === null\"\n\t\t\t\t:data-viewer-type=\"file.viewerAttrs.viewerType? file.viewerAttrs.viewerType: false\"\n\t\t\t\t:data-src=\"file.viewerAttrs.src? file.viewerAttrs.src: false\"\n\t\t\t\t:data-viewer-group-by=\"file.viewerAttrs.viewerGroupBy? file.viewerAttrs.viewerGroupBy: false\"\n\t\t\t\t:data-title=\"file.viewerAttrs.title? file.viewerAttrs.title: false\"\n\t\t\t\t:data-actions=\"file.viewerAttrs.actions? file.viewerAttrs.actions: false\"\n\t\t\t/>\n\t\t</div>\n\t"
 	});
 
 	/**
@@ -365,7 +369,7 @@
 	      return this.file.size < 5000000 && this.application.options.autoplayVideo;
 	    }
 	  },
-	  template: "\n\t\t<div :class=\"['bx-im-element-file-video', {'bx-im-element-file-video-safari': isSafari}]\" :style=\"styleBoxSizes\" ref=\"container\">\n\t\t\t<bx-socialvideo \n\t\t\t\t:id=\"file.id\" \n\t\t\t\t:src=\"file.urlShow\" \n\t\t\t\t:preview=\"file.urlPreview\" \n\t\t\t\t:containerStyle=\"styleBoxSizes\"\n\t\t\t\t:elementStyle=\"styleVideoSizes\"\n\t\t\t\t:autoplay=\"autoplay\"\n\t\t\t\t@click=\"download(file, $event)\"\n\t\t\t/>\n\t\t</div>\n\t"
+	  template: "\n\t\t<div :class=\"['bx-im-element-file-video', {'bx-im-element-file-video-safari': isSafari}]\" :style=\"styleBoxSizes\" ref=\"container\">\n\t\t\t<bx-socialvideo \n\t\t\t\t:id=\"file.id\" \n\t\t\t\t:src=\"file.urlShow\" \n\t\t\t\t:preview=\"file.urlPreview\" \n\t\t\t\t:containerStyle=\"styleBoxSizes\"\n\t\t\t\t:elementStyle=\"styleVideoSizes\"\n\t\t\t\t:autoplay=\"autoplay\"\n\t\t\t\t:showControls=\"!file.viewerAttrs.viewerType\"\n\t\t\t\t:data-viewer=\"file.viewerAttrs.viewer === null\"\n\t\t\t\t:data-viewer-type=\"file.viewerAttrs.viewerType? file.viewerAttrs.viewerType: false\"\n\t\t\t\t:data-src=\"file.viewerAttrs.src? file.viewerAttrs.src: false\"\n\t\t\t\t:data-viewer-group-by=\"file.viewerAttrs.viewerGroupBy? file.viewerAttrs.viewerGroupBy: false\"\n\t\t\t\t:data-title=\"file.viewerAttrs.title? file.viewerAttrs.title: false\"\n\t\t\t\t:data-actions=\"file.viewerAttrs.action? file.viewerAttrs.actions: false\"\n\t\t\t\t@click=\"download(file, $event)\"\n\t\t\t/>\n\t\t</div>\n\t"
 	});
 
 }((this.window = this.window || {}),BX.ProgressBarJs,BX,BX.Messenger.Model,BX.Messenger.Const,window,window,BX,window,BX.Messenger.Lib,BX));

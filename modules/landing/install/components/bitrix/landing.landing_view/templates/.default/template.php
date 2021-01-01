@@ -4,11 +4,15 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-/** var LandingViewComponent $component */
+/** @var LandingViewComponent $component */
+/** @var \CMain $APPLICATION */
+/** @var array $arResult */
+/** @var array $arParams */
 
 use Bitrix\Landing\Config;
 use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\Assets;
+use \Bitrix\Landing\Site;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\UI\Extension;
 
@@ -26,7 +30,9 @@ Extension::load([
 	'popup_menu',
 	'marketplace',
 	'applayout',
-	'landing_master'
+	'landing_master',
+	'landing.dialog.publication',
+	'helper',
 ]);
 $assets = Assets\Manager::getInstance();
 $assets->addAsset(
@@ -142,6 +148,20 @@ $successSave = $arResult['SUCCESS_SAVE'];
 $curUrl = $arResult['CUR_URI'];
 $urls = $arResult['TOP_PANEL_CONFIG']['urls'];
 $this->getComponent()->initAPIKeys();
+$formEditor = $arResult['SPECIAL_TYPE'] == Site\Type::PSEUDO_SCOPE_CODE_FORMS;
+$helperFrameOpenUrl = \Bitrix\UI\Util::getHelpdeskUrl(true)."/widget2/";
+global $USER;
+$helperFrameOpenUrl = CHTTP::urlAddParams($helperFrameOpenUrl, [
+	"url" => urlencode("https://".$_SERVER["HTTP_HOST"].$APPLICATION->GetCurPageParam()),
+	"user_id" => $USER->GetID(),
+	"is_cloud" => IsModuleInstalled('bitrix24') ? "1" : "0",
+	"action" => "open",
+]);
+
+if ($formEditor)
+{
+	$arParams['PAGE_URL_URL_SITES'] = '/crm/webform/';
+}
 
 if ($request->get('close') == 'Y')
 {
@@ -175,10 +195,11 @@ if (!$request->offsetExists('landing_mode')):
 		);
 	}
 	// tpl vars
-	$helpUrl = \Bitrix\Landing\Help::getHelpUrl('LANDING_EDIT');
+	$helpUrl = \Bitrix\Landing\Help::getHelpUrl($formEditor ? 'FORM_EDIT' : 'LANDING_EDIT');
 	$startChain = $component->getMessageType('LANDING_TPL_START_PAGE');
 	$lightMode = $arParams['PANEL_LIGHT_MODE'] == 'Y';
 	$panelModifier = $lightMode ? ' landing-ui-panel-top-light' : '';
+	$panelModifier .= $formEditor ? ' landing-ui-panel-top-form' : '';
 	// informer
 	if (\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24'))
 	{
@@ -202,27 +223,40 @@ if (!$request->offsetExists('landing_mode')):
 		<?endif;?>
 		</div>
 		<div class="landing-ui-panel-top-chain">
-			<?if ($arParams['PAGE_URL_URL_SITES']):?>
-				<a href="<?= $arParams['PAGE_URL_URL_SITES'];?>" data-slider-ignore-autobinding="true" class="ui-btn ui-btn-xs ui-btn-light ui-btn-round landing-ui-panel-top-chain-link landing-ui-panel-top-chain-link-sites" title="<?= $startChain;?>">
-					<?= $startChain;?>
-				</a><strong class="landing-ui-panel-top-chain-link-separator"><span></span></strong>
+			<?if ($formEditor):?>
+				<a href="<?= $arParams['PAGE_URL_URL_SITES'];?>" class="ui-btn ui-btn-xs ui-btn-light ui-btn-round landing-ui-panel-top-chain-link landing-ui-panel-top-chain-link-sites" title="<?= $wfChain = Loc::getMessage('LANDING_TPL_START_PAGE_FORM');?>">
+					<?= $wfChain;?>
+				</a>
+				<strong class="landing-ui-panel-top-chain-link-separator"><span></span></strong>
+				<span <?
+			        ?>class="ui-btn ui-btn-xs ui-btn-light ui-btn-round landing-ui-panel-top-chain-link landing-ui-no-icon" <?
+					?>title="<?= \htmlspecialcharsbx($arResult['LANDING']->getTitle());?>"<?
+				?>>
+					<span class="ui-btn-text"><?= \htmlspecialcharsbx($arResult['LANDING']->getTitle());?></span>
+				</span>
+			<?else:?>
+				<?if ($arParams['PAGE_URL_URL_SITES']):?>
+					<a href="<?= $arParams['PAGE_URL_URL_SITES'];?>" data-slider-ignore-autobinding="true" class="ui-btn ui-btn-xs ui-btn-light ui-btn-round landing-ui-panel-top-chain-link landing-ui-panel-top-chain-link-sites" title="<?= $startChain;?>">
+						<?= $startChain;?>
+					</a><strong class="landing-ui-panel-top-chain-link-separator"><span></span></strong>
+				<?endif;?>
+				<a href="<?= ($arResult['SITES_COUNT'] <= 1) ? $arParams['PAGE_URL_LANDINGS'] : '#';?>" <?
+					?>id="landing-navigation-site" <?
+					echo ($arResult['SITES_COUNT'] > 1) ? ' data-slider-ignore-autobinding="true"' : ''
+					?><?
+					?>class="ui-btn ui-btn-xs ui-btn-light ui-btn-round landing-ui-panel-top-chain-link landing-ui-panel-top-chain-link-site<?= (($arResult['SITES_COUNT'] <= 1) ? ' landing-ui-no-icon' : '');?>" <?
+					?>title="<?= \htmlspecialcharsbx($site['TITLE']);?>">
+					<span class="ui-btn-text"><?= \htmlspecialcharsbx($site['TITLE']);?></span>
+				</a>
+				<strong class="landing-ui-panel-top-chain-link-separator"><span></span></strong>
+				<a href="<?= ($arResult['PAGES_COUNT'] <= 1) ? $arParams['PAGE_URL_LANDINGS'] : '#';?>" <?
+					?>id="landing-navigation-page" <?
+					echo ($arResult['PAGES_COUNT'] > 1) ? ' data-slider-ignore-autobinding="true"' : ''
+					?>class="ui-btn ui-btn-xs ui-btn-light ui-btn-round landing-ui-panel-top-chain-link landing-ui-panel-top-chain-link-page<?= (($arResult['PAGES_COUNT'] <= 1) ? ' landing-ui-no-icon' : '');?>" <?
+					?>title="<?= \htmlspecialcharsbx($arResult['LANDING']->getTitle());?>">
+					<span class="ui-btn-text"><?= \htmlspecialcharsbx($arResult['LANDING']->getTitle());?></span>
+				</a>
 			<?endif;?>
-			<a href="<?= ($arResult['SITES_COUNT'] <= 1) ? $arParams['PAGE_URL_LANDINGS'] : '#';?>" <?
-				?>id="landing-navigation-site" <?
-				echo ($arResult['SITES_COUNT'] > 1) ? ' data-slider-ignore-autobinding="true"' : ''
-				?><?
-				?>class="ui-btn ui-btn-xs ui-btn-light ui-btn-round landing-ui-panel-top-chain-link landing-ui-panel-top-chain-link-site<?= (($arResult['SITES_COUNT'] <= 1) ? ' landing-ui-no-icon' : '');?>" <?
-				?>title="<?= \htmlspecialcharsbx($site['TITLE']);?>">
-				<span class="ui-btn-text"><?= \htmlspecialcharsbx($site['TITLE']);?></span>
-			</a>
-			<strong class="landing-ui-panel-top-chain-link-separator"><span></span></strong>
-			<a href="<?= ($arResult['PAGES_COUNT'] <= 1) ? $arParams['PAGE_URL_LANDINGS'] : '#';?>" <?
-				?>id="landing-navigation-page" <?
-				echo ($arResult['PAGES_COUNT'] > 1) ? ' data-slider-ignore-autobinding="true"' : ''
-				?>class="ui-btn ui-btn-xs ui-btn-light ui-btn-round landing-ui-panel-top-chain-link landing-ui-panel-top-chain-link-page<?= (($arResult['PAGES_COUNT'] <= 1) ? ' landing-ui-no-icon' : '');?>" <?
-				?>title="<?= \htmlspecialcharsbx($arResult['LANDING']->getTitle());?>">
-				<span class="ui-btn-text"><?= \htmlspecialcharsbx($arResult['LANDING']->getTitle());?></span>
-			</a>
 		</div>
 		<div class="landing-ui-panel-top-devices">
 			<div class="landing-ui-panel-top-devices-inner">
@@ -250,7 +284,7 @@ if (!$request->offsetExists('landing_mode')):
 			</a>
 			<?endif;?>
 
-			<?if (!$lightMode && $arParams['DRAFT_MODE'] != 'Y'):?>
+			<?if (!$lightMode && !$formEditor && $arParams['DRAFT_MODE'] != 'Y'):?>
 				<div class="ui-btn-split ui-btn-primary landing-btn-menu<?= !$arResult['CAN_PUBLIC_SITE'] ? ' ui-btn-disabled' : '';?>">
 					<a href="<?= ($arParams['FULL_PUBLICATION'] == 'Y') ? $urls['publicationAll']->getUri() : $urls['publication']->getUri();?>" <?
 					?>id="landing-publication" data-slider-ignore-autobinding="true" <?
@@ -293,11 +327,22 @@ if (!$request->offsetExists('landing_mode')):
 		});
 	});
 </script>
+<script type="text/javascript">
+	BX.Helper.init({
+		frameOpenUrl : '<?=CUtil::JSEscape($helperFrameOpenUrl)?>',
+		langId: '<?=LANGUAGE_ID?>'
+	});
+</script>
 
 <?
 // editor frame
 if ($request->offsetExists('landing_mode'))
 {
+	if (SITE_TEMPLATE_ID == 'bitrix24')
+	{
+		Manager::getCacheManager()->clean('b_site_template');
+		$component->refresh();
+	}
 	if ($request->get('landing_mode') == 'edit')
 	{
 		Manager::setPageView('MainClass', 'landing-edit-mode');
@@ -330,23 +375,18 @@ if ($request->offsetExists('landing_mode'))
 // top panel
 else
 {
-	// exec theme-hooks for correct assets
-	$hooksSite = \Bitrix\Landing\Hook::getForSite($arResult['LANDING']->getSiteId());
+	// exec theme-hooks for design panel
 	$hooksLanding = \Bitrix\Landing\Hook::getForLanding($arResult['LANDING']->getId());
-	if (
-		isset($hooksSite['THEME']) &&
-		$hooksSite['THEME']->enabled()
-	)
-	{
-		$hooksSite['THEME']->exec();
-	}
-	if (
-		isset($hooksLanding['THEME']) &&
-		$hooksLanding['THEME']->enabled()
-	)
+	$hooksSite = \Bitrix\Landing\Hook::getForSite($arResult['LANDING']->getSiteId());
+	if (isset($hooksLanding['THEME']) && $hooksLanding['THEME']->enabled())
 	{
 		$hooksLanding['THEME']->exec();
 	}
+	elseif (isset($hooksSite['THEME']) && $hooksSite['THEME']->enabled())
+	{
+		$hooksSite['THEME']->exec();
+	}
+
 	// title
 	Manager::setPageTitle(
 		\htmlspecialcharsbx($arResult['LANDING']->getTitle())

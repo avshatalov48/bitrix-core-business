@@ -170,8 +170,6 @@ class HttpResponse extends Response
 	 */
 	public function getHeaders()
 	{
-		$this->initializeHeaders();
-
 		return $this->headers;
 	}
 
@@ -254,15 +252,13 @@ class HttpResponse extends Response
 	 *
 	 * @param string $status
 	 * @return $this
-	 * @throws ArgumentNullException
-	 * @throws ArgumentOutOfRangeException
 	 */
 	public function setStatus($status)
 	{
 		$httpStatus = Config\Configuration::getValue("http_status");
 
-		$cgiMode = (mb_stristr(php_sapi_name(), "cgi") !== false);
-		if ($cgiMode && (($httpStatus == null) || ($httpStatus == false)))
+		$cgiMode = (stristr(php_sapi_name(), "cgi") !== false);
+		if ($cgiMode && ($httpStatus == null || $httpStatus == false))
 		{
 			$this->addHeader("Status", $status);
 		}
@@ -271,8 +267,9 @@ class HttpResponse extends Response
 			$httpHeaders = $this->getHeaders();
 			$httpHeaders->delete($this->getStatus());
 
-			$server = Context::getCurrent()->getServer();
-			$this->addHeader($server->get("SERVER_PROTOCOL")." ".$status);
+			$proto = $this->getServerProtocol();
+
+			$this->addHeader("{$proto} {$status}");
 		}
 
 		return $this;
@@ -290,17 +287,27 @@ class HttpResponse extends Response
 			return $cgiStatus;
 		}
 
-		$prefixStatus = mb_strtolower(Context::getCurrent()->getServer()->get("SERVER_PROTOCOL").' ');
-		$prefixStatusLength = mb_strlen($prefixStatus);
+		$prefixStatus = strtolower($this->getServerProtocol().' ');
+		$prefixStatusLength = strlen($prefixStatus);
 		foreach ($this->getHeaders() as $name => $value)
 		{
-			if (mb_substr(mb_strtolower($name), 0, $prefixStatusLength) === $prefixStatus)
+			if (substr(strtolower($name), 0, $prefixStatusLength) === $prefixStatus)
 			{
 				return $name;
 			}
 		}
 
 		return null;
+	}
+
+	protected function getServerProtocol()
+	{
+		$context = Context::getCurrent();
+		if ($context !== null)
+		{
+			return $context->getServer()->get("SERVER_PROTOCOL");
+		}
+		return "HTTP/1.0";
 	}
 
 	/**

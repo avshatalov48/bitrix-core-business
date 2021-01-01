@@ -783,7 +783,26 @@ while($obElement = $rsElements->GetNextElement())
 			]
 		);
 
-		$documentStates = CBPDocument::getDocumentStates($documentComplexType, $documentComplexId);
+		if (method_exists('CBPDocument', 'getActiveStates'))
+		{
+			$documentStates = CBPDocument::getActiveStates($documentComplexId, 5);
+			if (empty($documentStates))
+			{
+				$workflowIds = CBPStateService::getIdsByDocument($documentComplexId);
+				if ($workflowIds)
+				{
+					if (count($workflowIds) > 1)
+					{
+						$workflowIds = array_slice($workflowIds, 0, 1);
+					}
+					$documentStates = CBPStateService::getDocumentStates($documentComplexId, $workflowIds);
+				}
+			}
+		}
+		else
+		{
+			$documentStates = CBPDocument::getDocumentStates($documentComplexType, $documentComplexId);
+		}
 	}
 
 	if(!is_array($listValues[$data["ID"]]))
@@ -919,7 +938,7 @@ while($obElement = $rsElements->GetNextElement())
 				continue;
 
 			if($vv["TEMPLATE_NAME"] <> '')
-				$html .= "<b>".$vv["TEMPLATE_NAME"]."</b>:<br />";
+				$html .= "<b>".htmlspecialcharsbx($vv["TEMPLATE_NAME"])."</b>:<br />";
 			else
 				$html .= "<b>".(++$ii)."</b>:<br />";
 
@@ -933,7 +952,7 @@ while($obElement = $rsElements->GetNextElement())
 			);
 
 			$html .= "<a href=\"".htmlspecialcharsbx($url)."\">".($vv["STATE_TITLE"] <> '' ?
-					$vv["STATE_TITLE"] : $vv["STATE_NAME"])."</a><br />";
+				htmlspecialcharsbx($vv["STATE_TITLE"]) : htmlspecialcharsbx($vv["STATE_NAME"]))."</a><br />";
 		}
 
 		if ($processesWithComments)
@@ -1118,7 +1137,7 @@ while($obElement = $rsElements->GetNextElement())
 				if(!empty($actionsProcess))
 				{
 					$listProcesses[] = array(
-						"TEXT" => $documentState["TEMPLATE_NAME"] ." (". $documentState["STARTED"].")",
+						"TEXT" => htmlspecialcharsbx($documentState["TEMPLATE_NAME"])." (". $documentState["STARTED"].")",
 						"MENU" => $actionsProcess,
 					);
 				}

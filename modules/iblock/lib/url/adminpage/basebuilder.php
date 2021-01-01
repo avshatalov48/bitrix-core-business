@@ -12,16 +12,16 @@ abstract class BaseBuilder
 	protected const TYPE_WEIGHT = null;
 	protected const PATH_PREFIX = '';
 
-	protected const PAGE_ELEMENT_LIST = 'elementList';
-	protected const PAGE_ELEMENT_DETAIL = 'elementDetail';
-	protected const PAGE_ELEMENT_COPY = 'elementCopy';
-	protected const PAGE_ELEMENT_SAVE = 'elementSave';
-	protected const PAGE_ELEMENT_SEARCH = 'elementSearch';
-	protected const PAGE_SECTION_LIST = 'sectionList';
-	protected const PAGE_SECTION_DETAIL = 'sectionDetail';
-	protected const PAGE_SECTION_COPY = 'sectionCopy';
-	protected const PAGE_SECTION_SAVE = 'sectionSave';
-	protected const PAGE_SECTION_SEARCH = 'sectionSearch';
+	public const PAGE_ELEMENT_LIST = 'elementList';
+	public const PAGE_ELEMENT_DETAIL = 'elementDetail';
+	public const PAGE_ELEMENT_COPY = 'elementCopy';
+	public const PAGE_ELEMENT_SAVE = 'elementSave';
+	public const PAGE_ELEMENT_SEARCH = 'elementSearch';
+	public const PAGE_SECTION_LIST = 'sectionList';
+	public const PAGE_SECTION_DETAIL = 'sectionDetail';
+	public const PAGE_SECTION_COPY = 'sectionCopy';
+	public const PAGE_SECTION_SAVE = 'sectionSave';
+	public const PAGE_SECTION_SEARCH = 'sectionSearch';
 
 	protected $id = null;
 
@@ -199,6 +199,11 @@ abstract class BaseBuilder
 		);
 	}
 
+	public function getContextMenuItems(string $pageType, array $items = [], array $options = []): ?array
+	{
+		return null;
+	}
+
 	public function getBaseParams(): string
 	{
 		return 'IBLOCK_ID='.$this->iblockId
@@ -362,6 +367,11 @@ abstract class BaseBuilder
 	protected function setTemplateVariable(string $name, string $value): void
 	{
 		$this->templateVariables[$name] = $value;
+	}
+
+	protected function getTemplateVariables(): array
+	{
+		return $this->templateVariables;
 	}
 
 	protected function getExtendedVariables(array $options = [], string $additional = ''): array

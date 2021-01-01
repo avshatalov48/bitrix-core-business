@@ -91,3 +91,5 @@ $MESS['LANDING_TPL_DOMAIN_FREE_TEXT'] = 'Хотите красивый адре�
 $MESS['LANDING_TPL_DOMAIN_ACTIVATION_YES'] = 'Домен активен.';
 $MESS['LANDING_TPL_DOMAIN_ACTIVATION_NO'] = 'Ожидание активации домена';
 $MESS['LANDING_TPL_DOMAIN_ACTIVATION_INFO'] = 'Обычно это занимает меньше суток, в редких случаях до трех.';
+$MESS['LANDING_TPL_MY_COLOR'] = 'Свой цвет';
+$MESS['LANDING_TPL_OTHER_COLORS'] = 'Ещё цвета';

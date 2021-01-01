@@ -53,11 +53,14 @@ export class ResourcebookingUserfield
 		bookingFieldParams.settings = {
 			caption: params.field.captionValue || params.field.dict.caption,
 			required: params.field.isRequired || params.field.dict.required,
-			data: params.field.settingsData || []
+			data: (Type.isPlainObject(params.field.booking) && Type.isPlainObject(params.field.booking.settings_data))
+				? params.field.booking.settings_data
+				: (params.field.settingsData || [])
 		};
 
 		let adjustFieldController = new AdjustFieldController(bookingFieldParams);
 		adjustFieldController.init();
+
 		return adjustFieldController;
 	}
 

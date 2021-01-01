@@ -989,14 +989,21 @@ if ($urlBuilder->getId() == 'IBLOCK')
 }
 
 $lAdmin->setContextSettings(array("pagePath" => $pageConfig['CONTEXT_PATH']));
+$contextConfig = array();
 $excelExport = ((string)Main\Config\Option::get("iblock", "excel_export_rights") == "Y"
 	? CIBlockRights::UserHasRightTo($IBLOCK_ID, $IBLOCK_ID, "iblock_export")
 	: true
 );
-$lAdmin->AddAdminContextMenu(
-	$aContext,
-	$excelExport
-);
+if ($excelExport)
+{
+	$contextConfig['excel'] = true;
+}
+$additional = $urlBuilder->getContextMenuItems($urlBuilder::PAGE_SECTION_LIST);
+if ($additional === null)
+{
+	$additional = [];
+}
+$lAdmin->SetContextMenu($aContext, $additional, $contextConfig);
 
 if ($pageConfig['SHOW_NAVCHAIN'])
 {

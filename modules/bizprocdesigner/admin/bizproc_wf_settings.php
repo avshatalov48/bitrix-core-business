@@ -690,12 +690,7 @@ setTimeout(WFSStart, 0);
 <?=bitrix_sessid_post()?>
 <?
 $aTabs = [["DIV" => "edit1", "TAB" => GetMessage("BIZPROC_WFS_TAB_MAIN"), "ICON" => "group_edit", "TITLE" => GetMessage("BIZPROC_WFS_TAB_MAIN_TITLE")]];
-
-if (!($_POST['workflowTemplateAutostart'] & 8))
-{
-	$aTabs[] = ["DIV" => "edit2", "TAB" => GetMessage("BIZPROC_WFS_TAB_PARAM"), "ICON" => "group_edit", "TITLE" => GetMessage("BIZPROC_WFS_TAB_PARAM_TITLE")];
-}
-
+$aTabs[] = ["DIV" => "edit2", "TAB" => GetMessage("BIZPROC_WFS_TAB_PARAM"), "ICON" => "group_edit", "TITLE" => GetMessage("BIZPROC_WFS_TAB_PARAM_TITLE")];
 $aTabs[] = ["DIV" => "edit3", "TAB" => GetMessage("BP_WF_TAB_VARS"), "ICON" => "group_edit", "TITLE" => GetMessage("BP_WF_TAB_VARS_TITLE")];
 $aTabs[] = ["DIV" => "edit5", "TAB" => GetMessage("BP_WF_TAB_CONSTANTS"), "ICON" => "group_edit", "TITLE" => GetMessage("BP_WF_TAB_CONSTANTS_TITLE")];
 $aTabs[] = ["DIV" => "edit6", "TAB" => GetMessage("BP_WF_TAB_G_CONST"), "ICON" => "group_edit", "TITLE" => GetMessage("BP_WF_TAB_G_CONST_TITLE")];
@@ -741,7 +736,6 @@ endif;
 	<td><input type="text" id="WFStemplate_sort" value="<?=htmlspecialcharsbx($_POST['workflowTemplateSort'] ?? 10)?>" size="5"></td>
 </tr>
 <?
-if (!($_POST['workflowTemplateAutostart'] & 8)):
 $tabControl->BeginNextTab(['className' => 'bizproc-wf-settings-tab-content bizproc-wf-settings-tab-content-variables']);
 ?>
 <tr>
@@ -815,7 +809,6 @@ $tabControl->BeginNextTab(['className' => 'bizproc-wf-settings-tab-content bizpr
 	</td>
 </tr>
 <?
-endif;
 $tabControl->BeginNextTab(['className' => 'bizproc-wf-settings-tab-content bizproc-wf-settings-tab-content-variables']);
 ?>
 <tr>

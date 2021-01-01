@@ -1,0 +1,78 @@
+.landing-ui-panel-base-preset-disable-overlay {
+	display: none!important;
+	pointer-events: none!important;
+}
+
+.landing-ui-panel-base-preset {
+	position: absolute;
+	height: calc(100vh - 62px);
+	transform: none;
+	contain: none;
+}
+
+.landing-ui-panel-base-preset .landing-ui-panel-content-header {
+	flex-direction: row;
+	justify-content: normal;
+	align-items: center;
+	position: relative;
+}
+
+.landing-ui-panel-base-preset .landing-ui-panel-content-header::before {
+	background: rgb(82, 92, 105);
+	position: absolute;
+	display: block;
+	content: '';
+	width: 242px;
+	left: 20px;
+	bottom: -1px;
+	height: 1px;
+	opacity: .1;
+}
+
+.landing-ui-panel-base-preset .landing-ui-panel-content-title {
+	margin-right: 12px;
+}
+
+.landing-ui-panel-base-preset-header-controls {
+	display: flex;
+	flex-direction: row;
+	flex-grow: 1;
+	margin-right: 60px;
+	margin-top: 17px;
+}
+
+.landing-ui-panel-base-preset-header-controls-left {
+	flex-grow: 1;
+}
+
+.landing-ui-panel-base-preset .landing-ui-panel-content-body-sidebar {
+	background: transparent;
+	margin-left: 0;
+	margin-right: 0;
+	border-top-width: 14px!important;
+	min-width: 288px;
+	max-width: 288px;
+	transform: none;
+	border-bottom-width: 60px;
+}
+
+.landing-ui-panel-base-preset .landing-ui-button-sidebar {
+	padding-left: 16px;
+}
+
+.landing-ui-panel-mode-transparent .landing-ui-panel-content-body-content {
+	background-color: transparent;
+	padding-left: 0;
+	padding-right: 0;
+	overflow-y: visible;
+}
+
+.landing-ui-panel-mode-transparent .landing-ui-panel-content-header::before {
+	width: auto;
+	right: 20px;
+}
+
+.landing-ui-panel-base-preset .landing-ui-panel-content-body-content,
+.landing-ui-panel-base-preset .landing-ui-panel-content-body-sidebar {
+	overflow-y: auto;
+}

@@ -156,7 +156,7 @@ return array(
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/695x1135/img1.jpg" alt="">
 					</figure>
 
-					<header class="g-pos-abs g-bottom-0 g-left-0 w-100 g-color-white g-pa-30">
+					<header class="g-pos-abs g-bottom-0 g-left-0 w-100 g-pa-30">
 						<div>
 							<span class="landing-block-node-card-icon-container g-color-primary g-font-size-22 g-mr-10">
 								<i class="landing-block-node-card-icon fa fa-calendar"></i>
@@ -165,7 +165,7 @@ return array(
 								<p>Duration, 3 Months.</p>
 							</div>
 						</div>
-						<h2 class="landing-block-node-card-title landing-semantic-title-image-small text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-10">
+						<h2 class="landing-block-node-card-title landing-semantic-title-image-small text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-color-white g-mb-10">
 							Dance courses
 						</h2>
 						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 g-mb-30">
@@ -187,7 +187,7 @@ return array(
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/695x1135/img2.jpg" alt="">
 					</figure>
 
-					<header class="g-pos-abs g-bottom-0 g-left-0 w-100 g-color-white g-pa-30">
+					<header class="g-pos-abs g-bottom-0 g-left-0 w-100 g-pa-30">
 						<div>
 							<span class="landing-block-node-card-icon-container g-color-primary g-font-size-22 g-mr-10">
 								<i class="landing-block-node-card-icon fa fa-calendar"></i>
@@ -196,7 +196,7 @@ return array(
 								<p>Duration, 4 Months.</p>
 							</div>
 						</div>
-						<h2 class="landing-block-node-card-title landing-semantic-title-image-small text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-10">
+						<h2 class="landing-block-node-card-title landing-semantic-title-image-small text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-color-white g-mb-10">
 							Creative photos
 						</h2>
 						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 g-mb-30">
@@ -218,7 +218,7 @@ return array(
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/695x1135/img3.jpg" alt="">
 					</figure>
 
-					<header class="g-pos-abs g-bottom-0 g-left-0 w-100 g-color-white g-pa-30">
+					<header class="g-pos-abs g-bottom-0 g-left-0 w-100 g-pa-30">
 						<div>
 							<span class="landing-block-node-card-icon-container g-color-primary g-font-size-22 g-mr-10">
 								<i class="landing-block-node-card-icon fa fa-calendar"></i>
@@ -227,7 +227,7 @@ return array(
 								<p>Duration, 10 Months.</p>
 							</div>
 						</div>
-						<h2 class="landing-block-node-card-title landing-semantic-title-image-small text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-10">
+						<h2 class="landing-block-node-card-title landing-semantic-title-image-small text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-color-white g-mb-10">
 							Art for all
 						</h2>
 						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 g-mb-30">
@@ -249,7 +249,7 @@ return array(
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/695x1135/img4.jpg" alt="">
 					</figure>
 
-					<header class="g-pos-abs g-bottom-0 g-left-0 w-100 g-color-white g-pa-30">
+					<header class="g-pos-abs g-bottom-0 g-left-0 w-100 g-pa-30">
 						<div>
 							<span class="landing-block-node-card-icon-container g-color-primary g-font-size-22 g-mr-10">
 								<i class="landing-block-node-card-icon fa fa-calendar"></i>
@@ -258,7 +258,7 @@ return array(
 								<p>Duration, 8 Months.</p>
 							</div>
 						</div>
-						<h2 class="landing-block-node-card-title landing-semantic-title-image-small text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-10">
+						<h2 class="landing-block-node-card-title landing-semantic-title-image-small text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-color-white g-mb-10">
 							Painting
 						</h2>
 						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 g-mb-30">
@@ -280,7 +280,7 @@ return array(
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/695x1135/img5.jpg" alt="">
 					</figure>
 
-					<header class="g-pos-abs g-bottom-0 g-left-0 w-100 g-color-white g-pa-30">
+					<header class="g-pos-abs g-bottom-0 g-left-0 w-100 g-pa-30">
 						<div>
 							<span class="landing-block-node-card-icon-container g-color-primary g-font-size-22 g-mr-10">
 								<i class="landing-block-node-card-icon fa fa-calendar"></i>
@@ -289,7 +289,7 @@ return array(
 								<p>Duration, 7 Months.</p>
 							</div>
 						</div>
-						<h2 class="landing-block-node-card-title landing-semantic-title-image-small text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-10">
+						<h2 class="landing-block-node-card-title landing-semantic-title-image-small text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-color-white g-mb-10">
 							Courses for elderly
 						</h2>
 						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 g-mb-30">
@@ -485,9 +485,7 @@ return array(
 				<div class="h-100 g-pb-15 g-pb-0--sm">
 					<div class="landing-block-node-img-container landing-block-node-img-container-left js-animation fadeInLeft h-100 g-pos-rel g-parent u-block-hover animated">
 						<img data-fancybox="gallery" class="landing-block-node-img img-fluid g-object-fit-cover h-100 w-100 u-block-hover__main--zoom-v1" src="https://cdn.bitrix24.site/bitrix/images/landing/business/1413x837/img1.jpg" alt="" data-fileid="-1" />
-						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0
-							g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20
-							g-transition-0_2 g-transition--ease-in">
+						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0 g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
 							<div class="h-100 g-flex-middle g-brd-around g-brd-white-opacity-0_2 text-uppercase">
 								<h3 class="landing-block-node-img-title g-flex-middle-item text-center h3 g-color-white g-line-height-1_4 g-font-size-18 g-letter-spacing-1">COURSES FOR KIDS</h3>
 							</div>
@@ -500,9 +498,7 @@ return array(
 				<div class="h-100 g-pb-15 g-pb-0--sm">
 					<div class="landing-block-node-img-container landing-block-node-img-container-center js-animation fadeInLeft h-100 g-pos-rel g-parent u-block-hover animated">
 						<img data-fancybox="gallery" class="landing-block-node-img img-fluid g-object-fit-cover h-100 w-100 u-block-hover__main--zoom-v1" src="https://cdn.bitrix24.site/bitrix/images/landing/business/1413x837/img2.jpg" alt="" data-fileid="-1" />
-						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0
-							g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20
-							g-transition-0_2 g-transiti	on--ease-in">
+						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0 g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transiti	on--ease-in">
 							<div class="h-100 g-flex-middle g-brd-around g-brd-white-opacity-0_2 text-uppercase">
 								<h3 class="landing-block-node-img-title g-flex-middle-item text-center h3 g-color-white g-line-height-1_4 g-font-size-18 g-letter-spacing-1">COOKING CLASS</h3>
 							</div>
@@ -515,9 +511,7 @@ return array(
 				<div class="h-100 g-pb-0">
 					<div class="landing-block-node-img-container landing-block-node-img-container-right js-animation fadeInLeft h-100 g-pos-rel g-parent u-block-hover animated">
 						<img data-fancybox="gallery" class="landing-block-node-img img-fluid g-object-fit-cover h-100 w-100 u-block-hover__main--zoom-v1" src="https://cdn.bitrix24.site/bitrix/images/landing/business/1413x837/img3.jpg" alt="" data-fileid="-1" />
-						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0
-							g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20
-							g-transition-0_2 g-transition--ease-in">
+						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0 g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
 							<div class="h-100 g-flex-middle g-brd-around g-brd-white-opacity-0_2 text-uppercase">
 								<h3 class="landing-block-node-img-title g-flex-middle-item text-center h3 g-color-white g-line-height-1_4 g-font-size-18 g-letter-spacing-1">PERSONALIZED LESSONS</h3>
 							</div>
@@ -544,9 +538,7 @@ return array(
 				<div class="h-100 g-pb-15 g-pb-0--sm">
 					<div class="landing-block-node-img-container landing-block-node-img-container-left js-animation fadeInLeft h-100 g-pos-rel g-parent u-block-hover animated">
 						<img data-fancybox="gallery" class="landing-block-node-img img-fluid g-object-fit-cover h-100 w-100 u-block-hover__main--zoom-v1" src="https://cdn.bitrix24.site/bitrix/images/landing/business/1413x837/img4.jpg" alt="" data-fileid="-1" />
-						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0
-							g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20
-							g-transition-0_2 g-transition--ease-in">
+						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0 g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
 							<div class="h-100 g-flex-middle g-brd-around g-brd-white-opacity-0_2 text-uppercase">
 								<h3 class="landing-block-node-img-title g-flex-middle-item text-center h3 g-color-white g-line-height-1_4 g-font-size-18 g-letter-spacing-1">DISCUSSIONS IN CLASS</h3>
 							</div>
@@ -559,9 +551,7 @@ return array(
 				<div class="h-100 g-pb-15 g-pb-0--sm">
 					<div class="landing-block-node-img-container landing-block-node-img-container-center js-animation fadeInLeft h-100 g-pos-rel g-parent u-block-hover animated">
 						<img data-fancybox="gallery" class="landing-block-node-img img-fluid g-object-fit-cover h-100 w-100 u-block-hover__main--zoom-v1" src="https://cdn.bitrix24.site/bitrix/images/landing/business/1413x837/img5.jpg" alt="" data-fileid="-1" />
-						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0
-							g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20
-							g-transition-0_2 g-transiti	on--ease-in">
+						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0 g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transiti	on--ease-in">
 							<div class="h-100 g-flex-middle g-brd-around g-brd-white-opacity-0_2 text-uppercase">
 								<h3 class="landing-block-node-img-title g-flex-middle-item text-center h3 g-color-white g-line-height-1_4 g-font-size-18 g-letter-spacing-1">GYMNASTICS FOR ELDERLY</h3>
 							</div>
@@ -574,9 +564,7 @@ return array(
 				<div class="h-100 g-pb-0">
 					<div class="landing-block-node-img-container landing-block-node-img-container-right js-animation fadeInLeft h-100 g-pos-rel g-parent u-block-hover animated">
 						<img data-fancybox="gallery" class="landing-block-node-img img-fluid g-object-fit-cover h-100 w-100 u-block-hover__main--zoom-v1" src="https://cdn.bitrix24.site/bitrix/images/landing/business/1413x837/img6.jpg" alt="" data-fileid="-1" />
-						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0
-							g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20
-							g-transition-0_2 g-transition--ease-in">
+						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0 g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
 							<div class="h-100 g-flex-middle g-brd-around g-brd-white-opacity-0_2 text-uppercase">
 								<h3 class="landing-block-node-img-title g-flex-middle-item text-center h3 g-color-white g-line-height-1_4 g-font-size-18 g-letter-spacing-1">GYMNASTICS FOR ELDERLY</h3>
 							</div>
@@ -1060,33 +1048,18 @@ return array(
 			array (
 				'CODE' => '33.13.form_2_light_no_text',
 				'SORT' => '9500',
-				'CONTENT' => '<section class="g-pos-rel landing-block text-center g-color-gray-dark-v1 g-py-100 g-pb-60 g-pt-20">
+				'CONTENT' => '<section class="g-pos-rel landing-block g-color-gray-dark-v1 g-pt-20 g-pb-60">
 
 	<div class="container">
 
-		<div class="landing-block-form-styles" hidden="">
-			<div class="g-bg-transparent h1 g-color-white g-brd-none g-pa-0" data-form-style-wrapper-padding="1" data-form-style-bg="1" data-form-style-bg-content="1" data-form-style-bg-block="1" data-form-style-header-font-size="1" data-form-style-main-font-weight="1" data-form-style-button-font-color="1" data-form-style-border-block="1">
-			</div>
-			<div class="g-bg-primary g-color-primary g-brd-primary" data-form-style-main-bg="1" data-form-style-main-border-color="1" data-form-style-main-font-color-hover="1">
-			</div>
-			<div class="g-bg-gray-light-v5 g-brd-around g-brd-white rounded-0" data-form-style-input-bg="1" data-form-style-input-select-bg="1" data-form-style-input-border="1" data-form-style-input-border-radius="1">
-			</div>
-			<div class="g-brd-around g-brd-gray-light-v2 g-brd-bottom g-bg-black-opacity-0_7" data-form-style-input-border-color="1" data-form-style-input-border-hover="1">
-			</div>
-
-				<p class="g-color-gray-dark-v5" data-form-style-main-font-family="1" data-form-style-main-font-weight="1" data-form-style-header-text-font-size="1">
-				</p>
-
-			<h3 class="g-font-size-11 g-color-gray-dark-v5" data-form-style-label-font-weight="1" data-form-style-label-font-size="1" data-form-style-second-font-color="1">
-				</h3>
-
-			<div class="g-font-size-11" data-form-style-main-font-color="1">
-			</div>
-		</div>
-
 		<div class="row">
 			<div class="col-md-6 mx-auto">
-				<div class="bitrix24forms g-brd-white-opacity-0_6 u-form-alert-v4" data-b24form="" data-b24form-use-style="Y" data-b24form-show-header="N" data-b24form-original-domain=""></div>
+				<div class="bitrix24forms g-brd-white-opacity-0_6 u-form-alert-v4"
+					data-b24form-use-style="Y"
+					data-b24form-embed
+					data-b24form-design=\'{"dark":false,"style":"classic","shadow":false,"compact":false,"color":{"primary":"--primary","primaryText":"#fff","text":"#000","background":"#ffffff00","fieldBorder":"#fff","fieldBackground":"#f7f7f7","fieldFocusBackground":"#eee"},"border":{"top":false,"bottom":false,"left":false,"right":false}}\'
+				>
+				</div>
 			</div>
 		</div>
 	</div>

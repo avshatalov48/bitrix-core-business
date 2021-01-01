@@ -8,9 +8,7 @@ this.BX.UI = this.BX.UI || {};
 	 * @memberof BX.UI.UserFieldFactory
 	 */
 
-	var FieldTypes =
-	/*#__PURE__*/
-	function () {
+	var FieldTypes = /*#__PURE__*/function () {
 	  function FieldTypes() {
 	    babelHelpers.classCallCheck(this, FieldTypes);
 	  }
@@ -187,9 +185,11 @@ this.BX.UI = this.BX.UI || {};
 	 * @memberof BX.UI.UserFieldFactory
 	 */
 
-	var CreationMenu =
-	/*#__PURE__*/
-	function () {
+	var _enableScrollToBottom = new WeakMap();
+
+	var _enableScrollToTop = new WeakMap();
+
+	var CreationMenu = /*#__PURE__*/function () {
 	  function CreationMenu(id, types, params) {
 	    babelHelpers.classCallCheck(this, CreationMenu);
 
@@ -425,16 +425,10 @@ this.BX.UI = this.BX.UI || {};
 	  return CreationMenu;
 	}();
 
-	var _enableScrollToBottom = new WeakMap();
-
-	var _enableScrollToTop = new WeakMap();
-
 	/**
 	 * @memberof BX.UI.UserFieldFactory
 	 */
-	var EnumItem =
-	/*#__PURE__*/
-	function () {
+	var EnumItem = /*#__PURE__*/function () {
 	  function EnumItem() {
 	    var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 	    var id = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
@@ -661,9 +655,7 @@ this.BX.UI = this.BX.UI || {};
 	 * @memberof BX.UI.UserFieldFactory
 	 */
 
-	var Configurator =
-	/*#__PURE__*/
-	function () {
+	var Configurator = /*#__PURE__*/function () {
 	  function Configurator(params) {
 	    babelHelpers.classCallCheck(this, Configurator);
 
@@ -833,9 +825,7 @@ this.BX.UI = this.BX.UI || {};
 	 * @mixes EventEmitter
 	 */
 
-	var Factory =
-	/*#__PURE__*/
-	function () {
+	var Factory = /*#__PURE__*/function () {
 	  function Factory(entityId) {
 	    var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	    babelHelpers.classCallCheck(this, Factory);

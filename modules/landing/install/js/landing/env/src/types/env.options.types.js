@@ -89,6 +89,7 @@ interface EnvOptions
 	version: string,
 	xml_id: string,
 	default_section: string,
+	specialType: string,
 }
 
 export {

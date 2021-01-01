@@ -58,6 +58,18 @@ class ImRouterComponent extends \CBitrixComponent
 		return true;
 	}
 
+	private function showNonExistentCall() : bool
+	{
+		define('SKIP_TEMPLATE_AUTH_ERROR', true);
+
+		$this->arResult['WRONG_ALIAS'] = true;
+
+		$this->setTemplateName("call");
+		$this->includeComponentTemplate();
+
+		return true;
+	}
+
 	public function executeComponent()
 	{
 		if (!$this->checkModules())
@@ -67,6 +79,7 @@ class ImRouterComponent extends \CBitrixComponent
 		}
 
 		$this->request = \Bitrix\Main\Context::getCurrent()->getRequest();
+		$videoconfFlag = $this->request->get('videoconf');
 
 		if ($this->request->get('alias'))
 		{
@@ -75,6 +88,12 @@ class ImRouterComponent extends \CBitrixComponent
 			{
 				$this->showLiveChat();
 			}
+			//wrong alias
+			else if (isset($videoconfFlag) && !$this->aliasData)
+			{
+				$this->showNonExistentCall();
+			}
+			//correct alias
 			else if ($this->aliasData['ENTITY_TYPE'] == \Bitrix\Im\Alias::ENTITY_TYPE_VIDEOCONF)
 			{
 				$this->showCall();

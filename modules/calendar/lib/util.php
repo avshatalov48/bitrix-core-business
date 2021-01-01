@@ -49,9 +49,9 @@ class Util
 		return $timestamp;
 	}
 
-	public static function isTimezoneValid($timeZone): bool
+	public static function isTimezoneValid(string $timeZone = null): bool
 	{
-		if (in_array($timeZone, timezone_identifiers_list()))
+		if (!empty($timeZone) ?? in_array($timeZone, timezone_identifiers_list()))
 		{
 			return true;
 		}

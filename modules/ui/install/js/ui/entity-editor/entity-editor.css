@@ -16,6 +16,7 @@
 .ui-entity-editor-column-content {
 	flex: 1;
 	padding-right: 10px;
+	max-width: 100%;
 }
 
 .ui-entity-editor-column-content + .ui-entity-editor-column-content { padding-left: 10px; }
@@ -58,6 +59,12 @@
 	color: #d0011b;
 	box-sizing: border-box;
 	font: 400 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+@media print {
+	.ui-entity-section.ui-entity-section-control {
+		display: none;
+	}
 }
 
 /*endregion */

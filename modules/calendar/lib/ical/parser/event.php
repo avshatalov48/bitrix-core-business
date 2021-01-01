@@ -201,7 +201,9 @@ class Event extends BasicComponent implements ParserComponent
 		{
 			foreach($subComponents as $subComponent)
 			{
-				if ($subComponent->getType() === 'alert')
+				if (($subComponent instanceof BasicComponent)
+					&& $subComponent->getType() === 'alert'
+				)
 				{
 					$this->alerts[] = $subComponent;
 				}

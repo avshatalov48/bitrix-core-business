@@ -1,0 +1,81 @@
+.landing-ui-field-accordion-items-container {
+	display: flex;
+	flex-direction: column;
+	border: 1px #E0E2E4 solid;
+	border-radius: 2px;
+}
+
+.landing-ui-field-accordion-item {
+	background: #F4F6F8;
+	display: flex;
+	flex-direction: column;
+	padding-left: 6px;
+	padding-right: 15px;
+	padding-top: 13px;
+	padding-bottom: 13px;
+	border-bottom: 1px #EDEEF0 solid;
+	transition: all 200ms ease;
+}
+
+.landing-ui-field-accordion-item-active {
+	background: #ffffff;
+}
+
+.landing-ui-field-accordion-item:last-child {
+	border-bottom: none;
+}
+
+.landing-ui-field-accordion-item-header {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+.landing-ui-field-accordion-item-header-icon {
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: contain;
+	width: 45px;
+	height: 20px;
+	margin-top: -5px;
+}
+
+.landing-ui-field-accordion-item-header-title {
+	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	color: #2066B0;
+	line-height: 17px;
+	border-bottom: 1px rgba(39, 107, 179, .4) dashed;
+	margin-left: 5px;
+	cursor: pointer;
+	transition: all 200ms ease;
+}
+
+.landing-ui-field-accordion-item-header-title:hover {
+	opacity: .8;
+}
+
+.landing-ui-field-accordion-item-header-switch {
+	display: flex;
+	flex-grow: 1;
+	justify-content: flex-end;
+}
+
+.landing-ui-field-accordion-item-header-switch .landing-ui-field-switch {
+	margin-bottom: 0;
+}
+
+.landing-ui-field-accordion-item-header-switch .landing-ui-field-input {
+	background: none;
+}
+
+.landing-ui-field-accordion-item-body {
+	display: none;
+}
+
+.landing-ui-field-accordion-item-opened .landing-ui-field-accordion-item-body {
+	display: block;
+	padding-top: 10px;
+}

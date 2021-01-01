@@ -71,6 +71,7 @@ create table b_forum_topic (
 	USER_START_NAME varchar(255),
 	START_DATE datetime not null,
 	POSTS int(10) not null default '0',
+	POSTS_SERVICE int(10) not null default '0',
 	LAST_POSTER_ID int(10),
 	LAST_POSTER_NAME varchar(255) not null,
 	LAST_POST_DATE datetime not null,
@@ -127,6 +128,7 @@ create table b_forum_message (
 	HTML text,
 	MAIL_HEADER text,
 	SERVICE_TYPE tinyint null,
+	SERVICE_DATA text,
 	primary key (ID),
 	index IX_FORUM_MESSAGE_FORUM(FORUM_ID, APPROVED),
 	index IX_FORUM_MESSAGE_FORUM_TOPIC(FORUM_ID, TOPIC_ID),
@@ -137,7 +139,8 @@ create table b_forum_message (
 	index IX_FORUM_MESSAGE_XML_ID(XML_ID),
 	index IX_FORUM_MESSAGE_DATE_AUTHOR_ID(POST_DATE, AUTHOR_ID),
 	index IX_FORUM_MESSAGE_AUTHOR_TOPIC_ID(AUTHOR_ID, TOPIC_ID),
-	index IX_FORUM_MESSAGE_AUTHOR_FORUM_ID(AUTHOR_ID, FORUM_ID, ID, APPROVED, TOPIC_ID)
+	index IX_FORUM_MESSAGE_AUTHOR_FORUM_ID(AUTHOR_ID, FORUM_ID, ID, APPROVED, TOPIC_ID),
+	index IX_FORUM_MESSAGE_SERVICE_TYPE(SERVICE_TYPE)
 );
 create table b_forum_file (
 	ID int(18) not null auto_increment,

@@ -32,17 +32,17 @@ $jsConfig = array(
 		'lang' => $pathLang . '/js/note.php'
 	],
 
-	'mediaplayer' => array(
-		'js' => array(
+	'mediaplayer' => [
+		'js' => [
 			'https://www.youtube.com/iframe_api',
 			$pathJS . '/mediaplayer/base_mediaplayer.js',
 			$pathJS . '/mediaplayer/youtube_mediaplayer.js',
 			$pathJS . '/mediaplayer/mediaplayer_factory.js'
-		),
+		],
 		'rel' => [
 			'landing.utils',
 		]
-	),
+	],
 
 	'landing_inline_video' => [
 		'js' => [
@@ -52,7 +52,6 @@ $jsConfig = array(
 	],
 	'map_provider' => array(
 		'js' => array(
-			$pathJS . '/collection/base_collection.js',
 			$pathJS . '/provider/map/base-map-provider.js',
 			$pathJS . '/provider/map/google-map.js',
 			$pathJS . '/provider/map/google-map/theme/silver.theme.js',
@@ -65,6 +64,7 @@ $jsConfig = array(
 			$pathCSS . '/provider/map/google-map.css',
 		),
 		'rel' => [
+			'landing.collection.basecollection',
 			'landing.utils',
 			'landing.loc'
 		],
@@ -100,7 +100,6 @@ $jsConfig = array(
 		],
 		'rel' => [
 			'landing_event_tracker',
-			'mediaplayer',
 			'polyfill',
 			'landing.utils',
 		],
@@ -118,36 +117,29 @@ $jsConfig = array(
 	),
 
 	// vendors scripts for ALL blocks, included always
-	'landing_core' => array(
-		'js' => array(
-			// todo: del
-			// $pathTemplate24 . '/assets/vendor/jquery/jquery-3.2.1.js',
-			// $pathTemplate24 . '/assets/vendor/jquery.easing/js/jquery.easing.js',
-			// $pathTemplate24 . '/assets/vendor/bootstrap/js/dist/util.js',
-			// $pathTemplate24 . '/assets/vendor/bootstrap/js/dist/collapse.js',
-			// $pathTemplate24 . '/assets/vendor/fancybox/jquery.fancybox.js',
+	'landing_core' => [
+		'js' => [
 			$pathTemplate24 . '/assets/js/helpers/onscroll-animation_init.js',
-		),
-		'css' => array(
+		],
+		'css' => [
 			$pathTemplate24 . '/assets/vendor/bootstrap/bootstrap.css',
-			$pathTemplate24 . '/themes/themes_core.css',
+			$pathTemplate24 . '/theme.css',
 			$pathTemplate24 . '/assets/css/custom.css',
 			$pathTemplate24 . '/assets/css/themes_custom.css',
 			$pathTemplate24 . '/assets/vendor/animate.css',
-		),
+		],
 		'rel' => [
 			'main.core',
-			'mediaplayer',
 			'main.polyfill.intersectionobserver',
 			'landing.utils',
 		],
-	),
+	],
 
 	'landing_critical_grid' => [
 		'css' => [
 			$pathTemplate24 . '/assets/vendor/bootstrap/bootstrap.css',
 			$pathTemplate24 . '/assets/css/custom-grid.css',
-			$pathTemplate24 . '/themes/themes_core.css',
+			$pathTemplate24 . '/theme.css',
 			$pathCSS . '/landing_public.css',
 		],
 	],
@@ -169,12 +161,11 @@ $jsConfig = array(
 		'rel' => ['landing_jquery']
 	],
 
-	// todo: in editor need for video?
 	'landing_popup_link' => [
 		'js' => [
 			$pathTemplate24 . '/assets/js/helpers/popup_init.js',
 		],
-		'rel' => ['landing_fancybox'],
+		'rel' => ['mediaplayer', 'landing_fancybox'],
 	],
 
 	'landing_upper' => array(
@@ -202,7 +193,7 @@ $jsConfig = array(
 			$pathTemplate24 . '/assets/js/helpers/menu/menu_init.js',
 		],
 		'css' => [
-			$pathTemplate24 . '/assets/vendor/hamburgers/hamburgers.css',
+			$pathTemplate24 . '/assets/vendor/hamburgers/dist/hamburgers.css',
 		],
 		'lang' => $pathLang . '/js/navbars.php',
 		// todo: jquery need just for collapse - to native
@@ -247,6 +238,7 @@ $jsConfig = array(
 		),
 		'css' => array(
 			$pathTemplate24 . '/assets/vendor/slick-carousel/slick/slick.css',
+			$pathTemplate24 . '/assets/vendor/slick-carousel/slick/landing-slick.css',
 		),
 		'rel' => ['landing_core','landing_jquery'],
 	),

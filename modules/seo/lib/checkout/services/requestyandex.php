@@ -7,6 +7,7 @@ use Bitrix\Seo\Engine\Bitrix as EngineBitrix;
 
 /**
  * Class RequestYandex
+ * @deprecated
  * @package Bitrix\Seo\Checkout\Services
  */
 class RequestYandex extends Request

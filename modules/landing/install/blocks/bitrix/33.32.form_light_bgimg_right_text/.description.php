@@ -63,10 +63,6 @@ return array(
 				'name' => Loc::getMessage('LANDING_BLOCK_33.32.FORM_LIGHT_BGIMG_RIGHT_TEXT_NODES_LANDINGBLOCKNODE_BGIMG'),
 				'type' => array('background-overlay', 'background-attachment'),
 			),
-			'.landing-block-node-form' => array(
-				'name' => Loc::getMessage('LANDING_BLOCK_33.32.FORM_LIGHT_BGIMG_RIGHT_TEXT_NODES_LANDINGBLOCKNODE_FORM'),
-				'type' => 'animation',
-			),
 		),
 	),
 	'assets' => array(

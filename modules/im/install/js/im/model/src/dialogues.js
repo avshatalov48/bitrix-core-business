@@ -50,6 +50,7 @@ export class DialoguesModel extends VuexBuilderModel
 			dialogId: '0',
 			chatId: 0,
 			counter: 0,
+			userCounter: 0,
 			unreadId: 0,
 			unreadLastId: 0,
 			managerList: [],
@@ -577,6 +578,15 @@ export class DialoguesModel extends VuexBuilderModel
 			result.counter = parseInt(fields.counter);
 		}
 
+		if (typeof fields.user_counter === "number" || typeof fields.user_counter === "string")
+		{
+			result.userCounter = parseInt(fields.user_counter);
+		}
+		if (typeof fields.userCounter === "number" || typeof fields.userCounter === "string")
+		{
+			result.userCounter = parseInt(fields.userCounter);
+		}
+
 		if (typeof fields.unread_id !== 'undefined')
 		{
 			fields.unreadId = fields.unread_id;
@@ -657,7 +667,7 @@ export class DialoguesModel extends VuexBuilderModel
 					}
 
 					record.userId = parseInt(element.userId);
-					record.userName = element.userName;
+					record.userName = Utils.text.htmlspecialcharsback(element.userName);
 
 					result.writingList.push(record);
 				})

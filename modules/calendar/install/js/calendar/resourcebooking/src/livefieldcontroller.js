@@ -18,16 +18,13 @@ export class LiveFieldController extends EventEmitter
 		this.actionAgent = params.actionAgent || BX.ajax.runAction;
 		this.timeFrom = params.timeFrom || 7;
 		this.timeTo = params.timeTo || 20;
-		this.scale = parseInt(params.field.settings_data.time.scale) || 60;
 		this.inputName = params.field.name + '[]';
 		this.DATE_FORMAT = BookingUtil.getDateFormat();
 		this.DATETIME_FORMAT = BookingUtil.getDateTimeFormat();
-
 		this.userIndex = null;
 		this.timezoneOffset = null;
 		this.timezoneOffsetLabel = null;
 		this.userFieldParams = null;
-
 		this.loadedDates = [];
 
 		this.accessibility = {
@@ -47,6 +44,14 @@ export class LiveFieldController extends EventEmitter
 
 	init()
 	{
+		const settingsData = this.getSettingsData();
+		if (!settingsData.users || !settingsData.resources)
+		{
+			throw new Error('Can\'t init resourcebooking field, because \'settings_data\' parameter is not provided or has incorrect structure');
+			return;
+		}
+		this.scale = settingsData.time && settingsData.time.scale ? settingsData.time.scale : 60;
+
 		this.DOM.outerWrap = this.DOM.wrap.appendChild(Tag.render`<div class="calendar-resbook-webform-wrapper"></div>`);
 
 		this.showMainLoader();
@@ -572,7 +577,7 @@ export class LiveFieldController extends EventEmitter
 
 	getSettingsData()
 	{
-		return this.params.field.settings_data;
+		return this.params.field.settings_data || {};
 	}
 
 	getUserIndex()
@@ -700,7 +705,7 @@ export class LiveFieldController extends EventEmitter
 
 		if (params.autoSelectUser)
 		{
-			userList = Type.isArray(settingsData.users.value) ? settingsData.users.value : settingsData.users.value.split('|');
+			userList = this.getUsersValue();
 			for (i = 0; i < userList.length; i++)
 			{
 				if (this.checkSlotsForDate(date, slotsAmount, {
@@ -715,8 +720,7 @@ export class LiveFieldController extends EventEmitter
 
 		if (params.autoSelectResource)
 		{
-			resList = Type.isArray(settingsData.resources.value) ? settingsData.resources.value : settingsData.resources.value.split('|');
-
+			resList = this.getResourceValue();
 			for (i = 0; i < resList.length; i++)
 			{
 				if (this.checkSlotsForDate(date, slotsAmount, {
@@ -761,7 +765,7 @@ export class LiveFieldController extends EventEmitter
 
 		if (this.resourcesDisplayed())
 		{
-			settingsData.resources.value.split('|').forEach(function(id)
+			this.getResourceValue().forEach(function(id)
 			{
 				id = parseInt(id);
 				if (id > 0)
@@ -814,13 +818,13 @@ export class LiveFieldController extends EventEmitter
 
 		if (fieldParams.USE_SERVICES === 'Y' && settingsData.services.value)
 		{
-			let dataValueRaw = Type.isArray(settingsData.services.value) ? settingsData.services.value : settingsData.services.value.split('|');
+			let dataValueRaw = this.getServicesValue();
 
 			this.serviceControl = new ServiceSelector({
 				outerWrap: this.DOM.innerWrap,
 				data: settingsData.services,
 				serviceList: fieldParams.SERVICE_LIST,
-				selectedValue: (Type.isArray(dataValueRaw) && dataValueRaw.length > 0) ? dataValueRaw[0] : null,
+				selectedValue: dataValueRaw.length > 0 ? dataValueRaw[0] : null,
 				changeValueCallback: function()
 				{
 					this.emit('BX.Calendar.Resourcebooking.LiveFieldController:serviceChanged');
@@ -1181,7 +1185,7 @@ export class LiveFieldController extends EventEmitter
 
 				if (this.isUserSelectorInAutoMode())
 				{
-					let userList = Type.isArray(settingsData.users.value) ? settingsData.users.value : settingsData.users.value.split('|');
+					const userList = this.getUsersValue();
 
 					for (i = timeSlots.length; i--; i >= 0)
 					{
@@ -1211,8 +1215,7 @@ export class LiveFieldController extends EventEmitter
 
 				if (this.isResourceSelectorInAutoMode())
 				{
-					let resList = Type.isArray(settingsData.resources.value) ? settingsData.resources.value : settingsData.resources.value.split('|');
-
+					const resList = this.getResourceValue();
 					for (i = timeSlots.length; i--; i >= 0)
 					{
 						time = timeSlots[i].time;
@@ -1470,11 +1473,8 @@ export class LiveFieldController extends EventEmitter
 
 		if (fieldParams.USE_SERVICES === 'Y' && settingsData.services.value)
 		{
-			let services = settingsData.services.value.split('|');
-			if (Type.isArray(fieldParams.SERVICE_LIST)
-				&& Type.isArray(services)
-				&& services.length > 0
-			)
+			const services = this.getServicesValue();
+			if (Type.isArray(fieldParams.SERVICE_LIST) && services.length > 0)
 			{
 				for (i = 0; i < fieldParams.SERVICE_LIST.length; i++)
 				{
@@ -1573,7 +1573,7 @@ export class LiveFieldController extends EventEmitter
 	{
 		if (this.useUsers === undefined)
 		{
-			this.useUsers = !!(this.getFieldParams()['USE_USERS'] === 'Y' && this.getSettingsData().users.value);
+			this.useUsers = this.getFieldParams()['USE_USERS'] === 'Y';
 		}
 		return this.useUsers;
 	}
@@ -1584,8 +1584,7 @@ export class LiveFieldController extends EventEmitter
 		{
 			let fieldParams = this.getFieldParams();
 			this.useResources = !!(fieldParams.USE_RESOURCES === 'Y'
-				&& fieldParams.SELECTED_RESOURCES
-				&& this.getSettingsData().resources.value);
+				&& fieldParams.SELECTED_RESOURCES);
 		}
 		return this.useResources;
 	}
@@ -1639,5 +1638,50 @@ export class LiveFieldController extends EventEmitter
 			this.todayDateKey = BookingUtil.formatDate(this.DATE_FORMAT, today);
 		}
 		return this.todayDateKey === dateKey;
+	}
+
+	getResourceValue()
+	{
+		const settingsData = this.getSettingsData();
+		let value = [];
+		if (Type.isArray(settingsData.resources.value))
+		{
+			value = settingsData.resources.value;
+		}
+		else if (Type.isString(settingsData.resources.value))
+		{
+			value = settingsData.resources.value.split('|');
+		}
+		return value;
+	}
+
+	getUsersValue()
+	{
+		const settingsData = this.getSettingsData();
+		let value = [];
+		if (Type.isArray(settingsData.users.value))
+		{
+			value = settingsData.users.value;
+		}
+		else if (Type.isString(settingsData.users.value))
+		{
+			value = settingsData.users.value.split('|');
+		}
+		return value;
+	}
+
+	getServicesValue()
+	{
+		const settingsData = this.getSettingsData();
+		let value = [];
+		if (Type.isArray(settingsData.services.value))
+		{
+			value = settingsData.services.value;
+		}
+		else if (Type.isString(settingsData.services.value))
+		{
+			value = settingsData.services.value.split('|');
+		}
+		return value;
 	}
 }

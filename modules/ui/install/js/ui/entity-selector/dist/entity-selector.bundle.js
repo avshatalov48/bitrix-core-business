@@ -1366,6 +1366,10 @@ this.BX.UI = this.BX.UI || {};
 	        } else {
 	          this.getItem().select();
 
+	          if (this.getDialog().shouldClearSearchOnSelect()) {
+	            this.getDialog().clearSearch();
+	          }
+
 	          if (this.getDialog().shouldHideOnSelect()) {
 	            this.getDialog().hide();
 	          }
@@ -1832,8 +1836,8 @@ this.BX.UI = this.BX.UI || {};
 	      throw new Error('EntitySelector.Entity: "id" parameter is required.');
 	    }
 
-	    var defaultOptions = _this.constructor.getEntityOptions(options.id) || {};
-	    options = main_core.Runtime.merge({}, defaultOptions, options);
+	    var defaultOptions = _this.constructor.getEntityDefaultOptions(options.id) || {};
+	    options = main_core.Runtime.merge(JSON.parse(JSON.stringify(defaultOptions)), options);
 	    _this.id = options.id;
 	    _this.options = main_core.Type.isPlainObject(options.options) ? options.options : {};
 	    _this.itemOptions = main_core.Type.isPlainObject(options.itemOptions) ? options.itemOptions : {};
@@ -1870,16 +1874,8 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	  }, {
 	    key: "getItemOption",
-	    value: function getItemOption(item, option) {
-	      var entityType = item.getEntityType();
-
-	      if (this.itemOptions[entityType] && !main_core.Type.isUndefined(this.itemOptions[entityType][option])) {
-	        return this.itemOptions[entityType][option];
-	      } else if (this.itemOptions['default'] && !main_core.Type.isUndefined(this.itemOptions['default'][option])) {
-	        return this.itemOptions['default'][option];
-	      }
-
-	      return null;
+	    value: function getItemOption(option, entityType) {
+	      return this.constructor.getOptionInternal(this.itemOptions, option, entityType);
 	    }
 	  }, {
 	    key: "getTagOptions",
@@ -1888,21 +1884,13 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	  }, {
 	    key: "getTagOption",
-	    value: function getTagOption(item, option) {
-	      var entityType = item.getEntityType();
-
-	      if (this.tagOptions[entityType] && !main_core.Type.isUndefined(this.tagOptions[entityType][option])) {
-	        return this.tagOptions[entityType][option];
-	      } else if (this.tagOptions['default'] && !main_core.Type.isUndefined(this.tagOptions['default'][option])) {
-	        return this.tagOptions['default'][option];
-	      }
-
-	      return null;
+	    value: function getTagOption(option, entityType) {
+	      return this.constructor.getOptionInternal(this.tagOptions, option, entityType);
 	    }
 	  }, {
 	    key: "getBadges",
 	    value: function getBadges(item) {
-	      var entityTypeBadges = this.getItemOption(item, 'badges') || [];
+	      var entityTypeBadges = this.getItemOption('badges', item.getEntityType()) || [];
 	      var badges = babelHelpers.toConsumableArray(entityTypeBadges);
 	      this.badgeOptions.forEach(function (badge) {
 	        if (main_core.Type.isPlainObject(badge.conditions)) {
@@ -2063,8 +2051,8 @@ this.BX.UI = this.BX.UI || {};
 	      return this.extensions;
 	    }
 	  }, {
-	    key: "getEntityOptions",
-	    value: function getEntityOptions(entityId) {
+	    key: "getEntityDefaultOptions",
+	    value: function getEntityDefaultOptions(entityId) {
 	      return this.getDefaultOptions()[entityId] || null;
 	    }
 	  }, {
@@ -2074,24 +2062,14 @@ this.BX.UI = this.BX.UI || {};
 	        return null;
 	      }
 
-	      var options = this.getEntityOptions(entityId);
+	      var options = this.getEntityDefaultOptions(entityId);
 	      var itemOptions = options && options['itemOptions'] ? options['itemOptions'] : null;
 
 	      if (main_core.Type.isUndefined(entityType)) {
 	        return itemOptions;
 	      } else {
-	        return itemOptions && itemOptions[entityType] ? itemOptions[entityType] : null;
+	        return itemOptions && !main_core.Type.isUndefined(itemOptions[entityType]) ? itemOptions[entityType] : null;
 	      }
-	    }
-	  }, {
-	    key: "getItemOption",
-	    value: function getItemOption(entityId, entityType, option) {
-	      if (!main_core.Type.isStringFilled(entityType) || !main_core.Type.isStringFilled(option)) {
-	        return null;
-	      }
-
-	      var options = this.getItemOptions(entityId, entityType);
-	      return options && !main_core.Type.isUndefined(options[option]) ? options[option] : null;
 	    }
 	  }, {
 	    key: "getTagOptions",
@@ -2100,7 +2078,7 @@ this.BX.UI = this.BX.UI || {};
 	        return null;
 	      }
 
-	      var options = this.getEntityOptions(entityId);
+	      var options = this.getEntityDefaultOptions(entityId);
 	      var tagOptions = options && options['tagOptions'] ? options['tagOptions'] : null;
 
 	      if (main_core.Type.isUndefined(entityType)) {
@@ -2110,14 +2088,29 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    }
 	  }, {
+	    key: "getItemOption",
+	    value: function getItemOption(entityId, option, entityType) {
+	      return this.getOptionInternal(this.getItemOptions(entityId), option, entityType);
+	    }
+	  }, {
 	    key: "getTagOption",
-	    value: function getTagOption(entityId, entityType, option) {
-	      if (!main_core.Type.isStringFilled(entityType) || !main_core.Type.isStringFilled(option)) {
+	    value: function getTagOption(entityId, option, entityType) {
+	      return this.getOptionInternal(this.getTagOptions(entityId), option, entityType);
+	    }
+	  }, {
+	    key: "getOptionInternal",
+	    value: function getOptionInternal(options, option, type) {
+	      if (!main_core.Type.isPlainObject(options)) {
 	        return null;
 	      }
 
-	      var options = this.getTagOptions(entityId, entityType);
-	      return options && options[option] ? options[option] : null;
+	      if (options[type] && !main_core.Type.isUndefined(options[type][option])) {
+	        return options[type][option];
+	      } else if (options['default'] && !main_core.Type.isUndefined(options['default'][option])) {
+	        return options['default'][option];
+	      }
+
+	      return null;
 	    }
 	  }]);
 	  return Entity;
@@ -2284,7 +2277,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getSubtitle",
 	    value: function getSubtitle() {
-	      return this.subtitle !== null ? this.subtitle : this.getEntity().getItemOption(this, 'subtitle');
+	      return this.subtitle !== null ? this.subtitle : this.getEntityItemOption('subtitle');
 	    }
 	  }, {
 	    key: "setSubtitle",
@@ -2312,7 +2305,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getSupertitle",
 	    value: function getSupertitle() {
-	      return this.supertitle !== null ? this.supertitle : this.getEntity().getItemOption(this, 'supertitle');
+	      return this.supertitle !== null ? this.supertitle : this.getEntityItemOption('supertitle');
 	    }
 	  }, {
 	    key: "setSupertitle",
@@ -2340,7 +2333,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getAvatar",
 	    value: function getAvatar() {
-	      return this.avatar !== null ? this.avatar : this.getEntity().getItemOption(this, 'avatar');
+	      return this.avatar !== null ? this.avatar : this.getEntityItemOption('avatar');
 	    }
 	  }, {
 	    key: "setAvatar",
@@ -2368,7 +2361,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getTextColor",
 	    value: function getTextColor() {
-	      return this.textColor !== null ? this.textColor : this.getEntity().getItemOption(this, 'textColor');
+	      return this.textColor !== null ? this.textColor : this.getEntityItemOption('textColor');
 	    }
 	  }, {
 	    key: "setTextColor",
@@ -2396,7 +2389,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getCaption",
 	    value: function getCaption() {
-	      return this.caption !== null ? this.caption : this.getEntity().getItemOption(this, 'caption');
+	      return this.caption !== null ? this.caption : this.getEntityItemOption('caption');
 	    }
 	  }, {
 	    key: "setCaption",
@@ -2424,7 +2417,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getLink",
 	    value: function getLink() {
-	      var link = this.link !== null ? this.link : this.getEntity().getItemOption(this, 'link');
+	      var link = this.link !== null ? this.link : this.getEntityItemOption('link');
 	      return this.replaceMacros(link);
 	    }
 	  }, {
@@ -2441,7 +2434,7 @@ this.BX.UI = this.BX.UI || {};
 	        return this.linkTitle;
 	      }
 
-	      var linkTitle = this.getEntity().getItemOption(this, 'linkTitle');
+	      var linkTitle = this.getEntityItemOption('linkTitle');
 	      return linkTitle !== null ? linkTitle : main_core.Loc.getMessage('UI_SELECTOR_ITEM_LINK_TITLE');
 	    }
 	  }, {
@@ -2729,6 +2722,16 @@ this.BX.UI = this.BX.UI || {};
 	      return this.getDialog() && this.getDialog().isRendered();
 	    }
 	  }, {
+	    key: "getEntityItemOption",
+	    value: function getEntityItemOption(option) {
+	      return this.getEntity().getItemOption(option, this.getEntityType());
+	    }
+	  }, {
+	    key: "getEntityTagOption",
+	    value: function getEntityTagOption(option) {
+	      return this.getEntity().getTagOption(option, this.getEntityType());
+	    }
+	  }, {
 	    key: "getTagOptions",
 	    value: function getTagOptions() {
 	      return this.tagOptions;
@@ -2736,43 +2739,76 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getTagOption",
 	    value: function getTagOption(option) {
-	      var useEntityOptions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 	      var value = this.getTagOptions().get(option);
 
 	      if (!main_core.Type.isUndefined(value)) {
 	        return value;
-	      } else if (useEntityOptions !== false) {
-	        return this.getEntity().getTagOption(this, option);
 	      }
 
 	      return null;
 	    }
 	  }, {
 	    key: "getTagGlobalOption",
-	    value: function getTagGlobalOption(propName) {
-	      var value = null;
+	    value: function getTagGlobalOption(option) {
+	      var useItemOptions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
-	      if (this.getTagOption(propName, false) !== null) {
-	        value = this.getTagOption(propName);
-	      } else if (this[propName] !== null) {
-	        value = this[propName];
-	      } else if (this.getEntity().getTagOption(this, propName) !== null) {
-	        value = this.getEntity().getTagOption(this, propName);
-	      } else {
-	        value = this.getEntity().getItemOption(this, propName);
+	      if (!main_core.Type.isStringFilled(option)) {
+	        return null;
+	      }
+
+	      var value = this.getTagOption(option);
+
+	      if (value === null && useItemOptions === true && this[option] !== null) {
+	        value = this[option];
+	      }
+
+	      if (value === null && this.getDialog().getTagSelector()) {
+	        var fn = "getTag".concat(main_core.Text.toPascalCase(option));
+
+	        if (main_core.Type.isFunction(this.getDialog().getTagSelector()[fn])) {
+	          value = this.getDialog().getTagSelector()[fn]();
+	        }
+	      }
+
+	      if (value === null) {
+	        value = this.getEntityTagOption(option);
+	      }
+
+	      if (value === null && useItemOptions === true) {
+	        value = this.getEntityItemOption(option);
 	      }
 
 	      return value;
 	    }
 	  }, {
+	    key: "getTagBgColor",
+	    value: function getTagBgColor() {
+	      return this.getTagGlobalOption('bgColor');
+	    }
+	  }, {
+	    key: "getTagTextColor",
+	    value: function getTagTextColor() {
+	      return this.getTagGlobalOption('textColor');
+	    }
+	  }, {
+	    key: "getTagMaxWidth",
+	    value: function getTagMaxWidth() {
+	      return this.getTagGlobalOption('maxWidth');
+	    }
+	  }, {
+	    key: "getTagFontWeight",
+	    value: function getTagFontWeight() {
+	      return this.getTagGlobalOption('fontWeight');
+	    }
+	  }, {
 	    key: "getTagAvatar",
 	    value: function getTagAvatar() {
-	      return this.getTagGlobalOption('avatar');
+	      return this.getTagGlobalOption('avatar', true);
 	    }
 	  }, {
 	    key: "getTagLink",
 	    value: function getTagLink() {
-	      return this.replaceMacros(this.getTagGlobalOption('link'));
+	      return this.replaceMacros(this.getTagGlobalOption('link', true));
 	    }
 	  }, {
 	    key: "replaceMacros",
@@ -2789,15 +2825,16 @@ this.BX.UI = this.BX.UI || {};
 	      return {
 	        id: this.getId(),
 	        entityId: this.getEntityId(),
-	        title: this.getTagOption('title', false) || this.getTitle(),
+	        entityType: this.getEntityType(),
+	        title: this.getTagOption('title') || this.getTitle(),
 	        deselectable: this.isDeselectable(),
 	        customData: this.getCustomData(),
 	        avatar: this.getTagAvatar(),
 	        link: this.getTagLink(),
-	        maxWidth: this.getTagOption('maxWidth'),
-	        textColor: this.getTagOption('textColor'),
-	        bgColor: this.getTagOption('bgColor'),
-	        fontWeight: this.getTagOption('fontWeight')
+	        maxWidth: this.getTagMaxWidth(),
+	        textColor: this.getTagTextColor(),
+	        bgColor: this.getTagBgColor(),
+	        fontWeight: this.getTagFontWeight()
 	      };
 	    }
 	  }, {
@@ -3632,7 +3669,7 @@ this.BX.UI = this.BX.UI || {};
 	        var handler = function handler(event) {
 	          if (!animationName || event.animationName === animationName) {
 	            resolve(event);
-	            main_core.Event.bind(element, 'animationend', handler);
+	            main_core.Event.unbind(element, 'animationend', handler);
 	          }
 	        };
 
@@ -3993,12 +4030,12 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getEntityTagOption",
 	    value: function getEntityTagOption(option) {
-	      return Entity.getTagOption(this.getEntityId(), this.getEntityType(), option);
+	      return Entity.getTagOption(this.getEntityId(), option, this.getEntityType());
 	    }
 	  }, {
 	    key: "getEntityItemOption",
 	    value: function getEntityItemOption(option) {
-	      return Entity.getItemOption(this.getEntityId(), this.getEntityType(), option);
+	      return Entity.getItemOption(this.getEntityId(), option, this.getEntityType());
 	    }
 	  }, {
 	    key: "isRendered",
@@ -5276,6 +5313,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "bindEvents",
 	    value: function bindEvents() {
+	      this.unbindEvents();
 	      main_core_events.EventEmitter.subscribe('SidePanel.Slider:onOpen', this.handleSliderOpen);
 	      main_core_events.EventEmitter.subscribe('SidePanel.Slider:onCloseComplete', this.handleSliderClose);
 	      main_core_events.EventEmitter.subscribe('SidePanel.Slider:onDestroy', this.handleSliderClose);
@@ -5386,7 +5424,7 @@ this.BX.UI = this.BX.UI || {};
 
 	  function RecentTab(dialog, tabOptions) {
 	    babelHelpers.classCallCheck(this, RecentTab);
-	    var icon = 'data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2219%22%20height%3D%2219%22%20fill%3D' + '%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M12.43%2011.985a.96.' + '96%200%2000-.959-.96H6.504a.96.96%200%20000%201.92h4.967c.53%200%20.96-.43.96-.96zM12.43%209.' + '009a.96.96%200%2000-.959-.96H6.504a.96.96%200%20000%201.92h4.967c.53%200%20.96-.43.96-.96zM12.' + '43%206.033a.96.96%200%2000-.959-.96H6.504a.96.96%200%20000%201.92h4.967c.53%200%20.96-.43.96-' + '.96z%22%20fill%3D%22%23ACB2B8%22/%3E%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22' + 'evenodd%22%20d%3D%22M8.988%2017.52c1.799%200%203.468-.558%204.843-1.51l2.205%202.204a1.525%201.' + '525%200%20102.157-2.157l-2.205-2.205a8.512%208.512%200%2010-7%203.668zm0-2.403a6.108%206.108%200%2' + '0100-12.216%206.108%206.108%200%20000%2012.216z%22%20fill%3D%22%23ACB2B8%22/%3E%3C/svg%3E';
+	    var icon = 'data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2223%22%20height%3D%2223%22%20fill%3D%' + '22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M14.432%2013.985a.96.' + '96%200%2000-.96-.96H8.505a.96.96%200%20000%201.92h4.967c.53%200%20.96-.43.96-.96zM14.432%2011.' + '009a.96.96%200%2000-.96-.96H8.505a.96.96%200%20000%201.92h4.967c.53%200%20.96-.43.96-.96zM14.' + '432%208.033a.96.96%200%2000-.96-.96H8.505a.96.96%200%20000%201.92h4.967c.53%200%20.96-.43.96-.' + '96z%22%20fill%3D%22%23ABB1B8%22/%3E%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd' + '%22%20d%3D%22M10.988%2019.52c1.8%200%203.469-.558%204.844-1.51l2.205%202.204a1.525%201.525%200%20' + '102.157-2.157l-2.205-2.205a8.512%208.512%200%2010-7%203.668zm0-2.403a6.108%206.108%200%20100-12.2' + '16%206.108%206.108%200%20000%2012.216z%22%20fill%3D%22%23ABB1B8%22/%3E%3C/svg%3E';
 	    var defaults = {
 	      title: main_core.Loc.getMessage('UI_SELECTOR_RECENT_TAB_TITLE'),
 	      itemOrder: {
@@ -5394,9 +5432,9 @@ this.BX.UI = this.BX.UI || {};
 	      },
 	      icon: {
 	        //default: '/bitrix/js/ui/entity-selector/src/css/images/recent-tab-icon.svg',
-	        //selected: '/bitrix/js/ui/entity-selector/src/css/images/recent-tab-selected-icon.svg'
+	        //selected: '/bitrix/js/ui/entity-selector/src/css/images/recent-tab-icon-selected.svg'
 	        default: icon,
-	        selected: icon.replace(/ACB2B8/g, 'fff')
+	        selected: icon.replace(/ABB1B8/g, 'fff')
 	      }
 	    };
 	    var options = Object.assign({}, defaults, tabOptions);
@@ -6392,6 +6430,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "multiple", true);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "hideOnSelect", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "hideOnDeselect", null);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "clearSearchOnSelect", true);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "context", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "selectedItems", new Set());
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "preselectedItems", []);
@@ -6408,7 +6447,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "width", 565);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "height", 420);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "maxLabelWidth", 160);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "minLabelWidth", 40);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "minLabelWidth", 45);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "activeTab", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "recentTab", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "searchTab", null);
@@ -6471,6 +6510,8 @@ this.BX.UI = this.BX.UI || {};
 	    _this.setHideOnSelect(options.hideOnSelect);
 
 	    _this.setHideOnDeselect(options.hideOnDeselect);
+
+	    _this.setClearSearchOnSelect(options.clearSearchOnSelect);
 
 	    _this.setWidth(options.width);
 
@@ -7084,6 +7125,18 @@ this.BX.UI = this.BX.UI || {};
 	      return false;
 	    }
 	  }, {
+	    key: "setClearSearchOnSelect",
+	    value: function setClearSearchOnSelect(flag) {
+	      if (main_core.Type.isBoolean(flag)) {
+	        this.clearSearchOnSelect = flag;
+	      }
+	    }
+	  }, {
+	    key: "shouldClearSearchOnSelect",
+	    value: function shouldClearSearchOnSelect() {
+	      return this.clearSearchOnSelect;
+	    }
+	  }, {
 	    key: "addEntity",
 	    value: function addEntity(entity) {
 	      if (main_core.Type.isPlainObject(entity)) {
@@ -7184,6 +7237,10 @@ this.BX.UI = this.BX.UI || {};
 	    value: function clearSearch() {
 	      if (this.getTagSelector()) {
 	        this.getTagSelector().clearTextBox();
+
+	        if (this.getActiveTab() === this.getSearchTab()) {
+	          this.selectFirstTab();
+	        }
 	      }
 	    }
 	  }, {
@@ -7361,8 +7418,8 @@ this.BX.UI = this.BX.UI || {};
 	      this.observeTabOverlapping();
 	    }
 	  }, {
-	    key: "handlePopupClose",
-	    value: function handlePopupClose() {
+	    key: "handlePopupAfterClose",
+	    value: function handlePopupAfterClose() {
 	      if (this.isTagSelectorOutside()) {
 	        if (this.getActiveTab() && this.getActiveTab() === this.getSearchTab()) {
 	          this.selectFirstTab();
@@ -7727,7 +7784,7 @@ this.BX.UI = this.BX.UI || {};
 	        events: {
 	          onFirstShow: this.handlePopupFirstShow.bind(this),
 	          onAfterShow: this.handlePopupAfterShow.bind(this),
-	          onClose: this.handlePopupClose.bind(this),
+	          onAfterClose: this.handlePopupAfterClose.bind(this),
 	          onDestroy: this.handlePopupDestroy.bind(this)
 	        },
 	        content: this.getContainer()
@@ -7873,6 +7930,8 @@ this.BX.UI = this.BX.UI || {};
 	          if (_this14.shouldFocusOnFirst()) {
 	            _this14.focusOnFirstNode();
 	          }
+
+	          _this14.emit('onLoad');
 	        }
 	      }).catch(function (error) {
 	        _this14.loadState = LoadState.UNSENT;
@@ -7884,6 +7943,10 @@ this.BX.UI = this.BX.UI || {};
 	        _this14.focusSearch();
 
 	        _this14.destroyLoader();
+
+	        _this14.emit('onLoadError', {
+	          error: error
+	        });
 
 	        console.error(error);
 	      });

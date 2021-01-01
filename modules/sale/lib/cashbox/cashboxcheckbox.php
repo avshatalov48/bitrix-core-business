@@ -66,6 +66,8 @@ class CashboxCheckbox extends Cashbox implements IPrintImmediately, ICheckable
 	private const OPEN_SHIFT_WAIT_SECONDS = 5;
 	private const OPEN_SHIFT_WAIT_ATTEMPTS = 2;
 
+	private const BITRIX_CLIENT_NAME = 'api_1c-bitrix';
+
 	public static function getName()
 	{
 		return Loc::getMessage('SALE_CASHBOX_CHECKBOX_TITLE');
@@ -105,6 +107,11 @@ class CashboxCheckbox extends Cashbox implements IPrintImmediately, ICheckable
 			{
 				$code = $itemId;
 			}
+			if (!$code)
+			{
+				$code = 'delivery' . $item['entity']->getField('ID');
+			}
+
 			$vat = $this->getValueFromSettings('VAT', $item['vat']);
 			$goodEntry['good'] = [
 				'code' => mb_substr($code, 0, static::MAX_CODE_LENGTH),
@@ -422,6 +429,8 @@ class CashboxCheckbox extends Cashbox implements IPrintImmediately, ICheckable
 		return [
 			'Authorization' => static::getAuthorizationHeaderValue($accessToken),
 			'X-License-Key' => $headersData['LICENSE_KEY'],
+			'X-Client-Name' => static::BITRIX_CLIENT_NAME,
+			'X-Client-Version' => \CUpdateSystem::GetModuleVersion('sale'),
 		];
 	}
 

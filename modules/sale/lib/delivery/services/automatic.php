@@ -536,7 +536,7 @@ class Automatic extends Base
 			$siteId = Helper::getDefaultSiteId();
 
 		$service["CONFIG"] = self::createConfig($handlers[$service["SID"]], $service["SETTINGS"], $siteId);
-		$service["SETTINGS"] = unserialize($service["SETTINGS"]);
+		$service["SETTINGS"] = unserialize($service["SETTINGS"], ['allowed_classes' => false]);
 		$service["PROFILES"] = array();
 
 		if(isset($service["ID"]) && intval($service["ID"]) > 0)
@@ -628,7 +628,7 @@ class Automatic extends Base
 
 				if ($settings <> '' && is_callable($initHandlerParams["DBGETSETTINGS"]))
 				{
-					$settings = unserialize($settings);
+					$settings = unserialize($settings, ['allowed_classes' => false]);
 					$arConfigValues = call_user_func($initHandlerParams["DBGETSETTINGS"], $settings);
 				}
 				else
@@ -693,7 +693,7 @@ class Automatic extends Base
 			foreach($oldOrder["ITEMS"] as $item)
 			{
 				if(is_string($item["DIMENSIONS"]))
-					$item["DIMENSIONS"] = unserialize($item["DIMENSIONS"]);
+					$item["DIMENSIONS"] = unserialize($item["DIMENSIONS"], ['allowed_classes' => false]);
 
 				if(!is_array($item["DIMENSIONS"]) || empty($item["DIMENSIONS"]))
 					continue;

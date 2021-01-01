@@ -11,6 +11,7 @@ import './textarea.css';
 import {Vue} from "ui.vue";
 import {LocalStorage} from "im.lib.localstorage";
 import {Utils} from "im.lib.utils";
+import {Browser} from 'main.core';
 
 Vue.component('bx-im-view-textarea',
 {
@@ -137,10 +138,13 @@ Vue.component('bx-im-view-textarea',
 
 			return styles;
 		},
-
 		localize()
 		{
 			return Vue.getFilteredPhrases('BX_MESSENGER_TEXTAREA_', this.$root.$bitrixMessages)
+		},
+		isIE11()
+		{
+			return Browser.isIE11();
 		},
 	},
 	directives: {
@@ -534,7 +538,10 @@ Vue.component('bx-im-view-textarea',
 		},
 		onFileSelect(event)
 		{
-			this.$emit('fileSelected', {fileInput: event.target});
+			this.$emit('fileSelected', {
+				fileChangeEvent: event,
+				fileInput: event.target
+			});
 		},
 	},
 	template: `
@@ -546,7 +553,9 @@ Vue.component('bx-im-view-textarea',
 				</transition>
 			</div>
 			<div class="bx-im-textarea-app-box">
-				<label v-if="enableFile" class="bx-im-textarea-app-button bx-im-textarea-app-file" :title="localize.BX_MESSENGER_TEXTAREA_FILE"><input type="file" @click="onFileClick($event)" @change="onFileSelect($event)"></label>
+				<label v-if="enableFile && !isIE11" class="bx-im-textarea-app-button bx-im-textarea-app-file" :title="localize.BX_MESSENGER_TEXTAREA_FILE">
+					<input type="file" @click="onFileClick($event)" @change="onFileSelect($event)">
+				</label>
 				<button class="bx-im-textarea-app-button bx-im-textarea-app-smile" :title="localize.BX_MESSENGER_TEXTAREA_SMILE" @click="onAppButtonClick('smile', $event)"></button>
 				<button v-if="false" class="bx-im-textarea-app-button bx-im-textarea-app-gif" :title="localize.BX_MESSENGER_TEXTAREA_GIPHY" @click="onAppButtonClick('giphy', $event)"></button>
 			</div>

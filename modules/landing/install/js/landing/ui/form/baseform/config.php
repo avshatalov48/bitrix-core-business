@@ -9,6 +9,7 @@ return [
 	'js' => 'dist/baseform.bundle.js',
 	'rel' => [
 		'main.core',
+		'main.core.events',
 		'landing.env',
 	],
 	'skip_core' => false,

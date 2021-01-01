@@ -1895,7 +1895,14 @@ class CAllIMContactList
 		$result = false;
 
 		if (!IsModuleInstalled('intranet'))
+		{
 			return false;
+		}
+
+		if ($arUser['EXTERNAL_AUTH_ID'] == \Bitrix\Im\Bot::EXTERNAL_AUTH_ID)
+		{
+			return false;
+		}
 
 		if (array_key_exists('UF_DEPARTMENT', $arUser))
 		{

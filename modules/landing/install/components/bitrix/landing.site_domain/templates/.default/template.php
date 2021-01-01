@@ -128,7 +128,7 @@ if ($menuItems[$tab]['HELP_CODE'])
 	if ($helpUrl)
 	{
 		$this->setViewTarget('inside_pagetitle');
-		?><a class="landing-domain-link" href="<?= $helpUrl;?>">
+		?><a class="landing-domain-link" href="<?= $helpUrl;?>" target="_blank">
 			<?= Loc::getMessage('LANDING_TPL_HELP_LINK');?>
 			<span data-hint="<?= Loc::getMessage('LANDING_TPL_HELP_LINK_HINT');?>" class="ui-hint"></span>
 		</a><?

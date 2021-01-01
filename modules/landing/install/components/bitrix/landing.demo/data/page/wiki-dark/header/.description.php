@@ -69,7 +69,7 @@ return [
 			],
 			'style' => [
 				'#wrapper' => [
-					0 => 'landing-block g-pt-20 g-pb-20 u-header u-header--sticky u-header--relative g-brd-top g-theme-bitrix-brd-v4 g-brd-4 g-bg-transparent',
+					0 => 'landing-block g-pt-20 g-pb-20 u-header u-header--sticky u-header--relative g-brd-top g-brd-primary g-brd-4 g-bg-transparent',
 				],
 			],
 		],

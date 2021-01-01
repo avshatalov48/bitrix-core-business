@@ -60,12 +60,6 @@ class Manager
 	protected static $tmpFeatures = [];
 
 	/**
-	 * Selected template theme id.
-	 * @var string
-	 */
-	private static $themeId = '';
-
-	/**
 	 * And ID for typography settings.
 	 * @var string
 	 * @deprecated since 20.3.0, use THEMEFONTS hook settings
@@ -206,8 +200,8 @@ class Manager
 	public static function getCurDir()
 	{
 		return Application::getInstance()->getContext()
-			->getRequest()
-			->getRequestedPageDirectory();
+										 ->getRequest()
+										 ->getRequestedPageDirectory();
 	}
 
 	/**
@@ -310,12 +304,12 @@ class Manager
 					'TEMPLATE' => self::getTemplateId($siteId)
 				);
 				$check = \Bitrix\Main\SiteTemplateTable::getList(array(
-					'filter' => array(
-						'=SITE_ID' => $fields['SITE_ID'],
-						'=CONDITION' => $fields['CONDITION'],
-						'=TEMPLATE' => $fields['TEMPLATE']
-					)
-				))->fetch();
+					 'filter' => array(
+						 '=SITE_ID' => $fields['SITE_ID'],
+						 '=CONDITION' => $fields['CONDITION'],
+						 '=TEMPLATE' => $fields['TEMPLATE']
+					 )
+				 ))->fetch();
 				if (!$check)
 				{
 					\Bitrix\Main\SiteTemplateTable::add(
@@ -372,8 +366,8 @@ class Manager
 			return LANDING_PUBLICATION_PATH_CONST;
 		}
 		return self::isB24()
-			? self::PUBLICATION_PATH
-			: self::PUBLICATION_PATH_SITEMAN;
+				? self::PUBLICATION_PATH
+				: self::PUBLICATION_PATH_SITEMAN;
 	}
 
 	/**
@@ -417,10 +411,10 @@ class Manager
 		else
 		{
 			return $subDir . str_replace(
-					'#id#',
-					$siteCode,
-					$basePath . '#id#/'
-				);
+				'#id#',
+				$siteCode,
+				$basePath . '#id#/'
+			);
 		}
 	}
 
@@ -477,56 +471,6 @@ class Manager
 	}
 
 	/**
-	 * Get themes entity from template dir.
-	 * @param string $tplId Site template id.
-	 * @param string $entityType - entity folder name.
-	 * @return array
-	 */
-	protected static function getThemesEntity($tplId, $entityType)
-	{
-		$themes = array();
-
-		$path = self::getDocRoot() . getLocalPath('templates/' . $tplId) . '/'.$entityType.'/';
-		if (
-			file_exists($path) &&
-			($handle = opendir($path))
-		)
-		{
-			while ((($entry = readdir($handle)) !== false))
-			{
-				if ($entry != '.' && $entry != '..')
-				{
-					$themes[] = pathinfo($entry, PATHINFO_FILENAME);
-				}
-			}
-		}
-
-		return $themes;
-	}
-
-	/**
-	 * Get themes from template dir.
-	 * @param string $tplId Site template id.
-	 * @return array
-	 */
-	public static function getThemes($tplId)
-	{
-		return self::getThemesEntity($tplId, 'themes');
-	}
-
-	/**
-	 * Get themes typo from template dir.
-	 * @param string $tplId Site template id.
-	 * @return array
-	 *
-	 * @deprecated since 20.3.0, use THEMEFONTS hook settings
-	 */
-	public static function getThemesTypo($tplId)
-	{
-		return self::getThemesEntity($tplId, 'themes-typo');
-	}
-
-	/**
 	 * Gets site template id.
 	 * @param string $siteId Site id (siteman).
 	 * @return string
@@ -569,17 +513,6 @@ class Manager
 		return defined('SMN_SITE_ID') ? SMN_SITE_ID : SITE_ID;
 	}
 
-
-	/**
-	 * Set new colored theme id.
-	 * @param string $themeId Theme id.
-	 * @return void
-	 */
-	public static function setThemeId($themeId)
-	{
-		self::$themeId = $themeId;
-	}
-
 	/**
 	 * Set new colored theme id.
 	 * @param string $themeTypoId Theme id.
@@ -592,106 +525,14 @@ class Manager
 	}
 
 	/**
-	 * Get current theme id.
-	 * @return string
-	 */
-	public static function getThemeId()
-	{
-		return self::$themeId;
-	}
-
-	/**
 	 * Add assets to page from hooks and themes
 	 * @param int $lid Landing id.
 	 * @return void
 	 */
 	public static function initAssets($lid = 0)
 	{
-		self::setThemeAssets();
-
 		$assets = Assets\Manager::getInstance();
 		$assets->setOutput($lid);
-	}
-
-	/**
-	 * Set assets for theme.
-	 * @return void
-	 */
-	protected static function setThemeAssets()
-	{
-		$assets = Assets\Manager::getInstance();
-		$tplId = self::getTemplateId(SITE_ID);
-		if (self::$themeId)
-		{
-			foreach(self::findThemeFiles(self::$themeId, 'themes', $tplId) as $path)
-			{
-				$assets->addAsset($path);
-			}
-		}
-	}
-
-
-	/**
-	 * Set current selected or default color theme.
-	 * @return void
-	 */
-	public static function setTheme()
-	{
-		$tplId = self::getTemplateId(SITE_ID);
-		$themes = Manager::getThemes($tplId);
-		$request = Application::getInstance()->getContext()->getRequest();
-
-		// set default theme ID
-		if ($request->get('theme'))
-		{
-			self::setThemeId($request->get('theme'));
-		}
-		if (!self::$themeId || !in_array(self::$themeId, $themes))
-		{
-			self::setThemeId(array_pop($themes));
-		}
-		if ($request->get('color'))
-		{
-			self::setThemeId('');
-		}
-		if ($request->get('color'))
-		{
-			self::setThemeId('');
-		}
-	}
-
-	/**
-	 * Find all theme files.
-	 * @param string $themeId Theme id.
-	 * @param string $themeEntityId Entity code.
-	 * @param $tplId Site template id.
-	 * @return array
-	 */
-	protected static function findThemeFiles($themeId, $themeEntityId, $tplId)
-	{
-		$files = [];
-		$themePath = \getLocalPath('templates/' . $tplId, BX_PERSONAL_ROOT) . '/'.$themeEntityId.'/' . $themeId;
-		$themePathAbsolute = self::getDocRoot() . $themePath;
-		if (is_dir($themePathAbsolute))
-		{
-			if ($handle = opendir($themePathAbsolute))
-			{
-				while (($file = readdir($handle)) !== false)
-				{
-					if ($file != '.' && $file != '..')
-					{
-						$files[] = $themePath . '/' . $file;
-					}
-				}
-				closedir($handle);
-			}
-		}
-		elseif (is_file($themePathAbsolute . '.css'))
-		{
-			$files[] = $themePath . '.css';
-		}
-
-		return $files;
 	}
 
 	/**
@@ -783,8 +624,8 @@ class Manager
 					$file,
 					$params,
 					isset($params['resize_type'])
-						? intval($params['resize_type'])
-						: BX_RESIZE_IMAGE_PROPORTIONAL);
+					? intval($params['resize_type'])
+					: BX_RESIZE_IMAGE_PROPORTIONAL);
 			}
 			// save
 			$module = 'landing';
@@ -1075,8 +916,8 @@ class Manager
 		)
 		{
 			return '//' .
-				self::getHttpHost() .
-				$file;
+				   self::getHttpHost() .
+				   $file;
 		}
 		else
 		{
@@ -1109,8 +950,8 @@ class Manager
 			else
 			{
 				$return = ModuleManager::isModuleInstalled('bitrix24') ||
-					ModuleManager::isModuleInstalled('crm') ||
-					ModuleManager::isModuleInstalled('intranet');
+							ModuleManager::isModuleInstalled('crm') ||
+							ModuleManager::isModuleInstalled('intranet');
 			}
 		}
 
@@ -1170,8 +1011,8 @@ class Manager
 	public static function isStoreEnabled()
 	{
 		return ModuleManager::isModuleInstalled('sale') &&
-			ModuleManager::isModuleInstalled('catalog') &&
-			ModuleManager::isModuleInstalled('iblock');
+			   ModuleManager::isModuleInstalled('catalog') &&
+			   ModuleManager::isModuleInstalled('iblock');
 	}
 
 	/**
@@ -1191,7 +1032,7 @@ class Manager
 	public static function isCloudDisable()
 	{
 		return defined('LANDING_DISABLE_CLOUD') &&
-			LANDING_DISABLE_CLOUD === true;
+			   LANDING_DISABLE_CLOUD === true;
 	}
 
 
@@ -1341,6 +1182,16 @@ class Manager
 	 */
 	public static function resetToFree()
 	{
+		self::clearCache();
+		self::setOption('html_disabled', 'Y');
+	}
+
+	/**
+	 * In cloud version clear cache when tariff change
+	 * @return void
+	 */
+	public static function clearCache()
+	{
 		// for clear cache in cloud
 		$res = Site::getList([
 			'select' => [
@@ -1363,6 +1214,46 @@ class Manager
 	 * @return void
 	 */
 	public static function checkRepositoryVersion()
+	{
+	}
+
+	/**
+	 * Get themes from template dir.
+	 * @deprecated since 20.5.0
+	 */
+	public static function getThemes()
+	{
+	}
+
+	/**
+	 * Get themes typo from template dir.
+	 * @deprecated since 20.3.0, use THEMEFONTS hook settings
+	 */
+	public static function getThemesTypo()
+	{
+	}
+
+	/**
+	 * Set new colored theme id.
+	 * @deprecated since 20.5.0
+	 */
+	public static function setThemeId()
+	{
+	}
+
+	/**
+	 * Get current theme id.
+	 * @deprecated since 20.5.0
+	 */
+	public static function getThemeId()
+	{
+	}
+
+	/**
+	 * Set current selected or default color theme.
+	 * @deprecated since 20.5.0
+	 */
+	public static function setTheme()
 	{
 	}
 }

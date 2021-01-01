@@ -176,7 +176,7 @@ class Entity
 					$result = \CForumNew::GetPermissionUserDefault($this->forum["ID"]);
 				else
 				{
-					if (in_array($this->getType(), array('PH', 'TR', 'TE', 'IBLOCK')))
+					if (in_array($this->getType(), array('PH', 'TR', 'TM', 'IBLOCK')))
 					{
 						$result = 'Y';
 					}
@@ -258,8 +258,8 @@ class Entity
 					"className" => CalendarEntity::className(),
 					"moduleId" => "calendar",
 					"xmlIdPrefix" => CalendarEntity::getXmlIdPrefix()),
-				"te" => array(
-					"entityType" => "te",
+				"tm" => array(
+					"entityType" => "tm",
 					"className" => Entity::className(),
 					"moduleId" => "timeman",
 					"xmlIdPrefix" => 'TIMEMAN_ENTRY_'

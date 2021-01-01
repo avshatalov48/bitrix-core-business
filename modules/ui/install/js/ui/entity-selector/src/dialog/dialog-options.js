@@ -31,7 +31,8 @@ export type DialogOptions = {
 	tagSelectorOptions?: TagSelectorOptions,
 	events?: { [eventName: string]: (event: BaseEvent) => void },
 	hideOnSelect?: boolean,
-	hideOnDeselect?: boolean
+	hideOnDeselect?: boolean,
+	clearSearchOnSelect?: boolean,
 	width?: number,
 	height?: number,
 	autoHide?: boolean,

@@ -165,6 +165,64 @@ class MailMessageUidTable extends Entity\DataManager
 		$entity = static::getEntity();
 		$connection = $entity->getConnection();
 
+		// @TODO: make a log optional
+		/*$queryToLog = sprintf(
+			'SELECT
+				b_mail_message_uid.ID,
+				b_mail_message_uid.MESSAGE_ID,
+				b_mail_message_uid.MAILBOX_ID,
+				b_mail_message_uid.DIR_MD5,
+				b_mail_message_uid.DIR_UIDV,
+				b_mail_message_uid.MSG_UID,
+				b_mail_message_uid.INTERNALDATE,
+				b_mail_message_uid.HEADER_MD5,
+				b_mail_message_uid.SESSION_ID,
+				b_mail_message_uid.TIMESTAMP_X,
+				b_mail_message_uid.DATE_INSERT,
+				b_mail_message.DATE_INSERT,
+				b_mail_message.FIELD_DATE,
+				b_mail_message.FIELD_FROM,
+				b_mail_message.SUBJECT,
+				b_mail_message.MSG_ID
+			FROM b_mail_message_uid JOIN b_mail_message ON b_mail_message_uid.MESSAGE_ID = b_mail_message.id  WHERE %s AND ( b_mail_message_uid.DELETE_TIME IS NULL OR b_mail_message_uid.DELETE_TIME = 0) AND NOT EXISTS (SELECT 1 FROM %s WHERE %s)',
+			Entity\Query::buildFilterSql(
+				$entity,
+				$filter
+			),
+			$connection->getSqlHelper()->quote(Internals\MessageUploadQueueTable::getTableName()),
+			Entity\Query::buildFilterSql(
+				$entity,
+				[
+					'=ID' => new \Bitrix\Main\DB\SqlExpression('?#', 'ID'),
+					'=MAILBOX_ID' => new \Bitrix\Main\DB\SqlExpression('?#', 'MAILBOX_ID'),
+				]
+			)
+		);
+
+		$messagesForRemove = $connection->query($queryToLog)->fetchAll();
+
+		for($i=0; $i < count($messagesForRemove); $i++)
+		{
+			foreach ($messagesForRemove[$i] as $key => $value)
+			{
+				if ($messagesForRemove[$i][$key] instanceof \Bitrix\Main\Type\DateTime)
+				{
+					$messagesForRemove[$i][$key] = $messagesForRemove[$i][$key]->toString();
+				}
+			}
+		}
+
+		if(count($messagesForRemove)>0)
+		{
+			$toLog = [
+				'cause' => 'deleteListSoft',
+				'filter'=>$filter,
+				'removedMessages'=>$messagesForRemove,
+			];
+			AddMessage2Log($toLog);
+		}*/
+
+		//mark selected messages for deletion if there are no messages in the download queue
 		$query = sprintf(
 			'UPDATE %s SET %s WHERE %s AND NOT EXISTS (SELECT 1 FROM %s WHERE %s)',
 			$connection->getSqlHelper()->quote($entity->getDbTableName()),

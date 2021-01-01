@@ -13,8 +13,6 @@ class CDatabase extends CDatabaseMysql
 {
 	function ConnectInternal()
 	{
-		global $USER;
-
 		if (DBPersistent && !$this->bNodeConnection)
 			$this->db_Conn = @mysql_pconnect($this->DBHost, $this->DBLogin, $this->DBPassword);
 		else
@@ -23,8 +21,10 @@ class CDatabase extends CDatabaseMysql
 		if(!$this->db_Conn)
 		{
 			$s = (DBPersistent && !$this->bNodeConnection? "mysql_pconnect" : "mysql_connect");
-			if($this->debug || (($USER instanceof CUser) && $USER->IsAdmin()))
+			if($this->debug)
+			{
 				echo "<br><font color=#ff0000>Error! ".$s."()</font><br>".mysql_error()."<br>";
+			}
 
 			SendError("Error! ".$s."()\n".mysql_error()."\n");
 
@@ -33,8 +33,10 @@ class CDatabase extends CDatabaseMysql
 
 		if(!mysql_select_db($this->DBName, $this->db_Conn))
 		{
-			if($this->debug || (($USER instanceof CUser) && $USER->IsAdmin()))
+			if($this->debug)
+			{
 				echo "<br><font color=#ff0000>Error! mysql_select_db(".$this->DBName.")</font><br>".mysql_error($this->db_Conn)."<br>";
+			}
 
 			SendError("Error! mysql_select_db(".$this->DBName.")\n".mysql_error($this->db_Conn)."\n");
 

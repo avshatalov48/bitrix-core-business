@@ -24,8 +24,6 @@
 	var findParent = BX.Landing.Utils.findParent;
 	var decodeDataValue = BX.Landing.Utils.decodeDataValue;
 	var BaseCollection = BX.Landing.Collection.BaseCollection;
-	var Popup = BX.Landing.UI.Tool.Popup;
-
 
 	function addPlaceholders(items, field, depth)
 	{
@@ -234,7 +232,7 @@
 				return this.popup;
 			}
 
-			this.popup = new Popup({
+			this.popup = new BX.Main.Popup({
 				id: (this.selector + "_" + random()),
 				bindElement: this.input,
 				autoHide: true,

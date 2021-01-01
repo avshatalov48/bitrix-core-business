@@ -1,0 +1,172 @@
+.landing-ui-field-fields-list-item {
+	display: flex;
+	flex-direction: column;
+	border-bottom: 1px solid #edeef0;
+	border-top: 1px solid #edeef0;
+	position: relative;
+	box-sizing: border-box;
+	margin-top: -1px;
+}
+.landing-ui-field-fields-list-item-header {
+	position: relative;
+	background: #ffffff;
+	display: flex;
+	align-items: center;
+	padding: 15px 0 17px 20px;
+	cursor: pointer;
+	transition: background-color 200ms ease;
+}
+
+.landing-ui-field-fields-list-item-header::before,
+.landing-ui-field-fields-list-item-header::after,
+.landing-ui-field-fields-list-item-body::before,
+.landing-ui-field-fields-list-item-body::after {
+	display: block;
+	content: '';
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 5px;
+	transition: background-color 200ms ease;
+}
+
+.landing-ui-field-fields-list-item-header::before,
+.landing-ui-field-fields-list-item-body::before {
+	left: -5px;
+	border-top-left-radius: 2px;
+	border-bottom-left-radius: 2px;
+}
+
+.landing-ui-field-fields-list-item-header::after,
+.landing-ui-field-fields-list-item-body::after {
+	right: -5px;
+	border-top-right-radius: 2px;
+	border-bottom-right-radius: 2px;
+}
+
+.landing-ui-field-fields-list-item-header:hover,
+.landing-ui-field-fields-list-item-active .landing-ui-field-fields-list-item-header,
+.landing-ui-field-fields-list-item-header:hover::before,
+.landing-ui-field-fields-list-item-header:hover::after,
+.landing-ui-field-fields-list-item-active .landing-ui-field-fields-list-item-body,
+.landing-ui-field-fields-list-item-active .landing-ui-field-fields-list-item-body::before,
+.landing-ui-field-fields-list-item-active .landing-ui-field-fields-list-item-body::after {
+	background-color: #fcfcfc;
+}
+
+.landing-ui-field-fields-list-item-body {
+	display: none;
+	padding-left: 16px;
+}
+
+.landing-ui-field-fields-list-item-active .landing-ui-field-fields-list-item-body {
+	display: block;
+}
+
+.landing-ui-field-fields-list-item-drag-button {
+	width: 6px;
+	height: 14px;
+	background: url(images/drag-icon.svg) no-repeat center;
+	background-size: contain;
+	cursor: grab;
+	opacity: .4;
+	position: absolute;
+	left: 1px;
+	top: 15px;
+	transition: 250ms linear all;
+}
+
+.landing-ui-field-fields-list-item-drag-button:hover {
+	opacity: 1;
+}
+
+.landing-ui-field-fields-list-item-text {
+	flex-grow: 1;
+}
+
+.landing-ui-field-fields-list-item-text-title {
+	font: 12.5px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #515e68;
+	letter-spacing: .25px;
+	padding-bottom: 5px;
+	opacity: 0.5;
+}
+
+.landing-ui-field-fields-list-item-text-description {
+	font: 15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #3f4857;
+	text-align: left;
+}
+
+.landing-ui-field-fields-list-item-edit {
+	min-width: 30px;
+	width: 62px;
+}
+
+.landing-ui-field-fields-list-item-remove {
+	min-width: 25px;
+	width: 25px;
+}
+
+.landing-ui-field-fields-list-item-edit-button,
+.landing-ui-field-fields-list-item-remove-button {
+	width: 19px;
+	height: 19px;
+	margin: 0 auto;
+	opacity: .4;
+	transition: opacity 200ms ease;
+	cursor: pointer;
+}
+
+.landing-ui-field-fields-list-item-edit-button {
+	background: url("images/edit-icon.svg") center no-repeat;
+}
+
+.landing-ui-field-fields-list-item-remove-button {
+	background: url("images/remove-icon.svg") center no-repeat;
+}
+
+.landing-ui-field-fields-list-item-edit-button:hover,
+.landing-ui-field-fields-list-item-remove-button:hover {
+	opacity: 1;
+}
+
+.landing-ui-field-fields-list-item-text-description-bg {
+	background: rgba(47, 198, 246, .12);
+	border-radius: 17px;
+	margin-left: -10px;
+	padding-top: 8px;
+	padding-bottom: 8px;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.landing-ui-field-fields-list-actions-container {
+	display: flex;
+	position: relative;
+	margin-top: 17px;
+}
+
+.landing-ui-field-fields-list-actions-button {
+	display: inline-block;
+	font: 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #80868e;
+	border-bottom: 1px dashed #d8d8d8;
+	transition: all 200ms ease;
+	cursor: pointer;
+	margin-right: 13px;
+}
+
+.landing-ui-field-fields-list-actions-button:nth-child(2) {
+	margin-left: auto;
+}
+
+.landing-ui-field-fields-list-actions-button:last-child {
+	margin-right: 0;
+}
+
+.landing-ui-field-fields-list-actions-button:hover,
+.landing-ui-field-fields-list-actions-button:active {
+	color: #333333;
+	border-bottom: 1px dashed #333333;
+}

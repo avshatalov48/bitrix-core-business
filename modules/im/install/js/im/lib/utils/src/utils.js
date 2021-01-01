@@ -110,6 +110,23 @@ let Utils =
 		{
 			return navigator.userAgent.toLowerCase().includes('bitrixdesktop');
 		},
+		getDesktopVersion()
+		{
+			if (typeof this.getDesktopVersionStatic !== 'undefined')
+			{
+				return this.getDesktopVersionStatic;
+			}
+
+			if (typeof BXDesktopSystem === 'undefined')
+			{
+				return 0;
+			}
+
+			const version = BXDesktopSystem.GetProperty('versionParts');
+			this.getDesktopVersionStatic = version[3];
+
+			return this.getDesktopVersionStatic;
+		},
 		isMobile()
 		{
 			return this.isAndroid() || this.isIos() || this.isBitrixMobile();

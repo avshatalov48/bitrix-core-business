@@ -128,7 +128,8 @@ final class Client
 		$result
 			->setHeader('Authorization', sprintf('Bearer %s', (string)$this->oauthTokenProvider->getToken()))
 			->setHeader('Accept-Language', 'ru')
-			->setHeader('Content-Type', 'application/json');
+			->setHeader('Content-Type', 'application/json')
+			->setHeader('User-Agent', 'api_1c-bitrix');
 
 		return $result;
 	}

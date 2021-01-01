@@ -60,9 +60,9 @@ class LogComment
 		$content = "";
 		$message = false;
 
-		if (intval($sourceId) > 0)
+		if ((int)$sourceId > 0)
 		{
-			$select = array('*', 'UF_FORUM_MES_URL_PRV');
+			$select = array('*', 'UF_FORUM_MES_URL_PRV', 'SERVICE_TYPE');
 
 			if (
 				\Bitrix\Main\Config\Option::get('disk', 'successfully_converted', false)
@@ -83,6 +83,11 @@ class LogComment
 
 		if ($message)
 		{
+			if (!empty($message['SERVICE_TYPE']))
+			{
+				return $result;
+			}
+
 			$content .= LogIndex::getUserName($message["AUTHOR_ID"])." ";
 			$content .= \forumTextParser::clearAllTags($message['POST_MESSAGE']);
 
@@ -91,7 +96,7 @@ class LogComment
 				$fileNameList = LogIndex::getDiskUFFileNameList($message['UF_FORUM_MESSAGE_DOC']);
 				if (!empty($fileNameList))
 				{
-					$content .= ' '.join(' ', $fileNameList);
+					$content .= ' '.implode(' ', $fileNameList);
 				}
 			}
 

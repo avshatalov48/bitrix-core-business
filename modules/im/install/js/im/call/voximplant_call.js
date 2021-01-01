@@ -39,6 +39,7 @@
 		voiceStopped: 'Call::voiceStopped',
 		microphoneState: 'Call::microphoneState',
 		screenState: 'Call::screenState',
+		recordState: 'Call::recordState',
 		floorRequest: 'Call::floorRequest',
 		emotion: 'Call::emotion',
 		showUsers: 'Call::showUsers',
@@ -300,6 +301,11 @@
 		}
 	};
 
+	BX.Call.VoximplantCall.prototype.isMuted = function()
+	{
+		return this.muted;
+	}
+
 	BX.Call.VoximplantCall.prototype.setVideoEnabled = function(videoEnabled)
 	{
 		videoEnabled = (videoEnabled === true);
@@ -394,6 +400,7 @@
 		}
 
 		result.videoQuality = this.videoHd ? VoxImplant.Hardware.VideoQuality.VIDEO_SIZE_HD : VoxImplant.Hardware.VideoQuality.VIDEO_SIZE_nHD;
+		result.facingMode = true;
 		return result;
 	};
 
@@ -415,6 +422,11 @@
 	BX.Call.VoximplantCall.prototype.requestFloor = function(requestActive)
 	{
 		this.signaling.sendFloorRequest(requestActive);
+	};
+
+	BX.Call.VoximplantCall.prototype.sendRecordState = function(recordState)
+	{
+		this.signaling.sendRecordState(recordState);
 	};
 
 	BX.Call.VoximplantCall.prototype.sendEmotion = function(toUserId, emotion)
@@ -521,12 +533,12 @@
 			return;
 		}
 
-		var scaleDownCoefficient = this._getVideoScaleDownCoefficient();
-		this.voximplantCall.scaleVideoResolutionDownBy(scaleDownCoefficient);
-		console.warn("scale down resolution to " + scaleDownCoefficient);
+		if (BX.type.isFunction(this.voximplantCall.scaleVideoResolutionDownBy))
+		{
+			var scaleDownCoefficient = this._getVideoScaleDownCoefficient();
+			this.voximplantCall.scaleVideoResolutionDownBy(scaleDownCoefficient);
+		}
 	};
-
-
 
 	BX.Call.VoximplantCall.prototype._getVideoScaleDownCoefficient = function()
 	{
@@ -610,6 +622,10 @@
 		{
 			this.log("Screen shared");
 			this.screenShared = true;
+		}.bind(this)).catch(function(error)
+		{
+			console.error(error);
+			this.log("Screen sharing error:", error)
 		}.bind(this));
 	};
 
@@ -675,12 +691,18 @@
 				{
 					self.peers[userId] = self.createPeer(userId);
 
-					self.runCallback(BX.Call.Event.onUserInvited, {
-						userId: userId
-					});
+					if (self.type === BX.Call.Type.Instant)
+					{
+						self.runCallback(BX.Call.Event.onUserInvited, {
+							userId: userId
+						});
+					}
 				}
-				self.peers[userId].onInvited();
-				self.scheduleRepeatInvite();
+				if (self.type === BX.Call.Type.Instant)
+				{
+					self.peers[userId].onInvited();
+					self.scheduleRepeatInvite();
+				}
 			}
 		}).catch(self.onFatalError.bind(self));
 	};
@@ -789,7 +811,8 @@
 		}
 		this.runCallback(BX.Call.Event.onLeave, {local: true});
 
-		data.userId = this.users;
+		//clone users and append current user id to send event to all participants of the call
+		data.userId = this.users.slice(0).concat(this.userId);
 		this.signaling.sendHangup(data);
 		this.muted = false;
 
@@ -831,7 +854,7 @@
 				if (self.microphoneId)
 				{
 					VoxImplant.Hardware.AudioDeviceManager.get().setDefaultAudioSettings({
-						inputId: this.microphoneId
+						inputId: self.microphoneId
 					});
 				}
 
@@ -987,13 +1010,19 @@
 			{
 				if(this.peers[userId].calculatedState === BX.Call.UserState.Failed || this.peers[userId].calculatedState === BX.Call.UserState.Idle)
 				{
-					this.peers[userId].onInvited();
+					if (this.type === BX.Call.Type.Instant)
+					{
+						this.peers[userId].onInvited();
+					}
 				}
 			}
 			else
 			{
 				this.peers[userId] = this.createPeer(userId);
-				this.peers[userId].onInvited();
+				if (this.type === BX.Call.Type.Instant)
+				{
+					this.peers[userId].onInvited();
+				}
 			}
 			if(!this.users.includes(userId))
 			{
@@ -1041,7 +1070,7 @@
 		}
 		if(e.state == BX.Call.UserState.Failed || e.state == BX.Call.UserState.Unavailable || e.state == BX.Call.UserState.Declined || e.state == BX.Call.UserState.Idle)
 		{
-			if(!this.isAnyoneParticipating())
+			if(this.type == BX.Call.Type.Instant && !this.isAnyoneParticipating())
 			{
 				this.hangup();
 			}
@@ -1144,7 +1173,7 @@
 			console.error("user " + senderId + " is busy");
 		}
 
-		if(this.ready && !this.isAnyoneParticipating())
+		if(this.ready && this.type == BX.Call.Type.Instant && !this.isAnyoneParticipating())
 		{
 			this.hangup();
 		}
@@ -1163,7 +1192,10 @@
 		this.log('__onPullEventUsersInvited', params);
 		var users = params.users;
 
-		this.addInvitedUsers(users);
+		if (this.type === BX.Call.Type.Instant)
+		{
+			this.addInvitedUsers(users);
+		}
 	};
 
 	BX.Call.VoximplantCall.prototype.__onPullEventUserInviteTimeout = function(params)
@@ -1241,7 +1273,7 @@
 
 		if(renderer.kind === "video")
 		{
-			if (trackLabel.match(/^screen|window|tab/i))
+			if (trackLabel.match(/^screen|window|tab|web-contents-media-stream/i))
 			{
 				var tag = "screen";
 			}
@@ -1440,6 +1472,13 @@
 				screenState: message.screenState === "Y"
 			});
 		}
+		else if (eventName === clientEvents.recordState)
+		{
+			this.runCallback(BX.Call.Event.onUserRecordState, {
+				userId: message.senderId,
+				recordState: message.recordState
+			});
+		}
 		else if (eventName === clientEvents.floorRequest)
 		{
 			this.runCallback(BX.Call.Event.onUserFloorRequest, {
@@ -1555,6 +1594,11 @@
 		return this.__sendMessage(clientEvents.screenState, {
 			screenState: screenState ? "Y" : "N"
 		});
+	};
+
+	BX.Call.VoximplantCall.Signaling.prototype.sendRecordState = function(recordState)
+	{
+		return this.__sendMessage(clientEvents.recordState, recordState);
 	};
 
 	BX.Call.VoximplantCall.Signaling.prototype.sendFloorRequest = function(requestActive)

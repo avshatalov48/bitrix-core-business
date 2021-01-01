@@ -311,8 +311,8 @@ if($this->StartResultCache(false, array($USER->GetGroups(), $arCache), false))
 	$wikiDiff = new Bitrix\Wiki\Diff();
 
 	$arResult['DIFF_NAME'] = $wikiDiff->getDiffHtml(
-		$arHistoryResult['DOCUMENT']['FIELDS']['NAME'],
-		$arDiffResult['DOCUMENT']['FIELDS']['NAME']
+		htmlspecialcharsbx($arHistoryResult['DOCUMENT']['FIELDS']['NAME']),
+		htmlspecialcharsbx($arDiffResult['DOCUMENT']['FIELDS']['NAME'])
 	);
 
 	$arCat = array();

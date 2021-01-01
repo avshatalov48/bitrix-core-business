@@ -1646,14 +1646,12 @@ class BizprocDocument extends CIBlockDocument
 						return true;
 				}
 			}
-			elseif (
-				$operation === CBPCanUserOperateOperation::CreateWorkflow
-			)
+			elseif ($operation === CBPCanUserOperateOperation::CreateWorkflow)
 			{
 				return CBPDocument::canUserOperateDocumentType(
 					CBPCanUserOperateOperation::CreateWorkflow,
 					$userId,
-					array('lists', get_called_class(), $documentId),
+					array('lists', get_called_class(), $parameters['IBlockId']),
 					$parameters
 				);
 			}

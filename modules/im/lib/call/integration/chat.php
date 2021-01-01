@@ -48,12 +48,12 @@ class Chat extends AbstractEntity
 				'filter' => [
 					'ID' => $users,
 					'=ACTIVE' => 'Y',
-					'=IS_REAL_USER' => 'Y',
 					[
 						'LOGIC' => 'OR',
-						'!=EXTERNAL_AUTH_ID' => \Bitrix\Im\Call\Auth::AUTH_TYPE,
-						'=IS_ONLINE' => 'Y'
+						'=IS_REAL_USER' => 'Y',
+						'=EXTERNAL_AUTH_ID' => \Bitrix\Im\Call\Auth::AUTH_TYPE,
 					]
+
 				]
 			])->fetchAll();
 			$this->chatUsers = array_column($activeRealUsers, 'ID');

@@ -1,0 +1,219 @@
+/*------------------------------------
+  Landing-slick
+------------------------------------*/
+/*------------------------------------
+  Primary colors from Themes
+------------------------------------*/
+.slick-slide:focus {
+  outline: 0 none;
+}
+
+[data-lazy] {
+  opacity: 0;
+  transition-property: opacity;
+  transition-duration: .4s;
+  transition-timing-function: ease-in;
+}
+
+.js-carousel .js-next,
+.js-carousel .js-prev {
+  opacity: 0;
+}
+
+.js-carousel.slick-initialized .js-next,
+.js-carousel.slick-initialized .js-prev {
+  opacity: 1;
+}
+
+.js-slide:first-child {
+  height: auto;
+}
+
+.slick-vertical .slick-slide {
+  border: none;
+}
+
+/*------------------------------------
+  Border Colors
+------------------------------------*/
+/* Primary Colors */
+.slick-active .g-brd-primary--before--active::before {
+  border-color: #6ab8ee !important;
+  border-color: var(--theme-color-primary) !important;
+}
+
+.slick-active .g-brd-primary--active {
+  border-color: #6ab8ee !important;
+  border-color: var(--theme-color-primary) !important;
+}
+
+.js-pagination .g-brd-primary--before--hover:hover::before {
+  border-color: #6ab8ee !important;
+  border-color: var(--theme-color-primary) !important;
+}
+
+/*------------------------------------
+  Border Width
+------------------------------------*/
+.slick-active .g-brd-3--before--active::before {
+  border-width: 3px !important;
+}
+
+/*------------------------------------
+  Box shadows
+------------------------------------*/
+.g-parent.slick-current .u-shadow-v24--active {
+  box-shadow: 0 15px 20px 0 rgba(0, 0, 0, 0.06);
+}
+
+/*------------------------------------
+  Dot line v2
+------------------------------------*/
+.slick-active .u-dot-line-v2__inner::before, .slick-active
+.u-dot-line-v2-2__inner::before {
+  width: 100%;
+  height: 100%;
+}
+
+/*Carousels*/
+.u-carousel-v5 .slick-list {
+  height: 100%;
+}
+
+.u-carousel-v5 .slick-track {
+  display: -ms-flexbox;
+  display: flex;
+  height: 100%;
+}
+
+.u-carousel-v5 .slick-track .slick-slide {
+  display: -ms-flexbox;
+  display: flex;
+  height: auto;
+}
+
+.u-arrow-v1.slick-disabled {
+  display: none !important;
+}
+
+.js-pagination .slick-current:only-child, .js-pagination .slick-active:only-child {
+  display: none;
+}
+
+.slick-track {
+  display: -ms-flexbox !important;
+  display: flex !important;
+}
+
+.slick-vertical .slick-track {
+  -ms-flex-direction: column;
+      flex-direction: column;
+}
+
+/*------------------------------------
+  Carousel indicators
+------------------------------------*/
+[class*="u-carousel-indicators"] {
+  display: block;
+  position: absolute;
+  padding-left: 0;
+  margin-bottom: 0;
+}
+
+[class*="u-carousel-indicators"] li {
+  list-style: none;
+}
+
+[class*="u-carousel-indicators"] span {
+  display: block;
+  cursor: pointer;
+}
+
+/*------------------------------------
+  Carousel indicators v1
+------------------------------------*/
+.u-carousel-indicators-v1,
+.u-carousel-indicators-v1--white-inverse,
+.u-carousel-indicators-v1--white {
+  display: -ms-flexbox !important;
+  display: flex !important;
+  width: 100%;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  padding: 0 15px;
+  -ms-flex-pack: center;
+      justify-content: center;
+}
+
+.u-carousel-indicators-v1 li,
+.u-carousel-indicators-v1--white-inverse li,
+.u-carousel-indicators-v1--white li {
+  margin: 0 5px 5px;
+}
+
+.u-carousel-indicators-v1 li.slick-active span,
+.u-carousel-indicators-v1--white-inverse li.slick-active span,
+.u-carousel-indicators-v1--white li.slick-active span {
+  background-color: #6ab8ee;
+  background-color: var(--theme-color-primary);
+  opacity: 1;
+}
+
+.u-carousel-indicators-v1 span,
+.u-carousel-indicators-v1--white-inverse span,
+.u-carousel-indicators-v1--white span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #ccc;
+  opacity: .7;
+}
+
+.u-carousel-indicators-v1--white li.slick-active span {
+  background-color: #fff;
+}
+
+.u-carousel-indicators-v1--white li span {
+  opacity: .5;
+}
+
+.u-carousel-indicators-v1--white-inverse li.slick-active span {
+  background-color: #fff;
+  opacity: .3;
+}
+
+.u-carousel-indicators-v1--white-inverse li span {
+  opacity: .9;
+}
+
+/*------------------------------------
+  Carousel indicators v7
+------------------------------------*/
+.u-carousel-indicators-v7 {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  bottom: auto;
+  display: block;
+  width: 7px;
+  -ms-transform: translateY(-50%);
+      transform: translateY(-50%);
+}
+
+.u-carousel-indicators-v7 span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #fff;
+  opacity: .3;
+}
+
+.u-carousel-indicators-v7 li {
+  display: block;
+  margin: 15px 0;
+  float: none;
+}
+
+.u-carousel-indicators-v7 li.slick-active span {
+  opacity: 1;
+}

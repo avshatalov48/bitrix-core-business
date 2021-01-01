@@ -147,7 +147,7 @@ return array(
 			'nodes' => array(),
 			'style' => array(
 				'#wrapper' => array(
-					0 => 'g-pos-rel landing-block text-center g-py-80 g-bg-primary g-pb-40 g-pt-20',
+					0 => 'g-pos-rel landing-block g-py-80 g-bg-primary g-pb-40 g-pt-20',
 				),
 			),
 		),

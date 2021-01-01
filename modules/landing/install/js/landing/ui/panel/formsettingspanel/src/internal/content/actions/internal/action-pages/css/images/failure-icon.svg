@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="56px" height="56px" viewBox="0 0 56 56" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Parts-/-Cond-/-02-No" transform="translate(-102.000000, -61.000000)">
+            <g id="Group-5">
+                <path d="M0,33.0020704 C0,30.2395032 2.247715,28 4.99039736,28 L255.009603,28 C257.765723,28 260,30.240381 260,33.0020704 L260,193.99793 C260,196.760497 257.752285,199 255.009603,199 L4.99039736,199 C2.234277,199 0,196.759619 0,193.99793 L0,33.0020704 Z" id="input"></path>
+                <g id="Group-4" transform="translate(28.000000, 61.000000)">
+                    <g id="Group-6" transform="translate(74.000000, 0.000000)">
+                        <circle id="Oval" fill="#FF5752" cx="28" cy="28" r="28"></circle>
+                        <path d="M30.2599534,16.0610214 L30.2590214,25.7400214 L39.9389786,25.7400466 L39.9389786,30.2599534 L30.2590214,30.2590214 L30.2599534,39.9389786 L25.7400466,39.9389786 L25.7400214,30.2590214 L16.0610214,30.2599534 L16.0610214,25.7400466 L25.7400214,25.7400214 L25.7400466,16.0610214 L30.2599534,16.0610214 Z" id="Combined-Shape" fill="#FFFFFF" transform="translate(28.000000, 28.000000) rotate(-315.000000) translate(-28.000000, -28.000000) "></path>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

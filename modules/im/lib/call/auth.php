@@ -13,9 +13,11 @@ class Auth
 	const AUTH_TYPE = 'call';
 
 	const AUTH_CODE_GUEST = 'guest';
+	const PASSWORD_CHECK_METHOD = 'im.videoconf.password.check';
 
 	const METHODS_WITHOUT_AUTH = [
 		'im.call.user.register',
+		'im.videoconf.password.check',
 
 		'server.time',
 		'pull.config.get',
@@ -88,6 +90,65 @@ class Auth
 		if ($authCode === null)
 		{
 			return null;
+		}
+
+		$conference = null;
+		$method = \CRestServer::instance()->getMethod();
+		if ($method === self::PASSWORD_CHECK_METHOD)
+		{
+			$conference = Conference::getById((int)$query['videoconf_id']);
+
+			if (!$conference || !$conference->isActive())
+			{
+				$res = [
+					'error' => 'CALL_AUTH_NOT_ACTIVE',
+					'error_description' => 'Call: conference is not active',
+					'additional' => []
+				];
+
+				return false;
+			}
+		}
+		else
+		{
+			$storage = \Bitrix\Main\Application::getInstance()->getLocalSession('conference_check_' . $query['videoconf_id']);
+			if($storage->get('checked') === true)
+			{
+				//TODO: check conf status by checking start date from cache
+			}
+			else
+			{
+				$conference = Conference::getById((int)$query['videoconf_id']);
+
+				if (!$conference || !$conference->isActive())
+				{
+					$res = [
+						'error' => 'CALL_AUTH_VIDEOCONF_NOT_ACTIVE',
+						'error_description' => 'Call: conference is not active',
+						'additional' => []
+					];
+
+					return false;
+				}
+
+				if ($conference->isPasswordRequired())
+				{
+					if ($conference->getPassword() === $query['videoconf_password'])
+					{
+						$storage->set('checked', true);
+					}
+					else
+					{
+						$res = [
+							'error' => 'CALL_AUTH_ACCESS_DENIED',
+							'error_description' => 'Call: access to conference is denied',
+							'additional' => []
+						];
+
+						return false;
+					}
+				}
+			}
 		}
 
 		if ($authCode == self::AUTH_CODE_GUEST)

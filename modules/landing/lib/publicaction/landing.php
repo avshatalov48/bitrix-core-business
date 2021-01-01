@@ -1,13 +1,13 @@
 <?php
 namespace Bitrix\Landing\PublicAction;
 
+use \Bitrix\Landing\Hook;
 use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\File;
 use \Bitrix\Landing\Site;
 use \Bitrix\Landing\Block as BlockCore;
 use \Bitrix\Landing\TemplateRef;
 use \Bitrix\Landing\Landing as LandingCore;
-use \Bitrix\Landing\PublicAction;
 use \Bitrix\Landing\PublicActionResult;
 use \Bitrix\Landing\Internals\HookDataTable;
 use \Bitrix\Main\Localization\Loc;
@@ -173,6 +173,7 @@ class Landing
 	public static function addBlock($lid, array $fields)
 	{
 		LandingCore::setEditMode();
+		Hook::setEditMode(true);
 
 		$result = new PublicActionResult();
 		$landing = LandingCore::createInstance($lid);
@@ -552,6 +553,10 @@ class Landing
 				$landing = LandingCore::createInstance($row['ID'], [
 					'skip_blocks' => true
 				]);
+				if ($landing->getDomainId() == 0)
+				{
+					\Bitrix\Landing\Hook::setEditMode(true);
+				}
 				$row['PREVIEW'] = $landing->getPreview(
 					null,
 					$landing->getDomainId() == 0

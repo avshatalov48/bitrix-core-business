@@ -5,10 +5,13 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 /**
+ * @var \CMain $APPLICATION
  * @var StoreCartBlock $classBlock
  */
+
 $iblockId = $classBlock->get('IBLOCK_ID') ?? '';
 $skuIblockId = $classBlock->get('SKU_IBLOCK_ID') ?? '';
+$detailUrl = '#system_catalogitem/#ELEMENT_CODE#/';
 ?>
 <section class="landing-block g-pt-100 g-pb-100">
 	<div class="container g-font-size-13">
@@ -55,7 +58,8 @@ $skuIblockId = $classBlock->get('SKU_IBLOCK_ID') ?? '';
 				'DEFERRED_REFRESH' => 'N',
 				'SHOW_FILTER' => 'N',
 				'TOTAL_BLOCK_DISPLAY' => ['top', 'bottom'],
-				'CONTEXT_SITE_ID' => $classBlock->get('SITE_ID')
+				'CONTEXT_SITE_ID' => $classBlock->get('SITE_ID'),
+				'DETAIL_URL' => $detailUrl
 			),
 		 	false
 		);?>

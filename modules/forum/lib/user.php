@@ -335,35 +335,72 @@ class User {
 			return;
 		}
 
-		static $connection = false;
-		static $helper = false;
-		if (!$connection)
-		{
-			$connection = Main\Application::getConnection();
-			$helper = $connection->getSqlHelper();
-		}
+		$connection = Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		$merge = $helper->prepareMerge(
-			"b_forum_user",
-			array("USER_ID"),
+			'b_forum_user',
+			array('USER_ID'),
 			array(
-				"SHOW_NAME" => ($this->data["SHOW_NAME"] === "N" ? "N" : "Y"),
-				"ALLOW_POST" => ($this->data["ALLOW_POST"] === "N" ? "N" : "Y"),
-				"USER_ID" => $this->getId(),
-				"DATE_REG" => new Main\DB\SqlExpression($helper->getCurrentDateTimeFunction()),
-				"LAST_VISIT" => new Main\DB\SqlExpression($helper->getCurrentDateTimeFunction())
+				'SHOW_NAME' => ($this->data['SHOW_NAME'] === 'N' ? 'N' : 'Y'),
+				'ALLOW_POST' => ($this->data['ALLOW_POST'] === 'N' ? 'N' : 'Y'),
+				'USER_ID' => $this->getId(),
+				'DATE_REG' => new Main\DB\SqlExpression($helper->getCurrentDateTimeFunction()),
+				'LAST_VISIT' => new Main\DB\SqlExpression($helper->getCurrentDateTimeFunction())
 			),
 			array(
-				"LAST_VISIT" => new Main\DB\SqlExpression($helper->getCurrentDateTimeFunction())
+				'LAST_VISIT' => new Main\DB\SqlExpression($helper->getCurrentDateTimeFunction())
 			)
 		);
-		if ($merge[0] != "")
+		if ($merge[0] != '')
 		{
 			$connection->query($merge[0]);
 		}
 
-		unset($GLOBALS["FORUM_CACHE"]["USER"]);
-		unset($GLOBALS["FORUM_CACHE"]["USER_ID"]);
+		unset($GLOBALS['FORUM_CACHE']['USER']);
+		unset($GLOBALS['FORUM_CACHE']['USER_ID']);
+	}
+
+	public function setLocation(int $forumId = 0, int $topicId = 0)
+	{
+		global $USER;
+		if (!($USER instanceof \CUser && $this->getId() === $USER->GetID()))
+		{
+			return;
+		}
+
+		$connection = Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
+		$primaryFields = [
+			'USER_ID' => $this->getId(),
+			'PHPSESSID' => $this->getSessId()
+		];
+		$fields = [
+			'SHOW_NAME' => $this->getName(),
+			'IP_ADDRESS' => Main\Service\GeoIp\Manager::getRealIp(),
+			'LAST_VISIT' => new Main\DB\SqlExpression($helper->getCurrentDateTimeFunction()),
+			'SITE_ID' => SITE_ID,
+			'FORUM_ID' => $forumId,
+			'TOPIC_ID' => $topicId,
+		];
+
+		if ($this->getId() > 0)
+		{
+			$fields['PHPSESSID'] = $primaryFields['PHPSESSID'];
+			unset($primaryFields['PHPSESSID']);
+		}
+
+		$merge = $helper->prepareMerge(
+			'b_forum_stat',
+			array_keys($primaryFields),
+			$primaryFields + $fields,
+			$fields
+		);
+		if ($merge[0] != '')
+		{
+			$connection->query($merge[0]);
+		}
 	}
 
 	public function isLocked()
@@ -466,6 +503,179 @@ class User {
 	public function decrementStatistic($message = null)
 	{
 
+	}
+
+	/**
+	 * insteadOf ForumGetFirstUnreadMessage($arParams["FORUM_ID"], $arResult["FORUM_TOPIC_ID"]);
+	 */
+	public function getUnreadMessageId($topicId = 0): ?int
+	{
+		if ($topicId <= 0)
+		{
+			return null;
+		}
+
+		try
+		{
+			$topic = Topic::getById($topicId);
+		}
+		catch (Main\ObjectNotFoundException $e)
+		{
+			return null;
+		}
+
+		$query = MessageTable::query()
+			->setSelect(['ID'])
+			->where('TOPIC_ID', $topic->getId())
+			->setOrder(['ID' => 'ASC'])
+			->setLimit(1);
+		if (!$this->isGuest())
+		{
+			$query
+				->registerRuntimeField(
+					'USER_TOPIC',
+					new Main\ORM\Fields\Relations\Reference(
+						'USER_TOPIC',
+						UserTopicTable::getEntity(),
+						[
+							'=this.TOPIC_ID' => 'ref.TOPIC_ID',
+							'=ref.USER_ID' => ['?i', $this->getId()],
+						],
+						['join_type' => 'LEFT']
+					)
+				)
+				->registerRuntimeField(
+					'USER_FORUM',
+					new Main\ORM\Fields\Relations\Reference(
+						'USER_FORUM',
+						UserForumTable::getEntity(),
+						[
+							'=this.FORUM_ID' => 'ref.FORUM_ID',
+							'=ref.USER_ID' => ['?i', $this->getId()]
+						],
+						['join_type' => 'LEFT']
+					)
+				)
+				->registerRuntimeField(
+					'USER_FORUM_0',
+					new Main\ORM\Fields\Relations\Reference(
+						'FUF0',
+						UserForumTable::getEntity(),
+						[
+							'=this.FORUM_ID' => ['?i', 0],
+							'=ref.USER_ID' => ['?i', $this->getId()]
+						],
+						['join_type' => 'LEFT']
+					)
+				)
+				->where(
+					Main\ORM\Query\Query::filter()
+						->logic('or')
+						->where(
+							Main\ORM\Query\Query::filter()
+								->whereNotNull('USER_TOPIC.LAST_VISIT')
+								->whereColumn('POST_DATE', '>', 'USER_TOPIC.LAST_VISIT')
+						)
+						->where(
+							Main\ORM\Query\Query::filter()
+								->whereNull('USER_TOPIC.LAST_VISIT')
+								->whereColumn('POST_DATE', '>', 'USER_FORUM.LAST_VISIT')
+						)
+						->where(
+							Main\ORM\Query\Query::filter()
+								->whereNull('USER_TOPIC.LAST_VISIT')
+								->whereNull('USER_FORUM.LAST_VISIT')
+								->whereColumn('POST_DATE', '>', 'USER_FORUM_0.LAST_VISIT')
+						)
+						->where(
+							Main\ORM\Query\Query::filter()
+								->whereNull('USER_TOPIC.LAST_VISIT')
+								->whereNull('USER_FORUM.LAST_VISIT')
+								->whereNull('USER_FORUM_0.LAST_VISIT')
+						)
+				);
+		}
+		else
+		{
+			$timestamps = $this->getFromSession('GUEST_TID');
+			$lastVisit = max(
+				$this->getFromSession('LAST_VISIT_FORUM_0'),
+				$this->getFromSession('LAST_VISIT_FORUM_'.$topic->getForumId()),
+				is_array($timestamps) && array_key_exists($topic->getId(), $timestamps) ? $timestamps[$topic->getId()] : 0
+			);
+			if ($lastVisit > 0)
+			{
+				$query->whereColumn('POST_DATE', '>', DateTime::createFromTimestamp($lastVisit));
+			}
+		}
+		if ($res = $query->fetch())
+		{
+			return $res['ID'];
+		}
+		return null;
+	}
+
+	/**
+	 * Instead of ForumSetReadTopic($arParams["FORUM_ID"], $arResult["FORUM_TOPIC_ID"]);
+	 * @param int $topicId
+	 */
+	public function readTopic($topicId = 0): void
+	{
+		if ($topicId <= 0)
+		{
+			return;
+		}
+
+		try
+		{
+			$topic = Topic::getById($topicId);
+		}
+		catch (Main\ObjectNotFoundException $e)
+		{
+			return;
+		}
+
+		$topic->incrementViews();
+
+		if (!$this->isGuest())
+		{
+			$connection = Main\Application::getConnection();
+			$helper = $connection->getSqlHelper();
+
+			$primaryFields = [
+				'USER_ID' => $this->getId(),
+				'TOPIC_ID' => $topic->getId()
+			];
+			$fields = [
+				'FORUM_ID' => $topic->getForumId(),
+				'LAST_VISIT' => new Main\DB\SqlExpression($helper->getCurrentDateTimeFunction())
+			];
+
+			$merge = $helper->prepareMerge(
+				'b_forum_user_topic',
+				array_keys($primaryFields),
+				$primaryFields + $fields,
+				$fields
+			);
+			if ($merge[0] != '')
+			{
+				$connection->query($merge[0]);
+			}
+		}
+		else
+		{
+			$timestamp = new DateTime();
+			$topics = $this->saveInSession('GUEST_TID', [$topic->getId() => $timestamp->getTimestamp()]);
+
+			if (Main\Config\Option::set('forum', 'USE_COOKIE', 'N') == 'Y')
+			{
+				foreach ($topics as $topicId => $timestamp)
+				{
+					$topics[$topicId] = implode('-', [$topicId, $timestamp]);
+				}
+				$GLOBALS['APPLICATION']->set_cookie('FORUM_GUEST_TID', implode('/', $topics), false, '/', false, false, 'Y', false);
+			}
+		}
 	}
 
 	private function save(array $fields)
@@ -630,6 +840,62 @@ class User {
 	{
 		global $APPLICATION;
 		return (in_array(1, $groups) || $APPLICATION->GetGroupRight("forum", $groups) >= "W");
+	}
+
+	private function saveInSession($name, $value)
+	{
+		if (method_exists(Main\Application::getInstance(), 'getKernelSession'))
+		{
+			$forumSession = Main\Application::getInstance()->getKernelSession()->get('FORUM');
+		}
+		else
+		{
+			$forumSession = $_SESSION['FORUM'];
+		}
+		$forumSession = is_array($forumSession) ? $forumSession : [];
+		if (is_array($value) && array_key_exists($name, $forumSession) && is_array($forumSession[$name]))
+		{
+			$forumSession[$name] = array_merge($forumSession[$name], $value);
+		}
+		else
+		{
+			$forumSession[$name] = $value;
+		}
+		if (method_exists(Main\Application::getInstance(), 'getKernelSession'))
+		{
+			Main\Application::getInstance()->getKernelSession()->set('FORUM', $forumSession);
+		}
+		else
+		{
+			$_SESSION['FORUM'] = $forumSession;
+		}
+		return $forumSession[$name];
+	}
+
+	private function getFromSession($name)
+	{
+		if (method_exists(Main\Application::getInstance(), 'getKernelSession'))
+		{
+			$forumSession = Main\Application::getInstance()->getKernelSession()->get('FORUM');
+		}
+		else
+		{
+			$forumSession = $_SESSION['FORUM'];
+		}
+		if (array_key_exists($name, $forumSession))
+		{
+			return $forumSession[$name];
+		}
+		return null;
+	}
+
+	private function getSessId()
+	{
+		if (method_exists(Main\Application::getInstance(), 'getKernelSession'))
+		{
+			return Main\Application::getInstance()->getKernelSession()->getId();
+		}
+		return bitrix_sessid();
 	}
 
 	public static function add(array &$data)

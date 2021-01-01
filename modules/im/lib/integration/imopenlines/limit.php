@@ -10,10 +10,7 @@ class Limit
 
 	public static function getLicenseUsersLimit()
 	{
-		if (!self::isModuleIncluded())
-			return false;
-
-		return \Bitrix\Imopenlines\Limit::getLicenseUsersLimit();
+		return false;
 	}
 
 	public static function canUseVoteHead()

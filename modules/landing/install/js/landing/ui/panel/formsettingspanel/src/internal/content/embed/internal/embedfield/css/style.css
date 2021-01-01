@@ -1,0 +1,45 @@
+.landing-ui-field-embed {
+	background-color: #F3F4F4;
+	padding: 12px;
+}
+
+.landing-ui-field-embed-header {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.landing-ui-field-embed-header-button {
+	position: relative;
+	padding-right: 8px;
+}
+
+.landing-ui-field-embed-header-copied .landing-ui-field-embed-header-button::after {
+	display: block;
+	content: '';
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	right: -1px;
+	width: 1px;
+	height: 17px;
+	background-color: #E2E4E6;
+}
+
+.landing-ui-field-embed-header-button button,
+.landing-ui-field-embed-header-button button:focus,
+.landing-ui-field-embed-header-button button:active {
+	outline: none!important;
+}
+
+.landing-ui-field-embed-header-text {
+	padding-left: 9px;
+}
+
+.landing-ui-field-embed .landing-ui-field-input {
+	font-family: Courier, Verdana, Arial, serif;
+	font-size: 9px;
+	line-height: 14px;
+	border: none;
+	margin-top: 15px;
+}

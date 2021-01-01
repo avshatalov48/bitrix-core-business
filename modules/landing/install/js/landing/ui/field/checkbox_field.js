@@ -80,7 +80,9 @@
 			{
 				var itemId = ("checkbox_item_" + random());
 				var item = create("div", {
-					props: {className: "landing-ui-field-checkbox-item"},
+					props: {
+						className: "landing-ui-field-checkbox-item" + (itemOptions.disabled ? ' landing-ui-disabled' : '')
+					},
 					children: [
 						create("input", {
 							props: {className: "landing-ui-field-checkbox-item-checkbox"},
@@ -98,7 +100,7 @@
 						create("label", {
 							props: {className: "landing-ui-field-checkbox-item-label"},
 							attrs: {"for": itemId},
-							html: escapeHtml(itemOptions.name)
+							html: itemOptions.html ? itemOptions.html : escapeHtml(itemOptions.name)
 						})
 					]
 				});
@@ -117,6 +119,7 @@
 		{
 			this.onChangeHandler(this);
 			this.onValueChangeHandler(this);
+			this.emit('onChange');
 		},
 
 
@@ -138,9 +141,9 @@
 				});
 
 				value.forEach(function(currentValue) {
-					var element = slice(this.input.children).forEach(function(element) {
+					var element = slice(this.input.children).find(function(element) {
 						// noinspection EqualityComparisonWithCoercionJS
-						return element.querySelector("input").value == currentValue;
+						return decodeDataValue(element.querySelector("input").value) == currentValue;
 					}, this);
 
 					if (element)

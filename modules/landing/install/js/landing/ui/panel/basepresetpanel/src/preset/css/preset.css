@@ -1,0 +1,115 @@
+.landing-ui-panel-preset {
+	background-color: #ffffff;
+	display: flex;
+	flex-direction: row;
+	position: relative;
+	width: 266px;
+	height: 95px;
+	padding: 10px;
+	box-sizing: border-box;
+	border-radius: 1px;
+	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .09);
+	transition: 200ms box-shadow ease;
+	margin-bottom: 10px;
+	cursor: pointer;
+	border: 2px solid #ffffff;
+}
+
+.landing-ui-panel-preset-text {
+	max-width: 171px;
+}
+
+.landing-ui-panel-preset:hover {
+	box-shadow: 0 6px 10px 0 rgba(0, 0, 0, 0.18);
+}
+
+.landing-ui-panel-preset.landing-ui-disabled {
+	background-color: rgba(255, 255, 255, .5);
+	border-color: transparent;
+	opacity: 1;
+}
+
+.landing-ui-panel-preset.landing-ui-disabled .landing-ui-panel-preset-text-description,
+.landing-ui-panel-preset.landing-ui-disabled .landing-ui-panel-preset-text-title,
+.landing-ui-panel-preset.landing-ui-disabled .landing-ui-panel-preset-icon {
+	opacity: .5;
+}
+
+.landing-ui-panel-preset {
+	margin-right: 8px;
+}
+
+.landing-ui-panel-preset:nth-child(3n) {
+	margin-right: 0;
+}
+
+.landing-ui-panel-preset-icon {
+	position: relative;
+	background-position: center;
+	background-repeat: no-repeat;
+	align-self: center;
+	min-width: 58px;
+	height: 58px;
+	border-radius: 100%;
+	overflow: hidden;
+	margin-right: 13px;
+	margin-top: -4px;
+}
+
+.landing-ui-panel-preset-icon::before {
+	background-color: rgba(47, 198, 246, .07);
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+
+.landing-ui-panel-preset-text-title {
+	font-family: OpenSans-SemiBold, Helvetca, Arial, sans-sarif, serif;
+	font-size: 14px;
+	color: #333333;
+	line-height: 32px;
+	max-width: 99%;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.landing-ui-panel-preset-text-description {
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color: #A8ADB4;
+	line-height: 17px;
+	margin-top: -2px;
+}
+
+.landing-ui-panel-preset-active {
+	border: 2px solid #9dcf00;
+}
+
+.landing-ui-panel-preset-active::before {
+	background: url("images/icon.svg") center no-repeat;
+	content: '';
+	position: absolute;
+	top: -10px;
+	right: -12px;
+	width: 28px;
+	height: 28px;
+}
+
+.landing-ui-panel-preset-soon-label {
+	font-family: OpenSans-SemiBold, Helvetca, Arial, sans-sarif, serif;
+	background: #3BC6F3;
+	border-radius: 11px;
+	font-size: 9px;
+	color: #FFFFFF;
+	letter-spacing: 0.17px;
+	line-height: 21px;
+	padding-left: 7px;
+	padding-right: 7px;
+	position: absolute;
+	top: -12px;
+	right: -9px;
+}

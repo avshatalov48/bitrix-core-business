@@ -22,7 +22,6 @@ return [
 			'METAOG_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_PAGE_S_RES_3_DESCRIPTION'),
 			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/search-result3-dark/preview.jpg',
 			'VIEW_USE' => 'N',
-			'THEME_CODE' => '3corporate',
 			'PIXELFB_USE' => 'N',
 			'GACOUNTER_USE' => 'N',
 			'GACOUNTER_SEND_CLICK' => 'N',
@@ -78,10 +77,10 @@ return [
 			'access' => 'X',
 			'style' => [
 				'.landing-block-node-button-container' => [
-					0 => 'landing-block-node-button-container input-group-append g-z-index-4 g-theme-bitrix-bg-v3 g-theme-bitrix-bg-v3--hover g-color-white g-color-white--hover g-font-size-15',
+					0 => 'landing-block-node-button-container input-group-append g-z-index-4 g-bg-primary-dark-v3 g-bg-primary--hover g-color-white g-color-white--hover g-font-size-15',
 				],
 				'.landing-block-node-input-container' => [
-					0 => 'landing-block-node-input-container form-control g-brd-primary--focus g-px-20 g-height-45 g-theme-bitrix-bg-dark-v2--hover g-color-white--hover g-color-white g-theme-bitrix-brd-v3 g-theme-bitrix-bg-dark-v2',
+					0 => 'landing-block-node-input-container form-control g-brd-primary--focus g-px-20 g-height-45 g-theme-bitrix-bg-dark-v2--hover g-color-white--hover g-color-white g-brd-primary g-theme-bitrix-bg-dark-v2',
 				],
 				'#wrapper' => [
 					0 => 'landing-block g-pt-30 g-pb-80 g-pl-15 g-pr-15 g-bg-transparent',
@@ -129,10 +128,10 @@ return [
 					3 => 'landing-block-card js-animation fadeIn media g-mb-0--last landing-card g-mb-50',
 				],
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title g-theme-bitrix-color-v4 g-font-size-22',
-					1 => 'landing-block-node-title g-theme-bitrix-color-v4 g-font-size-22',
-					2 => 'landing-block-node-title g-theme-bitrix-color-v4 g-font-size-22',
-					3 => 'landing-block-node-title g-theme-bitrix-color-v4 g-font-size-22',
+					0 => 'landing-block-node-title g-color-primary g-font-size-22',
+					1 => 'landing-block-node-title g-color-primary g-font-size-22',
+					2 => 'landing-block-node-title g-color-primary g-font-size-22',
+					3 => 'landing-block-node-title g-color-primary g-font-size-22',
 				],
 				'.landing-block-node-subtitle' => [
 					0 => 'landing-block-node-subtitle g-color-gray-light-v4 g-pr-150',
@@ -170,7 +169,7 @@ return [
 			],
 			'style' => [
 				'.landing-block-node-button' => [
-					0 => 'landing-block-node-button btn g-btn-type-solid g-btn-size-md g-btn-px-l text-uppercase rounded-0 g-color-white g-color-white--hover g-theme-bitrix-btn-v4 g-font-montserrat g-py-20 g-letter-spacing-2',
+					0 => 'landing-block-node-button btn g-btn-type-solid g-btn-size-md g-btn-px-l text-uppercase rounded-0 g-color-white g-color-white--hover g-btn-primary g-font-montserrat g-py-20 g-letter-spacing-2',
 				],
 				'#wrapper' => [
 					0 => 'landing-block text-center g-pt-20 g-pb-20 g-bg-transparent',

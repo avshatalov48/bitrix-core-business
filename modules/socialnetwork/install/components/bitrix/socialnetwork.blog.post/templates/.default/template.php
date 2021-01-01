@@ -203,7 +203,13 @@ else
 			$classNameList[] = 'feed-post-block-pinned';
 		}
 
-		if ($USER->isAuthorized())
+		if (
+			(
+				!isset($arParams['IS_CRM'])
+				|| $arParams['IS_CRM'] !== 'Y'
+			)
+			&& $USER->isAuthorized()
+		)
 		{
 			$pinned = (
 				!empty($arParams['PINNED_PANEL_DATA'])

@@ -243,7 +243,7 @@ class Landing extends \Bitrix\Landing\Source\DataLoader
 		{
 			Cache::register($row['ID']);
 			$result[$row['ID']] = [
-				'TITLE' => $row['TITLE']
+				'TITLE' => \htmlspecialcharsbx($row['TITLE'])
 			];
 		}
 

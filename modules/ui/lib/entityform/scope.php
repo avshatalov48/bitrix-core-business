@@ -3,7 +3,9 @@
 namespace Bitrix\Ui\EntityForm;
 
 use Bitrix\Main\Access\AccessCode;
+use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Error;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Data\DeleteResult;
 use Bitrix\Main\ORM\Query\Query;
@@ -28,7 +30,8 @@ class Scope
 	{
 		if (self::$instance === null)
 		{
-			self::$instance = new self();
+			Loader::includeModule('ui');
+			self::$instance = ServiceLocator::getInstance()->get('ui.entityform.scope');
 		}
 		return self::$instance;
 	}

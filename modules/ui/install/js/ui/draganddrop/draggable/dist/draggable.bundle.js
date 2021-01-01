@@ -52,6 +52,11 @@ this.BX.UI = this.BX.UI || {};
 	  }
 
 	  babelHelpers.createClass(Sensor, [{
+	    key: "getDocument",
+	    value: function getDocument() {
+	      return this.options.context.document;
+	    }
+	  }, {
 	    key: "addContainer",
 	    value: function addContainer() {
 	      for (var _len = arguments.length, containers = new Array(_len), _key = 0; _key < _len; _key++) {
@@ -109,7 +114,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getElementFromPoint",
 	    value: function getElementFromPoint(x, y) {
-	      return document.elementFromPoint(x, y);
+	      return this.getDocument().elementFromPoint(x, y);
 	    } // eslint-disable-next-line class-methods-use-this
 
 	  }, {
@@ -202,52 +207,52 @@ this.BX.UI = this.BX.UI || {};
 	  babelHelpers.createClass(MouseSensor, [{
 	    key: "enable",
 	    value: function enable() {
-	      document.addEventListener('mousedown', this.onMouseDown, true);
+	      this.getDocument().addEventListener('mousedown', this.onMouseDown, true);
 	    }
 	  }, {
 	    key: "disable",
 	    value: function disable() {
-	      document.removeEventListener('mousedown', this.onMouseDown, true);
+	      this.getDocument().removeEventListener('mousedown', this.onMouseDown, true);
 	    }
 	  }, {
 	    key: "startHandleMouseUp",
 	    value: function startHandleMouseUp() {
-	      document.addEventListener('mouseup', this.onMouseUp);
+	      this.getDocument().addEventListener('mouseup', this.onMouseUp);
 	    }
 	  }, {
 	    key: "stopHandleMouseUp",
 	    value: function stopHandleMouseUp() {
-	      document.removeEventListener('mouseup', this.onMouseUp);
+	      this.getDocument().removeEventListener('mouseup', this.onMouseUp);
 	    }
 	  }, {
 	    key: "startHandleMouseMove",
 	    value: function startHandleMouseMove() {
-	      document.addEventListener('mousemove', this.onMouseMove);
+	      this.getDocument().addEventListener('mousemove', this.onMouseMove);
 	    }
 	  }, {
 	    key: "stopHandleMouseMove",
 	    value: function stopHandleMouseMove() {
-	      document.removeEventListener('mousemove', this.onMouseMove);
+	      this.getDocument().removeEventListener('mousemove', this.onMouseMove);
 	    }
 	  }, {
 	    key: "startPreventContextMenu",
 	    value: function startPreventContextMenu() {
-	      document.addEventListener('contextmenu', this.preventDefaultEventAction, true);
+	      this.getDocument().addEventListener('contextmenu', this.preventDefaultEventAction, true);
 	    }
 	  }, {
 	    key: "stopPreventContextMenu",
 	    value: function stopPreventContextMenu() {
-	      document.removeEventListener('contextmenu', this.preventDefaultEventAction, true);
+	      this.getDocument().removeEventListener('contextmenu', this.preventDefaultEventAction, true);
 	    }
 	  }, {
 	    key: "startPreventNativeDragAndDrop",
 	    value: function startPreventNativeDragAndDrop() {
-	      document.addEventListener('dragstart', this.preventDefaultEventAction);
+	      this.getDocument().addEventListener('dragstart', this.preventDefaultEventAction);
 	    }
 	  }, {
 	    key: "stopPreventNativeDragAndDrop",
 	    value: function stopPreventNativeDragAndDrop() {
-	      document.removeEventListener('dragstart', this.preventDefaultEventAction);
+	      this.getDocument().removeEventListener('dragstart', this.preventDefaultEventAction);
 	    }
 	  }, {
 	    key: "onMouseDown",
@@ -397,12 +402,12 @@ this.BX.UI = this.BX.UI || {};
 	  babelHelpers.createClass(TouchSensor, [{
 	    key: "enable",
 	    value: function enable() {
-	      document.addEventListener('touchstart', this.onTouchStart);
+	      this.getDocument().addEventListener('touchstart', this.onTouchStart);
 	    }
 	  }, {
 	    key: "disable",
 	    value: function disable() {
-	      document.removeEventListener('touchstart', this.onTouchStart);
+	      this.getDocument().removeEventListener('touchstart', this.onTouchStart);
 	    }
 	  }, {
 	    key: "isTouchMoved",
@@ -424,26 +429,26 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "startPreventContextMenu",
 	    value: function startPreventContextMenu() {
-	      document.addEventListener('contextmenu', this.preventDefaultEventAction, true);
+	      this.getDocument().addEventListener('contextmenu', this.preventDefaultEventAction, true);
 	    }
 	  }, {
 	    key: "stopPreventContextMenu",
 	    value: function stopPreventContextMenu() {
-	      document.removeEventListener('contextmenu', this.preventDefaultEventAction, true);
+	      this.getDocument().removeEventListener('contextmenu', this.preventDefaultEventAction, true);
 	    }
 	  }, {
 	    key: "startHandleTouchEvents",
 	    value: function startHandleTouchEvents() {
-	      document.addEventListener('touchmove', this.onTouchMove);
-	      document.addEventListener('touchend', this.onTouchEnd);
-	      document.addEventListener('touchcancel', this.onTouchEnd);
+	      this.getDocument().addEventListener('touchmove', this.onTouchMove);
+	      this.getDocument().addEventListener('touchend', this.onTouchEnd);
+	      this.getDocument().addEventListener('touchcancel', this.onTouchEnd);
 	    }
 	  }, {
 	    key: "stopHandleTouchEvents",
 	    value: function stopHandleTouchEvents() {
-	      document.removeEventListener('touchmove', this.onTouchMove);
-	      document.removeEventListener('touchend', this.onTouchEnd);
-	      document.removeEventListener('touchcancel', this.onTouchEnd);
+	      this.getDocument().removeEventListener('touchmove', this.onTouchMove);
+	      this.getDocument().removeEventListener('touchend', this.onTouchEnd);
+	      this.getDocument().removeEventListener('touchcancel', this.onTouchEnd);
 	    }
 	  }, {
 	    key: "onTouchStart",
@@ -751,7 +756,12 @@ this.BX.UI = this.BX.UI || {};
 	      draggable: '.ui-draggable--item',
 	      type: 'move',
 	      transitionDuration: 150,
-	      dropzone: []
+	      dropzone: [],
+	      context: window,
+	      offset: {
+	        x: 0,
+	        y: 0
+	      }
 	    });
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), containersKey, []);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), dropzonesKey, []);
@@ -805,6 +815,11 @@ this.BX.UI = this.BX.UI || {};
 	  }
 
 	  babelHelpers.createClass(Draggable, [{
+	    key: "getDocument",
+	    value: function getDocument() {
+	      return this.getOptions().context.document;
+	    }
+	  }, {
 	    key: "getOptions",
 	    value: function getOptions() {
 	      return this[optionsKey];
@@ -816,6 +831,21 @@ this.BX.UI = this.BX.UI || {};
 
 	      if (!main_core.Type.isString(this[optionsKey].dragElement)) {
 	        this[optionsKey].dragElement = this[optionsKey].draggable;
+	      }
+
+	      if (!main_core.Type.isPlainObject(this[optionsKey].offset)) {
+	        this[optionsKey].offset = {
+	          x: 0,
+	          y: 0
+	        };
+	      }
+
+	      if (!main_core.Type.isNumber(this[optionsKey].offset.x)) {
+	        this[optionsKey].offset.x = 0;
+	      }
+
+	      if (!main_core.Type.isNumber(this[optionsKey].offset.y)) {
+	        this[optionsKey].offset.y = 0;
 	      }
 
 	      this.invalidateCache();
@@ -1494,8 +1524,8 @@ this.BX.UI = this.BX.UI || {};
 	        main_core.Dom.style(draggable, {
 	          width: "".concat(sourceRect.width, "px"),
 	          height: "".concat(sourceRect.height, "px"),
-	          top: "".concat(clientY - pointerOffsetY, "px"),
-	          left: "".concat(clientX - pointerOffsetX, "px")
+	          top: "".concat(clientY - pointerOffsetY + this.getOptions().offset.y, "px"),
+	          left: "".concat(clientX - pointerOffsetX + this.getOptions().offset.x, "px")
 	        });
 	        main_core.Dom.addClass(draggable, 'ui-draggable--draggable');
 	        this.pushDraggableElementToContainer(draggable, sourceContainer);
@@ -1526,8 +1556,8 @@ this.BX.UI = this.BX.UI || {};
 	      }
 
 	      main_core.Dom.addClass(source, 'ui-draggable--source');
-	      main_core.Dom.addClass(document.body, 'ui-draggable--disable-user-select');
-	      main_core.Dom.addClass(document.body, "ui-draggable--type-".concat(this.getOptions().type));
+	      main_core.Dom.addClass(this.getDocument().body, 'ui-draggable--disable-user-select');
+	      main_core.Dom.addClass(this.getDocument().body, "ui-draggable--type-".concat(this.getOptions().type));
 	      var sourceIndex = this.getElementIndex(source);
 	      this.dragStartEvent = new DragStartEvent({
 	        clientX: clientX,
@@ -1606,8 +1636,8 @@ this.BX.UI = this.BX.UI || {};
 
 	      if (type !== Draggable.HEADLESS) {
 	        main_core.Dom.style(draggable, {
-	          top: "".concat(clientY - pointerOffsetY, "px"),
-	          left: "".concat(clientX - pointerOffsetX, "px")
+	          top: "".concat(clientY - pointerOffsetY + this.getOptions().offset.y, "px"),
+	          left: "".concat(clientX - pointerOffsetX + this.getOptions().offset.x, "px")
 	        });
 
 	        if (overContainer && overContainer.contains(source) && !this.stopMove) {
@@ -1728,7 +1758,7 @@ this.BX.UI = this.BX.UI || {};
 	        this.lastOver = over;
 	      }
 
-	      var sourceOver = document.elementFromPoint(clientX, clientY);
+	      var sourceOver = this.getDocument().elementFromPoint(clientX, clientY);
 	      var dropzoneOver = this.getDropzoneByChild(sourceOver);
 
 	      if (dropzoneOver) {
@@ -1911,8 +1941,8 @@ this.BX.UI = this.BX.UI || {};
 	      this.childrenElements = [];
 	      this.currentDepth = null;
 	      this.invalidateCache();
-	      main_core.Dom.removeClass(document.body, 'ui-draggable--disable-user-select');
-	      main_core.Dom.removeClass(document.body, "ui-draggable--type-".concat(this.getOptions().type));
+	      main_core.Dom.removeClass(this.getDocument().body, 'ui-draggable--disable-user-select');
+	      main_core.Dom.removeClass(this.getDocument().body, "ui-draggable--type-".concat(this.getOptions().type));
 	      this.emit('end', dragEndEvent); // todo test in default
 	    }
 	  }, {

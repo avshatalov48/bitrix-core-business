@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="56px" height="56px" viewBox="0 0 56 56" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Parts-/-Cond-/-01-Yes" transform="translate(-102.000000, -61.000000)">
+            <g id="Group-5">
+                <path d="M0,33.0020704 C0,30.2395032 2.247715,28 4.99039736,28 L255.009603,28 C257.765723,28 260,30.240381 260,33.0020704 L260,193.99793 C260,196.760497 257.752285,199 255.009603,199 L4.99039736,199 C2.234277,199 0,196.759619 0,193.99793 L0,33.0020704 Z" id="input"></path>
+                <g id="Group-4" transform="translate(55.000000, 61.000000)">
+                    <g id="Group-6" transform="translate(47.000000, 0.000000)">
+                        <circle id="Oval" fill="#9DCF00" cx="28" cy="28" r="28"></circle>
+                        <g id="Icons-/-·-Set-3-/-Icon-10" transform="translate(10.000000, 9.000000)" fill="#FFFFFF">
+                            <polygon id="Icon" points="14.4025262 29.832827 4.41734174 20.1014577 7.91215632 16.6954784 14.4025262 23.0208685 29.0878437 8.70883964 32.5826583 12.1148189"></polygon>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

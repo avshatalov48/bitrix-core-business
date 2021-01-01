@@ -312,7 +312,7 @@ class LandingSitesComponent extends LandingBaseComponent
 				if ($item['DELETED'] == 'Y')
 				{
 					$item['DATE_DELETED_DAYS'] = $deletedLTdays - intval((time() - $item['DATE_MODIFY']->getTimeStamp()) / 86400);
-					$item['DELETE_FINISH'] = $item['DATE_DELETED_DAYS'] <= 0;//@tmp
+					$item['DELETE_FINISH'] = $item['DATE_DELETED_DAYS'] <= 0;
 				}
 				$item['DOMAIN_NAME'] = $puny->decode($item['DOMAIN_NAME']);
 				$item['DOMAIN_B24_NAME'] = Domain::getBitrix24Subdomain($item['DOMAIN_NAME']);

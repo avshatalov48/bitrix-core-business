@@ -343,8 +343,7 @@ export class Backend
 			return this
 				.action('Site::getList', {
 					params: {
-						order: {ID: 'DESC'},
-						filter: {TYPE: this.getSitesType(), ...filter},
+						order: {ID: 'DESC'}
 					},
 				})
 				.then((response) => response);

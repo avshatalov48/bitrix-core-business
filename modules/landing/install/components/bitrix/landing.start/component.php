@@ -76,7 +76,7 @@ if (Loader::includeModule('bitrix24'))
 		return;
 	}
 }
-if (!Rights::hasAdditionalRight(Rights::ADDITIONAL_RIGHTS['menu24']))
+if (!Rights::hasAdditionalRight(Rights::ADDITIONAL_RIGHTS['menu24'], null, true))
 {
 	Manager::getApplication()->showAuthForm(
 		Loc::getMessage('LANDING_CMP_ACCESS_DENIED2')

@@ -20,6 +20,8 @@
 		this.layout.classList.add("landing-ui-panel-content-edit");
 	};
 
+	BX.Landing.UI.Panel.ContentEdit.showedPanel = null;
+
 
 	BX.Landing.UI.Panel.ContentEdit.prototype = {
 		constructor: BX.Landing.UI.Panel.ContentEdit,
@@ -27,6 +29,8 @@
 
 		show: function()
 		{
+			BX.Landing.UI.Panel.ContentEdit.showedPanel = this;
+
 			if (BX.Landing.UI.Panel.StylePanel.getInstance().isShown())
 			{
 				BX.Landing.UI.Panel.StylePanel.getInstance().hide().then(function() {

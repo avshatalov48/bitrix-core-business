@@ -33,7 +33,7 @@
 				var hint = BX.util.htmlspecialchars(item.DESC);
 				return {
 					'id': item.CODE,
-					'text': item.NAME + '<span data-hint="' + hint + '"></span>',
+					'html': item.NAME + '<span data-hint="' + hint + '"></span>',
 					'onclick': this.onMenuItemClick.bind(this, item)
 					//'className': message.IS_AVAILABLE ? '' : 'b24-tariff-lock'
 				};

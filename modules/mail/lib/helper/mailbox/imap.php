@@ -520,6 +520,7 @@ class Imap extends Mail\Helper\Mailbox
 
 		if (!$this->isTimeQuotaExceeded())
 		{
+			//mark emails from unsynchronized folders (unchecked) for deletion
 			$result = $this->unregisterMessages([
 				'!@DIR_MD5' => array_map(
 					'md5',
@@ -785,19 +786,27 @@ class Imap extends Mail\Helper\Mailbox
 			return $messages;
 		};
 
-		$messages = $fetcher($meta['exists'] > 10000 ? sprintf('1,%u', $meta['exists']) : '1:*');
+		$messagesNumberInTheMailService = $meta['exists'];
+		$messages = $fetcher($messagesNumberInTheMailService > 10000 ? sprintf('1,%u', $messagesNumberInTheMailService) : '1:*');
 
 		if (empty($messages))
 		{
 			return (false === $messages ? false : null);
 		}
 
+		//interval of messages in the directory
 		$range = array(
 			reset($messages)['UID'],
 			end($messages)['UID'],
 		);
 		sort($range);
 
+		if($range[0]===$range[1] and $messagesNumberInTheMailService > 1)
+		{
+			return false;
+		}
+
+		//deleting non-existent messages in the service ( not included in the message interval on the service )
 		$result = $this->unregisterMessages(
 			array(
 				'=DIR_MD5' => md5($dir->getPath()),
@@ -1559,19 +1568,29 @@ class Imap extends Mail\Helper\Mailbox
 
 			$set = array();
 			$d = $size < 1000 ? 100 : pow(10, round(ceil(log10($size) - 0.7) / 2) * 2 - 2);
+
+			//take every $d (usually 100) id starting from the first one
 			for ($i = $min; $i <= $max; $i = $i + $d)
 			{
 				$set[] = $i;
 			}
 
+			/*if the interval from the last message id(we will add it later)
+			to the penultimate id in the set is less than one hundred,
+			we will delete the last one to increase the interval.
+				Example: 5000, 5100, 5200... 13900... 14000... 14023.
+			*/
 			if (count($set) > 1 && end($set) + 100 >= $max)
 			{
 				array_pop($set);
 			}
 
+			//the last item in the set must match the last item on the service
 			$set[] = $max;
 
+			//returns messages starting from the 1st existing one
 			$set = $this->client->fetch(false, $dirPath, join(',', $set), '(UID)', $error);
+
 			if (empty($set))
 			{
 				return false;
@@ -1608,6 +1627,10 @@ class Imap extends Mail\Helper\Mailbox
 			elseif (end($set)['UID'] > $uidMax)
 			{
 				$max = current($set)['id'];
+
+				/*select the closest element with the largest uid
+				from the set of messages on the service (every hundredth)
+				to a message from the database (synchronized) with the maximum uid.*/
 				do
 				{
 					$exmax = $max;
@@ -1617,12 +1640,17 @@ class Imap extends Mail\Helper\Mailbox
 				}
 				while (current($set)['UID'] > $uidMax && prev($set) && next($set));
 
+				//if the interval of messages for downloading is more than 200 - we repeat the splitting.
 				if ($max - $min > 200)
 				{
 					return $rangeGetter($min, $max);
 				}
 				else
 				{
+					/*if the synchronization interval turned out to be too small,
+					we take the nearest largest to the end of the interval from the set (every 100).
+					Thus the interval will increase by a hundred
+					(or another value, if at the end of the set).*/
 					if ($set[$max]['UID'] - $uidMax < 100)
 					{
 						$max = $exmax;

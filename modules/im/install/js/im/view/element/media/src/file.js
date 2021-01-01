@@ -50,6 +50,11 @@ Vue.component('bx-im-view-element-file',
 				return false;
 			}
 
+			if (BX.UI && BX.UI.Viewer && Object.keys(file.viewerAttrs).length > 0)
+			{
+				return false;
+			}
+
 			if (file.type === FileType.image && file.urlShow)
 			{
 				if (Utils.platform.isBitrixMobile())

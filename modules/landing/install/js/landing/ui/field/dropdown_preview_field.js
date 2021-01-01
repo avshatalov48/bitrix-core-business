@@ -3,9 +3,6 @@
 
 	BX.namespace("BX.Landing.UI.Field");
 
-	var Menu = BX.Landing.UI.Tool.Menu;
-
-
 	/**
 	 * Implements interface for works with dropdown field in editor
 	 *
@@ -78,10 +75,9 @@
 					}
 				});
 
-				this.popup = new Menu({
+				this.popup = new BX.PopupMenuWindow({
 					id: this.selector+this.property,
 					bindElement: this.input,
-					autoHide: true,
 					items: items,
 					zIndex: 9000,
 					angle: false,
@@ -99,15 +95,6 @@
 			}
 
 			this.input.classList.add("landing-ui-active");
-
-			if (this.popup.popupWindow.isShown())
-			{
-				this.popup.close();
-			}
-			else
-			{
-				this.popup.show();
-			}
 
 			var rect = BX.pos(this.input, this.input.parentNode);
 			this.popup.popupWindow.popupContainer.style.top = rect.bottom + "px";

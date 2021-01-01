@@ -62,6 +62,11 @@ this.BX = this.BX || {};
 	      return this.controller.getStore().state.application.dialog.dialogId;
 	    }
 	  }, {
+	    key: "getData",
+	    value: function getData() {
+	      return this.controller.getStore().state.application;
+	    }
+	  }, {
 	    key: "getDialogData",
 	    value: function getDialogData() {
 	      var dialogId = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.getDialogId();
@@ -545,6 +550,16 @@ this.BX = this.BX || {};
 	        'MESSAGE_ID': messageId,
 	        'TYPE': type
 	      });
+	      return true;
+	    }
+	  }, {
+	    key: "replyToUser",
+	    value: function replyToUser(userId, user) {
+	      return true;
+	    }
+	  }, {
+	    key: "openMessageReactionList",
+	    value: function openMessageReactionList(messageId, values) {
 	      return true;
 	    }
 	  }, {
@@ -1048,7 +1063,7 @@ this.BX = this.BX || {};
 	          }
 	        });
 
-	        if (_this4.store.state.application.device.type === im_const.DeviceType.mobile && _this4.store.state.application.device.orientation === DeviceOrientation.horizontal) {
+	        if (_this4.store.state.application.device.type === im_const.DeviceType.mobile && _this4.store.state.application.device.orientation === im_const.DeviceOrientation.horizontal) {
 	          document.activeElement.blur();
 	        }
 	      });

@@ -583,7 +583,9 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 					$imageFile,
 					array("width" => $imageSize, "height" => $imageSize),
 					BX_RESIZE_IMAGE_EXACT,
-					false
+					false,
+					false,
+					true
 				);
 
 				$photoSrc = \CFile::showImage($imageResized["src"], $imageSize, $imageSize, "border=0", "");

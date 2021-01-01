@@ -223,6 +223,7 @@ switch ($action)
 
 		$target->prepareTriggersToSave($triggers);
 		$updatedTriggers = $target->setTriggers($triggers);
+		$templateParameters = $target->extractTemplateParameters($triggers);
 
 		$updatedTemplates = array();
 		foreach ($templates as $templateData)
@@ -246,7 +247,9 @@ switch ($action)
 			{
 				$robots = isset($templateData['ROBOTS']) && is_array($templateData['ROBOTS']) ? $templateData['ROBOTS'] : array();
 
-				$result = $template->save($robots, $curUser->GetID());
+				$result = $template->save($robots, $curUser->GetID(), [
+					'PARAMETERS' => $templateParameters[$template->getDocumentStatus()] ?? []
+				]);
 				if ($result->isSuccess())
 				{
 					$updatedTemplates[] = BizprocAutomationComponent::getTemplateViewData($template->toArray(), $documentType);

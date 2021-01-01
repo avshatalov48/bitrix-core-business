@@ -6,7 +6,7 @@
  * @copyright 2001-2019 Bitrix
  */
 
-import {VueRouter} from "./router.js";
+import {VueRouterVendor} from "./router.js";
 
 class BitrixVueRouter
 {
@@ -20,7 +20,7 @@ class BitrixVueRouter
 
 	static create(params)
 	{
-		return new VueRouter(params);
+		return new VueRouterVendor(params);
 	}
 
 	/**
@@ -34,10 +34,7 @@ class BitrixVueRouter
 	}
 }
 
-let vendorVueRouter = VueRouter;
-let bitrixVueRouter = BitrixVueRouter;
-
 export {
-	bitrixVueRouter as VueRouter,
-	vendorVueRouter as VueRouterVendor
+	BitrixVueRouter as VueRouter,
+	VueRouterVendor
 };

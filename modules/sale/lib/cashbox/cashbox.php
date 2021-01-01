@@ -51,7 +51,8 @@ abstract class Cashbox
 		if (!$handlerList)
 		{
 			$zone = '';
-			if (Main\Loader::includeModule("bitrix24"))
+			$isCloud = Main\Loader::includeModule("bitrix24");
+			if ($isCloud)
 			{
 				$zone = \CBitrix24::getLicensePrefix();
 			}
@@ -59,20 +60,13 @@ abstract class Cashbox
 			{
 				$zone = \CIntranetUtils::getPortalZone();
 			}
-			if ($zone === 'ru')
+			if ($zone === 'ru' && $isCloud)
 			{
 				$handlerList = [
 					'\Bitrix\Sale\Cashbox\CashboxAtolFarm' => '/bitrix/modules/sale/lib/cashbox/cashboxatolfarm.php',
 					'\Bitrix\Sale\Cashbox\CashboxAtolFarmV4' => '/bitrix/modules/sale/lib/cashbox/cashboxatolfarmv4.php',
 					'\Bitrix\Sale\Cashbox\CashboxOrangeData' => '/bitrix/modules/sale/lib/cashbox/cashboxorangedata.php',
 				];
-
-				if (!IsModuleInstalled('bitrix24'))
-				{
-					$handlerList['\Bitrix\Sale\Cashbox\CashboxBitrixV2'] = '/bitrix/modules/sale/lib/cashbox/cashboxbitrixv2.php';
-					$handlerList['\Bitrix\Sale\Cashbox\CashboxBitrix'] = '/bitrix/modules/sale/lib/cashbox/cashboxbitrix.php';
-					$handlerList['\Bitrix\Sale\Cashbox\Cashbox1C'] = '/bitrix/modules/sale/lib/cashbox/cashbox1c.php';
-				}
 			}
 			elseif ($zone === 'ua')
 			{
@@ -444,6 +438,14 @@ abstract class Cashbox
 	public function isCheckable()
 	{
 		return $this instanceof ICheckable;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isCorrection()
+	{
+		return $this instanceof ICorrection;
 	}
 
 	/**

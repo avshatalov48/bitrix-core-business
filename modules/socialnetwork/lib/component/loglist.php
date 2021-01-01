@@ -416,6 +416,8 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 			$processorInstance->processEventsList($result, 'main');
 			$processorInstance->processEventsList($result, 'pinned');
 
+			$processorInstance->warmUpStaticCache($result);
+
 			if (
 				$this->arParams['LOG_ID'] > 0
 				&& (

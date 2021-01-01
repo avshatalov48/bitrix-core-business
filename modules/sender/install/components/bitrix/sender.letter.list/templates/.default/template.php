@@ -28,6 +28,10 @@ foreach ($arResult['ROWS'] as $index => $data)
 			.  htmlspecialcharsbx($data['USER'])
 			. '</a>';
 	}
+	else
+	{
+		$data['USER'] = htmlspecialcharsbx($data['USER']);
+	}
 
 	// title
 	if ($data['TITLE'] && $data['URLS']['EDIT'])

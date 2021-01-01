@@ -422,8 +422,8 @@
 }
 
 #mp-left-menu {
-	margin-right: 23px;
-	background: #e6e9eb;
+	/*margin-right: 23px;*/
+	/*background: #e6e9eb;*/
 }
 
 .mp-head-status-box {
@@ -438,6 +438,7 @@
 .mp-head-status-value {
 	display: inline-block;
 	margin: 0 8px 0 0;
+	white-space: nowrap;
 	font: 30px "OpenSans-Light", "Helvetica Neue", Arial, sans-serif;
 	color: #2FC6F6;
 	letter-spacing: -0.69px;

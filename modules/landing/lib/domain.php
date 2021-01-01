@@ -140,4 +140,23 @@ class Domain extends \Bitrix\Landing\Internals\BaseTable
 
 		return $hostUrl;
 	}
+
+	/**
+	 * Returns top level domain by domain name.
+	 * @param string $domainName Domain name.
+	 * @return string
+	 */
+	public static function getTLD(string $domainName): string
+	{
+		$domainName = mb_strtolower(trim($domainName));
+		$domainNameParts = explode('.', $domainName);
+		$domainNameTld = $domainNameParts[count($domainNameParts) - 1];
+
+		if ($domainNameParts[count($domainNameParts) - 2] == 'com')
+		{
+			$domainNameTld = 'com.' . $domainNameTld;
+		}
+
+		return $domainNameTld;
+	}
 }

@@ -31,6 +31,11 @@ abstract class BaseProvider
 		return $this->options;
 	}
 
+	public function getOption(string $option)
+	{
+		return array_key_exists($option, $this->options) ? $this->options[$option] : null;
+	}
+
 	public function fillDialog(Dialog $dialog): void
 	{
 

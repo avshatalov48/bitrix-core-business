@@ -209,32 +209,44 @@ if ($APPLICATION->GetGroupRight("sale")!="D")
 				"items" => [],
 			];
 
-			$arMenu["items"][] = array(
+			$arMenu["items"][] = [
 				"text" => GetMessage("SALE_CASHBOX_LIST"),
 				"title" => GetMessage("SALE_CASHBOX_LIST"),
 				"url" => "sale_cashbox_list.php?lang=".LANGUAGE_ID,
-				"more_url" => array("sale_cashbox_edit.php"),
+				"more_url" => ["sale_cashbox_edit.php"],
 				"items_id" => "sale_cashbox_list",
 				"sort" => 301,
-			);
+			];
 
-			$arMenu["items"][] = array(
+			$arMenu["items"][] = [
 				"text" => GetMessage("SALE_CASHBOX_CHECK"),
 				"title" => GetMessage("SALE_CASHBOX_CHECK"),
 				"url" => "sale_cashbox_check.php?lang=".LANGUAGE_ID,
-				"more_url" => array("sale_cashbox_check_edit.php"),
+				"more_url" => ["sale_cashbox_check_edit.php"],
 				"items_id" => "sale_cashbox_check",
 				"sort" => 302,
-			);
+			];
 
-			$arMenu["items"][] = array(
+			if (\Bitrix\Sale\Cashbox\CheckManager::isAvailableCorrection())
+			{
+				$arMenu["items"][] = [
+					"text" => GetMessage("SALE_CASHBOX_CHECK_CORRECTION"),
+					"title" => GetMessage("SALE_CASHBOX_CHECK_CORRECTION"),
+					"url" => "sale_cashbox_correction.php?lang=".LANGUAGE_ID,
+					"more_url" => [],
+					"items_id" => "sale_cashbox_correction",
+					"sort" => 303,
+				];
+			}
+
+			$arMenu["items"][] = [
 				"text" => GetMessage("SALE_CASHBOX_ZREPORT"),
 				"title" => GetMessage("SALE_CASHBOX_ZREPORT"),
 				"url" => "sale_cashbox_zreport.php?lang=".LANGUAGE_ID,
-				"more_url" => array(),
+				"more_url" => [],
 				"items_id" => "sale_cashbox_zreport",
-				"sort" => 303,
-			);
+				"sort" => 304,
+			];
 
 			$aMenu[] = $arMenu;
 		}

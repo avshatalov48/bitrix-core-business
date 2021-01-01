@@ -12,10 +12,10 @@ return [
 		'./dist/textarea.bundle.css',
 	],
 	'rel' => [
-		'main.polyfill.core',
 		'ui.vue',
 		'im.lib.localstorage',
 		'im.lib.utils',
+		'main.core',
 	],
-	'skip_core' => true,
+	'skip_core' => false,
 ];

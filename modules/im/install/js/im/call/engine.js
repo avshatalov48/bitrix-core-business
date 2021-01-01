@@ -57,6 +57,7 @@
 		onUserStateChanged: 'onUserStateChanged',
 		onUserMicrophoneState: 'onUserMicrophoneState',
 		onUserScreenState: 'onUserScreenState',
+		onUserRecordState: 'onUserRecordState',
 		onUserVoiceStarted: 'onUserVoiceStarted',
 		onUserVoiceStopped: 'onUserVoiceStopped',
 		onUserFloorRequest: 'onUserFloorRequest', // request for a permission to speak
@@ -253,6 +254,8 @@
 					videoEnabled: (config.videoEnabled == true),
 					enableMicAutoParameters: (config.enableMicAutoParameters !== false),
 					associatedEntity: callFields.ASSOCIATED_ENTITY,
+					type: callFields.TYPE,
+					startDate: callFields.START_DATE,
 					events: {
 						onDestroy: self.__onCallDestroy.bind(self)
 					},
@@ -328,6 +331,8 @@
 					videoEnabled: parentCall.isVideoEnabled(),
 					enableMicAutoParameters: parentCall.enableMicAutoParameters !== false,
 					associatedEntity: callFields.ASSOCIATED_ENTITY,
+					type: callFields.TYPE,
+					startDate: callFields.START_DATE,
 					events: {
 						onDestroy: self.__onCallDestroy.bind(self)
 					},
@@ -364,6 +369,8 @@
 			direction: callFields['INITIATOR_ID'] == this.userId ? BX.Call.Direction.Outgoing : BX.Call.Direction.Incoming,
 			users: users,
 			associatedEntity: callFields.ASSOCIATED_ENTITY,
+			type: callFields.TYPE,
+			startDate: callFields['START_DATE'],
 			logToken: logToken,
 
 			events: {
@@ -416,10 +423,7 @@
 
 	BX.Call.Engine.prototype.getUuidv4 = function()
 	{
-		return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-			var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-			return v.toString(16);
-		});
+		return BX.Call.Util.getUuidv4();
 	};
 
 	BX.Call.Engine.prototype.__onPullEvent = function(command, params, extra)
@@ -428,9 +432,16 @@
 			'Call::incoming': this.__onPullIncomingCall.bind(this),
 		};
 
-		if(command.substr(0, 6) === 'Call::' && params.publicIds)
+		if(command.startsWith('Call::'))
 		{
-			BX.CallEngine.getPullClient().setPublicIds(Object.values(params.publicIds));
+			if (params.publicIds)
+			{
+				BX.CallEngine.getPullClient().setPublicIds(Object.values(params.publicIds));
+			}
+			if (params.userData)
+			{
+				BX.Call.Util.setUserData(params.userData);
+			}
 		}
 
 		if(handlers[command])
@@ -512,11 +523,13 @@
 				id: callId,
 				instanceId: this.getUuidv4(),
 				parentId: callFields.PARENT_ID || null,
-				callFromMobile: params.isMobile === true,
+				callFromMobile: params.isLegacyMobile === true,
 				direction: BX.Call.Direction.Incoming,
 				users: params.users,
 				initiatorId: params.senderId,
 				associatedEntity: callFields.ASSOCIATED_ENTITY,
+				type: callFields.TYPE,
+				startDate: callFields.START_DATE,
 				logToken: params.logToken,
 				events: {
 					onDestroy: this.__onCallDestroy.bind(this)
@@ -536,7 +549,7 @@
 			BX.onCustomEvent(window, "CallEvents::incomingCall", [{
 				call: call,
 				video: params.video === true,
-				isMobile: params.isMobile === true
+				isLegacyMobile: params.isLegacyMobile === true
 			}]);
 		}
 		this.log(call.id, "Incoming call " + call.id);

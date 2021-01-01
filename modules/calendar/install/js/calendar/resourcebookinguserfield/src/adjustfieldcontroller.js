@@ -1,4 +1,4 @@
-import {BookingUtil, FieldViewControllerEdit, FieldViewControllerPreview, Dom, Loc, Type} from "calendar.resourcebooking";
+import {BookingUtil, FieldViewControllerEdit, FieldViewControllerPreview, Dom, Loc, Type, BaseEvent, EventEmitter} from "calendar.resourcebooking";
 import {ResourcebookingUserfield} from "./resourcebookinguserfield";
 import {UserSelectorFieldTunner} from "./controls/userselectorfieldtunner";
 import {ResourceSelectorFieldTunner} from "./controls/resourceselectorfieldtunner";
@@ -6,11 +6,16 @@ import {ServiceSelectorFieldTunner} from "./controls/serviceselectorfieldtunner"
 import {DurationSelectorFieldTunner} from "./controls/durationselectorfieldtunner";
 import {DateSelectorFieldTunner} from "./controls/dateselectorfieldtunner";
 import {TimeSelectorFieldTunner} from "./controls/timeselectorfieldtunner";
+import 'helper';
+import 'socnetlogdest';
 
-export class AdjustFieldController
+export class AdjustFieldController extends EventEmitter
 {
 	constructor(params)
 	{
+		super();
+		this.setEventNamespace('BX.Calendar.ResourcebookingUserfield.AdjustFieldController');
+
 		this.params = params;
 		this.complexFields = {};
 		this.userFieldParams = null;
@@ -35,8 +40,7 @@ export class AdjustFieldController
 			fieldName: this.params.entityName,
 			selectedUsers: this.getSelectedUsers()
 		}).then(
-			function(fieldParams)
-			{
+			(fieldParams) => {
 				this.hideFieldLoader();
 				this.userFieldParams = fieldParams;
 
@@ -48,7 +52,14 @@ export class AdjustFieldController
 				});
 				this.fieldLayout.build();
 				this.updateSettingsDataInputs();
-			}.bind(this)
+
+				this.emit('afterInit', new BaseEvent({
+					data: {
+						fieldName: this.params.entityName,
+						settings: this.getSettings()
+					}
+				}));
+			}
 		);
 	}
 

@@ -155,19 +155,18 @@
 		{
 			event.preventDefault();
 
-			var text;
-
-			// Prevents XSS and prevents insert potential dangerously code
 			if (event.clipboardData && event.clipboardData.getData)
 			{
-				text = event.clipboardData.getData("text/plain");
-				document.execCommand("insertHTML", false, BX.Landing.Utils.escapeHtml(text));
+				var sourceText = event.clipboardData.getData("text/plain");
+				var encodedText = BX.Text.encode(sourceText);
+				var formattedHtml = encodedText.replace(new RegExp('\n', 'g'), "<br>");
+				document.execCommand("insertHTML", false, formattedHtml);
 			}
 			else
 			{
 				// ie11
-				text = window.clipboardData.getData("text");
-				document.execCommand("paste", true, BX.Landing.Utils.escapeHtml(text));
+				var text = window.clipboardData.getData("text");
+				document.execCommand("paste", true, BX.Text.encode(text));
 			}
 
 			this.onChange();

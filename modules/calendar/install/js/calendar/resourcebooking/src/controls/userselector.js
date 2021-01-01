@@ -25,7 +25,6 @@ export class UserSelector extends ViewControlAbstract
 	displayControl()
 	{
 		this.selectedValue = this.getSelectedUser();
-
 		this.dropdownSelect = new ViewDropDownSelect({
 			wrap: this.DOM.controlWrap,
 			values: this.userList,

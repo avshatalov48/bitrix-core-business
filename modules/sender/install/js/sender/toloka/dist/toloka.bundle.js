@@ -180,21 +180,7 @@ this.BX = this.BX || {};
 	  babelHelpers.createClass(Autocomplete, [{
 	    key: "setOptions",
 	    value: function setOptions(data) {
-	      var _this = this;
-
-	      data.forEach(function (value) {
-	        var exists = false;
-
-	        _this._config.options.forEach(function (option) {
-	          if (value.id === option.id) {
-	            exists = true;
-	          }
-	        });
-
-	        if (!exists) {
-	          _this._config.options.push(value);
-	        }
-	      });
+	      this._config.options = data;
 	      this._options = this._generateOptions();
 	    }
 	  }, {
@@ -203,13 +189,21 @@ this.BX = this.BX || {};
 	      return this._config.value;
 	    }
 	  }, {
+	    key: "removeAutocompleteNode",
+	    value: function removeAutocompleteNode() {
+	      BX.remove(this._autocomplete.get());
+
+	      this._options.map(function (_option) {
+	        BX.remove(_option.get());
+	      });
+	    }
+	  }, {
 	    key: "reset",
 	    value: function reset() {
 	      this._config.value = this._config.multiple ? [] : null;
 
 	      this._setValue();
-	    } // Private methods
-
+	    }
 	  }, {
 	    key: "_create",
 	    value: function _create(_element) {
@@ -266,7 +260,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "_generateOptions",
 	    value: function _generateOptions() {
-	      var _this2 = this;
+	      var _this = this;
 
 	      if (this._config.autocomplete && !this._autocomplete) {
 	        this._autocomplete = new Element("input", {
@@ -281,24 +275,24 @@ this.BX = this.BX || {};
 	      }
 
 	      return this._config.options.map(function (_option) {
-	        var preOption = document.querySelectorAll("div.".concat(_this2._config.classNames.option, "[data-value=\"").concat(_option.id, "\"]"));
+	        var preOption = document.querySelectorAll("div.".concat(_this._config.classNames.option, "[data-value=\"").concat(_option.id, "\"]"));
 
 	        if (preOption.length > 0) {
 	          return new Element(preOption[0]);
 	        }
 
 	        var option = new Element("div", {
-	          class: "".concat(_this2._config.classNames.option).concat(_option.disabled ? " " + _this2._config.classNames.optionDisabled : ""),
+	          class: "".concat(_this._config.classNames.option).concat(_option.disabled ? " " + _this._config.classNames.optionDisabled : ""),
 	          value: _option.id,
 	          textContent: _option.name,
 	          disabled: _option.disabled
 	        });
 
 	        if (_option.disabled) {
-	          _this2._config.disabledOptions.push(String(_option.id));
+	          _this._config.disabledOptions.push(String(_option.id));
 	        }
 
-	        _this2._optionsWrapper.append(option.get());
+	        _this._optionsWrapper.append(option.get());
 
 	        return option;
 	      });
@@ -314,10 +308,12 @@ this.BX = this.BX || {};
 
 	      if (this._state.opened) {
 	        var option = this._options.find(function (_option) {
-	          return _option.get() === event.target;
+	          if (_option) {
+	            return _option.get() === event.target;
+	          }
 	        });
 
-	        if (option) {
+	        if (option !== undefined) {
 	          this._setValue(option.get().getAttribute("data-value"), true);
 	        }
 
@@ -354,12 +350,12 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "_prepareDataValue",
 	    value: function _prepareDataValue() {
-	      var _this3 = this;
+	      var _this2 = this;
 
 	      var dataValue = [];
 
 	      this._config.options.forEach(function (_option) {
-	        _this3._config.value.forEach(function (_value) {
+	        _this2._config.value.forEach(function (_value) {
 	          if (_option.id.toString() === _value) {
 	            dataValue.push({
 	              NAME: _option.name,
@@ -376,7 +372,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "_setValue",
 	    value: function _setValue(value, manual, unselected) {
-	      var _this4 = this;
+	      var _this3 = this;
 
 	      if (this._config.disabledOptions.indexOf(value) > -1) {
 	        return;
@@ -391,26 +387,30 @@ this.BX = this.BX || {};
 	      }
 
 	      this._options.forEach(function (_option) {
-	        _option.removeClass(_this4._config.classNames.selectedOption);
+	        _option.removeClass(_this3._config.classNames.selectedOption);
 	      });
 
 	      this._placeholder.removeClass(this._config.classNames.placeholderHidden);
 
 	      if (this._config.multiple) {
 	        var options = this._config.value.map(function (_value) {
-	          var option = _this4._config.options.find(function (_option) {
-	            return _option.id.toString() === _value;
+	          var option = _this3._config.options.find(function (_option) {
+	            if (_option) {
+	              return _option.id.toString() === _value;
+	            }
 	          });
 
 	          if (!option) {
 	            return false;
 	          }
 
-	          var optionNode = _this4._options.find(function (_option) {
-	            return _option.get().getAttribute("data-value") === option.id.toString();
+	          var optionNode = _this3._options.find(function (_option) {
+	            if (_option) {
+	              return _option.get().getAttribute("data-value") === option.id.toString();
+	            }
 	          });
 
-	          optionNode.addClass(_this4._config.classNames.selectedOption);
+	          optionNode.addClass(_this3._config.classNames.selectedOption);
 	          return option;
 	        });
 
@@ -426,11 +426,15 @@ this.BX = this.BX || {};
 	      }
 
 	      var option = this._config.value ? this._config.options.find(function (_option) {
-	        return _option.id.toString() === _this4._config.value;
+	        if (_option) {
+	          _option.id.toString() === _this3._config.value;
+	        }
 	      }) : this._config.options[0];
 
 	      var optionNode = this._options.find(function (_option) {
-	        return _option.get().getAttribute("data-value") === option.id.toString();
+	        if (_option) {
+	          _option.get().getAttribute("data-value") === option.id.toString();
+	        }
 	      });
 
 	      this._prepareDataValue();
@@ -461,29 +465,30 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "_selectOptions",
 	    value: function _selectOptions(options, manual) {
-	      var _this5 = this;
+	      var _this4 = this;
 
 	      this._label.setText("");
 
 	      this._icons = options.map(function (_option) {
-	        var selectedLabel = new Element("span", {
-	          class: _this5._config.classNames.selectedLabel,
-	          textContent: _option.name
-	        });
-	        var remove = new Element("span", {
-	          class: "".concat(_this5._config.classNames.remove),
-	          value: _option.id
-	        });
-	        remove.addEventListener("click", _this5._boundUnselectOption);
-	        selectedLabel.append(remove.get());
+	        if (_option) {
+	          var selectedLabel = new Element("span", {
+	            class: _this4._config.classNames.selectedLabel,
+	            textContent: _option.name
+	          });
+	          var remove = new Element("span", {
+	            class: "".concat(_this4._config.classNames.remove),
+	            value: _option.id
+	          });
+	          remove.addEventListener("click", _this4._boundUnselectOption);
+	          selectedLabel.append(remove.get());
 
-	        _this5._label.append(selectedLabel.get());
+	          _this4._label.append(selectedLabel.get());
 
-	        return remove.get();
+	          return remove.get();
+	        }
 	      });
 
 	      if (manual) {
-	        // eslint-disable-next-line no-magic-numbers
 	        this._optionsWrapper.setTop(Number(this._select.getHeight().split("px")[0]) + 5);
 	      }
 
@@ -495,7 +500,7 @@ this.BX = this.BX || {};
 	    key: "_unselectOption",
 	    value: function _unselectOption(event) {
 	      var newValue = babelHelpers.toConsumableArray(this._config.value);
-	      var index = newValue.indexOf(event.target.getAttribute("data-value")); // eslint-disable-next-line no-magic-numbers
+	      var index = newValue.indexOf(event.target.getAttribute("data-value"));
 
 	      if (index !== -1) {
 	        newValue.splice(index, 1);
@@ -506,21 +511,83 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "_sortOptions",
 	    value: function _sortOptions(event) {
-	      var _this6 = this;
+	      var _this5 = this;
 
 	      this._options.forEach(function (_option) {
 	        if (!_option.get().textContent.toLowerCase().startsWith(event.target.value.toLowerCase())) {
-	          _option.addClass(_this6._config.classNames.optionHidden);
+	          _option.addClass(_this5._config.classNames.optionHidden);
 
 	          return;
 	        }
 
-	        _option.removeClass(_this6._config.classNames.optionHidden);
+	        _option.removeClass(_this5._config.classNames.optionHidden);
 	      });
 	    }
 	  }]);
 	  return Autocomplete;
 	}();
+
+	var _page = new WeakMap();
+
+	var _helper = new WeakMap();
+
+	var _context = new WeakMap();
+
+	var _actionUri = new WeakMap();
+
+	var _isFrame = new WeakMap();
+
+	var _prettyDateFormat = new WeakMap();
+
+	var _isSaved = new WeakMap();
+
+	var _isRegistered = new WeakMap();
+
+	var _isOutside = new WeakMap();
+
+	var _mess = new WeakMap();
+
+	var _letterTile = new WeakMap();
+
+	var _selectorNode = new WeakMap();
+
+	var _editorNode = new WeakMap();
+
+	var _titleNode = new WeakMap();
+
+	var _loginNode = new WeakMap();
+
+	var _formNode = new WeakMap();
+
+	var _oauthCodeNode = new WeakMap();
+
+	var _filterNode = new WeakMap();
+
+	var _filterData = new WeakMap();
+
+	var _filterId = new WeakMap();
+
+	var _filter = new WeakMap();
+
+	var _ajaxAction = new WeakMap();
+
+	var _messageFields = new WeakMap();
+
+	var _templateChangeButton = new WeakMap();
+
+	var _buttonsNode = new WeakMap();
+
+	var _templateNameNode = new WeakMap();
+
+	var _templateTypeNode = new WeakMap();
+
+	var _templateIdNode = new WeakMap();
+
+	var _templateData = new WeakMap();
+
+	var _REGION_BY_IP = new WeakMap();
+
+	var _REGION_BY_PHONE = new WeakMap();
 
 	var Toloka = /*#__PURE__*/function () {
 	  function Toloka() {
@@ -671,11 +738,6 @@ this.BX = this.BX || {};
 	      value: void 0
 	    });
 
-	    _preset.set(this, {
-	      writable: true,
-	      value: void 0
-	    });
-
 	    _REGION_BY_IP.set(this, {
 	      writable: true,
 	      value: 'REGION_BY_IP'
@@ -698,11 +760,6 @@ this.BX = this.BX || {};
 	        BX.addCustomEvent(selector, selector.events.selectorClose, this.closeTemplateSelector.bind(this));
 	      }
 
-	      if (babelHelpers.classPrivateFieldGet(this, _filterNode)) {
-	        BX.bind(babelHelpers.classPrivateFieldGet(this, _filterNode), 'click', this.initAddressWidget.bind(this, babelHelpers.classPrivateFieldGet(this, _REGION_BY_IP)));
-	        BX.bind(babelHelpers.classPrivateFieldGet(this, _filterNode), 'click', this.initAddressWidget.bind(this, babelHelpers.classPrivateFieldGet(this, _REGION_BY_PHONE)));
-	      }
-
 	      if (this._saveBtn) {
 	        BX.bind(this._saveBtn, 'click', this.applyChanges.bind(this));
 	      }
@@ -722,6 +779,16 @@ this.BX = this.BX || {};
 	          });
 	        }
 	      }
+
+	      this.initWidget();
+	      var filter = this.getFilter();
+	      filter.getAddPresetButton().style.display = 'none';
+	      filter.getPreset().getPresets().forEach(function (preset) {
+	        preset.style.display = 'none';
+	      });
+	      BX.bind(filter.getResetButton(), 'click', this.reInitAddressWidget.bind(this));
+	      var clearFilterBtn = document.querySelector('.main-ui-delete');
+	      BX.bind(clearFilterBtn, 'click', this.reInitAddressWidget.bind(this));
 	    }
 	  }, {
 	    key: "initialize",
@@ -750,6 +817,7 @@ this.BX = this.BX || {};
 	      babelHelpers.classPrivateFieldSet(this, _letterTile, params.letterTile || {});
 	      babelHelpers.classPrivateFieldSet(this, _templateData, []);
 	      babelHelpers.classPrivateFieldSet(this, _messageFields, this.objectKeysToLowerCase(JSON.parse(params.preset)));
+	      this.optionData = [];
 	      this.prepareNodes();
 	      this.buildDispatchNodes();
 	      this._filterNode = [];
@@ -801,19 +869,61 @@ this.BX = this.BX || {};
 	      this._taskSuiteNode.parentNode.parentNode.style = 'display:none';
 	    }
 	  }, {
+	    key: "reInitAddressWidget",
+	    value: function reInitAddressWidget() {
+	      if (this._filterNode[babelHelpers.classPrivateFieldGet(this, _REGION_BY_IP)] && this._autocomplete[babelHelpers.classPrivateFieldGet(this, _REGION_BY_IP)]) {
+	        this._autocomplete[babelHelpers.classPrivateFieldGet(this, _REGION_BY_IP)].removeAutocompleteNode();
+
+	        this._autocomplete[babelHelpers.classPrivateFieldGet(this, _REGION_BY_IP)] = null;
+	      }
+
+	      if (this._filterNode[babelHelpers.classPrivateFieldGet(this, _REGION_BY_PHONE)] && this._autocomplete[babelHelpers.classPrivateFieldGet(this, _REGION_BY_PHONE)]) {
+	        this._autocomplete[babelHelpers.classPrivateFieldGet(this, _REGION_BY_PHONE)].removeAutocompleteNode();
+
+	        this._autocomplete[babelHelpers.classPrivateFieldGet(this, _REGION_BY_PHONE)] = null;
+	      }
+
+	      this.initWidget();
+	    }
+	  }, {
+	    key: "initWidget",
+	    value: function initWidget() {
+	      if (babelHelpers.classPrivateFieldGet(this, _filterNode)) {
+	        BX.bind(babelHelpers.classPrivateFieldGet(this, _filterNode), 'click', this.initAddressWidget.bind(this, babelHelpers.classPrivateFieldGet(this, _REGION_BY_IP)));
+	        BX.bind(babelHelpers.classPrivateFieldGet(this, _filterNode), 'click', this.initAddressWidget.bind(this, babelHelpers.classPrivateFieldGet(this, _REGION_BY_PHONE)));
+	        BX.bind(this.getFilter().getPopup().popupContainer, 'click', this.initAddressWidget.bind(this, babelHelpers.classPrivateFieldGet(this, _REGION_BY_IP)));
+	        BX.bind(this.getFilter().getPopup().popupContainer, 'click', this.initAddressWidget.bind(this, babelHelpers.classPrivateFieldGet(this, _REGION_BY_PHONE)));
+	      }
+	    }
+	  }, {
 	    key: "initAddressWidget",
-	    value: function initAddressWidget(name) {
+	    value: function initAddressWidget(name, event) {
 	      var _this = this;
 
-	      this._filterNode[name] = document.querySelectorAll("div[data-name=".concat(name, "]"))[0];
+	      if (event.target && this.getFilter().getSearch().isSquareRemoveButton(event.target)) {
+	        this.reInitAddressWidget();
+	      }
+
+	      this._filterNode[name] = document.querySelectorAll(".main-ui-filter-field-container-list > div[data-name=".concat(name, "]"))[0];
+
+	      if (!this._filterNode[name]) {
+	        if (this._autocomplete[name]) {
+	          this._autocomplete[name].removeAutocompleteNode();
+
+	          this._autocomplete[babelHelpers.classPrivateFieldGet(this, _REGION_BY_IP)] = null;
+	        }
+
+	        return;
+	      }
 
 	      if (this._autocomplete[name]) {
 	        return;
 	      }
 
 	      var self = this;
+	      this.optionData[name] = this.optionData[name] || [];
 	      this._autocomplete[name] = new Autocomplete(this._filterNode[name], {
-	        options: [],
+	        options: this.optionData[name],
 	        multiple: true,
 	        autocomplete: true,
 	        onChange: function onChange(value, preparedValue) {
@@ -938,29 +1048,53 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getLocationList",
 	    value: function getLocationList(name) {
+	      var _this2 = this;
+
 	      if (this._regionInput[name].value.length < 3) {
 	        return;
 	      }
 
+	      this.usedWords = this.usedWords || [];
+	      var value = this._regionInput[name].value;
+
+	      if (this.usedWords.includes(value)) {
+	        return;
+	      }
+
+	      this.usedWords.push(value);
 	      var self = this;
 	      babelHelpers.classPrivateFieldGet(this, _ajaxAction).request({
 	        action: 'getGeoList',
 	        data: {
-	          name: this._regionInput[name].value
+	          name: value
 	        },
 	        onsuccess: function onsuccess(response) {
-	          var data = [];
+	          if (!_this2.optionData[name]) {
+	            _this2.optionData[name] = [];
+	          }
 
-	          for (var value in response) {
-	            var responseData = response[value];
+	          for (var _value in response) {
+	            var responseData = response[_value];
 
 	            if (babelHelpers.typeof(responseData) === 'object' && 'id' in responseData) {
-	              data.push(responseData);
+	              _this2.optionData[name].push(responseData);
 	            }
 	          }
 
 	          if (self._autocomplete[name]) {
-	            self._autocomplete[name].setOptions(data);
+	            _this2.optionData[name] = _this2.optionData[name].reduce(function (acc, current) {
+	              var x = acc.find(function (item) {
+	                return item.id === current.id;
+	              });
+
+	              if (!x) {
+	                return acc.concat([current]);
+	              } else {
+	                return acc;
+	              }
+	            }, []);
+
+	            self._autocomplete[name].setOptions(_this2.optionData[name]);
 	          }
 	        }
 	      });
@@ -968,11 +1102,11 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "validateRequiredFields",
 	    value: function validateRequiredFields() {
-	      var _this2 = this;
+	      var _this3 = this;
 
 	      var success = true;
 	      [this._expireInNode, this._priceNode, this._tasksNode].every(function (element) {
-	        if (!_this2.validateField(element)) {
+	        if (!_this3.validateField(element)) {
 	          success = false;
 	          return false;
 	        }
@@ -1017,7 +1151,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "createProject",
 	    value: function createProject() {
-	      var _this3 = this;
+	      var _this4 = this;
 
 	      if (!this.validateRequiredFields()) {
 	        return;
@@ -1041,19 +1175,19 @@ this.BX = this.BX || {};
 	          styles: babelHelpers.classPrivateFieldGet(this, _templateData)['PRESET'].css
 	        },
 	        onsuccess: function onsuccess(response) {
-	          _this3._projectNode.value = response.id;
+	          _this4._projectNode.value = response.id;
 
-	          _this3.createPool(response.id);
+	          _this4.createPool(response.id);
 	        },
 	        onfailure: function onfailure(response) {
-	          _this3.removeLoader();
+	          _this4.removeLoader();
 	        }
 	      });
 	    }
 	  }, {
 	    key: "createPool",
 	    value: function createPool(projectId) {
-	      var _this4 = this;
+	      var _this5 = this;
 
 	      var input_key = Object.keys(babelHelpers.classPrivateFieldGet(this, _templateData)['INPUT_VALUE'])[0];
 	      babelHelpers.classPrivateFieldGet(this, _ajaxAction).request({
@@ -1073,9 +1207,9 @@ this.BX = this.BX || {};
 	          filter: babelHelpers.classPrivateFieldGet(this, _filterData)
 	        },
 	        onsuccess: function onsuccess(response) {
-	          _this4._poolNode.value = response.pool_id;
-	          _this4._taskSuiteNode.value = response.id;
-	          var form = babelHelpers.classPrivateFieldGet(_this4, _context).getElementsByTagName('form');
+	          _this5._poolNode.value = response.pool_id;
+	          _this5._taskSuiteNode.value = response.id;
+	          var form = babelHelpers.classPrivateFieldGet(_this5, _context).getElementsByTagName('form');
 
 	          if (form && form[0]) {
 	            form[0].appendChild(BX.create('input', {
@@ -1089,7 +1223,7 @@ this.BX = this.BX || {};
 	          }
 	        },
 	        onfailure: function onfailure(response) {
-	          _this4.removeLoader();
+	          _this5.removeLoader();
 	        }
 	      });
 	    }
@@ -1119,70 +1253,6 @@ this.BX = this.BX || {};
 	  }]);
 	  return Toloka;
 	}();
-
-	var _page = new WeakMap();
-
-	var _helper = new WeakMap();
-
-	var _context = new WeakMap();
-
-	var _actionUri = new WeakMap();
-
-	var _isFrame = new WeakMap();
-
-	var _prettyDateFormat = new WeakMap();
-
-	var _isSaved = new WeakMap();
-
-	var _isRegistered = new WeakMap();
-
-	var _isOutside = new WeakMap();
-
-	var _mess = new WeakMap();
-
-	var _letterTile = new WeakMap();
-
-	var _selectorNode = new WeakMap();
-
-	var _editorNode = new WeakMap();
-
-	var _titleNode = new WeakMap();
-
-	var _loginNode = new WeakMap();
-
-	var _formNode = new WeakMap();
-
-	var _oauthCodeNode = new WeakMap();
-
-	var _filterNode = new WeakMap();
-
-	var _filterData = new WeakMap();
-
-	var _filterId = new WeakMap();
-
-	var _filter = new WeakMap();
-
-	var _ajaxAction = new WeakMap();
-
-	var _messageFields = new WeakMap();
-
-	var _templateChangeButton = new WeakMap();
-
-	var _buttonsNode = new WeakMap();
-
-	var _templateNameNode = new WeakMap();
-
-	var _templateTypeNode = new WeakMap();
-
-	var _templateIdNode = new WeakMap();
-
-	var _templateData = new WeakMap();
-
-	var _preset = new WeakMap();
-
-	var _REGION_BY_IP = new WeakMap();
-
-	var _REGION_BY_PHONE = new WeakMap();
 
 	exports.Toloka = Toloka;
 

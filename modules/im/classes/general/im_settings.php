@@ -213,7 +213,7 @@ class CIMSettings
 				'correctText' => COption::GetOptionString("im", "correct_text"),
 				'panelPositionHorizontal' => COption::GetOptionString("im", "panel_position_horizontal"),
 				'panelPositionVertical' => COption::GetOptionString("im", "panel_position_vertical"),
-				'loadLastMessage' => COption::GetOptionString("im", "load_last_message"),
+				'loadLastMessage' => true,
 				'loadLastNotify' => COption::GetOptionString("im", "load_last_notify"),
 				'notifyAutoRead' => true,
 				'notifyScheme' => 'simple',

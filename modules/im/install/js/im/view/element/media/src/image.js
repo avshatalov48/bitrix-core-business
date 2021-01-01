@@ -10,6 +10,7 @@
 import './image.css';
 import 'ui.vue.directives.lazyload';
 import 'ui.icons';
+import 'ui.vue.components.socialvideo';
 
 import "ui.vue.components.audioplayer";
 
@@ -77,6 +78,12 @@ Vue.cloneComponent('bx-im-view-element-file-image', 'bx-im-view-element-file',
 				:data-lazyload-src="fileSource"
 				:title="localize.IM_MESSENGER_ELEMENT_FILE_SHOW_TITLE.replace('#NAME#', file.name).replace('#SIZE#', fileSize)"
 				:style="styleFileSizes"
+				:data-viewer="file.viewerAttrs.viewer === null"
+				:data-viewer-type="file.viewerAttrs.viewerType? file.viewerAttrs.viewerType: false"
+				:data-src="file.viewerAttrs.src? file.viewerAttrs.src: false"
+				:data-viewer-group-by="file.viewerAttrs.viewerGroupBy? file.viewerAttrs.viewerGroupBy: false"
+				:data-title="file.viewerAttrs.title? file.viewerAttrs.title: false"
+				:data-actions="file.viewerAttrs.actions? file.viewerAttrs.actions: false"
 			/>
 		</div>
 	`

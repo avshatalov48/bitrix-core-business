@@ -1,12 +1,12 @@
 <?php
-$MESS['SALE_HPS_YANDEX'] = 'Яндекс.Касса (до версии 3.х)';
+$MESS['SALE_HPS_YANDEX'] = 'ЮKassa (устаревшая версия)';
 $MESS["SALE_HPS_YANDEX_SHOP_ID"] = "Идентификатор магазина в ЦПП (ShopID)";
-$MESS["SALE_HPS_YANDEX_SHOP_ID_DESC"] = "Код магазина, который получен от Яндекс";
+$MESS["SALE_HPS_YANDEX_SHOP_ID_DESC"] = "Код магазина, который получен от ЮKassa";
 $MESS["SALE_HPS_YANDEX_SCID"] = "Номер витрины магазина в ЦПП (scid)";
 $MESS["SALE_HPS_YANDEX_SCID_DESC"] = "Номер витрины магазина в ЦПП (scid)";
 $MESS["SALE_HPS_YANDEX_PAYMENT_ID"] = "Номер оплаты";
 $MESS["SALE_HPS_YANDEX_SHOP_KEY"] = "Пароль магазина";
-$MESS["SALE_HPS_YANDEX_SHOP_KEY_DESC"] = "Пароль магазина на Яндекс";
+$MESS["SALE_HPS_YANDEX_SHOP_KEY_DESC"] = "Пароль магазина на ЮKassa";
 $MESS["SALE_HPS_YANDEX_SHOULD_PAY"] = "Сумма к оплате";
 $MESS["SALE_HPS_YANDEX_PAYMENT_DATE"] = "Дата создания оплаты";
 $MESS["SALE_HPS_YANDEX_IS_TEST"] = "Тестовый режим";
@@ -19,7 +19,7 @@ $MESS["SALE_HPS_YANDEX_RESTRICTION"] = "Ограничение по сумме �
 $MESS["SALE_HPS_YANDEX_COMMISSION"] = "Без комисси для покупателя";
 $MESS["SALE_HPS_YANDEX_REFERRER"] = "<a href=\"https://money.yandex.ru/joinups/?source=bitrix24\" target=\"_blank\">Быстрая регистрация</a>";
 
-$MESS["SALE_HPS_YANDEX_DESCRIPTION"] = "Работа через Центр Приема Платежей <a href=\"https://kassa.yandex.ru\" target=\"_blank\">https://kassa.yandex.ru</a>
+$MESS["SALE_HPS_YANDEX_DESCRIPTION"] = "Работа через Центр Приема Платежей <a href=\"https://yookassa.ru\" target=\"_blank\">https://yookassa.ru</a>
 <br/>Используется протокол commonHTTP-3.0
 <br/><br/>
 <input

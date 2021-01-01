@@ -1,4 +1,4 @@
-<?
+<?php
 IncludeModuleLangFile(__FILE__);
 
 use Bitrix\Bizproc\Workflow\Entity\WorkflowInstanceTable;
@@ -113,6 +113,24 @@ class CBPDocument
 		);
 
 		return ($arDocumentStates + $arTemplateStates);
+	}
+
+	public static function getActiveStates(array $documentId, $limit = 0)
+	{
+		$documentId = CBPHelper::ParseDocumentId($documentId);
+		$workflowIds = WorkflowInstanceTable::getIdsByDocument($documentId);
+
+		if (!$workflowIds)
+		{
+			return [];
+		}
+
+		if ($limit > 0 && count($workflowIds) > $limit)
+		{
+			$workflowIds = array_slice($workflowIds, 0, $limit);
+		}
+
+		return CBPStateService::GetDocumentStates($documentId, $workflowIds);
 	}
 
 	/**

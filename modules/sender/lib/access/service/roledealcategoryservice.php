@@ -69,7 +69,8 @@ class RoleDealCategoryService implements RoleDealCategoryServiceInterface
 		$ableDealCategories = $this->getAbleDealCategories($userId);
 		$dealCategories = [];
 		$allowAll = false;
-		$dealCategories[''] =  Loc::getMessage('SENDER_DEAL_CATEGORY_WITHOUT_DEAL');
+
+		$dealCategories[''] =  $categories['']??Loc::getMessage('SENDER_DEAL_CATEGORY_WITHOUT_DEAL');
 		foreach ($ableDealCategories as $ableDealCategory)
 		{
 			if((int)$ableDealCategory['CATEGORY_ID'] === self::ALL_CATEGORIES)

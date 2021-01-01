@@ -1370,4 +1370,9 @@ abstract class Provider
 
 		return $result;
 	}
+
+	public function warmUpAuxCommentsStaticCache(array $params = [])
+	{
+		return;
+	}
 }

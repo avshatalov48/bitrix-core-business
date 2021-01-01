@@ -137,10 +137,18 @@
 						node,
 						items.map(function (childItem) {
 							var _this = this;
-							childItem.items.map(function(item) {
-								item.onclick = _this.onClick.bind(_this, target, node, item);
-								return item;
-							})
+							if(typeof childItem.items !== 'undefined' && childItem.items.length !== 0)
+							{
+								childItem.items.map(function(item) {
+									item.onclick = _this.onClick.bind(_this, target, node, item);
+									return item;
+								})
+							}
+							else
+							{
+								childItem.onclick = this.onClick.bind(this, target, node, childItem);
+							}
+
 							return childItem;
 						}, this),
 						{

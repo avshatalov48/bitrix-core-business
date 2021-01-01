@@ -16,8 +16,6 @@ class CDatabase extends CDatabaseMysql
 
 	function ConnectInternal()
 	{
-		global $USER;
-
 		$dbHost = $this->DBHost;
 		$dbPort = null;
 		if (($pos = mb_strpos($dbHost, ":")) !== false)
@@ -33,8 +31,10 @@ class CDatabase extends CDatabaseMysql
 		if(!$this->db_Conn)
 		{
 			$error = "[".mysqli_connect_errno()."] ".mysqli_connect_error();
-			if($this->debug || (($USER instanceof CUser) && $USER->IsAdmin()))
+			if($this->debug)
+			{
 				echo "<br><font color=#ff0000>Error! mysqli_connect()</font><br>".$error."<br>";
+			}
 
 			SendError("Error! mysqli_connect()\n".$error."\n");
 

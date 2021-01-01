@@ -286,3 +286,17 @@ BX.ready(function()
 		});
 	}
 });
+
+/**
+ * Show all 20 colors in setting 'corporate color'
+ */
+function showAllColors()
+{
+	var colors = document.getElementById("set-colors");
+	for (var i = 0; i < colors.childNodes.length; i++)
+	{
+		colors.childNodes[i].hidden = false;
+	}
+	var link = document.getElementById("link-all-colors");
+	link.hidden = true;
+}

@@ -30,7 +30,7 @@ class HttpHeaders implements IteratorAggregate
 		$name = $this->refineString($name);
 		$value = $this->refineString($value);
 
-		$nameLower = mb_strtolower($name);
+		$nameLower = strtolower($name);
 
 		if (!isset($this->headers[$nameLower]))
 		{
@@ -59,7 +59,7 @@ class HttpHeaders implements IteratorAggregate
 		{
 			$value = $this->refineString($value);
 		}
-		$nameLower = mb_strtolower($name);
+		$nameLower = strtolower($name);
 
 		$this->headers[$nameLower] = [
 			"name" => $name,
@@ -75,7 +75,7 @@ class HttpHeaders implements IteratorAggregate
 	 */
 	public function get($name, $returnArray = false)
 	{
-		$nameLower = mb_strtolower($name);
+		$nameLower = strtolower($name);
 
 		if (isset($this->headers[$nameLower]))
 		{
@@ -98,7 +98,7 @@ class HttpHeaders implements IteratorAggregate
 	 */
 	public function delete($name)
 	{
-		$nameLower = mb_strtolower($name);
+		$nameLower = strtolower($name);
 
 		if (isset($this->headers[$nameLower]))
 		{
@@ -183,7 +183,7 @@ class HttpHeaders implements IteratorAggregate
 			foreach ($parts as $part)
 			{
 				$values = explode("=", $part);
-				if (mb_strtolower(trim($values[0])) == "charset")
+				if (strtolower(trim($values[0])) == "charset")
 				{
 					return trim($values[1]);
 				}

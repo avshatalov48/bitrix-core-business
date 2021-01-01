@@ -4,6 +4,8 @@ namespace Bitrix\Main\Session;
 
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Configuration;
+use Bitrix\Main\Session\Handlers\NullSessionHandler;
+use Bitrix\Main\Web\Cookie;
 
 class Session implements SessionInterface, \ArrayAccess
 {
@@ -122,6 +124,7 @@ class Session implements SessionInterface, \ArrayAccess
 
 		try
 		{
+			$this->applySessionStartIniSettings($this->getSessionStartOptions());
 			if (!session_start())
 			{
 				throw new \RuntimeException('Could not start session by PHP.');
@@ -161,6 +164,38 @@ class Session implements SessionInterface, \ArrayAccess
 		}
 
 		return true;
+	}
+
+	protected function getSessionStartOptions(): array
+	{
+		if ($this->sessionHandler instanceof NullSessionHandler)
+		{
+			return [
+				'use_cookies' => 0,
+				'use_strict_mode' => 1,
+			];
+		}
+
+		$options = [
+			'cookie_httponly' => 1,
+			'use_strict_mode' => 1,
+		];
+
+		$domain = Cookie::getCookieDomain();
+		if ($domain)
+		{
+			$options['cookie_domain'] = $domain;
+		}
+
+		return $options;
+	}
+
+	protected function applySessionStartIniSettings(array $settings): void
+	{
+		foreach ($settings as $name => $value)
+		{
+			ini_set("session.{$name}", $value);
+		}
 	}
 
 	public function regenerateId(): bool

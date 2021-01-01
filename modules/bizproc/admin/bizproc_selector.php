@@ -447,7 +447,7 @@ $renderSelect = function($arReturns, $open = true, $title = null) use ($arFilter
 					if ($groupName === "" || mb_strpos($groupId, 'group_u') === 0)
 						continue;
 					?>
-					<option value="<?=htmlspecialcharsbx($groupName)?>; "><?=htmlspecialcharsbx($groupName)?></option>
+					<option value="<?=htmlspecialcharsbx(str_replace(",","", $groupName))?>; "><?=htmlspecialcharsbx($groupName)?></option>
 				<?endforeach?>
 				<option value="" style="background-color: #eeeeff"><?echo GetMessage("BIZPROC_SEL_USERS_TAB_USERS")?></option>
 				<?

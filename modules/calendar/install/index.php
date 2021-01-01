@@ -193,8 +193,10 @@ class calendar extends CModule
 		{
 			\CAgent::AddAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::createWatchChannels(0);", "calendar", "N", 60);
 			\CAgent::AddAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::processPush();", "calendar", "N", 180);
-			\CAgent::AddAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::renewWatchChannels();", "calendar", "N", \Bitrix\Calendar\Sync\GoogleApiPush::RENEW_INTERVAL_CHANNEL);
-			\CAgent::AddAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::checkPushChannel();", "calendar", "N", \Bitrix\Calendar\Sync\GoogleApiPush::CHECK_INTERVAL_CHANNEL);
+			//\Bitrix\Calendar\Sync\GoogleApiPush::RENEW_INTERVAL_CHANNEL
+			\CAgent::AddAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::renewWatchChannels();", "calendar", "N", 14400);
+			//\Bitrix\Calendar\Sync\GoogleApiPush::CHECK_INTERVAL_CHANNEL
+			\CAgent::AddAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::checkPushChannel();", "calendar", "N", 14400);
 		}
 		CAgent::AddAgent("CCalendarSync::doSync();", "calendar", "N", 120);
 

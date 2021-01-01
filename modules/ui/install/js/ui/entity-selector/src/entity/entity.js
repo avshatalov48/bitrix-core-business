@@ -7,8 +7,6 @@ import SearchField from '../search/search-field';
 import type Item from '../item/item';
 import type { EntityOptions } from './entity-options';
 import type { SearchFieldOptions } from '../search/search-field-options';
-import type { ItemOptions } from '../item/item-options';
-import type { TagItemOptions } from '../tag-selector/tag-item-options';
 import type { ItemBadgeOptions } from '../item/item-badge-options';
 
 /**
@@ -42,8 +40,8 @@ export default class Entity extends EventEmitter
 			throw new Error('EntitySelector.Entity: "id" parameter is required.');
 		}
 
-		const defaultOptions = this.constructor.getEntityOptions(options.id) || {};
-		options = Runtime.merge({}, defaultOptions, options);
+		const defaultOptions = this.constructor.getEntityDefaultOptions(options.id) || {};
+		options = Runtime.merge(JSON.parse(JSON.stringify(defaultOptions)), options);
 
 		this.id = options.id;
 		this.options = Type.isPlainObject(options.options) ? options.options : {};
@@ -89,7 +87,7 @@ export default class Entity extends EventEmitter
 		return this.extensions;
 	}
 
-	static getEntityOptions(entityId: string)
+	static getEntityDefaultOptions(entityId: string)
 	{
 		return this.getDefaultOptions()[entityId] || null;
 	}
@@ -101,7 +99,7 @@ export default class Entity extends EventEmitter
 			return null;
 		}
 
-		const options = this.getEntityOptions(entityId);
+		const options = this.getEntityDefaultOptions(entityId);
 		const itemOptions = options && options['itemOptions'] ? options['itemOptions'] : null;
 
 		if (Type.isUndefined(entityType))
@@ -110,20 +108,8 @@ export default class Entity extends EventEmitter
 		}
 		else
 		{
-			return itemOptions && itemOptions[entityType] ? itemOptions[entityType] : null;
+			return itemOptions && !Type.isUndefined(itemOptions[entityType]) ? itemOptions[entityType] : null;
 		}
-	}
-
-	static getItemOption(entityId: string, entityType: string, option: string)
-	{
-		if (!Type.isStringFilled(entityType) || !Type.isStringFilled(option))
-		{
-			return null;
-		}
-
-		const options = this.getItemOptions(entityId, entityType);
-
-		return options && !Type.isUndefined(options[option]) ? options[option] : null;
 	}
 
 	static getTagOptions(entityId: string, entityType?: string)
@@ -133,7 +119,7 @@ export default class Entity extends EventEmitter
 			return null;
 		}
 
-		const options = this.getEntityOptions(entityId);
+		const options = this.getEntityDefaultOptions(entityId);
 		const tagOptions = options && options['tagOptions'] ? options['tagOptions'] : null;
 
 		if (Type.isUndefined(entityType))
@@ -144,18 +130,6 @@ export default class Entity extends EventEmitter
 		{
 			return tagOptions && !Type.isUndefined(tagOptions[entityType]) ? tagOptions[entityType] : null;
 		}
-	}
-
-	static getTagOption(entityId: string, entityType: string, option: string)
-	{
-		if (!Type.isStringFilled(entityType) || !Type.isStringFilled(option))
-		{
-			return null;
-		}
-
-		const options = this.getTagOptions(entityId, entityType);
-
-		return options && options[option] ? options[option] : null;
 	}
 
 	getId(): string
@@ -173,19 +147,14 @@ export default class Entity extends EventEmitter
 		return this.itemOptions;
 	}
 
-	getItemOption(item: Item, option: string): any
+	static getItemOption(entityId: string, option: string, entityType?: string)
 	{
-		const entityType = item.getEntityType();
-		if (this.itemOptions[entityType] && !Type.isUndefined(this.itemOptions[entityType][option]))
-		{
-			return this.itemOptions[entityType][option];
-		}
-		else if (this.itemOptions['default'] && !Type.isUndefined(this.itemOptions['default'][option]))
-		{
-			return this.itemOptions['default'][option];
-		}
+		return this.getOptionInternal(this.getItemOptions(entityId), option, entityType);
+	}
 
-		return null;
+	getItemOption(option: string, entityType?: string): any
+	{
+		return this.constructor.getOptionInternal(this.itemOptions, option, entityType);
 	}
 
 	getTagOptions(): { [key: string]: any }
@@ -193,16 +162,30 @@ export default class Entity extends EventEmitter
 		return this.tagOptions;
 	}
 
-	getTagOption(item: Item, option: string): any
+	static getTagOption(entityId: string, option: string, entityType?: string)
 	{
-		const entityType = item.getEntityType();
-		if (this.tagOptions[entityType] && !Type.isUndefined(this.tagOptions[entityType][option]))
+		return this.getOptionInternal(this.getTagOptions(entityId), option, entityType);
+	}
+
+	getTagOption(option: string, entityType?: string): any
+	{
+		return this.constructor.getOptionInternal(this.tagOptions, option, entityType);
+	}
+
+	static getOptionInternal(options, option: string, type?: string): any
+	{
+		if (!Type.isPlainObject(options))
 		{
-			return this.tagOptions[entityType][option];
+			return null;
 		}
-		else if (this.tagOptions['default'] && !Type.isUndefined(this.tagOptions['default'][option]))
+
+		if (options[type] && !Type.isUndefined(options[type][option]))
 		{
-			return this.tagOptions['default'][option];
+			return options[type][option];
+		}
+		else if (options['default'] && !Type.isUndefined(options['default'][option]))
+		{
+			return options['default'][option];
 		}
 
 		return null;
@@ -210,7 +193,7 @@ export default class Entity extends EventEmitter
 
 	getBadges(item: Item)
 	{
-		const entityTypeBadges = this.getItemOption(item, 'badges') || [];
+		const entityTypeBadges = this.getItemOption('badges', item.getEntityType()) || [];
 		const badges = [...entityTypeBadges];
 
 		this.badgeOptions.forEach((badge) => {

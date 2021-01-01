@@ -665,6 +665,13 @@ class CAllMailBox
 		return true;
 	}
 
+	/**
+	 * Clears all database entries associated with the mailbox.
+	 *
+	 * @param string $ID mailbox id.
+	 *
+	 * @return CDBResult|false
+	 */
 	public static function Delete($ID)
 	{
 		global $DB;
@@ -710,6 +717,9 @@ class CAllMailBox
 		$strSql = "DELETE FROM b_mail_message_uid WHERE MAILBOX_ID=".$ID;
 		if(!$DB->Query($strSql, true))
 			return false;
+		
+		// @TODO: make a log optional
+		//AddMessage2Log("The mailbox $ID was deleted");
 
 		$strSql = "DELETE FROM b_mail_blacklist WHERE MAILBOX_ID=".$ID;
 		if(!$DB->Query($strSql, true))
@@ -1006,6 +1016,14 @@ class CAllMailBox
 			while (count($arOldUIDL) > 0)
 			{
 				$ids = "'" . join("','", array_splice($arOldUIDL, 0, 1000)) . "'";
+
+				// @TODO: make a log optional
+				/*$toLog = [
+					'filter'=>'\CAllMailBox::_connect',
+					'removedMessages'=>$ids,
+				];
+				AddMessage2Log($toLog);*/
+
 				$strSql = 'DELETE FROM b_mail_message_uid WHERE MAILBOX_ID = ' . $mailbox_id . ' AND ID IN (' . $ids . ')';
 				$DB->query($strSql, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
 			}

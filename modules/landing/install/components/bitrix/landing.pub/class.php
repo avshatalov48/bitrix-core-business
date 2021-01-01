@@ -1305,6 +1305,10 @@ class LandingPubComponent extends LandingBaseComponent
 				$realFilePath = $context->getServer()->get('REAL_FILE_PATH');
 				if (!$realFilePath)
 				{
+					$realFilePath = $_SERVER['REAL_FILE_PATH'] ?? null;
+				}
+				if (!$realFilePath)
+				{
 					$realFilePath = $context->getServer()->get('SCRIPT_NAME');
 				}
 				$requestURL = str_replace('/index.php', '/', $requestURL);
@@ -1370,6 +1374,7 @@ class LandingPubComponent extends LandingBaseComponent
 				self::$landingMain['LANDING_ID'] = $lid;
 				self::$landingMain['LANDING_INSTANCE'] = $landing;
 				$this->arResult['LANDING'] = $landing;
+				$this->arResult['SPECIAL_TYPE'] = $this->getSpecialTypeSite($landing->getSiteId());
 				$this->arResult['DOMAIN'] = $this->getParentDomain();
 				$this->arResult['COPY_LINK'] = $this->getCopyLinkPath();
 				$this->arResult['ADV_CODE'] = $this->getAdvCode();
@@ -1545,6 +1550,12 @@ class LandingPubComponent extends LandingBaseComponent
 						return;
 					}
 					$this->arParams['CHECK_PERMISSIONS'] = 'Y';
+				}
+				// try force reload
+				if ($this->request('forceLandingId'))
+				{
+					$landingForce = Landing::createInstance($this->request('forceLandingId'));
+					\localRedirect($landingForce->getPublicUrl(false, false) . '?IFRAME=Y');
 				}
 				// site is actual not exists
 				$this->setHttpStatusOnce($this::ERROR_STATUS_NOT_FOUND);

@@ -159,11 +159,13 @@ final class ClaimBuilder
 						(new RoutePoint())
 							->setContact($contactFrom)
 							->setAddress($addressFrom)
+							->setSkipConfirmation(true)
 					)
 					->setDestination(
 						(new RoutePoint())
 							->setContact($contactTo)
 							->setAddress($addressTo)
+							->setSkipConfirmation(true)
 					)
 			)
 			->setReferralSource('api_1c-bitrix');

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="19px" height="2px" viewBox="0 0 19 2" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Line</title>
+    <g id="03-Финал-(Разное)" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-dasharray="1" stroke-linecap="round" stroke-linejoin="round">
+        <g id="Divider-02" transform="translate(-11.000000, -16.000000)" stroke="#2FC6F6" stroke-width="2">
+            <line x1="12.5" y1="17" x2="28.8021661" y2="17" id="Line"></line>
+        </g>
+    </g>
+</svg>

@@ -255,10 +255,33 @@ class CashboxAtolFarm extends Cashbox implements IPrintImmediately, ICheckable
 	/**
 	 * @param Check $check
 	 * @return Result
-	 * @throws Main\NotImplementedException
 	 * @throws Main\SystemException
 	 */
 	public function printImmediately(Check $check)
+	{
+		$checkQuery = $this->buildCheckQuery($check);
+		$validateResult = $this->validateCheckQuery($checkQuery);
+		if (!$validateResult->isSuccess())
+		{
+			return $validateResult;
+		}
+
+		$operation = 'sell';
+		if ($check::getCalculatedSign() === Check::CALCULATED_SIGN_CONSUMPTION)
+		{
+			$operation = 'sell_refund';
+		}
+
+		return $this->registerCheck($operation, $checkQuery);
+	}
+
+	/**
+	 * @param $operation
+	 * @param array $check
+	 * @return Result
+	 * @throws Main\SystemException
+	 */
+	protected function registerCheck($operation, array $check)
 	{
 		$printResult = new Result();
 
@@ -273,19 +296,13 @@ class CashboxAtolFarm extends Cashbox implements IPrintImmediately, ICheckable
 			}
 		}
 
-		$checkQuery = $this->buildCheckQuery($check);
-		$validateResult = $this->validateCheckQuery($checkQuery);
-		if (!$validateResult->isSuccess())
-		{
-			return $validateResult;
-		}
+		$url = $this->getRequestUrl(static::OPERATION_CHECK_REGISTRY, $token, ['CHECK_TYPE' => $operation]);
 
-		$operation = $check::getCalculatedSign() === Check::CALCULATED_SIGN_INCOME ? 'sell' : 'sell_refund';
-		$url = $this->getRequestUrl(static::OPERATION_CHECK_REGISTRY, $token, array('CHECK_TYPE' => $operation));
-
-		$result = $this->send(static::REQUEST_TYPE_POST, $url, $checkQuery);
+		$result = $this->send(static::REQUEST_TYPE_POST, $url, $check);
 		if (!$result->isSuccess())
+		{
 			return $result;
+		}
 
 		$response = $result->getData();
 		if ($response['http_code'] === static::RESPONSE_HTTP_CODE_401)
@@ -298,9 +315,11 @@ class CashboxAtolFarm extends Cashbox implements IPrintImmediately, ICheckable
 			}
 
 			$url = $this->getRequestUrl(static::OPERATION_CHECK_REGISTRY, $token, array('CHECK_TYPE' => $operation));
-			$result = $this->send(static::REQUEST_TYPE_POST, $url, $checkQuery);
+			$result = $this->send(static::REQUEST_TYPE_POST, $url, $check);
 			if (!$result->isSuccess())
+			{
 				return $result;
+			}
 
 			$response = $result->getData();
 		}
@@ -337,15 +356,24 @@ class CashboxAtolFarm extends Cashbox implements IPrintImmediately, ICheckable
 	 */
 	public function check(Check $check)
 	{
+		return $this->checkByUuid(
+			$check->getField('EXTERNAL_UUID')
+		);
+	}
+
+	protected function checkByUuid($uuid)
+	{
 		$url = $this->getRequestUrl(
 			static::OPERATION_CHECK_CHECK,
 			$this->getAccessToken(),
-			array('EXTERNAL_UUID' => $check->getField('EXTERNAL_UUID'))
+			['EXTERNAL_UUID' => $uuid]
 		);
 
 		$result = $this->send(static::REQUEST_TYPE_GET, $url);
 		if (!$result->isSuccess())
+		{
 			return $result;
+		}
 
 		$response = $result->getData();
 		if ($response['http_code'] === static::RESPONSE_HTTP_CODE_401)
@@ -360,12 +388,14 @@ class CashboxAtolFarm extends Cashbox implements IPrintImmediately, ICheckable
 			$url = $this->getRequestUrl(
 				static::OPERATION_CHECK_CHECK,
 				$this->getAccessToken(),
-				array('EXTERNAL_UUID' => $check->getField('EXTERNAL_UUID'))
+				['EXTERNAL_UUID' => $uuid]
 			);
 
 			$result = $this->send(static::REQUEST_TYPE_GET, $url);
 			if (!$result->isSuccess())
+			{
 				return $result;
+			}
 
 			$response = $result->getData();
 		}

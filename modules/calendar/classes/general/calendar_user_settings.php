@@ -1,8 +1,6 @@
 <?
 /**
- * Class COAuthCode
- *
- * @deprecated
+ * Class CCalendarUserSettings
  */
 class CCalendarUserSettings
 {

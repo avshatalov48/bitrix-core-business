@@ -166,9 +166,9 @@ class Project implements TolokaTransferObject
 	}
 
 	/**
-	 * @return int
+	 * @return null|int
 	 */
-	public function getId(): int
+	public function getId(): ?int
 	{
 		return $this->id;
 	}

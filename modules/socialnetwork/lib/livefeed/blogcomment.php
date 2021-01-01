@@ -78,7 +78,11 @@ final class BlogComment extends Provider
 					);
 					$p = new \blogTextParser();
 					$title = $p->convert($title, false);
-					$title = preg_replace(array("/\n+/is".BX_UTF_PCRE_MODIFIER, "/\s+/is".BX_UTF_PCRE_MODIFIER), " ", \blogTextParser::killAllTags($title));
+					$title = preg_replace([
+						"/\n+/is".BX_UTF_PCRE_MODIFIER,
+						"/\s+/is".BX_UTF_PCRE_MODIFIER,
+						"/&nbsp;+/is".BX_UTF_PCRE_MODIFIER
+					], " ", \blogTextParser::killAllTags($title));
 
 					$this->setSourceTitle(truncateText($title, 100));
 					$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects());

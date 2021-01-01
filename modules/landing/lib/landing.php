@@ -1755,6 +1755,13 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 			Assets\Manager::rebuildWebpackForLanding($this->id);
 			$this->version = 8;
 		}
+		if ($this->version <= 8)
+		{
+			$needUpdate = true;
+			Subtype\Form::updateLandingToEmbedForms($this->id);
+			Assets\Manager::rebuildWebpackForLanding($this->id);
+			$this->version = 9;
+		}
 		if ($needUpdate)
 		{
 			Rights::setOff();

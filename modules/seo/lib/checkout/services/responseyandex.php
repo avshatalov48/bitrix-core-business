@@ -7,6 +7,7 @@ use Bitrix\Seo\Checkout\Response;
 
 /**
  * Class ResponseYandex
+ * @deprecated
  * @package Bitrix\Seo\Checkout\Services
  */
 class ResponseYandex extends Response

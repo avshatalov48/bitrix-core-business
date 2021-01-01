@@ -4,6 +4,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use \Bitrix\Landing\Hook;
 use \Bitrix\Landing\Site;
 use \Bitrix\Landing\Landing;
 use \Bitrix\Landing\Manager;
@@ -271,6 +272,10 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 						$primary['ID'],
 						$data
 					);
+					if (Manager::getOption('public_hook_on_save') == 'Y')
+					{
+						Hook::publicationSite($primary['ID']);
+					}
 					// rights
 					if (Rights::isAdmin() && Rights::isExtendedMode())
 					{

@@ -1,0 +1,26 @@
+[class^="landing-ui-button-icon-"] {
+	background-repeat: no-repeat;
+	background-position: center center;
+	width: 34px;
+	height: 34px;
+	opacity: .4;
+	transition: opacity 200ms ease;
+	cursor: pointer;
+}
+
+[class^="landing-ui-button-icon-"]:hover {
+	opacity: 1;
+}
+
+.landing-ui-button-icon-drag {
+	background-image: url("images/drag-icon.svg");
+	cursor: grab;
+}
+
+.landing-ui-button-icon-remove {
+	background-image: url("images/remove-icon.svg");
+}
+
+.landing-ui-button-icon-edit {
+	background-image: url("images/edit-icon.svg");
+}

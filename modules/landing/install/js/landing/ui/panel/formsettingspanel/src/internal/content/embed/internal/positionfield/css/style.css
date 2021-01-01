@@ -1,0 +1,19 @@
+.landing-ui-position-fields-inner {
+	display: flex;
+}
+
+.landing-ui-position-fields-inner > .landing-ui-field {
+	flex-grow: 1;
+	max-width: 50%;
+	margin-bottom: 0;
+}
+
+.landing-ui-position-fields-inner > .landing-ui-field::after {
+	top: 50%;
+}
+
+.landing-ui-position-fields-inner [data-selector="horizontal"] {
+	margin-right: 10px;
+	min-width: 256px;
+	max-width: 256px;
+}

@@ -142,9 +142,11 @@
 	{
 		var ampm = BX.isAmPmMode();
 		var format = this.prettyDateFormat + ' ';
-		format += this.mess.atTime;
-		format += ' ' + (ampm ? "g:i a" : "H:i");
-		this.selectorNode.textContent = BX.date.format(format, value);
+
+		var tmpBeg = BX.date.format(format, value);
+		var tmpEnd = BX.date.format((ampm ? "g:i a" : "H:i"), value);
+
+		this.selectorNode.textContent = tmpBeg + ' ' + this.mess.atTime + ' ' + tmpEnd;
 	};
 	Time.prototype.onPopupItemEnter = function (id)
 	{

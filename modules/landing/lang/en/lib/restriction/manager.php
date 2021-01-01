@@ -1,6 +1,6 @@
 <?php
-$MESS["LANDING_BLOCK_SUBSCRIBE_EXPIRED"] = "The block was added by one of the applications you installed from the Marketplace. You have to activate your Marketplace subscription to make the block visible.";
-$MESS["LANDING_LANDING_PAYMENT_FAILED"] = "The page was added from one of the applications you installed from the Marketplace. You have to activate your Marketplace subscription to publish the page.";
+$MESS["LANDING_BLOCK_SUBSCRIBE_EXPIRED_2"] = "This block was added by an application installed on your Bitrix24. You have to subscribe to Bitrix24.Market to enable this block on your site.";
+$MESS["LANDING_LANDING_PAYMENT_FAILED_2"] = "This page was added by an application installed on your Bitrix24. You have to subscribe to Bitrix24.Market to publish this page.";
 $MESS["LANDING_LIMIT_KNOWLEDGE_BASE_NUMBER_PAGE"] = "You cannot create more knowledge bases on your current plan. Please upgrade to create a new knowledge base.";
 $MESS["LANDING_LIMIT_SITES_ACCESS_PERMISSIONS"] = "Permissions are not available on your current plan. Please upgrade to one of the major plans to manage and use permissions.";
 $MESS["LANDING_LIMIT_SITES_DYNAMIC_BLOCKS"] = "You can publish up to two dynamic blocks on your current plan. Please delete previously created blocks or upgrade to one of the major plans.";

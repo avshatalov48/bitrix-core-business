@@ -118,8 +118,15 @@ class CIMEvent
 					/** @var bool|object $handler */
 					if($handler = $handlerManager->getHandlerByPostText($originalText))
 					{
+						$suffix = '';
+						if ($provider = Livefeed\Provider::getProvider($contentId['ENTITY_TYPE']))
+						{
+							$suffix = $provider->getSuffix();
+						}
+
 						$handler->setOptions(array(
-							'im' => true
+							'im' => true,
+							'suffix' => $suffix
 						));
 						$handler->sendRatingNotification($auxData, $arParams);
 						return true;
@@ -142,8 +149,8 @@ class CIMEvent
 			}
 			$arMentionedUserID = array_unique($arMentionedUserID);
 
-			$title = CTextParser::clearAllTags($title);
-			$description = CTextParser::clearAllTags($description);
+			$title = CTextParser::clearAllTags(\Bitrix\Im\Text::removeBbCodes($title));
+			$description = CTextParser::clearAllTags(\Bitrix\Im\Text::removeBbCodes($description));
 
 			if (
 				$arParams['OWNER_ID'] != $arParams['USER_ID']
@@ -826,6 +833,29 @@ class CIMEvent
 				}
 			}
 		}
+
+		if (isset($arParams['ACTIVE']))
+		{
+			self::updateChatUserCounter($arParams["ID"]);
+		}
+	}
+
+	private static function updateChatUserCounter($userId): void
+	{
+		global $DB;
+		$sql = "
+			UPDATE b_im_chat C
+			INNER JOIN b_im_relation R ON C.ID = R.CHAT_ID
+			SET C.USER_COUNT = (
+				SELECT COUNT(1)
+				FROM b_im_relation R1
+				INNER JOIN b_user U ON R1.USER_ID = U.ID
+				WHERE R1.CHAT_ID = C.ID AND U.ACTIVE = 'Y'
+			)
+			WHERE R.MESSAGE_TYPE NOT IN ('".IM_MESSAGE_SYSTEM."','".IM_MESSAGE_PRIVATE."')
+			AND R.USER_ID = ".$userId."
+		";
+		$DB->Query($sql, true, "File: ".__FILE__."<br>Line: ".__LINE__);
 	}
 
 	public static function OnUserDelete($ID)

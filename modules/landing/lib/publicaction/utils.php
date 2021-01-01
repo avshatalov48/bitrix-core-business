@@ -69,6 +69,7 @@ class Utils
 
 		if (!$iblock)
 		{
+			\Bitrix\Landing\Hook::setEditMode(true);
 			$settings = \Bitrix\Landing\Hook\Page\Settings::getDataForSite(
 				$siteId
 			);
@@ -105,7 +106,7 @@ class Utils
 		{
 			$order = [];
 			$groupBy = false;
-			$navParams = false;
+			$navParams = ['nTopCount' => 50];
 			$select = [
 				'ID', 'NAME', 'IBLOCK_SECTION_ID', 'DETAIL_PICTURE'
 			];
@@ -344,6 +345,7 @@ class Utils
 
 		if (empty($settings))
 		{
+			\Bitrix\Landing\Hook::setEditMode(true);
 			$settings = \Bitrix\Landing\Hook\Page\Settings::getDataForSite();
 		}
 

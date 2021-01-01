@@ -473,6 +473,7 @@
 						this.util.setUserOption(this.viewOption, view);
 					}
 					this.triggerEvent('afterSetView', {viewName: view});
+					BX.Calendar.Util.setCurrentView(view);
 				}
 			}
 		},

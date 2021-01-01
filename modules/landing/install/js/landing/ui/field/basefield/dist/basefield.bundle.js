@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,main_core) {
+(function (exports,main_core,main_core_events) {
 	'use strict';
 
 	function _templateObject4() {
@@ -47,8 +47,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	 * @memberOf BX.Landing.UI.Field
 	 */
 
-	var BaseField = /*#__PURE__*/function (_Event$EventEmitter) {
-	  babelHelpers.inherits(BaseField, _Event$EventEmitter);
+	var BaseField = /*#__PURE__*/function (_EventEmitter) {
+	  babelHelpers.inherits(BaseField, _EventEmitter);
 	  babelHelpers.createClass(BaseField, null, [{
 	    key: "createLayout",
 	    value: function createLayout() {
@@ -76,6 +76,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    _this.setEventNamespace('BX.Landing.UI.Field');
 
 	    _this.data = babelHelpers.objectSpread({}, options);
+	    _this.options = _this.data;
 	    _this.id = Reflect.has(_this.data, 'id') ? _this.data.id : main_core.Text.getRandom();
 	    _this.selector = Reflect.has(_this.data, 'selector') ? _this.data.selector : main_core.Text.getRandom();
 	    _this.content = Reflect.has(_this.data, 'content') ? _this.data.content : '';
@@ -88,13 +89,16 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    _this.hidden = main_core.Text.toBoolean(_this.data.hidden);
 	    _this.property = main_core.Type.isString(_this.data.property) ? _this.data.property : '';
 	    _this.style = Reflect.has(_this.data, 'style') ? _this.data.style : '';
+	    _this.cache = new main_core.Cache.MemoryCache();
 	    var onValueChange = _this.data.onValueChange;
 	    _this.onValueChangeHandler = main_core.Type.isFunction(onValueChange) ? onValueChange : function () {};
 	    _this.onPaste = _this.onPaste.bind(babelHelpers.assertThisInitialized(_this));
 	    _this.layout = BaseField.createLayout();
 	    _this.header = BaseField.createHeader();
 	    _this.input = _this.createInput();
-	    _this.header.innerHTML = main_core.Text.encode(_this.title);
+
+	    _this.setTitle(_this.title);
+
 	    main_core.Dom.append(_this.header, _this.layout);
 	    main_core.Dom.append(_this.input, _this.layout);
 	    main_core.Dom.attr(_this.layout, 'data-selector', _this.selector);
@@ -121,6 +125,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }
 
 	  babelHelpers.createClass(BaseField, [{
+	    key: "setTitle",
+	    value: function setTitle(title) {
+	      this.header.innerHTML = main_core.Text.encode(title);
+	    }
+	  }, {
 	    key: "createInput",
 	    value: function createInput() {
 	      return main_core.Tag.render(_templateObject4(), this.content);
@@ -128,20 +137,32 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	  }, {
 	    key: "init",
-	    value: function init() {} // eslint-disable-next-line class-methods-use-this
+	    value: function init() {}
+	  }, {
+	    key: "getContext",
+	    value: function getContext() {
+	      if (this.input.ownerDocument) {
+	        return this.input.ownerDocument.defaultView;
+	      }
+
+	      return window;
+	    } // eslint-disable-next-line class-methods-use-this
 
 	  }, {
 	    key: "onPaste",
 	    value: function onPaste(event) {
 	      event.preventDefault();
+	      event.stopPropagation();
 
 	      if (event.clipboardData && event.clipboardData.getData) {
-	        var text = event.clipboardData.getData('text/plain');
-	        document.execCommand('insertHTML', false, main_core.Text.encode(text));
+	        var sourceText = event.clipboardData.getData('text/plain');
+	        var encodedText = BX.Text.encode(sourceText);
+	        var formattedHtml = encodedText.replace(new RegExp('\n', 'g'), '<br>');
+	        this.getContext().document.execCommand('insertHTML', false, formattedHtml);
 	      } else {
-	        var _text = window.clipboardData.getData('text');
-
-	        document.execCommand('paste', true, main_core.Text.encode(_text));
+	        // ie11
+	        var text = window.clipboardData.getData('text');
+	        this.getContext().document.execCommand('paste', true, BX.Text.encode(text));
 	      }
 	    }
 	  }, {
@@ -191,7 +212,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "enable",
 	    value: function enable() {
-	      main_core.Dom.attr(this.layout, 'disabled', false);
+	      main_core.Dom.attr(this.layout, 'disabled', null);
 	      main_core.Dom.removeClass(this.layout, 'landing-ui-disabled');
 	    }
 	  }, {
@@ -209,12 +230,22 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    value: function clone(data) {
 	      return new this.constructor(main_core.Runtime.clone(data || this.data));
 	    }
+	  }, {
+	    key: "getLayout",
+	    value: function getLayout() {
+	      return this.layout;
+	    }
+	  }, {
+	    key: "setLayoutClass",
+	    value: function setLayoutClass(className) {
+	      main_core.Dom.addClass(this.layout, className);
+	    }
 	  }]);
 	  return BaseField;
-	}(main_core.Event.EventEmitter);
+	}(main_core_events.EventEmitter);
 	babelHelpers.defineProperty(BaseField, "currentField", null);
 
 	exports.BaseField = BaseField;
 
-}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX));
+}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX,BX.Event));
 //# sourceMappingURL=basefield.bundle.js.map

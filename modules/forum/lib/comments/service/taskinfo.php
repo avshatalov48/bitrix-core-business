@@ -28,6 +28,7 @@ final class TaskInfo extends Base
 		if (
 			!is_array($data)
 			|| empty($data)
+			|| !\Bitrix\Main\Loader::includeModule("tasks")
 		)
 		{
 			return $result;

@@ -10,6 +10,7 @@ use Bitrix\Sale\Payment;
 use Bitrix\Sale\PaymentCollection;
 use Bitrix\Sale\PaySystem;
 use Bitrix\Sale\PriceMaths;
+use Bitrix\Seo;
 
 Localization\Loc::loadMessages(__FILE__);
 
@@ -35,7 +36,7 @@ class YandexCheckoutHandler
 	const PAYMENT_METHOD_SMART = '';
 	const PAYMENT_METHOD_ALFABANK = 'alfabank';
 	const PAYMENT_METHOD_BANK_CARD = 'bank_card';
-	const PAYMENT_METHOD_YANDEX_MONEY = 'yandex_money';
+	const PAYMENT_METHOD_YANDEX_MONEY = 'yoo_money';
 	const PAYMENT_METHOD_SBERBANK = 'sberbank';
 	const PAYMENT_METHOD_QIWI = 'qiwi';
 	const PAYMENT_METHOD_WEBMONEY = 'webmoney';
@@ -47,7 +48,7 @@ class YandexCheckoutHandler
 	const MODE_SMART = '';
 	const MODE_ALFABANK = 'alfabank';
 	const MODE_BANK_CARD = 'bank_card';
-	const MODE_YANDEX_MONEY = 'yandex_money';
+	const MODE_YANDEX_MONEY = 'yoo_money';
 	const MODE_SBERBANK = 'sberbank';
 	const MODE_SBERBANK_SMS = 'sberbank_sms';
 	const MODE_QIWI = 'qiwi';
@@ -57,7 +58,7 @@ class YandexCheckoutHandler
 	const MODE_EMBEDDED = 'embedded';
 	const MODE_TINKOFF_BANK = 'tinkoff_bank';
 
-	const URL = 'https://payment.yandex.net/api/v3';
+	const URL = 'https://api.yookassa.ru/v3';
 
 	const AUTH_TYPE = 'yandex';
 
@@ -1092,7 +1093,7 @@ class YandexCheckoutHandler
 	{
 		if (self::isOAuth())
 		{
-			$token = $this->getYandexToken(self::AUTH_TYPE);
+			$token = $this->getYandexToken();
 			return 'Bearer '.$token;
 		}
 
@@ -1100,20 +1101,26 @@ class YandexCheckoutHandler
 	}
 
 	/**
-	 * @param $authType
 	 * @return mixed|null
 	 * @throws Main\LoaderException
 	 * @throws Main\SystemException
 	 */
-	private function getYandexToken($authType)
+	private function getYandexToken()
 	{
 		if (!Main\Loader::includeModule('seo'))
 		{
 			return null;
 		}
 
-		$authAdapter = \Bitrix\Seo\Checkout\Service::getAuthAdapter($authType);
-		return $authAdapter->getToken();
+		$authAdapter = Seo\Checkout\Service::getAuthAdapter(Seo\Checkout\Service::TYPE_YOOKASSA);
+		$token = $authAdapter->getToken();
+		if (!$token)
+		{
+			$authAdapter = Seo\Checkout\Service::getAuthAdapter(Seo\Checkout\Service::TYPE_YANDEX);
+			$token = $authAdapter->getToken();
+		}
+
+		return $token;
 	}
 
 	/**

@@ -8,3 +8,4 @@ $MESS['LANDING_BLOCK_WEBFORM_USE_STYLE_Y'] = 'Использовать диза�
 $MESS['LANDING_BLOCK_WEBFORM_USE_STYLE_N'] = 'Использовать дизайн CRM-формы';
 $MESS['LANDING_BLOCK_WEBFORM_NO_FORM'] = 'Нет активных CRM-форм';
 $MESS['LANDING_BLOCK_FORM_CONFIG'] = 'Настроить CRM-формы';
+$MESS['LANDING_BLOCK_WEBFORM_PRELOADER'] = 'CRM-форма появится здесь';

@@ -24,6 +24,7 @@ function forumCommentsCommentMobile(
 		"ID" => $comment["ID"],
 		"NEW" => ($comment["NEW"] == "Y" ? "Y" : "N"),
 		"APPROVED" => $comment["APPROVED"],
+		"COLLAPSED" => $comment["COLLAPSED"],
 		"POST_TIMESTAMP" => $comment["POST_TIMESTAMP"],
 	//	"POST_TIME" => $comment["POST_TIME"],
 	//	"POST_DATE" => $comment["POST_DATE"],

@@ -78,6 +78,19 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    isBitrixDesktop: function isBitrixDesktop() {
 	      return navigator.userAgent.toLowerCase().includes('bitrixdesktop');
 	    },
+	    getDesktopVersion: function getDesktopVersion() {
+	      if (typeof this.getDesktopVersionStatic !== 'undefined') {
+	        return this.getDesktopVersionStatic;
+	      }
+
+	      if (typeof BXDesktopSystem === 'undefined') {
+	        return 0;
+	      }
+
+	      var version = BXDesktopSystem.GetProperty('versionParts');
+	      this.getDesktopVersionStatic = version[3];
+	      return this.getDesktopVersionStatic;
+	    },
 	    isMobile: function isMobile() {
 	      return this.isAndroid() || this.isIos() || this.isBitrixMobile();
 	    },

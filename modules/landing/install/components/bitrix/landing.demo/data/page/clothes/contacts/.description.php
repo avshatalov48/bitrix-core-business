@@ -122,7 +122,7 @@ return array(
 					0 => 'landing-block-card-linkcontact-text g-font-weight-700 g-font-size-11 g-color-primary',
 				),
 				'#wrapper' => array(
-					0 => 'g-pos-rel landing-block text-center g-pt-100 g-pb-100',
+					0 => 'g-pos-rel landing-block g-pt-100 g-pb-100',
 				),
 			),
 			'attrs' => array(

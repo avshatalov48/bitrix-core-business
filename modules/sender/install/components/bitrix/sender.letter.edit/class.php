@@ -386,15 +386,32 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 			$this->arResult['MESSAGE_ID'] = $message->getId();
 			$this->arResult['MESSAGE_NAME'] = $message->getName();
 			$this->arResult['MESSAGE'] = $message;
+			$defaultCategory = null;
 
 			if($message != null && method_exists($message, "getConfiguration"))
 			{
 				foreach ($message->getConfiguration()->getOptions() as $option)
 				{
-					if($option->getCode() == 'CATEGORY_ID')
+					if($option->getCode() === 'CATEGORY_ID')
 					{
-						$option->setItems((new \Bitrix\Sender\Access\Service\RoleDealCategoryService())
-											->getFilteredDealCategories($this->userId, $option->getItems()));
+						$items = $option->getItems();
+						$newItems = [];
+
+						foreach ($items as $item)
+						{
+							$newItems[$item['code']] = $item['value'];
+						}
+
+						$items = (new \Bitrix\Sender\Access\Service\RoleDealCategoryService())
+							->getFilteredDealCategories($this->userId, $newItems);
+						$convertedItems = [];
+
+						foreach($items as $key => $item)
+						{
+							$convertedItems[] = ['code' => $key, 'value' => $item];
+						}
+
+						$option->setItems($convertedItems);
 					}
 				}
 			}

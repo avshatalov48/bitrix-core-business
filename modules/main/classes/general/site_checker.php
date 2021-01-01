@@ -3058,10 +3058,7 @@ function InitPureDB()
 
 	if(!($DB->Connect($DBHost, $DBName, $DBLogin, $DBPassword)) || !($DB->DoConnect()))
 	{
-		if(file_exists(($fname = $_SERVER["DOCUMENT_ROOT"]."/bitrix/php_interface/dbconn_error.php")))
-			include($fname);
-		else
-			include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/dbconn_error.php");
+		CDatabase::showConnectionError();
 		die();
 	}
 	if (file_exists($fname = $_SERVER["DOCUMENT_ROOT"]."/bitrix/php_interface/after_connect.php"))

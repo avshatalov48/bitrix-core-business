@@ -46,7 +46,7 @@ class StoreCartBlock extends \Bitrix\Landing\LandingBlock
 
 	public function beforeView(Block $block)
 	{
-		// bugfix #0130635
+		// bugfix #0130635 - @todo: remove after fix
 		$eventManager = \Bitrix\Main\EventManager::getInstance();
 		$eventManager->addEventHandler('main', 'onEndBufferContent',
 			function(&$content) use($block)

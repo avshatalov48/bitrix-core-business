@@ -150,6 +150,29 @@ abstract class BaseTarget
 		return $updatedTriggers;
 	}
 
+	public function extractTemplateParameters(array $triggers): array
+	{
+		$params = [];
+		foreach ($triggers as $trigger)
+		{
+			$triggerDescription = $this->getAvailableTriggerByCode($trigger['CODE']);
+			$status = $trigger['DOCUMENT_STATUS'];
+
+			if ($triggerDescription && isset($triggerDescription['RETURN']))
+			{
+				if (!is_array($params[$status]))
+				{
+					$params[$status] = [];
+				}
+				foreach ($triggerDescription['RETURN'] as $property)
+				{
+					$params[$status][$property['Id']] = $property;
+				}
+			}
+		}
+		return $params;
+	}
+
 	private function prepareApplyRules($rules, $external = false): ?array
 	{
 		if (!is_array($rules))
@@ -174,9 +197,28 @@ abstract class BaseTarget
 		return $rules;
 	}
 
+	/**
+	 * @return array Triggers list.
+	 */
 	public function getAvailableTriggers()
 	{
 		return [];
+	}
+
+	/**
+	 * @param $code
+	 * @return array|null
+	 */
+	public function getAvailableTriggerByCode($code): ?array
+	{
+		foreach ($this->getAvailableTriggers() as $availableTrigger)
+		{
+			if ($code === $availableTrigger['CODE'])
+			{
+				return $availableTrigger;
+			}
+		}
+		return null;
 	}
 
 	public function setDocumentType(array $documentType)

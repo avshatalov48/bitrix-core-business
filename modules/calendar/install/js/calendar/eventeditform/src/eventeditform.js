@@ -248,12 +248,26 @@ export class EventEditForm
 		// Save attendees from userSelector
 		Dom.clean(this.DOM.userSelectorValueWarp);
 		this.getUserSelectorEntityList().forEach((entity, index) => {
-			this.DOM.userSelectorValueWarp.appendChild(Tag.render`<input type="hidden" name="attendeesEntityList[${index}][entityId]" value="${entity.entityId}">`);
-			this.DOM.userSelectorValueWarp.appendChild(Tag.render`<input type="hidden" name="attendeesEntityList[${index}][id]" value="${entity.id}">`);
+			this.DOM.userSelectorValueWarp.appendChild(Tag.render`
+				<input type="hidden" name="attendeesEntityList[${index}][entityId]" value="${entity.entityId}">
+			`);
+			this.DOM.userSelectorValueWarp.appendChild(Tag.render`
+				<input type="hidden" name="attendeesEntityList[${index}][id]" value="${entity.id}">
+			`);
 		});
 
 		this.BX.ajax.runAction('calendar.api.calendarajax.editEntry', {
-			data: new FormData(this.DOM.form)
+			data: new FormData(this.DOM.form),
+			analyticsLabel: {
+				calendarAction: this.entry.id ? 'edit_event' : 'create_event',
+				formType: 'full',
+				emailGuests: this.hasExternalEmailUsers() ? 'Y' : 'N',
+				markView: Util.getCurrentView() || 'outside',
+				markCrm: this.DOM.form['UF_CRM_CAL_EVENT[]'] && this.DOM.form['UF_CRM_CAL_EVENT[]'].value ? 'Y' : 'N',
+				markRrule: this.repeatSelector.getType(),
+				markMeeting: this.entry.isMeeting() ? 'Y' : 'N',
+				markType: this.type
+			}
 		}).then((response) => {
 				Dom.removeClass(this.DOM.saveBtn, this.BX.UI.Button.State.CLOCKING);
 				Dom.removeClass(this.DOM.closeBtn, this.BX.UI.Button.State.DISABLED);

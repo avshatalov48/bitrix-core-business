@@ -1,11 +1,10 @@
-import {Connection} from "./connection";
+import {ConnectionProvider} from "./connectionprovider";
 import {Loc} from "main.core";
 import {ConnectionItem} from "./connectionitem";
-import {InterfaceTemplate} from "../itemstemplate/interfacetemplate";
 import {Menu} from "main.popup";
 import GridUnit from "../gridunit";
 
-export class CaldavConnection extends Connection
+export class CaldavConnection extends ConnectionProvider
 {
 	constructor(options)
 	{
@@ -21,14 +20,24 @@ export class CaldavConnection extends Connection
 
 		for (let key in connections)
 		{
-			if (connections[key].connected === true
-				&& connections[key].status === false)
+			if (this.isFailedConnections(connections[key]))
 			{
-				return false
+				return false;
 			}
 		}
 
 		return true;
+	}
+
+	static isFailedConnections(connection)
+	{
+		if (connection.syncInfo.connected === true
+			&& connection.syncInfo.status === false)
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	hasMenu()
@@ -45,28 +54,58 @@ export class CaldavConnection extends Connection
 			return;
 		}
 
+		const menuItems = this.getMenuItems();
+		menuItems.push(...this.getMenuItemConnect());
+		this.menu = this.getMenu(bindElement, menuItems);
+		this.addMenuHandler();
+		this.menu.show();
+	}
+
+	addMenuHandler()
+	{
+		if (this.menu)
+		{
+			this.menu.getMenuContainer().addEventListener('click', () =>
+			{
+				this.menu.close();
+			});
+		}
+	}
+
+	getMenuItems()
+	{
 		const menuItems = this.connections;
-		menuItems.forEach(item => {
+		menuItems.forEach(item =>
+		{
 			item.type = this.type;
 			item.id = item.addParams.id;
 			item.text = item.connectionName;
-			item.onclick = () => {
+			item.onclick = () =>
+			{
 				this.openActiveConnectionSlider(item);
 			};
 		});
 
-		menuItems.push(
+		return menuItems;
+	}
+
+	getMenuItemConnect()
+	{
+		return [
 			{delimiter: true},
 			{
 				id: 'connect',
 				text: Loc.getMessage('ADD_MENU_CONNECTION'),
 				onclick: () => {
 					this.openInfoConnectionSlider();
-				},
+				}
 			}
-		);
+		];
+	}
 
-		this.menu = new Menu({
+	getMenu(bindElement, menuItems)
+	{
+		return new Menu({
 			className: 'calendar-sync-popup-status',
 			bindElement: bindElement,
 			items: menuItems,
@@ -77,12 +116,6 @@ export class CaldavConnection extends Connection
 			zIndexAbsolute: GridUnit.MENU_INDEX,
 			id: this.getType() + '-menu',
 		});
-
-		this.menu.getMenuContainer().addEventListener('click', () => {
-			this.menu.close();
-		});
-
-		this.menu.show();
 	}
 
 	setConnections()

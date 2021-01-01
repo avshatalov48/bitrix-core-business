@@ -66,6 +66,14 @@ export class ImCallPullHandler
 
 	handleCallUserNameUpdate(params)
 	{
+		const currentUser = this.store.getters['users/get'](params.userId);
+		if (!currentUser)
+		{
+			this.store.dispatch('users/set', {
+				id: params.userId,
+				lastActivityDate: new Date()
+			});
+		}
 		this.store.dispatch('users/update', {
 			id: params.userId,
 			fields: {name: params.name, lastActivityDate: new Date()}
@@ -85,7 +93,8 @@ export class ImCallPullHandler
 		if (
 			params.chatId === this.application.getChatId() &&
 			!this.store.state.callApplication.common.showChat &&
-			params.message.senderId !== this.controller.getUserId()
+			params.message.senderId !== this.controller.getUserId() &&
+			!this.store.state.callApplication.common.error
 		)
 		{
 			let text = '';

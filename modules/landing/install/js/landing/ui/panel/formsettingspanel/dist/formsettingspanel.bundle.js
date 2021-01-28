@@ -1167,11 +1167,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        result: {
 	          success: {
 	            text: actionPagesValue.success,
-	            url: this.getSuccessLinkField().getValue()
+	            url: main_core.Text.decode(this.getSuccessLinkField().getValue())
 	          },
 	          failure: {
 	            text: actionPagesValue.failure,
-	            url: this.getFailureLinkField().getValue()
+	            url: main_core.Text.decode(this.getFailureLinkField().getValue())
 	          },
 	          redirectDelay: this.getDelayField().getValue()
 	        }
@@ -1414,7 +1414,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(PositionField).call(this, options));
 	    _this.horizontal = new BX.Landing.UI.Field.Dropdown({
 	      selector: 'horizontal',
-	      value: options.value.horizontal,
+	      content: options.value.horizontal,
 	      items: [{
 	        name: landing_loc.Loc.getMessage('LANDING_FORM_EMBED_POSITION_LEFT'),
 	        value: 'left'
@@ -1428,7 +1428,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    });
 	    _this.vertical = new BX.Landing.UI.Field.Dropdown({
 	      selector: 'vertical',
-	      value: options.value.vertical,
+	      content: options.value.vertical,
 	      items: [{
 	        name: landing_loc.Loc.getMessage('LANDING_FORM_EMBED_POSITION_TOP'),
 	        value: 'top'
@@ -1926,13 +1926,13 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	                return _this10.getDelayDropdown().getValue();
 	              }(),
-	              position: type3positionValue.horizontal,
-	              vertical: type3positionValue.vertical,
+	              position: type4positionValue.horizontal,
+	              vertical: type4positionValue.vertical,
 	              type: this.getType4ShowTypeField().getValue()
 	            },
 	            click: {
-	              position: type4positionValue.horizontal,
-	              vertical: type4positionValue.vertical,
+	              position: type3positionValue.horizontal,
+	              vertical: type3positionValue.vertical,
 	              type: this.getType3ShowTypeField().getValue()
 	            }
 	          }
@@ -2915,7 +2915,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    var otherForm = new landing_ui_form_formsettingsform.FormSettingsForm({
 	      id: 'other',
 	      description: null,
-	      fields: [_this.getNameField(), _this.getUserSelectorField(), _this.getUseSignField()]
+	      fields: [_this.getNameField(), _this.getUserSelectorField(), _this.getLanguageField(), _this.getUseSignField()]
 	    });
 
 	    _this.addItem(header);
@@ -2979,6 +2979,25 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          }, [])
 	        });
 	      });
+	    }
+	  }, {
+	    key: "getLanguageField",
+	    value: function getLanguageField() {
+	      var _this5 = this;
+
+	      return this.cache.remember('language', function () {
+	        return new BX.Landing.UI.Field.Dropdown({
+	          selector: 'language',
+	          title: landing_loc.Loc.getMessage('LANDING_CRM_FORM_LANGUAGE'),
+	          items: _this5.options.dictionary.languages.map(function (item) {
+	            return {
+	              name: item.name,
+	              value: item.id
+	            };
+	          }),
+	          content: _this5.options.values.language
+	        });
+	      });
 	    } // eslint-disable-next-line class-methods-use-this
 
 	  }, {
@@ -2992,6 +3011,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      return {
 	        name: value.name,
 	        data: {
+	          language: this.getLanguageField().getValue(),
 	          useSign: value.useSign.includes('useSign')
 	        },
 	        responsible: {
@@ -3494,7 +3514,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        _this5.setAgreements(result.agreements.result);
 	      });
 	      var formOptions = crm_form_client.FormClient.getInstance().getOptions(this.getCurrentFormId()).then(function (options) {
-	        _this5.setFormOptions(options);
+	        var currentOptions = main_core.Runtime.clone(options);
+
+	        if (currentOptions.agreements.use !== true) {
+	          currentOptions.agreements.use = true;
+	          currentOptions.data.agreements = [];
+	        }
+
+	        _this5.setFormOptions(currentOptions);
 	      });
 	      var formDictionary = crm_form_client.FormClient.getInstance().getDictionary().then(function (dictionary) {
 	        _this5.setFormDictionary(dictionary);
@@ -3778,7 +3805,13 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          }
 
 	          if (Reflect.has(value, 'embedding') || Reflect.has(value, 'callback') || Reflect.has(value, 'name') && Reflect.has(value, 'data') && Reflect.has(value.data, 'useSign')) {
-	            return main_core.Runtime.merge(formOptions, value);
+	            var mergedOptions = main_core.Runtime.merge(formOptions, value);
+
+	            if (Reflect.has(value, 'responsible')) {
+	              mergedOptions.responsible.users = value.responsible.users;
+	            }
+
+	            return mergedOptions;
 	          }
 
 	          if (Reflect.has(value, 'recaptcha')) {
@@ -3848,9 +3881,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        return new HeaderAndButtonContent({
 	          personalizationVariables: this.getPersonalizationVariables(),
 	          values: {
-	            title: FormSettingsPanel.sanitize(crmForm.title),
-	            desc: FormSettingsPanel.sanitize(crmForm.desc),
-	            buttonCaption: crmForm.buttonCaption
+	            title: FormSettingsPanel.sanitize(this.getFormOptions().data.title),
+	            desc: FormSettingsPanel.sanitize(this.getFormOptions().data.desc),
+	            buttonCaption: this.getFormOptions().data.buttonCaption
 	          }
 	        });
 	      }
@@ -3986,7 +4019,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          values: {
 	            name: this.getFormOptions().name,
 	            useSign: this.getFormOptions().data.useSign,
-	            users: this.getFormOptions().responsible.users
+	            users: this.getFormOptions().responsible.users,
+	            language: this.getFormOptions().data.language
 	          }
 	        });
 	      }

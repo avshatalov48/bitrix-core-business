@@ -38,12 +38,18 @@ class OrderDocumentHandler
 	 */
 	public function initiatePay(Sale\Payment $payment, Request $request = null)
 	{
+		$result = new PaySystem\ServiceResult();
 		if (!Main\Loader::includeModule('documentgenerator')
 			||
 			!Main\Loader::includeModule('crm')
 		)
 		{
-			return new PaySystem\ServiceResult();
+			return $result;
+		}
+
+		if ($request === null)
+		{
+			$request = Main\Context::getCurrent()->getRequest();
 		}
 
 		$document = $this->getDocument($payment);
@@ -53,6 +59,8 @@ class OrderDocumentHandler
 		}
 
 		$documentInfo = $document->getFile()->getData();
+		$result->setData($documentInfo);
+
 		$params = array_merge($documentInfo, DocumentGenerator\Model\ExternalLinkTable::getPublicUrlsByDocumentId($document->ID));
 		if(!empty($params['hash']))
 		{
@@ -63,9 +71,28 @@ class OrderDocumentHandler
 			$params['IFRAME'] = 'Y';
 			$params['PRINT'] = 'Y';
 		}
+
+		$params['PAYMENT_ID'] = $payment->getId();
+		$params['PAYSYSTEM_ID'] = $this->service->getField('ID');
+
 		$this->setExtraParams($params);
 
-		return $this->showTemplate($payment, 'template');
+		$showTemplateResult = $this->showTemplate($payment, $this->getTemplate($request));
+		if ($showTemplateResult->isSuccess())
+		{
+			$result->setTemplate($showTemplateResult->getTemplate());
+		}
+		else
+		{
+			$result->addErrors($showTemplateResult->getErrors());
+		}
+
+		return $result;
+	}
+
+	private function getTemplate(Request $request)
+	{
+		return $request->get('template') ?? 'template';
 	}
 
 	/**

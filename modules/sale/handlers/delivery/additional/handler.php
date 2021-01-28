@@ -219,10 +219,17 @@ class AdditionalHandler extends Base
 			{
 				$errors = array();
 				$notes = array();
+				$nothingFound = false;
 				
 				/** @var Error $error */
 				foreach($res->getErrorCollection() as $error)
 				{
+					if($error->getCode() === \Bitrix\Sale\Services\Base\RestClient::ERROR_NOTHING_FOUND)
+					{
+						$nothingFound = true;
+						continue;
+					}
+
 					$message = $error->getMessage();
 
 					if($message == 'verification_needed. License check failed.')
@@ -238,7 +245,12 @@ class AdditionalHandler extends Base
 					$result['NOTES'] = $notes;
 
 				if(empty($errors) && empty($notes))
-					$errors[] = Loc::getMessage('SALE_DLVRS_ADD_LIST_RECEIVE_ERROR');
+				{
+					if($nothingFound === false || $res->getErrorCollection()->count() !== 1)
+					{
+						$errors[] = Loc::getMessage('SALE_DLVRS_ADD_LIST_RECEIVE_ERROR');
+					}
+				}
 			}
 		}
 

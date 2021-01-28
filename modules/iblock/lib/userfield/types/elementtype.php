@@ -206,11 +206,17 @@ class ElementType extends EnumType
 		$userField['USER_TYPE']['FIELDS'] = $result;
 	}
 
+	public static function getDefaultValue(array $userField, array $additionalParameters = [])
+	{
+		$value = ($userField['SETTINGS']['DEFAULT_VALUE'] ?? '');
+		return ($userField['MULTIPLE'] === 'Y' ? [$value] : $value);
+	}
+
 	protected static function getElements($iblockId, $activeFilter = 'N')
 	{
 		$result = false;
 
-		if ($iblockId <= 0 || !Loader::includeModule('iblock'))
+		if($iblockId <= 0 || !Loader::includeModule('iblock'))
 		{
 			return $result;
 		}
@@ -218,10 +224,10 @@ class ElementType extends EnumType
 		$currentCache = \Bitrix\Main\Data\Cache::createInstance();
 
 		$cacheTtl = 86400;
-		$cacheId = md5('CIBlockElementEnum::getTreeList_'.$iblockId.'_'.$activeFilter);
-		$cacheDir = '/iblock/elementtype/'.$iblockId;
+		$cacheId = md5('CIBlockElementEnum::getTreeList_' . $iblockId . '_' . $activeFilter);
+		$cacheDir = '/iblock/elementtype/' . $iblockId;
 
-		if ($currentCache->initCache($cacheTtl, $cacheId, $cacheDir))
+		if($currentCache->initCache($cacheTtl, $cacheId, $cacheDir))
 		{
 			$result = $currentCache->getVars();
 		}
@@ -233,7 +239,7 @@ class ElementType extends EnumType
 			$taggedCache->startTagCache($cacheDir);
 
 			$filter = ['IBLOCK_ID' => $iblockId];
-			if ($activeFilter === 'Y')
+			if($activeFilter === 'Y')
 			{
 				$filter['ACTIVE'] = 'Y';
 			}
@@ -245,12 +251,12 @@ class ElementType extends EnumType
 				'order' => ['NAME' => 'ASC', 'ID' => 'ASC']
 			]);
 
-			while ($element = $elements->fetch())
+			while($element = $elements->fetch())
 			{
 				$result[$element['ID']] = $element['NAME'];
 			}
 
-			$taggedCache->registerTag('iblock_id_'.$iblockId);
+			$taggedCache->registerTag('iblock_id_' . $iblockId);
 			$taggedCache->endTagCache();
 
 			if (empty($result))

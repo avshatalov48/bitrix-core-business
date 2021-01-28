@@ -13,7 +13,6 @@ $MESS["SOA_TO"] = "до";
 $MESS["SOA_HOUR"] = "часов";
 $MESS["SOA_MONTH"] = "месяцев";
 $MESS["SOA_DAY"] = "дней";
-$MESS["SOA_ERROR_PAY_SYSTEM"] = "Нет платежных систем для оплаты";
 $MESS["SOA_VAT_INCLUDED"] = "включен в цену";
 $MESS["SOA_ERROR_ORDER"] = "Ошибка создания заказа";
 $MESS["SOA_PROFILE"] = "Профиль";

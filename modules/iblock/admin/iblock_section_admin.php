@@ -62,6 +62,7 @@ $pageConfig = array(
 	'IBLOCK_EDIT' => false,
 	'CHECK_NEW_CARD' => false,
 	'USE_NEW_CARD' => false,
+	'CATALOG' => false,
 
 	'LIST_ID_PREFIX' => '',
 	'LIST_ID' => $type.'.'.$IBLOCK_ID,
@@ -76,10 +77,12 @@ switch ($urlBuilder->getId())
 		$pageConfig['CHECK_NEW_CARD'] = true;
 		$pageConfig['SHOW_NAVCHAIN'] = false;
 		$pageConfig['CONTEXT_PATH'] = '/shop/settings/cat_section_admin.php'; // TODO: temporary hack
+		$pageConfig['CATALOG'] = true;
 		break;
 	case 'CATALOG':
 		$pageConfig['LIST_ID_PREFIX'] = 'tbl_catalog_section_';
 		$pageConfig['CONTEXT_PATH'] = '/bitrix/admin/cat_section_admin.php'; // TODO: temporary hack
+		$pageConfig['CATALOG'] = true;
 		break;
 	case 'IBLOCK':
 		$pageConfig['IBLOCK_EDIT'] = true;
@@ -245,7 +248,9 @@ if ($parent_section_id < 0)
 }
 
 //This is all parameters needed for proper navigation
-$sThisSectionUrl = '&type='.urlencode($type).'&lang='.LANGUAGE_ID.'&IBLOCK_ID='.$IBLOCK_ID.'&find_section_section='.$find_section_section;
+$sThisSectionUrl = $urlBuilder->getUrlParams([
+	'find_section_section' => (int)$find_section_section
+]);
 
 $arFilter = $baseFilter = array("IBLOCK_ID" => $IBLOCK_ID);
 
@@ -291,6 +296,8 @@ if($lAdmin->EditAction()) //save button pressed
 	if (!empty($_FILES['FIELDS']) && is_array($_FILES['FIELDS']))
 		CFile::ConvertFilesToPost($_FILES['FIELDS'], $_POST['FIELDS']);
 
+	$ib = new CIBlockSection;
+
 	foreach($_POST['FIELDS'] as $ID=>$arFields)
 	{
 		$ID = intval($ID);
@@ -304,7 +311,7 @@ if($lAdmin->EditAction()) //save button pressed
 		$USER_FIELD_MANAGER->AdminListPrepareFields($entity_id, $arFields);
 		$arFields["IBLOCK_ID"] = $IBLOCK_ID;
 
-		$ib = new CIBlockSection;
+		$ib->LAST_ERROR = '';
 		$DB->StartTransaction();
 		if(!$ib->Update($ID, $arFields))
 		{
@@ -322,6 +329,8 @@ if($lAdmin->EditAction()) //save button pressed
 			$DB->Commit();
 		}
 	}
+
+	unset($ib);
 }
 
 // action handler
@@ -348,6 +357,9 @@ if ($arID = $lAdmin->GroupAction())
 			}
 			unset($arRes, $rsData);
 		}
+
+		$ob = new CIBlockSection();
+
 		foreach ($arID as $ID)
 		{
 			$ID = (int)$ID;
@@ -384,7 +396,7 @@ if ($arID = $lAdmin->GroupAction())
 				case ActionType::DEACTIVATE:
 					if (CIBlockSectionRights::UserHasRightTo($IBLOCK_ID, $ID, "section_edit"))
 					{
-						$ob = new CIBlockSection();
+						$ob->LAST_ERROR = '';
 						$arFields = array(
 							"ACTIVE" => ($actionId == ActionType::ACTIVATE ? "Y" : "N"),
 						);
@@ -407,10 +419,29 @@ if ($arID = $lAdmin->GroupAction())
 								$sectionTranslitSettings
 							)
 						);
-						$ob = new CIBlockSection();
+						$ob->LAST_ERROR = '';
 						if (!$ob->Update($ID, $arFields))
 						{
 							$lAdmin->AddGroupError(GetMessage("IBSEC_A_UPDERR").$ob->LAST_ERROR, $ID);
+						}
+					}
+					break;
+				case ActionType::MOVE_TO_SECTION:
+					$new_section = (int)$actionParams['SECTION_ID'];
+					if ($new_section >= 0)
+					{
+						if (CIBlockSectionRights::UserHasRightTo($IBLOCK_ID, $new_section, "section_section_bind"))
+						{
+							$ob->LAST_ERROR = '';
+							if (!$ob->Update($ID, array("IBLOCK_SECTION_ID" => $new_section)))
+							{
+								$lAdmin->AddGroupError(GetMessage("IBSEC_A_UPDERR").$ob->LAST_ERROR, $ID);
+							}
+							else
+							{
+								$ipropValues = new \Bitrix\Iblock\InheritedProperty\SectionValues($IBLOCK_ID, $ID);
+								$ipropValues->clearValues();
+							}
 						}
 					}
 					break;
@@ -432,6 +463,8 @@ if ($arID = $lAdmin->GroupAction())
 				}
 			}
 		}
+
+		unset($ob);
 
 		if (
 			$useCatalog
@@ -621,7 +654,6 @@ unset($listImageSize);
 
 $rsData = new CAdminUiResult($rsData, $sTableID);
 $rsData->NavStart();
-//$lAdmin->SetNavigationParams($rsData, array("BASE_LINK" => $baseLink));
 $lAdmin->SetNavigationParams($rsData, array());
 $arRows = array();
 
@@ -837,7 +869,8 @@ foreach ($arRows as $id => $row)
 					'find_section_section' => $find_section_section,
 					'from' => 'iblock_section_admin',
 				)
-			)
+			),
+			'PUBLIC' => $pageConfig['USE_NEW_CARD']
 		);
 		if ($useSectionTranslit)
 		{
@@ -899,6 +932,7 @@ foreach ($arSectionOps as $arOps)
 				'CONFIRM_MESSAGE' => GetMessage('IBSEC_A_CODE_TRANSLIT_SECTION_CONFIRM_MULTI')
 			];
 		}
+		$actionList[] = ActionType::MOVE_TO_SECTION;
 		if ($useCatalog && $productEdit)
 		{
 			$actionList[] = Catalog\Grid\ProductAction::SET_FIELD;
@@ -922,6 +956,8 @@ if (CIBlockSectionRights::UserHasRightTo($IBLOCK_ID, $find_section_section, "sec
 				'from' => 'iblock_section_admin',
 			)
 		),
+		"PUBLIC" => $pageConfig['USE_NEW_CARD'],
+		"SHOW_TITLE" => true,
 		"TITLE" => GetMessage("IBSEC_A_SECTADD_PRESS")
 	);
 }
@@ -1047,7 +1083,7 @@ if ($pageConfig['SHOW_NAVCHAIN'])
 
 $lAdmin->CheckListMode();
 
-if(defined("CATALOG_PRODUCT"))
+if($pageConfig['CATALOG'])
 {
 	$sSectionName = $arIBlock["SECTIONS_NAME"];
 	if($parent_section_id > 0)
@@ -1069,7 +1105,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 
 $lAdmin->DisplayFilter($filterFields);
 $lAdmin->DisplayList(array("default_action" => true));
-if(CIBlockRights::UserHasRightTo($IBLOCK_ID, $IBLOCK_ID, 'iblock_edit') && !defined("CATALOG_PRODUCT") && !$publicMode)
+if($pageConfig['IBLOCK_EDIT'] && CIBlockRights::UserHasRightTo($IBLOCK_ID, $IBLOCK_ID, 'iblock_edit'))
 {
 	echo
 		BeginNote(),

@@ -166,7 +166,15 @@ if($arResult["ERROR"] === '' && $saleModulePermissions >= "W" && check_bitrix_se
 
 			break;
 		case "reload_settings":
-			$cashbox = array('HANDLER' => $request->get('handler'), 'KKM_ID' => $request->get('kkmId'));
+			$cashbox = [
+				'HANDLER' => $request->get('handler'),
+				'KKM_ID' => $request->get('kkmId'),
+				'SETTINGS' => [
+					"REST" => [
+						'REST_CODE' => $request->get('restCode')
+					]
+				]
+			];
 			/** @var Cashbox\Cashbox $handler */
 			$handler = $cashbox['HANDLER'];
 			if (is_subclass_of($handler, Cashbox\Cashbox::class))

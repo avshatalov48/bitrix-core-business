@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["ACTION_VARIABLE_TIP"] = "The name of a variable in which the required action will be passed: ADD_TO_COMPARE_LIST, ADD2BASKET etc. The default value is <i>action</i>.";
 $MESS["ADD_PROPERTIES_TO_BASKET_TIP"] = "Select the properties you want to pass to shopping cart and order. The required properties are those that may affect the customer choice or can be changed in shopping cart (for SKU's). The properties that will affect order fulfillment (e.g. item color) are also required.";
 $MESS["AJAX_MODE_TIP"] = "Enables AJAX in the component.";
@@ -58,6 +58,7 @@ $MESS["CP_BCS_SET_LAST_MODIFIED"] = "Set page last modified date to response hea
 $MESS["CP_BCS_SET_META_DESCRIPTION"] = "Set page description";
 $MESS["CP_BCS_SET_META_KEYWORDS"] = "Set page keywords";
 $MESS["CP_BCS_SHOW_ALL_WO_SECTION"] = "Show all elements if no section is specified";
+$MESS["CP_BCS_USE_COMPARE_LIST"] = "Use current page when adding items to the Compare list";
 $MESS["CP_BCS_USE_MAIN_ELEMENT_SECTION"] = "Use main section to show element";
 $MESS["CP_BCS_USE_PRODUCT_QUANTITY"] = "Enable Product Quantity Field";
 $MESS["DETAIL_URL_TIP"] = "Specify here the path to an information block element details page.";
@@ -129,5 +130,5 @@ $MESS["T_IBLOCK_BACKGROUND_IMAGE"] = "Use property provided background image as 
 $MESS["T_IBLOCK_DESC_DESCRIPTION"] = "Set page description from property";
 $MESS["T_IBLOCK_DESC_KEYWORDS"] = "Set page keywords from property";
 $MESS["T_IBLOCK_DESC_PAGER_CATALOG"] = "Products";
+$MESS["USE_COMPARE_LIST"] = "This option is required when the component is used in a stand-alone manner together with the catalog.compare.list component on the same page.";
 $MESS["USE_PRICE_COUNT_TIP"] = "If checked, all existing price ranges will be selected.";
-?>

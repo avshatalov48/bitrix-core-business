@@ -4,6 +4,7 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
 use Bitrix\Iblock\UserField\Types\SectionType;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Text\HtmlFilter;
 
 if(
 	$arParams['userField']['SETTINGS']['DISPLAY'] !== SectionType::DISPLAY_CHECKBOX
@@ -23,11 +24,11 @@ if(
 			$isSelected = in_array($key, $arResult['value']);
 			?>
 			<option
-				value="<? echo $key ?>"
+				value="<?= $key ?>"
 				<?= ($isSelected ? ' selected' : '') ?>
-				title="<?= trim($val, ' .') ?>"
+				title="<?= HtmlFilter::encode(trim($val, ' .')) ?>"
 			>
-				<?= $val ?>
+				<?= HtmlFilter::encode($val) ?>
 			</option>
 			<?php
 		}
@@ -64,9 +65,9 @@ elseif($arParams['userField']['SETTINGS']['DISPLAY'] !== SectionType::DISPLAY_CH
 			<option
 				value="<?= $key ?>"
 				<?= ($isSelected ? ' selected' : '') ?>
-				title="<?= trim($val, ' .') ?>"
+				title="<?= HtmlFilter::encode(trim($val, ' .')) ?>"
 			>
-				<?= $val ?>
+				<?= HtmlFilter::encode($val) ?>
 			</option>
 			<?php
 		}
@@ -90,12 +91,12 @@ elseif($arParams['userField']['MULTIPLE'] === 'Y')
 		?>
 		<input
 			type="checkbox"
-			value="<?= $key ?>"
+			value="<?= HtmlFilter::encode($key) ?>"
 			name="<?= $arParams['userField']['FIELD_NAME'] ?>"
 			<?= ($isSelected ? 'checked' : '') ?>
 			id="<?= $id ?>"
 		>
-		<label for="<?= $id ?>"><?= $val ?></label>
+		<label for="<?= $id ?>"><?= HtmlFilter::encode($val) ?></label>
 		<br/>
 		<?php
 	}
@@ -114,7 +115,7 @@ else
 		>
 		<label for="<?= $id ?>"><?= Loc::getMessage('MAIN_NO') ?></label>
 		<br/>
-		<?
+		<?php
 	}
 
 	$wasSelected = false;
@@ -143,7 +144,7 @@ else
 			<?= ($isSelected ? 'checked' : '') ?>
 			id="<?= $id ?>"
 		>
-		<label for="<?= $id ?>"><?= $val ?></label>
+		<label for="<?= $id ?>"><?= HtmlFilter::encode($val) ?></label>
 		<br/>
 		<?php
 	}

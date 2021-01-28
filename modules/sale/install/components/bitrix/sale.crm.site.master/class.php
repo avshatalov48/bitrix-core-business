@@ -278,6 +278,10 @@ class SaleCrmSiteMaster extends \CBitrixComponent
 			"rest" => [
 				"name" => Loc::getMessage("SALE_CSM_MODULE_REST_NAME"),
 			],
+			"forum" => [
+				"name" => Loc::getMessage("SALE_CSM_MODULE_FORUM_NAME"),
+				"version" => "20.0.500"
+			],
 		];
 	}
 

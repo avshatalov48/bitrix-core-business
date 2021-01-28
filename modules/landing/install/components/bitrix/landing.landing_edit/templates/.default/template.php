@@ -122,7 +122,10 @@ if ($formEditor)
 {
 	$hooks = [
 		'BACKGROUND' => $hooks['BACKGROUND'],
-		'METAOG' => $hooks['METAOG']
+		'METAOG' => $hooks['METAOG'],
+		'YACOUNTER' => $hooks['YACOUNTER'],
+		'GACOUNTER' => $hooks['GACOUNTER'],
+		'GTM' => $hooks['GTM'],
 	];
 	$arResult['TEMPLATES'] = [];
 }

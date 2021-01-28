@@ -126,7 +126,7 @@ class Form
 		$sorted = [];
 		foreach ($forms as $form)
 		{
-			if($form['ACTIVE'] !== 'Y')
+			if(array_key_exists('ACTIVE', $form) && $form['ACTIVE'] !== 'Y')
 			{
 				continue;
 			}
@@ -165,38 +165,53 @@ class Form
 		$forms = self::getForms();
 		$forms = self::prepareFormsToAttrs($forms);
 
-		if (!empty($forms))
-		{
-			// get forms list
-			$attrs[] = array(
-				'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM'),
-				'attribute' => self::ATTR_FORM_PARAMS,
-				'items' => $forms,
-				'type' => 'list',
-			);
-			// show header
-			// use custom design
-			$attrs[] = array(
-				'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM_USE_STYLE'),
-				'attribute' => self::ATTR_FORM_USE_STYLE,
-				'type' => 'list',
-				'items' => array(
-					array(
-						'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM_USE_STYLE_Y'),
-						'value' => 'Y',
-					),
-					array(
-						'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM_USE_STYLE_N'),
-						'value' => 'N',
-					),
-				),
-			);
-			$attrs[] = array(
+		$attrs = [
+			$attrs[] = [
+				'name' => 'Embed form flag',
+				'attribute' => self::ATTR_FORM_EMBED,
+				'type' => 'string',
+				'hidden' => true,
+			],
+			[
 				'name' => 'Form design',
 				'attribute' => self::ATTR_FORM_STYLE,
 				'type' => 'string',
 				'hidden' => true,
-			);
+			],
+			[
+				'name' => 'Form from connector flag',
+				'attribute' => self::ATTR_FORM_FROM_CONNECTOR,
+				'type' => 'string',
+				'hidden' => true,
+			],
+		];
+
+		if (!empty($forms))
+		{
+			// get forms list
+			$attrs[] = [
+				'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM'),
+				'attribute' => self::ATTR_FORM_PARAMS,
+				'items' => $forms,
+				'type' => 'list',
+			];
+			// show header
+			// use custom design
+			$attrs[] = [
+				'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM_USE_STYLE'),
+				'attribute' => self::ATTR_FORM_USE_STYLE,
+				'type' => 'list',
+				'items' => [
+					[
+						'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM_USE_STYLE_Y'),
+						'value' => 'Y',
+					],
+					[
+						'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM_USE_STYLE_N'),
+						'value' => 'N',
+					],
+				],
+			];
 		}
 		// no form - no settings, just message for user
 		else
@@ -411,18 +426,14 @@ class Form
 			return;
 		}
 
-		$content = $block->getContent();
-		if (strpos($content, self::ATTR_FORM_EMBED) !== false)
-		{
-			return;
-		}
-
 		$dom = $block->getDom();
-		if (!$resultNode = $dom->querySelector(self::SELECTOR_FORM_NODE))
+		if (
+			!($resultNode = $dom->querySelector(self::SELECTOR_FORM_NODE))
+			|| !($attrs = $resultNode->getAttributes())
+			|| !array_key_exists(self::ATTR_FORM_PARAMS, $attrs))
 		{
 			return;
 		}
-		$attrs = $resultNode->getAttributes();
 		$formParams = explode('|', $attrs[self::ATTR_FORM_PARAMS]->getValue());
 		if (count($formParams) !== 2 || !(int)$formParams[0])
 		{
@@ -439,14 +450,20 @@ class Form
 				$resultNode->removeAttribute(self::ATTR_FORM_OLD_DOMAIN);
 				$resultNode->removeAttribute(self::ATTR_FORM_OLD_HEADER);
 
-				// find new styles
-				$contentFromRepo = Block::getContentFromRepository($block->getCode());
 				if (
-					$contentFromRepo
-					&& preg_match(self::REGEXP_FORM_STYLE, $contentFromRepo, $style)
+					!array_key_exists(self::ATTR_FORM_STYLE, $attrs)
+					|| !$attrs[self::ATTR_FORM_STYLE]->getValue()
 				)
 				{
-					$resultNode->setAttribute(self::ATTR_FORM_STYLE, $style[1]);
+					// find new styles
+					$contentFromRepo = Block::getContentFromRepository($block->getCode());
+					if (
+						$contentFromRepo
+						&& preg_match(self::REGEXP_FORM_STYLE, $contentFromRepo, $style)
+					)
+					{
+						$resultNode->setAttribute(self::ATTR_FORM_STYLE, $style[1]);
+					}
 				}
 			}
 		}

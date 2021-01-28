@@ -709,7 +709,7 @@ class SkbHandler
 			$this->getBusinessValue($payment, 'SKB_ADDITIONAL_INFO')
 		);
 
-		return substr($description, 0, 140);
+		return mb_substr($description, 0, 140);
 	}
 
 	/**

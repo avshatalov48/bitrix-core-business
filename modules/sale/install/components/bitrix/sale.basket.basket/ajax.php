@@ -43,7 +43,7 @@ if ($request->get('via_ajax') === 'Y')
 	try
 	{
 		$params = $signer->unsign($request->get('signedParamsString'), 'sale.basket.basket');
-		$params = unserialize(base64_decode($params));
+		$params = unserialize(base64_decode($params), ['allowed_classes' => false]);
 	}
 	catch (\Bitrix\Main\Security\Sign\BadSignatureException $e)
 	{

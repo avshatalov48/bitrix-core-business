@@ -1,10 +1,5 @@
 <?php
-/**
- * Bitrix Framework
- * @package bitrix
- * @subpackage sale
- * @copyright 2001-2012 Bitrix
- */
+
 namespace Bitrix\Sale\Internals;
 
 use Bitrix\Main\Localization\Loc;
@@ -18,6 +13,7 @@ Loc::loadMessages(__FILE__);
 abstract class CollectionBase
 	implements \ArrayAccess, \Countable, \IteratorAggregate
 {
+	/** @var CollectableEntity[] $collection */
 	protected $collection = array();
 
 	/**
@@ -130,5 +126,17 @@ abstract class CollectionBase
 	public function isEmpty()
 	{
 		return empty($this->collection);
+	}
+
+	public function toArray()
+	{
+		$result = [];
+
+		foreach ($this->collection as $entity)
+		{
+			$result[] = $entity->toArray();
+		}
+
+		return $result;
 	}
 }

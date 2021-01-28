@@ -5,11 +5,83 @@ namespace Bitrix\Catalog\Component;
 use Bitrix\Catalog\ProductTable;
 use Bitrix\Currency\CurrencyManager;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Component\ParameterSigner;
 
 class VariationForm extends BaseForm
 {
 	/** @var \Bitrix\Catalog\v2\Sku\BaseSku */
 	protected $entity;
+
+	public function getControllers(): array
+	{
+		$controllers = parent::getControllers();
+
+		$controllers[] = [
+			'name' => 'VARIATION_GRID_CONTROLLER',
+			'type' => 'variation_grid',
+			'config' => [
+				'reloadUrl' => '/bitrix/components/bitrix/catalog.productcard.variation.grid/list.ajax.php',
+				'signedParameters' => $this->getVariationGridSignedParameters(),
+				'gridId' => $this->getVariationGridId(),
+			],
+		];
+		$controllers[] = [
+			'name' => 'IBLOCK_SECTION_CONTROLLER',
+			'type' => 'iblock_section',
+			'config' => [],
+		];
+
+		return $controllers;
+	}
+
+	public function collectFieldConfigs(): array
+	{
+		$config = parent::collectFieldConfigs();
+
+		$config['right']['elements'][] = [
+			'name' => 'variation_grid',
+			'title' => 'Variation grid',
+			'type' => 'included_area',
+			'data' => [
+				'isRemovable' => false,
+				'type' => 'component',
+				'componentName' => $this->getVariationGridComponentName(),
+				'action' => 'getProductGrid',
+				'mode' => 'ajax',
+				'signedParametersName' => 'VARIATION_GRID_SIGNED_PARAMETERS',
+			],
+			'sort' => 100,
+		];
+
+		return $config;
+	}
+
+	protected function getVariationGridComponentName(): string
+	{
+		return 'bitrix:catalog.productcard.variation.grid';
+	}
+
+	protected function getVariationGridParameters(): array
+	{
+		return [
+			'IBLOCK_ID' => $this->params['IBLOCK_ID'],
+			'PRODUCT_ID' => $this->params['PRODUCT_ID'],
+			'VARIATION_ID_LIST' => [
+				$this->params['VARIATION_ID']
+			],
+			'COPY_PRODUCT_ID' => $this->params['COPY_PRODUCT_ID'] ?? null,
+			'EXTERNAL_FIELDS' => $this->params['EXTERNAL_FIELDS'] ?? null,
+			'PATH_TO' => $this->params['PATH_TO'] ?? [],
+		];
+	}
+
+	protected function getVariationGridSignedParameters(): string
+	{
+		return ParameterSigner::signParameters(
+			$this->getVariationGridComponentName(),
+			$this->getVariationGridParameters()
+		);
+	}
 
 	protected function showCatalogProductFields(): bool
 	{
@@ -218,12 +290,9 @@ class VariationForm extends BaseForm
 			}
 		}
 
-		return $additionalValues;
-	}
+		$additionalValues['VARIATION_GRID_SIGNED_PARAMETERS'] = $this->getVariationGridSignedParameters();
 
-	public function getControllers(): array
-	{
-		return parent::getControllers();
+		return $additionalValues;
 	}
 
 	protected function getCatalogProductFieldsList(): array

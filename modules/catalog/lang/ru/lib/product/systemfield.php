@@ -15,4 +15,5 @@ $MESS["BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_INTERNAL_ERROR"] = "внутрення
 $MESS["BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_DICTIONARY_ITEM_CREATE"] = "Ошибка создания записи с кодом #CODE# в справочнике #DICTIONARY#";
 $MESS["BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_CANNOT_DELETE_HIGHLOADBLOCK"] = "Highload-блок #NAME# является системным и не может быть удален";
 $MESS["BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_CANNOT_UPDATE_HIGHLOADBLOCK"] = "Highload-блок #NAME# является системным и его параметры не могут меняться";
+$MESS["BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_DISALLOW_UNINSTALL_HIGHLOADBLOCK"] = "Модуль highloadblock не может быть деинсталлирован, т.к. highload-блок #NAME# является системным и используется модулем Торговый каталог.";
 ?>

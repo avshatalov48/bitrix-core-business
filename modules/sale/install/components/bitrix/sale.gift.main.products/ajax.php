@@ -35,6 +35,12 @@ catch (\Bitrix\Main\Security\Sign\BadSignatureException $e)
 $APPLICATION->IncludeComponent(
 	"bitrix:sale.gift.main.products",
 	$template,
-	unserialize(base64_decode($parameters)),
+	unserialize(base64_decode($parameters), ['allowed_classes' => [
+			\Bitrix\Main\Type\DateTime::class,
+			\Bitrix\Main\Type\Date::class,
+			\Bitrix\Main\Web\Uri::class,
+			\DateTime::class,
+			\DateTimeZone::class,
+		]]),
 	false
 );

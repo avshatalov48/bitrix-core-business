@@ -728,7 +728,7 @@ if (
 					{
 						Loader::includeModule($module);
 					}
-					
+
 					foreach ($callbackList as $callbackName)
 					{
 						$callbackFieldName = (isset($arItem[$callbackName]) ? $arItem[$callbackName] : '');
@@ -773,7 +773,7 @@ if (
 			{
 				$basketList[$data['ID']] = $data;
 			}
-		
+
 			foreach ($arOrderProductPrice as &$itemData)
 			{
 				if (!empty($basketList[$itemData['BASKET_ID']]))
@@ -2338,7 +2338,7 @@ $FUSER_ID = $arFuserItems["ID"];
 /*
  * form select site
  */
-if ((!isset($LID) OR $LID == "") AND (defined('BX_PUBLIC_MODE') OR BX_PUBLIC_MODE == 1) )
+if ((!isset($LID) OR $LID == "") AND (defined('BX_PUBLIC_MODE') AND BX_PUBLIC_MODE == 1))
 {
 	$arSitesShop = array();
 	$arSitesTmp = array();
@@ -3248,7 +3248,7 @@ if ((isset($_REQUEST["PRODUCT"]) AND is_array($_REQUEST["PRODUCT"]) AND !empty($
 
 		foreach ($callbackList as $callbackName)
 		{
-			$arBasketItem[$callbackName] = '';
+			$arBasketItem[$key][$callbackName] = '';
 		}
 
 	}
@@ -3461,11 +3461,11 @@ foreach ($arBasketItem as $key => &$arItem)
 			));
 		}
 
-		foreach ($arProductData[$arItem["PRODUCT_ID"]] as $key => $value)
+		foreach ($arProductData[$arItem["PRODUCT_ID"]] as $productKey => $value)
 		{
-			if ((mb_substr($key, 0, 9) == "PROPERTY_") && (mb_substr($key, -6) == "_VALUE"))
+			if ((mb_substr($productKey, 0, 9) === "PROPERTY_") && (mb_substr($productKey, -6) === "_VALUE"))
 			{
-				$propertyCode = str_replace("_VALUE", "", $key);
+				$propertyCode = str_replace("_VALUE", "", $productKey);
 				$arItem[$propertyCode] = $value;
 			}
 		}

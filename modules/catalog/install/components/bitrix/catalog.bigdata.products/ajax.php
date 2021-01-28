@@ -1,7 +1,7 @@
 <?php
 define("STOP_STATISTICS", true);
 define("NO_KEEP_STATISTIC", "Y");
-define("NO_AGENT_STATISTIC","Y");
+define("NO_AGENT_STATISTIC", "Y");
 define("DisableEventsCheck", true);
 define('BX_SECURITY_SESSION_READONLY', true);
 define("PUBLIC_AJAX_MODE", true);
@@ -30,6 +30,6 @@ $template = $signer->unsign($_POST['template'], 'bx.bd.products.recommendation')
 $APPLICATION->IncludeComponent(
 	"bitrix:catalog.bigdata.products",
 	$template,
-	unserialize(base64_decode($parameters)),
+	unserialize(base64_decode($parameters), ['allowed_classes' => false]),
 	false
 );

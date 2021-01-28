@@ -9,6 +9,8 @@ use Bitrix\Iblock\ORM\Fields\PropertyReference;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\ORM\Event;
+use Bitrix\Main\ORM\Fields\BooleanField;
 use Bitrix\Main\ORM\Fields\Relations\CascadePolicy;
 use Bitrix\Main\ORM\Fields\Relations\ManyToMany;
 use Bitrix\Main\ORM\Fields\Relations\OneToMany;
@@ -144,6 +146,9 @@ class IblockTable extends DataManager
 			),
 			(new StringField('API_CODE'))
 				->configureSize(50),
+			(new BooleanField('REST_ON'))
+				->configureValues('N', 'Y')
+				->configureDefaultValue('N'),
 			'NAME' => array(
 				'data_type' => 'string',
 				'required' => true,
@@ -600,5 +605,41 @@ class IblockTable extends DataManager
 		return array(
 			new Entity\Validator\Length(null, 255),
 		);
+	}
+
+	/**
+	 * Default onAfterAdd handler. Absolutely necessary.
+	 *
+	 * @param Event $event		Current data for add.
+	 * @return void
+	 */
+	public static function onAfterAdd(Event $event)
+	{
+		$primary = $event->getParameter('primary');
+		\CIBlock::CleanCache($primary['ID']);
+	}
+
+	/**
+	 * Default onAfterUpdate handler. Absolutely necessary.
+	 *
+	 * @param Event $event		Current data for add.
+	 * @return void
+	 */
+	public static function onAfterUpdate(Event $event)
+	{
+		$primary = $event->getParameter('primary');
+		\CIBlock::CleanCache($primary['ID']);
+	}
+
+	/**
+	 * Default onAfterDelete handler. Absolutely necessary.
+	 *
+	 * @param Event $event		Current data for add.
+	 * @return void
+	 */
+	public static function onAfterDelete(Event $event)
+	{
+		$primary = $event->getParameter('primary');
+		\CIBlock::CleanCache($primary['ID']);
 	}
 }

@@ -94,6 +94,7 @@ $pageConfig = array(
 	'IBLOCK_EDIT' => false,
 	'CHECK_NEW_CARD' => false,
 	'USE_NEW_CARD' => false,
+	'CATALOG' => false,
 
 	'LIST_ID_PREFIX' => '',
 	'LIST_ID' => $_REQUEST["type"].'.'.$IBLOCK_ID,
@@ -108,10 +109,12 @@ switch ($urlBuilder->getId())
 		$pageConfig['CHECK_NEW_CARD'] = true;
 		$pageConfig['SHOW_NAVCHAIN'] = false;
 		$pageConfig['CONTEXT_PATH'] = '/shop/settings/cat_product_admin.php'; // TODO: temporary hack
+		$pageConfig['CATALOG'] = true;
 		break;
 	case 'CATALOG':
 		$pageConfig['LIST_ID_PREFIX'] = 'tbl_product_admin_';
 		$pageConfig['CONTEXT_PATH'] = '/bitrix/admin/cat_product_admin.php'; // TODO: temporary hack
+		$pageConfig['CATALOG'] = true;
 		break;
 	case 'IBLOCK':
 		$pageConfig['LIST_ID_PREFIX'] = 'tbl_iblock_element_';
@@ -154,6 +157,7 @@ if ($useElementTranslit)
 		"delete_repeat_replace" => ($elementTranslit['TRANS_EAT'] == 'Y')
 	);
 }
+$changeUserByActive = (string)Main\Config\Option::get('iblock', 'change_user_by_group_active_modify') === 'Y';
 
 define("MODULE_ID", "iblock");
 define("ENTITY", "CIBlockDocument");
@@ -327,12 +331,13 @@ elseif(isset($_REQUEST["find_section_section"]))
 else
 	$find_section_section = -1;
 //We have to handle current section in a special way
-$section_id = intval($find_section_section);
-if(!defined("CATALOG_PRODUCT"))
+$section_id = (int)$find_section_section;
+if(!$pageConfig['CATALOG'])
 	$find_section_section = $section_id;
 //This is all parameters needed for proper navigation
-$sThisSectionUrl = '&type='.urlencode($type).'&lang='.LANGUAGE_ID.'&IBLOCK_ID='.$IBLOCK_ID.
-	'&find_section_section='.intval($find_section_section);
+$sThisSectionUrl = $urlBuilder->getUrlParams([
+	'find_section_section' => (int)$find_section_section
+]);
 
 $sectionItems = array(
 	"" => GetMessage("IBLOCK_ALL"),
@@ -945,8 +950,11 @@ if($bCatalog)
 			"title" => "",
 			"align" => "right",
 		);
+
+		$iblockData = \CCatalog::GetByID($IBLOCK_ID);
+
 		$vatList = array(
-			0 => GetMessage('IBEL_CATALOG_EMPTY_VALUE')
+			0 => GetMessage('IBEL_CATALOG_EMPTY_VALUE') . ' ' . GetMessage('IBEL_CATALOG_DEFAULT')
 		);
 		$vatIterator = Catalog\VatTable::getList([
 			'select' => ['ID', 'NAME', 'SORT'],
@@ -955,6 +963,12 @@ if($bCatalog)
 		]);
 		while ($vat = $vatIterator->fetch())
 		{
+			if ($vat['ID'] === $iblockData['VAT_ID'])
+			{
+				$vatList[0] = $vat['NAME'] .
+					' ' . GetMessage("IBEL_CATALOG_DEFAULT");
+			}
+
 			$vat['ID'] = (int)$vat['ID'];
 			$vatList[$vat['ID']] = $vat['NAME'];
 		}
@@ -1219,6 +1233,8 @@ if($lAdmin->EditAction())
 
 	if (is_array($_POST['FIELDS']))
 	{
+		$ib = new CIBlockElement();
+
 		foreach($_POST['FIELDS'] as $ID=>$arFields)
 		{
 			if(!$lAdmin->IsUpdated($ID))
@@ -1412,7 +1428,7 @@ if($lAdmin->EditAction())
 			}
 
 			$arFields["MODIFIED_BY"] = $currentUser['ID'];
-			$ib = new CIBlockElement();
+			$ib->LAST_ERROR = '';
 			$DB->StartTransaction();
 
 			if(!$ib->Update($ID, $arFields, true, true, true))
@@ -1525,8 +1541,9 @@ if($lAdmin->EditAction())
 				}
 			}
 		}
-	}
 
+		unset($ib);
+	}
 
 	if($bCatalog)
 	{
@@ -1717,6 +1734,8 @@ if ($arID = $lAdmin->GroupAction())
 			Catalog\Product\Sku::enableDeferredCalculation();
 		}
 
+		$obE = new CIBlockElement();
+
 		foreach ($arID as $ID)
 		{
 			$ID = (int)$ID;
@@ -1824,10 +1843,14 @@ if ($arID = $lAdmin->GroupAction())
 				case ActionType::DEACTIVATE:
 					if (CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $ID, "element_edit"))
 					{
-						$ob = new CIBlockElement();
+						$obE->LAST_ERROR = '';
 						$arFields = array("ACTIVE" => ($actionId == ActionType::ACTIVATE ? "Y" : "N"));
-						if (!$ob->Update($ID, $arFields, true))
-							$lAdmin->AddGroupError(GetMessage("IBEL_A_UPDERR").$ob->LAST_ERROR, $ID);
+						if ($changeUserByActive)
+						{
+							$arFields['MODIFIED_BY'] = $currentUser['ID'];
+						}
+						if (!$obE->Update($ID, $arFields, true))
+							$lAdmin->AddGroupError(GetMessage("IBEL_A_UPDERR").$obE->LAST_ERROR, $ID);
 					}
 					else
 					{
@@ -1843,7 +1866,7 @@ if ($arID = $lAdmin->GroupAction())
 						{
 							if (CIBlockSectionRights::UserHasRightTo($IBLOCK_ID, $new_section, "section_element_bind"))
 							{
-								$obE = new CIBlockElement();
+								$obE->LAST_ERROR = '';
 
 								$arSections = array($new_section);
 								if ($actionId == ActionType::ADD_TO_SECTION)
@@ -1890,7 +1913,7 @@ if ($arID = $lAdmin->GroupAction())
 							{
 								if ($arRes["WF_STATUS_ID"] != $new_status)
 								{
-									$obE = new CIBlockElement();
+									$obE->LAST_ERROR = '';
 									$res = $obE->Update($ID, array(
 										"WF_STATUS_ID" => $new_status,
 										"MODIFIED_BY" => $currentUser['ID'],
@@ -1948,10 +1971,9 @@ if ($arID = $lAdmin->GroupAction())
 								$elementTranslitSettings
 							)
 						);
-						$ob = new CIBlockElement();
-						if (!$ob->Update($ID, $arFields, false, false))
-							$lAdmin->AddGroupError(GetMessage("IBEL_A_UPDERR").$ob->LAST_ERROR, $ID);
-						unset($ob);
+						$obE->LAST_ERROR = '';
+						if (!$obE->Update($ID, $arFields, false, false))
+							$lAdmin->AddGroupError(GetMessage("IBEL_A_UPDERR").$obE->LAST_ERROR, $ID);
 						unset($arFields);
 						unset($current);
 						unset($iterator);
@@ -1964,10 +1986,10 @@ if ($arID = $lAdmin->GroupAction())
 				case ActionType::CLEAR_COUNTER:
 					if (CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $ID, "element_edit"))
 					{
-						$ob = new CIBlockElement();
+						$obE->LAST_ERROR = '';
 						$arFields = array('SHOW_COUNTER' => false, 'SHOW_COUNTER_START' => false);
-						if (!$ob->Update($ID, $arFields, false, false))
-							$lAdmin->AddGroupError(GetMessage("IBEL_A_UPDERR").$ob->LAST_ERROR, $ID);
+						if (!$obE->Update($ID, $arFields, false, false))
+							$lAdmin->AddGroupError(GetMessage("IBEL_A_UPDERR").$obE->LAST_ERROR, $ID);
 					}
 					else
 					{
@@ -2013,6 +2035,8 @@ if ($arID = $lAdmin->GroupAction())
 				}
 			}
 		}
+
+		unset($obE);
 
 		if (
 			$bCatalog
@@ -2104,9 +2128,6 @@ $elementIds = [];
 
 $rsData = new CAdminUiResult($rsData, $sTableID);
 $rsData->NavStart();
-/*$lAdmin->SetNavigationParams($rsData, array("BASE_LINK" => $selfFolderUrl.CIBlock::GetAdminElementListScriptName(
-	$IBLOCK_ID, array("skip_public" => true)))
-);*/
 $lAdmin->SetNavigationParams($rsData, array());
 
 $arRows = array();
@@ -2294,6 +2315,11 @@ foreach (array_keys($rawRows) as $rowId)
 
 	$arRes["edit_url"] = $urlBuilder->getElementDetailUrl($arRes_orig['ID'], $elementUrlParams);
 	$arRows[$itemId] = $row = $lAdmin->AddRow($itemId, $arRes, $arRes["edit_url"], GetMessage("IBEL_A_EDIT"));
+
+	if ($row->arRes['VAT_ID'] === null)
+	{
+		$row->arRes['VAT_ID'] = '0';
+	}
 
 	$row->AddViewField("ID", '<a href="'.$arRes["edit_url"].'" title="'.GetMessage("IBEL_A_EDIT_TITLE").'">'.$itemId.'</a>');
 
@@ -2869,8 +2895,15 @@ foreach (array_keys($rawRows) as $rowId)
 }
 
 $boolIBlockElementAdd = CIBlockSectionRights::UserHasRightTo($IBLOCK_ID, $find_section_section, "section_element_bind");
+$iblockElementAdd = $boolIBlockElementAdd;
 if (!empty($productLimits))
+{
 	$boolIBlockElementAdd = false;
+	if (!method_exists('\Bitrix\Catalog\Config\Feature', 'getProductLimitHelpLink'))
+	{
+		$iblockElementAdd = false;
+	}
+}
 
 $arElementOps = CIBlockElementRights::UserHasRightTo(
 	$IBLOCK_ID,
@@ -3118,7 +3151,7 @@ if ($bCatalog && !empty($arRows))
 							],
 							'PRICE' => [
 								'NAME' => 'CATALOG_PRICE['.$productId.']['.$priceType.']',
-								'VALUE' => 0,
+								'VALUE' => '',
 							],
 							'CURRENCY' => [
 								'NAME' => 'CATALOG_CURRENCY['.$productId.']['.$priceType.']',
@@ -3657,7 +3690,7 @@ foreach($arRows as $idRow => $row)
 				);
 			}
 
-			if(!defined("CATALOG_PRODUCT"))
+			if(!$pageConfig['CATALOG'])
 			{
 				$arActions[] = array(
 					"ICON" => "history",
@@ -3835,7 +3868,7 @@ foreach($arRows as $idRow => $row)
 				"LINK" => $urlBuilder->getElementCopyUrl($idRow, $elementUrlParams),
 			);
 
-			if(!defined("CATALOG_PRODUCT"))
+			if(!$pageConfig['CATALOG'])
 			{
 				$arActions[] = array(
 					"ICON" => "history",
@@ -4070,7 +4103,7 @@ if ($pageConfig['SHOW_NAVCHAIN'])
 
 $aContext = array();
 
-if ($boolIBlockElementAdd)
+if ($iblockElementAdd)
 {
 	$params = array(
 		'find_section_section' => $find_section_section,
@@ -4095,6 +4128,7 @@ if ($boolIBlockElementAdd)
 			"TEXT" => htmlspecialcharsbx($arIBlock["ELEMENT_ADD"]),
 			"LINK" => $urlBuilder->getElementDetailUrl(0, $params),
 			"LINK_PARAM" => "",
+			'SHOW_TITLE' => true,
 			"TITLE" => GetMessage("IBEL_A_ADDEL_TITLE")
 		);
 	}
@@ -4137,7 +4171,7 @@ $lAdmin->SetContextMenu($aContext, $additional, $contextConfig);
 
 $lAdmin->CheckListMode();
 
-if (defined("CATALOG_PRODUCT"))
+if ($pageConfig['CATALOG'])
 	$APPLICATION->SetTitle(GetMessage("IBEL_LIST_TITLE", array("#IBLOCK_NAME#" => htmlspecialcharsex($arIBlock["NAME"]))));
 else
 	$APPLICATION->SetTitle($arIBlock["NAME"]);

@@ -606,6 +606,7 @@ class CAllIBlockSection
 
 			unset($arFields["ID"]);
 			$ID = intval($DB->Add("b_iblock_section", $arFields, Array("DESCRIPTION","SEARCHABLE_CONTENT"), "iblock"));
+			$arFields["ID"] = $ID;
 
 			if(array_key_exists("PICTURE", $arFields))
 				$arFields["PICTURE"] = $SAVED_PICTURE;
@@ -617,112 +618,7 @@ class CAllIBlockSection
 				if(!array_key_exists("SORT", $arFields))
 					$arFields["SORT"] = 500;
 
-				$arParent = false;
-				if($arFields["IBLOCK_SECTION_ID"] !== false)
-				{
-					$strSql = "
-						SELECT BS.ID, BS.ACTIVE, BS.GLOBAL_ACTIVE, BS.DEPTH_LEVEL, BS.LEFT_MARGIN, BS.RIGHT_MARGIN
-						FROM b_iblock_section BS
-						WHERE BS.IBLOCK_ID = ".$IBLOCK_ID."
-						AND BS.ID = ".$arFields["IBLOCK_SECTION_ID"]."
-					";
-					$rsParent = $DB->Query($strSql);
-					$arParent = $rsParent->Fetch();
-				}
-
-				$NAME = $arFields["NAME"];
-				$SORT = intval($arFields["SORT"]);
-
-				//Find rightmost child of the parent
-				$strSql = "
-					SELECT BS.ID, BS.RIGHT_MARGIN, BS.GLOBAL_ACTIVE, BS.DEPTH_LEVEL
-					FROM b_iblock_section BS
-					WHERE BS.IBLOCK_ID = ".$IBLOCK_ID."
-					AND ".($arFields["IBLOCK_SECTION_ID"] !== false? "BS.IBLOCK_SECTION_ID=".$arFields["IBLOCK_SECTION_ID"]: "BS.IBLOCK_SECTION_ID IS NULL")."
-					AND (
-						(BS.SORT < ".$SORT.")
-						OR (BS.SORT = ".$SORT." AND BS.NAME < '".$DB->ForSQL($NAME)."')
-					)
-					AND BS.ID <> ".$ID."
-					ORDER BY BS.SORT DESC, BS.NAME DESC
-				";
-				$rsChild = $DB->Query($strSql);
-				if($arChild = $rsChild->Fetch())
-				{
-					//We found the left neighbour
-					$arUpdate = array(
-						"LEFT_MARGIN" => intval($arChild["RIGHT_MARGIN"])+1,
-						"RIGHT_MARGIN" => intval($arChild["RIGHT_MARGIN"])+2,
-						"DEPTH_LEVEL" => intval($arChild["DEPTH_LEVEL"]),
-					);
-					//in case we adding active section
-					if($arFields["ACTIVE"] != "N")
-					{
-						//Look up GLOBAL_ACTIVE of the parent
-						//if none then take our own
-						if($arParent)//We must inherit active from the parent
-							$arUpdate["GLOBAL_ACTIVE"] = $arParent["GLOBAL_ACTIVE"] == "Y"? "Y": "N";
-						else //No parent was found take our own
-							$arUpdate["GLOBAL_ACTIVE"] = "Y";
-					}
-					else
-					{
-						$arUpdate["GLOBAL_ACTIVE"] = "N";
-					}
-				}
-				else
-				{
-					//If we have parent, when take its left_margin
-					if($arParent)
-					{
-						$arUpdate = array(
-							"LEFT_MARGIN" => intval($arParent["LEFT_MARGIN"])+1,
-							"RIGHT_MARGIN" => intval($arParent["LEFT_MARGIN"])+2,
-							"GLOBAL_ACTIVE" => ($arParent["GLOBAL_ACTIVE"] == "Y") && ($arFields["ACTIVE"] != "N")? "Y": "N",
-							"DEPTH_LEVEL" => intval($arParent["DEPTH_LEVEL"])+1,
-						);
-					}
-					else
-					{
-						//We are only one/leftmost section in the iblock.
-						$arUpdate = array(
-							"LEFT_MARGIN" => 1,
-							"RIGHT_MARGIN" => 2,
-							"GLOBAL_ACTIVE" => $arFields["ACTIVE"] != "N"? "Y": "N",
-							"DEPTH_LEVEL" => 1,
-						);
-					}
-				}
-				$DB->Query("
-					UPDATE b_iblock_section SET
-						TIMESTAMP_X=".($DB->type=="ORACLE"?"NULL":"TIMESTAMP_X")."
-						,LEFT_MARGIN = ".$arUpdate["LEFT_MARGIN"]."
-						,RIGHT_MARGIN = ".$arUpdate["RIGHT_MARGIN"]."
-						,DEPTH_LEVEL = ".$arUpdate["DEPTH_LEVEL"]."
-						,GLOBAL_ACTIVE = '".$arUpdate["GLOBAL_ACTIVE"]."'
-					WHERE
-						ID = ".$ID."
-				");
-				$DB->Query("
-					UPDATE b_iblock_section SET
-						TIMESTAMP_X=".($DB->type=="ORACLE"?"NULL":"TIMESTAMP_X")."
-						,LEFT_MARGIN = LEFT_MARGIN + 2
-						,RIGHT_MARGIN = RIGHT_MARGIN + 2
-					WHERE
-						IBLOCK_ID = ".$IBLOCK_ID."
-						AND LEFT_MARGIN >= ".$arUpdate["LEFT_MARGIN"]."
-						AND ID <> ".$ID."
-				");
-				if($arParent)
-					$DB->Query("
-						UPDATE b_iblock_section SET
-							TIMESTAMP_X=".($DB->type=="ORACLE"?"NULL":"TIMESTAMP_X")."
-							,RIGHT_MARGIN = RIGHT_MARGIN + 2
-						WHERE
-							IBLOCK_ID = ".$IBLOCK_ID."
-							AND LEFT_MARGIN <= ".$arParent["LEFT_MARGIN"]."
-							AND RIGHT_MARGIN >= ".$arParent["RIGHT_MARGIN"]."
-					");
+				self::recountTreeAfterAdd($arFields);
 			}
 
 			$GLOBALS["USER_FIELD_MANAGER"]->Update("IBLOCK_".$IBLOCK_ID."_SECTION", $ID, $arFields);
@@ -732,12 +628,17 @@ class CAllIBlockSection
 
 			if(
 				CIBlock::GetArrayByID($IBLOCK_ID, "SECTION_PROPERTY") === "Y"
-				&& array_key_exists("SECTION_PROPERTY", $arFields)
+				&& isset($arFields["SECTION_PROPERTY"])
 				&& is_array($arFields["SECTION_PROPERTY"])
 			)
 			{
 				foreach($arFields["SECTION_PROPERTY"] as $PROPERTY_ID => $arLink)
+				{
+					$arLink['INVALIDATE'] = 'N';
 					CIBlockSectionPropertyLink::Add($ID, $PROPERTY_ID, $arLink);
+				}
+				unset($arLink);
+				unset($PROPERTY_ID);
 			}
 
 			if($arIBlock["FIELDS"]["LOG_SECTION_ADD"]["IS_REQUIRED"] == "Y")
@@ -782,7 +683,6 @@ class CAllIBlockSection
 			}
 
 			$Result = $ID;
-			$arFields["ID"] = &$ID;
 
 			/************* QUOTA *************/
 			$_SESSION["SESS_RECOUNT_DB"] = "Y";
@@ -1141,6 +1041,7 @@ class CAllIBlockSection
 
 			unset($arFields["ID"]);
 			$strUpdate = $DB->PrepareUpdate("b_iblock_section", $arFields, "iblock");
+			$arFields["ID"] = $ID;
 
 			if(array_key_exists("PICTURE", $arFields))
 				$arFields["PICTURE"] = $SAVED_PICTURE;
@@ -1162,231 +1063,7 @@ class CAllIBlockSection
 
 			if($bResort)
 			{
-				$move_distance = 0;
-				//Move inside the tree
-				if((isset($arFields["SORT"]) && $arFields["SORT"]!=$db_record["SORT"])
-					|| (isset($arFields["NAME"]) && $arFields["NAME"]!=$db_record["NAME"])
-					|| (isset($arFields["IBLOCK_SECTION_ID"]) && $arFields["IBLOCK_SECTION_ID"]!=$db_record["IBLOCK_SECTION_ID"]))
-				{
-					//First "delete" from the tree
-					$distance = intval($db_record["RIGHT_MARGIN"]) - intval($db_record["LEFT_MARGIN"]) + 1;
-					$DB->Query("
-						UPDATE b_iblock_section SET
-							TIMESTAMP_X=".($DB->type=="ORACLE"?"NULL":"TIMESTAMP_X")."
-							,LEFT_MARGIN = -LEFT_MARGIN
-							,RIGHT_MARGIN = -RIGHT_MARGIN
-						WHERE
-							IBLOCK_ID = ".$db_record["IBLOCK_ID"]."
-							AND LEFT_MARGIN >= ".intval($db_record["LEFT_MARGIN"])."
-							AND LEFT_MARGIN <= ".intval($db_record["RIGHT_MARGIN"])."
-					");
-					$DB->Query("
-						UPDATE b_iblock_section SET
-							TIMESTAMP_X=".($DB->type=="ORACLE"?"NULL":"TIMESTAMP_X")."
-							,RIGHT_MARGIN = RIGHT_MARGIN - ".$distance."
-						WHERE
-							IBLOCK_ID = ".$db_record["IBLOCK_ID"]."
-							AND RIGHT_MARGIN > ".$db_record["RIGHT_MARGIN"]."
-					");
-					$DB->Query("
-						UPDATE b_iblock_section SET
-							TIMESTAMP_X=".($DB->type=="ORACLE"?"NULL":"TIMESTAMP_X")."
-							,LEFT_MARGIN = LEFT_MARGIN - ".$distance."
-						WHERE
-							IBLOCK_ID = ".$db_record["IBLOCK_ID"]."
-							AND LEFT_MARGIN > ".$db_record["LEFT_MARGIN"]."
-					");
-
-					//Next insert into the the tree almost as we do when inserting the new one
-
-					$PARENT_ID = isset($arFields["IBLOCK_SECTION_ID"])? intval($arFields["IBLOCK_SECTION_ID"]): intval($db_record["IBLOCK_SECTION_ID"]);
-					$NAME = isset($arFields["NAME"])? $arFields["NAME"]: $db_record["NAME"];
-					$SORT = isset($arFields["SORT"])? intval($arFields["SORT"]): intval($db_record["SORT"]);
-
-					$arParents = array();
-					$strSql = "
-						SELECT BS.ID, BS.ACTIVE, BS.GLOBAL_ACTIVE, BS.DEPTH_LEVEL, BS.LEFT_MARGIN, BS.RIGHT_MARGIN
-						FROM b_iblock_section BS
-						WHERE BS.IBLOCK_ID = ".$db_record["IBLOCK_ID"]."
-						AND BS.ID in (".intval($db_record["IBLOCK_SECTION_ID"]).", ".$PARENT_ID.")
-					";
-					$rsParents = $DB->Query($strSql);
-					while($arParent = $rsParents->Fetch())
-					{
-						$arParents[$arParent["ID"]] = $arParent;
-					}
-					//Find rightmost child of the parent
-					$strSql = "
-						SELECT BS.ID, BS.RIGHT_MARGIN, BS.DEPTH_LEVEL
-						FROM b_iblock_section BS
-						WHERE BS.IBLOCK_ID = ".$db_record["IBLOCK_ID"]."
-						AND ".($PARENT_ID > 0? "BS.IBLOCK_SECTION_ID=".$PARENT_ID: "BS.IBLOCK_SECTION_ID IS NULL")."
-						AND (
-							(BS.SORT < ".$SORT.")
-							OR (BS.SORT = ".$SORT." AND BS.NAME < '".$DB->ForSQL($NAME)."')
-						)
-						AND BS.ID <> ".$ID."
-						ORDER BY BS.SORT DESC, BS.NAME DESC
-					";
-					$rsChild = $DB->Query($strSql);
-					if($arChild = $rsChild->Fetch())
-					{
-						//We found the left neighbour
-						$arUpdate = array(
-							"LEFT_MARGIN" => intval($arChild["RIGHT_MARGIN"])+1,
-							"DEPTH_LEVEL" => intval($arChild["DEPTH_LEVEL"]),
-						);
-					}
-					else
-					{
-						//If we have parent, when take its left_margin
-						if(isset($arParents[$PARENT_ID]) && $arParents[$PARENT_ID])
-						{
-							$arUpdate = array(
-								"LEFT_MARGIN" => intval($arParents[$PARENT_ID]["LEFT_MARGIN"])+1,
-								"DEPTH_LEVEL" => intval($arParents[$PARENT_ID]["DEPTH_LEVEL"])+1,
-							);
-						}
-						else
-						{
-							//We are only one/leftmost section in the iblock.
-							$arUpdate = array(
-								"LEFT_MARGIN" => 1,
-								"DEPTH_LEVEL" => 1,
-							);
-						}
-					}
-
-					$move_distance = intval($db_record["LEFT_MARGIN"]) - $arUpdate["LEFT_MARGIN"];
-
-					$DB->Query("
-						UPDATE b_iblock_section SET
-							TIMESTAMP_X=".($DB->type=="ORACLE"?"NULL":"TIMESTAMP_X")."
-							,LEFT_MARGIN = LEFT_MARGIN + ".$distance."
-							,RIGHT_MARGIN = RIGHT_MARGIN + ".$distance."
-						WHERE
-							IBLOCK_ID = ".$db_record["IBLOCK_ID"]."
-							AND LEFT_MARGIN >= ".$arUpdate["LEFT_MARGIN"]."
-					");
-					$DB->Query("
-						UPDATE b_iblock_section SET
-							TIMESTAMP_X=".($DB->type=="ORACLE"?"NULL":"TIMESTAMP_X")."
-							,LEFT_MARGIN = -LEFT_MARGIN - ".$move_distance."
-							,RIGHT_MARGIN = -RIGHT_MARGIN - ".$move_distance."
-							".($arUpdate["DEPTH_LEVEL"] != intval($db_record["DEPTH_LEVEL"])? ",DEPTH_LEVEL = DEPTH_LEVEL - ".($db_record["DEPTH_LEVEL"] - $arUpdate["DEPTH_LEVEL"]): "")."
-						WHERE
-							IBLOCK_ID = ".$db_record["IBLOCK_ID"]."
-							AND LEFT_MARGIN <= ".(-intval($db_record["LEFT_MARGIN"]))."
-							AND LEFT_MARGIN >= ".(-intval($db_record["RIGHT_MARGIN"]))."
-					");
-
-					if(isset($arParents[$PARENT_ID]))
-					{
-						$DB->Query("
-							UPDATE b_iblock_section SET
-								TIMESTAMP_X=".($DB->type=="ORACLE"?"NULL":"TIMESTAMP_X")."
-								,RIGHT_MARGIN = RIGHT_MARGIN + ".$distance."
-							WHERE
-								IBLOCK_ID = ".$db_record["IBLOCK_ID"]."
-								AND LEFT_MARGIN <= ".$arParents[$PARENT_ID]["LEFT_MARGIN"]."
-								AND RIGHT_MARGIN >= ".$arParents[$PARENT_ID]["RIGHT_MARGIN"]."
-						");
-					}
-				}
-				//Check if parent was changed
-				if(isset($arFields["IBLOCK_SECTION_ID"]) && $arFields["IBLOCK_SECTION_ID"]!=$db_record["IBLOCK_SECTION_ID"])
-				{
-					$rsSection = CIBlockSection::GetList(
-						array(),
-						array("ID" => $ID, "CHECK_PERMISSIONS" => "N"),
-						false,
-						array(
-							"ID", "IBLOCK_ID", "IBLOCK_SECTION_ID",
-							"LEFT_MARGIN", "RIGHT_MARGIN",
-							"ACTIVE", "GLOBAL_ACTIVE"
-						)
-					);
-					$arSection = $rsSection->Fetch();
-					unset($rsSection);
-
-					$strSql = "
-						SELECT ID, GLOBAL_ACTIVE
-						FROM b_iblock_section
-						WHERE IBLOCK_ID = ".$arSection["IBLOCK_ID"]."
-						AND ID = ".intval($arFields["IBLOCK_SECTION_ID"])."
-					";
-					$rsParent = $DB->Query($strSql);
-					$arParent = $rsParent->Fetch();
-					//If new parent is not globally active
-					//or we are not active either
-					//we must be not globally active too
-					if(($arParent && $arParent["GLOBAL_ACTIVE"] == "N") || ($arFields["ACTIVE"] == "N"))
-					{
-						$DB->Query("
-							UPDATE b_iblock_section SET
-								TIMESTAMP_X=".($DB->type=="ORACLE"?"NULL":"TIMESTAMP_X")."
-								,GLOBAL_ACTIVE = 'N'
-							WHERE
-								IBLOCK_ID = ".$arSection["IBLOCK_ID"]."
-								AND LEFT_MARGIN >= ".intval($arSection["LEFT_MARGIN"])."
-								AND RIGHT_MARGIN <= ".intval($arSection["RIGHT_MARGIN"])."
-						");
-					}
-					//New parent is globally active
-					//And we WAS NOT active
-					//But is going to be
-					elseif($arSection["ACTIVE"] == "N" && $arFields["ACTIVE"] == "Y")
-					{
-						$this->RecalcGlobalActiveFlag($arSection);
-					}
-					//New parent is globally active
-					//And we WAS active but NOT globally active
-					//But is going to be
-					elseif(
-						(!$arParent || $arParent["GLOBAL_ACTIVE"] == "Y")
-						&& $arSection["GLOBAL_ACTIVE"] == "N"
-						&& ($arSection["ACTIVE"] == "Y" || $arFields["ACTIVE"] == "Y")
-					)
-					{
-						$this->RecalcGlobalActiveFlag($arSection);
-					}
-					//Otherwise we may not to change anything
-				}
-				//Parent not changed
-				//but we are going to change activity flag
-				elseif(isset($arFields["ACTIVE"]) && $arFields["ACTIVE"] != $db_record["ACTIVE"])
-				{
-					//Make all children globally inactive
-					if($arFields["ACTIVE"] == "N")
-					{
-						$DB->Query("
-							UPDATE b_iblock_section SET
-								TIMESTAMP_X=".($DB->type=="ORACLE"?"NULL":"TIMESTAMP_X")."
-								,GLOBAL_ACTIVE = 'N'
-							WHERE
-								IBLOCK_ID = ".$db_record["IBLOCK_ID"]."
-								AND LEFT_MARGIN >= ".intval($db_record["LEFT_MARGIN"])."
-								AND RIGHT_MARGIN <= ".intval($db_record["RIGHT_MARGIN"])."
-						");
-					}
-					else
-					{
-						//Check for parent activity
-						$strSql = "
-							SELECT ID, GLOBAL_ACTIVE
-							FROM b_iblock_section
-							WHERE IBLOCK_ID = ".$db_record["IBLOCK_ID"]."
-							AND ID = ".intval($db_record["IBLOCK_SECTION_ID"])."
-						";
-						$rsParent = $DB->Query($strSql);
-						$arParent = $rsParent->Fetch();
-						//Parent is active
-						//and we changed
-						//so need to recalc
-						if(!$arParent || $arParent["GLOBAL_ACTIVE"] == "Y")
-							$this->RecalcGlobalActiveFlag($db_record, -$move_distance);
-					}
-				}
+				$this->recountTreeAfterUpdate($arFields, $db_record);
 			}
 
 			unset(self::$arSectionCodeCache[$ID]);
@@ -1430,6 +1107,14 @@ class CAllIBlockSection
 				CIBlockSectionPropertyLink::DeleteBySection($ID, array_keys($arFields["SECTION_PROPERTY"]));
 				foreach($arFields["SECTION_PROPERTY"] as $PROPERTY_ID => $arLink)
 					CIBlockSectionPropertyLink::Set($ID, $PROPERTY_ID, $arLink);
+			}
+			if (
+				CIBlock::GetArrayByID($db_record["IBLOCK_ID"], "PROPERTY_INDEX") === "Y"
+				&& isset($arFields['IBLOCK_SECTION_ID'])
+				&& $arFields['IBLOCK_SECTION_ID'] != $db_record['IBLOCK_SECTION_ID']
+			)
+			{
+				\Bitrix\Iblock\PropertyIndex\Manager::markAsInvalid($db_record["IBLOCK_ID"]);
 			}
 
 			if($bUpdateSearch)
@@ -1649,37 +1334,7 @@ class CAllIBlockSection
 			$GLOBALS["USER_FIELD_MANAGER"]->Delete("IBLOCK_".$s["IBLOCK_ID"]."_SECTION", $ID);
 
 			//Delete the hole in the tree
-			$ss = $DB->Query("
-				SELECT
-					IBLOCK_ID,
-					LEFT_MARGIN,
-					RIGHT_MARGIN
-				FROM
-					b_iblock_section
-				WHERE
-					ID = ".$s["ID"]."
-			");
-			$ss = $ss->Fetch();
-			if(($ss["RIGHT_MARGIN"] > 0) && ($ss["LEFT_MARGIN"] > 0))
-			{
-				$DB->Query("
-					UPDATE b_iblock_section SET
-						TIMESTAMP_X=".($DB->type=="ORACLE"?"NULL":"TIMESTAMP_X")."
-						,RIGHT_MARGIN = RIGHT_MARGIN - 2
-					WHERE
-						IBLOCK_ID = ".$ss["IBLOCK_ID"]."
-						AND RIGHT_MARGIN > ".$ss["RIGHT_MARGIN"]."
-				");
-
-				$DB->Query("
-					UPDATE b_iblock_section SET
-						TIMESTAMP_X=".($DB->type=="ORACLE"?"NULL":"TIMESTAMP_X")."
-						,LEFT_MARGIN = LEFT_MARGIN - 2
-					WHERE
-						IBLOCK_ID = ".$ss["IBLOCK_ID"]."
-						AND LEFT_MARGIN > ".$ss["LEFT_MARGIN"]."
-				");
-			}
+			self::recountTreeOnDelete($s);
 
 			$obSectionRights = new CIBlockSectionRights($s["IBLOCK_ID"], $ID);
 			$obSectionRights->DeleteAllRights();
@@ -2649,7 +2304,7 @@ class CAllIBlockSection
 			return "D";
 	}
 
-	function RecalcGlobalActiveFlag($arSection, $distance = 0)
+	public static function RecalcGlobalActiveFlag($arSection, $distance = 0)
 	{
 		global $DB;
 
@@ -2750,7 +2405,12 @@ class CAllIBlockSection
 			$prepared = array();
 			foreach ($filter as $index => $value)
 			{
-				if (
+				if ($index == 'ID' && (is_int($value) || is_string($value)))
+				{
+					$result['=ID'] = $value;
+					break;
+				}
+				elseif (
 					preg_match('/^(>=|<=|>|<|=|!=|)ID$/', $index, $prepared)
 					&& $value instanceof \CIBlockElement
 				)
@@ -2790,7 +2450,10 @@ class CAllIBlockSection
 			$catalogIncluded = Loader::includeModule('catalog');
 			foreach($filter as $index => $value)
 			{
-				if ($value instanceof \CIBlockElement)
+				if (
+					($index == '=ID' && (is_int($value) || is_string($value)))
+					|| $value instanceof \CIBlockElement
+				)
 				{
 					$result = false;
 					break;
@@ -2848,4 +2511,422 @@ class CAllIBlockSection
 	{
 		return $value !== null;
 	}
+
+	/**
+	 * @param array $arFields ID, IBLOCK_ID, IBLOCK_SECTION_ID, NAME, SORT
+	 */
+	public static function recountTreeAfterAdd($arFields)
+	{
+		global $DB;
+
+		$ID = $arFields['ID'];
+		$IBLOCK_ID = (int) $arFields['IBLOCK_ID'];
+
+		$arParent = false;
+		if ($arFields["IBLOCK_SECTION_ID"] !== false)
+		{
+			$strSql = "
+				SELECT BS.ID, BS.ACTIVE, BS.GLOBAL_ACTIVE, BS.DEPTH_LEVEL, BS.LEFT_MARGIN, BS.RIGHT_MARGIN
+				FROM b_iblock_section BS
+				WHERE BS.IBLOCK_ID = ".$IBLOCK_ID."
+				AND BS.ID = ".$arFields["IBLOCK_SECTION_ID"]."
+			";
+			$rsParent = $DB->Query($strSql);
+			$arParent = $rsParent->Fetch();
+		}
+
+		$NAME = $arFields["NAME"];
+		$SORT = intval($arFields["SORT"]);
+
+		//Find rightmost child of the parent
+		$strSql = "
+			SELECT BS.ID, BS.RIGHT_MARGIN, BS.GLOBAL_ACTIVE, BS.DEPTH_LEVEL
+			FROM b_iblock_section BS
+			WHERE BS.IBLOCK_ID = ".$IBLOCK_ID."
+			AND ".($arFields["IBLOCK_SECTION_ID"] !== false ? "BS.IBLOCK_SECTION_ID=".$arFields["IBLOCK_SECTION_ID"] : "BS.IBLOCK_SECTION_ID IS NULL")."
+			AND (
+				(BS.SORT < ".$SORT.")
+				OR (BS.SORT = ".$SORT." AND BS.NAME < '".$DB->ForSQL($NAME)."')
+			)
+			AND BS.ID <> ".$ID."
+			ORDER BY BS.SORT DESC, BS.NAME DESC
+		";
+		$rsChild = $DB->Query($strSql);
+
+		if ($arChild = $rsChild->Fetch())
+		{
+			//We found the left neighbour
+			$arUpdate = array(
+				"LEFT_MARGIN" => intval($arChild["RIGHT_MARGIN"]) + 1,
+				"RIGHT_MARGIN" => intval($arChild["RIGHT_MARGIN"]) + 2,
+				"DEPTH_LEVEL" => intval($arChild["DEPTH_LEVEL"]),
+			);
+
+			//in case we adding active section
+			if ($arFields["ACTIVE"] != "N")
+			{
+				//Look up GLOBAL_ACTIVE of the parent
+				//if none then take our own
+				if ($arParent)//We must inherit active from the parent
+				{
+					$arUpdate["GLOBAL_ACTIVE"] = $arParent["GLOBAL_ACTIVE"] == "Y" ? "Y" : "N";
+				}
+				else //No parent was found take our own
+				{
+					$arUpdate["GLOBAL_ACTIVE"] = "Y";
+				}
+			}
+			else
+			{
+				$arUpdate["GLOBAL_ACTIVE"] = "N";
+			}
+		}
+		else
+		{
+			//If we have parent, when take its left_margin
+			if ($arParent)
+			{
+				$arUpdate = array(
+					"LEFT_MARGIN" => intval($arParent["LEFT_MARGIN"]) + 1,
+					"RIGHT_MARGIN" => intval($arParent["LEFT_MARGIN"]) + 2,
+					"GLOBAL_ACTIVE" => ($arParent["GLOBAL_ACTIVE"] == "Y") && ($arFields["ACTIVE"] != "N") ? "Y" : "N",
+					"DEPTH_LEVEL" => intval($arParent["DEPTH_LEVEL"]) + 1,
+				);
+			}
+			else
+			{
+				//We are only one/leftmost section in the iblock.
+				$arUpdate = array(
+					"LEFT_MARGIN" => 1,
+					"RIGHT_MARGIN" => 2,
+					"GLOBAL_ACTIVE" => $arFields["ACTIVE"] != "N" ? "Y" : "N",
+					"DEPTH_LEVEL" => 1,
+				);
+			}
+		}
+
+		$DB->Query("
+			UPDATE b_iblock_section SET
+				TIMESTAMP_X=".($DB->type == "ORACLE" ? "NULL" : "TIMESTAMP_X")."
+				,LEFT_MARGIN = ".$arUpdate["LEFT_MARGIN"]."
+				,RIGHT_MARGIN = ".$arUpdate["RIGHT_MARGIN"]."
+				,DEPTH_LEVEL = ".$arUpdate["DEPTH_LEVEL"]."
+				,GLOBAL_ACTIVE = '".$arUpdate["GLOBAL_ACTIVE"]."'
+			WHERE
+				ID = ".$ID."
+		");
+
+		$DB->Query("
+			UPDATE b_iblock_section SET
+				TIMESTAMP_X=".($DB->type == "ORACLE" ? "NULL" : "TIMESTAMP_X")."
+				,LEFT_MARGIN = LEFT_MARGIN + 2
+				,RIGHT_MARGIN = RIGHT_MARGIN + 2
+			WHERE
+				IBLOCK_ID = ".$IBLOCK_ID."
+				AND LEFT_MARGIN >= ".$arUpdate["LEFT_MARGIN"]."
+				AND ID <> ".$ID."
+		");
+
+		if ($arParent)
+		{
+			$DB->Query("
+				UPDATE b_iblock_section SET
+					TIMESTAMP_X=".($DB->type == "ORACLE" ? "NULL" : "TIMESTAMP_X")."
+					,RIGHT_MARGIN = RIGHT_MARGIN + 2
+				WHERE
+					IBLOCK_ID = ".$IBLOCK_ID."
+					AND LEFT_MARGIN <= ".$arParent["LEFT_MARGIN"]."
+					AND RIGHT_MARGIN >= ".$arParent["RIGHT_MARGIN"]."
+			");
+		}
+	}
+
+	/**
+	 * @param array $arFields ID, ACTIVE, IBLOCK_SECTION_ID, NAME, SORT
+	 * @param array $db_record *
+	 */
+	public static function recountTreeAfterUpdate($arFields, $db_record)
+	{
+		global $DB;
+
+		$ID = $arFields['ID'];
+
+		$move_distance = 0;
+
+		//Move inside the tree
+		if ((isset($arFields["SORT"]) && $arFields["SORT"] != $db_record["SORT"])
+			|| (isset($arFields["NAME"]) && $arFields["NAME"] != $db_record["NAME"])
+			|| (isset($arFields["IBLOCK_SECTION_ID"]) && $arFields["IBLOCK_SECTION_ID"] != $db_record["IBLOCK_SECTION_ID"]))
+		{
+			//First "delete" from the tree
+			$distance = intval($db_record["RIGHT_MARGIN"]) - intval($db_record["LEFT_MARGIN"]) + 1;
+			$DB->Query("
+				UPDATE b_iblock_section SET
+					TIMESTAMP_X=".($DB->type == "ORACLE" ? "NULL" : "TIMESTAMP_X")."
+					,LEFT_MARGIN = -LEFT_MARGIN
+					,RIGHT_MARGIN = -RIGHT_MARGIN
+				WHERE
+					IBLOCK_ID = ".$db_record["IBLOCK_ID"]."
+					AND LEFT_MARGIN >= ".intval($db_record["LEFT_MARGIN"])."
+					AND LEFT_MARGIN <= ".intval($db_record["RIGHT_MARGIN"])."
+			");
+
+			$DB->Query("
+				UPDATE b_iblock_section SET
+					TIMESTAMP_X=".($DB->type == "ORACLE" ? "NULL" : "TIMESTAMP_X")."
+					,RIGHT_MARGIN = RIGHT_MARGIN - ".$distance."
+				WHERE
+					IBLOCK_ID = ".$db_record["IBLOCK_ID"]."
+					AND RIGHT_MARGIN > ".$db_record["RIGHT_MARGIN"]."
+			");
+
+			$DB->Query("
+				UPDATE b_iblock_section SET
+					TIMESTAMP_X=".($DB->type == "ORACLE" ? "NULL" : "TIMESTAMP_X")."
+					,LEFT_MARGIN = LEFT_MARGIN - ".$distance."
+				WHERE
+					IBLOCK_ID = ".$db_record["IBLOCK_ID"]."
+					AND LEFT_MARGIN > ".$db_record["LEFT_MARGIN"]."
+			");
+
+			//Next insert into the the tree almost as we do when inserting the new one
+
+			$PARENT_ID = isset($arFields["IBLOCK_SECTION_ID"]) ? intval($arFields["IBLOCK_SECTION_ID"]) : intval($db_record["IBLOCK_SECTION_ID"]);
+			$NAME = isset($arFields["NAME"]) ? $arFields["NAME"] : $db_record["NAME"];
+			$SORT = isset($arFields["SORT"]) ? intval($arFields["SORT"]) : intval($db_record["SORT"]);
+
+			$arParents = array();
+			$strSql = "
+				SELECT BS.ID, BS.ACTIVE, BS.GLOBAL_ACTIVE, BS.DEPTH_LEVEL, BS.LEFT_MARGIN, BS.RIGHT_MARGIN
+				FROM b_iblock_section BS
+				WHERE BS.IBLOCK_ID = ".$db_record["IBLOCK_ID"]."
+				AND BS.ID in (".intval($db_record["IBLOCK_SECTION_ID"]).", ".$PARENT_ID.")
+			";
+			$rsParents = $DB->Query($strSql);
+			while ($arParent = $rsParents->Fetch())
+			{
+				$arParents[$arParent["ID"]] = $arParent;
+			}
+
+			//Find rightmost child of the parent
+			$strSql = "
+				SELECT BS.ID, BS.RIGHT_MARGIN, BS.DEPTH_LEVEL
+				FROM b_iblock_section BS
+				WHERE BS.IBLOCK_ID = ".$db_record["IBLOCK_ID"]."
+				AND ".($PARENT_ID > 0 ? "BS.IBLOCK_SECTION_ID=".$PARENT_ID : "BS.IBLOCK_SECTION_ID IS NULL")."
+				AND (
+					(BS.SORT < ".$SORT.")
+					OR (BS.SORT = ".$SORT." AND BS.NAME < '".$DB->ForSQL($NAME)."')
+				)
+				AND BS.ID <> ".$ID."
+				ORDER BY BS.SORT DESC, BS.NAME DESC
+			";
+			$rsChild = $DB->Query($strSql);
+			if ($arChild = $rsChild->Fetch())
+			{
+				//We found the left neighbour
+				$arUpdate = array(
+					"LEFT_MARGIN" => intval($arChild["RIGHT_MARGIN"]) + 1,
+					"DEPTH_LEVEL" => intval($arChild["DEPTH_LEVEL"]),
+				);
+			}
+			else
+			{
+				//If we have parent, when take its left_margin
+				if (isset($arParents[$PARENT_ID]) && $arParents[$PARENT_ID])
+				{
+					$arUpdate = array(
+						"LEFT_MARGIN" => intval($arParents[$PARENT_ID]["LEFT_MARGIN"]) + 1,
+						"DEPTH_LEVEL" => intval($arParents[$PARENT_ID]["DEPTH_LEVEL"]) + 1,
+					);
+				}
+				else
+				{
+					//We are only one/leftmost section in the iblock.
+					$arUpdate = array(
+						"LEFT_MARGIN" => 1,
+						"DEPTH_LEVEL" => 1,
+					);
+				}
+			}
+
+			$move_distance = intval($db_record["LEFT_MARGIN"]) - $arUpdate["LEFT_MARGIN"];
+
+			$DB->Query("
+				UPDATE b_iblock_section SET
+					TIMESTAMP_X=".($DB->type == "ORACLE" ? "NULL" : "TIMESTAMP_X")."
+					,LEFT_MARGIN = LEFT_MARGIN + ".$distance."
+					,RIGHT_MARGIN = RIGHT_MARGIN + ".$distance."
+				WHERE
+					IBLOCK_ID = ".$db_record["IBLOCK_ID"]."
+					AND LEFT_MARGIN >= ".$arUpdate["LEFT_MARGIN"]."
+			");
+
+			$DB->Query("
+				UPDATE b_iblock_section SET
+					TIMESTAMP_X=".($DB->type == "ORACLE" ? "NULL" : "TIMESTAMP_X")."
+					,LEFT_MARGIN = -LEFT_MARGIN - ".$move_distance."
+					,RIGHT_MARGIN = -RIGHT_MARGIN - ".$move_distance."
+					".($arUpdate["DEPTH_LEVEL"] != intval($db_record["DEPTH_LEVEL"]) ? ",DEPTH_LEVEL = DEPTH_LEVEL - ".($db_record["DEPTH_LEVEL"] - $arUpdate["DEPTH_LEVEL"]) : "")."
+				WHERE
+					IBLOCK_ID = ".$db_record["IBLOCK_ID"]."
+					AND LEFT_MARGIN <= ".(-intval($db_record["LEFT_MARGIN"]))."
+					AND LEFT_MARGIN >= ".(-intval($db_record["RIGHT_MARGIN"]))."
+			");
+
+			if (isset($arParents[$PARENT_ID]))
+			{
+				$DB->Query("
+					UPDATE b_iblock_section SET
+						TIMESTAMP_X=".($DB->type == "ORACLE" ? "NULL" : "TIMESTAMP_X")."
+						,RIGHT_MARGIN = RIGHT_MARGIN + ".$distance."
+					WHERE
+						IBLOCK_ID = ".$db_record["IBLOCK_ID"]."
+						AND LEFT_MARGIN <= ".$arParents[$PARENT_ID]["LEFT_MARGIN"]."
+						AND RIGHT_MARGIN >= ".$arParents[$PARENT_ID]["RIGHT_MARGIN"]."
+				");
+			}
+		}
+
+		//Check if parent was changed
+		if (isset($arFields["IBLOCK_SECTION_ID"]) && $arFields["IBLOCK_SECTION_ID"] != $db_record["IBLOCK_SECTION_ID"])
+		{
+			$rsSection = CIBlockSection::GetList(
+				array(),
+				array("ID" => $ID, "CHECK_PERMISSIONS" => "N"),
+				false,
+				array(
+					"ID", "IBLOCK_ID", "IBLOCK_SECTION_ID",
+					"LEFT_MARGIN", "RIGHT_MARGIN",
+					"ACTIVE", "GLOBAL_ACTIVE"
+				)
+			);
+
+			$arSection = $rsSection->Fetch();
+			unset($rsSection);
+
+			$strSql = "
+				SELECT ID, GLOBAL_ACTIVE
+				FROM b_iblock_section
+				WHERE IBLOCK_ID = ".$arSection["IBLOCK_ID"]."
+				AND ID = ".intval($arFields["IBLOCK_SECTION_ID"])."
+			";
+			$rsParent = $DB->Query($strSql);
+			$arParent = $rsParent->Fetch();
+
+			//If new parent is not globally active
+			//or we are not active either
+			//we must be not globally active too
+			if (($arParent && $arParent["GLOBAL_ACTIVE"] == "N") || ($arFields["ACTIVE"] == "N"))
+			{
+				$DB->Query("
+					UPDATE b_iblock_section SET
+						TIMESTAMP_X=".($DB->type == "ORACLE" ? "NULL" : "TIMESTAMP_X")."
+						,GLOBAL_ACTIVE = 'N'
+					WHERE
+						IBLOCK_ID = ".$arSection["IBLOCK_ID"]."
+						AND LEFT_MARGIN >= ".intval($arSection["LEFT_MARGIN"])."
+						AND RIGHT_MARGIN <= ".intval($arSection["RIGHT_MARGIN"])."
+				");
+			}
+			//New parent is globally active
+			//And we WAS NOT active
+			//But is going to be
+			elseif ($arSection["ACTIVE"] == "N" && $arFields["ACTIVE"] == "Y")
+			{
+				static::RecalcGlobalActiveFlag($arSection);
+			}
+			//New parent is globally active
+			//And we WAS active but NOT globally active
+			//But is going to be
+			elseif (
+				(!$arParent || $arParent["GLOBAL_ACTIVE"] == "Y")
+				&& $arSection["GLOBAL_ACTIVE"] == "N"
+				&& ($arSection["ACTIVE"] == "Y" || $arFields["ACTIVE"] == "Y")
+			)
+			{
+				static::RecalcGlobalActiveFlag($arSection);
+			}
+			//Otherwise we may not to change anything
+		}
+		//Parent not changed
+		//but we are going to change activity flag
+		elseif (isset($arFields["ACTIVE"]) && $arFields["ACTIVE"] != $db_record["ACTIVE"])
+		{
+			//Make all children globally inactive
+			if ($arFields["ACTIVE"] == "N")
+			{
+				$DB->Query("
+					UPDATE b_iblock_section SET
+						TIMESTAMP_X=".($DB->type == "ORACLE" ? "NULL" : "TIMESTAMP_X")."
+						,GLOBAL_ACTIVE = 'N'
+					WHERE
+						IBLOCK_ID = ".$db_record["IBLOCK_ID"]."
+						AND LEFT_MARGIN >= ".intval($db_record["LEFT_MARGIN"])."
+						AND RIGHT_MARGIN <= ".intval($db_record["RIGHT_MARGIN"])."
+				");
+			}
+			else
+			{
+				//Check for parent activity
+				$strSql = "
+					SELECT ID, GLOBAL_ACTIVE
+					FROM b_iblock_section
+					WHERE IBLOCK_ID = ".$db_record["IBLOCK_ID"]."
+					AND ID = ".intval($db_record["IBLOCK_SECTION_ID"])."
+				";
+				$rsParent = $DB->Query($strSql);
+				$arParent = $rsParent->Fetch();
+
+				//Parent is active
+				//and we changed
+				//so need to recalc
+				if (!$arParent || $arParent["GLOBAL_ACTIVE"] == "Y")
+				{
+					static::RecalcGlobalActiveFlag($db_record, -$move_distance);
+				}
+			}
+		}
+	}
+
+	/**
+	 * @param array $arFields ID
+	 */
+	public static function recountTreeOnDelete($arFields)
+	{
+		global $DB;
+
+		$ss = $DB->Query("
+			SELECT
+				IBLOCK_ID,
+				LEFT_MARGIN,
+				RIGHT_MARGIN
+			FROM
+				b_iblock_section
+			WHERE
+				ID = ".$arFields["ID"]."
+		")->Fetch();
+
+		if (($ss["RIGHT_MARGIN"] > 0) && ($ss["LEFT_MARGIN"] > 0))
+		{
+			$DB->Query("
+					UPDATE b_iblock_section SET
+						TIMESTAMP_X=".($DB->type == "ORACLE" ? "NULL" : "TIMESTAMP_X")."
+						,RIGHT_MARGIN = RIGHT_MARGIN - 2
+					WHERE
+						IBLOCK_ID = ".$ss["IBLOCK_ID"]."
+						AND RIGHT_MARGIN > ".$ss["RIGHT_MARGIN"]."
+				");
+
+			$DB->Query("
+					UPDATE b_iblock_section SET
+						TIMESTAMP_X=".($DB->type == "ORACLE" ? "NULL" : "TIMESTAMP_X")."
+						,LEFT_MARGIN = LEFT_MARGIN - 2
+					WHERE
+						IBLOCK_ID = ".$ss["IBLOCK_ID"]."
+						AND LEFT_MARGIN > ".$ss["LEFT_MARGIN"]."
+				");
+		}
+	}
+
 }

@@ -54,7 +54,7 @@ abstract class ElementV1 extends CommonElement
 		{
 			if ($field instanceof PropertyReference)
 			{
-				if ($this->sysHasValue($field->getName()))
+				if ($this->sysHasValue($field->getName()) && !empty($this->get($field->getName())))
 				{
 					/** @var EntityObject $valueObject */
 					$valueObject = $this->get($field->getName());

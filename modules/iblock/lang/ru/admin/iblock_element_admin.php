@@ -137,5 +137,6 @@ $MESS["IBEL_LIST_ERR_PRODUCT_LIMIT"] = "Превышено ограничени�
 $MESS["IBEL_PRODUCTS_INSTAGRAM"] = "Товары Instagram";
 $MESS["IBEL_CATALOG_SKU_PRICE"] = "от #PRICE#";
 $MESS["IBEL_CATALOG_EMPTY_VALUE"] = "не выбрано";
+$MESS["IBEL_CATALOG_DEFAULT"] = "(по умолчанию)";
 $MESS["IBEL_ERR_BUILDER_ADSENT"] = "Не найден генератор ссылок.";
 ?>

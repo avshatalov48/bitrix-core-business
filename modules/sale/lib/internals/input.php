@@ -274,14 +274,20 @@ class Manager
 	 */
 	static function register($name, array $type)
 	{
-		if (static::$types[$name])
+		if (isset(static::$types[$name]))
+		{
 			throw new SystemException('duplicate type '.$name, 0, __FILE__, __LINE__);
+		}
 
 		if (! class_exists($type['CLASS']))
+		{
 			throw new SystemException('undefined CLASS in '.print_r($type, true), 0, __FILE__, __LINE__);
+		}
 
 		if (! is_subclass_of($type['CLASS'], __NAMESPACE__.'\Base'))
+		{
 			throw new SystemException($type['CLASS'].' does not implement Input\Base', 0, __FILE__, __LINE__);
+		}
 
 		static::$types[$name] = $type;
 	}
@@ -370,7 +376,7 @@ abstract class Base
 		if ($input['MULTIPLE'] == 'Y')
 		{
 			$tag = isset($input['MULTITAG']) ? htmlspecialcharsbx($input['MULTITAG']) : static::MULTITAG;
-			list ($startTag, $endTag) = $tag ? array("<$tag>", "</$tag>") : array('', '');
+			[$startTag, $endTag] = $tag ? array("<$tag>", "</$tag>") : array('', '');
 
 			$html = '';
 
@@ -416,7 +422,7 @@ abstract class Base
 			if ($input['MULTIPLE'] == 'Y')
 			{
 				$tag = isset($input['MULTITAG']) ? htmlspecialcharsbx($input['MULTITAG']) : static::MULTITAG;
-				list ($startTag, $endTag) = $tag ? array("<$tag>", "</$tag>") : array('', '');
+				[$startTag, $endTag] = $tag ? array("<$tag>", "</$tag>") : array('', '');
 
 				$index = -1;
 
@@ -1061,7 +1067,7 @@ class Enum extends Base
 			if ($input['MULTIELEMENT'] == 'Y')
 			{
 				$tag = isset($input['MULTITAG']) ? htmlspecialcharsbx($input['MULTITAG']) : static::MULTITAG;
-				list ($startTag, $endTag) = $tag ? array("<$tag>", "</$tag>") : array('', '');
+				[$startTag, $endTag] = $tag ? array("<$tag>", "</$tag>") : array('', '');
 
 				$attributes = static::extractAttributes($input, array('DISABLED'=>''), array('FORM'=>1), false);
 
@@ -1305,7 +1311,7 @@ class File extends Base
 
 	static function isMultiple($value)
 	{
-		return is_array($value) && ! isset($value['ID']);
+		return is_array($value) && !isset($value['ID']) && !empty(\CFile::CheckFile($value));
 	}
 
 	public static function getViewHtmlSingle(array $input, $value)
@@ -1627,7 +1633,7 @@ class Location extends Base
 			if ($input['MULTIPLE'] == 'Y')
 			{
 				$tag = isset($input['MULTITAG']) ? htmlspecialcharsbx($input['MULTITAG']) : static::MULTITAG;
-				list ($startTag, $endTag) = $tag ? array("<$tag>", "</$tag>") : array('', '');
+				[$startTag, $endTag] = $tag ? array("<$tag>", "</$tag>") : array('', '');
 
 				$index = -1;
 
@@ -1816,20 +1822,23 @@ class Address extends Base
 		ob_start();
 		?>
 		<script>
-			new BX.Sale.AddressControlConstructor(
-				{
-					propsData: {
-						name: '<?=$name?>',
-						initValue: <?=($value) ? ("'" . \Bitrix\Location\Entity\Address::fromArray($value)->toJson() . "'") : Json::encode(null)?>,
-						isLocked: <?=($input['DISABLED'] === 'Y') ? Json::encode(true) : Json::encode(false)?>,
-						onChangeCallback: function () {
-							<?if (isset($input['ONCHANGE'])):?>
+			if (BX.Sale.AddressControlConstructor)
+			{
+				new BX.Sale.AddressControlConstructor(
+					{
+						propsData: {
+							name: '<?=$name?>',
+							initValue: <?=($value) ? ("'" . \Bitrix\Location\Entity\Address::fromArray($value)->toJson() . "'") : Json::encode(null)?>,
+							isLocked: <?=($input['DISABLED'] === 'Y') ? Json::encode(true) : Json::encode(false)?>,
+							onChangeCallback: function () {
+								<?if (isset($input['ONCHANGE'])):?>
 								<?=$input['ONCHANGE']?>
-							<?endif;?>
+								<?endif;?>
+							}
 						}
 					}
-				}
-			).$mount('#<?=$name?>');
+				).$mount('#<?=$name?>');
+			}
 		</script>
 		<?
 		$script = ob_get_clean();
@@ -1841,7 +1850,10 @@ class Address extends Base
 	}
 }
 
-Manager::register('ADDRESS', array(
-	'CLASS' => __NAMESPACE__.'\Address',
-	'NAME' => Loc::getMessage('INPUT_ADDRESS'),
-));
+if (Loader::includeModule('location'))
+{
+	Manager::register('ADDRESS', array(
+		'CLASS' => __NAMESPACE__.'\Address',
+		'NAME' => Loc::getMessage('INPUT_ADDRESS'),
+	));
+}

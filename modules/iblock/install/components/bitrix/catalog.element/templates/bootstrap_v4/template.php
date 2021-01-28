@@ -62,6 +62,7 @@ $itemIds = array(
 	'COMPARE_LINK' => $mainId.'_compare_link',
 	'TREE_ID' => $mainId.'_skudiv',
 	'DISPLAY_PROP_DIV' => $mainId.'_sku_prop',
+	'DESCRIPTION_ID' => $mainId.'_description',
 	'DISPLAY_MAIN_PROP_DIV' => $mainId.'_main_sku_prop',
 	'OFFER_GROUP' => $mainId.'_set_group_',
 	'BASKET_PROP_DIV' => $mainId.'_basket_prop',
@@ -110,7 +111,23 @@ $price = $actualItem['ITEM_PRICES'][$actualItem['ITEM_PRICE_SELECTED']];
 $measureRatio = $actualItem['ITEM_MEASURE_RATIOS'][$actualItem['ITEM_MEASURE_RATIO_SELECTED']]['RATIO'];
 $showDiscount = $price['PERCENT'] > 0;
 
-$showDescription = !empty($arResult['PREVIEW_TEXT']) || !empty($arResult['DETAIL_TEXT']);
+if ($arParams['SHOW_SKU_DESCRIPTION'] === 'Y')
+{
+	$skuDescription = false;
+	foreach ($arResult['OFFERS'] as $offer)
+	{
+		if ($offer['DETAIL_TEXT'] != '' || $offer['PREVIEW_TEXT'] != '')
+		{
+			$skuDescription = true;
+			break;
+		}
+	}
+	$showDescription = $skuDescription || !empty($arResult['PREVIEW_TEXT']) || !empty($arResult['DETAIL_TEXT']);
+}
+else
+{
+	$showDescription = !empty($arResult['PREVIEW_TEXT']) || !empty($arResult['DETAIL_TEXT']);
+}
 $showBuyBtn = in_array('BUY', $arParams['ADD_TO_BASKET_ACTION']);
 $buyButtonClassName = in_array('BUY', $arParams['ADD_TO_BASKET_ACTION_PRIMARY']) ? 'btn-primary' : 'btn-link';
 $showAddBtn = in_array('ADD', $arParams['ADD_TO_BASKET_ACTION']);
@@ -898,7 +915,7 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 						<div class="product-item-detail-tab-content active"
 							data-entity="tab-container"
 							data-value="description"
-							itemprop="description">
+							itemprop="description" id="<?=$itemIds['DESCRIPTION_ID']?>">
 							<?
 							if (
 								$arResult['PREVIEW_TEXT'] != ''
@@ -1642,7 +1659,9 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 				'DATA_LAYER_NAME' => $arParams['DATA_LAYER_NAME'],
 				'BRAND_PROPERTY' => !empty($arResult['DISPLAY_PROPERTIES'][$arParams['BRAND_PROPERTY']])
 					? $arResult['DISPLAY_PROPERTIES'][$arParams['BRAND_PROPERTY']]['DISPLAY_VALUE']
-					: null
+					: null,
+				'SHOW_SKU_DESCRIPTION' => $arParams['SHOW_SKU_DESCRIPTION'],
+				'DISPLAY_PREVIEW_TEXT_MODE' => $arParams['DISPLAY_PREVIEW_TEXT_MODE']
 			),
 			'PRODUCT_TYPE' => $arResult['PRODUCT']['TYPE'],
 			'VISUAL' => $itemIds,
@@ -1654,7 +1673,11 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 				'ID' => $arResult['ID'],
 				'ACTIVE' => $arResult['ACTIVE'],
 				'NAME' => $arResult['~NAME'],
-				'CATEGORY' => $arResult['CATEGORY_PATH']
+				'CATEGORY' => $arResult['CATEGORY_PATH'],
+				'DETAIL_TEXT' => $arResult['DETAIL_TEXT'],
+				'DETAIL_TEXT_TYPE' => $arResult['DETAIL_TEXT_TYPE'],
+				'PREVIEW_TEXT' => $arResult['PREVIEW_TEXT'],
+				'PREVIEW_TEXT_TYPE' => $arResult['PREVIEW_TEXT_TYPE']
 			),
 			'BASKET' => array(
 				'QUANTITY' => $arParams['PRODUCT_QUANTITY_VARIABLE'],

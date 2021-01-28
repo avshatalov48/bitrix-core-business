@@ -31,6 +31,7 @@ $arAllOptions = array(
 	array("list_full_date_edit", GetMessage("IBLOCK_LIST_FULL_DATE_EDIT"), "N", array("checkbox", "Y")),
 	array("combined_list_mode", GetMessage("IBLOCK_COMBINED_LIST_MODE"), "N", array("checkbox", "Y")),
 	array("iblock_menu_max_sections", GetMessage("IBLOCK_MENU_MAX_SECTIONS"), "50", array("text", 5)),
+	array("change_user_by_group_active_modify", GetMessage("IBLOCK_OPTION_CHANGE_USER_BY_GROUP_ACTIVE_MODIFY"), "N", array("checkbox", "N")),
 	GetMessage('IBLOCK_OPTION_SECTION_CUSTOM_FORM'),
 	array("custom_edit_form_use_property_id", GetMessage("IBLOCK_CUSTOM_FORM_USE_PROPERTY_ID"), "Y", array("checkbox", "Y")),
 	GetMessage('IBLOCK_OPTION_SECTION_IMPORT_EXPORT'),
@@ -199,6 +200,14 @@ if (!isset($periodList[$currentValues['iblock_activity_dates_period']]))
 	$currentValues['iblock_activity_dates_period'] = -1;
 }
 
+$optionHints = array(
+	'property_features_enabled' => GetMessage(
+		'IBLOCK_PROPERTY_FEATURES_HINT',
+		['#LINK#' => 'https://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=42&LESSON_ID=1986']
+	),
+	'change_user_by_group_active_modify' => GetMessage('IBLOCK_OPTION_CHANGE_USER_BY_GROUP_ACTIVE_MODIFY_HINT')
+);
+
 $tabControl->Begin();
 ?><form method="post" action="<?echo $APPLICATION->GetCurPage()?>?mid=<?=urlencode($mid)?>&amp;lang=<?echo LANGUAGE_ID?>"><?
 $tabControl->BeginNextTab();
@@ -216,20 +225,15 @@ foreach($arAllOptions as $arOption)
 		$controlId = htmlspecialcharsbx($id);
 		?>
 		<tr>
-			<td width="40%" nowrap <? if ($type[0] == "textarea") echo 'class="adm-detail-valign-top"' ?>>
+			<td style="width: 40%; white-space: nowrap;" <? if ($type[0] == "textarea") echo 'class="adm-detail-valign-top"' ?>>
 				<?
-				if ($id == 'property_features_enabled')
+				if (isset($optionHints[$id]))
 				{
-					$message = GetMessage(
-						'IBLOCK_PROPERTY_FEATURES_HINT',
-						['#LINK#' => 'https://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=42&LESSON_ID=1986']
-					);
 					?><span id="hint_<?= $controlId; ?>"></span>
-					<script type="text/javascript">BX.hint_replace(BX('hint_<?=$controlId;?>'), '<?=\CUtil::JSEscape($message); ?>');</script>&nbsp;<?
-					unset($message);
+					<script type="text/javascript">BX.hint_replace(BX('hint_<?=$controlId;?>'), '<?=\CUtil::JSEscape($optionHints[$id]); ?>');</script>&nbsp;<?
 				}
 				?><label for="<?=$controlId; ?>"><?=htmlspecialcharsbx($arOption[1]); ?></label>
-			<td width="60%">
+			<td>
 			<?
 			switch ($type[0])
 			{

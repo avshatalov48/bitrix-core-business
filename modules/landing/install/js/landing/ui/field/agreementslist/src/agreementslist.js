@@ -189,6 +189,7 @@ export class AgreementsList extends BaseField
 				bindElement: this.getSelectAgreementButton(),
 				autoHide: true,
 				maxWidth: 400,
+				maxHeight: 205,
 				events: {
 					onPopupShow: () => {
 						setTimeout(() => {

@@ -26,6 +26,7 @@ export default class Other extends ContentWrapper
 			fields: [
 				this.getNameField(),
 				this.getUserSelectorField(),
+				this.getLanguageField(),
 				this.getUseSignField(),
 			],
 		});
@@ -86,6 +87,20 @@ export default class Other extends ContentWrapper
 		});
 	}
 
+	getLanguageField(): BX.Landing.UI.Field.Dropdown
+	{
+		return this.cache.remember('language', () => {
+			return new BX.Landing.UI.Field.Dropdown({
+				selector: 'language',
+				title: Loc.getMessage('LANDING_CRM_FORM_LANGUAGE'),
+				items: this.options.dictionary.languages.map((item) => {
+					return {name: item.name, value: item.id};
+				}),
+				content: this.options.values.language,
+			});
+		});
+	}
+
 	// eslint-disable-next-line class-methods-use-this
 	createCopyRight(): string
 	{
@@ -103,6 +118,7 @@ export default class Other extends ContentWrapper
 		return {
 			name: value.name,
 			data: {
+				language: this.getLanguageField().getValue(),
 				useSign: value.useSign.includes('useSign'),
 			},
 			responsible: {

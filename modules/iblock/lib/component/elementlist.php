@@ -969,6 +969,10 @@ abstract class ElementList extends Base
 				$sortFields[$field] = $this->arParams['ELEMENT_SORT_ORDER2'];
 			}
 			unset($field);
+			if (!isset($sortFields['ID']))
+			{
+				$sortFields['ID'] = 'DESC';
+			}
 		}
 
 		return $sortFields;

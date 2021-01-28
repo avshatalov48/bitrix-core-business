@@ -100,6 +100,7 @@ if ($boolSubCatalog)
 	if (!empty($basePriceType))
 		$basePriceTypeId = $basePriceType['ID'];
 }
+$changeUserByActive = (string)Main\Config\Option::get('iblock', 'change_user_by_group_active_modify') === 'Y';
 
 define("MODULE_ID", "iblock");
 define("ENTITY", "CIBlockDocument");
@@ -633,6 +634,8 @@ if (defined('B_ADMIN_SUBELEMENTS_LIST') && true === B_ADMIN_SUBELEMENTS_LIST)
 			Catalog\Product\Sku::enableDeferredCalculation();
 		}
 
+		$ib = new CIBlockElement();
+
 		foreach ($_POST['FIELDS'] as $subID => $arFields)
 		{
 			if (!$lAdmin->IsUpdated($subID))
@@ -791,7 +794,7 @@ if (defined('B_ADMIN_SUBELEMENTS_LIST') && true === B_ADMIN_SUBELEMENTS_LIST)
 			}
 
 			$arFields["MODIFIED_BY"] = $currentUser['ID'];
-			$ib = new CIBlockElement();
+			$ib->LAST_ERROR = '';
 			$DB->StartTransaction();
 
 			if (!$ib->Update($subID, $arFields, true, true, true))
@@ -901,6 +904,8 @@ if (defined('B_ADMIN_SUBELEMENTS_LIST') && true === B_ADMIN_SUBELEMENTS_LIST)
 				}
 			}
 		}
+
+		unset($ib);
 
 		if ($boolSubCatalog)
 		{
@@ -1097,6 +1102,8 @@ if (defined('B_ADMIN_SUBELEMENTS_LIST') && true === B_ADMIN_SUBELEMENTS_LIST)
 				Catalog\Product\Sku::enableDeferredCalculation();
 			}
 
+			$ob = new CIBlockElement();
+
 			foreach ($arID as $subID)
 			{
 				$subID = (int)$subID;
@@ -1205,8 +1212,12 @@ if (defined('B_ADMIN_SUBELEMENTS_LIST') && true === B_ADMIN_SUBELEMENTS_LIST)
 					case ActionType::DEACTIVATE:
 						if (CIBlockElementRights::UserHasRightTo($intSubIBlockID, $subID, "element_edit"))
 						{
-							$ob = new CIBlockElement();
+							$ob->LAST_ERROR = '';
 							$arFields = array("ACTIVE" => ($actionId == ActionType::ACTIVATE ? "Y" : "N"));
+							if ($changeUserByActive)
+							{
+								$arFields['MODIFIED_BY'] = $currentUser['ID'];
+							}
 							if (!$ob->Update($subID, $arFields, true))
 								$lAdmin->AddGroupError(Loc::getMessage("IBEL_A_UPDERR").$ob->LAST_ERROR, $subID);
 						}
@@ -1229,13 +1240,13 @@ if (defined('B_ADMIN_SUBELEMENTS_LIST') && true === B_ADMIN_SUBELEMENTS_LIST)
 								{
 									if ($arRes["WF_STATUS_ID"] != $new_status)
 									{
-										$obE = new CIBlockElement();
-										$res = $obE->Update($subID, array(
+										$ob->LAST_ERROR = '';
+										$res = $ob->Update($subID, array(
 											"WF_STATUS_ID" => $new_status,
 											"MODIFIED_BY" => $currentUser['ID'],
 										), true);
 										if (!$res)
-											$lAdmin->AddGroupError(Loc::getMessage("IBEL_A_SAVE_ERROR", array("#ID#" => $subID, "#ERROR_TEXT#" => $obE->LAST_ERROR)), $subID);
+											$lAdmin->AddGroupError(Loc::getMessage("IBEL_A_SAVE_ERROR", array("#ID#" => $subID, "#ERROR_TEXT#" => $ob->LAST_ERROR)), $subID);
 									}
 								}
 								else
@@ -1275,7 +1286,7 @@ if (defined('B_ADMIN_SUBELEMENTS_LIST') && true === B_ADMIN_SUBELEMENTS_LIST)
 					case ActionType::CLEAR_COUNTER:
 						if (CIBlockElementRights::UserHasRightTo($intSubIBlockID, $subID, "element_edit"))
 						{
-							$ob = new CIBlockElement();
+							$ob->LAST_ERROR = '';
 							$arFields = array('SHOW_COUNTER' => false, 'SHOW_COUNTER_START' => false);
 							if (!$ob->Update($subID, $arFields, true))
 								$lAdmin->AddGroupError(Loc::getMessage("IBEL_A_UPDERR").$ob->LAST_ERROR, $subID);
@@ -1324,6 +1335,8 @@ if (defined('B_ADMIN_SUBELEMENTS_LIST') && true === B_ADMIN_SUBELEMENTS_LIST)
 					}
 				}
 			}
+
+			unset($ob);
 
 			if (
 				$boolSubCatalog

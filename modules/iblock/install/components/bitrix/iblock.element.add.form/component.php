@@ -158,7 +158,7 @@ if ($bAllowAccess)
 		),
 		"PREVIEW_PICTURE" => array(
 			"PROPERTY_TYPE" => "F",
-			"FILE_TYPE" => "jpg, gif, bmp, png, jpeg",
+			"FILE_TYPE" => "jpg, gif, bmp, png, jpeg, webp",
 			"MULTIPLE" => "N",
 		),
 		"DETAIL_TEXT" => array(
@@ -169,7 +169,7 @@ if ($bAllowAccess)
 		),
 		"DETAIL_PICTURE" => array(
 			"PROPERTY_TYPE" => "F",
-			"FILE_TYPE" => "jpg, gif, bmp, png, jpeg",
+			"FILE_TYPE" => "jpg, gif, bmp, png, jpeg, webp",
 			"MULTIPLE" => "N",
 		),
 	);

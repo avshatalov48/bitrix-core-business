@@ -62,6 +62,7 @@ $isSidebar = ($arParams['SIDEBAR_DETAIL_SHOW'] == 'Y' && !empty($arParams['SIDEB
 			'BROWSER_TITLE' => $arParams['DETAIL_BROWSER_TITLE'],
 			'SET_CANONICAL_URL' => $arParams['DETAIL_SET_CANONICAL_URL'],
 			'BASKET_URL' => $arParams['BASKET_URL'],
+			'SHOW_SKU_DESCRIPTION' => $arParams['SHOW_SKU_DESCRIPTION'],
 			'ACTION_VARIABLE' => $arParams['ACTION_VARIABLE'],
 			'PRODUCT_ID_VARIABLE' => $arParams['PRODUCT_ID_VARIABLE'],
 			'SECTION_ID_VARIABLE' => $arParams['SECTION_ID_VARIABLE'],

@@ -285,7 +285,7 @@ foreach ($columnList as $column)
 			$caption .= ', '.$currency;
 
 		$arCols[$column] = array(
-			'NAME' => htmlspecialcharsbx($caption),
+			'NAME' => htmlspecialcharsbx($caption, ENT_COMPAT, false),
 			'SORT' => $params['BILL_COLUMN_'.$column.'_SORT']
 		);
 	}
@@ -296,7 +296,7 @@ if ($params['USER_COLUMNS'])
 	foreach ($params['USER_COLUMNS'] as $id => $val)
 	{
 		$arCols[$id] = array(
-			'NAME' => htmlspecialcharsbx($val['NAME']),
+			'NAME' => htmlspecialcharsbx($val['NAME'], ENT_COMPAT, false),
 			'SORT' => $val['SORT']
 		);
 	}
@@ -572,7 +572,11 @@ for ($n = 1; $n <= $rowsCnt; $n++):
 			'SALE_HPS_BILL_BASKET_TOTAL',
 			array(
 					'#BASKET_COUNT#' => $cntBasketItem,
-					'#BASKET_PRICE#' => SaleFormatCurrency($params['SUM'], $params['CURRENCY'], false)
+					'#BASKET_PRICE#' => htmlspecialcharsbx(
+						SaleFormatCurrency($params['SUM'], $params['CURRENCY'], false),
+						ENT_COMPAT,
+						false
+					)
 			)
 	);?>
 	<br>

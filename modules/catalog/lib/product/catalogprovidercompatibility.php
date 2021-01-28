@@ -1,9 +1,6 @@
 <?php
-
-
 namespace Bitrix\Catalog\Product;
 
-use Bitrix\Currency;
 use Bitrix\Sale;
 
 /**
@@ -462,9 +459,10 @@ class CatalogProviderCompatibility
 		return array(
 			'SITE_ID' => SITE_ID,
 			'USER_ID' => isset($USER) && $USER instanceof \CUser ? (int)$USER->GetID() : 0,
-			'CURRENCY' => Currency\CurrencyManager::getBaseCurrency(),
+			'CURRENCY' => Sale\Internals\SiteCurrencyTable::getSiteCurrency(SITE_ID)
 		);
 	}
+
 	/**
 	 * @return string
 	 */
@@ -472,5 +470,4 @@ class CatalogProviderCompatibility
 	{
 		return "\Bitrix\Catalog\Product\CatalogProvider";
 	}
-
 }

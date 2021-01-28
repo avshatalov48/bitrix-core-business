@@ -103,6 +103,24 @@ class Background extends \Bitrix\Landing\Hook\Page
 		$color = \htmlspecialcharsbx(trim($this->fields['COLOR']->getValue()));
 		$position = trim($this->fields['POSITION']->getValue());
 
+		$this->setBackground($picture, $color, $position);
+	}
+
+	/**
+	 * Sets background.
+	 * @param string $picture Picture path or id.
+	 * @param string|null $color Color code.
+	 * @param string|null $position Position code.
+	 * @return void
+	 */
+	public static function setBackground(string $picture, ?string $color = null, ?string $position = null): void
+	{
+		/**
+		 * !!!
+		 * Also see landing.pub/templates/.default/result_modifier.php
+		 * for web form backward compatibility.
+		 */
+
 		if ($picture)
 		{
 			if ($picture > 0)

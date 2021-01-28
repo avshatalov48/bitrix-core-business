@@ -182,6 +182,13 @@ class catalog extends CModule
 			'\Bitrix\Catalog\Product\SystemField',
 			'handlerHighloadBlockBeforeUpdate'
 		);
+		$eventManager->registerEventHandler(
+			'highloadblock',
+			'OnBeforeModuleUninstall',
+			'catalog',
+			'\Bitrix\Catalog\Product\SystemField',
+			'handlerHighloadBlockBeforeUninstall'
+		);
 
 		$eventManager->registerEventHandler(
 			'iblock',
@@ -374,6 +381,13 @@ class catalog extends CModule
 			'catalog',
 			'\Bitrix\Catalog\Product\SystemField',
 			'handlerHighloadBlockBeforeUpdate'
+		);
+		$eventManager->unRegisterEventHandler(
+			'highloadblock',
+			'OnBeforeModuleUninstall',
+			'catalog',
+			'\Bitrix\Catalog\Product\SystemField',
+			'handlerHighloadBlockBeforeUninstall'
 		);
 
 		$eventManager->unRegisterEventHandler(

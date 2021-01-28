@@ -430,7 +430,7 @@ class CashboxCheckbox extends Cashbox implements IPrintImmediately, ICheckable
 			'Authorization' => static::getAuthorizationHeaderValue($accessToken),
 			'X-License-Key' => $headersData['LICENSE_KEY'],
 			'X-Client-Name' => static::BITRIX_CLIENT_NAME,
-			'X-Client-Version' => \CUpdateSystem::GetModuleVersion('sale'),
+			'X-Client-Version' => '1.0',
 		];
 	}
 

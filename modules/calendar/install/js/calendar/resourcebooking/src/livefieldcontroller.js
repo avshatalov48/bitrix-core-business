@@ -50,7 +50,7 @@ export class LiveFieldController extends EventEmitter
 			throw new Error('Can\'t init resourcebooking field, because \'settings_data\' parameter is not provided or has incorrect structure');
 			return;
 		}
-		this.scale = settingsData.time && settingsData.time.scale ? settingsData.time.scale : 60;
+		this.scale = parseInt(settingsData.time && settingsData.time.scale ? settingsData.time.scale : 60, 10);
 
 		this.DOM.outerWrap = this.DOM.wrap.appendChild(Tag.render`<div class="calendar-resbook-webform-wrapper"></div>`);
 
@@ -1333,7 +1333,6 @@ export class LiveFieldController extends EventEmitter
 				}
 			}
 		}
-
 		return slotIndex;
 	}
 
@@ -1542,11 +1541,11 @@ export class LiveFieldController extends EventEmitter
 		if (!this.slots)
 		{
 			this.slots = [];
-			let slot,
-				finishTime, hourFrom, minFrom, hourTo,
-				minTo,
-				num = 0,
-				time = this.timeFrom * 60;
+			let slot;
+			let finishTime, hourFrom,  hourTo;
+			let minTo, minFrom;
+			let num = 0;
+			let time = this.timeFrom * 60;
 
 			while (time < this.timeTo * 60)
 			{
@@ -1565,7 +1564,6 @@ export class LiveFieldController extends EventEmitter
 				num++;
 			}
 		}
-
 		return this.slots;
 	}
 

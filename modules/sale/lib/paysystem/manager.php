@@ -14,7 +14,6 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Request;
 use Bitrix\Sale\Basket;
 use Bitrix\Sale\BusinessValue;
-use Bitrix\Sale\Internals\EntityCollection;
 use Bitrix\Sale\Internals\PaySystemActionTable;
 use Bitrix\Sale\Internals\PaySystemRestHandlersTable;
 use Bitrix\Sale\Internals\ServiceRestrictionTable;
@@ -490,25 +489,47 @@ final class Manager
 
 	/**
 	 * @param $folder
-	 * @return null|string
+	 * @return string|null
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
 	 */
-	public static function getPathToHandlerFolder($folder)
+	public static function getPathToHandlerFolder($folder): ?string
 	{
-		$documentRoot = Application::getDocumentRoot();
-
-		if (mb_strpos($folder, '/') !== false)
+		if (!$folder)
 		{
-			return $folder;
+			return null;
+		}
+
+		$documentRoot = Application::getDocumentRoot();
+		$dirs = self::getHandlerDirectories();
+
+		if (mb_strpos($folder, DIRECTORY_SEPARATOR) !== false)
+		{
+			$folderWithoutHandlerName = array_slice(explode(DIRECTORY_SEPARATOR, $folder), 1, -1);
+			$folderWithoutHandlerName = implode(DIRECTORY_SEPARATOR, $folderWithoutHandlerName);
+
+			$handlersDirectory = new Directory($folderWithoutHandlerName);
+			$handlersDirectoryPhysicalPath = DIRECTORY_SEPARATOR.$handlersDirectory->getPhysicalPath().DIRECTORY_SEPARATOR;
+
+			foreach ($dirs as $dir)
+			{
+				if ($documentRoot.$dir !== $documentRoot.$handlersDirectoryPhysicalPath)
+				{
+					continue;
+				}
+
+				return Directory::isDirectoryExists($documentRoot.$folder) ? $folder : null;
+			}
 		}
 		else
 		{
-			$dirs = self::getHandlerDirectories();
-
 			foreach ($dirs as $dir)
 			{
 				$path = $dir.$folder;
 				if (!Directory::isDirectoryExists($documentRoot.$path))
+				{
 					continue;
+				}
 
 				return $path;
 			}
@@ -841,29 +862,32 @@ final class Manager
 	 * @return array
 	 * @throws \Bitrix\Main\ArgumentNullException
 	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 * @throws \Bitrix\Main\SystemException
 	 */
-	public static function includeHandler($actionFile)
+	public static function includeHandler($actionFile): array
 	{
 		$className = '';
 		$handlerType = '';
 
-		$name = self::getFolderFromClassName($actionFile);
-
-		foreach (self::getHandlerDirectories() as $type => $path)
+		if ($name = self::getFolderFromClassName($actionFile))
 		{
-			if (File::isFileExists($_SERVER['DOCUMENT_ROOT'].$path.$name.'/handler.php'))
+			$documentRoot = Application::getDocumentRoot();
+			foreach (self::getHandlerDirectories() as $type => $path)
 			{
-				$className = self::getClassNameFromPath($actionFile);
-				if (!class_exists($className))
-					require_once($_SERVER['DOCUMENT_ROOT'].$path.$name.'/handler.php');
-
-				if (class_exists($className))
+				if (File::isFileExists($documentRoot.$path.$name.'/handler.php'))
 				{
-					$handlerType = $type;
-					break;
-				}
+					$className = self::getClassNameFromPath($actionFile);
+					if (!class_exists($className))
+						require_once($documentRoot.$path.$name.'/handler.php');
 
-				$className = '';
+					if (class_exists($className))
+					{
+						$handlerType = $type;
+						break;
+					}
+
+					$className = '';
+				}
 			}
 		}
 

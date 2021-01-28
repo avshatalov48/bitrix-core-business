@@ -7,6 +7,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Sale\Cashbox\Internals\CashboxConnectTable;
 use Bitrix\Sale\Cashbox\Internals\CashboxTable;
+use Bitrix\Sale\Internals\CashboxRestHandlerTable;
 use Bitrix\Sale\Internals\CollectableEntity;
 use Bitrix\Sale\Result;
 
@@ -63,6 +64,27 @@ final class Manager
 	public static function getList(array $parameters = [])
 	{
 		return CashboxTable::getList($parameters);
+	}
+
+	/**
+	 * Returns a list of all the registered rest cashbox handlers
+	 * Structure: handler code => handler data
+	 * @return array
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	public static function getRestHandlersList()
+	{
+		$result = [];
+
+		$handlerList = CashboxRestHandlerTable::getList()->fetchAll();
+		foreach ($handlerList as $handler)
+		{
+			$result[$handler['CODE']] = $handler;
+		}
+
+		return $result;
 	}
 
 	/**
@@ -311,7 +333,18 @@ final class Manager
 				continue;
 			/** @var Cashbox $handler */
 			$handler = $cashbox['HANDLER'];
-			if (
+			$isRestHandler = $handler === '\Bitrix\Sale\Cashbox\CashboxRest';
+			if ($isRestHandler)
+			{
+				$handlerCode = $cashbox['SETTINGS']['REST']['REST_CODE'];
+				$restHandlers = self::getRestHandlersList();
+				$currentHandler = $restHandlers[$handlerCode];
+				if ($currentHandler['SETTINGS']['SUPPORTS_FFD105'] !== 'Y')
+				{
+					return false;
+				}
+			}
+			elseif (
 				!is_callable(array($handler, 'isSupportedFFD105')) ||
 				!$handler::isSupportedFFD105()
 			)

@@ -1,8 +1,10 @@
 <?
+use Bitrix\Main\Loader;
+
 if(!is_object($GLOBALS["USER_FIELD_MANAGER"]))
 	return false;
 
-if (!CModule::IncludeModule("iblock"))
+if (!Loader::includeModule("iblock"))
 	return false;
 
 foreach (GetModuleEvents("iblock", "OnBeforeIBlockAdminMenu", true) as $arEvent)
@@ -597,8 +599,8 @@ if($bUserIsAdmin || $bHasWRight || $bHasXRight || $bHasSRight || $bHasERight)
 	if ($bHasSRight)
 	{
 		$adminToolsMenu[] = array(
-			"text" => GetMessage('IBLOCK_MENU_ADMIN_TOOLS_REDIRECT_IBLOCK'),
-			"title" => GetMessage('IBLOCK_MENU_ADMIN_TOOLS_REDIRECT_IBLOCK_TITLE'),
+			"text" => GetMessage('IBLOCK_MENU_ADMIN_TOOLS_REDIRECT_IBLOCK_EXT'),
+			"title" => GetMessage('IBLOCK_MENU_ADMIN_TOOLS_REDIRECT_IBLOCK_TITLE_EXT'),
 			"url" => "iblock_redirect_entity.php?lang=".LANGUAGE_ID,
 			"module_id" => "iblock"
 		);

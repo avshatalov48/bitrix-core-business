@@ -194,14 +194,14 @@ class Indexer
 
 		$elementSections = $element->getSections();
 		$elementIndexValues = $this->getSectionIndexEntries($element);
-		
+
 		foreach ($element->getParentSections() as $sectionId)
 		{
 			foreach ($elementIndexValues as $facetId => $values)
 			{
 				foreach ($values as $value)
 				{
-					$this->storage->addIndexEntry(
+					$this->storage->queueIndexEntry(
 						$sectionId,
 						$elementId,
 						$facetId,
@@ -217,7 +217,7 @@ class Indexer
 		{
 			foreach ($values as $value)
 			{
-				$this->storage->addIndexEntry(
+				$this->storage->queueIndexEntry(
 					0,
 					$elementId,
 					$facetId,
@@ -227,6 +227,8 @@ class Indexer
 				);
 			}
 		}
+
+		$this->storage->flushIndexEntries();
 	}
 
 	/**

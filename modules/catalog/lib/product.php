@@ -50,7 +50,7 @@ Loc::loadMessages(__FILE__);
 class ProductTable extends Main\Entity\DataManager
 {
 	const USER_FIELD_ENTITY_ID = 'PRODUCT';
-	
+
 	const STATUS_YES = 'Y';
 	const STATUS_NO = 'N';
 	const STATUS_DEFAULT = 'D';
@@ -80,8 +80,6 @@ class ProductTable extends Main\Entity\DataManager
 	const PRICE_MODE_RATIO = 'R';
 
 	protected static $defaultProductSettings = array();
-
-	protected static $existProductCache = array();
 
 	/**
 	 * Returns DB table name for entity.
@@ -461,6 +459,8 @@ class ProductTable extends Main\Entity\DataManager
 
 	/**
 	 * Return is exist product.
+	 * @deprecated deprecated since catalog 20.100.0
+	 * @see \Bitrix\Catalog\Model\Product::getCacheItem()
 	 *
 	 * @param int $product				Product id.
 	 * @return bool
@@ -471,39 +471,22 @@ class ProductTable extends Main\Entity\DataManager
 		$product = (int)$product;
 		if ($product <= 0)
 			return false;
-		if (!isset(self::$existProductCache[$product]))
-		{
-			self::$existProductCache[$product] = false;
-			$existProduct = self::getList(array(
-				'select' => array('ID'),
-				'filter' => array('=ID' => $product)
-			))->fetch();
-			if (!empty($existProduct))
-				self::$existProductCache[$product] = true;
-			unset($existProduct);
-		}
-		return self::$existProductCache[$product];
+		$existProduct = self::getList(array(
+			'select' => array('ID'),
+			'filter' => array('=ID' => $product)
+		))->fetch();
+		return (!empty($existProduct));
 	}
 
 	/**
 	 * Clear product cache.
+	 * @deprecated deprecated since catalog 20.100.0
+	 * @see \Bitrix\Catalog\Model\Product::clearCacheItem()
 	 *
 	 * @param int $product			Product id or zero (clear all cache).
 	 * @return void
 	 */
-	public static function clearProductCache($product = 0)
-	{
-		$product = (int)$product;
-		if ($product > 0)
-		{
-			if (isset(self::$existProductCache[$product]))
-				unset(self::$existProductCache[$product]);
-		}
-		else
-		{
-			self::$existProductCache = array();
-		}
-	}
+	public static function clearProductCache($product = 0) {}
 
 	/**
 	 * Returns ratio and measure for products.
@@ -542,7 +525,6 @@ class ProductTable extends Main\Entity\DataManager
 			{
 				$item['ID'] = (int)$item['ID'];
 				$item['MEASURE'] = (int)$item['MEASURE'];
-				self::$existProductCache[$item['ID']] = true;
 				$existProduct[] = $item['ID'];
 				$result[$item['ID']] = $defaultRow;
 				if ($item['MEASURE'] > 0)

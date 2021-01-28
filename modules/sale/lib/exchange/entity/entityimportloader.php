@@ -67,7 +67,7 @@ class EntityImportLoader
 
 			if($r = $entity::getList(array(
 				'select' => array('ID'),
-				'filter' => array('ACCOUNT_NUMBER' => $number),
+				'filter' => array('=ACCOUNT_NUMBER' => $number),
 				'order' => array('ID' => 'DESC')))->fetch()
 			)
 				return $r;
@@ -93,7 +93,7 @@ class EntityImportLoader
 
 			if ($r = $entity::getList(array(
 				'select' => array('ID'),
-				'filter' => array('ACCOUNT_NUMBER' => $number),
+				'filter' => array('=ACCOUNT_NUMBER' => $number),
 				'order' => array('ID' => 'DESC')))->fetch()
 			)
 				return $r;
@@ -108,7 +108,7 @@ class EntityImportLoader
 
 					if($r = $entity::getList(array(
 						'select' => array('ID'),
-						'filter' => array('ACCOUNT_NUMBER' => $number),
+						'filter' => array('=ACCOUNT_NUMBER' => $number),
 						'order' => array('ID' => 'DESC')))->fetch()
 					)
 						return $r;

@@ -7,4 +7,6 @@ $MESS["CATALOG_ENTITY_CARD_FILE_CLOSE_NOTIFICATION"] = "Click Save to apply chan
 $MESS["CATALOG_ENTITY_CARD_LIST_LEGEND"] = "Ideal for dimensions, manufacturers, materials or other text and numerical values.";
 $MESS["CATALOG_ENTITY_CARD_LIST_TITLE"] = "List";
 $MESS["CATALOG_ENTITY_CARD_NEW_FIELD_ITEM_PLACEHOLDER"] = "New item";
+$MESS["CATALOG_ENTITY_CARD_SETTING_DISABLED"] = "Option \"#NAME#\" is disabled";
+$MESS["CATALOG_ENTITY_CARD_SETTING_ENABLED"] = "Option \"#NAME#\" is enabled";
 $MESS["CATALOG_ENTITY_CARD_UNSAVED_DATA_MESSAGE"] = "Unsaved data will be lost if you add a variant property.";

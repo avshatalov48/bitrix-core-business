@@ -1275,6 +1275,7 @@ BitrixLF.prototype.refresh = function(params, filterPromise)
 	);
 
 	params.siteTemplateId = BX.message('sonetLSiteTemplateId');
+	params.assetsCheckSum = BX.message('sonetLAssetsCheckSum');
 
 	var counterWrap = BX("sonet_log_counter_2_wrap", true);
 
@@ -1325,9 +1326,15 @@ BitrixLF.prototype.refresh = function(params, filterPromise)
 			filterPromise.fulfill();
 		}
 
-		var
-			emptyBlock = null,
-			emptyLivefeed = (typeof responseData.componentResult.EMPTY != 'undefined' ? responseData.componentResult.EMPTY : 'N');
+		var emptyBlock = null;
+		var emptyLivefeed = (typeof responseData.componentResult.EMPTY != 'undefined' ? responseData.componentResult.EMPTY : 'N');
+		var forcePageRefresh = (BX.type.isNotEmptyString(responseData.componentResult.FORCE_PAGE_REFRESH) ? responseData.componentResult.FORCE_PAGE_REFRESH : 'N');
+
+		if (forcePageRefresh === 'Y')
+		{
+			top.window.location.reload();
+			return;
+		}
 
 		if (
 			emptyLivefeed == 'Y'

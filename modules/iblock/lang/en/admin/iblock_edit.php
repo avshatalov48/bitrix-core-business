@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBLOCK_BACK_TO_ADMIN"] = "Back to information block list";
 $MESS["IB_E_ACCESS_D"] = "Deny";
 $MESS["IB_E_ACCESS_R"] = "Read";
@@ -187,6 +187,7 @@ $MESS["IB_E_PROP_WITH_DESC"] = "Display value description field:";
 $MESS["IB_E_PR_IBLOCK_EMPTY"] = "none selected";
 $MESS["IB_E_PR_IBLOCK_INFO"] = "Product Information Block";
 $MESS["IB_E_PR_IBLOCK_NEW"] = "new information block";
+$MESS["IB_E_REST_ON"] = "Access via REST is enabled";
 $MESS["IB_E_RIGHTS_IBLOCK_ACCESS_DENIED"] = "Insufficient permission to edit information block #ID#";
 $MESS["IB_E_RIGHTS_MODE"] = "Extended permission management:";
 $MESS["IB_E_RIGHTS_MODE_NOTE1"] = "Once you have unchecked this box, click \"Apply\". Next, configure access permissions.";
@@ -238,8 +239,6 @@ $MESS["IB_E_SITES"] = "Sites:";
 $MESS["IB_E_SKU_TITLE"] = "SKU";
 $MESS["IB_E_SORT"] = "Sorting";
 $MESS["IB_E_TAB1"] = "Property details";
-$MESS["IB_E_TAB10"] = "SEO";
-$MESS["IB_E_TAB10_T"] = "Edit SEO data";
 $MESS["IB_E_TAB1_T"] = "Information block property settings";
 $MESS["IB_E_TAB2"] = "Inf. block";
 $MESS["IB_E_TAB2_T"] = "Information block";
@@ -258,6 +257,8 @@ $MESS["IB_E_TAB8"] = "Section Fields";
 $MESS["IB_E_TAB8_T"] = "Information Block Section Fields";
 $MESS["IB_E_TAB9"] = "Commercial Catalog";
 $MESS["IB_E_TAB9_T"] = "Commercial Catalog Parameters";
+$MESS["IB_E_TAB10"] = "SEO";
+$MESS["IB_E_TAB10_T"] = "Edit SEO data";
 $MESS["IB_E_TAB_LOG"] = "Event Log";
 $MESS["IB_E_TAB_LOG_TITLE"] = "Event log parameters";
 $MESS["IB_E_URL_PRODUCT_ID"] = "Commercial catalog element path";
@@ -270,4 +271,3 @@ $MESS["IB_E_WF_TYPE_WORKFLOW"] = "workflow";
 $MESS["IB_E_WORKFLOW"] = "Include in workflow:";
 $MESS["IB_E_XML_ID"] = "Code in external DB source";
 $MESS["IB_E_YANDEX_EXPORT"] = "Export To Yandex.Products";
-?>

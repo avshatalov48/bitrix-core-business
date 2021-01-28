@@ -1421,6 +1421,10 @@ function fGetDeliverySystemsHTML($location, $locationZip, $weight, $price, $curr
 	$setDeliveryPrice = false;
 
 	$arDelivery = CSaleDelivery::DoLoadDelivery($location, $locationZip, $weight, $price, $currency, $siteId, $arShoppingCart);
+	if (empty($arDelivery) || !is_array($arDelivery))
+	{
+		$arDelivery = [];
+	}
 
 	$deliveryHTML = "<select name=\"DELIVERY_ID\" id=\"DELIVERY_ID\" onchange=\"fChangeDelivery();\">";
 	$deliveryHTML .= "<option value=\"\">".GetMessage('NEWO_DELIVERY_NO')."</option>";

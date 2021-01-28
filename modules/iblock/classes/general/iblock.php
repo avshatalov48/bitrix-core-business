@@ -66,7 +66,7 @@ class CAllIBlock
 		if (!empty($arButtons[$mode]) && is_array($arButtons[$mode]))
 		{
 			//Try to detect component via backtrace
-			if ($componentName === '' && function_exists("debug_backtrace"))
+			if ($componentName === '')
 			{
 				$arTrace = debug_backtrace();
 				foreach($arTrace as $arCallInfo)
@@ -719,6 +719,7 @@ class CAllIBlock
 
 			$CACHE_MANAGER->Clean($cache_id, "b_iblock");
 		}
+		Iblock\IblockTable::getEntity()->cleanCache();
 	}
 
 	///////////////////////////////////////////////////////////////////
@@ -1337,6 +1338,21 @@ class CAllIBlock
 					{
 						$this->LAST_ERROR .= Loc::getMessage("IBLOCK_FIELD_API_CODE_UNIQUE_ERROR").'<br>';
 					}
+				}
+			}
+		}
+
+		if (is_set($arFields, "REST_ON"))
+		{
+			if ($arFields['REST_ON'] !== 'Y')
+			{
+				$arFields['REST_ON'] = 'N';
+			}
+			else
+			{
+				if (!$arFields['API_CODE'])
+				{
+					$this->LAST_ERROR .= Loc::getMessage("IBLOCK_BAD_REST_ON_WO_API_CODE").'<br>';
 				}
 			}
 		}
@@ -3569,7 +3585,11 @@ REQ
 	public static function GetAdminSectionEditLink($IBLOCK_ID, $SECTION_ID, $arParams = array(), $strAdd = "")
 	{
 		if (
-			(defined("CATALOG_PRODUCT") || $arParams["force_catalog"] || array_key_exists('catalog', $arParams))
+			(
+				defined("CATALOG_PRODUCT")
+				|| (isset($arParams["force_catalog"]) && $arParams["force_catalog"])
+				|| array_key_exists('catalog', $arParams)
+			)
 			&& !array_key_exists("menu", $arParams)
 		)
 			$url = "cat_section_edit.php";
@@ -3585,7 +3605,7 @@ REQ
 			if (isset($value))
 				$url.= "&".urlencode($name)."=".urlencode($value);
 
-		if ($arParams["replace_script_name"])
+		if (isset($arParams["replace_script_name"]) && $arParams["replace_script_name"])
 		{
 			$url = self::replaceScriptName($url);
 		}
@@ -3608,7 +3628,10 @@ REQ
 	public static function GetAdminElementEditLink($IBLOCK_ID, $ELEMENT_ID, $arParams = array(), $strAdd = "")
 	{
 		if (
-			(defined("CATALOG_PRODUCT") || $arParams["force_catalog"])
+			(
+				defined("CATALOG_PRODUCT")
+				|| (isset($arParams["force_catalog"]) && $arParams["force_catalog"])
+			)
 			&& !array_key_exists("menu", $arParams)
 		)
 			$url = "cat_product_edit.php";
@@ -3624,7 +3647,7 @@ REQ
 			if (isset($value))
 				$url.= "&".urlencode($name)."=".urlencode($value);
 
-		if ($arParams["replace_script_name"])
+		if (isset($arParams["replace_script_name"]) && $arParams["replace_script_name"])
 		{
 			$url = self::replaceScriptName($url);
 		}
@@ -3674,7 +3697,7 @@ REQ
 			if (isset($value))
 				$url.= "&".urlencode($name)."=".urlencode($value);
 
-		if ($arParams["replace_script_name"])
+		if (isset($arParams["replace_script_name"]) && $arParams["replace_script_name"])
 		{
 			$url = self::replaceScriptName($url);
 		}
@@ -3741,7 +3764,7 @@ REQ
 			if (isset($value))
 				$url.= "&".urlencode($name)."=".urlencode($value);
 
-		if ($arParams["replace_script_name"])
+		if (isset($arParams["replace_script_name"]) && $arParams["replace_script_name"])
 		{
 			$url = self::replaceScriptName($url);
 		}

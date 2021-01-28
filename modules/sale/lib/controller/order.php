@@ -32,7 +32,7 @@ class Order extends Controller
 
 				/** @var \Bitrix\Sale\Order $className */
 				$order = $orderClass::load($id);
-				if ($order)
+				if ($order && $order instanceof Sale\OrderBase)
 				{
 					return $order;
 				}

@@ -26,6 +26,7 @@ create table if not exists b_iblock
 	LID char(2) not null REFERENCES b_lang(LID),
 	CODE varchar(50) null,
 	API_CODE varchar(50) null,
+	REST_ON char(1) not null default 'N',
 	NAME varchar(255) not null,
 	ACTIVE char(1) not null DEFAULT 'Y',
 	SORT int(11) not null DEFAULT 500,
@@ -239,7 +240,8 @@ create table if not exists b_iblock_element_property
 	INDEX ix_iblock_element_property_1(IBLOCK_ELEMENT_ID, IBLOCK_PROPERTY_ID),
 	INDEX ix_iblock_element_property_2(IBLOCK_PROPERTY_ID),
 	INDEX ix_iblock_element_prop_enum (VALUE_ENUM,IBLOCK_PROPERTY_ID),
-	INDEX ix_iblock_element_prop_num (VALUE_NUM,IBLOCK_PROPERTY_ID)
+	INDEX ix_iblock_element_prop_num (VALUE_NUM,IBLOCK_PROPERTY_ID),
+	INDEX ix_iblock_element_prop_val(VALUE(50), IBLOCK_PROPERTY_ID, IBLOCK_ELEMENT_ID)
 );
 
 create table if not exists b_iblock_property_enum

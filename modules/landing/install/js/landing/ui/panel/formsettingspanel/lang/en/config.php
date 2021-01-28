@@ -3,6 +3,7 @@ $MESS["LANDING_AGREEMENTS_MESSAGE_DESCRIPTION"] = "In most countries you are bou
 $MESS["LANDING_AGREEMENTS_MESSAGE_HEADER"] = "We have already added a required agreement";
 $MESS["LANDING_AGREEMENTS_TITLE"] = "Agreements";
 $MESS["LANDING_CRM_ACCESS_ERROR_MESSAGE"] = "Insufficient access permissions to edit the CRM form. Please submit a request to your Bitrix24 administrator.";
+$MESS["LANDING_CRM_FORM_LANGUAGE"] = "Language";
 $MESS["LANDING_CRM_FORM_USER"] = "Responsible";
 $MESS["LANDING_FIELDS_ADD_NEW_RULE_LINK_LABEL"] = "Add new rule";
 $MESS["LANDING_FIELDS_RULES_TITLE"] = "Field show rules";

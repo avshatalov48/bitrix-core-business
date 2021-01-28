@@ -1623,6 +1623,30 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 	}
 
 	/**
+	 * @return null|string
+	 * @internal
+	 *
+	 */
+	public static function getEntityEventName()
+	{
+		return 'SaleBasketItem';
+	}
+
+	/**
+	 * @return array
+	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
+	 */
+	public function toArray() : array
+	{
+		$result = parent::toArray();
+
+		$result['PROPERTIES'] = $this->getPropertyCollection()->toArray();
+
+		return $result;
+	}
+
+	/**
 	 * @deprecated
 	 *
 	 * @return float
@@ -1632,15 +1656,5 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 	public function getDefaultPrice()
 	{
 		return (float)$this->getField('DEFAULT_PRICE');
-	}
-
-	/**
-	 * @return null|string
-	 * @internal
-	 *
-	 */
-	public static function getEntityEventName()
-	{
-		return 'SaleBasketItem';
 	}
 }

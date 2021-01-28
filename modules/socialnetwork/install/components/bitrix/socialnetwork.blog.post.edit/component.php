@@ -934,7 +934,7 @@ if (
 			$redirectUrl = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_BLOG"], array("user_id" => $arBlog["OWNER_ID"]));
 
 			$uri = new Bitrix\Main\Web\Uri($redirectUrl);
-			$uri->deleteParams(array("b24statAction", "b24statTab"));
+			$uri->deleteParams(array("b24statAction", "b24statTab", "b24statAddEmailUserCrmContact"));
 			$redirectUrl = $uri->getUri();
 
 			LocalRedirect($redirectUrl);
@@ -949,7 +949,7 @@ if (
 			$redirectUrl = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_BLOG"], array("user_id" => $arBlog["OWNER_ID"]));
 
 			$uri = new Bitrix\Main\Web\Uri($redirectUrl);
-			$uri->deleteParams(array("b24statAction", "b24statTab"));
+			$uri->deleteParams(array("b24statAction", "b24statTab", "b24statAddEmailUserCrmContact"));
 			$redirectUrl = $uri->getUri();
 
 			LocalRedirect($redirectUrl);
@@ -2087,7 +2087,7 @@ if (
 						}
 
 						$uri = new Bitrix\Main\Web\Uri($redirectUrl);
-						$uri->deleteParams(array("b24statAction", "b24statTab"));
+						$uri->deleteParams(array("b24statAction", "b24statTab", "b24statAddEmailUserCrmContact"));
 						$redirectUrl = $uri->getUri();
 
 						LocalRedirect($redirectUrl);

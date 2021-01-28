@@ -279,8 +279,17 @@ class SaleAccountPay extends \CBitrixComponent
 
 		if ($this->errorCollection->isEmpty())
 		{
-			$currencyList = CCurrencyLang::GetFormatDescription($this->arParams["SELL_CURRENCY"]);
-			$this->arResult['FORMATED_CURRENCY'] = $currencyList['FORMAT_STRING'];
+			$parsedFormat = \CCurrencyLang::getParsedCurrencyFormat($this->arParams["SELL_CURRENCY"]);
+			if (!empty($parsedFormat))
+			{
+				$index = array_search('#', $parsedFormat);
+				if ($index !== false)
+				{
+					$parsedFormat[$index] = '';
+				}
+
+				$this->arResult['FORMATED_CURRENCY'] = trim(implode('', $parsedFormat));
+			}
 
 			$signer = new Main\Security\Sign\Signer;
 			$ajaxParams = array(

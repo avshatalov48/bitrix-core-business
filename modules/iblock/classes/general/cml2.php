@@ -182,9 +182,6 @@ class CIBlockCMLImport
 
 	function CheckIfFileIsCML($file_name)
 	{
-		/** @var CMain $APPLICATION */
-		global $APPLICATION;
-
 		if(file_exists($file_name) && is_file($file_name))
 		{
 			$fp = fopen($file_name, "rb");
@@ -196,7 +193,7 @@ class CIBlockCMLImport
 				if(preg_match("/<"."\\?XML[^>]{1,}encoding=[\"']([^>\"']{1,})[\"'][^>]{0,}\\?".">/i", $header, $matches))
 				{
 					if(strtoupper($matches[1]) !== strtoupper(LANG_CHARSET))
-						$header = $APPLICATION->ConvertCharset($header, $matches[1], LANG_CHARSET);
+						$header = Main\Text\Encoding::convertEncoding($header, $matches[1], LANG_CHARSET);
 				}
 
 				foreach(array(LANGUAGE_ID, "en", "ru") as $lang)
@@ -2715,6 +2712,11 @@ class CIBlockCMLImport
 		}
 		$obElement = new CIBlockElement;
 		$obElement->CancelWFSetMove();
+		$elementFields = array("ACTIVE"=>$STATUS);
+		if ((string)\Bitrix\Main\Config\Option::get('iblock', 'change_user_by_group_active_modify') === 'Y')
+		{
+			$elementFields['MODIFIED_BY'] = $this->currentUserId;
+		}
 		foreach($this->arLinkedProps as $arProperty)
 		{
 			$rsElements = $obElement->GetList(
@@ -2728,7 +2730,7 @@ class CIBlockCMLImport
 				Array("ID", "TMP_ID")
 			);
 			while($arElement = $rsElements->Fetch())
-				$obElement->Update($arElement["ID"], array("ACTIVE"=>$STATUS), $bWF);
+				$obElement->Update($arElement["ID"], $elementFields, $bWF);
 		}
 	}
 
@@ -5046,7 +5048,12 @@ class CIBlockCMLImport
 				}
 				else
 				{
-					$obElement->Update($arElement["ID"], array("ACTIVE"=>"N"));
+					$elementFields = array("ACTIVE"=>"N");
+					if ((string)\Bitrix\Main\Config\Option::get('iblock', 'change_user_by_group_active_modify') === 'Y')
+					{
+						$elementFields['MODIFIED_BY'] = $this->currentUserId;
+					}
+					$obElement->Update($arElement["ID"], $elementFields);
 					$counter["DEA"]++;
 				}
 			}

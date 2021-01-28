@@ -3,6 +3,8 @@ namespace Bitrix\Iblock;
 
 use Bitrix\Main\ORM;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Event;
+
 Loc::loadMessages(__FILE__);
 
 /**
@@ -236,49 +238,54 @@ class SectionTable extends ORM\Data\DataManager
 		);
 	}
 
-	/**
-	 * Add iblock section.
-	 *
-	 * @param array $data			Section data.
-	 * @return ORM\Data\AddResult
-	 */
-	public static function add(array $data)
+	public static function onAfterAdd(Event $event)
 	{
-		$result = new ORM\Data\AddResult();
-		$result->addError(new ORM\EntityError(
-			Loc::getMessage('IBLOCK_SECTION_ENTITY_MESS_ADD_BLOCKED')
-		));
-		return $result;
+		/** @var EO_Section $section */
+		$section = $event->getParameter('object');
+		$section->fill(['IBLOCK_ID', 'IBLOCK_SECTION_ID', 'NAME', 'SORT']);
+
+		// clear tag cache
+		\CIBlock::clearIblockTagCache($section->getIblockId());
+
+		// recount tree
+		\CAllIBlockSection::recountTreeAfterAdd($section->collectValues());
 	}
 
-	/**
-	 * Updates iblock section by primary key.
-	 *
-	 * @param mixed $primary		Section primary key.
-	 * @param array $data			Section data.
-	 * @return ORM\Data\UpdateResult
-	 */
-	public static function update($primary, array $data)
+	public static function onUpdate(Event $event)
 	{
-		$result = new ORM\Data\UpdateResult();
-		$result->addError(new ORM\EntityError(
-			Loc::getMessage('IBLOCK_SECTION_ENTITY_MESS_UPDATE_BLOCKED')
-		));
-		return $result;
+		/** @var EO_Section $section */
+		$section = $event->getParameter('object');
+
+		// save old fields
+		$oldValues = \CIBlockSection::GetList([], ["ID" => $section->getId(), "CHECK_PERMISSIONS" => "N"]);
+		$section->customData->set('RECOUNT_TREE_OLD_VALUES', $oldValues);
 	}
 
-	/**
-	 * Deletes iblock section by primary key.
-	 *
-	 * @param mixed $primary		Section primary key.
-	 * @return ORM\Data\DeleteResult
-	 */
-	public static function delete($primary)
+	public static function onAfterUpdate(Event $event)
 	{
-		$result = new ORM\Data\DeleteResult();
-		$result->addError(new ORM\EntityError(
-			Loc::getMessage('IBLOCK_SECTION_ENTITY_MESS_DELETE_BLOCKED')
-		));
-		return $result;
+		/** @var EO_Section $section */
+		$section = $event->getParameter('object');
+		$section->fill(['IBLOCK_ID', 'IBLOCK_SECTION_ID', 'NAME', 'SORT', 'ACTIVE']);
+
+		// clear tag cache
+		\CIBlock::clearIblockTagCache($section->getIblockId());
+
+		// recount tree
+		\CAllIBlockSection::recountTreeAfterUpdate($section->collectValues(), $section->customData->get('RECOUNT_TREE_OLD_VALUES'));
+	}
+
+	public static function onDelete(Event $event)
+	{
+		$section = static::wakeUpObject($event->getParameter('id'));
+		$section->fill(['IBLOCK_ID']);
+
+		// clear tag cache
+		\CIBlock::clearIblockTagCache($section->getIblockId());
+	}
+
+	public static function onAfterDelete(Event $event)
+	{
+		// recount tree
+		\CAllIBlockSection::recountTreeOnDelete(['ID' => $event->getParameter('id')]);
 	}
 }

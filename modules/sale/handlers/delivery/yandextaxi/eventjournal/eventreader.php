@@ -5,7 +5,9 @@ namespace Sale\Handlers\Delivery\YandexTaxi\EventJournal;
 use Bitrix\Main\Error;
 use Bitrix\Sale\Delivery\Services\Manager;
 use Bitrix\Sale\Delivery\Services\Table;
+use Bitrix\Sale\Internals\LocalDeliveryRequestTable;
 use Sale\Handlers\Delivery\YandexTaxi\Api\Api;
+use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\Journal\Event;
 
 /**
  * Class EventReader
@@ -38,6 +40,7 @@ final class EventReader
 	public function read(int $deliveryServiceId, $prevCursor): EventCollectionResult
 	{
 		$result = new EventCollectionResult();
+		$resultEvents = [];
 
 		$cursor = null;
 
@@ -59,26 +62,92 @@ final class EventReader
 
 			foreach ($events as $event)
 			{
-				$result->addEvent($event);
+				$resultEvents[] = $event;
 			}
 		} while ($prevCursor != $cursor);
 
 		if (!is_null($cursor))
 		{
-			$service = Table::getList(
-				[
-					'filter' => [
-						'=ID' => $deliveryServiceId
-					]
-				]
-			)->fetch();
+			$this->updateCursor($deliveryServiceId, $cursor);
+		}
 
-			$config = $service['CONFIG'];
-			$config['MAIN']['CURSOR'] = $cursor;
-
-			Manager::update($service['ID'], ['CONFIG' => $config]);
+		$filteredEvents = $this->filterEvents($deliveryServiceId, $resultEvents);
+		foreach ($filteredEvents as $event)
+		{
+			$result->addEvent($event);
 		}
 
 		return $result;
+	}
+
+	/**
+	 * @param int $deliveryServiceId
+	 * @param Event[] $events
+	 * @return Event[]
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	private function filterEvents(int $deliveryServiceId, array $events): array
+	{
+		$deliveryServiceIds = array_column(
+			Manager::getList(
+				[
+					'select' => ['ID'],
+					'filter' => ['PARENT_ID' => $deliveryServiceId]
+				]
+			)->fetchAll(),
+			'ID'
+		);
+		$deliveryServiceIds[] = $deliveryServiceId;
+
+		$claimIds =	array_column(
+			LocalDeliveryRequestTable::getList(
+				[
+					'filter' => [
+						'DELIVERY_SERVICE_ID' => $deliveryServiceIds,
+						'EXTERNAL_ID' => array_map(
+							function ($event)
+							{
+								return $event->getClaimId();
+							},
+							$events
+						),
+					],
+				]
+			)->fetchAll(),
+			'EXTERNAL_ID'
+		);
+
+		return array_filter(
+			$events,
+			function ($event) use ($claimIds)
+			{
+				return in_array($event->getClaimId(), $claimIds, true);
+			}
+		);
+	}
+
+	/**
+	 * @param int $deliveryServiceId
+	 * @param string $cursor
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	private function updateCursor(int $deliveryServiceId, string $cursor): void
+	{
+		$service = Table::getList(
+			[
+				'filter' => [
+					'=ID' => $deliveryServiceId
+				]
+			]
+		)->fetch();
+
+		$config = $service['CONFIG'];
+		$config['MAIN']['CURSOR'] = $cursor;
+
+		Manager::update($service['ID'], ['CONFIG' => $config]);
 	}
 }

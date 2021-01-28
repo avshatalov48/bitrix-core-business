@@ -2700,7 +2700,7 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
-	      this.scale = settingsData.time && settingsData.time.scale ? settingsData.time.scale : 60;
+	      this.scale = parseInt(settingsData.time && settingsData.time.scale ? settingsData.time.scale : 60, 10);
 	      this.DOM.outerWrap = this.DOM.wrap.appendChild(main_core.Tag.render(_templateObject$4()));
 	      this.showMainLoader();
 	      this.requireFormData().then(function () {
@@ -3997,9 +3997,9 @@ this.BX = this.BX || {};
 	    value: function getTimeSlots() {
 	      if (!this.slots) {
 	        this.slots = [];
-	        var slot,
-	            finishTime,
-	            time = this.timeFrom * 60;
+	        var slot;
+	        var finishTime;
+	        var time = this.timeFrom * 60;
 
 	        while (time < this.timeTo * 60) {
 	          finishTime = time + this.scale;

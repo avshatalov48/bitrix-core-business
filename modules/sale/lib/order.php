@@ -205,10 +205,6 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 					));
 					$event->send();
 				}
-
-				/** @var Notify $notifyClassName */
-				$notifyClassName = $registry->getNotifyClassName();
-				$notifyClassName::callNotify($shipment, EventActions::EVENT_ON_SHIPMENT_DELIVER);
 			}
 			else
 			{
@@ -2354,6 +2350,11 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 	/**
 	 * @return Result
 	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\ArgumentOutOfRangeException
+	 * @throws Main\NotImplementedException
+	 * @throws Main\ObjectException
+	 * @throws Main\SystemException
 	 */
 	protected function add()
 	{
@@ -2596,5 +2597,21 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 	public function getPaymentSystemId()
 	{
 		return $this->getPaySystemIdList();
+	}
+
+	/**
+	 * @return array
+	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
+	 */
+	public function toArray() : array
+	{
+		$result = parent::toArray();
+
+		$result['PAYMENTS'] = $this->getPaymentCollection()->toArray();
+		$result['SHIPMENTS'] = $this->getShipmentCollection()->toArray();
+		$result['TRADE_BINDINGS'] = $this->getTradeBindingCollection()->toArray();
+
+		return $result;
 	}
 }

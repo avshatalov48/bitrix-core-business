@@ -85,6 +85,7 @@ $MESS["IB_E_DESCRIPTION_TYPE_HTML"] = "html";
 $MESS["IB_E_ID"] = "ID";
 $MESS["IB_E_CODE"] = "Символьный код";
 $MESS["IB_E_API_CODE"] = "Символьный код API";
+$MESS["IB_E_REST_ON"] = "Включен доступ через REST";
 $MESS["IB_E_NAME"] = "Название";
 $MESS["IB_E_SORT"] = "Сортировка";
 $MESS["IB_E_XML_ID"] = "Внешний код";

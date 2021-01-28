@@ -451,13 +451,13 @@ export default class EmbedContent extends ContentWrapper
 
 							return this.getDelayDropdown().getValue();
 						})(),
-						position: type3positionValue.horizontal,
-						vertical: type3positionValue.vertical,
+						position: type4positionValue.horizontal,
+						vertical: type4positionValue.vertical,
 						type: this.getType4ShowTypeField().getValue(),
 					},
 					click: {
-						position: type4positionValue.horizontal,
-						vertical: type4positionValue.vertical,
+						position: type3positionValue.horizontal,
+						vertical: type3positionValue.vertical,
 						type: this.getType3ShowTypeField().getValue(),
 					},
 				},

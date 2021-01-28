@@ -85,22 +85,6 @@ class Property extends BaseEntity implements HasPropertyValueCollection
 	{
 		$defaultValue = $this->getSetting('DEFAULT_VALUE');
 
-		if ($this->getPropertyType() === 'L')
-		{
-			$enumResult = \Bitrix\Iblock\PropertyEnumerationTable::getList(
-				[
-					'filter' =>
-					[
-						'PROPERTY_ID' => $this->getId(),
-						'=DEF' => 'Y'
-					],
-					'limit' => 1
-				]
-			)->fetch();
-
-			return $enumResult ? $enumResult['ID'] : null;
-		}
-
 		if (
 			!empty($defaultValue)
 			&& $this->getPropertyType() === 'S'
@@ -108,7 +92,7 @@ class Property extends BaseEntity implements HasPropertyValueCollection
 		)
 		{
 			$defaultValue = CheckSerializedData($defaultValue)
-				? unserialize($defaultValue)
+				? unserialize($defaultValue, ['allowed_classes' => false])
 				: null;
 		}
 

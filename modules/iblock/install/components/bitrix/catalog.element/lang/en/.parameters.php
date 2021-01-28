@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["ACTION_VARIABLE_TIP"] = "The name of a variable in which the required action will be passed: ADD_TO_COMPARE_LIST, ADD2BASKET etc. The default value is <i>action</i>.";
 $MESS["ADD_ELEMENT_CHAIN_TIP"] = "If selected, the item name will be added to navigation breadcrumbs.";
 $MESS["ADD_PROPERTIES_TO_BASKET_TIP"] = "Select the properties you want to pass to shopping cart and order. The required properties are those that may affect the customer choice or can be changed in shopping cart (for SKU's). The properties that will affect order fulfillment (e.g. item color) are also required.";
@@ -91,6 +91,7 @@ $MESS["IBLOCK_SECTION_ID"] = "Section ID";
 $MESS["IBLOCK_SECTION_ID_VARIABLE"] = "\"Section code\" parameter name";
 $MESS["IBLOCK_SECTION_URL"] = "URL of the page with the section contents";
 $MESS["IBLOCK_SHOW_PRICE_COUNT"] = "Show price for quantity";
+$MESS["IBLOCK_SHOW_SKU_DESCRIPTION"] = "Show description for all SKU's";
 $MESS["IBLOCK_SORT_ASC"] = "ascending";
 $MESS["IBLOCK_SORT_DESC"] = "descending";
 $MESS["IBLOCK_TYPE"] = "Infoblock type";
@@ -140,4 +141,3 @@ $MESS["T_IBLOCK_DESC_DESCRIPTION"] = "Set page description from property";
 $MESS["T_IBLOCK_DESC_KEYWORDS"] = "Set page keywords from property";
 $MESS["USE_MAIN_ELEMENT_SECTION_TIP"] = "If checked, the main parent section will be used in breadcrumb links.";
 $MESS["USE_PRICE_COUNT_TIP"] = "If checked, all existing price ranges will be selected.";
-?>

@@ -792,4 +792,10 @@ if (isset($arCurrentValues['DISPLAY_COMPARE']) && $arCurrentValues['DISPLAY_COMP
 		'TYPE' => 'STRING',
 		'DEFAULT' => ''
 	);
+	$arComponentParameters['PARAMETERS']['USE_COMPARE_LIST'] = array(
+		'PARENT' => 'COMPARE',
+		'NAME' => GetMessage('CP_BCS_USE_COMPARE_LIST'),
+		'TYPE' => 'CHECKBOX',
+		'DEFAULT' => 'N'
+	);
 }

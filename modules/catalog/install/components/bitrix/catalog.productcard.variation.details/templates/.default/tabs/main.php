@@ -32,7 +32,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 			'ENABLE_SECTION_CREATION' => true,
 			'ENABLE_SECTION_DRAG_DROP' => true,
 
-			'ENABLE_CONFIG_CONTROL' => false,
+			'ENABLE_CONFIG_CONTROL' => true,
 			'COMPONENT_AJAX_DATA' => [
 				'COMPONENT_NAME' => $component->getName(),
 				'ACTION_NAME' => 'save',

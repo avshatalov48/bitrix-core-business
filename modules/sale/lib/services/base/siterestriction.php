@@ -119,7 +119,6 @@ abstract class SiteRestriction extends Base
 	 */
 	public static function isAvailable()
 	{
-		return IsModuleInstalled('crm') ? false : true;
+		return IsModuleInstalled('bitrix24') ? false : true;
 	}
-
-} 
+}

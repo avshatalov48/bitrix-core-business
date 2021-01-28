@@ -746,11 +746,11 @@ final class CheckManager
 	 */
 	public static function collateDocuments(array $entities)
 	{
-		$map = array();
+		$map = [];
 
-		$event = new Main\Event('sale', 'OnCheckCollateDocuments', array(
+		$event = new Main\Event('sale', 'OnCheckCollateDocuments', [
 			'ENTITIES' => $entities
-		));
+		]);
 		$event->send();
 		$eventResults = $event->getResults();
 		if ($eventResults != null)
@@ -765,10 +765,16 @@ final class CheckManager
 
 					$map = array_merge($map, $d);
 				}
+				else if ($eventResult->getType() === Main\EventResult::ERROR)
+				{
+					return $map;
+				}
 			}
 
 			if (count($map) > 0)
+			{
 				return $map;
+			}
 		}
 
 		$existingChecks = null;
@@ -780,13 +786,13 @@ final class CheckManager
 			// load existing checks
 			if ($existingChecks === null)
 			{
-				$existingChecks = array();
+				$existingChecks = [];
 				$order = static::getOrder($entity);
 
-				$filter = array(
+				$filter = [
 					'ORDER_ID' => $order->getId(),
 					'ENTITY_REGISTRY_TYPE' => $entity::getRegistryType()
-				);
+				];
 				if ($entity instanceof Sale\Payment)
 				{
 					$filter["PAYMENT_ID"] = $entity->getId();
@@ -796,18 +802,21 @@ final class CheckManager
 					$filter["SHIPMENT_ID"] = $entity->getId();
 				}
 
-				$db = static::getList(
-					array(
-						"filter" => $filter,
-						"select" => array("ID", "PAYMENT_ID", "SHIPMENT_ID", "TYPE", "STATUS")
-					)
-				);
+				$db = static::getList([
+					"filter" => $filter,
+					"select" => ["ID", "PAYMENT_ID", "SHIPMENT_ID", "TYPE", "STATUS"]
+				]);
 				while ($ar = $db->fetch())
 				{
 					if (intval($ar["PAYMENT_ID"]) > 0)
+					{
 						$existingChecks["P"][ $ar["PAYMENT_ID"] ][] = $ar;
+					}
+
 					if (intval($ar["SHIPMENT_ID"]) > 0)
+					{
 						$existingChecks["S"][ $ar["SHIPMENT_ID"] ][] = $ar;
+					}
 				}
 			}
 
@@ -827,7 +836,9 @@ final class CheckManager
 					}
 
 					if ($result)
+					{
 						$map = array_merge($map, $result);
+					}
 				}
 			}
 		}

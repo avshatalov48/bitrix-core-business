@@ -154,6 +154,7 @@
 		this.obNotAvail = null;
 		this.obSubscribe = null;
 		this.obSkuProps = null;
+		this.obDescription = null;
 		this.obMainSkuProps = null;
 		this.obBigSlider = null;
 		this.obMeasure = null;
@@ -444,6 +445,11 @@
 				this.obMainSkuProps = BX(this.visual.DISPLAY_MAIN_PROP_DIV);
 			}
 
+			if (this.config.showSkuDescription === 'Y')
+			{
+				this.obDescription = BX(this.visual.DESCRIPTION_ID);
+			}
+
 			if (this.config.useCompare)
 			{
 				this.obCompare = BX(this.visual.COMPARE_LINK);
@@ -653,6 +659,8 @@
 			this.config.showMaxQuantity = this.params.CONFIG.SHOW_MAX_QUANTITY;
 			this.config.relativeQuantityFactor = parseInt(this.params.CONFIG.RELATIVE_QUANTITY_FACTOR);
 			this.config.usePriceRanges = this.params.CONFIG.USE_PRICE_COUNT;
+			this.config.showSkuDescription = this.params.CONFIG.SHOW_SKU_DESCRIPTION;
+			this.config.displayPreviewTextMode = this.params.CONFIG.DISPLAY_PREVIEW_TEXT_MODE;
 
 			if (this.params.CONFIG.MAIN_PICTURE_MODE)
 			{
@@ -810,6 +818,10 @@
 					this.product.id = parseInt(this.params.PRODUCT.ID, 10);
 					this.product.name = this.params.PRODUCT.NAME;
 					this.product.category = this.params.PRODUCT.CATEGORY;
+					this.product.detailText = this.params.PRODUCT.DETAIL_TEXT;
+					this.product.detailTextType = this.params.PRODUCT.DETAIL_TEXT_TYPE;
+					this.product.previewText = this.params.PRODUCT.PREVIEW_TEXT;
+					this.product.previewTextType = this.params.PRODUCT.PREVIEW_TEXT_TYPE;
 				}
 			}
 			else
@@ -1929,7 +1941,7 @@
 		quantitySet: function(index)
 		{
 			var strLimit, resetQuantity;
-			
+
 			var newOffer = this.offers[index],
 				oldOffer = this.offers[this.offerNum];
 
@@ -2548,6 +2560,11 @@
 					this.stopSlider();
 				}
 
+				if (this.obDescription && this.config.showSkuDescription === 'Y')
+				{
+					this.changeSkuDescription(index);
+				}
+
 				if (this.config.showSkuProps)
 				{
 					if (this.obSkuProps)
@@ -2592,7 +2609,46 @@
 				eventData = null;
 			}
 		},
+		changeSkuDescription: function(index)
+		{
+			var currentDetailText = '';
+			var currentPreviewText = '';
+			var currentDescription = '';
 
+			if (this.offers[index].DETAIL_TEXT !== '')
+			{
+				currentDetailText = this.offers[index].DETAIL_TEXT_TYPE === 'html' ? this.offers[index].DETAIL_TEXT : '<p>' + this.offers[index].DETAIL_TEXT + '</p>';
+			}
+			else if (this.product.detailText !== '')
+			{
+				currentDetailText = this.product.detailTextType === 'html' ? this.product.detailText : '<p>' + this.product.detailText + '</p>';
+			}
+
+			if (this.offers[index].PREVIEW_TEXT !== '')
+			{
+				currentPreviewText = this.offers[index].PREVIEW_TEXT_TYPE === 'html' ? this.offers[index].PREVIEW_TEXT : '<p>' + this.offers[index].PREVIEW_TEXT + '</p>';
+			}
+			else if (this.product.previewText !== '')
+			{
+				currentPreviewText = this.product.previewTextType === 'html' ? this.product.previewText : '<p>' + this.product.previewText + '</p>';
+			}
+
+			if (
+				currentPreviewText !== ''
+				&& (
+					this.config.displayPreviewTextMode === 'S'
+					|| (this.config.displayPreviewTextMode === 'E' && currentDetailText)
+				)
+			)
+			{
+				currentDescription += currentPreviewText;
+			}
+			if (currentDetailText !== '')
+			{
+				currentDescription += currentDetailText;
+			}
+			BX.adjust(this.obDescription, {html: currentDescription});
+		},
 		drawImages: function(images)
 		{
 			if (!this.node.imageContainer)

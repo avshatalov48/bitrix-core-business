@@ -343,12 +343,16 @@
 
 			var kkmId = BX('KKM_ID');
 			kkmId = (kkmId) ? kkmId.value : '';
-			
+
+			var handlerSelect = BX("HANDLER");
+			var restCode = handlerSelect.options[handlerSelect.selectedIndex].getAttribute('data-rest-code');
+
 			BX.ajax({
 				data: {
 					'action': 'reload_settings',
 					'kkmId': kkmId,
 					'handler': BX('HANDLER').value || '',
+					'restCode': restCode || '',
 					'sessid': BX.bitrix_sessid()
 				},
 				method: 'POST',
@@ -376,7 +380,7 @@
 						{
 							BX('sale-cashbox-models-container').innerHTML = '';
 						}
-						
+
 						if (result.hasOwnProperty('OFD'))
 						{
 							BX('OFD').value = result.OFD;

@@ -199,7 +199,14 @@ export class FormSettingsPanel extends BasePresetPanel
 		const formOptions = FormClient.getInstance()
 			.getOptions(this.getCurrentFormId())
 			.then((options) => {
-				this.setFormOptions(options);
+				const currentOptions = Runtime.clone(options);
+				if (currentOptions.agreements.use !== true)
+				{
+					currentOptions.agreements.use = true;
+					currentOptions.data.agreements = [];
+				}
+
+				this.setFormOptions(currentOptions);
 			});
 
 		const formDictionary = FormClient.getInstance()
@@ -554,10 +561,17 @@ export class FormSettingsPanel extends BasePresetPanel
 						)
 					)
 					{
-						return Runtime.merge(
+						const mergedOptions = Runtime.merge(
 							formOptions,
 							value,
 						);
+
+						if (Reflect.has(value, 'responsible'))
+						{
+							mergedOptions.responsible.users = value.responsible.users;
+						}
+
+						return mergedOptions;
 					}
 
 					if (Reflect.has(value, 'recaptcha'))
@@ -643,9 +657,9 @@ export class FormSettingsPanel extends BasePresetPanel
 			return new HeaderAndButtonContent({
 				personalizationVariables: this.getPersonalizationVariables(),
 				values: {
-					title: FormSettingsPanel.sanitize(crmForm.title),
-					desc: FormSettingsPanel.sanitize(crmForm.desc),
-					buttonCaption: crmForm.buttonCaption,
+					title: FormSettingsPanel.sanitize(this.getFormOptions().data.title),
+					desc: FormSettingsPanel.sanitize(this.getFormOptions().data.desc),
+					buttonCaption: this.getFormOptions().data.buttonCaption,
 				},
 			});
 		}
@@ -800,6 +814,7 @@ export class FormSettingsPanel extends BasePresetPanel
 					name: this.getFormOptions().name,
 					useSign: this.getFormOptions().data.useSign,
 					users: this.getFormOptions().responsible.users,
+					language: this.getFormOptions().data.language,
 				},
 			});
 		}

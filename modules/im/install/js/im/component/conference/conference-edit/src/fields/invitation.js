@@ -131,6 +131,11 @@ export const FieldInvitation =
 					{
 						this.invitation.value = this.localize['BX_IM_COMPONENT_CONFERENCE_DEFAULT_INVITATION'];
 					}
+
+					if (!this.isFormCreateMode && this.invitation.value)
+					{
+						this.invitation.value = Text.encode(this.invitation.value);
+					}
 				},
 				template: `
 					<div>

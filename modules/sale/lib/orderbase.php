@@ -2819,4 +2819,14 @@ abstract class OrderBase extends Internals\Entity
 	{
 		return 'SaleOrder';
 	}
+
+	public function toArray() : array
+	{
+		$result = parent::toArray();
+
+		$result['BASKET_ITEMS'] = $this->getBasket()->toArray();
+		$result['PROPERTIES'] = $this->getPropertyCollection()->toArray();
+
+		return $result;
+	}
 }

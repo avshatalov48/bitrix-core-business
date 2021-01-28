@@ -1424,4 +1424,15 @@ class ShipmentItem
 		return 'SaleShipmentItem';
 	}
 
+	/**
+	 * @return array
+	 */
+	public function toArray() : array
+	{
+		$result = parent::toArray();
+
+		$result['STORES'] = $this->getShipmentItemStoreCollection()->toArray();
+
+		return $result;
+	}
 }

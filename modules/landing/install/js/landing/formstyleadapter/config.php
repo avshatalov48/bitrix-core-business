@@ -10,11 +10,9 @@ return [
 	'rel' => [
 		'main.core',
 		'main.core.events',
-		'crm.form.client',
 		'landing.ui.form.styleform',
 		'landing.loc',
 		'landing.ui.field.colorpickerfield',
-		'landing.ui.panel.formsettingspanel',
 		'landing.backend',
 		'landing.env',
 	],

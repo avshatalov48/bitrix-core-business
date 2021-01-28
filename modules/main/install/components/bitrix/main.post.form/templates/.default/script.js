@@ -3156,8 +3156,12 @@ window.MPFMentionInit = function(formId, params)
 		});
 	}
 
-	BX.ready(function() {
-			var ment = BX('bx-b-mention-' + formId);
+	if (
+		repo.form[formId]
+		&& BX('div' + repo.form[formId].__divId)
+	)
+	{
+		BX.addCustomEvent(repo.handler[repo.form[formId].oEditorId], 'OnEditorIsLoaded', function() {
 			var selectorId = window.MPFgetSelectorId('bx-mention-' + formId + '-id');
 
 			if (selectorId)
@@ -3167,6 +3171,12 @@ window.MPFMentionInit = function(formId, params)
 					openDialogWhenInit: false
 				}]);
 			}
+		});
+	}
+
+	BX.ready(function() {
+			var ment = BX('bx-b-mention-' + formId);
+			var selectorId = window.MPFgetSelectorId('bx-mention-' + formId + '-id');
 
 			BX.bind(
 				ment,

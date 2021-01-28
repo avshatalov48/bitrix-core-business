@@ -80,11 +80,14 @@ class CIBlockSectionPropertyLink
 					");
 
 					if (
-						array_key_exists("SMART_FILTER", $arUpdate)
+						isset($arUpdate["SMART_FILTER"])
 						&& $arUpdate["SMART_FILTER"] === "Y"
 					)
 					{
-						\Bitrix\Iblock\PropertyIndex\Manager::markAsInvalid($arUpdate["IBLOCK_ID"]? $arUpdate["IBLOCK_ID"]: $ar["IBLOCK_ID"]);
+						\Bitrix\Iblock\PropertyIndex\Manager::markAsInvalid($arUpdate["IBLOCK_ID"]
+							? $arUpdate["IBLOCK_ID"]
+							: $ar["IBLOCK_ID"]
+						);
 					}
 				}
 			}
@@ -142,12 +145,15 @@ class CIBlockSectionPropertyLink
 					");
 
 					if (
-						array_key_exists("SMART_FILTER", $arUpdate)
+						isset($arUpdate["SMART_FILTER"])
 						&& $arUpdate["SMART_FILTER"] === "Y"
-						&& $arLink["INVALIDATE"] !== "N"
+						&& (!isset($arLink["INVALIDATE"]) || $arLink["INVALIDATE"] !== "N")
 					)
 					{
-						\Bitrix\Iblock\PropertyIndex\Manager::markAsInvalid($arUpdate["IBLOCK_ID"]? $arUpdate["IBLOCK_ID"]: $ar["IBLOCK_ID"]);
+						\Bitrix\Iblock\PropertyIndex\Manager::markAsInvalid($arUpdate["IBLOCK_ID"]
+							? $arUpdate["IBLOCK_ID"]
+							: $ar["IBLOCK_ID"]
+						);
 					}
 				}
 			}
@@ -585,7 +591,7 @@ class CIBlockSectionPropertyLink
 		else
 			return 0;
 	}
-	
+
 	public static function cleanFilterHint($filterHint)
 	{
 		$TextParser = null;

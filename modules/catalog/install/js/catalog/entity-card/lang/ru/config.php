@@ -8,3 +8,5 @@ $MESS["CATALOG_ENTITY_CARD_EMPTY_SECTION"] = "раздел не выбран";
 $MESS["CATALOG_ENTITY_CARD_NEW_FIELD_ITEM_PLACEHOLDER"] = "Новый элемент";
 $MESS["CATALOG_ENTITY_CARD_FILE_CLOSE_NOTIFICATION"] = "Нажмите кнопку \"сохранить\", чтобы изменения по файлам вступили в силу";
 $MESS["CATALOG_ENTITY_CARD_UNSAVED_DATA_MESSAGE"] = "При создании нового свойства вариации несохраненные данные будут потеряны.";
+$MESS["CATALOG_ENTITY_CARD_SETTING_ENABLED"] = "Настройка \"#NAME#\" включена";
+$MESS["CATALOG_ENTITY_CARD_SETTING_DISABLED"] = "Настройка \"#NAME#\" выключена";

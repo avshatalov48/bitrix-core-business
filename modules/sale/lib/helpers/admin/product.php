@@ -310,16 +310,18 @@ class Product
 			$parentList = \CCatalogSku::getProductList($this->productsIds);
 			if (!is_array($parentList))
 				$parentList = array();
+			$simpleProducts = array();
 			foreach ($this->productsIds as $id)
 			{
-				$this->resultData[$id] = array();
 				if (isset($parentList[$id]))
 				{
 					$info = $parentList[$id];
 
-					$this->resultData[$id]["OFFERS_IBLOCK_ID"] = $info["OFFER_IBLOCK_ID"];
-					$this->resultData[$id]["IBLOCK_ID"] = $info["IBLOCK_ID"];
-					$this->resultData[$id]["PRODUCT_ID"] = $info["ID"];
+					$this->resultData[$id] = array(
+						"PRODUCT_ID" => $info["ID"],
+						"IBLOCK_ID" => $info["IBLOCK_ID"],
+						"OFFERS_IBLOCK_ID" => $info["OFFER_IBLOCK_ID"]
+					);
 					$this->parentsIds[] = $info["ID"];
 
 					if(!isset($this->groupByIblock[$info['OFFER_IBLOCK_ID']]))
@@ -336,20 +338,31 @@ class Product
 				}
 				else
 				{
-					if (isset($this->resultData[$id]["IBLOCK_ID"]) && (int)$this->resultData[$id]["IBLOCK_ID"] > 0)
-					{
-						if(!isset($this->groupByIblock[$this->resultData[$id]["IBLOCK_ID"]]))
-							$this->groupByIblock[$this->resultData[$id]["IBLOCK_ID"]] = array();
-
-						$this->groupByIblock[$this->resultData[$id]["IBLOCK_ID"]][] = $id;
-					}
-
-					$this->resultData[$id]["PRODUCT_ID"] = $id;
-					$this->resultData[$id]["OFFERS_IBLOCK_ID"] = 0;
+					$simpleProducts[$id] = $id;
 				}
 			}
 			unset($id);
 			unset($parentList);
+
+			if (!empty($simpleProducts))
+			{
+				$simpleIblock = \CIBlockElement::GetIBlockByIDList($simpleProducts);
+				foreach ($simpleIblock as $id => $iblockId)
+				{
+					$this->resultData[$id] = array(
+						"PRODUCT_ID" => $id,
+						"IBLOCK_ID" => $iblockId,
+						"OFFERS_IBLOCK_ID" => 0
+					);
+
+					if(!isset($this->groupByIblock[$iblockId]))
+						$this->groupByIblock[$iblockId] = array();
+
+					$this->groupByIblock[$iblockId][] = $id;
+				}
+				unset($id, $iblockId, $simpleIblock);
+			}
+			unset($simpleProducts);
 		}
 
 		$this->iblockData = array();

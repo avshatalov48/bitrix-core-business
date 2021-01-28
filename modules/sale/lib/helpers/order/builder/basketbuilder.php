@@ -154,7 +154,7 @@ abstract class BasketBuilder
 
 	public function removeDeletedItems()
 	{
-		if($this->builder->getSettingsContainer()->getItemValue('deleteBaketItemsIfNotExists'))
+		if($this->builder->getSettingsContainer()->getItemValue('deleteBasketItemsIfNotExists'))
 		{
 			$itemsBasketCodes = [];
 

@@ -301,8 +301,8 @@ class ConditionGroup
 				$property = $template->getProperty($condition['object'], $condition['field']);
 				if ($property && $property['Type'] === 'user')
 				{
-					$condition[2] = \CBPHelper::UsersArrayToString(
-						$condition[2],
+					$condition['value'] = \CBPHelper::UsersArrayToString(
+						$condition['value'],
 						null,
 						$documentType
 					);

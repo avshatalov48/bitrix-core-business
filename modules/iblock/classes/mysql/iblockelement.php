@@ -1,6 +1,7 @@
 <?
 use Bitrix\Main;
 use Bitrix\Main\Loader;
+use Bitrix\Main\ModuleManager;
 
 class CIBlockElement extends CAllIBlockElement
 {
@@ -821,10 +822,19 @@ class CIBlockElement extends CAllIBlockElement
 	///////////////////////////////////////////////////////////////////
 	// Update element function
 	///////////////////////////////////////////////////////////////////
-	function Update($ID, $arFields, $bWorkFlow=false, $bUpdateSearch=true, $bResizePictures=false, $bCheckDiskQuota=true)
+	public function Update($ID, $arFields, $bWorkFlow=false, $bUpdateSearch=true, $bResizePictures=false, $bCheckDiskQuota=true)
 	{
 		global $DB, $USER;
 		$ID = (int)$ID;
+
+		if ($this->workflowIncluded === null)
+		{
+			$this->workflowIncluded = Loader::includeModule('workflow');
+		}
+		if ($this->bizprocInstalled === null)
+		{
+			$this->bizprocInstalled = ModuleManager::isModuleInstalled('bizproc');
+		}
 
 		$db_element = CIBlockElement::GetList(array(), array("ID"=>$ID, "SHOW_HISTORY"=>"Y"), false, false,
 			array(
@@ -861,7 +871,7 @@ class CIBlockElement extends CAllIBlockElement
 			return false;
 
 		$arIBlock = CIBlock::GetArrayByID($ar_element["IBLOCK_ID"]);
-		$bWorkFlow = $bWorkFlow && is_array($arIBlock) && ($arIBlock["WORKFLOW"] != "N") && Loader::includeModule("workflow");
+		$bWorkFlow = $bWorkFlow && is_array($arIBlock) && ($arIBlock["WORKFLOW"] != "N") && $this->workflowIncluded;
 
 		$ar_wf_element = $ar_element;
 
@@ -971,7 +981,7 @@ class CIBlockElement extends CAllIBlockElement
 
 		$arFields["WF"] = ($bWorkFlow?"Y":"N");
 
-		$bBizProc = is_array($arIBlock) && ($arIBlock["BIZPROC"] == "Y") && IsModuleInstalled("bizproc");
+		$bBizProc = is_array($arIBlock) && ($arIBlock["BIZPROC"] == "Y") && $this->bizprocInstalled;
 		if(array_key_exists("BP_PUBLISHED", $arFields))
 		{
 			if($bBizProc)
@@ -2586,12 +2596,12 @@ class CIBlockElement extends CAllIBlockElement
 			ExecuteModuleEventEx($arEvent, array($ELEMENT_ID, $IBLOCK_ID, $PROPERTY_VALUES, $PROPERTY_CODE));
 	}
 
-	function GetRandFunction()
+	public static function GetRandFunction()
 	{
 		return " RAND(".rand(0, 1000000).") ";
 	}
 
-	function GetShowedFunction()
+	public static function GetShowedFunction()
 	{
 		return " IfNULL(BE.SHOW_COUNTER/((UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(BE.SHOW_COUNTER_START)+0.1)/60/60),0) ";
 	}

@@ -194,6 +194,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 			$params['PATH_TO_BASKET'] = '/personal/cart/';
 		}
 
+		$params['DETAIL_URL'] = trim((string)($params['DETAIL_URL'] ?? ''));
 		$params['QUANTITY_FLOAT'] = isset($params['QUANTITY_FLOAT']) && $params['QUANTITY_FLOAT'] === 'N' ? 'N' : 'Y';
 		$params['HIDE_COUPON'] = isset($params['HIDE_COUPON']) && $params['HIDE_COUPON'] === 'Y' ? 'Y' : 'N';
 		$params['PRICE_VAT_SHOW_VALUE'] = isset($params['PRICE_VAT_SHOW_VALUE']) && $params['PRICE_VAT_SHOW_VALUE'] === 'N' ? 'N' : 'Y';
@@ -1781,14 +1782,18 @@ class CBitrixBasketComponent extends CBitrixComponent
 		$iblockToProductMap = [];
 		$productsData = [];
 
-		$res = CIBlockElement::GetList(
+		$elementIterator = CIBlockElement::GetList(
 			[],
 			['=ID' => $this->storage['ELEMENT_IDS']],
 			false,
 			false,
-			['ID', 'IBLOCK_ID', 'PREVIEW_PICTURE', 'DETAIL_PICTURE', 'PREVIEW_TEXT']
+			['ID', 'IBLOCK_ID', 'PREVIEW_PICTURE', 'DETAIL_PICTURE', 'PREVIEW_TEXT', 'DETAIL_PAGE_URL']
 		);
-		while ($product = $res->Fetch())
+		if ($this->arParams['DETAIL_URL'] !== '')
+		{
+			$elementIterator->SetUrlTemplates($this->arParams['DETAIL_URL']);
+		}
+		while ($product = $elementIterator->GetNext(true, false))
 		{
 			$productIndexMap[$product['ID']] = [];
 			$iblockToProductMap[$product['IBLOCK_ID']][] = $product['ID'];
@@ -1928,7 +1933,12 @@ class CBitrixBasketComponent extends CBitrixComponent
 					if ($value === null)
 						continue;
 
-					if (mb_strpos($code, 'PROPERTY_') !== false || $code === 'PREVIEW_PICTURE' || $code === 'DETAIL_PICTURE')
+					if (
+						$code === 'PREVIEW_PICTURE'
+						|| $code === 'DETAIL_PICTURE'
+						|| $code === 'DETAIL_PAGE_URL'
+						|| mb_strpos($code, 'PROPERTY_') !== false
+					)
 					{
 						$item[$code] = $value;
 					}
@@ -1939,6 +1949,12 @@ class CBitrixBasketComponent extends CBitrixComponent
 			$parentId = isset($this->storage['SKU_TO_PARENT'][$productId]) ? $this->storage['SKU_TO_PARENT'][$productId] : 0;
 			if ((int)$parentId > 0)
 			{
+				$parentDetailUrl = $productsData[$parentId]['DETAIL_PAGE_URL'] ?? '';
+				if ($parentDetailUrl !== '')
+				{
+					$item['DETAIL_PAGE_URL'] = $parentDetailUrl;
+				}
+
 				foreach ($this->arCustomSelectFields as $field)
 				{
 					$fieldVal = (mb_substr($field, -6) === '_VALUE' ? $field : $field.'_VALUE');

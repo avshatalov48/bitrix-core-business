@@ -101,6 +101,7 @@ final class ManagerExport extends ManagerBase
 		//B24 -> +BUS.wizard
 		if(static::getMode() ==  static::B24_SALE_MODE)
 		{
+			\CModule::IncludeModule('CRM');
 			return true;
 		}
 		//BUS -> +B24.wizard

@@ -242,7 +242,7 @@ if ($arParams['SUCCESS_SAVE'])
 				$pageFields = $hooks['B24BUTTON']->getPageFields();
 				if (isset($pageFields['B24BUTTON_CODE'])):
 				?>
-				<tr>
+				<tr data-landing-main-option="b24widget">
 					<td class="ui-form-label"><?= $pageFields['B24BUTTON_CODE']->getLabel();?></td>
 					<td class="ui-form-right-cell">
 						<div class="landing-form-flex-box">
@@ -268,7 +268,7 @@ if ($arParams['SUCCESS_SAVE'])
 						</div>
 					</td>
 				</tr>
-				<tr data-landing-main-option="b24widget">
+				<tr>
 					<td class="ui-form-label"><?= $pageFields['B24BUTTON_COLOR']->getLabel();?></td>
 					<td class="ui-form-right-cell">
 						<div class="landing-form-flex-box">

@@ -16,7 +16,7 @@
 		{
 			var form = new BX.Landing.EmbedFormEntry(formNode);
 			this.forms.push(form);
-			form.load();
+			form.init();
 		},
 
 		remove: function(formNode)
@@ -59,20 +59,7 @@
 	{
 		this.node = formNode;
 		this.formObject = null;
-		var formParams = this.node.dataset.b24form;
-		formParams = formParams.split('|');
-		if (formParams.length !== 3)
-		{
-			return;
-		}
-		this.id = formParams[0];
-		this.sec = formParams[1];
-		this.url = formParams[2];
-		this.useStyle = (this.node.dataset[BX.Landing.EmbedFormEntry.ATTR_USE_STYLE] === 'Y');
-		this.design = this.node.dataset[BX.Landing.EmbedFormEntry.ATTR_DESIGN]
-			? JSON.parse(this.node.dataset[BX.Landing.EmbedFormEntry.ATTR_DESIGN])
-			: {};
-		this.primaryOpacityMatcher = new RegExp("--primary([\\da-fA-F]{2})");
+		this.init();
 	};
 
 	BX.Landing.EmbedFormEntry.ATTR_FORM_ID = 'b24form';
@@ -80,8 +67,74 @@
 	BX.Landing.EmbedFormEntry.ATTR_USE_STYLE = 'b24formUseStyle';
 	BX.Landing.EmbedFormEntry.ATTR_USE_STYLE_STR = 'data-b24form-use-style';
 	BX.Landing.EmbedFormEntry.ATTR_DESIGN = 'b24formDesign';
+	BX.Landing.EmbedFormEntry.ATTR_IS_CONNECTOR = 'b24formConnector';
 
 	BX.Landing.EmbedFormEntry.prototype = {
+		init: function()
+		{
+			var formParams = this.node.dataset.b24form;
+			if(!formParams)
+			{
+				this.showNoFormsMessage();
+				return;
+			}
+			formParams = formParams.split('|');
+			if (formParams.length !== 3)
+			{
+				this.showNoFormsMessage();
+				return;
+			}
+			this.id = formParams[0];
+			this.sec = formParams[1];
+			this.url = formParams[2];
+			this.useStyle = (this.node.dataset[BX.Landing.EmbedFormEntry.ATTR_USE_STYLE] === 'Y');
+			this.design = this.node.dataset[BX.Landing.EmbedFormEntry.ATTR_DESIGN]
+				? JSON.parse(this.node.dataset[BX.Landing.EmbedFormEntry.ATTR_DESIGN])
+				: {};
+			this.primaryOpacityMatcher = new RegExp("--primary([\\da-fA-F]{2})");
+
+			this.load();
+		},
+
+		showNoFormsMessage: function()
+		{
+			var errorText =
+				(
+					this.node.dataset[BX.Landing.EmbedFormEntry.ATTR_IS_CONNECTOR]
+					&& this.node.dataset[BX.Landing.EmbedFormEntry.ATTR_IS_CONNECTOR] === 'Y'
+				)
+				? BX.message('LANDING_BLOCK_WEBFORM_NO_FORM_BUS_NEW')
+				: BX.message('LANDING_BLOCK_WEBFORM_NO_FORM_CP')
+			;
+			this.node.innerHTML = this.createErrorMessage(BX.message('LANDING_BLOCK_WEBFORM_NO_FORM'), errorText);
+		},
+
+		createErrorMessage: function (title, message)
+		{
+			// show alert only in edit mode
+			if (BX.Landing.getMode() === "view")
+			{
+				return;
+			}
+
+			if (title === undefined || title === null || !title)
+			{
+				title = BX.message('LANDING_BLOCK_WEBFORM_ERROR');
+			}
+
+			if (message === undefined || message === null || !message)
+			{
+				message = BX.message('LANDING_BLOCK_WEBFORM_CONNECT_SUPPORT');
+			}
+
+			var alertHtml = '<h2 class="u-form-alert-title"><i class="fa fa-exclamation-triangle g-mr-15"></i>'
+				+ title
+				+ '</h2><hr class="u-form-alert-divider">'
+				+ '<p class="u-form-alert-text">' + message + '</p>';
+
+			return '<div class="u-form-alert">' + alertHtml + '</div>';
+		},
+
 		load: function()
 		{
 			this.node.innerHTML = '';	//clear "no form" alert

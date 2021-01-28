@@ -56,9 +56,8 @@ class im extends CModule
 			if(!$DB->Query("SELECT 'x' FROM b_im_chat", true))
 				$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/im/install/db/".mb_strtolower($DB->type)."/install.sql");
 		}
-
-
-		if($this->errors !== false)
+		
+		if(!empty($this->errors))
 		{
 			$APPLICATION->ThrowException(implode("", $this->errors));
 			return false;

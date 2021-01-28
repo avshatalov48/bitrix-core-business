@@ -87,6 +87,8 @@ abstract class Cashbox
 				];
 			}
 
+			$handlerList['\Bitrix\Sale\Cashbox\CashboxRest'] = '/bitrix/modules/sale/lib/cashbox/cashboxrest.php';
+
 			$event = new Main\Event('sale', static::EVENT_ON_GET_CUSTOM_CASHBOX_HANDLERS);
 			$event->send();
 			$resultList = $event->getResults();

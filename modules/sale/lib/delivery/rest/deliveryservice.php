@@ -27,6 +27,26 @@ class DeliveryService extends BaseService
 	private const ERROR_DELIVERY_NOT_FOUND = 'ERROR_DELIVERY_NOT_FOUND';
 
 	/**
+	 * @return string[]
+	 */
+	protected static function getIncomingFieldsMap(): array
+	{
+		return [
+			'LOGOTYPE' => 'LOGOTIP',
+		];
+	}
+
+	/**
+	 * @return string[]
+	 */
+	protected static function getOutcomingFieldsMap(): array
+	{
+		return [
+			'LOGOTIP' => 'LOGOTYPE',
+		];
+	}
+
+	/**
 	 * @param $params
 	 * @throws Main\SystemException
 	 * @throws RestException
@@ -168,7 +188,7 @@ class DeliveryService extends BaseService
 	public static function addDelivery($query, $n, \CRestServer $server)
 	{
 		self::checkDeliveryPermission();
-		$params = self::prepareParams($query);
+		$params = self::prepareIncomingParams($query);
 		self::checkParamsBeforeDeliveryAdd($params);
 
 		$fields = [
@@ -209,7 +229,7 @@ class DeliveryService extends BaseService
 	public static function updateDelivery($query, $n, \CRestServer $server): bool
 	{
 		self::checkDeliveryPermission();
-		$params = self::prepareParams($query);
+		$params = self::prepareIncomingParams($query);
 		self::checkParamsBeforeDeliveryUpdate($params);
 
 		$fields = array();
@@ -268,7 +288,7 @@ class DeliveryService extends BaseService
 	public static function deleteDelivery($query, $n, \CRestServer $server): bool
 	{
 		self::checkDeliveryPermission();
-		$params = self::prepareParams($query);
+		$params = self::prepareIncomingParams($query);
 		self::checkParamsBeforeDeliveryDelete($params);
 
 		$result = Delivery\Services\Manager::delete($params['ID']);
@@ -297,8 +317,8 @@ class DeliveryService extends BaseService
 		self::checkDeliveryPermission();
 
 		$select = isset($query['select']) && is_array($query['select']) ? $query['select'] : ['*'];
-		$filter = isset($query['filter']) && is_array($query['filter']) ? self::prepareParams($query['filter']) : [];
-		$order = isset($query['order']) && is_array($query['order']) ? self::prepareParams($query['order']) : [];
+		$filter = isset($query['filter']) && is_array($query['filter']) ? self::prepareIncomingParams($query['filter']) : [];
+		$order = isset($query['order']) && is_array($query['order']) ? self::prepareIncomingParams($query['order']) : [];
 
 		$result = array();
 		$deliveryListResult = Delivery\Services\Manager::getList([
@@ -308,7 +328,7 @@ class DeliveryService extends BaseService
 		]);
 		while ($delivery = $deliveryListResult->fetch())
 		{
-			$result[] = $delivery;
+			$result[] = self::prepareOutcomingFields($delivery);
 		}
 
 		return $result;
@@ -327,7 +347,7 @@ class DeliveryService extends BaseService
 	public static function getConfig($query, $n, \CRestServer $server): array
 	{
 		self::checkDeliveryPermission();
-		$params = self::prepareParams($query);
+		$params = self::prepareIncomingParams($query);
 		self::checkParamsBeforeDeliveryConfigGet($params);
 
 		$delivery = Delivery\Services\Manager::getById($params['ID']);
@@ -352,7 +372,7 @@ class DeliveryService extends BaseService
 	public static function updateConfig($query, $n, \CRestServer $server): bool
 	{
 		self::checkDeliveryPermission();
-		$params = self::prepareParams($query);
+		$params = self::prepareIncomingParams($query);
 		self::checkParamsBeforeDeliveryConfigUpdate($params);
 
 		$result = Delivery\Services\Manager::update($params['ID'], ['CONFIG' => $params['FIELDS']]);

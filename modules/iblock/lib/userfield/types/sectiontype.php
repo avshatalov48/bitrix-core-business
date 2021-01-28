@@ -161,4 +161,10 @@ class SectionType extends ElementType
 
 		$userField['USER_TYPE']['FIELDS'] = $result;
 	}
+
+	public static function getDefaultValue(array $userField, array $additionalParameters = [])
+	{
+		$value = ($userField['SETTINGS']['DEFAULT_VALUE'] ?? '');
+		return ($userField['MULTIPLE'] === 'Y' ? [$value] : $value);
+	}
 }

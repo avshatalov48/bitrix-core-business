@@ -179,7 +179,7 @@ foreach ($columnList as $column)
 			$caption .= ', '.$currency;
 
 		$arCols[$column] = array(
-			'NAME' => htmlspecialcharsbx($caption),
+			'NAME' => htmlspecialcharsbx($caption, ENT_COMPAT, false),
 			'SORT' => $params['BILLUA_COLUMN_'.$column.'_SORT']
 		);
 	}
@@ -190,7 +190,7 @@ if ($params['USER_COLUMNS'])
 	foreach ($params['USER_COLUMNS'] as $id => $val)
 	{
 		$arCols[$id] = array(
-			'NAME' => htmlspecialcharsbx($val['NAME']),
+			'NAME' => htmlspecialcharsbx($val['NAME'], ENT_COMPAT, false),
 			'SORT' => $val['SORT']
 		);
 	}
@@ -474,9 +474,13 @@ for ($n = 1; $n <= $rowsCnt; $n++)
 				"Y",
 				$params['CURRENCY']
 			)
-			: SaleFormatCurrency(
-				$params['SUM'],
-				$params['CURRENCY'],
+			: htmlspecialcharsbx(
+					SaleFormatCurrency(
+					$params['SUM'],
+					$params['CURRENCY'],
+					false
+				),
+				ENT_COMPAT,
 				false
 			)
 	); ?></b>

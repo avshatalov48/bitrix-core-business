@@ -1,6 +1,7 @@
 <?php
 
 use Bitrix\Catalog\Component\BaseForm;
+use Bitrix\Catalog\Component\GridVariationForm;
 use Bitrix\Catalog\Component\VariationForm;
 use Bitrix\Catalog\v2\BaseIblockElementEntity;
 use Bitrix\Catalog\v2\IoC\ServiceContainer;
@@ -136,9 +137,20 @@ class CatalogProductVariationDetailsComponent
 
 		foreach ($fields as $name => $field)
 		{
-			if (mb_strpos($name, BaseForm::PROPERTY_FIELD_PREFIX) === 0)
+			if (
+				mb_strpos($name, BaseForm::PROPERTY_FIELD_PREFIX) === 0
+				&& mb_substr($name, -7) !== '_custom'
+			)
 			{
-				if (isset($fields[$name.'_descr']) || isset($fields[$name.'_del']))
+				// grid file properties
+				if (!empty($fields[$name.'_custom']['isFile']))
+				{
+					unset($fields[$name.'_custom']['isFile']);
+					$field = $this->prepareFilePropertyFromGrid($fields[$name.'_custom']);
+					unset($fields[$name.'_custom']);
+				}
+				// editor file properties
+				elseif (isset($fields[$name.'_descr']) || isset($fields[$name.'_del']))
 				{
 					$descriptions = $fields[$name.'_descr'] ?? [];
 					$deleted = $fields[$name.'_del'] ?? [];
@@ -266,6 +278,36 @@ class CatalogProductVariationDetailsComponent
 		}
 	}
 
+	private function parseGridFields(&$fields)
+	{
+		$skuGridId = $this->getForm()->getVariationGridId();
+
+		$skuField = $fields[$skuGridId][$this->variationId] ?? [];
+		unset($fields['ID'], $fields[$skuGridId]);
+
+		foreach ($fields as $name => $field)
+		{
+			if (mb_strpos($name, BaseForm::GRID_FIELD_PREFIX) === 0)
+			{
+				unset($fields[$name]);
+			}
+		}
+
+		$prefixLength = mb_strlen(BaseForm::GRID_FIELD_PREFIX);
+
+		foreach ($skuField as $name => $value)
+		{
+			if (mb_strpos($name, BaseForm::GRID_FIELD_PREFIX) === 0)
+			{
+				$originalName = mb_substr($name, $prefixLength);
+				$skuField[$originalName] = $value;
+				unset($skuField[$name]);
+			}
+		}
+
+		return $fields = array_merge($fields, $skuField);
+	}
+
 	private function parsePriceFields(&$fields)
 	{
 		$priceFields = [];
@@ -321,6 +363,7 @@ class CatalogProductVariationDetailsComponent
 
 			if ($variation)
 			{
+				$this->parseGridFields($fields);
 				$propertyFields = $this->parsePropertyFields($fields);
 				$this->checkCompatiblePictureFields($variation, $propertyFields);
 				$priceFields = $this->parsePriceFields($fields);
@@ -589,7 +632,212 @@ class CatalogProductVariationDetailsComponent
 		$this->arResult['UI_ENTITY_DATA'] = $this->getForm()->getValues();
 		$this->arResult['UI_ENTITY_CONTROLLERS'] = $this->getForm()->getControllers();
 		$this->arResult['UI_CREATION_PROPERTY_URL'] = $this->getCreationPropertyUrl();
+		$this->arResult['VARIATION_GRID_ID'] = $this->getForm()->getVariationGridId();
 		$this->arResult['CARD_SETTINGS'] = $this->getForm()->getCardSettings();
+	}
+
+	public function setGridSettingAction(string $settingId, $selected, array $currentHeaders = []): Bitrix\Main\Engine\Response\AjaxJson
+	{
+		if (!$this->checkModules() || !$this->checkPermissions() || !$this->checkRequiredParameters())
+		{
+			return Bitrix\Main\Engine\Response\AjaxJson::createError($this->errorCollection);
+		}
+
+		$headers = [];
+
+		if ($settingId === 'MEASUREMENTS')
+		{
+			$headers = ['WEIGHT', 'WIDTH', 'LENGTH', 'HEIGHT'];
+		}
+		elseif ($settingId === 'PURCHASING_PRICE_FIELD')
+		{
+			$headers = ['PURCHASING_PRICE_FIELD'];
+		}
+		elseif ($settingId === 'MEASURE_RATIO')
+		{
+			$headers = ['MEASURE_RATIO'];
+		}
+		elseif ($settingId === 'VAT_INCLUDED')
+		{
+			$headers = ['VAT_INCLUDED', 'VAT_ID'];
+		}
+
+		if (!empty($headers))
+		{
+			$gridVariationForm = null;
+			$productFactory = ServiceContainer::getProductFactory($this->getIblockId());
+			if ($productFactory)
+			{
+				$newProduct = $productFactory->createEntity();
+				$emptyVariation = $newProduct->getSkuCollection()->create();
+				$gridVariationForm = new GridVariationForm($emptyVariation);
+			}
+
+			if (!$gridVariationForm)
+			{
+				return Bitrix\Main\Engine\Response\AjaxJson::createError($this->errorCollection);
+			}
+
+			foreach ($headers as &$header)
+			{
+				$header = $gridVariationForm::formatFieldName($header);
+			}
+
+			unset($header);
+
+			$options = new \Bitrix\Main\Grid\Options($gridVariationForm->getVariationGridId());
+			$allUsedColumns = $options->getUsedColumns();
+
+			if (empty($allUsedColumns))
+			{
+				$allUsedColumns = $currentHeaders;
+			}
+
+			if ($selected === 'true')
+			{
+				// sort new columns by default grid column sort
+				$defaultHeaders = array_column($gridVariationForm->getGridHeaders(), 'id');
+				$currentHeadersInDefaultPosition = array_values(
+					array_intersect($defaultHeaders, array_merge($allUsedColumns, $headers))
+				);
+				$headers = array_values(array_intersect($defaultHeaders, $headers));
+
+				foreach ($headers as $header)
+				{
+					$insertPosition = array_search($header, $currentHeadersInDefaultPosition, true);
+					array_splice($allUsedColumns, $insertPosition, 0, $header);
+				}
+			}
+			else
+			{
+				$allUsedColumns = array_diff($allUsedColumns, $headers);
+			}
+
+			$options->setColumns(implode(',', $allUsedColumns));
+			$options->save();
+		}
+
+		return Bitrix\Main\Engine\Response\AjaxJson::createSuccess();
+	}
+
+	private function parseIsSkuProduct(array $fields, BaseProduct $product): bool
+	{
+		$skuGridId = $this->getForm()->getVariationGridId();
+		$skuFields = $fields[$skuGridId] ?? [];
+
+		if (count($skuFields) > 1)
+		{
+			return true;
+		}
+
+		foreach ($skuFields as $id => $sku)
+		{
+			if (is_numeric($id) && $this->getProductId() !== $id)
+			{
+				return true;
+			}
+
+			if (!is_numeric($id) && !$product->isNew())
+			{
+				return true;
+			}
+
+			$propertyPrefix = GridVariationForm::preparePropertyName();
+			$morePhotoName = GridVariationForm::preparePropertyName(BaseForm::MORE_PHOTO);
+			$morePhotoNameCustom = "{$morePhotoName}_custom";
+
+			foreach ($sku as $name => $value)
+			{
+				if (
+					$name !== $morePhotoName
+					&& $name !== $morePhotoNameCustom
+					&& mb_strpos($name, $propertyPrefix) === 0)
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	private function parseSkuFields(&$fields)
+	{
+		$skuGridId = $this->getForm()->getVariationGridId();
+
+		$skuFields = $fields[$skuGridId] ?? [];
+		unset($fields['ID'], $fields[$skuGridId]);
+
+		foreach ($fields as $name => $field)
+		{
+			if (mb_strpos($name, BaseForm::GRID_FIELD_PREFIX) === 0)
+			{
+				unset($fields[$name]);
+			}
+		}
+
+		$prefixLength = mb_strlen(BaseForm::GRID_FIELD_PREFIX);
+
+		foreach ($skuFields as $id => $sku)
+		{
+			foreach ($sku as $name => $value)
+			{
+				if (mb_strpos($name, BaseForm::GRID_FIELD_PREFIX) === 0)
+				{
+					$originalName = mb_substr($name, $prefixLength);
+					$skuFields[$id][$originalName] = $value;
+					unset($skuFields[$id][$name]);
+				}
+			}
+		}
+
+		return $skuFields;
+	}
+
+	private function prepareSkuPictureFields(&$fields)
+	{
+		$pictureFieldNames = ['DETAIL_PICTURE', 'PREVIEW_PICTURE'];
+
+		foreach ($pictureFieldNames as $name)
+		{
+			$customName = $name.'_custom';
+
+			if (!empty($fields[$name.'_custom']['isFile']))
+			{
+				unset($fields[$name.'_custom']['isFile']);
+
+				$fileProps = $this->prepareDetailPictureFromGrid($fields[$customName]);
+
+				if ($fileProps)
+				{
+					$fields[$name] = $fileProps;
+				}
+
+				unset($fields[$customName]);
+			}
+		}
+	}
+
+	private function prepareDetailPictureFromGrid($propertyFields)
+	{
+		$fileProp = [];
+
+		foreach ($propertyFields as $key => $value)
+		{
+			if (isset($propertyFields[$key.'_descr']) && (is_array($value) || is_numeric($value)))
+			{
+				$description = $propertyFields[$key.'_descr'] ?? null;
+				$delete = $propertyFields[$key.'_del'] ?? false;
+				$fileProp[] = \CIBlock::makeFilePropArray($value, $delete, $description);
+			}
+		}
+
+		if (empty($fileProp))
+		{
+			$fileProp[] = \CIBlock::makeFilePropArray([], true);
+		}
+
+		return reset($fileProp)['VALUE'] ?? null;
 	}
 
 	protected function getCreationPropertyUrl(): string

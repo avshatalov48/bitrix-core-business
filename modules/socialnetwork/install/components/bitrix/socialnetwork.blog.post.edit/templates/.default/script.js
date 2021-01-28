@@ -1745,15 +1745,36 @@
 					}));
 				}
 
+				var actionUrl = '';
 				var activeTab = window.SBPETabs.getInstance().active;
 				if (BX.type.isNotEmptyString(activeTab))
 				{
-					var actionUrl = BX(formID).action;
+					actionUrl = BX(formID).action;
 					actionUrl = BX.util.remove_url_param(actionUrl, [ 'b24statTab' ]);
 					actionUrl = BX.util.add_url_param(actionUrl, {
 						b24statTab: activeTab
 					});
 					BX(formID).action = actionUrl;
+				}
+
+				for (var i = 0; i < document.getElementById(formID).elements.length; i++) {
+
+					if (
+						!BX.type.isNotEmptyString(document.getElementById(formID).elements[i].name)
+						|| !document.getElementById(formID).elements[i].name.match(/^INVITED_USER_CREATE_CRM_CONTACT/i)
+						|| document.getElementById(formID).elements[i].value !== 'Y'
+					)
+					{
+						continue;
+					}
+
+					actionUrl = BX(formID).action;
+					actionUrl = BX.util.remove_url_param(actionUrl, [ 'b24statAddEmailUserCrmContact' ]);
+					actionUrl = BX.util.add_url_param(actionUrl, {
+						b24statAddEmailUserCrmContact: 'Y'
+					});
+					BX(formID).action = actionUrl;
+					break;
 				}
 
 				BX.submit(BX(formID), value);

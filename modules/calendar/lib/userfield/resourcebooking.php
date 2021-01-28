@@ -1225,6 +1225,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 		{
 			$deltaOffset = 0;
 		}
+		$resultData['timezoneOffset'] = 0;
 
 		// Fetch fetch UF properties
 		if ($params['fieldName'])
@@ -1280,10 +1281,18 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 
 						if ($entry['DT_SKIP_TIME'] !== "Y")
 						{
-							$fromTs -= $entry['~USER_OFFSET_FROM'];
-							$toTs -= $entry['~USER_OFFSET_TO'];
-							$fromTs += $deltaOffset;
-							$toTs += $deltaOffset;
+							if ($resultData['fieldSettings']['USE_USER_TIMEZONE'] === 'N')
+							{
+								$fromTs -= \CCalendar::GetTimezoneOffset($entry['TZ_FROM']) - $resultData['timezoneOffset'];
+								$toTs -= \CCalendar::GetTimezoneOffset($entry['TZ_TO']) - $resultData['timezoneOffset'];
+							}
+							else
+							{
+								$fromTs -= $entry['~USER_OFFSET_FROM'];
+								$toTs -= $entry['~USER_OFFSET_TO'];
+								$fromTs += $deltaOffset;
+								$toTs += $deltaOffset;
+							}
 						}
 
 						$resultData['usersAccessibility'][$userId][] = array(
@@ -1344,10 +1353,18 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 
 				if ($row['DT_SKIP_TIME'] !== "Y" && $resultData['fieldSettings']['USE_USER_TIMEZONE'] !== 'N')
 				{
-					$fromTs -= $row['~USER_OFFSET_FROM'];
-					$toTs -= $row['~USER_OFFSET_TO'];
-					$fromTs += $deltaOffset;
-					$toTs += $deltaOffset;
+					if ($resultData['fieldSettings']['USE_USER_TIMEZONE'] === 'N')
+					{
+						$fromTs -= \CCalendar::GetTimezoneOffset($entry['TZ_FROM']) - $resultData['timezoneOffset'];
+						$toTs -= \CCalendar::GetTimezoneOffset($entry['TZ_TO']) - $resultData['timezoneOffset'];
+					}
+					else
+					{
+						$fromTs -= $row['~USER_OFFSET_FROM'];
+						$toTs -= $row['~USER_OFFSET_TO'];
+						$fromTs += $deltaOffset;
+						$toTs += $deltaOffset;
+					}
 				}
 
 				$resultData['resourcesAccessibility'][$row['SECT_ID']][] = array(
@@ -1361,6 +1378,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 
 		$resultData['workTimeStart'] = floor(floatVal(\COption::GetOptionString('calendar', 'work_time_start', 9)));
 		$resultData['workTimeEnd'] = ceil(floatVal(\COption::GetOptionString('calendar', 'work_time_end', 19)));
+
 		return $resultData;
 	}
 

@@ -188,6 +188,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          bindElement: _this6.getSelectAgreementButton(),
 	          autoHide: true,
 	          maxWidth: 400,
+	          maxHeight: 205,
 	          events: {
 	            onPopupShow: function onPopupShow() {
 	              setTimeout(function () {

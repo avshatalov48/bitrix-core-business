@@ -1,6 +1,7 @@
 <?
 use Bitrix\Main,
 	Bitrix\Main\Loader,
+	Bitrix\Main\ModuleManager,
 	Bitrix\Iblock;
 
 IncludeModuleLangFile(__FILE__);
@@ -39,6 +40,9 @@ class CAllIBlockElement
 	public $sOrderBy;
 
 	protected static $elementIblock = array();
+
+	protected $workflowIncluded = null;
+	protected $bizprocInstalled = null;
 
 	/**
 	 * @param $strField
@@ -494,17 +498,28 @@ class CAllIBlockElement
 		return $ID;
 	}
 
-	public static function GetRealElement($ID)
+	/**
+	 * @param int $ID
+	 * @return int
+	 */
+	public static function GetRealElement($ID): int
 	{
 		global $DB;
 		$ID = (int)$ID;
 		if ($ID <= 0)
+		{
 			return $ID;
+		}
 
-		$strSql = "SELECT WF_PARENT_ELEMENT_ID FROM b_iblock_element WHERE ID='$ID'";
-		$z = $DB->Query($strSql);
+		$PARENT_ID = 0;
+		$z = $DB->Query("SELECT WF_PARENT_ELEMENT_ID FROM b_iblock_element WHERE ID='$ID'");
 		$zr = $z->Fetch();
-		$PARENT_ID = (int)$zr["WF_PARENT_ELEMENT_ID"];
+		unset($z);
+		if (!empty($zr))
+		{
+			$PARENT_ID = (int)$zr["WF_PARENT_ELEMENT_ID"];
+		}
+		unset($zr);
 
 		return ($PARENT_ID > 0 ? $PARENT_ID : $ID);
 	}
@@ -630,8 +645,6 @@ class CAllIBlockElement
 			"BS" => array(),
 		);
 
-		$strSqlSearch = "";
-
 		if (!is_array($arFilter))
 			$arFilter = array();
 
@@ -731,11 +744,7 @@ class CAllIBlockElement
 			case "MODIFIED_BY":
 			case "PREVIEW_PICTURE":
 			case "DETAIL_PICTURE":
-				$arSqlSearch[] = CIBlock::FilterCreateEx("BE.".$key, $val, "number", $bFullJoinTmp, $cOperationType);
-				break;
 			case "IBLOCK_ID":
-				$arSqlSearch[] = CIBlock::FilterCreateEx("BE.".$key, $val, "number", $bFullJoinTmp, $cOperationType);
-				break;
 			case "IBLOCK_SECTION_ID":
 				$arSqlSearch[] = CIBlock::FilterCreateEx("BE.".$key, $val, "number", $bFullJoinTmp, $cOperationType);
 				break;
@@ -830,88 +839,6 @@ class CAllIBlockElement
 					}
 				}
 				break;
-			case "CHECK_BP_TASKS_PERMISSIONS":
-				if(
-					IsModuleInstalled('bizproc')
-					&& CModule::IncludeModule("socialnetwork")
-					&& (!is_object($USER) || !$USER->IsAdmin())
-				)
-				{
-					$val = explode("_", $val);
-
-					$taskType = $val[0];
-					if (!in_array($taskType, array("user", "group")))
-						$taskType = "user";
-
-					$ownerId = intval($val[1]);
-
-					$val = $val[2];
-					if (!in_array($val, array("read", "write", "comment")))
-						$val = "write";
-
-					$userId = is_object($USER)? intval($USER->GetID()): 0;
-
-					$arUserGroups = array();
-					if ($taskType == "group")
-					{
-						$r = CSocNetFeaturesPerms::CanPerformOperation(
-							$userId,
-							SONET_ENTITY_GROUP,
-							$ownerId,
-							"tasks",
-							(($val == "write") ? "edit_tasks" : "view_all")
-						);
-						if ($r)
-							break;
-
-						$arUserGroups[] = SONET_ROLES_ALL;
-						$r = CSocNetUserToGroup::GetUserRole($userId, $ownerId);
-						if ($r <> '')
-							$arUserGroups[] = $r;
-					}
-					else
-					{
-//						$arUserGroups[] = SONET_RELATIONS_TYPE_ALL;
-//						if (CSocNetUserRelations::IsFriends($userId, $ownerId))
-//							$arUserGroups[] = SONET_RELATIONS_TYPE_FRIENDS;
-//						elseif (CSocNetUserRelations::IsFriends2($userId, $ownerId))
-//							$arUserGroups[] = SONET_RELATIONS_TYPE_FRIENDS2;
-					}
-
-					$arSqlSearch[] = "EXISTS (
-						SELECT S.DOCUMENT_ID_INT
-						FROM
-						b_bp_workflow_state S
-						INNER JOIN b_bp_workflow_permissions P ON S.ID = P.WORKFLOW_ID
-						WHERE
-							S.DOCUMENT_ID_INT = BE.ID
-							AND S.MODULE_ID = 'intranet'
-							AND S.ENTITY = 'CIntranetTasksDocument'
-							AND P.PERMISSION = '".$val."'
-							AND (
-								".(($taskType == "group") ? "P.OBJECT_ID IN ('".implode("', '", $arUserGroups)."') OR" : "")."
-								(P.OBJECT_ID = 'author' AND BE.CREATED_BY = ".$userId.")
-								OR (P.OBJECT_ID = 'responsible' AND ".$userId." IN (
-									SELECT SFPV0.VALUE_NUM
-									FROM b_iblock_element_property SFPV0
-										INNER JOIN b_iblock_property SFP0 ON (SFPV0.IBLOCK_PROPERTY_ID = SFP0.ID)
-									WHERE ".CIBlock::_Upper("SFP0.CODE")."='TASKASSIGNEDTO'
-										AND SFP0.IBLOCK_ID = BE.IBLOCK_ID
-										AND SFPV0.IBLOCK_ELEMENT_ID = BE.ID
-								))
-								OR (P.OBJECT_ID = 'trackers' AND ".$userId." IN (
-									SELECT SFPV0.VALUE_NUM
-									FROM b_iblock_element_property SFPV0
-										INNER JOIN b_iblock_property SFP0 ON (SFPV0.IBLOCK_PROPERTY_ID = SFP0.ID)
-									WHERE ".CIBlock::_Upper("SFP0.CODE")."='TASKTRACKERS'
-										AND SFP0.IBLOCK_ID = BE.IBLOCK_ID
-										AND SFPV0.IBLOCK_ELEMENT_ID = BE.ID
-								))
-								OR (P.OBJECT_ID = '".("USER_".$userId)."')
-							)
-					)";
-				}
-				break;
 			case "CHECK_BP_VIRTUAL_PERMISSIONS":
 				if (
 					IsModuleInstalled('bizproc')
@@ -942,21 +869,6 @@ class CAllIBlockElement
 									OR (P.OBJECT_ID = ".$DB->Concat("'USER_'", "'".$userId."'").")
 								)
 							)
-					)";
-				}
-				break;
-			case "TASKSTATUS":
-				if(IsModuleInstalled('bizproc'))
-				{
-					$arSqlSearch[] = ($cOperationType == "N" ? "NOT " : "")."EXISTS (
-						SELECT S.DOCUMENT_ID_INT
-						FROM
-						b_bp_workflow_state S
-						WHERE
-							S.DOCUMENT_ID_INT = BE.ID
-							AND S.MODULE_ID = 'intranet'
-							AND S.ENTITY = 'CIntranetTasksDocument'
-							AND S.STATE = '".$DB->ForSql($val)."'
 					)";
 				}
 				break;
@@ -3105,15 +3017,25 @@ class CAllIBlockElement
 	///////////////////////////////////////////////////////////////////
 	// Add function
 	///////////////////////////////////////////////////////////////////
-	function Add($arFields, $bWorkFlow=false, $bUpdateSearch=true, $bResizePictures=false)
+	public function Add($arFields, $bWorkFlow=false, $bUpdateSearch=true, $bResizePictures=false)
 	{
 		global $DB, $USER;
 
-		$arIBlock = CIBlock::GetArrayByID($arFields["IBLOCK_ID"]);
-		$bWorkFlow = $bWorkFlow && is_array($arIBlock) && ($arIBlock["WORKFLOW"] != "N") && CModule::IncludeModule("workflow");
-		$bBizProc = is_array($arIBlock) && ($arIBlock["BIZPROC"] == "Y") && IsModuleInstalled("bizproc");
+		if ($this->workflowIncluded === null)
+		{
+			$this->workflowIncluded = Loader::includeModule('workflow');
+		}
+		if ($this->bizprocInstalled === null)
+		{
+			$this->bizprocInstalled = ModuleManager::isModuleInstalled('bizproc');
+		}
 
-		if(array_key_exists("BP_PUBLISHED", $arFields))
+		$arIBlock = CIBlock::GetArrayByID($arFields["IBLOCK_ID"]);
+		$existIblock = !empty($arIBlock) && is_array($arIBlock);
+		$bWorkFlow = $bWorkFlow && $existIblock && ($arIBlock["WORKFLOW"] != "N") && $this->workflowIncluded;
+		$bBizProc = $existIblock && ($arIBlock["BIZPROC"] == "Y") && $this->bizprocInstalled;
+
+		if(isset($arFields["BP_PUBLISHED"]))
 		{
 			if($bBizProc)
 			{
@@ -3137,7 +3059,7 @@ class CAllIBlockElement
 
 		if(array_key_exists("IBLOCK_SECTION_ID", $arFields))
 		{
-			if (!array_key_exists("IBLOCK_SECTION", $arFields))
+			if (!isset($arFields["IBLOCK_SECTION"]))
 			{
 				$arFields["IBLOCK_SECTION"] = array($arFields["IBLOCK_SECTION_ID"]);
 			}
@@ -3344,7 +3266,7 @@ class CAllIBlockElement
 		}
 
 		$ipropTemplates = new \Bitrix\Iblock\InheritedProperty\ElementTemplates($arFields["IBLOCK_ID"], 0);
-		if(is_set($arFields, "PREVIEW_PICTURE"))
+		if(array_key_exists("PREVIEW_PICTURE", $arFields))
 		{
 			if(is_array($arFields["PREVIEW_PICTURE"]))
 			{
@@ -3365,12 +3287,12 @@ class CAllIBlockElement
 			}
 			else
 			{
-				if(intval($arFields["PREVIEW_PICTURE"]) <= 0)
+				if((int)$arFields["PREVIEW_PICTURE"] <= 0)
 					unset($arFields["PREVIEW_PICTURE"]);
 			}
 		}
 
-		if(is_set($arFields, "DETAIL_PICTURE"))
+		if(array_key_exists("DETAIL_PICTURE", $arFields))
 		{
 			if(is_array($arFields["DETAIL_PICTURE"]))
 			{
@@ -3391,18 +3313,18 @@ class CAllIBlockElement
 			}
 			else
 			{
-				if(intval($arFields["DETAIL_PICTURE"]) <= 0)
+				if((int)$arFields["DETAIL_PICTURE"] <= 0)
 					unset($arFields["DETAIL_PICTURE"]);
 			}
 		}
 
-		if(is_set($arFields, "ACTIVE") && $arFields["ACTIVE"]!="Y")
+		if(isset($arFields["ACTIVE"]) && $arFields["ACTIVE"]!="Y")
 			$arFields["ACTIVE"]="N";
 
-		if(is_set($arFields, "PREVIEW_TEXT_TYPE") && $arFields["PREVIEW_TEXT_TYPE"]!="html")
+		if(isset($arFields["PREVIEW_TEXT_TYPE"]) && $arFields["PREVIEW_TEXT_TYPE"]!="html")
 			$arFields["PREVIEW_TEXT_TYPE"]="text";
 
-		if(is_set($arFields, "DETAIL_TEXT_TYPE") && $arFields["DETAIL_TEXT_TYPE"]!="html")
+		if(isset($arFields["DETAIL_TEXT_TYPE"]) && $arFields["DETAIL_TEXT_TYPE"]!="html")
 			$arFields["DETAIL_TEXT_TYPE"]="text";
 
 		if(is_set($arFields, "DATE_ACTIVE_FROM"))
@@ -3831,7 +3753,7 @@ class CAllIBlockElement
 	{
 		global $DB, $APPLICATION, $USER;
 		$USER_ID = is_object($USER)? intval($USER->GetID()) : 0;
-		$ID = intval($ID);
+		$ID = (int)$ID;
 
 		$APPLICATION->ResetException();
 		foreach (GetModuleEvents("iblock", "OnBeforeIBlockElementDelete", true) as $arEvent)
@@ -5396,8 +5318,8 @@ class CAllIBlockElement
 					)."
 				FROM
 					".$element->sFrom."
-					LEFT JOIN b_iblock_element_property BEP ON BEP.IBLOCK_ELEMENT_ID = BE.ID ".(!empty($propertyID) ? "AND BEP.IBLOCK_PROPERTY_ID IN (".implode(', ', $propertyID).")" : "").
-				"WHERE 1=1 ".$element->sWhere."
+					LEFT JOIN b_iblock_element_property BEP ON BEP.IBLOCK_ELEMENT_ID = BE.ID ".
+				"WHERE 1=1 ".$element->sWhere.(!empty($propertyID) ? " AND BEP.IBLOCK_PROPERTY_ID IN (".implode(', ', $propertyID).")" : "")."
 				ORDER BY
 					BEP.IBLOCK_ELEMENT_ID, BEP.IBLOCK_PROPERTY_ID, BEP.ID
 			";
@@ -6394,8 +6316,8 @@ class CAllIBlockElement
 				}
 
 				if(
-					(!is_array($val["VALUE"]) && $val["VALUE"] <> '')
-					|| (is_array($val["VALUE"]) && count($val["VALUE"])>0)
+					(!is_array($val["VALUE"]) && (string)$val["VALUE"] <> '')
+					|| (is_array($val["VALUE"]) && !empty($val["VALUE"]))
 				)
 				{
 					if(

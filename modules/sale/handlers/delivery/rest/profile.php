@@ -98,7 +98,7 @@ class RestProfile extends Base
 		$calculateUrl = $handlerParams['SETTINGS']['CALCULATE_URL'];
 		$requestParams = $this->getRequestParams($shipment);
 
-		$sendRequestResult = $this->sendRequest($calculateUrl, $requestParams);
+		$sendRequestResult = Sale\Helpers\Rest\Http::sendRequest($calculateUrl, $requestParams);
 		if ($sendRequestResult->isSuccess())
 		{
 			$calculatedData = $sendRequestResult->getData();
@@ -249,51 +249,6 @@ class RestProfile extends Base
 			'ORDER_PROPS' => $orderProps,
 			'DELIVERY_CONFIG' => $deliverConfig,
 		];
-	}
-
-	/**
-	 * @param string $url
-	 * @param array $params
-	 * @return Sale\Result
-	 */
-	private function sendRequest(string $url, array $params): Sale\Result
-	{
-		$result = new Sale\Result();
-		$httpClient = new HttpClient();
-
-		$response = $httpClient->post($url, $params);
-		if ($response === false)
-		{
-			$errors = $httpClient->getError();
-			foreach ($errors as $code => $message)
-			{
-				$result->addError(new Main\Error($message, $code));
-			}
-
-			return $result;
-		}
-
-		$httpStatus = $httpClient->getStatus();
-		if ($httpStatus === 200)
-		{
-			try
-			{
-				$response = Json::decode($response);
-				$response = array_change_key_case($response, CASE_UPPER);
-				$response = Main\Text\Encoding::convertEncoding($response, 'UTF-8', LANG_CHARSET);
-			}
-			catch (Main\ArgumentException $exception)
-			{
-				$response = [];
-				$result->addError(
-					new Main\Error('Response decoding error', 'RESPONSE_DECODING_ERROR')
-				);
-			}
-
-			$result->setData($response);
-		}
-
-		return $result;
 	}
 
 	/**

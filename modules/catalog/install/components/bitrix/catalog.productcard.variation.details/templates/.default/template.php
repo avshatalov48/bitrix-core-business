@@ -17,6 +17,7 @@ use Bitrix\UI\Buttons\Button;
 use Bitrix\UI\Buttons\Color;
 use Bitrix\UI\Buttons\JsHandler;
 use Bitrix\UI\Toolbar\Facade\Toolbar;
+use Bitrix\UI\Buttons\SettingsButton;
 
 Extension::load([
 	'catalog.entity-card',
@@ -25,6 +26,11 @@ Extension::load([
 ]);
 
 Loader::includeModule('ui');
+
+$settingsButton = new SettingsButton([
+	'className' => $arResult['IS_NEW_PRODUCT'] ? 'ui-btn-highlighted' : '',
+]);
+Toolbar::addButton($settingsButton);
 
 $feedbackButton = new Button([
 	'color' => Color::LIGHT_BORDER,
@@ -57,6 +63,8 @@ $tabs = [
 $bodyClass = $APPLICATION->GetPageProperty("BodyClass");
 $APPLICATION->SetPageProperty("BodyClass", ($bodyClass ? $bodyClass." " : "")."no-background");
 
+
+
 $guid = 'product-variation-details';
 $containerId = "{$guid}_container";
 $tabMenuContainerId = "{$guid}_tabs_menu";
@@ -76,14 +84,20 @@ $tabContainerId = "{$guid}_tabs";
 			'<?=CUtil::JSEscape($guid)?>',
 			{
 				entityId: '<?=CUtil::JSEscape($arResult['VARIATION_FIELDS']['ID'])?>',
+				componentName: '<?=CUtil::JSEscape($component->getName())?>',
+				componentSignedParams: '<?=CUtil::JSEscape($component->getSignedParameters())?>',
 				tabs: <?=CUtil::PhpToJSObject($tabs)?>,
 				cardSettings: <?=CUtil::PhpToJSObject($arResult['CARD_SETTINGS'])?>,
 				feedbackUrl: '<?=CUtil::JSEscape($arParams['PATH_TO']['FEEDBACK'] ?? '')?>',
 				containerId: '<?=CUtil::JSEscape($containerId)?>',
+				settingsButtonId: '<?=$settingsButton->getUniqId()?>',
 				tabContainerId: '<?=CUtil::JSEscape($tabContainerId)?>',
 				tabMenuContainerId: '<?=CUtil::JSEscape($tabMenuContainerId)?>',
 				creationPropertyUrl: '<?=CUtil::JSEscape($arResult['UI_CREATION_PROPERTY_URL'])?>',
-				serviceUrl: '<?=CUtil::JSEscape($arResult['SERVICE_URL'])?>'
+				serviceUrl: '<?=CUtil::JSEscape($arResult['SERVICE_URL'])?>',
+				variationGridId: '<?=CUtil::JSEscape($arResult['VARIATION_GRID_ID'])?>',
+
+				creationVariationPropertyUrl: '<?=CUtil::JSEscape($arResult['UI_CREATION_SKU_PROPERTY_URL'])?>',
 			}
 		);
 	});

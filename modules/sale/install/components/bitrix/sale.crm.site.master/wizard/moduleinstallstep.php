@@ -1,6 +1,11 @@
 <?php
 namespace Bitrix\Sale\CrmSiteMaster\Steps;
 
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 use Bitrix\Main,
 	Bitrix\Main\Localization\Loc,
 	Bitrix\Sale\CrmSiteMaster\Tools\ModuleChecker,
@@ -128,9 +133,6 @@ class ModuleInstallStep extends \CWizardStep
 				<div class="ui-btn-container ui-btn-container-center">
 					<button type="button" id="error_retry_button" class="ui-btn ui-btn-primary" onclick="">
 						<?=Loc::getMessage("SALE_CSM_WIZARD_MODULEINSTALLSTEP_RETRY_BUTTON")?>
-					</button>
-					<button type="button" id="error_skip_button" class="ui-btn ui-btn-primary" onclick="">
-						<?=Loc::getMessage("SALE_CSM_WIZARD_MODULEINSTALLSTEP_SKIP_BUTTON")?>
 					</button>
 				</div>
 			</div>

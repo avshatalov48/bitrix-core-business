@@ -10,7 +10,9 @@
 	    var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	    babelHelpers.classCallCheck(this, VariationCard);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(VariationCard).call(this, id, settings));
-	    main_core_events.EventEmitter.subscribe('BX.UI.EntityEditorSection:onLayout', _this.onSectionLayout.bind(babelHelpers.assertThisInitialized(_this)));
+	    main_core_events.EventEmitter.subscribe('BX.Grid.SettingsWindow:save', function () {
+	      return _this.postSliderMessage('onUpdate', {});
+	    });
 	    return _this;
 	  }
 

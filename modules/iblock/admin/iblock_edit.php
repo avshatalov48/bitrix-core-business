@@ -357,7 +357,7 @@ function __AddPropCellType($intOFPropID,$strPrefix,$arPropInfo)
 {
 	static $baseTypeList = null;
 	static $arUserTypeList = null;
-	
+
 	if ($baseTypeList === null)
 		$baseTypeList = Iblock\Helpers\Admin\Property::getBaseTypeList(true);
 	if ($arUserTypeList === null)
@@ -534,6 +534,7 @@ if(
 		"NAME"=>$NAME,
 		"CODE"=>$CODE,
 		"API_CODE"=>$API_CODE,
+		"REST_ON"=>$REST_ON,
 		"LIST_PAGE_URL"=>$LIST_PAGE_URL,
 		"DETAIL_PAGE_URL"=>$DETAIL_PAGE_URL,
 		"CANONICAL_PAGE_URL"=>$CANONICAL_PAGE_URL,
@@ -1358,7 +1359,7 @@ if(
 {
 	$arErrorTmp = array();
 	CBPDocument::DeleteWorkflowTemplate($_REQUEST["delete_bizproc_template"], array("iblock", "CIBlockDocument", "iblock_".$ID), $arErrorTmp);
-	if (count($arErrorTmp) > 0)
+	if (!empty($arErrorTmp))
 	{
 		foreach ($arErrorTmp as $e)
 			$strWarning .= $e["message"]."<br />";
@@ -1366,7 +1367,6 @@ if(
 	else
 	{
 		LocalRedirect($APPLICATION->GetCurPageParam("", Array("delete_bizproc_template", "sessid")));
-		die();
 	}
 }
 
@@ -1390,7 +1390,7 @@ $str_SECTION_CHOOSER="L";
 $str_LIST_MODE="";
 $str_INDEX_ELEMENT="Y";
 $str_INDEX_SECTION="Y";
-$str_PROPERTY_FILE_TYPE = "jpg, gif, bmp, png, jpeg";
+$str_PROPERTY_FILE_TYPE = "jpg, gif, bmp, png, jpeg, webp";
 $str_LIST_PAGE_URL="#SITE_DIR#/".$arIBTYPE["ID"]."/index.php?ID=#IBLOCK_ID#";
 $str_SECTION_PAGE_URL="#SITE_DIR#/".$arIBTYPE["ID"]."/list.php?SECTION_ID=#SECTION_ID#";
 $str_DETAIL_PAGE_URL="#SITE_DIR#/".$arIBTYPE["ID"]."/detail.php?ID=#ELEMENT_ID#";
@@ -1801,6 +1801,13 @@ $tabControl->BeginNextTab();
 		<td width="40%"><? echo GetMessage("IB_E_API_CODE")?>:</td>
 		<td width="60%">
 			<input type="text" name="API_CODE" size="50" maxlength="50" value="<?echo $str_API_CODE?>" >
+		</td>
+	</tr>
+	<tr>
+		<td><label for="REST_ON"><?echo GetMessage("IB_E_REST_ON")?></label></td>
+		<td>
+			<input type="hidden" name="REST_ON" value="N">
+			<input type="checkbox" id="REST_ON" name="REST_ON" value="Y"<?if($str_REST_ON=="Y")echo " checked"?>>
 		</td>
 	</tr>
 	<tr class="adm-detail-required-field">
@@ -2504,7 +2511,7 @@ $tabControl->BeginNextTab();
 						"operation" => 'O',// O - open, S - save
 						"showUploadTab" => true,
 						"showAddToMenuTab" => false,
-						"fileFilter" => 'jpg,jpeg,png,gif',
+						"fileFilter" => 'jpg,jpeg,png,gif,webp',
 						"allowAllFiles" => false,
 						"SaveConfig" => true,
 					));?>
@@ -2821,7 +2828,7 @@ $tabControl->BeginNextTab();
 						"operation" => 'O',// O - open, S - save
 						"showUploadTab" => true,
 						"showAddToMenuTab" => false,
-						"fileFilter" => 'jpg,jpeg,png,gif',
+						"fileFilter" => 'jpg,jpeg,png,gif,webp',
 						"allowAllFiles" => false,
 						"SaveConfig" => true,
 					));?>
@@ -3593,7 +3600,7 @@ $tabControl->BeginNextTab();
 						"operation" => 'O',// O - open, S - save
 						"showUploadTab" => true,
 						"showAddToMenuTab" => false,
-						"fileFilter" => 'jpg,jpeg,png,gif',
+						"fileFilter" => 'jpg,jpeg,png,gif,webp',
 						"allowAllFiles" => false,
 						"SaveConfig" => true,
 					));?>
@@ -3910,7 +3917,7 @@ $tabControl->BeginNextTab();
 						"operation" => 'O',// O - open, S - save
 						"showUploadTab" => true,
 						"showAddToMenuTab" => false,
-						"fileFilter" => 'jpg,jpeg,png,gif',
+						"fileFilter" => 'jpg,jpeg,png,gif,webp',
 						"allowAllFiles" => false,
 						"SaveConfig" => true,
 					));?>

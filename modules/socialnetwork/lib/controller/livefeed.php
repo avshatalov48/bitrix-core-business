@@ -352,7 +352,7 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 	
 	private function getComponentReturnWhiteList()
 	{
-		return [ 'LAST_TS', 'LAST_ID', 'EMPTY' ];
+		return [ 'LAST_TS', 'LAST_ID', 'EMPTY', 'FORCE_PAGE_REFRESH' ];
 	}
 
 	public function getNextPageAction(array $params = [])
@@ -392,7 +392,8 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 			'PAGE_NUMBER' => 1,
 			'RELOAD' => 'Y',
 			'useBXMainFilter' =>  (isset($params['useBXMainFilter']) ? $params['useBXMainFilter'] : 'N'),
-			'siteTemplateId' =>  (isset($params['siteTemplateId']) ? $params['siteTemplateId'] : 'bitrix24')
+			'siteTemplateId' =>  (isset($params['siteTemplateId']) ? $params['siteTemplateId'] : 'bitrix24'),
+			'assetsCheckSum' =>  (isset($params['assetsCheckSum']) ? $params['assetsCheckSum'] : '')
 		];
 
 		$componentResponse = new \Bitrix\Main\Engine\Response\Component('bitrix:socialnetwork.log.ex', '', array_merge($componentParameters, $requestParameters), [], $this->getComponentReturnWhiteList());

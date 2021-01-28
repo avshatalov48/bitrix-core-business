@@ -180,12 +180,11 @@ class ICalUtil
 		return self::getExternalUserByEmail($userInfo, $errorCollection);
 	}
 
-	public static function getEventByUId($userId, $uid): ?array
+	public static function getEventByUId($uid): ?array
 	{
 		$parameters = [
 			'filter' => [
 				'=DAV_XML_ID' => $uid,
-				'OWNER_ID' => $userId,
 			],
 			'limit' => 1,
 		];

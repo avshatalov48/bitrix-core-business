@@ -2077,7 +2077,7 @@ if (!empty($orderList) && is_array($orderList))
 				}
 				$colorRGB = array();
 				$colorRGB = sscanf($LOCAL_STATUS_CACHE[$arOrder["STATUS_ID"]]['COLOR'], "#%02x%02x%02x");
-				if (count($colorRGB))
+				if (is_array($colorRGB) && count($colorRGB))
 				{
 					$color = "background:rgba(".$colorRGB[0].",".$colorRGB[1].",".$colorRGB[2].",0.6);";
 					$fieldValue = '<div style=	"'.$color.'

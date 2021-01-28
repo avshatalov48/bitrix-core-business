@@ -76,6 +76,11 @@ class GaCounter extends \Bitrix\Landing\Hook\Page
 			return false;
 		}
 
+		if ($this->issetCustomExec())
+		{
+			return true;
+		}
+
 		return $this->fields['USE']->getValue() == 'Y';
 	}
 
@@ -99,25 +104,13 @@ class GaCounter extends \Bitrix\Landing\Hook\Page
 			return;
 		}
 
-		$counter = \htmlspecialcharsbx(trim($this->fields['COUNTER']));
-		$counter = \CUtil::jsEscape($counter);
-		if ($counter)
+		if ($this->fields['USE']->getValue() != 'Y')
 		{
-			Manager::setPageView(
-				'AfterHeadOpen',
-				'<script async 
-					src="https://www.googletagmanager.com/gtag/js?id=' . $counter . '" 
-					data-skip-moving="true"
-				></script>'
-			);
-			Cookies::addCookieScript(
-				'ga',
-				'window.dataLayer = window.dataLayer || [];
-				function gtag(){dataLayer.push(arguments)};
-				gtag("js", new Date());
-				gtag("config", "' . $counter . '");'
-			);
+			return;
 		}
+
+		$this->setCounter($this->fields['COUNTER']);
+
 		// send analytics
 		$sendData = [];
 		if ($this->fields['SEND_CLICK']->getValue() == 'Y')
@@ -147,6 +140,36 @@ class GaCounter extends \Bitrix\Landing\Hook\Page
 				);
 			}
 		}
+	}
 
+	/**
+	 * Sets counter to the page.
+	 * @param string $counter Counter code.
+	 * @return void
+	 */
+	public static function setCounter(string $counter): void
+	{
+		$counter = \htmlspecialcharsbx(trim($counter));
+		$counter = \CUtil::jsEscape($counter);
+
+		if (!$counter)
+		{
+			return;
+		}
+
+		Manager::setPageView(
+			'AfterHeadOpen',
+			'<script async 
+					src="https://www.googletagmanager.com/gtag/js?id=' . $counter . '" 
+					data-skip-moving="true"
+				></script>'
+		);
+		Cookies::addCookieScript(
+			'ga',
+			'window.dataLayer = window.dataLayer || [];
+				function gtag(){dataLayer.push(arguments)};
+				gtag("js", new Date());
+				gtag("config", "' . $counter . '");'
+		);
 	}
 }

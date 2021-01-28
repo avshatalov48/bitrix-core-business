@@ -13,6 +13,7 @@ return [
 		'main.core.events',
 		'translit',
 		'main.core',
+		'main.popup',
 	],
 	'skip_core' => false,
 ];

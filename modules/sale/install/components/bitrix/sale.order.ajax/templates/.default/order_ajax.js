@@ -2456,6 +2456,17 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 				this.deliveryBlockNode.style.display = 'none';
 			}
 
+			if (this.result.PAY_SYSTEM.length > 0)
+			{
+				BX.addClass(this.paySystemBlockNode, 'bx-active');
+				this.paySystemBlockNode.removeAttribute('style');
+			}
+			else
+			{
+				BX.removeClass(this.paySystemBlockNode, 'bx-active');
+				this.paySystemBlockNode.style.display = 'none';
+			}
+
 			this.orderSaveBlockNode.style.display = this.result.SHOW_AUTH ? 'none' : '';
 			this.mobileTotalBlockNode.style.display = this.result.SHOW_AUTH ? 'none' : '';
 

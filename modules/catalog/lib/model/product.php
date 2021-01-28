@@ -632,7 +632,6 @@ class Product extends Entity
 	 */
 	protected static function runDeleteExternalActions($id): void
 	{
-		Catalog\ProductTable::clearProductCache($id);
 		Catalog\PriceTable::deleteByProduct($id);
 		Catalog\MeasureRatioTable::deleteByProduct($id);
 		Catalog\ProductGroupAccessTable::deleteByProduct($id);

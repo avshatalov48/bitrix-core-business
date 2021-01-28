@@ -703,4 +703,8 @@ abstract class Entity
 		$this->fields->clearChanged();
 	}
 
+	public function toArray() : array
+	{
+		return $this->getFieldValues();
+	}
 }

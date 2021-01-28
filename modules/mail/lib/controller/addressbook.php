@@ -90,6 +90,11 @@ class AddressBook extends Controller
 
 		$contactData['EMAIL'] = mb_strtolower($contactData['EMAIL']);
 
+		if(!check_email($contactData['EMAIL']))
+		{
+			return false;
+		}
+
 		if ($contactData['ID'] !== null)
 		{
 			return $this->editContact($contactData);

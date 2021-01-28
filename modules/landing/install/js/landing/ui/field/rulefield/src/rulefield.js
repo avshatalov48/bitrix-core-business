@@ -169,6 +169,7 @@ export class RuleField extends BaseField
 		return this.cache.remember('fieldsMenu', () => {
 			return new window.top.BX.Main.Menu({
 				bindElement: this.getFooterActionPanel().getLeftContainer().firstElementChild,
+				maxHeight: 205,
 				items: this.options.fields
 					.filter((field) => {
 						return (

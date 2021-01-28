@@ -65,7 +65,11 @@ class CIBlockPropertyHTML
 		if (!is_array($value["VALUE"]))
 			$value = static::ConvertFromDB($arProperty, $value);
 
-		$settings = static::PrepareSettings($arProperty);
+		if (isset($strHTMLControlName["MODE"]) && $strHTMLControlName["MODE"]=="SIMPLE")
+		{
+			return '<input type="hidden" name="'.$strHTMLControlName["VALUE"].'[TYPE]" value="html">'
+				.'<textarea cols="60" rows="10" name="'.$strHTMLControlName["VALUE"].'[TEXT]" style="width:100%">'.htmlspecialcharsEx($value["VALUE"]["TEXT"]).'</textarea>';
+		}
 
 		$id = preg_replace("/[^a-z0-9]/i", '', $strHTMLControlName['VALUE']);
 

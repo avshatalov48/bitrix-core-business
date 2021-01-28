@@ -261,3 +261,4 @@ $MESS['LANDING_SYNCHRONIZATION_POPUP_OK_BUTTON_LABEL'] = 'Продолжить';
 
 $MESS['LANDING_CRM_ACCESS_ERROR_MESSAGE'] = 'Недостаточно прав на редактирование CRM-формы. Отправьте запрос на доступ администратору портала.';
 $MESS['LANDING_CRM_FORM_USER'] = 'Ответственный';
+$MESS['LANDING_CRM_FORM_LANGUAGE'] = 'Язык';

@@ -2,13 +2,18 @@
 /** @global CMain $APPLICATION */
 use Bitrix\Main\Loader,
 	Bitrix\Main\Localization\Loc,
-	Bitrix\Main;
+	Bitrix\Main,
+	Bitrix\Iblock;
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
 Loader::includeModule('iblock');
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/iblock/prolog.php');
 
 Loc::loadMessages(__FILE__);
+
+$manager = Iblock\Url\AdminPage\BuilderManager::getInstance();
+$urlBuilder = $manager->getBuilder(Iblock\Url\AdminPage\IblockBuilder::TYPE_ID);
+unset($manager);
 
 $adminListTableID = 'tbl_iblock_redirect_entity';
 $adminList = new CAdminList($adminListTableID);
@@ -20,6 +25,7 @@ unset($filterFields);
 
 $entityList = array(
 	'ELEMENT' => Loc::getMessage('BX_IBLOCK_REDIRECT_ENTITY_ENTITY_ELEMENT'),
+	'SECTION' => Loc::getMessage('BX_IBLOCK_REDIRECT_ENTITY_ENTITY_SECTION'),
 	'IBLOCK' => Loc::getMessage('BX_IBLOCK_REDIRECT_ENTITY_ENTITY_IBLOCK')
 );
 $errors = array();
@@ -44,51 +50,83 @@ if ($request->isPost() && check_bitrix_sessid())
 		switch ($entityCode)
 		{
 			case 'IBLOCK':
-				$iblockIterator = CIBlock::GetList(
+				$iterator = CIBlock::GetList(
 					array(),
 					array('ID' => $entityId, 'CHECK_PERMISSIONS' => 'Y', 'MIN_PERMISSION' => 'S'),
 					false
 				);
-				$iblock = $iblockIterator->Fetch();
-				if (empty($iblock))
+				$row = $iterator->Fetch();
+				unset($iterator);
+				if (empty($row))
 				{
 					$errors[] = Loc::getMessage('BX_IBLOCK_REDIRECT_ENTITY_ERR_IBLOCK_NOT_FOUND');
 				}
 				else
 				{
-					$redirectUrl = CIBlock::GetAdminElementListLink(
-						$iblock['ID'],
-						array('find_section_section' => -1, 'WF' => 'Y', 'menu' => null)
+					$urlBuilder->setIblockId((int)$row['ID']);
+					$redirectUrl = $urlBuilder->getElementListUrl(
+						-1,
+						['WF' => 'Y']
 					);
 				}
-				unset($iblock, $iblockIterator);
+				unset($row);
+				break;
+			case 'SECTION':
+				$iterator = CIBlockSection::GetList(
+					array(),
+					array('ID' => $entityId, 'CHECK_PERMISSIONS' => 'Y', 'MIN_PERMISSION' => 'S'),
+					false,
+					false,
+					array('ID', 'IBLOCK_ID')
+				);
+				$row = $iterator->Fetch();
+				unset($iterator);
+				if (empty($row))
+				{
+					$errors[] = Loc::getMessage('BX_IBLOCK_REDIRECT_ENTITY_ERR_SECTION_NOT_FOUND');
+				}
+				else
+				{
+					$urlBuilder->setIblockId((int)$row['IBLOCK_ID']);
+					$redirectUrl = $urlBuilder->getSectionDetailUrl(
+						(int)$row['ID'],
+						['find_section_section' => -1]
+					);
+				}
+				unset($row);
 				break;
 			case 'ELEMENT':
-				$elementIterator = CIBlockElement::GetList(
+				$iterator = CIBlockElement::GetList(
 					array(),
 					array('ID' => $entityId, 'CHECK_PERMISSIONS' => 'Y', 'MIN_PERMISSION' => 'S'),
 					false,
 					false,
 					array('ID', 'IBLOCK_ID', 'WF_PARENT_ELEMENT_ID')
 				);
-				$element = $elementIterator->Fetch();
-				if (empty($element))
+				$row = $iterator->Fetch();
+				unset($iterator);
+				if (empty($row))
 				{
 					$errors[] = Loc::getMessage('BX_IBLOCK_REDIRECT_ENTITY_ERR_ELEMENT_NOT_FOUND');
 				}
 				else
 				{
-					$redirectUrl = CIBlock::GetAdminElementEditLink(
-						$element['IBLOCK_ID'],
-						(!empty($element['WF_PARENT_ELEMENT_ID']) ? $element['WF_PARENT_ELEMENT_ID'] : $element['ID']),
-						array('find_section_section' => -1, 'WF' => 'Y', 'menu' => null)
+					$urlBuilder->setIblockId((int)$row['IBLOCK_ID']);
+					$redirectUrl = $urlBuilder->getElementDetailUrl(
+						(!empty($row['WF_PARENT_ELEMENT_ID'])
+							? (int)$row['WF_PARENT_ELEMENT_ID']
+							: (int)$row['ID']
+						),
+						['find_section_section' => -1, 'WF' => 'Y']
 					);
 				}
-				unset($element, $elementIterator);
+				unset($row);
 				break;
 		}
 		if ($redirectUrl != '')
-			LocalRedirect('/bitrix/admin/'.$redirectUrl);
+		{
+			LocalRedirect($redirectUrl);
+		}
 	}
 }
 

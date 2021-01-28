@@ -35,6 +35,10 @@ class BasketItem extends Base
 				'TYPE'=>self::TYPE_STRING,
 				'ATTRIBUTES'=>[Attributes::ReadOnly]
 			],
+			'FUSER_ID'=>[
+				'TYPE'=>self::TYPE_INT,
+				'ATTRIBUTES'=>[Attributes::ReadOnly]
+			],
 			'LID'=>[
 				'TYPE'=>self::TYPE_STRING,
 				'ATTRIBUTES'=>[Attributes::ReadOnly]

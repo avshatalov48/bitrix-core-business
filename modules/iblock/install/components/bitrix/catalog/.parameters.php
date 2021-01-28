@@ -2,7 +2,8 @@
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 /** @var array $arCurrentValues */
 /** @global CUserTypeManager $USER_FIELD_MANAGER */
-use Bitrix\Main\Loader,
+use Bitrix\Main\Config\Option,
+	Bitrix\Main\Loader,
 	Bitrix\Main\ModuleManager,
 	Bitrix\Iblock,
 	Bitrix\Catalog,
@@ -530,6 +531,12 @@ $arComponentParameters = array(
 			"DEFAULT" => "N"
 		),
 
+		"SHOW_SKU_DESCRIPTION" => array(
+			"PARENT" => "DETAIL_SETTINGS",
+			"NAME" => GetMessage("IBLOCK_SHOW_SKU_DESCRIPTION"),
+			"TYPE" => "CHECKBOX",
+			"DEFAULT" => "N",
+		),
 		"CACHE_TIME"  =>  array("DEFAULT"=>36000000),
 		"CACHE_FILTER" => array(
 			"PARENT" => "CACHE_SETTINGS",
@@ -1440,12 +1447,20 @@ if ($catalogIncluded)
 		);
 	}
 
+	$hiddenParam = 'N';
+	if (
+		!$compatibleMode
+		|| ((string)Option::get('catalog', 'enable_viewed_products') === 'N')
+	)
+	{
+		$hiddenParam = 'Y';
+	}
 	$arComponentParameters['PARAMETERS']['DETAIL_SET_VIEWED_IN_COMPONENT'] = array(
 		"PARENT" => "EXTENDED_SETTINGS",
 		"NAME" => GetMessage('CP_BC_DETAIL_SET_VIEWED_IN_COMPONENT'),
 		"TYPE" => "CHECKBOX",
 		"DEFAULT" => "N",
-		"HIDDEN" => (!$compatibleMode ? 'Y' : 'N')
+		"HIDDEN" => $hiddenParam
 	);
 }
 

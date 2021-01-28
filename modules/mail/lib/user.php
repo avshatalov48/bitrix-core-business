@@ -293,7 +293,7 @@ class User
 
 		$attachments = array_filter(
 			array_combine(
-				array_keys((array) $message['files']),
+				array_column((array) $message['files'], 'name'),
 				array_column((array) $message['files'], 'tmp_name')
 			)
 		);
@@ -386,7 +386,7 @@ class User
 				$attachments = array();
 				if (!empty($messageFields['ATTACHMENTS']))
 				{
-					$tmpAttachments = unserialize($messageFields['ATTACHMENTS']);
+					$tmpAttachments = unserialize($messageFields['ATTACHMENTS'], ['allowed_classes' => false]);
 					if (is_array($tmpAttachments))
 					{
 						foreach($tmpAttachments as $key => $uploadFile)
@@ -397,6 +397,7 @@ class User
 								&& !empty($file)
 							)
 							{
+								$file['name'] = $key;
 								$attachments[$key] = $file;
 							}
 						}

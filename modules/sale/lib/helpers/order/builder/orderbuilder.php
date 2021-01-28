@@ -541,13 +541,15 @@ abstract class OrderBuilder
 			{
 				$fields['BASE_PRICE_DELIVERY'] = (float)str_replace(',', '.', $item['BASE_PRICE_DELIVERY']);
 			}
+
 			$shipment = $this->delegate->setShipmentPriceFields($shipment, $fields);
 
 			if($deliveryService && !empty($item['ADDITIONAL']))
 			{
 				$modifiedShipment = $deliveryService->processAdditionalInfoShipmentEdit($shipment, $item['ADDITIONAL']);
 
-				if($modifiedShipment && get_class($modifiedShipment) == Registry::ENTITY_SHIPMENT)
+				$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
+				if ($modifiedShipment && get_class($modifiedShipment) == $registry->getShipmentClassName())
 				{
 					$shipment = $modifiedShipment;
 				}

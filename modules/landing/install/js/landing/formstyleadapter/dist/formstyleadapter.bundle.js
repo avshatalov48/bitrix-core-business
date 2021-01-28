@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,main_core,main_core_events,crm_form_client,landing_ui_form_styleform,landing_loc,landing_ui_field_colorpickerfield,landing_ui_panel_formsettingspanel,landing_backend,landing_env) {
+(function (exports,main_core,main_core_events,landing_ui_form_styleform,landing_loc,landing_ui_field_colorpickerfield,landing_backend,landing_env) {
 	'use strict';
 
 	var themesMap = new Map();
@@ -268,14 +268,31 @@ this.BX = this.BX || {};
 	    value: function load() {
 	      var _this2 = this;
 
-	      return crm_form_client.FormClient.getInstance().getOptions(this.options.formId).then(function (result) {
-	        _this2.setFormOptions(main_core.Runtime.merge(main_core.Runtime.clone(result), {
+	      if (main_core.Text.capitalize(landing_env.Env.getInstance().getOptions().params.type) === 'SMN') {
+	        this.setFormOptions({
 	          data: {
-	            design: main_core.Runtime.clone(_this2.getCrmForm().design)
+	            design: main_core.Runtime.clone(this.getCrmForm().design)
 	          }
-	        }));
+	        });
+	        return Promise.resolve(this);
+	      }
 
-	        return _this2;
+	      return main_core.Runtime.loadExtension('crm.form.client').then(function (_ref) {
+	        var FormClient = _ref.FormClient;
+
+	        if (FormClient) {
+	          return FormClient.getInstance().getOptions(_this2.options.formId).then(function (result) {
+	            _this2.setFormOptions(main_core.Runtime.merge(main_core.Runtime.clone(result), {
+	              data: {
+	                design: main_core.Runtime.clone(_this2.getCrmForm().design)
+	              }
+	            }));
+
+	            return _this2;
+	          });
+	        }
+
+	        return null;
 	      });
 	    }
 	  }, {
@@ -284,10 +301,12 @@ this.BX = this.BX || {};
 	      var _this3 = this;
 
 	      return this.cache.remember('themeField', function () {
+	        var theme = _this3.getFormOptions().data.design.theme;
+
 	        return new BX.Landing.UI.Field.Dropdown({
 	          selector: 'theme',
 	          title: landing_loc.Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_THEME_FIELD_TITLE'),
-	          content: _this3.getFormOptions().data.design.theme.split('-')[0],
+	          content: main_core.Type.isString(theme) ? theme.split('-')[0] : '',
 	          onChange: _this3.onThemeChange.bind(_this3),
 	          items: [{
 	            name: landing_loc.Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_THEME_FIELD_ITEM_BUSINESS'),
@@ -314,10 +333,12 @@ this.BX = this.BX || {};
 	      var _this4 = this;
 
 	      return this.cache.remember('darkField', function () {
+	        var theme = _this4.getFormOptions().data.design.theme;
+
 	        return new BX.Landing.UI.Field.Dropdown({
 	          selector: 'dark',
 	          title: landing_loc.Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_DARK_FIELD_TITLE'),
-	          content: _this4.getFormOptions().data.design.theme.split('-')[1],
+	          content: main_core.Type.isString(theme) ? theme.split('-')[1] : '',
 	          onChange: _this4.onThemeChange.bind(_this4),
 	          items: [{
 	            name: landing_loc.Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_DARK_FIELD_ITEM_LIGHT'),
@@ -363,10 +384,10 @@ this.BX = this.BX || {};
 	        }
 
 	        if (main_core.Type.isPlainObject(theme.border)) {
-	          var borders = Object.entries(theme.border).reduce(function (acc, _ref) {
-	            var _ref2 = babelHelpers.slicedToArray(_ref, 2),
-	                key = _ref2[0],
-	                value = _ref2[1];
+	          var borders = Object.entries(theme.border).reduce(function (acc, _ref2) {
+	            var _ref3 = babelHelpers.slicedToArray(_ref2, 2),
+	                key = _ref3[0],
+	                value = _ref3[1];
 
 	            if (value) {
 	              acc.push(key);
@@ -541,10 +562,10 @@ this.BX = this.BX || {};
 	          value: function () {
 	            var border = _this15.getFormOptions().data.design.border;
 
-	            return Object.entries(border).reduce(function (acc, _ref3) {
-	              var _ref4 = babelHelpers.slicedToArray(_ref3, 2),
-	                  key = _ref4[0],
-	                  value = _ref4[1];
+	            return Object.entries(border).reduce(function (acc, _ref4) {
+	              var _ref5 = babelHelpers.slicedToArray(_ref4, 2),
+	                  key = _ref5[0],
+	                  value = _ref5[1];
 
 	              if (value) {
 	                acc.push(key);
@@ -598,6 +619,11 @@ this.BX = this.BX || {};
 	              top: value.border.includes('top'),
 	              bottom: value.border.includes('bottom')
 	            };
+
+	            if (value.font.family === landing_loc.Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_FONT_DEFAULT')) {
+	              delete value.font;
+	            }
+
 	            delete value.primary;
 	            delete value.primaryText;
 	            delete value.text;
@@ -648,14 +674,28 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "saveFormDesign",
 	    value: function saveFormDesign() {
-	      var formClient = crm_form_client.FormClient.getInstance();
-	      var formOptions = this.getFormOptions();
-	      formClient.resetCache(formOptions.id);
-	      return formClient.saveOptions(formOptions);
+	      var _this17 = this;
+
+	      return main_core.Runtime.loadExtension('crm.form.client').then(function (_ref6) {
+	        var FormClient = _ref6.FormClient;
+
+	        if (FormClient) {
+	          var formClient = FormClient.getInstance();
+
+	          var formOptions = _this17.getFormOptions();
+
+	          formClient.resetCache(formOptions.id);
+	          return formClient.saveOptions(formOptions);
+	        }
+
+	        return null;
+	      });
 	    }
 	  }, {
 	    key: "saveBlockDesign",
 	    value: function saveBlockDesign() {
+	      var _this18 = this;
+
 	      var currentBlock = this.options.currentBlock;
 	      var design = this.getFormOptions().data.design;
 	      var formNode = currentBlock.node.querySelector('.bitrix24forms');
@@ -663,9 +703,17 @@ this.BX = this.BX || {};
 	        'data-b24form-design': design,
 	        'data-b24form-use-style': 'Y'
 	      });
-	      var formClient = crm_form_client.FormClient.getInstance();
-	      var formOptions = this.getFormOptions();
-	      formClient.resetCache(formOptions.id);
+	      main_core.Runtime.loadExtension('crm.form.client').then(function (_ref7) {
+	        var FormClient = _ref7.FormClient;
+
+	        if (FormClient) {
+	          var formClient = FormClient.getInstance();
+
+	          var formOptions = _this18.getFormOptions();
+
+	          formClient.resetCache(formOptions.id);
+	        }
+	      });
 	      landing_backend.Backend.getInstance().action('Landing\\Block::updateNodes', {
 	        block: currentBlock.id,
 	        data: {
@@ -685,15 +733,19 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "onDebouncedFormChange",
 	    value: function onDebouncedFormChange() {
-	      var formSettingsPanel = landing_ui_panel_formsettingspanel.FormSettingsPanel.getInstance();
-	      formSettingsPanel.setCurrentBlock(this.options.currentBlock);
+	      var _this19 = this;
 
 	      if (this.isCrmFormPage()) {
-	        void this.saveFormDesign();
+	        main_core.Runtime.loadExtension('landing.ui.panel.formsettingspanel').then(function (_ref8) {
+	          var FormSettingsPanel = _ref8.FormSettingsPanel;
+	          var formSettingsPanel = FormSettingsPanel.getInstance();
+	          formSettingsPanel.setCurrentBlock(_this19.options.currentBlock);
+	          void _this19.saveFormDesign();
 
-	        if (formSettingsPanel.useBlockDesign()) {
-	          formSettingsPanel.disableUseBlockDesign();
-	        }
+	          if (formSettingsPanel.useBlockDesign()) {
+	            formSettingsPanel.disableUseBlockDesign();
+	          }
+	        });
 	      } else {
 	        this.saveBlockDesign();
 	      }
@@ -704,5 +756,5 @@ this.BX = this.BX || {};
 
 	exports.FormStyleAdapter = FormStyleAdapter;
 
-}((this.BX.Landing = this.BX.Landing || {}),BX,BX.Event,BX.Crm.Form,BX.Landing.UI.Form,BX.Landing,BX.Landing.Ui.Field,BX.Landing.UI.Panel,BX.Landing,BX.Landing));
+}((this.BX.Landing = this.BX.Landing || {}),BX,BX.Event,BX.Landing.UI.Form,BX.Landing,BX.Landing.Ui.Field,BX.Landing,BX.Landing));
 //# sourceMappingURL=formstyleadapter.bundle.js.map

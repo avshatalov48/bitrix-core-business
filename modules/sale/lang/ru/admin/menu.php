@@ -166,6 +166,7 @@ $MESS["SALE_MENU_LOCATION_DEFAULT_TITLE"] = "Избранные местопол
 $MESS["SALE_MENU_LOCATION_SERVICES"] = "Внешние сервисы";
 $MESS["SALE_MENU_LOCATION_SERVICES_TITLE"] = "Внешние сервисы";
 $MESS["SALE_MENU_LOCATION_ZONES"] = "Местоположения для сайтов";
+$MESS["SALE_MENU_LOCATION_ZONES_TITLE"] = "Местоположения для сайтов";
 $MESS["SALE_MENU_LOCATION_MIGRATION"] = "Переход на местоположения 2.0";
 $MESS["SALE_MENU_LOCATION_MIGRATION_TITLE"] = "Переход на местоположения 2.0";
 $MESS["SALE_MENU_DISCOUNT_COUPONS"] = "Купоны";

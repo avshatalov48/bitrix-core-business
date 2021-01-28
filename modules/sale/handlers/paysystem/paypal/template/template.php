@@ -48,7 +48,7 @@ if ($params["PAYED"] != "Y")
 
 					<? $buttonSrc = ($params["PAYPAL_BUTTON_SRC"] <> '') ? $params["PAYPAL_BUTTON_SRC"] : "http://www.paypal.com/en_US/i/btn/x-click-but6.gif";?>
 
-					<input type="image" src="<?=$buttonSrc?>" name="submit">
+					<input type="image" class="w-100" src="<?=$buttonSrc?>" name="submit">
 				</form>
 			</td>
 		</tr>

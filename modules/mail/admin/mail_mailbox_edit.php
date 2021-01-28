@@ -82,16 +82,18 @@ if($REQUEST_METHOD=="POST" && ($save <> '' || $save_ext <> '' || $apply <> '') &
 			LocalRedirect($APPLICATION->GetCurPage()."?lang=".LANG."&ID=".$ID);
 	}
 }
-
-$str_SERVER_TYPE = $mailbox_type == 'user' ? 'imap' : 'pop3';
-$str_PORT        = $str_SERVER_TYPE == 'imap' ? ($bCanUseTLS ? '993' : '143') : '110';
-$str_USE_TLS     = $str_SERVER_TYPE == 'imap' && $bCanUseTLS ? 'Y' : 'N';
-$str_ACTIVE      = 'Y';
-$str_AUTH_RELAY  = 'Y';
-$str_RELAY       = 'Y';
 $mb = CMailbox::GetByID($ID);
 if (!$mb->ExtractFields("str_"))
 	$ID = 0;
+
+if($ID===0){
+	$str_SERVER_TYPE = $mailbox_type == 'user' ? 'imap' : 'pop3';
+	$str_PORT        = $str_SERVER_TYPE == 'imap' ? ($bCanUseTLS ? '993' : '143') : '110';
+	$str_USE_TLS     = $str_SERVER_TYPE == 'imap' && $bCanUseTLS ? 'Y' : 'N';
+	$str_ACTIVE      = 'Y';
+	$str_AUTH_RELAY  = 'Y';
+	$str_RELAY       = 'Y';
+}
 
 if ($message)
 	$DB->InitTableVarsForEdit("b_mail_mailbox", "", "str_");

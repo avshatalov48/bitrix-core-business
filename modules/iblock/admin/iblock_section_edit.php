@@ -451,7 +451,7 @@ if(
 				window.opener.<? echo $strLookup; ?>.AddValue(<? echo $ID;?>);
 				window.close();
 				</script><?
-				die();
+				CMain::FinalActions();
 			}
 			elseif($return_url <> '')
 			{
@@ -499,7 +499,7 @@ if(
 						);
 					</script>';
 				<?
-				die();
+				CMain::FinalActions();
 			}
 			else
 			{

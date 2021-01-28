@@ -353,8 +353,9 @@ class Agreement
 		$text = $this->getContent();
 
 		$text = ($this->isAgreementTextHtml ? $text : nl2br($text));
-
-		return (new \CBXSanitizer)->sanitizeHtml($text);
+		$sanitizer = new \CBXSanitizer;
+		$sanitizer->setLevel(\CBXSanitizer::SECURE_LEVEL_MIDDLE);
+		return $sanitizer->sanitizeHtml($text);
 	}
 
 	private function getContent($cutTitle = false)

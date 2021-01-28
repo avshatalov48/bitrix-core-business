@@ -91,9 +91,9 @@ class CIBlockResult extends CDBResult
 		if(!isset($this) || !is_object($this))
 			return $res;
 
-		$arUpdate = array();
 		if($res)
 		{
+			$arUpdate = array();
 			if(!empty($this->arIBlockLongProps) && is_array($this->arIBlockLongProps))
 			{
 				foreach($res as $k=>$v)
@@ -189,14 +189,22 @@ class CIBlockResult extends CDBResult
 						}
 					}
 				}
-				foreach($arUpdate as $strTable=>$arFields)
+
+				if (!empty($arUpdate))
 				{
-					$strUpdate = $DB->PrepareUpdate($strTable, $arFields);
-					if($strUpdate!="")
+					$pool = \Bitrix\Main\Application::getInstance()->getConnectionPool();
+					$pool->useMasterOnly(true);
+					foreach ($arUpdate as $strTable => $arFields)
 					{
-						$strSql = "UPDATE ".$strTable." SET ".$strUpdate." WHERE IBLOCK_ELEMENT_ID = ".intval($res["ID"]);
-						$DB->QueryBind($strSql, $arFields);
+						$strUpdate = $DB->PrepareUpdate($strTable, $arFields);
+						if ($strUpdate != "")
+						{
+							$strSql = "UPDATE ".$strTable." SET ".$strUpdate." WHERE IBLOCK_ELEMENT_ID = ".intval($res["ID"]);
+							$DB->QueryBind($strSql, $arFields);
+						}
 					}
+					$pool->useMasterOnly(false);
+					unset($pool);
 				}
 			}
 			if(!empty($this->arIBlockConvProps) && is_array($this->arIBlockConvProps))
@@ -243,6 +251,7 @@ class CIBlockResult extends CDBResult
 				unset($res["UC_ID"]);
 				unset($res["UC_LOGIN"]);
 			}
+			unset($arUpdate);
 		}
 		elseif(
 			defined("BX_COMP_MANAGED_CACHE")

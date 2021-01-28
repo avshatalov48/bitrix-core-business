@@ -34,7 +34,6 @@ if ($arResult['ERRORS'])
 
 // load extensions
 $extensions = [];
-$extensions[] = 'sidepanel';
 if (
 	$arParams['SHOW_EDIT_PANEL'] == 'Y' ||
 	!$landing->getDomainId()// wiki mode
@@ -46,6 +45,7 @@ if ($b24Installed)
 {
 	$extensions[] = 'landing.metrika';
 }
+$extensions[] = 'sidepanel';
 
 Extension::load($extensions);
 

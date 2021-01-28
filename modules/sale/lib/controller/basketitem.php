@@ -106,7 +106,7 @@ class BasketItem extends Controller
 		{
 			$builder = $this->getBuilder(
 				new SettingsContainer([
-					'deleteBaketItemsIfNotExists' => false
+					'deleteBasketItemsIfNotExists' => false
 				])
 			);
 			$builder->buildEntityBasket($data);
@@ -165,7 +165,7 @@ class BasketItem extends Controller
 
 		$builder = $this->getBuilder(
 			new SettingsContainer([
-				'deleteBaketItemsIfNotExists' => false
+				'deleteBasketItemsIfNotExists' => false
 			])
 		);
 

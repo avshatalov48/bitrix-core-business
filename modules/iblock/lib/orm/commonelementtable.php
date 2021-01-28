@@ -9,8 +9,10 @@
 namespace Bitrix\Iblock\ORM;
 
 use Bitrix\Iblock\ElementTable;
+use Bitrix\Iblock\PropertyIndex\Manager;
 use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\ORM\Event;
+use CIBlock;
 
 /**
  * @package    bitrix
@@ -45,11 +47,36 @@ abstract class CommonElementTable extends DataManager
 		return ElementTable::getMap();
 	}
 
+	public static function onAfterAdd(Event $event)
+	{
+		$elementId = (int) end($event->getParameters()['primary']);
+		$iblockId = static::getEntity()->getIblock()->getId();
+
+		// clear tag cache
+		CIBlock::clearIblockTagCache($iblockId);
+
+		// update index
+		Manager::updateElementIndex($iblockId, $elementId);
+	}
+
+	public static function onAfterUpdate(Event $event)
+	{
+		$elementId = (int) end($event->getParameters()['primary']);
+		$iblockId = static::getEntity()->getIblock()->getId();
+
+		// clear tag cache
+		CIBlock::clearIblockTagCache($iblockId);
+
+		// update index
+		Manager::updateElementIndex($iblockId, $elementId);
+	}
+
 	public static function onAfterDelete(Event $event)
 	{
 		parent::onAfterDelete($event);
 
-		$id = (int) end($event->getParameters()['primary']);
+		$elementId = (int) end($event->getParameters()['primary']);
+		$iblockId = static::getEntity()->getIblock()->getId();
 		$connection = static::getEntity()->getConnection();
 
 		// delete property values
@@ -57,7 +84,13 @@ abstract class CommonElementTable extends DataManager
 
 		foreach (array_unique($tables) as $table)
 		{
-			$connection->query("DELETE FROM {$table} WHERE IBLOCK_ELEMENT_ID = {$id}");
+			$connection->query("DELETE FROM {$table} WHERE IBLOCK_ELEMENT_ID = {$elementId}");
 		}
+
+		// clear tag cache
+		CIBlock::clearIblockTagCache($iblockId);
+
+		// delete index
+		Manager::deleteElementIndex($iblockId, $elementId);
 	}
 }

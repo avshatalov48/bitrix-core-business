@@ -9,6 +9,7 @@ use Bitrix\Main\ModuleManager;
 use Bitrix\Socialnetwork\Component\LogList\Gratitude;
 use Bitrix\Socialnetwork\Component\LogList\Util;
 use Bitrix\Socialnetwork\Component\LogList\Param;
+use Bitrix\Socialnetwork\Component\LogList\Assets;
 use Bitrix\Socialnetwork\Component\LogList\Path;
 use Bitrix\Socialnetwork\Component\LogList\ParamPhotogallery;
 use Bitrix\Socialnetwork\Component\LogList\Processor;
@@ -34,6 +35,7 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 	protected $request = null;
 	protected $gratitudesInstance = null;
 	protected $paramsInstance = null;
+	protected $assetsInstance = null;
 	protected $pathInstance = null;
 	protected $paramsPhotogalleryInstance = null;
 	protected $processorInstance = null;
@@ -186,6 +188,18 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 		return $this->paramsInstance;
 	}
 
+	public function getAssetsInstance()
+	{
+		if($this->assetsInstance === null)
+		{
+			$this->assetsInstance = new Assets([
+				'component' => $this
+			]);
+		}
+
+		return $this->assetsInstance;
+	}
+
 	public function getPathInstance()
 	{
 		if($this->pathInstance === null)
@@ -332,8 +346,14 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 		$logPageProcessorInstance = $this->getLogPageProcessorInstance();
 		$counterProcessorInstance = $this->getCounterProcessorInstance();
 		$pathsProcessorInstance = $this->getPathInstance();
+		$assetsProcessorInstance = $this->getAssetsInstance();
 
 		$result = [];
+
+		if (!$assetsProcessorInstance->checkRefreshNeeded($result))
+		{
+			return $result;
+		}
 
 		$this->getGratitudesInstance()->prepareGratPostFilter($result);
 
@@ -364,10 +384,11 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 					&& $this->arParams['RELOAD'] == 'Y'
 				)
 			)
-
 		);
 		$result['SHOW_UNREAD'] = $this->arParams['SHOW_UNREAD'];
 		$result['currentUserId'] = (int)$USER->getId();
+
+		$assetsProcessorInstance->getAssetsCheckSum($result);
 
 		$logPageProcessorInstance->preparePrevPageLogId();
 		$this->setCurrentUserAdmin(\CSocNetUser::isCurrentUserModuleAdmin());

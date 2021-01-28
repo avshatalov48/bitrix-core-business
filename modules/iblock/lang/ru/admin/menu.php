@@ -16,6 +16,6 @@ $MESS["IBLOCK_MENU_REINDEX"] = "Фасетные индексы";
 $MESS["IBLOCK_MENU_REINDEX_TITLE"] = "Создание фасетных индексов для значений свойств";
 $MESS["IBLOCK_MENU_ADMIN_TOOLS"] = "Инструменты";
 $MESS["IBLOCK_MENU_ADMIN_TOOLS_TITLE"] = "Инструменты";
-$MESS["IBLOCK_MENU_ADMIN_TOOLS_REDIRECT_IBLOCK"] = "Перейти к инфоблоку / элементу";
-$MESS["IBLOCK_MENU_ADMIN_TOOLS_REDIRECT_IBLOCK_TITLE"] = "Перейти на страницу списка элементов инфоблока / страницу редактирования элемента инфоблока";
+$MESS["IBLOCK_MENU_ADMIN_TOOLS_REDIRECT_IBLOCK_EXT"] = "Перейти к инфоблоку / разделу / элементу";
+$MESS["IBLOCK_MENU_ADMIN_TOOLS_REDIRECT_IBLOCK_TITLE_EXT"] = "Перейти на страницу списка элементов инфоблока / страницу редактирования раздела или элемента инфоблока";
 ?>

@@ -145,6 +145,12 @@ $arTemplateParameters['SEARCH_CHECK_DATES'] = array(
 	"TYPE" => "CHECKBOX",
 	"DEFAULT" => "Y",
 );
+$arTemplateParameters['SEARCH_USE_SEARCH_RESULT_ORDER'] = array(
+	'PARENT' => 'SEARCH_SETTINGS',
+	'NAME' => GetMessage('CP_BC_TPL_SEARCH_USE_SEARCH_RESULT_ORDER'),
+	"TYPE" => "CHECKBOX",
+	"DEFAULT" => "N"
+);
 
 $arAllPropList = array();
 $arListPropList = array();

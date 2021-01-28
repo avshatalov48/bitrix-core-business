@@ -653,7 +653,7 @@ class Manager
 		{
 			$init = true;
 			$restHandlerList = \Bitrix\Sale\Delivery\Rest\Internals\DeliveryRestHandlerTable::getList([
-				'select' => ['*']
+				'select' => ['ID', 'NAME', 'CODE', 'SORT', 'DESCRIPTION', 'SETTINGS', 'PROFILES'],
 			])->fetchAll();
 			foreach ($restHandlerList as $restHandler)
 			{

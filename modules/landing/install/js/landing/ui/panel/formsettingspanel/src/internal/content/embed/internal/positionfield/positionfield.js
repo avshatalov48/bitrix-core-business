@@ -12,7 +12,7 @@ export class PositionField extends BaseField
 
 		this.horizontal = new BX.Landing.UI.Field.Dropdown({
 			selector: 'horizontal',
-			value: options.value.horizontal,
+			content: options.value.horizontal,
 			items: [
 				{name: Loc.getMessage('LANDING_FORM_EMBED_POSITION_LEFT'), value: 'left'},
 				{name: Loc.getMessage('LANDING_FORM_EMBED_POSITION_CENTER'), value: 'center'},
@@ -22,7 +22,7 @@ export class PositionField extends BaseField
 
 		this.vertical = new BX.Landing.UI.Field.Dropdown({
 			selector: 'vertical',
-			value: options.value.vertical,
+			content: options.value.vertical,
 			items: [
 				{name: Loc.getMessage('LANDING_FORM_EMBED_POSITION_TOP'), value: 'top'},
 				{name: Loc.getMessage('LANDING_FORM_EMBED_POSITION_BOTTOM'), value: 'bottom'},

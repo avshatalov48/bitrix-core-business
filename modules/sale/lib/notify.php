@@ -1555,6 +1555,7 @@ class Notify
 		if (!static::hasSentEvent($code, $event))
 		{
 			static::$sentEventList[$code][] = $event;
+
 			return true;
 		}
 
@@ -1567,14 +1568,13 @@ class Notify
 	 */
 	public static function callNotify(Internals\Entity $entity, $eventName)
 	{
-		if (($eventNotifyMap = EventActions::getEventNotifyMap()) && !empty($eventNotifyMap) && is_array($eventNotifyMap))
+		$eventNotifyMap = EventActions::getEventNotifyMap();
+
+		if (isset($eventNotifyMap[$eventName]))
 		{
-			if (array_key_exists($eventName, $eventNotifyMap) && !empty($eventNotifyMap[$eventName]) && !empty($eventNotifyMap[$eventName]['METHOD']))
+			if ($entity instanceof $eventNotifyMap[$eventName]['ENTITY'])
 			{
-				if ($entity instanceof $eventNotifyMap[$eventName]['ENTITY'])
-				{
-					call_user_func_array($eventNotifyMap[$eventName]['METHOD'], array($entity));
-				}
+				call_user_func_array($eventNotifyMap[$eventName]['METHOD'], [$entity]);
 			}
 		}
 	}

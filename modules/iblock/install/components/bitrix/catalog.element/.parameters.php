@@ -1,7 +1,8 @@
 <?
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 /** @var array $arCurrentValues */
-use Bitrix\Main\ModuleManager,
+use Bitrix\Main\Config\Option,
+	Bitrix\Main\ModuleManager,
 	Bitrix\Main\Loader,
 	Bitrix\Iblock,
 	Bitrix\Catalog,
@@ -488,6 +489,12 @@ $arComponentParameters = array(
 			"TYPE" => "STRING",
 			"DEFAULT" => "/personal/basket.php",
 		),
+		"SHOW_SKU_DESCRIPTION" => array(
+			"PARENT" => "ADDITIONAL_SETTINGS",
+			"NAME" => GetMessage("IBLOCK_SHOW_SKU_DESCRIPTION"),
+			"TYPE" => "CHECKBOX",
+			"DEFAULT" => "N",
+		),
 		"ACTION_VARIABLE" => array(
 			"PARENT" => "ACTION_SETTINGS",
 			"NAME" => GetMessage("IBLOCK_ACTION_VARIABLE"),
@@ -704,12 +711,20 @@ if ($catalogIncluded)
 		);
 	}
 
+	$hiddenParam = 'N';
+	if (
+		(isset($arCurrentValues['COMPATIBLE_MODE']) && $arCurrentValues['COMPATIBLE_MODE'] === 'N')
+		|| ((string)Option::get('catalog', 'enable_viewed_products') === 'N')
+	)
+	{
+		$hiddenParam = 'Y';
+	}
 	$arComponentParameters['PARAMETERS']['SET_VIEWED_IN_COMPONENT'] = array(
 		"PARENT" => "EXTENDED_SETTINGS",
 		"NAME" => GetMessage('CP_BCE_SET_VIEWED_IN_COMPONENT'),
 		"TYPE" => "CHECKBOX",
 		"DEFAULT" => "N",
-		"HIDDEN" => (isset($arCurrentValues['COMPATIBLE_MODE']) && $arCurrentValues['COMPATIBLE_MODE'] === 'N' ? 'Y' : 'N')
+		"HIDDEN" => $hiddenParam
 	);
 }
 

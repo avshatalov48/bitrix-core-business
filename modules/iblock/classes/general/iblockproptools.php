@@ -127,14 +127,15 @@ class CIBlockPropertyTools
 		switch($propertyCode)
 		{
 			case self::CODE_MORE_PHOTO:
+				$name = ($propertyParams['NAME'] ?? null) ?: Loc::getMessage('IBPT_PROP_TITLE_MORE_PHOTO');
 				$propertyDescription = array(
 					'PROPERTY_TYPE' => Iblock\PropertyTable::TYPE_FILE,
 					'USER_TYPE' => null,
-					'NAME' => Loc::getMessage('IBPT_PROP_TITLE_MORE_PHOTO'),
+					'NAME' => $name,
 					'CODE' => self::CODE_MORE_PHOTO,
 					'XML_ID' => self::XML_MORE_PHOTO,
 					'MULTIPLE' => 'Y',
-					'FILE_TYPE' => 'jpg, gif, bmp, png, jpeg',
+					'FILE_TYPE' => 'jpg, gif, bmp, png, jpeg, webp',
 					'ACTIVE' => 'Y',
 				);
 				break;

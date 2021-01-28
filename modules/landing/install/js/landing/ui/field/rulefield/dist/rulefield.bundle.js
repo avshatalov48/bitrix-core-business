@@ -554,6 +554,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      return this.cache.remember('fieldsListMenu', function () {
 	        return new window.top.BX.Main.Menu({
 	          bindElement: _this10.getAddFieldLink(),
+	          maxHeight: 205,
 	          items: _this10.options.fieldsList.filter(function (field) {
 	            return field.type !== 'page' && field.type !== 'layout';
 	          }).map(function (item) {
@@ -1030,6 +1031,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      return this.cache.remember('fieldsMenu', function () {
 	        return new window.top.BX.Main.Menu({
 	          bindElement: _this6.getFooterActionPanel().getLeftContainer().firstElementChild,
+	          maxHeight: 205,
 	          items: _this6.options.fields.filter(function (field) {
 	            return field.type !== 'page' && field.type !== 'layout';
 	          }).map(function (field) {

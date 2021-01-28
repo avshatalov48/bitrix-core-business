@@ -312,35 +312,41 @@ class CAdminSubList extends CAdminList
 			$this->arVisibleColumns[] = $id;
 	}
 
-	public function AddAdminContextMenu($aContext=array(), $bShowExcel=true, $bShowSettings=true)
+	protected function GetSystemContextMenu(array $config = []): array
 	{
-		$aAdditionalMenu = array();
+		$result = [];
 
-		if ($bShowSettings)
+		if (isset($config['settings']))
 		{
 			$this->__AddListUrlParams('mode','subsettings');
-			$aAdditionalMenu[]= array(
-				"TEXT"=>GetMessage("admin_lib_context_sett"),
-				"TITLE"=>GetMessage("admin_lib_context_sett_title"),
-				"ONCLICK"=>$this->table_id.".ShowSettings('".CUtil::JSEscape($this->GetListUrl(true))."')",
-				"ICON"=>"btn_sub_settings",
-			);
+			$result[] = [
+				"TEXT" => GetMessage("admin_lib_context_sett"),
+				"TITLE" => GetMessage("admin_lib_context_sett_title"),
+				"ONCLICK" => $this->table_id.".ShowSettings('".CUtil::JSEscape($this->GetListUrl(true))."')",
+				"ICON" => "btn_sub_settings",
+			];
 			$this->__DeleteListUrlParams('mode');
 		}
-		if($bShowExcel)
+		if (isset($config['excel']))
 		{
 			$this->__AddListUrlParams('mode','excel');
-			$aAdditionalMenu[] = array(
-				"TEXT"=>"Excel",
-				"TITLE"=>GetMessage("admin_lib_excel"),
-				"ONCLICK"=>"location.href='".htmlspecialcharsbx($this->GetListUrl(true))."'",
-				"ICON"=>"btn_sub_excel",
-			);
+			$result[] = [
+				"TEXT" => "Excel",
+				"TITLE" => GetMessage("admin_lib_excel"),
+				"ONCLICK" => "location.href='".htmlspecialcharsbx($this->GetListUrl(true))."'",
+				"ICON" => "btn_sub_excel",
+			];
 			$this->__DeleteListUrlParams('mode');
 		}
+		return $result;
+	}
 
-		if(count($aContext)>0 || count($aAdditionalMenu) > 0)
-			$this->context = new CAdminSubContextMenuList($aContext, $aAdditionalMenu);
+	protected function InitContextMenu(array $menu = [], array $additional = []): void
+	{
+		if (!empty($menu) || !empty($additional))
+		{
+			$this->context = new CAdminSubContextMenuList($menu, $additional);
+		}
 	}
 
 	/**
@@ -542,10 +548,7 @@ echo '<table class="adm-list-table" id="'.$this->table_id.'">
 <?
 		if($this->bEditMode || !empty($this->arUpdateErrorIDs))
 		{
-?>
-		<input type="button" name="save_sub" id="<?=$this->table_id;?>_save_sub_button" value="<?=GetMessage("admin_lib_list_edit_save");?>." title="<?=GetMessage("admin_lib_list_edit_save_title");?>" onclick="<?=$this->table_id;?>.ExecuteFormAction('SAVE_BUTTON');" />
-		<input type="button" name="cancel_sub" id="<?=$this->table_id;?>_cancel_sub_button" value="<?=GetMessage("admin_lib_list_edit_cancel");?>" title="<?=GetMessage("admin_lib_list_edit_cancel_title");?>" onclick="<?=$this->ActionAjaxReload($this->GetListUrl(true));?>"/>
-<?
+			$this->DisplayEditButtons();
 		}
 		else
 		{
@@ -864,6 +867,14 @@ function ReloadOffers()
 			'height': 600,
 			'buttons': ".$this->getDialogButtons(true)."
 		})).Show();";
+	}
+
+	protected function DisplayEditButtons(): void
+	{
+?>
+		<input type="button" name="save_sub" id="<?=$this->table_id;?>_save_sub_button" value="<?=GetMessage("admin_lib_list_edit_save");?>." title="<?=GetMessage("admin_lib_list_edit_save_title");?>" onclick="<?=$this->table_id;?>.ExecuteFormAction('SAVE_BUTTON');" />
+		<input type="button" name="cancel_sub" id="<?=$this->table_id;?>_cancel_sub_button" value="<?=GetMessage("admin_lib_list_edit_cancel");?>" title="<?=GetMessage("admin_lib_list_edit_cancel_title");?>" onclick="<?=$this->ActionAjaxReload($this->GetListUrl(true));?>"/>
+<?
 	}
 
 	private function prepareGroupMultiControl(string $id, array $action)

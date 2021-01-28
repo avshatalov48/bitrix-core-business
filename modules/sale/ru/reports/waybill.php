@@ -964,7 +964,7 @@ text-align:center;line-height:normal'>
 		echo CCurrencyLang::CurrencyFormat($arQuantities[$mi]*($item_price)+$nds_val*$arQuantities[$mi], $arOrder["CURRENCY"], false);
 		if (empty($arBasket['SET_PARENT_ID']))
 		{
-			$total_sum += $item_price*$arQuantities[$mi]+$nds_val*$arQuantities[$mi];
+			$total_sum += \Bitrix\Sale\PriceMaths::roundPrecision($item_price*$arQuantities[$mi]+$nds_val*$arQuantities[$mi]);
 		}
 	?>
 </p>

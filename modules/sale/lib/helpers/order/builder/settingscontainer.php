@@ -20,7 +20,7 @@ final class SettingsContainer
 		//Delete tradeBindings which is not in the parameters
 		'deleteTradeBindingIfNotExists' => false,
 		//Delete basketItems which is not in the parameters
-		'deleteBaketItemsIfNotExists' => true,
+		'deleteBasketItemsIfNotExists' => true,
 		//Delete payment which is not in the parameters
 		'deletePaymentIfNotExists' => false,
 		//Delete shipment which is not in the parameters

@@ -252,9 +252,13 @@ abstract class BaseForm
 				if ($propertySettings['PROPERTY_TYPE'] === PropertyTable::TYPE_ELEMENT)
 				{
 					$elementData = ElementTable::getList([
-						'filter' => ['ID' => $value],
-						'select' => ['NAME'],
-					 ]);
+						'filter' => [
+							'ID' => $value
+						],
+						'select' => [
+							'NAME'
+						],
+					]);
 					$namesList = [];
 					while ($element = $elementData->fetch())
 					{
@@ -292,20 +296,40 @@ abstract class BaseForm
 						'ELEMENT_ID' => $this->entity->getId() ?? 'n'.mt_rand(),
 					];
 
+					if ($propertySettings['USER_TYPE'] === 'map_google')
+					{
+						$params['WIDTH'] = '95%';
+						$params['HEIGHT'] = '400px';
+					}
+
+					$paramsSingle = $params;
+					$paramsSingle['VALUE'] = $description['multiple'] ? $value[0] : $value;
+					$paramsSingle['SETTINGS']['MULTIPLE'] = 'N';
+					if ($value === '')
+					{
+						$singleValueToMultiple = [];
+					}
+					else
+					{
+						$singleValueToMultiple = [$value];
+					}
+					$paramsMultiple = $params;
+					$paramsMultiple['VALUE'] = $description['multiple'] ? $value : $singleValueToMultiple;
+					$paramsMultiple['SETTINGS']['MULTIPLE'] = 'Y';
+
 					$viewMethod = $propertySettings['PROPERTY_USER_TYPE'][self::USER_TYPE_GET_VIEW_METHOD] ?? null;
 					if ($viewMethod && is_callable($viewMethod))
 					{
-						if ($propertySettings['USER_TYPE'] === 'map_google')
-						{
-							$params['WIDTH'] = '95%';
-							$params['HEIGHT'] = '400px';
-						}
+						$additionalValues[$descriptionData['viewList']]['SINGLE'] = $viewMethod($paramsSingle);
+						$additionalValues[$descriptionData['viewList']]['MULTIPLE'] = $viewMethod($paramsMultiple);
 						$additionalValues[$descriptionData['view']] = $viewMethod($params);
 					}
 
 					$editMethod = $propertySettings['PROPERTY_USER_TYPE'][self::USER_TYPE_GET_EDIT_METHOD] ?? null;
 					if ($editMethod && is_callable($editMethod))
 					{
+						$additionalValues[$descriptionData['editList']]['SINGLE'] = $editMethod($paramsSingle);
+						$additionalValues[$descriptionData['editList']]['MULTIPLE'] = $editMethod($paramsMultiple);
 						$additionalValues[$descriptionData['edit']] = $editMethod($params);
 					}
 				}
@@ -637,15 +661,25 @@ abstract class BaseForm
 			elseif ($fieldName === 'VAT_ID')
 			{
 				$vatList[] = [
-					'VALUE' => '0',
-					'NAME' => Loc::getMessage("CATALOG_PRODUCT_CARD_VARIATION_GRID_NOT_SELECTED")
+					'VALUE' => 'D',
+					'NAME' => Loc::getMessage("CATALOG_C_F_DEFAULT",
+						['#VALUE#' => Loc::getMessage("CATALOG_PRODUCT_CARD_VARIATION_GRID_NOT_SELECTED")])
 				];
+
+				$iblockId = $this->entity->getIblockId();
+				$iblockData = \CCatalog::GetByID($iblockId);
 
 				foreach ($this->getVats() as $vat)
 				{
+					if ($vat['ID'] === $iblockData['VAT_ID'])
+					{
+						$vatList[0]['NAME'] = Loc::getMessage("CATALOG_C_F_DEFAULT",
+							['#VALUE#' => htmlspecialcharsbx($vat['NAME'])]);
+					}
+
 					$vatList[] = [
 						'VALUE' => $vat['ID'],
-						'NAME' => $vat['NAME'],
+						'NAME' => htmlspecialcharsbx($vat['NAME']),
 					];
 				}
 
@@ -967,7 +1001,7 @@ abstract class BaseForm
 	public static function preparePropertyNameFromProperty(Property $property): string
 	{
 		$name = $property->getCode() === self::MORE_PHOTO ? self::MORE_PHOTO : $property->getId();
-		
+
 		return static::preparePropertyName($name);
 	}
 
@@ -1090,6 +1124,8 @@ abstract class BaseForm
 			$name = static::preparePropertyNameFromProperty($property);
 			$description['data']['view'] = $name.'[VIEW_HTML]';
 			$description['data']['edit'] = $name.'[EDIT_HTML]';
+			$description['data']['editList'] = $name.'[EDIT_HTML_LIST]';
+			$description['data']['viewList'] = $name.'[VIEW_HTML_LIST]';
 		}
 
 		if ($type === 'textarea')
@@ -1180,6 +1216,8 @@ abstract class BaseForm
 				{
 					$descriptionData['view'] = $name.'[VIEW_HTML]';
 					$descriptionData['edit'] = $name.'[EDIT_HTML]';
+					$descriptionData['editList'] = $name.'[EDIT_HTML_LIST]';
+					$descriptionData['viewList'] = $name.'[VIEW_HTML_LIST]';
 				}
 				elseif ($description['type'] === 'money')
 				{
@@ -1545,12 +1583,7 @@ HTML;
 
 		if ($field['originalName'] === 'VAT_ID' && $value === null)
 		{
-			$iblockId = $this->entity->getIblockId();
-			$defaultVat = \CCatalog::GetByID($iblockId);
-			if ($defaultVat)
-			{
-				$value = $defaultVat['VAT_ID'];
-			}
+			$value = 'D';
 		}
 
 		if (($field['originalName'] === 'ACTIVE_FROM' || $field['originalName'] === 'ACTIVE_TO')
@@ -1608,6 +1641,7 @@ HTML;
 		{
 			$vats = \Bitrix\Catalog\VatTable::getList([
 				'select' => ['ID', 'NAME'],
+				'filter' => ['=ACTIVE' => 'Y'],
 			])->fetchAll();
 		}
 

@@ -77,9 +77,8 @@ export class BaseCard extends EventEmitter
 		Dom.attr(this.getLayout(), 'hidden', hidden || null);
 	}
 
-	onClick(event: MouseEvent)
+	onClick()
 	{
-		event.preventDefault();
 		this.onClickHandler(this);
 		this.emit('onClick');
 	}

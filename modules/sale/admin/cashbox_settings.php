@@ -28,7 +28,17 @@ namespace Bitrix\Sale\Cashbox\AdminPage\Settings
 		$cashboxSettings = $cashbox['SETTINGS'];
 		if (class_exists($handler))
 		{
-			$settings = $handler::getSettings($cashbox['KKM_ID']);
+			$settings = [];
+			$isRestHandler = $handler === '\Bitrix\Sale\Cashbox\CashboxRest';
+			if ($isRestHandler)
+			{
+				$restCode = $cashboxSettings['REST']['REST_CODE'];
+				$settings = Cashbox\CashboxRest::getConfigStructure($restCode);
+			}
+			else
+			{
+				$settings = $handler::getSettings($cashbox['KKM_ID']);
+			}
 
 			if ($settings)
 			{

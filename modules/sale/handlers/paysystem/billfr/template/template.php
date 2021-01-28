@@ -98,8 +98,8 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 				{
 					if (!empty($sellerAddress))
 					{
-						$addrValue = implode('<br>', $sellerAddress)
-						?><div style="display: inline-block; vertical-align: top;"><b><?= htmlspecialcharsbx($addrValue) ?></b></div><?
+						$addrValue = implode("\n", $sellerAddress)
+						?><div style="display: inline-block; vertical-align: top;"><b><?= nl2br(htmlspecialcharsbx($addrValue)) ?></b></div><?
 						unset($addrValue);
 					}
 				}
@@ -135,8 +135,8 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 				{
 					if (!empty($buyerAddress))
 					{
-						$addrValue = implode('<br>', $buyerAddress)
-						?><div style="display: inline-block; vertical-align: top;"><?= htmlspecialcharsbx($addrValue) ?></div><?
+						$addrValue = implode("\n", $buyerAddress)
+						?><div style="display: inline-block; vertical-align: top;"><?= nl2br(htmlspecialcharsbx($addrValue)) ?></div><?
 						unset($addrValue);
 					}
 				}

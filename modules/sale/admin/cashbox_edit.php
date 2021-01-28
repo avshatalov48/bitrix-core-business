@@ -308,7 +308,18 @@ $tabControl->BeginCustomField('HANDLER', GetMessage("SALE_CASHBOX_HANDLER"));
 					if ($handler === '\Bitrix\Sale\Cashbox\Cashbox1C' && $cashbox['ID'] != Cashbox\Cashbox1C::getId())
 						continue;
 
-					if (class_exists($handler))
+					$restHandlers = [];
+					$isRestHandler = $handler === '\Bitrix\Sale\Cashbox\CashboxRest';
+					if ($isRestHandler)
+					{
+						$restHandlers = Cashbox\Manager::getRestHandlersList();
+						foreach ($restHandlers as $restHandlerCode => $restHandlerConfig)
+						{
+							$selected = ($restHandlerCode === $cashbox['SETTINGS']['REST']['REST_CODE']) ? 'selected' : '';
+							echo '<option data-rest-code="'.htmlspecialcharsbx($restHandlerCode).'" value="'.htmlspecialcharsbx($handler).'" '.$selected.'>'.htmlspecialcharsbx($restHandlerConfig['NAME']).'</option>';
+						}
+					}
+					elseif (class_exists($handler))
 					{
 						$selected = ($handler === $cashbox['HANDLER']) ? 'selected' : '';
 						$handlerName = $handler::getName();

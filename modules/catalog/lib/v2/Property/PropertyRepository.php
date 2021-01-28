@@ -7,6 +7,7 @@ use Bitrix\Catalog\v2\BaseEntity;
 use Bitrix\Catalog\v2\BaseIblockElementEntity;
 use Bitrix\Catalog\v2\PropertyValue\PropertyValueFactory;
 use Bitrix\Catalog\v2\Section\HasSectionCollection;
+use Bitrix\Iblock\PropertyEnumerationTable;
 use Bitrix\Iblock\PropertyTable;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
@@ -160,7 +161,7 @@ class PropertyRepository implements PropertyRepositoryContract
 		$result = [];
 
 		$filter = $params['filter'] ?? [];
-		
+
 		$propertyValuesIterator = \CIBlockElement::getPropertyValues($filter['IBLOCK_ID'], $filter, true);
 		while ($propertyValues = $propertyValuesIterator->fetch())
 		{
@@ -239,6 +240,8 @@ class PropertyRepository implements PropertyRepositoryContract
 			]);
 		}
 
+		$propertySettings = $this->loadEnumSettings($propertySettings);
+
 		foreach ($propertySettings as $settings)
 		{
 			$settings = $this->prepareSettings($settings);
@@ -294,7 +297,7 @@ class PropertyRepository implements PropertyRepositoryContract
 			if (!empty($settings['USER_TYPE']))
 			{
 				$userType = \CIBlockProperty::GetUserType($settings['USER_TYPE']);
-				
+
 				if (array_key_exists('ConvertFromDB', $userType))
 				{
 					$field = call_user_func($userType['ConvertFromDB'], $settings, $field);
@@ -323,5 +326,42 @@ class PropertyRepository implements PropertyRepositoryContract
 		$entity->initFields($fields);
 
 		return $entity;
+	}
+
+	private function loadEnumSettings(array $settings): array
+	{
+		$enumIds = [];
+
+		foreach ($settings as $setting)
+		{
+			if ($setting['PROPERTY_TYPE'] === PropertyTable::TYPE_LIST)
+			{
+				$enumIds[] = $setting['ID'];
+			}
+		}
+
+		$enumSettings = PropertyEnumerationTable::getList([
+			'select' => ['ID', 'PROPERTY_ID'],
+			'filter' => [
+				'PROPERTY_ID' => $enumIds,
+				'=DEF' => 'Y',
+			],
+		])
+			->fetchAll()
+		;
+		$enumSettings = array_column($enumSettings, 'ID', 'PROPERTY_ID');
+
+		if (!empty($enumSettings))
+		{
+			foreach ($settings as &$setting)
+			{
+				if (isset($enumSettings[$setting['ID']]))
+				{
+					$setting['DEFAULT_VALUE'] = $enumSettings[$setting['ID']];
+				}
+			}
+		}
+
+		return $settings;
 	}
 }

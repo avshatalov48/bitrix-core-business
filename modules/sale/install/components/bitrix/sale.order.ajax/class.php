@@ -2262,6 +2262,19 @@ class SaleOrderAjax extends \CBitrixComponent
 		return $res;
 	}
 
+	private function sanitize(string $html): string
+	{
+		static $sanitizer = null;
+
+		if ($sanitizer === null)
+		{
+			$sanitizer = new \CBXSanitizer;
+			$sanitizer->setLevel(\CBXSanitizer::SECURE_LEVEL_LOW);
+		}
+
+		return $sanitizer->sanitizeHtml($html);
+	}
+
 	/**
 	 * Set formatted order properties to $this->arResult (heavy load due to compatibility)
 	 * Execution of 'OnSaleComponentOrderOneStepOrderProps' event
@@ -3118,7 +3131,7 @@ class SaleOrderAjax extends \CBitrixComponent
 		/** @var Shipment $shipment */
 		$shipment = $this->getCurrentShipment($this->order);
 
-		if (!empty($this->arDeliveryServiceAll))
+		if ($shipment && !empty($this->arDeliveryServiceAll))
 		{
 			foreach ($this->arDeliveryServiceAll as $deliveryObj)
 			{
@@ -3127,7 +3140,7 @@ class SaleOrderAjax extends \CBitrixComponent
 				$arDelivery['ID'] = $deliveryObj->getId();
 				$arDelivery['NAME'] = $deliveryObj->isProfile() ? $deliveryObj->getNameWithParent() : $deliveryObj->getName();
 				$arDelivery['OWN_NAME'] = $deliveryObj->getName();
-				$arDelivery['DESCRIPTION'] = $deliveryObj->getDescription();
+				$arDelivery['DESCRIPTION'] = $this->sanitize($deliveryObj->getDescription());
 				$arDelivery['FIELD_NAME'] = 'DELIVERY_ID';
 				$arDelivery["CURRENCY"] = $this->order->getCurrency();
 				$arDelivery['SORT'] = $deliveryObj->getSort();
@@ -3149,9 +3162,9 @@ class SaleOrderAjax extends \CBitrixComponent
 					$this->arUserResult['DELIVERY_STORE'] = $arDelivery["ID"];
 				}
 			}
-		}
 
-		$arResult["BUYER_STORE"] = $shipment->getStoreId();
+			$arResult["BUYER_STORE"] = $shipment->getStoreId();
+		}
 
 		$arStore = [];
 		$dbList = CCatalogStore::GetList(
@@ -3211,6 +3224,8 @@ class SaleOrderAjax extends \CBitrixComponent
 					$innerPaySystem['LOGOTIP'] = CFile::GetFileArray($innerPaySystem['LOGOTIP']);
 				}
 
+				$innerPaySystem['DESCRIPTION'] = $this->sanitize((string)$innerPaySystem['DESCRIPTION']);
+
 				$arResult['INNER_PAY_SYSTEM'] = $innerPaySystem;
 				unset($paySystemList[$innerPaySystemId]);
 			}
@@ -3266,6 +3281,8 @@ class SaleOrderAjax extends \CBitrixComponent
 						}
 					}
 				}
+
+				$paySystem['DESCRIPTION'] = $this->sanitize((string)$paySystem['DESCRIPTION']);
 
 				$arResult['PAY_SYSTEM'][] = $paySystem;
 			}
@@ -3769,73 +3786,67 @@ class SaleOrderAjax extends \CBitrixComponent
 		$shipmentCollection = $shipment->getCollection();
 		$order = $shipmentCollection->getOrder();
 
-		if (!empty($this->arDeliveryServiceAll))
+		if (empty($this->arDeliveryServiceAll))
 		{
-			if (isset($this->arDeliveryServiceAll[$deliveryId]))
-			{
-				$deliveryObj = $this->arDeliveryServiceAll[$deliveryId];
-			}
-			else
-			{
-				$deliveryObj = reset($this->arDeliveryServiceAll);
+			$shipment->delete();
+			return;
+		}
 
-				if (!empty($deliveryId))
-				{
-					$this->addWarning(Loc::getMessage("DELIVERY_CHANGE_WARNING"), self::DELIVERY_BLOCK);
-				}
-
-				$deliveryId = $deliveryObj->getId();
-			}
-
-			if ($deliveryObj->isProfile())
-			{
-				$name = $deliveryObj->getNameWithParent();
-			}
-			else
-			{
-				$name = $deliveryObj->getName();
-			}
-
-			$order->isStartField();
-
-			$shipment->setFields([
-				'DELIVERY_ID' => $deliveryId,
-				'DELIVERY_NAME' => $name,
-				'CURRENCY' => $order->getCurrency(),
-			]);
-			$this->arUserResult['DELIVERY_ID'] = $deliveryId;
-
-			$deliveryStoreList = Delivery\ExtraServices\Manager::getStoresList($deliveryId);
-			if (!empty($deliveryStoreList))
-			{
-				if ($this->arUserResult['BUYER_STORE'] <= 0 || !in_array($this->arUserResult['BUYER_STORE'], $deliveryStoreList))
-				{
-					$this->arUserResult['BUYER_STORE'] = current($deliveryStoreList);
-				}
-
-				$shipment->setStoreId($this->arUserResult['BUYER_STORE']);
-			}
-
-			$deliveryExtraServices = $this->arUserResult['DELIVERY_EXTRA_SERVICES'];
-			if (is_array($deliveryExtraServices) && !empty($deliveryExtraServices[$deliveryId]))
-			{
-				$shipment->setExtraServices($deliveryExtraServices[$deliveryId]);
-				$deliveryObj->getExtraServices()->setValues($deliveryExtraServices[$deliveryId]);
-			}
-
-			$shipmentCollection->calculateDelivery();
-
-			$order->doFinalAction(true);
+		if (isset($this->arDeliveryServiceAll[$deliveryId]))
+		{
+			$deliveryObj = $this->arDeliveryServiceAll[$deliveryId];
 		}
 		else
 		{
-			$service = Delivery\Services\Manager::getById(Delivery\Services\EmptyDeliveryService::getEmptyDeliveryServiceId());
-			$shipment->setFields([
-				'DELIVERY_ID' => $service['ID'],
-				'DELIVERY_NAME' => $service['NAME'],
-				'CURRENCY' => $order->getCurrency(),
-			]);
+			$deliveryObj = reset($this->arDeliveryServiceAll);
+
+			if (!empty($deliveryId))
+			{
+				$this->addWarning(Loc::getMessage("DELIVERY_CHANGE_WARNING"), self::DELIVERY_BLOCK);
+			}
+
+			$deliveryId = $deliveryObj->getId();
 		}
+
+		if ($deliveryObj->isProfile())
+		{
+			$name = $deliveryObj->getNameWithParent();
+		}
+		else
+		{
+			$name = $deliveryObj->getName();
+		}
+
+		$order->isStartField();
+
+		$shipment->setFields([
+			'DELIVERY_ID' => $deliveryId,
+			'DELIVERY_NAME' => $name,
+			'CURRENCY' => $order->getCurrency(),
+		]);
+		$this->arUserResult['DELIVERY_ID'] = $deliveryId;
+
+		$deliveryStoreList = Delivery\ExtraServices\Manager::getStoresList($deliveryId);
+		if (!empty($deliveryStoreList))
+		{
+			if ($this->arUserResult['BUYER_STORE'] <= 0 || !in_array($this->arUserResult['BUYER_STORE'], $deliveryStoreList))
+			{
+				$this->arUserResult['BUYER_STORE'] = current($deliveryStoreList);
+			}
+
+			$shipment->setStoreId($this->arUserResult['BUYER_STORE']);
+		}
+
+		$deliveryExtraServices = $this->arUserResult['DELIVERY_EXTRA_SERVICES'];
+		if (is_array($deliveryExtraServices) && !empty($deliveryExtraServices[$deliveryId]))
+		{
+			$shipment->setExtraServices($deliveryExtraServices[$deliveryId]);
+			$deliveryObj->getExtraServices()->setValues($deliveryExtraServices[$deliveryId]);
+		}
+
+		$shipmentCollection->calculateDelivery();
+
+		$order->doFinalAction(true);
 	}
 
 	protected function initDeliveryServices(Shipment $shipment)
@@ -4161,11 +4172,6 @@ class SaleOrderAjax extends \CBitrixComponent
 			}
 		}
 
-		if (empty($this->arPaySystemServiceAll))
-		{
-			$this->addError(Loc::getMessage('SOA_ERROR_PAY_SYSTEM'), self::PAY_SYSTEM_BLOCK);
-		}
-
 		if (!empty($this->arUserResult['PREPAYMENT_MODE']))
 		{
 			$this->showOnlyPrepaymentPs($this->arUserResult['PAY_SYSTEM_ID']);
@@ -4331,7 +4337,9 @@ class SaleOrderAjax extends \CBitrixComponent
 				}
 			}
 
-			if (!array_key_exists((int)$selectedPaySystem['ID'], $this->arPaySystemServiceAll))
+			if (!empty($this->arPaySystemServiceAll)
+				&& !array_key_exists((int)$selectedPaySystem['ID'], $this->arPaySystemServiceAll)
+			)
 			{
 				$this->addError(Loc::getMessage('P2D_CALCULATE_ERROR'), self::PAY_SYSTEM_BLOCK);
 				$this->addError(Loc::getMessage('P2D_CALCULATE_ERROR'), self::DELIVERY_BLOCK);
@@ -6163,9 +6171,14 @@ class SaleOrderAjax extends \CBitrixComponent
 								/** @var PaySystem\ServiceResult $initResult */
 								$initResult = $paySystemService->initiatePay($payment, null, PaySystem\BaseServiceHandler::STRING);
 								if ($initResult->isSuccess())
+								{
 									$arPaySysAction['BUFFERED_OUTPUT'] = $initResult->getTemplate();
+									$arPaySysAction['PAYMENT_URL'] = $initResult->getPaymentUrl();
+								}
 								else
+								{
 									$arPaySysAction["ERROR"] = $initResult->getErrorMessages();
+								}
 							}
 
 							$arResult["PAYMENT"][$payment->getId()]['PAID'] = $payment->getField('PAID');

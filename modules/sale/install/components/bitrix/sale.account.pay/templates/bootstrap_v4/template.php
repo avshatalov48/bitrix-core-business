@@ -65,15 +65,11 @@ else
 											."name=".CUtil::JSEscape(htmlspecialcharsbx($arParams["VAR"]))." "
 											.($arParams['SELL_USER_INPUT'] === 'N' ? "disabled" :"").
 										">";
-									$tempCurrencyRow = trim(str_replace("#", "", $arResult['FORMATED_CURRENCY']));
-									$labelWrapper = "
+									$currencyRow = "
 										<div class='input-group-append'>
-											<span class='input-group-text' id='inputGroupPrepend'>".$tempCurrencyRow."</span>
+											<span class='input-group-text' id='inputGroupPrepend'>".$arResult['FORMATED_CURRENCY']."</span>
 										</div>";
-									$currencyRow = str_replace($tempCurrencyRow, $labelWrapper, $arResult['FORMATED_CURRENCY']);
-									$currencyRow = str_replace($tempCurrencyRow, $labelWrapper, $arResult['FORMATED_CURRENCY']);
-									$currencyRow = str_replace("#", $inputElement, $currencyRow);
-									echo $currencyRow;
+									echo $inputElement.$currencyRow;
 									?>
 								</div>
 							</div>

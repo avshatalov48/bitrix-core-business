@@ -232,6 +232,10 @@ this.BX = this.BX || {};
 	      if (this.isFormCreateMode || !this.invitation.value) {
 	        this.invitation.value = this.localize['BX_IM_COMPONENT_CONFERENCE_DEFAULT_INVITATION'];
 	      }
+
+	      if (!this.isFormCreateMode && this.invitation.value) {
+	        this.invitation.value = main_core.Text.encode(this.invitation.value);
+	      }
 	    },
 	    template: "\n\t\t\t\t\t<div>\n\t\t\t\t\t\t<div class=\"im-conference-create-section im-conference-create-invitation-title\">\n\t\t\t\t\t\t\t{{ localize['BX_IM_COMPONENT_CONFERENCE_INVITATION_TITLE'] }}\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"im-conference-create-section im-conference-create-invitation-wrap\">\n\t\t\t\t\t\t\t<div class=\"im-conference-create-invitation-user\">\n\t\t\t\t\t\t\t\t<div :class=\"avatarClasses\" :style=\"avatarStyles\"></div>\n\t\t\t\t\t\t\t\t<div class=\"im-conference-create-invitation-user-name\">{{ chatHost.FIRST_NAME }}</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t<div class=\"im-conference-create-invitation-content\">\n\t\t\t\t\t\t\t\t<template v-if=\"isViewMode\">\n\t\t\t\t\t\t\t\t\t<div @click=\"onEditClick\" v-html=\"formattedInvitation\" contenteditable=\"false\" ref=\"view\" class=\"im-conference-create-invitation-content-text\"></div>\n\t\t\t\t\t\t\t\t\t<div @click=\"onEditClick\" class=\"im-conference-create-invitation-edit\"></div>\n\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t<template v-else>\n\t\t\t\t\t\t\t\t\t<textarea @input=\"onInput\" :value=\"invitation.value\" class=\"im-conference-create-invitation-editor\" ref=\"editor\"></textarea>\n\t\t\t\t\t\t\t\t\t<div>\n\t\t\t\t\t\t\t\t\t\t<button @click=\"saveChanges\" class=\"ui-btn ui-btn-sm ui-btn-primary\">{{ localize['BX_IM_COMPONENT_CONFERENCE_BUTTON_SAVE'] }}</button>\n\t\t\t\t\t\t\t\t\t\t<button @click=\"discardChanges\" class=\"ui-btn ui-btn-sm ui-btn-light\">{{ localize['BX_IM_COMPONENT_CONFERENCE_BUTTON_CANCEL'] }}</button>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t"
 	  }
@@ -852,7 +856,7 @@ this.BX = this.BX || {};
 	      fieldsToSubmit['password_needed'] = this.passwordNeeded.currentValue;
 	      fieldsToSubmit['password'] = this.password.currentValue;
 	      fieldsToSubmit['id'] = this.conferenceId;
-	      fieldsToSubmit['invitation'] = this.invitation.value;
+	      fieldsToSubmit['invitation'] = main_core.Text.decode(this.invitation.value);
 	      fieldsToSubmit['users'] = this.selectedUsers.currentValue.map(function (user) {
 	        return user.id;
 	      });

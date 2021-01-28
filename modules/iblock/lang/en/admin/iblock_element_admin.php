@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBEL_A_ACCESS_DENIED_STATUS"] = "You do not have enough permissions to edit this record in its current state";
 $MESS["IBEL_A_ACTFROM"] = "Active from";
 $MESS["IBEL_A_ACTIVATE"] = "Activate";
@@ -8,6 +8,8 @@ $MESS["IBEL_A_BP_H"] = "Business Processes";
 $MESS["IBEL_A_BP_PROC"] = "Process";
 $MESS["IBEL_A_BP_RUN"] = "Run Business Process";
 $MESS["IBEL_A_BP_TASK"] = "Task";
+$MESS["IBEL_A_CATALOG_PRODUCT"] = "Product";
+$MESS["IBEL_A_CATALOG_PRODUCT_TITLE"] = "Product";
 $MESS["IBEL_A_CHANGE"] = "Modify";
 $MESS["IBEL_A_CLEAR_COUNTER"] = "Reset views counter";
 $MESS["IBEL_A_CLEAR_COUNTER_TITLE"] = "Reset views counter and first view date";
@@ -77,6 +79,7 @@ $MESS["IBEL_CATALOG_BAR_CODE_MULTI"] = "multiple";
 $MESS["IBEL_CATALOG_BUNDLE"] = "Bundle";
 $MESS["IBEL_CATALOG_CAN_BUY_ZERO"] = "Make out-of-stock items available for purchase";
 $MESS["IBEL_CATALOG_CAN_BUY_ZERO_TITLE"] = "Make out-of-stock items available for purchase including those with negative quantity";
+$MESS["IBEL_CATALOG_DEFAULT"] = "(default)";
 $MESS["IBEL_CATALOG_EMPTY_VALUE"] = "not selected";
 $MESS["IBEL_CATALOG_EXTRA_DESCRIPTION"] = "Surcharge of #VALUE# to the base price";
 $MESS["IBEL_CATALOG_HEIGHT"] = "Height";
@@ -138,4 +141,3 @@ $MESS["IBLOCK_UNLOCK_ALT"] = "Unlock record";
 $MESS["IBLOCK_UNLOCK_CONFIRM"] = "Are you sure you want to unlock the record?";
 $MESS["IBLOCK_YELLOW_ALT"] = "you have locked this item (remember to unlock)";
 $MESS["IB_CAT_NO_BASE_PRICE"] = "no base price";
-?>

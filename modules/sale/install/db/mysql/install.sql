@@ -340,6 +340,7 @@ create table if not exists b_sale_pay_system_rest_handlers
 	CODE varchar(50) NULL,
 	SORT int not null default '100',
 	SETTINGS text null,
+	APP_ID varchar(128) null,
 	unique IX_SALE_PS_HANDLER_CODE(CODE),
 	primary key (ID)
 );
@@ -2007,6 +2008,7 @@ create table if not exists b_sale_delivery_rest_handler
 	DESCRIPTION text null,
 	SETTINGS text not null,
 	PROFILES text not null,
+	APP_ID varchar(128) null,
 	unique IX_SALE_DELIVERY_HANDLER_CODE(CODE),
 	primary key (ID)
 );
@@ -2045,4 +2047,15 @@ create table if not exists b_sale_local_delivery_requests
 	DELIVERY_SERVICE_ID INT NOT NULL,
 	EXTERNAL_ID VARCHAR(255) NOT NULL,
 	UNIQUE INDEX `IX_SERVICE_SHIPMENT_EXTERNAL_ID` (DELIVERY_SERVICE_ID, SHIPMENT_ID, EXTERNAL_ID)
+);
+
+create table if not exists b_sale_cashbox_rest_handler
+(
+    ID int not null auto_increment,
+    NAME varchar(255) not null,
+    CODE varchar(50) not null,
+    SORT int not null default '100',
+    SETTINGS text not null,
+    unique IX_CASHBOX_HANDLER_CODE(CODE),
+    primary key (ID)
 );

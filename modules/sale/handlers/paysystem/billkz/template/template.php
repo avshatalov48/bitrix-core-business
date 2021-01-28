@@ -638,8 +638,12 @@ for ($n = 1; $n <= $rowsCnt; $n++):
 	<?=Loc::getMessage(
 			'SALE_HPS_BILLKZ_BASKET_TOTAL',
 			array(
-					'#BASKET_COUNT#' => $cntBasketItem,
-					'#BASKET_PRICE#' => SaleFormatCurrency($params['SUM'], $params['CURRENCY'], false)
+				'#BASKET_COUNT#' => $cntBasketItem,
+				'#BASKET_PRICE#' => htmlspecialcharsbx(
+					SaleFormatCurrency($params['SUM'], $params['CURRENCY'], false),
+					ENT_COMPAT,
+					false
+				)
 			)
 	);?>
 	<br>

@@ -13,7 +13,11 @@
 $this->setFrameMode(false);
 ?>
 <?='<?xml version="1.0" encoding="'.SITE_CHARSET.'"?>'?>
-<rss version="2.0"<?if($arParams["YANDEX"]) echo ' xmlns="http://backend.userland.com/rss2" xmlns:yandex="http://news.yandex.ru"';?>>
+<rss version="2.0"<?if($arParams["YANDEX"])
+{
+	echo ' xmlns="'.$arResult["PROTOCOL"].'cyber.harvard.edu/rss/rss.html" xmlns:yandex="'.$arResult["PROTOCOL"].'news.yandex.ru"';
+}
+?>>
 <channel>
 <title><?=$arResult["NAME"].($arResult["SECTION"]["NAME"] <> ''?" / ".$arResult["SECTION"]["NAME"]:"")?></title>
 <link><?=CHTTP::URN2URI("", $arResult["SERVER_NAME"])?></link>
@@ -41,7 +45,7 @@ $this->setFrameMode(false);
 		}
 		?>
 	<?else:?>
-		
+
 		<image>
 			<title><?=$arResult["NAME"]?></title>
 			<url><?=$image?></url>

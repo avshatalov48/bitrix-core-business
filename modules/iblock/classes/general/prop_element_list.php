@@ -25,8 +25,6 @@ class CIBlockPropertyElementList
 			"GetSettingsHTML" =>array(__CLASS__, "GetSettingsHTML"),
 			"GetExtendedValue" => array(__CLASS__,  "GetExtendedValue"),
 			'GetUIEntityEditorProperty' => array(__CLASS__, 'GetUIEntityEditorProperty'),
-			'GetUIEntityEditorPropertyEditHtml' => array(__CLASS__, 'GetUIEntityEditorPropertyEditHtml'),
-			'GetUIEntityEditorPropertyViewHtml' => array(__CLASS__, 'GetUIEntityEditorPropertyViewHtml'),
 		);
 	}
 
@@ -516,33 +514,22 @@ class CIBlockPropertyElementList
 
 	public static function GetUIEntityEditorProperty($settings, $value)
 	{
+		$items = [];
+		foreach (CIBlockPropertyElementList::GetElements($settings['IBLOCK_ID']) as $element)
+		{
+			$items[] = [
+				'NAME' => $element['NAME'],
+				'VALUE' => $element['ID'],
+				'ID' => $element['ID'],
+			];
+		}
 		return [
-			'type' => 'custom'
-		];
-	}
-
-	public static function GetUIEntityEditorPropertyEditHtml(array $params = []) : string
-	{
-		$settings = $params['SETTINGS'] ?? [];
-		$value = $params['VALUE'] ?? '';
-		$paramsHTMLControl = [
-			'MODE' => 'iblock_element_admin',
-			'VALUE' => $params['FIELD_NAME'] ?? '',
-		];
-		return self::GetPropertyFieldHtml($settings, $value, $paramsHTMLControl);
-	}
-
-	public static function GetUIEntityEditorPropertyViewHtml(array $params = []) : string
-	{
-		$settings = $params['SETTINGS'] ?? [];
-		$value = $params['VALUE'] ?? '';
-		return self::GetPublicViewHTML(
-			$settings,
-			['VALUE' => $value],
-			[
-				'MODE' => 'FORM_FILL',
-				'VALUE' => $params['FIELD_NAME'] ?? '',
+			'type' => ($settings['MULTIPLE'] === 'Y') ? 'multilist' : 'list',
+			'data' => [
+				'isProductProperty' => true,
+				'enableEmptyItem' => true,
+				'items' => $items
 			]
-		);
+		];
 	}
 }

@@ -111,6 +111,10 @@ if($this->StartResultCache(false, array($arParams["CACHE_GROUPS"]==="N"? false: 
 		}
 	}
 
+	$arResult["PROTOCOL"] = \Bitrix\Main\Context::getCurrent()->getRequest()->isHttps()
+		? 'https://'
+		: 'http://';
+
 	$arResult["RSS_TTL"] = $arParams["RSS_TTL"];
 
 	if($arParams["SECTION_ID"] > 0 || $arParams["SECTION_CODE"] <> '')

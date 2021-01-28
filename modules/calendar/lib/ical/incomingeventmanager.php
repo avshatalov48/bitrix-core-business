@@ -53,10 +53,7 @@ class IncomingEventManager
 
 	public static function handleReply(array $params): bool
 	{
-		$uid = $params['event']['DAV_XML_ID'];
-		$emailUser = $params['event']['ATTENDEES_MAIL'][0];
-		$userId = ICalUtil::getUserIdByEmail($emailUser);
-		$localEvent = ICalUtil::getEventByUId($userId, $uid);
+		$localEvent = ICalUtil::getEventByUId($params['event']['DAV_XML_ID']);
 
 		if (!empty($localEvent))
 		{
@@ -107,9 +104,8 @@ class IncomingEventManager
 	public static function handleCancel($params)
 	{
 		$event = $params['event'];
-		$userId = $params['userId'];
 
-		$originalValue = ICalUtil::getEventByUId($userId, $event['DAV_XML_ID']);
+		$originalValue = ICalUtil::getEventByUId($event['DAV_XML_ID']);
 		if (!empty($originalValue))
 		{
 			$deleteParams = [
@@ -237,7 +233,7 @@ class IncomingEventManager
 			];
 		}
 
-		$originalValue = ICalUtil::getEventByUId($userId, $event['DAV_XML_ID']);
+		$originalValue = ICalUtil::getEventByUId($event['DAV_XML_ID']);
 		$event['ID'] = $originalValue ? $originalValue['ID'] : 0;
 
 		return $event;

@@ -193,13 +193,15 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 	 * @param Delivery\Services\Base|null $service
 	 * @return mixed
 	 * @throws Main\ArgumentException
-	 * @throws Main\ObjectException
+	 * @throws Main\SystemException
 	 */
 	public static function create(ShipmentCollection $collection, Delivery\Services\Base $service = null)
 	{
+		$emptyService = Delivery\Services\Manager::getById(Delivery\Services\EmptyDeliveryService::getEmptyDeliveryServiceId());
 		$fields = [
 			'DATE_INSERT' => new Main\Type\DateTime(),
-			'DELIVERY_ID' => Delivery\Services\EmptyDeliveryService::getEmptyDeliveryServiceId(),
+			'DELIVERY_ID' => $emptyService['ID'],
+			'DELIVERY_NAME' => $emptyService['NAME'],
 			'ALLOW_DELIVERY' => 'N',
 			'DEDUCTED' => 'N',
 			'CUSTOM_PRICE_DELIVERY' => 'N',
@@ -447,7 +449,7 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 					{
 						$foundItem = true;
 					}
-					
+
 					if ($sourceShipmentItemForPool && $poolItem->getInternalIndex() === $sourceShipmentItemForPool->getInternalIndex())
 					{
 						$reserveQuantity = $sourceShipmentItemForPool->getReservedQuantity();
@@ -694,7 +696,7 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 	public static function deleteNoDemand($orderId)
 	{
 		$result = new Result();
-		
+
 		$shipmentDataList = static::getList(
 			[
 				"filter" => ["=ORDER_ID" => $orderId],
@@ -2265,7 +2267,7 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 				}
 			}
 		}
-		
+
 		return $result;
 	}
 
@@ -2498,7 +2500,7 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 				$autoFix = $shipmentItemCollection->canAutoFixError($value);
 			}
 		}
-		
+
 		return $autoFix;
 	}
 
@@ -2557,7 +2559,7 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 	public static function fixReserveErrors(Shipment $entity)
 	{
 		$result = new Result();
-		
+
 		$r = $entity->tryReserve();
 		if (!$r->isSuccess())
 		{
@@ -2716,7 +2718,7 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 	{
 		$vatRate = $this->getVatRate();
 		$price = $this->getPrice() * $vatRate / (1 + $vatRate);
-		
+
 		return PriceMaths::roundPrecision($price);
 	}
 
@@ -2796,16 +2798,6 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 	}
 
 	/**
-	 * @deprecated Use getOrder instead
-	 *
-	 * @return Order|null
-	 */
-	public function getParentOrder()
-	{
-		return $this->getOrder();
-	}
-
-	/**
 	 * @return null|string
 	 * @internal
 	 *
@@ -2813,6 +2805,30 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 	public static function getEntityEventName()
 	{
 		return 'SaleShipment';
+	}
+
+	/**
+	 * @return array
+	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
+	 */
+	public function toArray() : array
+	{
+		$result = parent::toArray();
+
+		$result['ITEMS'] = $this->getShipmentItemCollection()->toArray();
+
+		return $result;
+	}
+
+	/**
+	 * @deprecated Use getOrder instead
+	 *
+	 * @return Order|null
+	 */
+	public function getParentOrder()
+	{
+		return $this->getOrder();
 	}
 }
 

@@ -8,6 +8,7 @@
 
 namespace Bitrix\Iblock\ORM;
 
+use Bitrix\Main\ORM\Event;
 use Bitrix\Main\ORM\Objectify\Collection;
 use Bitrix\Main\ORM\Objectify\EntityObject;
 
@@ -45,5 +46,17 @@ class ElementV2Table extends CommonElementTable
 	public static function getCollectionClass()
 	{
 		return static::getCollectionClassByDataClass(get_called_class());
+	}
+
+	public static function onAfterAdd(Event $event)
+	{
+		parent::onAfterAdd($event);
+
+		$id = $event->getParameter('id');
+		$table = static::getEntity()->getSingleValueTableName();
+		$connection = static::getEntity()->getConnection();
+
+		// create single value row
+		$connection->add($table, ['IBLOCK_ELEMENT_ID' => $id]);
 	}
 }

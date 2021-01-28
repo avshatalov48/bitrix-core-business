@@ -14,6 +14,13 @@ use Bitrix\Mail;
 class Message
 {
 
+	/**
+	 * Adapts a message(result of Mail\MailMessageTable::getList) for output in the public interface.
+	 *
+	 * @param array &$message(result of Mail\MailMessageTable::getList. Changes the data in a variable!).
+	 *
+	 * @return array(modified $message).
+	 */
 	public static function prepare(&$message)
 	{
 		$message['__email'] = null;

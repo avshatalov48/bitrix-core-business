@@ -227,6 +227,7 @@ class CatalogElementComponent extends Element
 						'MODULE' => 'catalog',
 						'LID' => $this->getSiteId()
 					);
+					/** @noinspection PhpDeprecationInspection */
 					\CSaleViewedProduct::Add($fields);
 				}
 
@@ -243,6 +244,7 @@ class CatalogElementComponent extends Element
 						'LID' => $this->getSiteId(),
 						'IBLOCK_ID' => $this->arResult['IBLOCK_ID']
 					);
+					/** @noinspection PhpDeprecationInspection */
 					\CSaleViewedProduct::Add($fields);
 				}
 
@@ -253,12 +255,15 @@ class CatalogElementComponent extends Element
 			{
 				if (Loader::includeModule('catalog') && Loader::includeModule('sale'))
 				{
-					Catalog\CatalogViewedProductTable::refresh(
-						$this->arResult['VIEWED_PRODUCT']['OFFER_ID'],
-						\CSaleBasket::GetBasketUserID(),
-						$this->getSiteId(),
-						$this->arResult['VIEWED_PRODUCT']['PRODUCT_ID']
-					);
+					if ((string)Main\Config\Option::get('catalog', 'enable_viewed_products') !== 'N')
+					{
+						Catalog\CatalogViewedProductTable::refresh(
+							$this->arResult['VIEWED_PRODUCT']['OFFER_ID'],
+							\CSaleBasket::GetBasketUserID(),
+							$this->getSiteId(),
+							$this->arResult['VIEWED_PRODUCT']['PRODUCT_ID']
+						);
+					}
 				}
 			}
 		}

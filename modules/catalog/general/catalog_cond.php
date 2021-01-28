@@ -402,8 +402,7 @@ class CGlobalCondCtrl
 							{
 								$intOneValue = (int)$intOneValue;
 							}
-							if (isset($intOneValue))
-								unset($intOneValue);
+							unset($intOneValue);
 						}
 						else
 						{
@@ -417,8 +416,7 @@ class CGlobalCondCtrl
 							{
 								$dblOneValue = (float)$dblOneValue;
 							}
-							if (isset($dblOneValue))
-								unset($dblOneValue);
+							unset($dblOneValue);
 						}
 						else
 						{
@@ -432,8 +430,7 @@ class CGlobalCondCtrl
 							{
 								$strOneValue = mb_substr($strOneValue, 0, 1);
 							}
-							if (isset($strOneValue))
-								unset($strOneValue);
+							unset($strOneValue);
 						}
 						else
 						{
@@ -450,8 +447,7 @@ class CGlobalCondCtrl
 							{
 								$strOneValue = mb_substr($strOneValue, 0, $intMaxLen);
 							}
-							if (isset($strOneValue))
-								unset($strOneValue);
+							unset($strOneValue);
 						}
 						else
 						{
@@ -478,16 +474,16 @@ class CGlobalCondCtrl
 						$boolValueError = true;
 						break;
 				}
-			}
-			if (!$boolValueError)
-			{
-				if ($boolMulti)
-					$arOneCondition['value'] = array_values(array_unique($arOneCondition['value']));
+				if (!$boolValueError)
+				{
+					if ($boolMulti)
+						$arOneCondition['value'] = array_values(array_unique($arOneCondition['value']));
+				}
 			}
 
 			if (!$boolValueError)
 			{
-				if (isset($arControl['PHP_VALUE']) && isset($arControl['PHP_VALUE']['VALIDATE']) && !empty($arControl['PHP_VALUE']['VALIDATE']))
+				if (isset($arControl['PHP_VALUE']) && !empty($arControl['PHP_VALUE']['VALIDATE']))
 				{
 					$arValidate = static::Validate($arOneCondition, $arParams, $arControl, $boolShow);
 					if ($arValidate === false)
@@ -555,8 +551,7 @@ class CGlobalCondCtrl
 							{
 								$intOneValue = (int)$intOneValue;
 							}
-							if (isset($intOneValue))
-								unset($intOneValue);
+							unset($intOneValue);
 						}
 						else
 						{
@@ -570,8 +565,7 @@ class CGlobalCondCtrl
 							{
 								$dblOneValue = (float)$dblOneValue;
 							}
-							if (isset($dblOneValue))
-								unset($dblOneValue);
+							unset($dblOneValue);
 						}
 						else
 						{
@@ -585,8 +579,7 @@ class CGlobalCondCtrl
 							{
 								$strOneValue = mb_substr($strOneValue, 0, 1);
 							}
-							if (isset($strOneValue))
-								unset($strOneValue);
+							unset($strOneValue);
 						}
 						else
 						{
@@ -603,8 +596,7 @@ class CGlobalCondCtrl
 							{
 								$strOneValue = mb_substr($strOneValue, 0, $intMaxLen);
 							}
-							if (isset($strOneValue))
-								unset($strOneValue);
+							unset($strOneValue);
 						}
 						else
 						{
@@ -640,7 +632,7 @@ class CGlobalCondCtrl
 
 			if (!$boolError)
 			{
-				if (isset($arControl['PHP_VALUE']) && isset($arControl['PHP_VALUE']['VALIDATE']) && !empty($arControl['PHP_VALUE']['VALIDATE']))
+				if (isset($arControl['PHP_VALUE']) && !empty($arControl['PHP_VALUE']['VALIDATE']))
 				{
 					$arValidate = static::Validate($arOneCondition, $arParams, $arControl, $boolShow);
 					if ($arValidate === false)
@@ -1989,15 +1981,7 @@ class CGlobalCondCtrl
 		}
 	}
 
-	public static function UndefinedCondition($boolFatal = false)
-	{
-		$boolFatal = (true === $boolFatal);
-		$arResult = array(
-			''
-		);
-	}
-
-	static function LogicGreat($arField, $mxValue)
+	public static function LogicGreat($arField, $mxValue)
 	{
 		$boolResult = false;
 		if (!is_array($arField))
@@ -2020,7 +2004,7 @@ class CGlobalCondCtrl
 		return $boolResult;
 	}
 
-	static function LogicLess($arField, $mxValue)
+	public static function LogicLess($arField, $mxValue)
 	{
 		$boolResult = false;
 		if (!is_array($arField))
@@ -2043,7 +2027,7 @@ class CGlobalCondCtrl
 		return $boolResult;
 	}
 
-	static function LogicEqualGreat($arField, $mxValue)
+	public static function LogicEqualGreat($arField, $mxValue)
 	{
 		$boolResult = false;
 		if (!is_array($arField))
@@ -2066,7 +2050,7 @@ class CGlobalCondCtrl
 		return $boolResult;
 	}
 
-	static function LogicEqualLess($arField, $mxValue)
+	public static function LogicEqualLess($arField, $mxValue)
 	{
 		$boolResult = false;
 		if (!is_array($arField))
@@ -2089,7 +2073,7 @@ class CGlobalCondCtrl
 		return $boolResult;
 	}
 
-	static function LogicContain($arField, $mxValue)
+	public static function LogicContain($arField, $mxValue)
 	{
 		$boolResult = false;
 		if (!is_array($arField))
@@ -2110,7 +2094,7 @@ class CGlobalCondCtrl
 		return $boolResult;
 	}
 
-	static function LogicNotContain($arField, $mxValue)
+	public static function LogicNotContain($arField, $mxValue)
 	{
 		$boolResult = true;
 		if (!is_array($arField))
@@ -2167,7 +2151,7 @@ class CGlobalCondCtrl
 		return $boolLocalError;
 	}
 
-	static function ConvertInt2DateTime(&$mxValues, $strFormat, $intOffset)
+	public static function ConvertInt2DateTime(&$mxValues, $strFormat, $intOffset)
 	{
 		global $DB;
 
@@ -2199,7 +2183,7 @@ class CGlobalCondCtrl
 		return $boolValueError;
 	}
 
-	static function ConvertDateTime2Int(&$mxValues, $strFormat, $intOffset)
+	public static function ConvertDateTime2Int(&$mxValues, $strFormat, $intOffset)
 	{
 		global $DB;
 
@@ -3908,8 +3892,14 @@ class CGlobalCondTree
 				if (empty($row['ID']) || isset($this->arAtomList[$row['ID']]))
 					continue;
 				$this->arAtomList[$row['ID']] = $row;
-				if (!empty($row['JS_SRC']) && !in_array($row['JS_SRC'], $this->arAtomJSPath))
+				if (
+					!empty($row['JS_SRC'])
+					&& is_string($row['JS_SRC'])
+					&& !in_array($row['JS_SRC'], $this->arAtomJSPath)
+				)
+				{
 					$this->arAtomJSPath[] = $row['JS_SRC'];
+				}
 			}
 			unset($row);
 		}
@@ -4630,22 +4620,19 @@ class CGlobalCondTree
 
 	public function ShowAtoms()
 	{
-		global $APPLICATION;
-
 		if (!$this->boolError)
 		{
 			if (!isset($this->arAtomList))
 			{
 				$this->OnConditionAtomBuildList();
 			}
-			if (isset($this->arAtomJSPath) && !empty($this->arAtomJSPath))
+			if (!empty($this->arAtomJSPath) && is_array($this->arAtomJSPath))
 			{
-				foreach ($this->arAtomJSPath as &$strJSPath)
-				{
-					$APPLICATION->AddHeadScript($strJSPath);
-				}
-				if (isset($strJSPath))
-					unset($strJSPath);
+				$asset = Main\Page\Asset::getInstance();
+				foreach ($this->arAtomJSPath as $jsPath)
+					$asset->addJs($jsPath);
+				unset($jsPath);
+				unset($asset);
 			}
 		}
 	}
@@ -4738,7 +4725,6 @@ class CGlobalCondTree
 							$arOneResult['children'] = $this->ShowLevel($arLevel['CHILDREN'], false);
 					}
 					$arResult[] = $arOneResult;
-					$intCount++;
 				}
 			}
 		}

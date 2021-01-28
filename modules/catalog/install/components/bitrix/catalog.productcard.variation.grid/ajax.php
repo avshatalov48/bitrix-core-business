@@ -39,6 +39,7 @@ class VariationGridController extends \Bitrix\Main\Engine\Controller
 			[
 				'IBLOCK_ID' => $iblockId,
 				'PRODUCT_ID' => (int)($params['PRODUCT_ID'] ?? 0),
+				'VARIATION_ID_LIST' => $params['VARIATION_ID_LIST'] ?? null,
 				'COPY_PRODUCT_ID' => (int)($params['COPY_PRODUCT_ID'] ?? 0),
 				'EXTERNAL_FIELDS' => $params['EXTERNAL_FIELDS'] ?? null,
 				'PATH_TO' => $params['PATH_TO'] ?? [],

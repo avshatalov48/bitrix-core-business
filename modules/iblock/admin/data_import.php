@@ -994,11 +994,16 @@ if (($_SERVER['REQUEST_METHOD'] == "POST" || $CUR_FILE_POS > 0) && $STEP > 1 && 
 						"ID",
 						"IBLOCK_ID",
 					));
+					$elementFields = array(
+						"ACTIVE" => "N",
+					);
+					if ((string)\Bitrix\Main\Config\Option::get('iblock', 'change_user_by_group_active_modify') === 'Y')
+					{
+						$elementFields['MODIFIED_BY'] = $USER->GetID();
+					}
 					while ($arr = $res->Fetch())
 					{
-						$el->Update($arr["ID"], array(
-							"ACTIVE" => "N",
-						));
+						$el->Update($arr["ID"], $elementFields);
 						$killed_lines++;
 					}
 				}

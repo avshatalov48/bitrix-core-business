@@ -29,6 +29,7 @@ $MESS["IBLOCK_PRICE_CODE"] = "Тип цены";
 $MESS["IBLOCK_VAT_INCLUDE"] = "Включать НДС в цену";
 $MESS["IBLOCK_VAT_SHOW_VALUE"] = "Отображать значение НДС";
 $MESS["IBLOCK_BASKET_URL"] = "URL, ведущий на страницу с корзиной покупателя";
+$MESS["IBLOCK_SHOW_SKU_DESCRIPTION"] = "Отображать описание для каждого торгового предложения";
 $MESS["IBLOCK_ACTION_VARIABLE"] = "Название переменной, в которой передается действие";
 $MESS["IBLOCK_PRODUCT_ID_VARIABLE"] = "Название переменной, в которой передается код товара для покупки";
 $MESS["IBLOCK_SECTION_ID_VARIABLE"] = "Название переменной, в которой передается код группы";

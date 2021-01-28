@@ -11,7 +11,9 @@ namespace Bitrix\Iblock;
 use Bitrix\Iblock\ORM\ElementEntity;
 use Bitrix\Iblock\ORM\ElementV1Entity;
 use Bitrix\Iblock\ORM\PropertyToField;
+use Bitrix\Iblock\ORM\ValueStorageEntity;
 use Bitrix\Iblock\ORM\ValueStorageTable;
+use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\ORM\Entity;
 use Bitrix\Main\ORM\Fields\IntegerField;
 use Bitrix\Main\ORM\Fields\StringField;
@@ -23,7 +25,7 @@ use Bitrix\Main\SystemException;
  */
 class Property extends EO_Property
 {
-	/** @var Entity */
+	/** @var ValueStorageEntity */
 	protected $valueEntity;
 
 	/**
@@ -47,6 +49,16 @@ class Property extends EO_Property
 						'select' => ['ID', 'API_CODE']
 					])->fetchObject()
 				);
+			}
+
+			/** @var DataManager $entityClassName */
+			$entityClassName = 'IblockProperty'.$this->getId().'Table';
+			$entityClass = '\\'.IblockTable::DATA_CLASS_NAMESPACE.'\\'.$entityClassName;
+
+			if (class_exists($entityClass, false))
+			{
+				// already compiled
+				return $this->valueEntity = $entityClass::getEntity();
 			}
 
 			$valueTableName = $this->getMultiple()
@@ -104,7 +116,7 @@ class Property extends EO_Property
 
 			// construct PropertyValue entity
 			$this->valueEntity = Entity::compileEntity(
-				'IblockProperty'.$this->getId(),
+				$entityClassName,
 				$fields,
 				[
 					'namespace' => IblockTable::DATA_CLASS_NAMESPACE,

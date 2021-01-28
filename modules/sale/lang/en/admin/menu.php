@@ -106,6 +106,7 @@ $MESS["SALE_MENU_LOCATION_SERVICES_TITLE"] = "External services";
 $MESS["SALE_MENU_LOCATION_TYPES"] = "Location types";
 $MESS["SALE_MENU_LOCATION_TYPES_TITLE"] = "Location types";
 $MESS["SALE_MENU_LOCATION_ZONES"] = "Locations for sites";
+$MESS["SALE_MENU_LOCATION_ZONES_TITLE"] = "Locations for sites";
 $MESS["SALE_MENU_MARKETING_MARKETPLACE_ADD"] = "Install from Marketplace";
 $MESS["SALE_MENU_MARKETPLACE_READY_SHOPS"] = "Install a ready to use shop from Marketplace";
 $MESS["SALE_MENU_SUBSCRIPTION_PRODUCT"] = "Product subscriptions";

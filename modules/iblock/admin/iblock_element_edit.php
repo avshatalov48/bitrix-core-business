@@ -1272,7 +1272,7 @@ do{ //one iteration loop
 							currentWindow.<? echo $strLookup; ?>.AddValue(<? echo $ID;?>);
 							currentWindow.BX.WindowManager.Get().AllowClose(); currentWindow.BX.WindowManager.Get().Close();
 							</script><?
-							die();
+							CMain::FinalActions();
 						}
 						else
 						{
@@ -1300,7 +1300,7 @@ do{ //one iteration loop
 							if($return_url === "reload_absence_calendar")
 							{
 								echo '<script type="text/javascript">top.jsBXAC.__reloadCurrentView();</script>';
-								die();
+								CMain::FinalActions();
 							}
 							else
 							{
@@ -1360,7 +1360,7 @@ do{ //one iteration loop
 							);
 						</script>
 						<?
-						die();
+						CMain::FinalActions();
 					}
 					else
 					{
@@ -2103,7 +2103,7 @@ if ($ID > 0 && !$bCopy)
 		}
 	}
 }
-	
+
 $tabControl->BeginCustomField("ID", "ID:");
 if ($ID > 0 && !$bCopy)
 {

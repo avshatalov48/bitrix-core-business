@@ -607,7 +607,10 @@ $actionPanelActionButtons = array_merge($actionPanelActionButtons, [
 
 					setTimeout(panel.unfixPanel.bind(panel));
 
-					//panel.handleOuterClick = function () {};
+					//cancellation of reset of checkboxes when clicking outside the panel and grid area
+					panel.handleOuterClick = function()
+					{
+					};
 				}
 			}
 		);

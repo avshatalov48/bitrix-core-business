@@ -87,7 +87,7 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 	{
 		$sellerInfoName .= $params["SELLER_COMPANY_NAME"];
 		if (!empty($sellerInfoName))
-			$sellerInfoRows[] = $sellerInfoName;
+			$sellerInfoRows[] = htmlspecialcharsbx($sellerInfoName);
 	}
 	unset($sellerInfoName);
 	$sellerInfoTaxId = '';
@@ -95,7 +95,7 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 	{
 		$sellerInfoTaxId .= Loc::getMessage('SALE_HPS_BILLBY_INN').': '.$params['SELLER_COMPANY_INN'];
 		if (!empty($sellerInfoTaxId))
-			$sellerInfoRows[] = $sellerInfoTaxId;
+			$sellerInfoRows[] = htmlspecialcharsbx($sellerInfoTaxId);
 	}
 	unset($sellerInfoTaxId);
 	$sellerInfoBank = '';
@@ -151,7 +151,7 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 		$sellerInfoBank .= Loc::getMessage('SALE_HPS_BILLBY_SELLER_BANK_BIK').' '.$params['SELLER_COMPANY_BANK_BIC'];
 	}
 	if (!empty($sellerInfoBank))
-		$sellerInfoRows[] = $sellerInfoBank;
+		$sellerInfoRows[] = htmlspecialcharsbx($sellerInfoBank);
 	unset($sellerInfoBank);
 	$sellerInfoAddr = '';
 	if ($params['SELLER_COMPANY_ADDRESS'])
@@ -174,7 +174,7 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 		$sellerInfoAddr .= $params["SELLER_COMPANY_PHONE"];
 	}
 	if (!empty($sellerInfoAddr))
-		$sellerInfoRows[] = $sellerInfoAddr;
+		$sellerInfoRows[] = htmlspecialcharsbx($sellerInfoAddr);
 	unset($sellerInfoAddr);
 	if (!empty($sellerInfoRows))
 		$sellerInfo = implode('<br>', $sellerInfoRows);
@@ -183,7 +183,7 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 	?>
 	<table class="header">
 		<tr>
-			<td><?= htmlspecialcharsbx($sellerInfo) ?></td>
+			<td><?= $sellerInfo ?></td>
 			<? if ($params["BILLBY_PATH_TO_LOGO"]) { ?>
 			<td style="padding-left: 5pt; padding-bottom: 5pt; ">
 				<? $imgParams = CFile::_GetImgParams($params['BILLBY_PATH_TO_LOGO']);

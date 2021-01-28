@@ -26,7 +26,7 @@ class IblockBuilder extends BaseBuilder
 		$this->urlTemplates[self::PAGE_SECTION_DETAIL] = '#PATH_PREFIX#'
 			.'iblock_section_edit.php'
 			.'?#BASE_PARAMS#'
-			.'&ID=#ENTITY_ID#'
+			.'#ENTITY_FILTER#'
 			.'#ADDITIONAL_PARAMETERS#';
 		$this->urlTemplates[self::PAGE_SECTION_COPY] = $this->urlTemplates[self::PAGE_SECTION_DETAIL]
 			.$this->getCopyAction();
@@ -46,7 +46,7 @@ class IblockBuilder extends BaseBuilder
 		$this->urlTemplates[self::PAGE_ELEMENT_DETAIL] = '#PATH_PREFIX#'
 			.'iblock_element_edit.php'
 			.'?#BASE_PARAMS#'
-			.'&ID=#ENTITY_ID#'
+			.'#ENTITY_FILTER#'
 			.'#ADDITIONAL_PARAMETERS#';
 		$this->urlTemplates[self::PAGE_ELEMENT_COPY] = $this->urlTemplates[self::PAGE_ELEMENT_DETAIL]
 			.$this->getCopyAction();

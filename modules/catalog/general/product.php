@@ -130,7 +130,6 @@ class CAllCatalogProduct
 	 */
 	public static function ClearCache()
 	{
-		self::$arProductCache = [];
 		self::$vatCache = [];
 	}
 
@@ -153,14 +152,15 @@ class CAllCatalogProduct
 
 	/**
 	 * @deprecated deprecated since catalog 15.5.2
-	 * @see \Bitrix\Catalog\ProductTable::isExistProduct()
+	 * @see \Bitrix\Catalog\Model\Product::getCacheItem()
 	 *
 	 * @param int $intID
 	 * @return bool
 	 */
 	public static function IsExistProduct($intID)
 	{
-		return Catalog\ProductTable::isExistProduct($intID);
+		$data = Catalog\Model\Product::getCacheItem($intID, true);
+		return (!empty($data));
 	}
 
 	public static function CheckFields($ACTION, &$arFields, $ID = 0)

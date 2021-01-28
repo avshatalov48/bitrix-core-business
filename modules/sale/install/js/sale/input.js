@@ -1621,6 +1621,11 @@ BX.Sale.Input = (function () {
 
 	AddressInput.prototype.createEditorSingle = function (name, value)
 	{
+		if (!BX.Sale.AddressControlConstructor)
+		{
+			return [document.createElement('span')];
+		}
+
 		var addressControl = new BX.Sale.AddressControlConstructor({
 			propsData: {
 				name: name,

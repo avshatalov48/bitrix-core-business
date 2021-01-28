@@ -160,6 +160,7 @@ $APPLICATION->IncludeComponent(
 		'COMPARE_PATH' => $arResult['FOLDER'].$arResult['URL_TEMPLATES']['compare'],
 		'COMPARE_NAME' => $arParams['COMPARE_NAME'],
 		'USE_COMPARE_LIST' => 'Y',
+		'USE_SEARCH_RESULT_ORDER' => (isset($arParams['SEARCH_USE_SEARCH_RESULT_ORDER']) ? $arParams['SEARCH_USE_SEARCH_RESULT_ORDER'] : 'N')
 	),
 	$component,
 	array("HIDE_ICONS" => "Y")

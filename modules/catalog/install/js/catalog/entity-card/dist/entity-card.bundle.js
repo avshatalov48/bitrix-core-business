@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Catalog = this.BX.Catalog || {};
-(function (exports,ui_entityEditor,ui_notification,main_core_events,translit,main_core) {
+(function (exports,ui_entityEditor,ui_notification,main_core_events,translit,main_core,main_popup) {
 	'use strict';
 
 	var LazyLoader = /*#__PURE__*/function () {
@@ -2030,11 +2030,69 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        caption: BX.message("UI_ENTITY_EDITOR_UF_MULTIPLE_FIELD")
 	      });
 
-	      if (this._field instanceof BX.UI.EntityEditorMultiText || this._field instanceof BX.UI.EntityEditorMultiNumber || this._field instanceof BX.UI.EntityEditorMultiList || this._field instanceof BX.UI.EntityEditorMultiDatetime) {
+	      if (this._field instanceof BX.UI.EntityEditorMultiText || this._field instanceof BX.UI.EntityEditorMultiNumber || this._field instanceof BX.UI.EntityEditorMultiList || this._field instanceof BX.UI.EntityEditorMultiDatetime || this._field instanceof BX.UI.EntityEditorCustom && this._field.getSchemeElement()._settings.multiple) {
 	        checkBox.checked = true;
 	      }
 
 	      return checkBox;
+	    }
+	  }, {
+	    key: "onSaveButtonClick",
+	    value: function onSaveButtonClick() {
+	      if (this._isLocked) {
+	        return;
+	      }
+
+	      if (this._mandatoryConfigurator) {
+	        if (this._mandatoryConfigurator.isChanged()) {
+	          this._mandatoryConfigurator.acceptChanges();
+	        }
+
+	        this._mandatoryConfigurator.close();
+	      }
+
+	      var params = this.prepareSaveParams();
+
+	      if (this._field instanceof BX.UI.EntityEditorCustom) {
+	        this._field.getSchemeElement().mergeSettings({
+	          multiple: params.multiple
+	        });
+
+	        var modes = ['edit', 'view'];
+
+	        for (var i = 0; i < modes.length; i++) {
+	          var htmlListName = BX.prop.getString(this._field.getSchemeElement().getData(), modes[i] + 'List', null);
+	          var htmlList = BX.prop.getObject(this._field.getModel().getData(), htmlListName, null);
+
+	          if (htmlList !== null) {
+	            var newHtml = params.multiple ? htmlList.MULTIPLE : htmlList.SINGLE;
+	            var htmlName = BX.prop.getString(this._field.getSchemeElement().getData(), modes[i], null);
+
+	            if (BX.prop.getString(this._field.getModel().getData(), htmlName, null) !== null) {
+	              this._field.getModel().setField(htmlName, newHtml);
+
+	              this._field.getModel().setInitFieldValue(htmlName, newHtml);
+
+	              if (modes[i] === 'view') {
+	                if (newHtml === '') {
+	                  main_core.Dom.clean(this._field.getContentWrapper());
+
+	                  this._field.getContentWrapper().appendChild(BX.create("div", {
+	                    props: {
+	                      className: "ui-entity-editor-content-block-text"
+	                    },
+	                    text: BX.message("UI_ENTITY_EDITOR_FIELD_EMPTY")
+	                  }));
+	                } else {
+	                  this._field.getContentWrapper().innerHTML = newHtml;
+	                }
+	              }
+	            }
+	          }
+	        }
+	      }
+
+	      BX.onCustomEvent(this, "onSave", [this, params]);
 	    }
 	  }, {
 	    key: "getIsRequiredCheckBox",
@@ -2646,6 +2704,36 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return GridFieldConfigurationManager;
 	}(BX.UI.EntityConfigurationManager);
 
+	function _templateObject4$4() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<label class=\"ui-ctl-block ui-entity-editor-popup-create-field-item ui-ctl-w100\">\n\t\t\t\t\t<div class=\"ui-ctl-w10\" style=\"text-align: center\">", "</div>\n\t\t\t\t\t<div class=\"ui-ctl-w75\">\n\t\t\t\t\t\t<span class=\"ui-entity-editor-popup-create-field-item-title\">", "</span>\n\t\t\t\t\t\t<span class=\"ui-entity-editor-popup-create-field-item-desc\">", "</span>\t\n\t\t\t\t\t</div>\n\t\t\t\t</label>\n\t\t\t"]);
+
+	  _templateObject4$4 = function _templateObject4() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject3$4() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input type=\"checkbox\">\n\t\t"]);
+
+	  _templateObject3$4 = function _templateObject3() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject2$4() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class='ui-entity-editor-popup-create-field-list'></div>\n\t\t"]);
+
+	  _templateObject2$4 = function _templateObject2() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
 	function _templateObject$4() {
 	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"catalog-entity-overlay\"></div>"]);
 
@@ -2664,8 +2752,11 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    this.settings = settings;
 	    this.cardSettings = settings.cardSettings || [];
 	    this.feedbackUrl = settings.feedbackUrl || '';
+	    this.settingsButtonId = settings.settingsButtonId;
 	    this.entityId = main_core.Text.toInteger(settings.entityId) || 0;
 	    this.container = document.getElementById(settings.containerId);
+	    this.variationGridId = settings.variationGridId;
+	    this.settingsButtonId = settings.settingsButtonId;
 	    this.componentName = settings.componentName || null;
 	    this.componentSignedParams = settings.componentSignedParams || null;
 	    this.isSimpleProduct = settings.isSimpleProduct || false;
@@ -2674,6 +2765,10 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    this.registerFieldsFactory();
 	    this.registerControllersFactory();
 	    this.registerEvents();
+	    this.bindCardSettingsButton();
+	    main_core_events.EventEmitter.subscribe('SidePanel.Slider:onMessage', this.onSliderMessage.bind(this));
+	    main_core_events.EventEmitter.subscribe('BX.UI.EntityEditorSection:onLayout', this.onSectionLayout.bind(this));
+	    main_core_events.EventEmitter.subscribe('Grid::updated', this.onGridUpdatedHandler.bind(this));
 	  }
 
 	  babelHelpers.createClass(EntityCard, [{
@@ -2693,6 +2788,20 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    value: function isCardSettingEnabled(id) {
 	      var settingItem = this.getCardSetting(id);
 	      return settingItem && settingItem.checked;
+	    }
+	  }, {
+	    key: "bindCardSettingsButton",
+	    value: function bindCardSettingsButton() {
+	      var settingsButton = this.getSettingsButton();
+
+	      if (settingsButton) {
+	        main_core.Event.bind(settingsButton.getContainer(), 'click', this.showCardSettingsPopup.bind(this));
+	      }
+	    }
+	  }, {
+	    key: "getSettingsButton",
+	    value: function getSettingsButton() {
+	      return BX.UI.ButtonManager.getByUniqid(this.settingsButtonId);
 	    }
 	  }, {
 	    key: "initializeTabManager",
@@ -2722,6 +2831,52 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      return new FieldsFactory();
 	    }
 	  }, {
+	    key: "onGridUpdatedHandler",
+	    value: function onGridUpdatedHandler(event) {
+	      var _event$getCompatData = event.getCompatData(),
+	          _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 1),
+	          grid = _event$getCompatData2[0];
+
+	      if (grid && grid.getId() === this.getVariationGridId()) {
+	        this.updateSettingsCheckboxState();
+	      }
+	    }
+	  }, {
+	    key: "onSectionLayout",
+	    value: function onSectionLayout() {}
+	    /**
+	     * @returns {BX.Catalog.VariationGrid|null}
+	     */
+
+	  }, {
+	    key: "getVariationGridComponent",
+	    value: function getVariationGridComponent() {
+	      return main_core.Reflection.getClass('BX.Catalog.VariationGrid.Instance');
+	    }
+	  }, {
+	    key: "reloadVariationGrid",
+	    value: function reloadVariationGrid() {
+	      var gridComponent = this.getVariationGridComponent();
+
+	      if (gridComponent) {
+	        gridComponent.reloadGrid();
+	      }
+	    }
+	  }, {
+	    key: "getVariationGridId",
+	    value: function getVariationGridId() {
+	      return this.variationGridId;
+	    }
+	  }, {
+	    key: "getVariationGrid",
+	    value: function getVariationGrid() {
+	      if (!main_core.Reflection.getClass('BX.Main.gridManager.getInstanceById')) {
+	        return null;
+	      }
+
+	      return BX.Main.gridManager.getInstanceById(this.getVariationGridId());
+	    }
+	  }, {
 	    key: "registerControllersFactory",
 	    value: function registerControllersFactory() {
 	      return new ControllersFactory();
@@ -2747,9 +2902,9 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        return;
 	      }
 
-	      var _event$getCompatData = event.getCompatData(),
-	          _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 3),
-	          uploader = _event$getCompatData2[2];
+	      var _event$getCompatData3 = event.getCompatData(),
+	          _event$getCompatData4 = babelHelpers.slicedToArray(_event$getCompatData3, 3),
+	          uploader = _event$getCompatData4[2];
 
 	      if (uploader && main_core.Type.isDomNode(uploader.fileInput)) {
 	        var parent = uploader.fileInput.closest('[data-cid]');
@@ -2767,9 +2922,9 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "onFileEditorCloseHandler",
 	    value: function onFileEditorCloseHandler(event) {
-	      var _event$getCompatData3 = event.getCompatData(),
-	          _event$getCompatData4 = babelHelpers.slicedToArray(_event$getCompatData3, 1),
-	          popup = _event$getCompatData4[0];
+	      var _event$getCompatData5 = event.getCompatData(),
+	          _event$getCompatData6 = babelHelpers.slicedToArray(_event$getCompatData5, 1),
+	          popup = _event$getCompatData6[0];
 
 	      if (popup && popup.getId() === 'popupFM' && popup.onApplyFlag) {
 	        this.showNotification(main_core.Loc.getMessage('CATALOG_ENTITY_CARD_FILE_CLOSE_NOTIFICATION'), {
@@ -2780,10 +2935,10 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "onEditorInitHandler",
 	    value: function onEditorInitHandler(event) {
-	      var _event$getCompatData5 = event.getCompatData(),
-	          _event$getCompatData6 = babelHelpers.slicedToArray(_event$getCompatData5, 2),
-	          editor = _event$getCompatData6[0],
-	          fields = _event$getCompatData6[1];
+	      var _event$getCompatData7 = event.getCompatData(),
+	          _event$getCompatData8 = babelHelpers.slicedToArray(_event$getCompatData7, 2),
+	          editor = _event$getCompatData8[0],
+	          fields = _event$getCompatData8[1];
 
 	      if (editor && !fields.entityId) {
 	        var control = editor.getControlByIdRecursive('NAME');
@@ -2811,10 +2966,10 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "onEditorAjaxSubmit",
 	    value: function onEditorAjaxSubmit(event) {
-	      var _event$getCompatData7 = event.getCompatData(),
-	          _event$getCompatData8 = babelHelpers.slicedToArray(_event$getCompatData7, 2),
-	          fields = _event$getCompatData8[0],
-	          response = _event$getCompatData8[1];
+	      var _event$getCompatData9 = event.getCompatData(),
+	          _event$getCompatData10 = babelHelpers.slicedToArray(_event$getCompatData9, 2),
+	          fields = _event$getCompatData10[0],
+	          response = _event$getCompatData10[1];
 
 	      var title = fields.NAME || '';
 	      this.changePageTitle(title);
@@ -2832,18 +2987,18 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "onEntityCreateHandler",
 	    value: function onEntityCreateHandler(event) {
-	      var _event$getCompatData9 = event.getCompatData(),
-	          _event$getCompatData10 = babelHelpers.slicedToArray(_event$getCompatData9, 1),
-	          data = _event$getCompatData10[0];
+	      var _event$getCompatData11 = event.getCompatData(),
+	          _event$getCompatData12 = babelHelpers.slicedToArray(_event$getCompatData11, 1),
+	          data = _event$getCompatData12[0];
 
 	      this.postSliderMessage('onCreate', data);
 	    }
 	  }, {
 	    key: "onEntityUpdateHandler",
 	    value: function onEntityUpdateHandler(event) {
-	      var _event$getCompatData11 = event.getCompatData(),
-	          _event$getCompatData12 = babelHelpers.slicedToArray(_event$getCompatData11, 1),
-	          data = _event$getCompatData12[0];
+	      var _event$getCompatData13 = event.getCompatData(),
+	          _event$getCompatData14 = babelHelpers.slicedToArray(_event$getCompatData13, 1),
+	          data = _event$getCompatData14[0];
 
 	      this.postSliderMessage('onUpdate', data);
 	    }
@@ -2883,9 +3038,9 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "onConfigurationManagerInit",
 	    value: function onConfigurationManagerInit(event) {
-	      var _event$getCompatData13 = event.getCompatData(),
-	          _event$getCompatData14 = babelHelpers.slicedToArray(_event$getCompatData13, 2),
-	          eventArgs = _event$getCompatData14[1];
+	      var _event$getCompatData15 = event.getCompatData(),
+	          _event$getCompatData16 = babelHelpers.slicedToArray(_event$getCompatData15, 2),
+	          eventArgs = _event$getCompatData16[1];
 
 	      if (!eventArgs.type || eventArgs.type === 'editor') {
 	        eventArgs.configurationFieldManager = this.initializeIblockFieldConfigurationManager(eventArgs);
@@ -2953,11 +3108,193 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        width: 580
 	      });
 	    }
+	  }, {
+	    key: "getCardSettingsPopup",
+	    value: function getCardSettingsPopup() {
+	      if (!this.settingsPopup) {
+	        this.settingsPopup = new main_popup.Popup(this.id, this.getSettingsButton().getContainer(), {
+	          autoHide: true,
+	          draggable: false,
+	          offsetLeft: 0,
+	          offsetTop: 0,
+	          angle: {
+	            position: 'top',
+	            offset: 43
+	          },
+	          noAllPaddings: true,
+	          bindOptions: {
+	            forceBindPosition: true
+	          },
+	          closeByEsc: true,
+	          content: this.prepareCardSettingsContent()
+	        });
+	      }
+
+	      return this.settingsPopup;
+	    }
+	  }, {
+	    key: "showCardSettingsPopup",
+	    value: function showCardSettingsPopup() {
+	      var _this = this;
+
+	      var okCallback = function okCallback() {
+	        return _this.getCardSettingsPopup().show();
+	      };
+
+	      var variationGridInstance = main_core.Reflection.getClass('BX.Catalog.VariationGrid.Instance');
+
+	      if (variationGridInstance) {
+	        variationGridInstance.askToLossGridData(okCallback);
+	      } else {
+	        okCallback();
+	      }
+	    }
+	  }, {
+	    key: "prepareCardSettingsContent",
+	    value: function prepareCardSettingsContent() {
+	      var _this2 = this;
+
+	      var content = main_core.Tag.render(_templateObject2$4());
+	      this.cardSettings.map(function (item) {
+	        content.append(_this2.getSettingItem(item));
+	      });
+	      return content;
+	    }
+	  }, {
+	    key: "getSettingItem",
+	    value: function getSettingItem(item) {
+	      var input = main_core.Tag.render(_templateObject3$4());
+	      input.checked = item.checked;
+	      input.dataset.settingId = item.id;
+	      var setting = main_core.Tag.render(_templateObject4$4(), input, item.title, item.desc);
+	      main_core.Event.bind(setting, 'change', this.setProductCardSetting.bind(this));
+	      return setting;
+	    }
+	  }, {
+	    key: "setProductCardSetting",
+	    value: function setProductCardSetting(event) {
+	      var settingItem = this.getCardSetting(event.target.dataset.settingId);
+
+	      if (!settingItem) {
+	        return;
+	      }
+
+	      var settingEnabled = event.target.checked;
+
+	      if (settingItem.action === 'grid') {
+	        this.requestGridSettings(settingItem, settingEnabled);
+	      } else {
+	        this.requestCardSettings(settingItem, settingEnabled);
+	      }
+	    }
+	  }, {
+	    key: "onSliderMessage",
+	    value: function onSliderMessage(event) {
+	      var _event$getCompatData17 = event.getCompatData(),
+	          _event$getCompatData18 = babelHelpers.slicedToArray(_event$getCompatData17, 1),
+	          sliderEvent = _event$getCompatData18[0];
+
+	      if (sliderEvent.getEventId() === 'Catalog.VariationCard::onCreate' || sliderEvent.getEventId() === 'Catalog.VariationCard::onUpdate') {
+	        this.reloadVariationGrid();
+	      }
+	    }
+	  }, {
+	    key: "requestGridSettings",
+	    value: function requestGridSettings(setting, enabled) {
+	      var _this3 = this;
+
+	      if (!this.getVariationGrid()) ;
+
+	      var headers = [];
+	      var cells = this.getVariationGrid().getRows().getHeadFirstChild().getCells();
+	      Array.from(cells).forEach(function (header) {
+	        if ('name' in header.dataset) {
+	          headers.push(header.dataset.name);
+	        }
+	      });
+	      BX.ajax.runComponentAction(this.componentName, 'setGridSetting', {
+	        mode: 'class',
+	        data: {
+	          signedParameters: this.componentSignedParams,
+	          settingId: setting.id,
+	          selected: enabled,
+	          currentHeaders: headers
+	        }
+	      }).then(function () {
+	        setting.checked = enabled;
+
+	        _this3.reloadVariationGrid();
+
+	        _this3.postSliderMessage('onUpdate', {});
+
+	        _this3.getCardSettingsPopup().close();
+
+	        var message = enabled ? main_core.Loc.getMessage('CATALOG_ENTITY_CARD_SETTING_ENABLED') : main_core.Loc.getMessage('CATALOG_ENTITY_CARD_SETTING_DISABLED');
+
+	        _this3.showNotification(message.replace('#NAME#', setting.title), {
+	          category: 'popup-settings'
+	        });
+	      });
+	    }
+	  }, {
+	    key: "requestCardSettings",
+	    value: function requestCardSettings(setting, enabled) {
+	      var _this4 = this;
+
+	      BX.ajax.runComponentAction(this.componentName, 'setCardSetting', {
+	        mode: 'class',
+	        data: {
+	          signedParameters: this.componentSignedParams,
+	          settingId: setting.id,
+	          selected: enabled
+	        }
+	      }).then(function () {
+	        setting.checked = enabled;
+
+	        if (setting.id === 'CATALOG_PARAMETERS') {
+	          var section = _this4.getEditorInstance().getControlByIdRecursive('catalog_parameters');
+
+	          if (section) {
+	            section.refreshLayout();
+	          }
+	        }
+
+	        _this4.getCardSettingsPopup().close();
+
+	        var message = enabled ? main_core.Loc.getMessage('CATALOG_ENTITY_CARD_SETTING_ENABLED') : main_core.Loc.getMessage('CATALOG_ENTITY_CARD_SETTING_DISABLED');
+
+	        _this4.showNotification(message.replace('#NAME#', setting.title), {
+	          category: 'popup-settings'
+	        });
+	      });
+	    }
+	  }, {
+	    key: "updateSettingsCheckboxState",
+	    value: function updateSettingsCheckboxState() {
+	      var _this5 = this;
+
+	      var popupContainer = this.getCardSettingsPopup().getContentContainer();
+	      this.cardSettings.filter(function (item) {
+	        return item.action === 'grid' && main_core.Type.isArray(item.columns);
+	      }).forEach(function (item) {
+	        var allColumnsExist = true;
+	        item.columns.forEach(function (columnName) {
+	          if (!_this5.getVariationGrid().getColumnHeaderCellByName(columnName)) {
+	            allColumnsExist = false;
+	          }
+	        });
+	        var checkbox = popupContainer.querySelector('input[data-setting-id="' + item.id + '"]');
+
+	        if (main_core.Type.isDomNode(checkbox)) {
+	          checkbox.checked = allColumnsExist;
+	        }
+	      });
+	    }
 	  }]);
 	  return EntityCard;
 	}();
 
 	exports.EntityCard = EntityCard;
 
-}((this.BX.Catalog.EntityCard = this.BX.Catalog.EntityCard || {}),BX,BX,BX.Event,BX,BX));
+}((this.BX.Catalog.EntityCard = this.BX.Catalog.EntityCard || {}),BX,BX,BX.Event,BX,BX,BX.Main));
 //# sourceMappingURL=entity-card.bundle.js.map

@@ -101,6 +101,7 @@ class DeliveryRestHandlerTable extends DataManager
 					'serialized' => true
 				]
 			),
+			new StringField('APP_ID'),
 		];
 	}
 

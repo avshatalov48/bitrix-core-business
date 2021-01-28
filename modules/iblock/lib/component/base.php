@@ -317,6 +317,8 @@ abstract class Base extends \CBitrixComponent
 		$params['DETAIL_URL'] = isset($params['DETAIL_URL']) ? trim($params['DETAIL_URL']) : '';
 		$params['BASKET_URL'] = isset($params['BASKET_URL']) ? trim($params['BASKET_URL']) : '/personal/basket.php';
 
+		$params['SHOW_SKU_DESCRIPTION'] = isset($params['SHOW_SKU_DESCRIPTION']) ? $params['SHOW_SKU_DESCRIPTION'] : 'N';
+
 		$params['HIDE_DETAIL_URL'] = isset($params['HIDE_DETAIL_URL']) && $params['HIDE_DETAIL_URL'] === 'Y';
 
 		$params['ACTION_VARIABLE'] = isset($params['ACTION_VARIABLE']) ? trim($params['ACTION_VARIABLE']) : '';
@@ -3683,8 +3685,17 @@ abstract class Base extends \CBitrixComponent
 				'IBLOCK_ID' => 1,
 				$productProperty => 1,
 				'PREVIEW_PICTURE' => 1,
-				'DETAIL_PICTURE' => 1
+				'DETAIL_PICTURE' => 1,
 			);
+
+			if ($this->arParams['SHOW_SKU_DESCRIPTION'] === 'Y')
+			{
+				$offersSelect['PREVIEW_TEXT'] = 1;
+				$offersSelect['DETAIL_TEXT'] = 1;
+				$offersSelect['PREVIEW_TEXT_TYPE'] = 1;
+				$offersSelect['DETAIL_TEXT_TYPE'] = 1;
+			}
+
 			if (!empty($iblockParams['OFFERS_FIELD_CODE']))
 			{
 				foreach ($iblockParams['OFFERS_FIELD_CODE'] as $code)

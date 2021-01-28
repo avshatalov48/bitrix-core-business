@@ -2,7 +2,7 @@
 $MESS["MARKING_CODE_GROUP_TYPE_02"] = "изделия из меха";
 $MESS["MARKING_CODE_GROUP_TYPE_03"] = "лекарственные препараты";
 $MESS["MARKING_CODE_GROUP_TYPE_05"] = "табачные изделия";
-$MESS["MARKING_CODE_GROUP_TYPE_5408"] = "обувь";
+$MESS["MARKING_CODE_GROUP_TYPE_17485"] = "обувь";
 $MESS["MARKING_CODE_GROUP_TYPE_8258"] = "духи и туалетная вода";
 $MESS["MARKING_CODE_GROUP_TYPE_8721"] = "шины и покрышки пневматические резиновые новые";
 $MESS["MARKING_CODE_GROUP_TYPE_9840"] = "фотокамеры (кроме кинокамер), фотовспышки и лампы-вспышки";

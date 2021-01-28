@@ -59,6 +59,7 @@ $isSidebarLeft = isset($arParams['SIDEBAR_SECTION_POSITION']) && $arParams['SIDE
 			'BROWSER_TITLE' => $arParams['DETAIL_BROWSER_TITLE'],
 			'SET_CANONICAL_URL' => $arParams['DETAIL_SET_CANONICAL_URL'],
 			'BASKET_URL' => $arParams['BASKET_URL'],
+			'SHOW_SKU_DESCRIPTION' => $arParams['SHOW_SKU_DESCRIPTION'],
 			'ACTION_VARIABLE' => $arParams['ACTION_VARIABLE'],
 			'PRODUCT_ID_VARIABLE' => $arParams['PRODUCT_ID_VARIABLE'],
 			'SECTION_ID_VARIABLE' => $arParams['SECTION_ID_VARIABLE'],
@@ -220,6 +221,7 @@ $isSidebarLeft = isset($arParams['SIDEBAR_SECTION_POSITION']) && $arParams['SIDE
 		$elementId = $APPLICATION->IncludeComponent('bitrix:catalog.element', 'bootstrap_v4', $componentElementParams,
 			$component
 		);
+
 		$GLOBALS['CATALOG_CURRENT_ELEMENT_ID'] = $elementId;
 
 		if ($elementId > 0)

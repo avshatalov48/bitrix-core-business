@@ -1265,7 +1265,7 @@ class CMailMessageDBResult extends CDBResult
 	{
 		if ($item = parent::fetch())
 		{
-			$item['OPTIONS'] = (array) @unserialize($item['OPTIONS']);
+			$item['OPTIONS'] = (array) @unserialize($item['OPTIONS'], ['allowed_classes' => false]);
 			$item['FOR_SPAM_TEST'] = sprintf('%s %s', $item['HEADER'], $item['BODY_HTML'] ?: $item['BODY']);
 		}
 
@@ -1932,6 +1932,13 @@ class CAllMailMessage
 		return $message_id;
 	}
 
+	/**
+	 * Add a message to the database in the table b_mail_message.
+	 *
+	 * @param array $arFields
+	 *
+	 * @return int(message id in the table b_mail_message).
+	 */
 	public static function Add($arFields)
 	{
 		global $DB;

@@ -48,6 +48,7 @@ $itemIds = array(
 	'SLIDER_CONT_ID' => $mainId.'_slider_cont',
 	'OLD_PRICE_ID' => $mainId.'_old_price',
 	'PRICE_ID' => $mainId.'_price',
+	'DESCRIPTION_ID' => $mainId.'_description',
 	'DISCOUNT_PRICE_ID' => $mainId.'_price_discount',
 	'PRICE_TOTAL' => $mainId.'_price_total',
 	'SLIDER_CONT_OF_ID' => $mainId.'_slider_cont_',
@@ -111,7 +112,24 @@ $price = $actualItem['ITEM_PRICES'][$actualItem['ITEM_PRICE_SELECTED']];
 $measureRatio = $actualItem['ITEM_MEASURE_RATIOS'][$actualItem['ITEM_MEASURE_RATIO_SELECTED']]['RATIO'];
 $showDiscount = $price['PERCENT'] > 0;
 
-$showDescription = !empty($arResult['PREVIEW_TEXT']) || !empty($arResult['DETAIL_TEXT']);
+if ($arParams['SHOW_SKU_DESCRIPTION'] === 'Y')
+{
+	$skuDescription = false;
+	foreach ($arResult['OFFERS'] as $offer)
+	{
+		if ($offer['DETAIL_TEXT'] != '' || $offer['PREVIEW_TEXT'] != '')
+		{
+			$skuDescription = true;
+			break;
+		}
+	}
+	$showDescription = $skuDescription || !empty($arResult['PREVIEW_TEXT']) || !empty($arResult['DETAIL_TEXT']);
+}
+else
+{
+	$showDescription = !empty($arResult['PREVIEW_TEXT']) || !empty($arResult['DETAIL_TEXT']);
+}
+
 $showBuyBtn = in_array('BUY', $arParams['ADD_TO_BASKET_ACTION']);
 $buyButtonClassName = in_array('BUY', $arParams['ADD_TO_BASKET_ACTION_PRIMARY']) ? 'btn-default' : 'btn-link';
 $showAddBtn = in_array('ADD', $arParams['ADD_TO_BASKET_ACTION']);
@@ -864,7 +882,7 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 						{
 							?>
 							<div class="product-item-detail-tab-content active" data-entity="tab-container" data-value="description"
-								itemprop="description">
+								itemprop="description" id="<?=$itemIds['DESCRIPTION_ID']?>">
 								<?
 								if (
 									$arResult['PREVIEW_TEXT'] != ''
@@ -1613,7 +1631,9 @@ if ($haveOffers)
 			'DATA_LAYER_NAME' => $arParams['DATA_LAYER_NAME'],
 			'BRAND_PROPERTY' => !empty($arResult['DISPLAY_PROPERTIES'][$arParams['BRAND_PROPERTY']])
 				? $arResult['DISPLAY_PROPERTIES'][$arParams['BRAND_PROPERTY']]['DISPLAY_VALUE']
-				: null
+				: null,
+			'SHOW_SKU_DESCRIPTION' => $arParams['SHOW_SKU_DESCRIPTION'],
+			'DISPLAY_PREVIEW_TEXT_MODE' => $arParams['DISPLAY_PREVIEW_TEXT_MODE']
 		),
 		'PRODUCT_TYPE' => $arResult['PRODUCT']['TYPE'],
 		'VISUAL' => $itemIds,
@@ -1625,7 +1645,11 @@ if ($haveOffers)
 			'ID' => $arResult['ID'],
 			'ACTIVE' => $arResult['ACTIVE'],
 			'NAME' => $arResult['~NAME'],
-			'CATEGORY' => $arResult['CATEGORY_PATH']
+			'CATEGORY' => $arResult['CATEGORY_PATH'],
+			'DETAIL_TEXT' => $arResult['DETAIL_TEXT'],
+			'DETAIL_TEXT_TYPE' => $arResult['DETAIL_TEXT_TYPE'],
+			'PREVIEW_TEXT' => $arResult['PREVIEW_TEXT'],
+			'PREVIEW_TEXT_TYPE' => $arResult['PREVIEW_TEXT_TYPE']
 		),
 		'BASKET' => array(
 			'QUANTITY' => $arParams['PRODUCT_QUANTITY_VARIABLE'],

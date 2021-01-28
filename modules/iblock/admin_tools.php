@@ -397,6 +397,7 @@ function _ShowListPropertyField($name, $property_fields, $values, $bInitDef = fa
 	{
 		$cnt = 0;
 		$wSel = false;
+		$res_tmp = '';
 		while($ar_enum = $prop_enums->Fetch())
 		{
 			$cnt++;
@@ -422,10 +423,10 @@ function _ShowListPropertyField($name, $property_fields, $values, $bInitDef = fa
 
 		if($cnt==1)
 			$res = $res_tmp;
-		elseif($multiple!="Y")
+		elseif($multiple!="Y" && $property_fields['IS_REQUIRED'] != 'Y')
 			$res = '<input type="radio" name="'.$name.'[]" value=""'.(!$wSel?" checked":"").' id="'.$uniq.'"><label for="'.$uniq.'">'.htmlspecialcharsex(($def_text ? $def_text : GetMessage("IBLOCK_AT_PROP_NO") )).'</label><br>'.$res;
 
-		if($multiple=="Y" || $cnt==1)
+		if($multiple=="Y" || $cnt==1 || $property_fields['IS_REQUIRED'] == 'Y')
 			$res = '<input type="hidden" name="'.$name.'" value="">'.$res;
 	}
 	else //list property as list

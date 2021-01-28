@@ -320,7 +320,7 @@
 			var cNameRecordRow = this.idDomainDnsInfo.rows[1];
 			var aRecordRow = this.idDomainDnsInfo.rows[2];
 			var domainParts = domainName.split('.');
-			var domainRe = /^(com|net|org|co|kiev|spb)\.[a-z]{2}$/;
+			var domainRe = /^(com|net|org|co|kiev|spb|kharkov)\.[a-z]{2}$/;
 
 			aRecordRow.style.display = 'none';
 			cNameRecordRow.cells[0].textContent = domainName ? domainName : 'landing.mydomain';

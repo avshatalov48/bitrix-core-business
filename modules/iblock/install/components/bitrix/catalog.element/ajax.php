@@ -39,14 +39,17 @@ if (isset($_POST['AJAX']) && $_POST['AJAX'] == 'Y')
 					$recommendationId = $recommendations[$parentID][0];
 			}
 
-			// add record
-			Catalog\CatalogViewedProductTable::refresh(
-				$productID,
-				CSaleBasket::GetBasketUserID(),
-				$siteID,
-				$parentID,
-				$recommendationId
-			);
+			if ((string)Main\Config\Option::get('catalog', 'enable_viewed_products') !== 'N')
+			{
+				// add record
+				Catalog\CatalogViewedProductTable::refresh(
+					$productID,
+					CSaleBasket::GetBasketUserID(),
+					$siteID,
+					$parentID,
+					$recommendationId
+				);
+			}
 			$APPLICATION->RestartBuffer();
 			header('Content-Type: application/json');
 			echo Main\Web\Json::encode(array("STATUS" => "SUCCESS"));

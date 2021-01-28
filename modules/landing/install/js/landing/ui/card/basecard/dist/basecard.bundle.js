@@ -107,8 +107,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    }
 	  }, {
 	    key: "onClick",
-	    value: function onClick(event) {
-	      event.preventDefault();
+	    value: function onClick() {
 	      this.onClickHandler(this);
 	      this.emit('onClick');
 	    }

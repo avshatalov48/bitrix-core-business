@@ -29,7 +29,7 @@ class LandingBlocksOlComponent extends \CBitrixComponent
 		$this->arParams['ERRORS'] = [];
 		$this->arParams['EDIT_MODE'] = Landing\Landing::getEditMode() ? 'Y' : 'N';
 
-		if (!$this->checkNoWidgetError())
+		if ($this->checkWidgetId())
 		{
 			$widgetsData = $this->getWidgetsForButton($this->arParams['BUTTON_ID']);
 			$this->arParams['WIDGETS'] = $widgetsData['widgets'];
@@ -38,7 +38,10 @@ class LandingBlocksOlComponent extends \CBitrixComponent
 		$this->includeComponentTemplate();
 	}
 
-	protected function checkNoWidgetError(): bool
+	/**
+	 * @return bool true if OK, false - if some error
+	 */
+	protected function checkWidgetId(): bool
 	{
 		if (!isset($this->arParams['BUTTON_ID']) || !$this->arParams['BUTTON_ID'])
 		{
@@ -87,12 +90,11 @@ class LandingBlocksOlComponent extends \CBitrixComponent
 				];
 			}
 
-			return true;
+			return false;
 		}
 
 		if ($this->arParams['BUTTON_ID'] === 'N')
 		{
-			// todo: add slider link
 			$this->arParams['ERRORS'][] = [
 				'title' => Loc::getMessage('LANDING_CMP_OL_BUTTON_NO_CHOOSE'),
 				'text' => Loc::getMessage('LANDING_CMP_OL_BUTTON_NO_CHOOSE_TEXT'),
@@ -102,9 +104,11 @@ class LandingBlocksOlComponent extends \CBitrixComponent
 					'onclick' => 'BX.PreventDefault(); BX.SidePanel.Instance.open(landingParams[\'PAGE_URL_SITE_EDIT\'] + \'#b24widget\');',
 				],
 			];
+
+			return false;
 		}
 
-		return false;
+		return true;
 	}
 
 	/**

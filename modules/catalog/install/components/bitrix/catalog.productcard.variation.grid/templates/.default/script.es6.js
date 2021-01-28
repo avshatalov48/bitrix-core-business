@@ -55,6 +55,12 @@ class VariationGrid
 
 	subscribeCustomEvents()
 	{
+		this.onSubmitEntityEditorAjaxHandler = this.onSubmitEntityEditorAjax.bind(this);
+		EventEmitter.subscribeOnce('BX.UI.EntityEditorAjax:onSubmit', this.onSubmitEntityEditorAjaxHandler);
+
+		this.onGridUpdatedHandler = this.onGridUpdated.bind(this);
+		EventEmitter.subscribe('Grid::updated', this.onGridUpdatedHandler);
+
 		this.onPropertySaveHandler = this.onPropertySave.bind(this);
 		EventEmitter.subscribe('SidePanel.Slider:onMessage', this.onPropertySaveHandler);
 
@@ -125,6 +131,11 @@ class VariationGrid
 				menu.close();
 			}
 		})
+	}
+
+	onSubmitEntityEditorAjax(event)
+	{
+		EventEmitter.emit(this.getGrid().getSettingsWindow().getPopup(), 'onDestroy');
 	}
 
 	onPrepareDropDownItems(event)
@@ -429,7 +440,9 @@ class VariationGrid
 
 		if (Type.isDomNode(newNode))
 		{
-			newNode.setAttribute('data-id', Text.getRandom());
+			const newRowDataId = Text.getRandom();
+			this.gridEditData[newRowDataId] = {...this.gridEditData['template_0']};
+			newNode.setAttribute('data-id', newRowDataId);
 			this.markNodeAsNew(newNode);
 			this.modifyCustomSkuProperties(newNode);
 			this.addSkuListCreationItem(newNode);
@@ -594,6 +607,21 @@ class VariationGrid
 	reloadGrid()
 	{
 		this.getGrid().reload();
+	}
+
+	onGridUpdated(event: BaseEvent)
+	{
+		this.getGrid().getSettingsWindow().getItems().forEach((column) => {
+			if(this.getHeaderNames().indexOf(column.node.dataset.name) !== -1)
+			{
+				column.state.selected = true;
+				column.checkbox.checked = true;
+			}
+			else{
+				column.state.selected = false;
+				column.checkbox.checked = false;
+			}
+		});
 	}
 
 	onPropertySave(event: BaseEvent)

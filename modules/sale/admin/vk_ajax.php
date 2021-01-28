@@ -149,5 +149,5 @@ if (mb_strtolower(SITE_CHARSET) != 'utf-8')
 
 header('Content-Type: application/json');
 print json_encode($arResult);
-$APPLICATION::FinalActions();
+\CMain::FinalActions();
 die();

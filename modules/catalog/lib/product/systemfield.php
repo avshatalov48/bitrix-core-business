@@ -326,6 +326,57 @@ final class SystemField
 	}
 
 	/**
+	 * @param Main\Event $event
+	 * @return Main\EventResult
+	 */
+	public static function handlerHighloadBlockBeforeUninstall(Main\Event $event): Main\EventResult
+	{
+		$error = '';
+
+		$module = $event->getParameter('module');
+		if ($module === 'highloadblock')
+		{
+			if (
+				self::allowedMarkingCodeGroup()
+				&& self::initHighloadBlock()
+			)
+			{
+				$storage = self::getStorageDescription(self::CODE_MARKING_CODE_GROUP);
+				if (!empty($storage))
+				{
+					$row = self::getHighloadBlockStorage($storage);
+					if (!empty($row))
+					{
+						$error = new Main\Error(
+							Loc::getMessage(
+								'BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_DISALLOW_UNINSTALL_HIGHLOADBLOCK',
+								['#NAME#' => $storage['NAME']]
+							)
+						);
+					}
+				}
+				unset($storage);
+			}
+		}
+		unset($module);
+
+		if ($error === '')
+		{
+			return new Main\EventResult(Main\EventResult::SUCCESS);
+		}
+		else
+		{
+			return new Main\EventResult(
+				Main\EventResult::ERROR,
+				[
+					'error' => $error
+				],
+				'catalog'
+			);
+		}
+	}
+
+	/**
 	 * @return bool
 	 */
 	private static function isExistHighloadBlock()
@@ -782,7 +833,7 @@ final class SystemField
 	{
 		$result = new Main\Result();
 
-		$groupCodes = ['02', '03', '05', '5408', '8258', '8721', '9840', '06', '5010', '5137', '5139', '5140'];
+		$groupCodes = ['02', '03', '05', '17485', '8258', '8721', '9840', '06', '5010', '5137', '5139', '5140'];
 		$groupTitles = Loc::loadLanguageFile(
 			$_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/catalog/regionalsystemfields/markingcodegroup.php',
 			'ru'
@@ -791,7 +842,8 @@ final class SystemField
 		$internalResult = self::transformMarkingCodes(
 			$storage,
 			[
-				['OLD_XML_ID' => '5048', 'NEW_XML_ID' => '5408']
+				['OLD_XML_ID' => '5048', 'NEW_XML_ID' => '17485'],
+				['OLD_XML_ID' => '5408', 'NEW_XML_ID' => '17485']
 			]
 		);
 		if (!$internalResult->isSuccess())
@@ -1042,6 +1094,17 @@ final class SystemField
 		return $result;
 	}
 
+	private static function getHighloadBlockStorage(array $block): ?array
+	{
+		$iterator = Highload\HighloadBlockTable::getList([
+			'select' => ['ID', 'NAME', 'TABLE_NAME'],
+			'filter' => ['=NAME' => $block['NAME'], '=TABLE_NAME' => $block['TABLE_NAME']]
+		]);
+		$row = $iterator->fetch();
+		unset($iterator);
+		return (!empty($row) ? $row: null);
+	}
+
 	/**
 	 * @param array $block
 	 * @param array $options
@@ -1051,12 +1114,7 @@ final class SystemField
 	{
 		$result = new Main\Result();
 
-		$iterator = Highload\HighloadBlockTable::getList([
-			'select' => ['ID', 'NAME', 'TABLE_NAME'],
-			'filter' => ['=NAME' => $block['NAME'], '=TABLE_NAME' => $block['TABLE_NAME']]
-		]);
-		$row = $iterator->fetch();
-		unset($iterator);
+		$row = self::getHighloadBlockStorage($block);
 		if (!empty($row))
 		{
 			if (isset($options['ALLOW_UPDATE']) && $options['ALLOW_UPDATE'] === true)

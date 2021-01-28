@@ -229,6 +229,7 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm implements ICorrection
 			$check->getField('EXTERNAL_UUID')
 		);
 	}
+
 	/**
 	 * @param $checkType
 	 * @param $vat

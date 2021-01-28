@@ -1,10 +1,8 @@
 import {Cache, Dom, Reflection, Runtime, Text, Type} from 'main.core';
 import {BaseEvent, EventEmitter} from 'main.core.events';
-import {FormClient} from 'crm.form.client';
 import {StyleForm} from 'landing.ui.form.styleform';
 import {Loc} from 'landing.loc';
 import {ColorPickerField} from 'landing.ui.field.colorpickerfield';
-import {FormSettingsPanel} from 'landing.ui.panel.formsettingspanel';
 import {Backend} from 'landing.backend';
 import {Env} from 'landing.env';
 
@@ -37,24 +35,46 @@ export class FormStyleAdapter extends EventEmitter
 
 	load(): Promise<FormStyleAdapter>
 	{
-		return FormClient
-			.getInstance()
-			.getOptions(this.options.formId)
-			.then((result) => {
-				this.setFormOptions(
-					Runtime.merge(Runtime.clone(result), {data: {design: Runtime.clone(this.getCrmForm().design)}}),
-				);
-				return this;
+		if (Text.capitalize(Env.getInstance().getOptions().params.type) === 'SMN')
+		{
+			this.setFormOptions(
+				{data: {design: Runtime.clone(this.getCrmForm().design)}},
+			);
+
+			return Promise.resolve(this);
+		}
+
+		return Runtime
+			.loadExtension('crm.form.client')
+			.then(({FormClient}) => {
+				if (FormClient)
+				{
+					return FormClient
+						.getInstance()
+						.getOptions(this.options.formId)
+						.then((result) => {
+							this.setFormOptions(
+								Runtime.merge(
+									Runtime.clone(result),
+									{data: {design: Runtime.clone(this.getCrmForm().design)}},
+								),
+							);
+							return this;
+						});
+				}
+
+				return null;
 			});
 	}
 
 	getThemeField(): BX.Landing.UI.Field.Dropdown
 	{
 		return this.cache.remember('themeField', () => {
+			const {theme} = this.getFormOptions().data.design;
 			return new BX.Landing.UI.Field.Dropdown({
 				selector: 'theme',
 				title: Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_THEME_FIELD_TITLE'),
-				content: this.getFormOptions().data.design.theme.split('-')[0],
+				content: Type.isString(theme) ? theme.split('-')[0] : '',
 				onChange: this.onThemeChange.bind(this),
 				items: [
 					{
@@ -85,10 +105,11 @@ export class FormStyleAdapter extends EventEmitter
 	getDarkField(): BX.Landing.UI.Field.Dropdown
 	{
 		return this.cache.remember('darkField', () => {
+			const {theme} = this.getFormOptions().data.design;
 			return new BX.Landing.UI.Field.Dropdown({
 				selector: 'dark',
 				title: Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_DARK_FIELD_TITLE'),
-				content: this.getFormOptions().data.design.theme.split('-')[1],
+				content: Type.isString(theme) ? theme.split('-')[1] : '',
 				onChange: this.onThemeChange.bind(this),
 				items: [
 					{
@@ -375,6 +396,11 @@ export class FormStyleAdapter extends EventEmitter
 						bottom: value.border.includes('bottom'),
 					};
 
+					if (value.font.family === Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_FONT_DEFAULT'))
+					{
+						delete value.font;
+					}
+
 					delete value.primary;
 					delete value.primaryText;
 					delete value.text;
@@ -428,12 +454,21 @@ export class FormStyleAdapter extends EventEmitter
 
 	saveFormDesign()
 	{
-		const formClient = FormClient.getInstance();
-		const formOptions = this.getFormOptions();
+		return Runtime
+			.loadExtension('crm.form.client')
+			.then(({FormClient}) => {
+				if (FormClient)
+				{
+					const formClient = FormClient.getInstance();
+					const formOptions = this.getFormOptions();
 
-		formClient.resetCache(formOptions.id);
+					formClient.resetCache(formOptions.id);
 
-		return formClient.saveOptions(formOptions);
+					return formClient.saveOptions(formOptions);
+				}
+
+				return null;
+			});
 	}
 
 	saveBlockDesign()
@@ -447,9 +482,16 @@ export class FormStyleAdapter extends EventEmitter
 			'data-b24form-use-style': 'Y',
 		});
 
-		const formClient = FormClient.getInstance();
-		const formOptions = this.getFormOptions();
-		formClient.resetCache(formOptions.id);
+		Runtime
+			.loadExtension('crm.form.client')
+			.then(({FormClient}) => {
+				if (FormClient)
+				{
+					const formClient = FormClient.getInstance();
+					const formOptions = this.getFormOptions();
+					formClient.resetCache(formOptions.id);
+				}
+			});
 
 		Backend
 			.getInstance()
@@ -474,17 +516,21 @@ export class FormStyleAdapter extends EventEmitter
 
 	onDebouncedFormChange()
 	{
-		const formSettingsPanel = FormSettingsPanel.getInstance();
-		formSettingsPanel.setCurrentBlock(this.options.currentBlock);
-
 		if (this.isCrmFormPage())
 		{
-			void this.saveFormDesign();
+			Runtime
+				.loadExtension('landing.ui.panel.formsettingspanel')
+				.then(({FormSettingsPanel}) => {
+					const formSettingsPanel = FormSettingsPanel.getInstance();
+					formSettingsPanel.setCurrentBlock(this.options.currentBlock);
 
-			if (formSettingsPanel.useBlockDesign())
-			{
-				formSettingsPanel.disableUseBlockDesign();
-			}
+					void this.saveFormDesign();
+
+					if (formSettingsPanel.useBlockDesign())
+					{
+						formSettingsPanel.disableUseBlockDesign();
+					}
+				});
 		}
 		else
 		{

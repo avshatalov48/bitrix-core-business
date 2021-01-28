@@ -287,12 +287,74 @@ export default class IblockFieldConfigurator extends BX.UI.EntityEditorFieldConf
 			|| this._field instanceof BX.UI.EntityEditorMultiNumber
 			|| this._field instanceof BX.UI.EntityEditorMultiList
 			|| this._field instanceof BX.UI.EntityEditorMultiDatetime
+			|| (this._field instanceof BX.UI.EntityEditorCustom && this._field.getSchemeElement()._settings.multiple)
 		)
 		{
 			checkBox.checked = true;
 		}
 
 		return checkBox;
+	}
+
+	onSaveButtonClick()
+	{
+		if(this._isLocked)
+		{
+			return;
+		}
+
+		if(this._mandatoryConfigurator)
+		{
+			if(this._mandatoryConfigurator.isChanged())
+			{
+				this._mandatoryConfigurator.acceptChanges();
+			}
+			this._mandatoryConfigurator.close();
+		}
+
+		let params = this.prepareSaveParams();
+
+		if (this._field instanceof BX.UI.EntityEditorCustom)
+		{
+			this._field.getSchemeElement().mergeSettings({multiple: params.multiple});
+
+			let modes = ['edit', 'view'];
+			for (let i = 0; i < modes.length; i++)
+			{
+				let htmlListName = BX.prop.getString(this._field.getSchemeElement().getData(), modes[i] + 'List', null);
+				let htmlList = BX.prop.getObject(this._field.getModel().getData(), htmlListName, null);
+
+				if (htmlList !== null)
+				{
+					let newHtml = params.multiple ? htmlList.MULTIPLE : htmlList.SINGLE;
+					let htmlName = BX.prop.getString(this._field.getSchemeElement().getData(), modes[i], null);
+
+					if (BX.prop.getString(this._field.getModel().getData(), htmlName, null) !== null)
+					{
+						this._field.getModel().setField(htmlName, newHtml);
+						this._field.getModel().setInitFieldValue(htmlName, newHtml);
+						if (modes[i] === 'view')
+						{
+							if (newHtml === '')
+							{
+								Dom.clean(this._field.getContentWrapper());
+								this._field.getContentWrapper().appendChild(BX.create("div",
+									{
+										props: { className: "ui-entity-editor-content-block-text" },
+										text: BX.message("UI_ENTITY_EDITOR_FIELD_EMPTY")
+									}));
+							}
+							else
+							{
+								this._field.getContentWrapper().innerHTML = newHtml;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		BX.onCustomEvent(this, "onSave", [ this, params]);
 	}
 
 	getIsRequiredCheckBox()

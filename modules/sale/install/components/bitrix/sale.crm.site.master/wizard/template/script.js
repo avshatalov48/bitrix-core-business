@@ -84,7 +84,6 @@ CAjaxWizardForm.prototype.ShowError = function(errorMessage)
 	errorText.innerHTML = errorMessage;
 
 	var retryButton = document.getElementById("error_retry_button");
-	var skipButton = document.getElementById("error_skip_button");
 
 	var _this = this;
 	var nextStep = this.nextStep.value;
@@ -94,21 +93,6 @@ CAjaxWizardForm.prototype.ShowError = function(errorMessage)
 		_this.HideError();
 		_this.Post(nextStep, nextStepStage);
 	};
-
-	if (nextStep === "main")
-	{
-		skipButton.onclick = function() {
-			_this.HideError();
-			_this.Post(nextStep, nextStepStage);
-		};
-	}
-	else
-	{
-		skipButton.onclick = function() {
-			_this.HideError();
-			_this.Post(nextStep, 'skip');
-		};
-	}
 };
 
 CAjaxWizardForm.prototype.HideError = function()

@@ -12,7 +12,6 @@ use Bitrix\Catalog\v2\Section\SectionCollection;
 use Bitrix\Catalog\v2\Section\SectionRepositoryContract;
 use Bitrix\Catalog\v2\Sku\HasSkuCollection;
 use Bitrix\Catalog\v2\Sku\SkuCollection;
-use Bitrix\Catalog\v2\Sku\SkuFactory;
 use Bitrix\Catalog\v2\Sku\SkuRepositoryContract;
 use Bitrix\Main\Result;
 
@@ -30,8 +29,6 @@ abstract class BaseProduct extends BaseIblockElementEntity implements HasSection
 	protected $sectionRepository;
 	/** @var \Bitrix\Catalog\v2\Sku\SkuRepositoryContract */
 	protected $skuRepository;
-	/** @var \Bitrix\Catalog\v2\Sku\SkuFactory */
-	protected $skuFactory;
 
 	/** @var \Bitrix\Catalog\v2\Section\SectionCollection|\Bitrix\Catalog\v2\Section\Section[] */
 	protected $sectionCollection;
@@ -43,14 +40,12 @@ abstract class BaseProduct extends BaseIblockElementEntity implements HasSection
 		ProductRepositoryContract $productRepository,
 		PropertyRepositoryContract $propertyRepository,
 		SectionRepositoryContract $sectionRepository,
-		SkuRepositoryContract $skuRepository,
-		SkuFactory $skuFactory
+		SkuRepositoryContract $skuRepository
 	)
 	{
 		parent::__construct($iblockInfo, $productRepository, $propertyRepository);
 		$this->sectionRepository = $sectionRepository;
 		$this->skuRepository = $skuRepository;
-		$this->skuFactory = $skuFactory;
 
 		$this->setIblockId($this->iblockInfo->getProductIblockId());
 		$this->setType($this->iblockInfo->canHaveSku() ? ProductTable::TYPE_SKU : ProductTable::TYPE_PRODUCT);

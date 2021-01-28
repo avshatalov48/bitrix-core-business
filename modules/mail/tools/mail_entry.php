@@ -116,7 +116,7 @@ try
 
 			if (is_uploaded_file($file['tmp_name']) && $file['size'] > 0)
 			{
-				$uploadFile = $tmpDir . bx_basename($file['name']);
+				$uploadFile = $tmpDir . md5(mt_rand().$file['name']);
 				move_uploaded_file($file['tmp_name'], $uploadFile);
 
 				$file['tmp_name'] = $uploadFile;

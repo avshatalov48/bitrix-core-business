@@ -15,5 +15,6 @@ $iblock_default_option = array(
 	"property_features_enabled" => "Y",
 	"iblock_activity_dates" => "",
 	"iblock_activity_dates_period" => "86400",
-	"excel_export_rights" => "N"
+	"excel_export_rights" => "N",
+	"change_user_by_group_active_modify" => "N"
 );

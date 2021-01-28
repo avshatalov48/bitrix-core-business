@@ -583,16 +583,30 @@ foreach($arResult["ITEMS"] as $PID => $arItem)
 {
 	if(isset($arItem["PRICE"]))
 	{
+		$setValue = false;
 		if($arItem["VALUES"]["MIN"]["HTML_VALUE"] <> '' && $arItem["VALUES"]["MAX"]["HTML_VALUE"] <> '')
-			${$FILTER_NAME}["><CATALOG_PRICE_".$arItem["ID"]] = array($arItem["VALUES"]["MIN"]["HTML_VALUE"], $arItem["VALUES"]["MAX"]["HTML_VALUE"]);
+		{
+			${$FILTER_NAME}["><CATALOG_PRICE_".$arItem["ID"]] = array(
+				$arItem["VALUES"]["MIN"]["HTML_VALUE"],
+				$arItem["VALUES"]["MAX"]["HTML_VALUE"]
+			);
+			$setValue = true;
+		}
 		elseif($arItem["VALUES"]["MIN"]["HTML_VALUE"] <> '')
 		{
 			${$FILTER_NAME}[">=CATALOG_PRICE_".$arItem["ID"]] = $arItem["VALUES"]["MIN"]["HTML_VALUE"];
+			$setValue = true;
 		}
 		elseif($arItem["VALUES"]["MAX"]["HTML_VALUE"] <> '')
 		{
 			${$FILTER_NAME}["<=CATALOG_PRICE_".$arItem["ID"]] = $arItem["VALUES"]["MAX"]["HTML_VALUE"];
+			$setValue = true;
 		}
+		if ($setValue && $this->convertCurrencyId != '')
+		{
+			${$FILTER_NAME}["CATALOG_CURRENCY_SCALE_".$arItem["ID"]] = $this->convertCurrencyId;
+		}
+		unset($setValue);
 	}
 	elseif($arItem["PROPERTY_TYPE"] == "N")
 	{

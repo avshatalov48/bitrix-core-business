@@ -32,7 +32,7 @@ if($arResult['userField']['SETTINGS']['DISPLAY'] === ElementType::DISPLAY_UI)
 			'VALUE' => $key,
 		];
 
-		if(in_array((string)$key, $value, true))
+		if(in_array($key, $value))
 		{
 			$startValue[] = $item;
 		}

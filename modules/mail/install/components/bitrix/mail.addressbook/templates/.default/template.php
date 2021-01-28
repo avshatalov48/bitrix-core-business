@@ -55,8 +55,8 @@ $this->endViewTarget();
 function makeRowForGrid($item, $canEdit)
 {
 	$contactNameTemplate = '<div class="mail-addressbook-contact-name">
-								<div class="mail-ui-avatar" user-name="'.$item['NAME'].'" email="'.$item['EMAIL'].'"></div>
-								<span class="mail-addressbook-contact-name-title">'.$item['NAME'].'</span>
+								<div class="mail-ui-avatar" user-name="'.htmlspecialcharsbx($item['NAME']).'" email="'.htmlspecialcharsbx($item['EMAIL']).'"></div>
+								<span class="mail-addressbook-contact-name-title">'.htmlspecialcharsbx($item['NAME']).'</span>
 							</div>';
 
 	$actions = [];
@@ -93,7 +93,7 @@ function makeRowForGrid($item, $canEdit)
 	$item = [
 		'data' => [
 			"NAME" => $contactNameTemplate,
-			"EMAIL" => $item['EMAIL'],
+			"EMAIL" => htmlspecialcharsbx($item['EMAIL']),
 		],
 		'actions' => $actions,
 		'id' => $item['ID'],

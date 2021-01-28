@@ -20,6 +20,7 @@
 .catalog-product-variation-grid .main-grid-editor-text, .main-grid-editor-textarea {
 	height: 40px;
 	font-size: 14px;
+	margin-left: 0;
 }
 
 .catalog-product-variation-grid .main-grid-editor.main-dropdown {

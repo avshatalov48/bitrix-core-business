@@ -360,6 +360,7 @@ export class RuleEntry extends EventEmitter
 		return this.cache.remember('fieldsListMenu', () => {
 			return new window.top.BX.Main.Menu({
 				bindElement: this.getAddFieldLink(),
+				maxHeight: 205,
 				items: this.options.fieldsList
 					.filter((field) => {
 						return (

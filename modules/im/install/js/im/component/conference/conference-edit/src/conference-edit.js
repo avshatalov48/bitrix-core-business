@@ -359,7 +359,7 @@ Vue.component('bx-im-component-conference-edit',
 			fieldsToSubmit['password_needed'] = this.passwordNeeded.currentValue;
 			fieldsToSubmit['password'] = this.password.currentValue;
 			fieldsToSubmit['id'] = this.conferenceId;
-			fieldsToSubmit['invitation'] = this.invitation.value;
+			fieldsToSubmit['invitation'] = Text.decode(this.invitation.value);
 			fieldsToSubmit['users'] = this.selectedUsers.currentValue.map(user => user.id);
 
 			this.clearErrors();

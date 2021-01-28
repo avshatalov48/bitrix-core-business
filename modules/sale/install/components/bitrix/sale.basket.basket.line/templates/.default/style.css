@@ -42,6 +42,8 @@
 	.bx-basket-fixed.left { left: 10px }
 
 	.bx-basket-fixed.bx-max-height { top: 10px; bottom: 10px; }
+
+	.block-store-catalog-list .bx-basket-fixed.bottom { bottom: 70px }
 }
 
 @media (max-width: 767px) {

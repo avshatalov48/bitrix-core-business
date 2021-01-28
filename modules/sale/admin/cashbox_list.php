@@ -317,7 +317,22 @@ else
 
 			/** @var Cashbox\Cashbox $handler */
 			$handler = $cashbox['HANDLER'];
-			if ($handler::isSupportedFFD105())
+			$isRestHandler = $handler === '\Bitrix\Sale\Cashbox\CashboxRest';
+			if ($isRestHandler)
+			{
+				$handlerCode = $cashbox['SETTINGS']['REST']['REST_CODE'];
+				$restHandlers = Cashbox\Manager::getRestHandlersList();
+				$currentHandler = $restHandlers[$handlerCode];
+				if ($currentHandler['SETTINGS']['SUPPORTS_FFD105'] !== 'Y')
+				{
+					$cashboxNoFfd105[] = htmlspecialcharsbx($cashbox['NAME']);
+				}
+				else
+				{
+					$cashboxFfd105[] = htmlspecialcharsbx($cashbox['NAME']);
+				}
+			}
+			elseif ($handler::isSupportedFFD105())
 			{
 				$cashboxFfd105[] = htmlspecialcharsbx($cashbox['NAME']);
 			}

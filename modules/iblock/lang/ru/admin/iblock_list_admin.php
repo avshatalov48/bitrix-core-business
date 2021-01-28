@@ -157,5 +157,6 @@ $MESS["IBLIST_A_ERR_PRODUCT_LIMIT"] = "Превышено ограничение
 $MESS["IBLIST_PRODUCTS_INSTAGRAM"] = "Товары Instagram";
 $MESS["IBLIST_A_CATALOG_SKU_PRICE"] = "от #PRICE#";
 $MESS["IBLIST_A_CATALOG_EMPTY_VALUE"] = "не выбрано";
+$MESS["IBLIST_A_CATALOG_DEFAULT"] = "(по умолчанию)";
 $MESS["IBLIST_A_ERR_BUILDER_ADSENT"] = "Не найден генератор ссылок.";
 ?>

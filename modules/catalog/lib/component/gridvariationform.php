@@ -269,15 +269,23 @@ class GridVariationForm extends VariationForm
 						break;
 
 					case 'VAT_ID':
-						$vatList = [];
 						$type = 'list';
-						$vatRaws = \Bitrix\Catalog\VatTable::getList([
-							'select' => ['ID', 'NAME'],
-							'filter' => ['=ACTIVE' => 'Y'],
-						]);
-						$vatList[0] = Loc::getMessage("CATALOG_PRODUCT_CARD_VARIATION_GRID_NOT_SELECTED");
-						foreach ($vatRaws as $vat)
+
+						$vatList = [
+							'D' => Loc::getMessage("CATALOG_PRODUCT_CARD_VARIATION_GRID_DEFAULT",
+								['#VALUE#' => Loc::getMessage("CATALOG_PRODUCT_CARD_VARIATION_GRID_NOT_SELECTED")])
+						];
+
+						$iblockId = $this->entity->getIblockId();
+						$iblockData = \CCatalog::GetByID($iblockId);
+
+						foreach ($this->getVats() as $vat)
 						{
+							if ($vat['ID'] === $iblockData['VAT_ID'])
+							{
+								$vatList['D'] = Loc::getMessage("CATALOG_PRODUCT_CARD_VARIATION_GRID_DEFAULT",
+									['#VALUE#' => htmlspecialcharsbx($vat['NAME'])]);
+							}
 							$vatList[$vat['ID']] = htmlspecialcharsbx($vat['NAME']);
 						}
 						$editable = [

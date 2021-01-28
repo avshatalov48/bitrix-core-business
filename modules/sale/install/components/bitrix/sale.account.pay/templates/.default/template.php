@@ -70,11 +70,8 @@ else
 											.($arParams['SELL_USER_INPUT'] === 'N' ? "disabled" :"").
 											">
 										</div>";
-									$tempCurrencyRow = trim(str_replace("#", "", $arResult['FORMATED_CURRENCY']));
-									$labelWrapper = "<label class='control-label input-lg input-lg col-sm-3'>".$tempCurrencyRow."</label>";
-									$currencyRow = str_replace($tempCurrencyRow, $labelWrapper, $arResult['FORMATED_CURRENCY']);
-									$currencyRow = str_replace("#", $inputElement, $currencyRow);
-									echo $currencyRow;
+									$currencyRow = "<label class='control-label input-lg input-lg col-sm-3'>".$arResult['FORMATED_CURRENCY']."</label>";
+									echo $inputElement.$currencyRow;
 									?>
 								</div>
 							</div>

@@ -1,4 +1,4 @@
-import {Dom, Type} from 'main.core';
+import {Dom, Text, Type} from 'main.core';
 import {Loc} from 'landing.loc';
 import {HeaderCard} from 'landing.ui.card.headercard';
 import {ContentWrapper} from 'landing.ui.panel.basepresetpanel';
@@ -200,11 +200,11 @@ export default class ActionsContent extends ContentWrapper
 			result: {
 				success: {
 					text: actionPagesValue.success,
-					url: this.getSuccessLinkField().getValue(),
+					url: Text.decode(this.getSuccessLinkField().getValue()),
 				},
 				failure: {
 					text: actionPagesValue.failure,
-					url: this.getFailureLinkField().getValue(),
+					url: Text.decode(this.getFailureLinkField().getValue()),
 				},
 				redirectDelay: this.getDelayField().getValue(),
 			},

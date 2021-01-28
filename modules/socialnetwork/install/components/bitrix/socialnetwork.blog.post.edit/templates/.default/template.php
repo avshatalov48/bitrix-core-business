@@ -452,7 +452,7 @@ HTML;
 
 		$postFormActionUri = (isset($arParams["POST_FORM_ACTION_URI"]) ? $arParams["POST_FORM_ACTION_URI"] : htmlspecialcharsback(POST_FORM_ACTION_URI));
 		$uri = new Bitrix\Main\Web\Uri($postFormActionUri);
-		$uri->deleteParams(array("b24statAction", "b24statTab"));
+		$uri->deleteParams(array("b24statAction", "b24statTab", "b24statAddEmailUserCrmContact"));
 		$uri->addParams(array(
 			"b24statAction" => ($arParams["ID"] > 0 ? "editLogEntry" : "addLogEntry"),
 		));

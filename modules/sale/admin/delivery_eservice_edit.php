@@ -48,6 +48,7 @@ if($saleModulePermissions == "W" && check_bitrix_sessid())
 
 		if(isset($_POST["CLASS_NAME"]))
 		{
+			ExtraServices\Manager::initClassesList();
 			if(!is_subclass_of($_POST["CLASS_NAME"], Base::class))
 			{
 				throw new \Bitrix\Main\SystemException(

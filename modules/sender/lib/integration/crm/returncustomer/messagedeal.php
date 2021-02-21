@@ -95,6 +95,23 @@ class MessageDeal extends MessageBase
 				'hint' => Loc::getMessage('SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_ALWAYS_ADD_HINT'),
 			],
 			[
+				'type' => Message\ConfigurationOption::TYPE_CHECKBOX,
+				'code' => 'FROM_PREVIOUS',
+				'name' => Loc::getMessage('SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_CREATE_FROM_PREVIOUS'),
+				'required' => false,
+				'hint' => Loc::getMessage('SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_CREATE_FROM_PREVIOUS_HINT'),
+			],
+			[
+				'type' => Message\ConfigurationOption::TYPE_NUMBER,
+				'code' => 'DEAL_DAYS_AGO',
+				'name' => Loc::getMessage('SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_DEAL_DAYS_AGO'),
+				'required' => false,
+				'value'  => 1,
+				'min_value'  => 0,
+				'max_value'  => 366,
+				'hint' => Loc::getMessage('SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_DEAL_DAYS_AGO_HINT'),
+			],
+			[
 				'type' => 'text',
 				'code' => 'COMMENT',
 				'name' => Loc::getMessage('SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_COMMENT'),

@@ -178,4 +178,31 @@ class Collection
 
 		return ($array !== array_keys($array));
 	}
+
+	/**
+	 * Clone array recursively. Keys are preserved
+	 *
+	 * @param array $originalArray - array to clone
+	 *
+	 * @return array
+	 */
+	public static function clone(array $originalArray): array
+	{
+		$clonedArray = [];
+		foreach ($originalArray as $index => $value)
+		{
+			if (is_array($value))
+			{
+				$value = static::clone($value);
+			}
+			elseif (is_object($value))
+			{
+				$value = clone $value;
+			}
+
+			$clonedArray[$index] = $value;
+		}
+
+		return $clonedArray;
+	}
 }

@@ -18,13 +18,13 @@ $this->addExternalCss("/bitrix/css/main/font-awesome.css");
 					<?if(isset($arResult['METADATA']['IMAGE'])):?>
 						<div class="urlpreview__image">
 							<?if(isset($arResult['METADATA']['EMBED'])):?>
-								<img src="<?=$arResult['METADATA']['IMAGE']?>" onerror="this.style.display='none';">
+								<img src="<?=$arResult['METADATA']['IMAGE']?>" onerror="this.style.display='none';" class="urlpreview__image-not-inited">
 								<div class="urlpreview__play">
 									<i class="fa fa-play"></i>
 								</div>
 							<?else:?>
 								<a href="<?= $arResult['METADATA']['URL']?>" target="_blank">
-									<img src="<?=$arResult['METADATA']['IMAGE']?>" onerror="this.style.display='none';">
+									<img src="<?=$arResult['METADATA']['IMAGE']?>" onerror="this.style.display='none';" class="urlpreview__image-not-inited">
 								</a>
 							<?endif?>
 						</div>

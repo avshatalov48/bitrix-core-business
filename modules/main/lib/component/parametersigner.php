@@ -51,32 +51,18 @@ class ParameterSigner
 			return [];
 		}
 
-		return static::unserialize($decoded, $componentName);
+		return static::unserialize($decoded);
 	}
 
-	private static function unserialize(string $str, string $componentName)
+	private static function unserialize(string $str)
 	{
-		$data = unserialize($str, ['allowed_classes' => [
+		return unserialize($str, ['allowed_classes' => [
 			DateTime::class,
 			Date::class,
 			Uri::class,
 			\DateTime::class,
 			\DateTimeZone::class,
 		]]);
-
-		$someObjects = strpos(print_r($data, true), '__PHP_Incomplete_Class') !== false;
-		if ($someObjects)
-		{
-			$data = unserialize($str);
-
-			$exception = new SystemException("There is object in parameters {$componentName} and it's unsafe and it's going to be deprecated soon.");
-			trigger_error($exception->getMessage(), E_USER_DEPRECATED);
-			$application = \Bitrix\Main\Application::getInstance();
-			$exceptionHandler = $application->getExceptionHandler();
-			$exceptionHandler->writeToLog($exception);
-		}
-
-		return $data;
 	}
 
 	protected static function refineComponentName($componentName)

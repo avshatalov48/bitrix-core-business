@@ -29,6 +29,10 @@ if($arParams['IS_SLIDER'])
 	{
 		$bodyClasses .= " app-layout-subscribe-renew-modifier-75";
 	}
+	if (!empty($arResult['HELPER_DATA']['URL']))
+	{
+		$bodyClasses .= " app-layout-error-iframe-modifier";
+	}
 	$APPLICATION->setPageProperty("BodyClass", trim(sprintf("%s %s", $bodyClass, $bodyClasses)));
 }
 
@@ -45,6 +49,20 @@ if($arParams['SET_TITLE'] == 'Y')
 	$needPadding = true;
 }
 
+if (!empty($arResult['HELPER_DATA']['URL'])):?>
+<div
+	id="appframe_layout_<?=$arResult['APP_SID']?>"
+	class="app-frame-layout "
+>
+	<iframe
+		id="appframe_error<?=$arResult['APP_SID']?>"
+		name="error<?=$arResult['APP_SID']?>"
+		src="<?=$arResult['HELPER_DATA']['URL']?>"
+		class="app-frame-error"
+	></iframe>
+	</div>
+<?php
+else:
 ?>
 <div class="app-layout-subscribe-renew app-layout-error-block<?=$needPadding ? ' app-layout-subscribe-renew-padding' : ''; ?>">
 	<div class="app-layout-icon">
@@ -61,7 +79,7 @@ if($arParams['SET_TITLE'] == 'Y')
 	<p><?=$arResult['ERROR_MESSAGE']; ?></p>
 </div>
 <?php
-
+endif;
 if($arParams['IS_SLIDER'])
 {
 	CMain::FinalActions();

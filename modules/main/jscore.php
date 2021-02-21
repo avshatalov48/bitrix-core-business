@@ -90,6 +90,7 @@ $arJSCoreConfig = array(
 		//'css' => $pathCSS.'/core_window.css',
 		'css' => $pathCSSPanel.'/popup.css',
 		'rel' => array('ajax', 'main.pageobject'),
+		'lang' => $pathLang.'/js_core.php',
 	),
 	'access' => array(
 		'js' => $pathJS.'/core_access.js',

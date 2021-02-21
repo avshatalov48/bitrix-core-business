@@ -28,7 +28,7 @@ class FileInputReceiver
 			throw new AccessDeniedException(Loc::getMessage("BXU_AccessDenied_Authorize"));
 
 		$sign = new Signer;
-		$params = unserialize(base64_decode($sign->unsign($signature, "fileinput")));
+		$params = unserialize(base64_decode($sign->unsign($signature, "fileinput")), ["allowed_classes" => false]);
 		$this->id = $params["id"];
 
 		$this->uploader = new Uploader($params, "get");

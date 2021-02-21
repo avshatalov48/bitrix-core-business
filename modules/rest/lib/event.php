@@ -3,6 +3,7 @@ namespace Bitrix\Rest;
 
 use Bitrix\Main;
 use Bitrix\Rest\Preset\EventController;
+use Bitrix\Main\ORM\Fields\ArrayField;
 
 /**
  * Class EventTable
@@ -14,6 +15,7 @@ use Bitrix\Rest\Preset\EventController;
  * <li> EVENT_NAME string(255) mandatory
  * <li> EVENT_HANDLER string(255) mandatory
  * <li> USER_ID int optional
+ * <li> OPTIONS array optional
  * </ul>
  *
  * @package Bitrix\Rest
@@ -79,6 +81,7 @@ class EventTable extends Main\Entity\DataManager
 			'INTEGRATION_ID' => array(
 				'data_type' => 'integer',
 			),
+			'OPTIONS' => new ArrayField('OPTIONS'),
 			'REST_APP' => array(
 				'data_type' => 'Bitrix\Rest\AppTable',
 				'reference' => array('=this.APP_ID' => 'ref.ID'),

@@ -1,9 +1,7 @@
 (function (exports) {
 	'use strict';
 
-	var ParamBag =
-	/*#__PURE__*/
-	function () {
+	var ParamBag = /*#__PURE__*/function () {
 	  function ParamBag() {
 	    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, ParamBag);

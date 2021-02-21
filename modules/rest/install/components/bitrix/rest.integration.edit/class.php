@@ -9,6 +9,7 @@ use Bitrix\Main\Engine\ActionFilter;
 use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Localization\LanguageTable;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Rest\Engine\Access;
 use Bitrix\Main\Loader;
 use Bitrix\Rest\Preset\Data\Element;
 use Bitrix\Rest\Preset\Provider;
@@ -387,6 +388,16 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Controlle
 	{
 		$requestData = $this->getRequestData();
 
+		if (
+			!Access::isAvailable()
+			|| !Access::isAvailableCount(Access::ENTITY_TYPE_INTEGRATION, $requestData['ID'])
+		)
+		{
+			return [
+				'helperCode' => Access::getHelperCode()
+			];
+		}
+
 		return Provider::saveIntegration($requestData, $this->arParams['ELEMENT_CODE'], $this->arParams['ID']);
 	}
 
@@ -394,6 +405,16 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Controlle
 	{
 		$result = [];
 		$code = $this->request->getPost('code');
+
+		if (
+			!Access::isAvailable()
+			|| !Access::isAvailableCount(Access::ENTITY_TYPE_INTEGRATION)
+		)
+		{
+			$result['helperCode'] = Access::getHelperCode();
+			return $result;
+		}
+
 		if (!empty($code))
 		{
 			$presetData = Element::get($code);

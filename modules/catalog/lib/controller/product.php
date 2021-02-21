@@ -11,6 +11,7 @@ use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\ActionFilter\ClosureWrapper;
 use Bitrix\Main\Engine\ActionFilter\Scope;
 use Bitrix\Main\SystemException;
+use Bitrix\Main\UI\PageNavigation;
 
 final class Product extends Controller
 {
@@ -57,7 +58,7 @@ final class Product extends Controller
 		}
 	}
 
-	public function listAction($select=[], $filter=[], $order=[], $start=0)
+	public function listAction($select=[], $filter=[], $order=[], PageNavigation $pageNavigation)
 	{
 		$r = $this->checkPermissionIBlockElementList($filter['IBLOCK_ID']);
 		if($r->isSuccess())
@@ -68,7 +69,7 @@ final class Product extends Controller
 			$select = empty($select)? array_merge(['*'], $this->getAllowedFieldsProduct()):$select;
 			$order = empty($order)? ['ID'=>'ASC']:$order;
 
-			$r = \CIBlockElement::GetList($order, $filter, false, self::getNavData($start), $select);
+			$r = \CIBlockElement::GetList($order, $filter, false, self::getNavData($pageNavigation->getOffset()), $select);
 			while ($l = $r->Fetch())
 			{
 				$list[$l['ID']] = $l;

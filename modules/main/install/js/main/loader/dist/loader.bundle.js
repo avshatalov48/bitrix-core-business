@@ -109,9 +109,7 @@
 	var STATE_READY = 'ready';
 	var STATE_SHOWN = 'shown';
 	var STATE_HIDDEN = 'hidden';
-	var Loader =
-	/*#__PURE__*/
-	function () {
+	var Loader = /*#__PURE__*/function () {
 	  function Loader() {
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, Loader);

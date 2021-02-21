@@ -27,6 +27,7 @@ class Transport
 	const METHOD_GET_SALE_OUT = 'get_sale_out';
 	const METHOD_GET_BUY = 'get_buy';
 	const METHOD_GET_UPDATES = 'get_updates';
+	const METHOD_GET_IMMUNE = 'get_immune';
 	const METHOD_GET_CATEGORIES = 'get_categories';
 	const METHOD_GET_CATEGORY = 'get_category';
 	const METHOD_GET_TAG = 'get_tag';

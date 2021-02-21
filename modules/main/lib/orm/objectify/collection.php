@@ -99,6 +99,13 @@ abstract class Collection implements \ArrayAccess, \Iterator, \Countable
 		$this->_isSinglePrimary = count($this->_entity->getPrimaryArray()) == 1;
 	}
 
+	public function __clone()
+	{
+		$this->_objects = \Bitrix\Main\Type\Collection::clone((array)$this->_objects);
+		$this->_objectsRemoved = \Bitrix\Main\Type\Collection::clone((array)$this->_objectsRemoved);
+		$this->_iterableObjects = null;
+	}
+
 	/**
 	 * @param EntityObject $object
 	 *

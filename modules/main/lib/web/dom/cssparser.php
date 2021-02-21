@@ -95,8 +95,11 @@ class CssParser
 		$declarationBlock = trim($declarationBlock);
 		if($declarationBlock)
 		{
+			// fix image urls in data:URL format with base64 encoding
+			$declarationBlock = str_replace(';base64', '__base64', $declarationBlock);
 			foreach(explode(";", $declarationBlock) as $declaration)
 			{
+				$declaration = str_replace('__base64', ';base64', $declaration);
 				$declaration = trim($declaration);
 				if(!$declaration)
 				{

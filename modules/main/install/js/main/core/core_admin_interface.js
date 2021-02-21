@@ -2826,7 +2826,7 @@ BX.adminSidePanel.prototype.onMessage = function(SidePanelEvent)
 	}
 };
 
-BX.adminSidePanel.onOpenPage = BX.adminSidePanel.prototype.onOpenPage = function(url)
+BX.adminSidePanel.onOpenPage = BX.adminSidePanel.prototype.onOpenPage = function(url, skipModification)
 {
 	if (top.BX.admin && top.BX.admin.dynamic_mode_show_borders)
 	{
@@ -2835,13 +2835,21 @@ BX.adminSidePanel.onOpenPage = BX.adminSidePanel.prototype.onOpenPage = function
 
 	if (top.BX.SidePanel.Instance)
 	{
-		var adminSidePanel = top.window["adminSidePanel"], optionsOpen = {};
-		if (adminSidePanel.publicMode)
+		if (skipModification)
 		{
-			url = BX.util.add_url_param(url, {"publicSidePanel": "Y"});
-			optionsOpen.allowChangeHistory = false;
+			top.BX.SidePanel.Instance.open(url);
 		}
-		top.BX.SidePanel.Instance.open(url, optionsOpen);
+		else
+		{
+			var adminSidePanel = top.window["adminSidePanel"], optionsOpen = {};
+			if (adminSidePanel.publicMode)
+			{
+				url = BX.util.add_url_param(url, {"publicSidePanel": "Y"});
+				optionsOpen.allowChangeHistory = false;
+			}
+
+			top.BX.SidePanel.Instance.open(url, optionsOpen);
+		}
 	}
 };
 

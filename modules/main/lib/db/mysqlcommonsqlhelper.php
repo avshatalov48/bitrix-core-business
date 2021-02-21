@@ -388,6 +388,22 @@ abstract class MysqlCommonSqlHelper extends SqlHelper
 		{
 			return 'int';
 		}
+		elseif ($field instanceof ORM\Fields\DecimalField)
+		{
+			$defaultPrecision = 18;
+			$defaultScale = 2;
+
+			$precision = $field->getPrecision() > 0 ? $field->getPrecision() : $defaultPrecision;
+			$scale = $field->getScale() > 0 ? $field->getScale() : $defaultScale;
+
+			if ($scale >= $precision)
+			{
+				$precision = $defaultPrecision;
+				$scale = $defaultScale;
+			}
+
+			return "decimal($precision, $scale)";
+		}
 		elseif ($field instanceof ORM\Fields\FloatField)
 		{
 			return 'double';

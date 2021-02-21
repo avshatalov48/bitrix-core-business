@@ -782,7 +782,7 @@ class Query
 						'Private field %s.%s is restricted in query, use Query::enablePrivateFields() to allow it',
 						$columnField->getEntity()->getDataClass(),
 						$columnField->getName()
-					));
+					), E_USER_WARNING);
 				}
 			}
 		}

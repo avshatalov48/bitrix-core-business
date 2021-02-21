@@ -10,94 +10,45 @@ if(
 )
 {
 	?>
-	<span id="<?= $arResult['valueContainerId'] ?>" style="display: none">
-	<?php
-	for($i = 0, $n = count($arResult['startValue']); $i < $n; $i++)
-	{
-		?>
-		<input
-			type="hidden"
-			name="<?= HtmlFilter::encode($arResult['fieldName']) ?>"
-			value="<?= HtmlFilter::encode($arResult['startValue'][$i]['VALUE']) ?>"
-		>
-		<?php
-	}
-	?>
-	</span>
-	<span id="<?= $arResult['controlNodeIdJs'] ?>"></span>
-	<?php
-	$script = <<<EOT
-	<script>
-		function changeHandler_{$arResult['fieldNameJs']}(controlObject, value)
-		{						
-			if(controlObject.params.fieldName === '{$arResult['fieldNameJs']}' && !!BX('{$arResult['valueContainerIdJs']}'))
+	<input
+		type="hidden"
+		value=""
+		id="<?= $arResult['fieldName'] ?>_default"
+	>
+	<span <?= $component->getHtmlBuilder()->buildTagAttributes($arResult['spanAttrList']) ?>>
+			<?php
+			if(count($arResult['attrList']))
 			{
-				var currentValue = JSON.parse(controlObject.node.getAttribute('data-value'));
-
-				if(BX.type.isPlainObject(currentValue))
+				foreach($arResult['attrList'] as $attrList)
 				{
-					BX('{$arResult['valueContainerIdJs']}').firstChild.value = currentValue['VALUE'];
-				} else {				
-					var s = '';
-					if(!BX.type.isArray(currentValue))
-					{
-						if(currentValue === null)
-						{
-							currentValue = [{VALUE:''}];
-						}
-						else
-						{
-							currentValue = [currentValue];
-						}
-					}
-
-					if(currentValue.length > 0)
-					{
-						for(var i = 0; i < currentValue.length; i++)
-						{
-							s += '<input type="hidden" name="{$arResult['htmlFieldNameJs']}" value="'+BX.util.htmlspecialchars(currentValue[i].VALUE)+'" />';
-						}
-					}
-					else
-					{
-						s += '<input type="hidden" name="{$arResult['htmlFieldNameJs']}" value="" />';
-					}
-
-					BX('{$arResult['valueContainerIdJs']}').innerHTML = s;					
+					?>
+					<input <?= $component->getHtmlBuilder()->buildTagAttributes($attrList) ?>>
+					<?php
 				}
-				BX.fireEvent(BX('{$arResult['fieldNameJs']}_default'), 'change');
 			}
-		}
+			?>
+			</span>
 
-		BX.ready(function(){
-			var params = {$arResult['params']};			
+	<span id="<?= $arResult['controlNodeId'] ?>"></span>
 
-			BX('{$arResult['controlNodeIdJs']}').appendChild(BX.decl({
-				block: '{$arResult['block']}',
-				name: '{$arResult['fieldNameJs']}',
-				items: {$arResult['items']},
-				value: {$arResult['currentValue']},
-				params: params,
-				valueDelete: false
-			}));				
-
-			BX.addCustomEvent(
-				window,
-				'UI::Select::change',
-				changeHandler_{$arResult['fieldNameJs']}
-			);
-
-			BX.bind(BX('{$arResult['controlNodeIdJs']}'), 'click', BX.defer(function(){
-				changeHandler_{$arResult['fieldNameJs']}(
-					{
-						params: params,
-						node: BX('{$arResult['controlNodeIdJs']}').firstChild
-					});
-			}));
-		});
-	</script>
+	<?php
+	$scriptParams = CUtil::PhpToJSObject([
+		'fieldName' => $arResult['fieldNameJs'],
+		'container' => $arResult['controlNodeId'],
+		'valueContainerId' => $arResult['valueContainerId'],
+		'block' => $arResult['block'],
+		'value' => $arResult['currentValue'],
+		'items' => $arResult['items'],
+		'params' => $arResult['params']
+	]);
+	$script = <<<EOT
+<script>
+	BX.ready(function ()
+	{
+		new BX.Desktop.Field.Enum({$scriptParams});
+	});
+</script>
 EOT;
-
 	print $script;
 }
 elseif($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_CHECKBOX)

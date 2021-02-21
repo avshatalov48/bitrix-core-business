@@ -1012,6 +1012,7 @@
 				var pos = BX.pos(this.getActionsButton());
 
 				BX.style(popupWindow.getPopupContainer(), 'top', pos.top - 20 + 'px');
+				BX.style(popupWindow.getPopupContainer(), 'left', pos.left + 25 + 'px');
 			}
 		},
 

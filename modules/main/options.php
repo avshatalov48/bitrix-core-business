@@ -297,24 +297,24 @@ $addAllowedHost = "
     <script>
         var whiteListValues = ".CUtil::phpToJsObject($allowedHostsList).";
         var firstWhiteListInputs = [].slice.call(document.querySelectorAll('input[name=\'imageeditor_proxy_white_list\']'));
-        
+
         if (firstWhiteListInputs.length)
         {
             firstWhiteListInputs.forEach(function(item, index) {
             	item.setAttribute('placeholder', '".htmlspecialcharsbx($allowedWhiteListPlaceholder)."');
             	item.name = 'imageeditor_proxy_white_list[]';
             	item.setAttribute('value', whiteListValues[index]);
-            	
+
             	var allowedHostRemoveButton = '<a href=\"javascript:void(0);\" onclick=\"removeAllowedHost(this)\" class=\"access-delete\"></a>';
                 item.parentElement.innerHTML += allowedHostRemoveButton;
             });
         }
-        
+
         function removeAllowedHost(button)
         {
         	var row = button.parentElement.parentElement;
         	var inputs = [].slice.call(document.querySelectorAll('input[name*=\'imageeditor_proxy_white_list\']'));
-        	
+
         	if (inputs.length > 1)
             {
             	if (row.firstElementChild.innerHTML)
@@ -325,22 +325,22 @@ $addAllowedHost = "
         	        button.parentElement.parentElement
         	    );
             }
-            else 
+            else
             {
                 var input = row.querySelector('input[type=\'text\']');
                 input.removeAttribute('value');
                 input.value = '';
             }
-        	
+
         }
-        
+
         function addProxyAllowedHost(button)
         {
         	var row = button
         	    .parentElement
         	    .parentElement
         	    .previousElementSibling;
-        	
+
         	if (row)
             {
                 var clonedRow = row.cloneNode(true);
@@ -349,7 +349,7 @@ $addAllowedHost = "
                 clonedInput.removeAttribute('value');
                 clonedInput.value = '';
                 row.parentElement.insertBefore(clonedRow, row.nextElementSibling);
-                
+
                 if (!clonedInput.parentElement.querySelector('.access-delete'))
                 {
                     var allowedHostRemoveButton = '<a href=\"javascript:void(0);\" onclick=\"removeAllowedHost(this)\" class=\"access-delete\"></a>';
@@ -357,37 +357,37 @@ $addAllowedHost = "
                 }
             }
         }
-        
+
         var proxyEnabled = document.querySelector('[name=\'imageeditor_proxy_enabled\']');
         if (proxyEnabled)
         {
             proxyEnabled.addEventListener('change', onProxyEnabledChange);
-            
+
             requestAnimationFrame(function() {
                onProxyEnabledChange({currentTarget: proxyEnabled});
             });
         }
-        
+
         function onProxyEnabledChange(event)
         {
             var inputs = [].slice.call(document.querySelectorAll('input[name*=\'imageeditor_proxy_white_list\']'));
-            
+
             inputs.forEach(function(item) {
                 item.disabled = event.currentTarget.value !== 'YWL';
             });
-            
+
             var button = document.querySelector('.adm-add-allowed-host');
-            
+
             if (event.currentTarget.value !== 'YWL')
             {
                 button.style.pointerEvents = 'none';
                 button.style.opacity = .4;
             }
-            else 
+            else
             {
             	button.removeAttribute('style');
             }
-        
+
         }
     </script>
 ";
@@ -655,20 +655,19 @@ $tabControl->BeginNextTab();
 
 ShowParamsHTMLByArray($arAllOptions["auth"]);
 
-$tabControl->BeginNextTab();
-ShowParamsHTMLByArray($arAllOptions["event_log"]);
-?>
-
-<?if(COption::GetOptionString("main", "controller_member", "N")=="Y"):?>
+if(COption::GetOptionString("main", "controller_member", "N")=="Y")
+{
+	?>
 	<tr class="heading">
 		<td colspan="2"><b><?echo GetMessage("MAIN_OPTION_CTRL_REM")?></b></td>
 	</tr>
 	<?
 	ShowParamsHTMLByArray($arAllOptions["controller_auth"]);
-	?>
-<?endif?>
+}
 
-<?
+$tabControl->BeginNextTab();
+ShowParamsHTMLByArray($arAllOptions["event_log"]);
+
 $tabControl->BeginNextTab();
 ?>
 	<tr>

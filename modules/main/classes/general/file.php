@@ -363,8 +363,13 @@ class CFile
 					$arFile["SUBDIR"] = $original->getFile()->getSubdir();
 					$arFile["FILE_NAME"] = $original->getFile()->getFileName();
 
-					unlink($physicalFileName);
-					@rmdir($io->GetPhysicalName($dirName));
+					$originalPath = $_SERVER["DOCUMENT_ROOT"]."/".$upload_dir."/".$arFile["SUBDIR"]."/".$arFile["FILE_NAME"];
+
+					if($physicalFileName <> $io->GetPhysicalName($originalPath))
+					{
+						unlink($physicalFileName);
+						@rmdir($io->GetPhysicalName($dirName));
+					}
 				}
 			}
 		}

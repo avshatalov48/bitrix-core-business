@@ -1417,6 +1417,7 @@
 			var idleUsers = this._getDisconnectedUsers();
 
 			this.invitePopup = new BX.Call.InvitePopup({
+				viewElement: this.callView.container,
 				bindElement: e.node,
 				zIndex: BX.MessengerCommon.getDefaultZIndex() + 200,
 				idleUsers: idleUsers,

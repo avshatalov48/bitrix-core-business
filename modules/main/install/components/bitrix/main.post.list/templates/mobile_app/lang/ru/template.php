@@ -6,6 +6,7 @@ $MESS["BPC_MES_VOTE"] = "Кому нравится";
 $MESS["BPC_MES_VOTE1"] = "Мне нравится";
 $MESS["BPC_MES_VOTE2"] = "Не нравится";
 $MESS["BPC_MES_DELETE"] = "Удалить";
+$MESS["BLOG_C_LOADING"] = "Загрузка";
 $MESS["BPC_MES_CREATETASK"] = "Создать задачу";
 $MESS["BPC_MES_COPYLINK"] = "Копировать ссылку";
 $MESS["BLOG_C_VIEW"] = "Смотреть комментарии";

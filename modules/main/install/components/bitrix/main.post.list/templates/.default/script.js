@@ -20,6 +20,7 @@
 		this.node = {
 			main : params["mainNode"],
 			navigation : params["navigationNode"], // container for pagination,
+			navigationLoader : params["navigationNodeLoader"], // container for pagination,
 			history : params["nodeForOldMessages"],
 			newComments : params["nodeForNewMessages"],
 			formHolder: params["nodeFormHolder"],
@@ -354,6 +355,24 @@
 					}
 				}
 			}
+
+			BX.addCustomEvent(window, "BX.BXUrlPreview.onImageLoaded", function(params) {
+
+				if (
+					!BX.type.isPlainObject(params)
+					|| !BX.type.isDomNode(params.imageNode)
+				)
+				{
+					return;
+				}
+
+				var commentNode = BX.findParent(params.imageNode, { className: "feed-com-block-cover"});
+				if (BX.type.isDomNode(commentNode))
+				{
+					this.recalcMoreButtonComment(commentNode.getAttribute("bx-mpl-entity-id"));
+				}
+
+			}.bind(this));
 		},
 		initNavigationEvents : function() {
 			if (BX(this.node.navigation))
@@ -644,6 +663,7 @@
 			}
 			else
 			{
+				BX.adjust(this.node.navigationLoader, {style : {"display" : "flex"}});
 				BX.ajax({
 					url: (url + (url.indexOf('?') !== -1 ? "&" : "?") + BX.ajax.prepareData(data)),
 					method: "GET",
@@ -662,6 +682,7 @@
 
 			this.status = "ready";
 			this.wait("hide");
+			BX.adjust(this.node.navigationLoader, {style : {"display" : "none"}});
 			BX.removeClass(this.node.navigation, "feed-com-all-hover");
 
 			var ob = BX.processHTML(data["messageList"], false);
@@ -735,6 +756,7 @@
 			this.status = "done";
 			BX.removeClass(this.node.navigation, "feed-com-all-hover");
 			this.wait("hide");
+			BX.adjust(this.node.navigationLoader, {style : {"display" : "none"}});
 		},
 		getCommentsCount : function() {
 			var count = 0;

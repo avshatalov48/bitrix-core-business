@@ -114,6 +114,8 @@ class rest extends CModule
 		\CAgent::AddAgent('\Bitrix\Rest\Configuration\Helper::sendStatisticAgent();', "rest", "N",86400);
 		\CAgent::AddAgent('\\Bitrix\\Rest\\UsageStatTable::sendAgent();', "rest", "N", 3600);
 		\CAgent::AddAgent('\\Bitrix\\Rest\\UsageStatTable::cleanUpAgent();', "rest", "N", 3600);
+		\CAgent::AddAgent('\Bitrix\Rest\Marketplace\Notification::checkAgent();', "rest", "N", 86400);
+		\CAgent::AddAgent('\Bitrix\Rest\Marketplace\Immune::load();', "rest", "N", 86400);
 
 		return true;
 	}

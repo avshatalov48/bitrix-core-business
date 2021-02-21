@@ -73,6 +73,12 @@ class ConfigurationOption
 	/** @var int $maxLength max length of string field */
 	protected $maxLength;
 
+	/** @var int $maxValue max value of the field */
+	protected $maxValue;
+
+	/** @var int $minValue min value of te string field */
+	protected $minValue;
+
 	/**
 	 * Configuration constructor.
 	 * @param array $data Data.
@@ -135,6 +141,14 @@ class ConfigurationOption
 		{
 			$this->setMaxLength($data['max_length']);
 		}
+		if (isset($data['max_value']))
+		{
+			$this->setMaxValue($data['max_value']);
+		}
+		if (isset($data['min_value']))
+		{
+			$this->setMinValue($data['min_value']);
+		}
 	}
 
 	/**
@@ -156,6 +170,8 @@ class ConfigurationOption
 			'templated' => $this->isTemplated(),
 			'hint' => $this->getHint(),
 			'max_length' => $this->getMaxLength(),
+			'min_value' => $this->getMinValue(),
+			'max_value' => $this->getMaxValue(),
 		);
 	}
 
@@ -477,4 +493,43 @@ class ConfigurationOption
 		$this->maxLength = $maxLength;
 	}
 
+	/**
+	 * @return int
+	 */
+	public function getMaxValue()
+	{
+		return $this->maxValue;
+	}
+
+	/**
+	 * @param int $maxValue
+	 *
+	 * @return ConfigurationOption
+	 */
+	public function setMaxValue(int $maxValue)
+	{
+		$this->maxValue = $maxValue;
+
+		return $this;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getMinValue()
+	{
+		return $this->minValue;
+	}
+
+	/**
+	 * @param int $minValue
+	 *
+	 * @return ConfigurationOption
+	 */
+	public function setMinValue(int $minValue)
+	{
+		$this->minValue = $minValue;
+
+		return $this;
+	}
 }

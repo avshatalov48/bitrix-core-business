@@ -8,17 +8,23 @@
 
 namespace Bitrix\Sender\Integration\Crm\ReturnCustomer;
 
-use Bitrix\Sender\Internals\Queue;
-use Bitrix\Sender\Message;
-use Bitrix\Sender\Transport;
-use Bitrix\Sender\Recipient;
-
-use Bitrix\Crm\Timeline;
+use Bitrix\Crm\Category\DealCategory;
+use Bitrix\Crm\DealTable;
 use Bitrix\Crm\EntityManageFacility;
 use Bitrix\Crm\Integrity\ActualEntitySelector;
-use Bitrix\Crm\Category\DealCategory;
+use Bitrix\Crm\Order\Basket;
+use Bitrix\Crm\Order\BasketItem;
+use Bitrix\Crm\Order\Company;
+use Bitrix\Crm\Order\ContactCompanyEntity;
+use Bitrix\Crm\Order\Order;
+use Bitrix\Crm\Order\Payment;
 use Bitrix\Crm\PhaseSemantics;
-use Bitrix\Crm\DealTable;
+use Bitrix\Crm\Timeline;
+use Bitrix\Main\Type\DateTime;
+use Bitrix\Sender\Internals\Queue;
+use Bitrix\Sender\Message;
+use Bitrix\Sender\Recipient;
+use Bitrix\Sender\Transport;
 
 /**
  * Class TransportBase
@@ -145,7 +151,8 @@ class TransportBase implements Transport\iBase
 			->search();
 		$facility = new EntityManageFacility($selector);
 		$facility->enableAutoGenRc();
-		if ($config->get('ALWAYS_ADD') === 'Y')
+
+		if ($config->get('ALWAYS_ADD') === 'Y' || $config->get('FROM_PREVIOUS') === 'Y')
 		{
 			$facility->setRegisterMode(EntityManageFacility::REGISTER_MODE_ALWAYS_ADD);
 		}
@@ -169,7 +176,29 @@ class TransportBase implements Transport\iBase
 					$config->get('CATEGORY_ID'),
 					$facility
 				);
-				$facility->registerDeal($entityFields);
+
+
+				if ($config->get('FROM_PREVIOUS') === 'Y')
+				{
+					$lastDeal = $this->getLastDeal($facility, $config->get('DEAL_DAYS_AGO'));
+					$lastOrder = $this->getOrderData($lastDeal['ID']);
+					if(!$lastDeal || !$lastOrder)
+					{
+						$this->responsibleQueue->previous();
+						return false;
+					}
+
+					$entityFields += $lastDeal;
+				}
+
+
+				$registeredId = $facility->registerDeal($entityFields);
+
+				if($registeredId && $config->get('FROM_PREVIOUS') === 'Y')
+				{
+					$this->copyDealProducts($lastDeal['ID'], $registeredId);
+					$this->copyOrder($lastDeal['ID'], $registeredId);
+				}
 				break;
 
 			default:
@@ -272,6 +301,7 @@ class TransportBase implements Transport\iBase
 				'limit' => 1,
 				'order' => ['DATE_CREATE' => 'DESC']
 			]);
+
 			if (!$dealRow)
 			{
 				break;
@@ -280,5 +310,165 @@ class TransportBase implements Transport\iBase
 		}
 
 		return $categoryId;
+	}
+
+	protected function getLastDeal(EntityManageFacility $facility, $days)
+	{
+		$categoryId = null;
+		$dealFilters = [];
+		if ($facility->getSelector()->getCompanyId())
+		{
+			$dealFilters[] = [
+				'=COMPANY_ID' => $facility->getSelector()->getCompanyId()
+			];
+		}
+		if ($facility->getSelector()->getContactId())
+		{
+			$dealFilters[] = [
+				'=CONTACT_ID' => $facility->getSelector()->getContactId()
+			];
+		}
+		foreach ($dealFilters as $dealFilter)
+		{
+			$dealFilter['=STAGE_SEMANTIC_ID'] = [
+				PhaseSemantics::SUCCESS
+			];
+
+			$dateCreate = (new \DateTime())->modify("-$days days");
+
+			$beginningOfTheDay = DateTime::createFromPhp($dateCreate->setTime(0,0,0));
+			$endOfTheDay = DateTime::createFromPhp($dateCreate->setTime(23,59,59));
+
+			$dealFilter['<DATE_CREATE'] = $endOfTheDay;
+			$dealFilter['>DATE_CREATE'] = $beginningOfTheDay;
+
+			$dealFilter['=HAS_PRODUCTS'] = 1;
+
+			$dealRow = DealTable::getRow([
+				'select' => ['ID', 'CURRENCY_ID', 'RECEIVED_AMOUNT'],
+				'filter' => $dealFilter,
+				'limit' => 1,
+				'order' => ['DATE_CREATE' => 'DESC']
+			]);
+
+			if (!$dealRow)
+			{
+				break;
+			}
+
+			return $dealRow;
+		}
+
+		return null;
+	}
+
+	protected function getOrderData($dealId)
+	{
+		$dbRes = \Bitrix\Crm\Order\DealBinding::getList([
+			'select' => ['PAYMENT_ID' => 'ORDER.PAYMENT.ID', 'PAYMENT_ORDER_ID' => 'ORDER.PAYMENT.ORDER_ID'],
+			'filter' => [
+				'DEAL_ID' => $dealId,
+				'!ORDER.PAYMENT.PS_RECURRING_TOKEN' => '',
+				'=ORDER.PAYMENT.PAID' => 'Y',
+			],
+			'order' => ['ORDER.PAYMENT.ID' => 'DESC']
+		]);
+
+		return $dbRes->fetch();
+	}
+
+	protected function copyDealProducts($fromDealId, $toDealId)
+	{
+
+		$productRows = \CCrmDeal::LoadProductRows($fromDealId);
+
+		foreach($productRows as &$productRow)
+		{
+			$productRow['ID'] = 0;
+		}
+
+		\CCrmDeal::SaveProductRows($toDealId, $productRows, false);
+	}
+
+	protected function copyOrder($formDealId, $toDealId)
+	{
+		if ($data = $this->getOrderData($formDealId))
+		{
+			$registry = \Bitrix\Sale\Registry::getInstance( \Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER);
+			$orderClassName = $registry->getOrderClassName();
+
+			/** @var Order $order */
+			$order = $orderClassName::load($data['PAYMENT_ORDER_ID']);
+			if ($order)
+			{
+				/** @var Order $newOrder */
+				$newOrder = $orderClassName::create($order->getSiteId(), $order->getUserId(), $order->getCurrency());
+
+				/** @var Basket $basketClassName */
+				$basketClassName = $registry->getBasketClassName();
+
+				$newBasket = $basketClassName::create($order->getSiteId());
+				/** @var BasketItem $item */
+				foreach ($order->getBasket() as $item)
+				{
+					$basketItem = $newBasket->createItem($item->getField('MODULE'), $item->getProductId());
+					$basketItem->setFields([
+						'PRODUCT_PROVIDER_CLASS' => $item->getField('PRODUCT_PROVIDER_CLASS'),
+						'QUANTITY' => $item->getQuantity(),
+						'CURRENCY' => $item->getCurrency(),
+						'BASE_PRICE' => $item->getBasePrice(),
+						'PRICE' => $item->getPrice(),
+					]);
+				}
+
+				$newOrder->setBasket($newBasket);
+
+				/** @var Payment $payment */
+				$payment = $order->getPaymentCollection()->getItemById($data['PAYMENT_ID']);
+				if ($payment)
+				{
+					$newPayment = $newOrder->getPaymentCollection()->createItem();
+					$newPayment->setFields([
+						'PAY_SYSTEM_ID' => $payment->getPaymentSystemId(),
+						'PAY_SYSTEM_NAME' => $payment->getPaymentSystemName(),
+						'PS_RECURRING_TOKEN' => $payment->getField('PS_RECURRING_TOKEN'),
+					]);
+				}
+
+				/** @var \Bitrix\Sale\Shipment $newShipment */
+				$newShipment = $newOrder->getShipmentCollection()->createItem();
+				foreach ($newBasket as $item)
+				{
+					$newShipmentItem = $newShipment->getShipmentItemCollection()->createItem($item);
+					$newShipmentItem->setQuantity($item->getQuantity());
+				}
+
+				$newDealBinding = $newOrder->createDealBinding();
+				$newDealBinding->setField('DEAL_ID', $toDealId);
+
+				/** @var ContactCompanyEntity $item */
+				foreach ($order->getContactCompanyCollection()->getCompanies() as $item)
+				{
+					/** @var Company $newCompany */
+					$newCompany = $newOrder->getContactCompanyCollection()->createCompany();
+					$newCompany->setField('ENTITY_ID', $item->getField('ENTITY_ID'));
+					$newCompany->setField('IS_PRIMARY', $item->getField('IS_PRIMARY'));
+				}
+
+				/** @var ContactCompanyEntity $item */
+				foreach ($order->getContactCompanyCollection()->getContacts() as $item)
+				{
+					/** @var Contact $newContact */
+					$newContact = $newOrder->getContactCompanyCollection()->createContact();
+					$newContact->setField('ENTITY_ID', $item->getField('ENTITY_ID'));
+					$newContact->setField('IS_PRIMARY', $item->getField('IS_PRIMARY'));
+				}
+
+				$newOrder->refreshData();
+				$newOrder->doFinalAction();
+
+				$newOrder->save();
+			}
+		}
 	}
 }

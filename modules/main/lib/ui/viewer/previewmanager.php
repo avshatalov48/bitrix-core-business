@@ -399,7 +399,7 @@ final class PreviewManager
 			'previewfile'
 		);
 
-		return unserialize(base64_decode($unsignedParameters));
+		return unserialize(base64_decode($unsignedParameters), ['allowed_classes' => false]);
 	}
 
 	public function getByImage($fileId, Uri $sourceUri)

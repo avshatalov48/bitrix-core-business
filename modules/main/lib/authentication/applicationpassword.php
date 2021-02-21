@@ -14,6 +14,9 @@ use Bitrix\Main\ORM\Fields;
 
 class ApplicationPasswordTable extends Data\DataManager
 {
+	protected const PASSWORD_ALPHABET = "qwertyuiopasdfghjklzxcvbnm";
+	protected const PASSWORD_LENGTH = 16;
+
 	public static function getTableName()
 	{
 		return "b_app_password";
@@ -100,7 +103,26 @@ class ApplicationPasswordTable extends Data\DataManager
 	 */
 	public static function generatePassword()
 	{
-		return Main\Security\Random::getStringByCharsets(16, "qwertyuiopasdfghjklzxcvbnm");
+		return Main\Security\Random::getStringByCharsets(static::PASSWORD_LENGTH, static::PASSWORD_ALPHABET);
+	}
+
+	/**
+	 * Checks if the string is similar to a password by its structure.
+	 * @param string $password
+	 * @return bool
+	 */
+	public static function isPassword($password)
+	{
+		if (is_string($password))
+		{
+			$password = str_replace(' ', '', $password);
+
+			if(strlen($password) === static::PASSWORD_LENGTH)
+			{
+				return (!preg_match("/[^".static::PASSWORD_ALPHABET."]/", $password));
+			}
+		}
+		return false;
 	}
 
 	/**

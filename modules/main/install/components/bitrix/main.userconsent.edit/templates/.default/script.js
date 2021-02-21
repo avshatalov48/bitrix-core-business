@@ -30,6 +30,7 @@
 		BX.fireEvent(this.typeSelectorNode, 'change');
 
 		BX.bind(this.dataProviderInputNode, 'change', this.onDataProviderChange.bind(this));
+		BX.bind(this.dataProviderUrlNode, 'click', this.onDataProviderUrlClick.bind(this));
 		BX.fireEvent(this.dataProviderInputNode, 'change');
 
 		this.getFields(this.container).forEach(function (field) {
@@ -153,9 +154,14 @@
 		};
 
 		this.dataProviderUrlNode.style.display = editUrl ? '' : 'none';
-		this.dataProviderUrlNode.href = editUrl;
+		this.dataProviderUrlNode.dataset.href = editUrl;
 
 		this.showFieldsDataProvider(data, provider);
+	};
+
+	BX.Main.UserConsent.Edit.prototype.onDataProviderUrlClick = function()
+	{
+		BX.SidePanel.Instance.open(this.dataProviderUrlNode.dataset.href);
 	};
 
 	BX.Main.UserConsent.Edit.prototype.onTypeChange = function()

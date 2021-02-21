@@ -2,6 +2,7 @@
 namespace Bitrix\Rest;
 
 use Bitrix\Main;
+use Bitrix\Main\Data\Cache;
 
 /**
  * Class EventOfflineTable
@@ -24,6 +25,10 @@ use Bitrix\Main;
 class EventOfflineTable extends Main\Entity\DataManager
 {
 	const PROCESS_ID_LIFETIME = 2952000; // 30 days
+	private const OFFLINE_EVENT_DEFAULT_TIMEOUT = 1;
+	private const OFFLINE_EVENT_CACHE_PREFIX = 'OFFLINE_EVENT_TIMEOUT';
+
+	private static $isSendOfflineEvent = false;
 
 	/**
 	 * Returns DB table name for entity.
@@ -245,5 +250,51 @@ class EventOfflineTable extends Main\Entity\DataManager
 	protected static function getMessageId($fields)
 	{
 		return isset($fields['MESSAGE_ID']) ? $fields['MESSAGE_ID'] : md5($fields['EVENT_NAME'].'|'.Main\Web\Json::encode($fields['EVENT_DATA']));
+	}
+
+	public static function checkSendTime($id, $timeout = null) : bool
+	{
+		$result = false;
+		$timeout = !is_null($timeout) ? (int)$timeout : static::OFFLINE_EVENT_DEFAULT_TIMEOUT;
+
+		if ($timeout > 0)
+		{
+			$key = static::OFFLINE_EVENT_CACHE_PREFIX. '|' . $id . '|'. $timeout;
+			$cache = Cache::createInstance();
+			if ($cache->initCache($timeout, $key))
+			{
+				$result = false;
+			}
+			elseif ($cache->startDataCache())
+			{
+				$result = true;
+				$data = 1;
+				$cache->endDataCache($data);
+			}
+		}
+		elseif (static::$isSendOfflineEvent === false)
+		{
+			static::$isSendOfflineEvent = true;
+			$result = true;
+		}
+
+		return $result;
+	}
+
+	public static function prepareOfflineEvent($params, $handler)
+	{
+		$data = reset($params);
+		if (!is_array($data['APP_LIST']) || !in_array((int) $handler['APP_ID'], $data['APP_LIST'], true))
+		{
+			throw new RestException('Wrong application.');
+		}
+
+		$timeout = $handler['OPTIONS']['minTimeout'] ?? null;
+		if (!static::checkSendTime($handler['ID'], $timeout))
+		{
+			throw new RestException('Time is not up.');
+		}
+
+		return null;
 	}
 }

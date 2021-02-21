@@ -188,13 +188,13 @@ else
 				?><div id="record-<?=$prefixNode?>-hidden" class="feed-hidden-post" style="display:none; overflow:hidden;"></div> <?
 			}
 
-			?><a href="<?=$arParams["NAV_STRING"]?>" id="<?=$prefixNode?>_page_nav" class="post-comments-link" bx-mpl-comments-count="<?=$arResult["NAV_STRING_COUNT_MORE"]?>"><?=Loc::getMessage("BLOG_C_VIEW")?> <span class="post-comments-link-count"><?=$arResult["NAV_STRING_COUNT_MORE"]?></span><?
-				?><span class="post-comments-button-waiter"><svg class="post-comments-button-waiter-circular" viewBox="25 25 50 50">
-					<circle class="post-comments-button-waiter-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"/>
-					<circle class="post-comments-button-waiter-inner-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"/>
-				</svg></span><?
-			?></a><?
-
+			?><div class="post-comments-link-cont">
+				<a href="<?=$arParams["NAV_STRING"]?>" id="<?=$prefixNode?>_page_nav" class="post-comments-link" bx-mpl-comments-count="<?=$arResult["NAV_STRING_COUNT_MORE"]?>"><?
+					?><?=Loc::getMessage("BLOG_C_VIEW")?><?
+					?><span class="post-comments-link-count"><?=$arResult["NAV_STRING_COUNT_MORE"]?></span><?
+				?></a>
+				<span class="post-comments-link-loader-informer" id="<?=$prefixNode?>_page_nav_loader" style='display: none;'><?=Loc::getMessage("BLOG_C_LOADING")?></span>
+			</div><?
 			if ($arParams["PREORDER"] != "Y")
 			{
 				?><div id="record-<?=$prefixNode?>-hidden" class="feed-hidden-post" style="display:none; overflow:hidden;"></div> <?
@@ -366,6 +366,7 @@ if ($this->__component->__parent instanceof \Bitrix\Main\Engine\Contract\Control
 
 					mainNode : BX('<?=$eventNodeId?>'),
 					navigationNode : BX('<?=$prefixNode?>_page_nav'),
+					navigationNodeLoader : BX('<?=$prefixNode?>_page_nav_loader'),
 					nodeForOldMessages : BX('record-<?=$prefixNode?>-hidden'),
 					nodeForNewMessages : BX('record-<?=$prefixNode?>-new'),
 					nodeFormHolder : BX('record-<?=$prefixNode?>-form-holder'),

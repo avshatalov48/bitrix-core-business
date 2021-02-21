@@ -93,6 +93,7 @@ class SiteSpeed
 		$portalSiteList = [];
 		$siteList = \Bitrix\Main\SiteTable::getList([
 			"select" => ["LID"],
+			"cache" => ["ttl" => 86400],
 		])->fetchAll();
 		foreach ($siteList as $site)
 		{

@@ -19,7 +19,7 @@ $MESS['MAIN_MAIL_CONFIRM_CODE_HINT'] = 'На указанный email отпра
 $MESS['MAIN_MAIL_CONFIRM_NAME'] = 'Имя';
 $MESS['MAIN_MAIL_CONFIRM_EMAIL'] = 'Email';
 $MESS['MAIN_MAIL_CONFIRM_PUBLIC'] = 'Доступен всем';
-$MESS['MAIN_MAIL_CONFIRM_PUBLIC_HINT'] = 'Добавленный адрес смогут выбрать все менеджеры, работающие в CRM';
+$MESS['MAIN_MAIL_CONFIRM_PUBLIC_HINT1'] = 'Добавленный адрес сможет выбрать любой сотрудник';
 $MESS['MAIN_MAIL_CONFIRM_CODE_PLACEHOLDER'] = 'Введите код подтверждения';
 
 $MESS['MAIN_MAIL_CONFIRM_SMTP_SERVER'] = 'Сервер';

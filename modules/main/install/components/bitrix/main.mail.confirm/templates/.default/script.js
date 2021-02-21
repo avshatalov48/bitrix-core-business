@@ -169,6 +169,7 @@
 				lightShadow: true,
 				contentColor: 'white',
 				contentNoPaddings: true,
+				cacheable: false,
 				content: BX('new_from_email_dialog_content').innerHTML,
 				buttons: [
 					new BX.PopupWindowButton({

@@ -1401,6 +1401,7 @@
 	      var currentValue = this.getValue();
 
 	      function prepareItems(items) {
+	        var isHtmlEntity = self.dropdown.dataset['htmlEntity'] === 'true';
 	        return items.map(function (item) {
 	          attrs = {};
 	          attrs['data-' + self.dataValue] = item.VALUE;
@@ -1411,7 +1412,8 @@
 	                className: self.dropdownItemClass
 	              },
 	              attrs: attrs,
-	              text: item.NAME
+	              html: isHtmlEntity ? item.NAME : null,
+	              text: isHtmlEntity ? null : item.NAME
 	            })]
 	          });
 	          return {
@@ -2348,6 +2350,7 @@
 	      currencyObject.DATA = {
 	        ITEMS: editObject.CURRENCY_LIST
 	      };
+	      currencyObject.HTML_ENTITY = editObject.HTML_ENTITY || false;
 	      fieldChildren.push(this.createMoneyCurrency(currencyObject));
 
 	      if (BX.type.isNotEmptyObject(value.HIDDEN)) {
@@ -2451,6 +2454,7 @@
 	    },
 	    createDropdown: function createDropdown(editObject) {
 	      var valueItem = this.getDropdownValueItemByValue(editObject.DATA.ITEMS, editObject.VALUE);
+	      var isHtmlEntity = 'HTML_ENTITY' in editObject && editObject.HTML_ENTITY === true;
 	      return BX.create('div', {
 	        props: {
 	          className: [this.parent.settings.get('classEditor'), 'main-dropdown main-grid-editor-dropdown'].join(' '),
@@ -2460,13 +2464,15 @@
 	          name: editObject.NAME,
 	          tabindex: '0',
 	          'data-items': JSON.stringify(editObject.DATA.ITEMS),
-	          'data-value': valueItem.VALUE
+	          'data-value': valueItem.VALUE,
+	          'data-html-entity': editObject.HTML_ENTITY
 	        },
 	        children: [BX.create('span', {
 	          props: {
 	            className: 'main-dropdown-inner'
 	          },
-	          text: valueItem.NAME
+	          html: isHtmlEntity ? valueItem.NAME : null,
+	          text: isHtmlEntity ? null : valueItem.NAME
 	        })]
 	      });
 	    },
@@ -4483,6 +4489,7 @@
 	        var popupWindow = this.actionsMenu.getPopupWindow();
 	        var pos = BX.pos(this.getActionsButton());
 	        BX.style(popupWindow.getPopupContainer(), 'top', pos.top - 20 + 'px');
+	        BX.style(popupWindow.getPopupContainer(), 'left', pos.left + 25 + 'px');
 	      }
 	    },
 	    closeActionsMenu: function closeActionsMenu() {

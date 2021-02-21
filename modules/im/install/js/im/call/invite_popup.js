@@ -16,6 +16,7 @@
 		this.idleUsers = config.idleUsers || [];
 		this.recentUsers = [];
 		this.bindElement = config.bindElement;
+		this.viewElement = config.viewElement || document.body;
 
 		this.allowNewUsers = config.allowNewUsers;
 
@@ -83,6 +84,7 @@
 			var self = this;
 
 			this.popup = new BX.PopupWindow('bx-call-popup-invite', this.bindElement, {
+				targetContainer: this.viewElement,
 				zIndex: this.zIndex,
 				lightShadow : true,
 				darkMode: BXIM.settings.enableDarkTheme,
@@ -226,7 +228,7 @@
 
 					self.searchResult = self.searchResult.concat(result);
 					self.searchTotalCount = self.searchResult.length;
-					
+
 					resolve(result);
 				});
 			})

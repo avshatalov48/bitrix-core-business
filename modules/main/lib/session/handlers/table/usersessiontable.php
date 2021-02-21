@@ -149,9 +149,11 @@ class UserSessionTable extends Entity\DataManager
 	{
 		$pool = Application::getInstance()->getConnectionPool();
 		$pool->useMasterOnly(true);
+
+		$tableName = static::getTableName();
 		$connection = static::getEntity()->getConnection();
 		$connection->queryExecute(
-			sprintf('delete from b_user_session where TIMESTAMP_X < %s',
+			sprintf("delete from {$tableName} where TIMESTAMP_X < %s",
 				$connection->getSqlHelper()->addSecondsToDateTime('-'.$sec))
 		);
 		$pool->useMasterOnly(false);

@@ -284,25 +284,13 @@ final class ServiceContainer
 
 	/**
 	 * @return IListenerRegisterer
-	 * @throws SystemException
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
 	 * @throws \Bitrix\Main\LoaderException
 	 */
 	public static function getListenerRegisterer(): IListenerRegisterer
 	{
-		if (ModuleManager::isModuleInstalled('crm')
-			&& Option::get('sale', '~IS_SALE_CRM_SITE_MASTER_FINISH', 'N') != 'Y')
-		{
-			if (!Loader::includeModule('crm'))
-			{
-				throw new SystemException('crm module is required');
-			}
-
-			return static::getCrmListenerRegisterer();
-		}
-
-		return static::getSaleListenerRegisterer();
+		return (ModuleManager::isModuleInstalled('crm') && Loader::includeModule('crm'))
+			? static::getCrmListenerRegisterer()
+			: static::getSaleListenerRegisterer();
 	}
 
 	/**

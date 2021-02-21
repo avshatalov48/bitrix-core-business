@@ -1311,7 +1311,23 @@ class File extends Base
 
 	static function isMultiple($value)
 	{
-		return is_array($value) && !isset($value['ID']) && !empty(\CFile::CheckFile($value));
+		$isMultiple = false;
+
+		if (isset($value['ID']))
+		{
+			return $isMultiple;
+		}
+
+		if (\is_array($value))
+		{
+			$file = current($value);
+			if (\is_array($file) || \is_int($file))
+			{
+				$isMultiple = true;
+			}
+		}
+
+		return $isMultiple;
 	}
 
 	public static function getViewHtmlSingle(array $input, $value)

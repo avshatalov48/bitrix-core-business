@@ -1338,6 +1338,7 @@ BX.IM.prototype.openSettings = function(params)
 	{
 		this.popupSettings = new BX.PopupWindow('bx-messenger-popup-settings', null, {
 			//parentPopup: this.messenger.popupMessenger,
+			targetContainer: document.body,
 			darkMode: this.settings.enableDarkTheme,
 			autoHide: false,
 			zIndex: BX.MessengerCommon.getDefaultZIndex() + 200,
@@ -2343,6 +2344,7 @@ BX.IM.prototype.openConfirm = function(text, buttons, modal)
 	}
 	this.popupConfirm = new BX.PopupWindow('bx-notifier-popup-confirm', null, {
 		//parentPopup: this.messenger.popupMessenger,
+		targetContainer: document.body,
 		darkMode: this.settings.enableDarkTheme,
 		zIndex: BX.MessengerCommon.getDefaultZIndex()+1000,
 		autoHide: buttons === false,
@@ -3726,6 +3728,7 @@ BX.MessengerNotify.prototype.openNotify = function(reOpen, force)
 
 			this.popupNotifyMore = new BX.PopupWindow('bx-notifier-other-window', BX.proxy_context, {
 				//parentPopup: this.messenger.popupMessenger,
+				targetContainer: document.body,
 				darkMode: this.BXIM.settings.enableDarkTheme,
 				zIndex: BX.MessengerCommon.getDefaultZIndex()+200,
 				lightShadow : true,
@@ -6344,6 +6347,7 @@ BX.MessengerChat.prototype.openMessenger = function(userId, params)
 
 		this.popupChatUsers = new BX.PopupWindow('bx-messenger-popup-chat-users', BX.proxy_context, {
 			//parentPopup: this.popupMessenger,
+			targetContainer: document.body,
 			darkMode: this.BXIM.settings.enableDarkTheme,
 			zIndex: BX.MessengerCommon.getDefaultZIndex()+200,
 			lightShadow : true,
@@ -6611,6 +6615,7 @@ BX.MessengerChat.prototype.openMessenger = function(userId, params)
 
 		this.popupChatUsers = new BX.PopupWindow('bx-messenger-popup-like-users', BX.proxy_context, {
 			//parentPopup: this.popupMessenger,
+			targetContainer: document.body,
 			darkMode: this.BXIM.settings.enableDarkTheme,
 			zIndex: BX.MessengerCommon.getDefaultZIndex()+200,
 			lightShadow : true,
@@ -7038,6 +7043,7 @@ BX.MessengerChat.prototype.tooltip = function(bind, text, params)
 
 	this.popupTooltip = new BX.PopupWindow('bx-messenger-tooltip', bind, {
 		//parentPopup: this.popupMessenger,
+		targetContainer: document.body,
 		lightShadow: true,
 		autoHide: true,
 		darkMode: true,
@@ -8644,6 +8650,7 @@ BX.MessengerChat.prototype.openChatDialog = function(params)
 
 	this.popupChatDialog = new BX.PopupWindow('bx-messenger-popup-newchat', bindElement, {
 		//parentPopup: this.popupMessenger,
+		targetContainer: document.body,
 		darkMode: this.BXIM.settings.enableDarkTheme,
 		lightShadow : true,
 		closeIcon : true,
@@ -10615,6 +10622,7 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 	this.popupPopupMenuDateCreate = +new Date();
 	this.popupPopupMenu = new BX.PopupWindow('bx-messenger-popup-'+type, bind, {
 		//parentPopup: this.popupMessenger,
+		targetContainer: document.body,
 		darkMode: this.BXIM.settings.enableDarkTheme,
 		lightShadow : true,
 		offsetTop: offsetTop,
@@ -10809,6 +10817,7 @@ BX.MessengerChat.prototype.openPopupExternalData = function(bind, type, setAngle
 
 	this.popupPopupMenu = new BX.PopupWindow('bx-messenger-popup-external-data', bind, {
 		//parentPopup: this.popupMessenger,
+		targetContainer: document.body,
 		darkMode: this.BXIM.settings.enableDarkTheme,
 		lightShadow : true,
 		offsetTop: offsetTop,
@@ -11195,6 +11204,7 @@ BX.MessengerChat.prototype.openHistory = function(userId)
 	{
 		this.popupHistory = new BX.PopupWindow('bx-messenger-popup-history', null, {
 			//parentPopup: this.popupMessenger,
+			targetContainer: document.body,
 			darkMode: this.BXIM.settings.enableDarkTheme,
 			//offsetTop: 0,
 			autoHide: false,
@@ -13407,6 +13417,7 @@ BX.MessengerChat.prototype.textareaCommandListUpdate = function(command)
 			{
 				this.commandPopup = new BX.PopupWindow('bx-messenger-command', this.popupMessengerTextareaPlace, {
 					darkMode: this.BXIM.settings.enableDarkTheme,
+					targetContainer: document.body,
 					lightShadow : true,
 					autoHide: true,
 					offsetLeft: 5,
@@ -14252,6 +14263,7 @@ BX.MessengerChat.prototype.openSmileMenu = function(params)
 
 	this.popupSmileMenu = new BX.PopupWindow('bx-messenger-popup-smile', params.bind, {
 		//parentPopup: this.popupMessenger,
+		targetContainer: document.body,
 		darkMode: this.BXIM.settings.enableDarkTheme,
 		lightShadow : false,
 		offsetTop: 0,
@@ -14725,6 +14737,7 @@ BX.MessengerChat.prototype.openFrameDialog = function(params)
 
 	this.popupIframeMenu = new BX.PopupWindow('bx-messenger-iframe', params.bind, {
 		//parentPopup: this.popupMessenger,
+		targetContainer: document.body,
 		darkMode: this.BXIM.settings.enableDarkTheme,
 		lightShadow : false,
 		offsetTop: 0,
@@ -15280,6 +15293,7 @@ BX.MessengerChat.prototype.imageUploader = function()
 
 	this.popupImageUploader = new BX.PopupWindow('bx-messenger-image-uploader', null, {
 		darkMode: this.BXIM.settings.enableDarkTheme,
+		targetContainer: document.body,
 		lightShadow: true,
 		closeByEsc: true,
 		closeIcon : {},
@@ -16665,6 +16679,7 @@ BX.MessengerChat.prototype.linesShowHistory = function(chatId, data)
 
 	this.popupHistory = new BX.PopupWindow('bx-messenger-popup-history', null, {
 		//parentPopup: this.popupMessenger,
+		targetContainer: document.body,
 		darkMode: this.BXIM.settings.enableDarkTheme,
 		autoHide: false,
 		zIndex: BX.MessengerCommon.getDefaultZIndex()+200,
@@ -16865,6 +16880,7 @@ BX.MessengerChat.prototype.linesOpenTransferDialog = function(params)
 
 	this.popupTransferDialog = new BX.PopupWindow('bx-messenger-popup-transfer', bindElement, {
 		//parentPopup: this.popupMessenger,
+		targetContainer: document.body,
 		darkMode: this.BXIM.settings.enableDarkTheme,
 		lightShadow : true,
 		offsetTop: 5,
@@ -17190,6 +17206,7 @@ BX.MessengerChat.prototype.linesCommentHeadAdd = function(rating, comment, bindE
 
 	this.popupRatingCommentHead = new BX.PopupWindow('bx-messenger-popup-head-rating', BX.proxy_context, {
 		darkMode: this.BXIM.settings.enableDarkTheme,
+		targetContainer: document.body,
 		zIndex: BX.MessengerCommon.getDefaultZIndex()+200,
 		lightShadow : true,
 		bindOptions: {position: "top"},
@@ -19968,6 +19985,7 @@ BX.IM.WebRTC.prototype.callOverlayShow = function(params)
 	{
 		this.callNotify = new BX.PopupWindow('bx-messenger-call-notify', null, {
 			//parentPopup: this.popupMessenger,
+			targetContainer: document.body,
 			darkMode: this.BXIM.settings.enableDarkTheme,
 			lightShadow : true,
 			zIndex: BX.MessengerCommon.getDefaultZIndex()+200,
@@ -24158,6 +24176,7 @@ BX.IM.NotifyManager.prototype.show = function()
 		/* show notify to calc width & height */
 		var notifyPopup = new BX.PopupWindow('bx-im-notify-flash-'+this.stackPopupId, {top: '-1000px', left: 0}, {
 			//parentPopup: this.popupMessenger,
+			targetContainer: document.body,
 			darkMode: this.BXIM.settings.enableDarkTheme,
 			lightShadow : true,
 			zIndex: BX.MessengerCommon.getDefaultZIndex()+10000,
@@ -24690,6 +24709,16 @@ var MessengerSlider = function()
 			this.BXIM.updateCounter();
 		}
 	}.bind(this));
+
+	BX.ready(function()
+	{
+		if (typeof BX.ZIndexManager !== 'undefined')
+		{
+			var stack = BX.ZIndexManager.getOrAddStack(document.body);
+			stack.baseIndex = 1200;
+			stack.sort();
+		}
+	});
 };
 
 MessengerSlider.prototype.count = function()

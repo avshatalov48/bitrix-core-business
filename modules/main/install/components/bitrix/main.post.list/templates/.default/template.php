@@ -88,7 +88,8 @@ ob_start();
 				?>onclick="BX.onCustomEvent(BX('<?=$eventNodeIdTemplate?>'), 'onReply', [this]);" <?
 				?>bx-mpl-author-id="#AUTHOR_ID#" <?
 				?>bx-mpl-author-gender="#AUTHOR_PERSONAL_GENDER#" <?
-				?>bx-mpl-author-name="#AUTHOR_NAME#"><?=GetMessage("BLOG_C_REPLY")?></a><?
+				?>bx-mpl-author-name="#AUTHOR_NAME#" <?
+				?>data-slider-ignore-autobinding="true"><?=GetMessage("BLOG_C_REPLY")?></a><?
 			}
 
 
@@ -146,9 +147,13 @@ else
 				?><div id="record-<?=$prefixNode?>-hidden" class="feed-hidden-post" style="display:none; overflow:hidden;"></div> <?
 			}
 			?><div class="feed-com-header"><?
-				?><a class="feed-com-all" href="<?=$arParams["NAV_STRING"]?>" id="<?=$prefixNode?>_page_nav" bx-mpl-comments-count="<?=$arResult["NAV_STRING_COUNT_MORE"]?>"><?
+				?><a class="feed-com-all" href="<?=$arParams["NAV_STRING"]?>"<?
+					?> id="<?=$prefixNode?>_page_nav" <?
+					?> bx-mpl-comments-count="<?=$arResult["NAV_STRING_COUNT_MORE"]?>"<?
+					?> data-slider-ignore-autobinding="true"><?
 					?><?=($arParams["PREORDER"] == "Y" ? GetMessage("BLOG_C_VIEW1") : GetMessage("BLOG_C_VIEW2"))?> <span class="feed-com-all-count"><?=$arResult["NAV_STRING_COUNT_MORE"]?></span><i></i><?
 				?></a><?
+				?><span class="feed-com-loader-informer" id="<?=$prefixNode?>_page_nav_loader" style="display:none;"><?=GetMessage("BLOG_C_LOADING")?></span><?
 			?></div><?
 			if ($arParams["PREORDER"] != "Y")
 			{
@@ -293,6 +298,7 @@ BX.ready(function(){
 
 		mainNode : BX('<?=$eventNodeId?>'),
 		navigationNode : BX('<?=$prefixNode?>_page_nav'),
+		navigationNodeLoader : BX('<?=$prefixNode?>_page_nav_loader'),
 		nodeForOldMessages : BX('record-<?=$prefixNode?>-hidden'),
 		nodeForNewMessages : BX('record-<?=$prefixNode?>-new'),
 		nodeFormHolder : BX('record-<?=$prefixNode?>-form-holder'),

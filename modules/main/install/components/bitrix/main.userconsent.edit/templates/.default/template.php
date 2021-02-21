@@ -35,7 +35,7 @@ $formAction = CHTTP::urlAddParams($APPLICATION->getCurPageParam(), ['save' => 'y
 
 <div class="main-user-consent-errors">
 	<?php foreach ($arResult['ERRORS'] as $error): ?>
-		<?= ShowError($error); ?>
+		<? ShowError($error); ?>
 	<?php endforeach; ?>
 </div>
 
@@ -269,6 +269,7 @@ $formAction = CHTTP::urlAddParams($APPLICATION->getCurPageParam(), ['save' => 'y
 		<?endif;?>
 </div>
 
+<?php if (!$arResult['ERRORS']): ?>
 <div id="<?=$listDomIds['listContainerId']?>" class="main-user-consent-edit-content" style="display: none;">
 	<?php
 	$APPLICATION->IncludeComponent(
@@ -284,6 +285,7 @@ $formAction = CHTTP::urlAddParams($APPLICATION->getCurPageParam(), ['save' => 'y
 	);
 	?>
 </div>
+<? endif; ?>
 
 </div>
 

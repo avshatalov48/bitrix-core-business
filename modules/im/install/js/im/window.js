@@ -161,6 +161,7 @@
 			&& (
 				navigator.userAgent.toLowerCase().indexOf('linux') > 0 && !BX.desktop.enableInVersion(29)
 				|| navigator.userAgent.toLowerCase().indexOf('linux') < 0 && !BX.desktop.enableInVersion(37)
+				|| ["11.0.20.53"].includes(BX.desktop.clientVersion.join('.'))
 			)
 		)
 		{
@@ -335,6 +336,7 @@
 			})];
 		}
 		this.popupConfirm = new BX.PopupWindow('bx-desktop-confirm', null, {
+			targetContainer: document.body,
 			zIndex: 200,
 			autoHide: buttons === false,
 			buttons : buttons,

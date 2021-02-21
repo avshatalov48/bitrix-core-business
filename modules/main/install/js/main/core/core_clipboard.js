@@ -191,7 +191,7 @@
 					position: 'top'
 				}
 			});
-			var popup = new BX.PopupWindow(
+			var popup = BX.PopupWindowManager.create(
 				'clipboard_copy_status_' + popupId,
 				nodeButton,
 				popupParams

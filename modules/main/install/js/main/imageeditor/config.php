@@ -9,8 +9,8 @@ return [
 	'js' => 'dist/imageeditor.bundle.js',
 	'rel' => [
 		'main.popup',
-		'main.core',
 		'main.loader',
+		'main.core',
 	],
 	'skip_core' => false,
 ];

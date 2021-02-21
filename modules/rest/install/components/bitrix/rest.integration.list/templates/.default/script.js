@@ -1,89 +1,9 @@
 ;(function () {
 	'use strict';
 
-	BX.namespace('BX.RestIntegrationList');
+	BX.namespace('BX.rest.integration.list');
 
-	BX.RestIntegrationList.Start = {
-		open: function ()
-		{
-			if (!!this.url)
-			{
-				BX.SidePanel.Instance.open(this.url, {cacheable: false});
-			}
-			else
-			{
-				if (this.integrationCode)
-				{
-					if (!!this.loadProcess)
-					{
-						BX.UI.Notification.Center.notify({
-							content: BX.message('REST_INTEGRATION_LIST_OPEN_PROCESS')
-						});
-						return false;
-					}
-					else
-					{
-						this.loadProcess = true;
-					}
-
-					BX.ajax.runComponentAction(
-						'bitrix:rest.integration.edit',
-						'getNewIntegrationUrl',
-						{
-							mode: 'class',
-							data: {
-								code: this.integrationCode
-							}
-						}
-					).then(
-						function (response)
-						{
-							if (!!response.data && !!response.data.url)
-							{
-								BX.SidePanel.Instance.open(
-									response.data.url,
-									{
-										cacheable: false,
-										requestMethod: 'post',
-										requestParams: {
-											'NEW_OPEN': 'Y',
-										},
-										events:
-										{
-											onLoad: function(event)
-											{
-												this.loadProcess = false;
-											}.bind(this)
-										}
-									}
-								);
-							}
-							else
-							{
-								var errorMessage = BX.message('REST_INTEGRATION_LIST_ERROR_OPEN_URL');
-								if (!!response.data.error && response.data.error.length > 0)
-								{
-									errorMessage = response.data.error;
-								}
-								BX.UI.Notification.Center.notify({
-									content: errorMessage
-								});
-								this.loadProcess = false;
-							}
-						}.bind(this)
-					).catch(
-						function (response)
-						{
-							BX.UI.Notification.Center.notify({
-								content: BX.message('REST_INTEGRATION_LIST_ERROR_OPEN_URL')
-							});
-							this.loadProcess = false;
-						}.bind(this)
-					);
-				}
-			}
-		}
-	};
+	BX.rest.integration.list = {};
 
 	/**
 	 *
@@ -91,7 +11,7 @@
 	 * @extends {BX.TileGrid.Item}
 	 * @constructor
 	 */
-	BX.RestIntegrationList.Start.TileGridItem = function (options) {
+	BX.rest.integration.list.TileGridItem = function (options) {
 		BX.TileGrid.Item.apply(this, arguments);
 
 		this.title = options.title;
@@ -106,10 +26,15 @@
 		this.url = !!options.url ? options.url : false;
 		this.integrationCode = !!options.integrationCode ? options.integrationCode : false;
 		this.loadProcess = false;
-		this.events = {click: BX.RestIntegrationList.Start.open.bind(this)};
+		this.events = {
+			click: function ()
+			{
+				BX.rest.integration.open(this.integrationCode, this.url);
+			}.bind(this)
+		};
 	};
 
-	BX.RestIntegrationList.Start.TileGridItem.prototype =
+	BX.rest.integration.list.TileGridItem.prototype =
 		{
 			__proto__: BX.TileGrid.Item.prototype,
 			constructor: BX.TileGrid.Item,

@@ -15,6 +15,8 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
  */
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\Loader;
+use \Bitrix\Rest\Engine\Access;
+
 if(!CModule::IncludeModule("rest"))
 {
 	return;
@@ -32,6 +34,12 @@ if (!empty($request->get('from')))
 
 $arParams['APP'] = !empty($arParams['APP']) ? $arParams['APP'] : $_GET['app'];
 
+$arResult['REST_ACCESS'] = Access::isAvailable($arParams['APP']) && Access::isAvailableCount(Access::ENTITY_TYPE_APP, $arParams['APP']);
+
+if (!$arResult['REST_ACCESS'])
+{
+	$arResult['REST_ACCESS_HELPER_CODE'] = Access::getHelperCode();
+}
 $ver = false;
 
 $arResult['CHECK_HASH'] = false;
@@ -116,13 +124,33 @@ if($arApp)
 		$arApp["DATE_UPDATE"] = ConvertTimeStamp($stmp);
 	}
 
-	if ($arApp["BY_SUBSCRIPTION"] == "Y")
+	$subscribeFinish = \Bitrix\Rest\Marketplace\Client::getSubscriptionFinalDate();
+	$arResult["SUBSCRIPTION_ACTIVE"] = \Bitrix\Rest\Marketplace\Client::isSubscriptionAvailable();
+	$arResult["PAID_APP_IN_SUBSCRIBE"] = Access::isActiveRules() && \Bitrix\Rest\Marketplace\Client::isSubscriptionAccess();
+
+	if ($arResult["PAID_APP_IN_SUBSCRIBE"] && $arApp['TRIAL_PERIOD'] > 0)
 	{
-		if (\Bitrix\Rest\Marketplace\Client::isSubscriptionAvailable())
+		$days = (int) $arApp['TRIAL_PERIOD'];
+		$now = new \Bitrix\Main\Type\DateTime();
+		if (!$subscribeFinish || $now->getTimestamp() > $subscribeFinish->getTimestamp())
 		{
-			$arApp["STATUS"] = \Bitrix\Rest\AppTable::STATUS_PAID;
-			$arApp["DATE_FINISH"] = \Bitrix\Rest\Marketplace\Client::getSubscriptionFinalDate();
+			$arApp['TRIAL_PERIOD'] = 0;
 		}
+		else
+		{
+			$diff = $subscribeFinish->getDiff($now);
+			$subscribeFinishDays = (int) $diff->days;
+
+			if ($days > $subscribeFinishDays)
+			{
+				$arApp['TRIAL_PERIOD'] = $subscribeFinishDays;
+			}
+		}
+	}
+	if ($arApp["BY_SUBSCRIPTION"] === "Y" && $arResult["SUBSCRIPTION_ACTIVE"])
+	{
+		$arApp["STATUS"] = \Bitrix\Rest\AppTable::STATUS_PAID;
+		$arApp["DATE_FINISH"] = $subscribeFinish;
 	}
 
 	$arResult['REDIRECT_PRIORITY'] = false;

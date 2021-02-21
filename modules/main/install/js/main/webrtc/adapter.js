@@ -2719,7 +2719,7 @@ function wrapPeerConnectionEvent(window, eventNameToWrap, wrapper) {
     }
     var wrappedCallback = function wrappedCallback(e) {
       var modifiedEvent = wrapper(e);
-      if (modifiedEvent) {
+      if (modifiedEvent && cb) {
         if (cb.handleEvent) {
           cb.handleEvent(modifiedEvent);
         } else {

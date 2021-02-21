@@ -38,7 +38,6 @@ $MESS["MAIN_MAIL_CONFIRM_POST_DELETE_NOT_FULL_LIST_WARN_TITTLE"] = "Warning";
 $MESS["MAIN_MAIL_CONFIRM_POST_DELETE_SUCCESS"] = "Senders have been deleted";
 $MESS["MAIN_MAIL_CONFIRM_POST_DELETE_SUCCESS_TITLE"] = "Deleted";
 $MESS["MAIN_MAIL_CONFIRM_PUBLIC"] = "Available to everyone";
-$MESS["MAIN_MAIL_CONFIRM_PUBLIC_HINT"] = "This address will be available to all employees using CRM";
 $MESS["MAIN_MAIL_CONFIRM_PUBLIC_HINT1"] = "The address you added can be selected by any user";
 $MESS["MAIN_MAIL_CONFIRM_SAVE"] = "Save";
 $MESS["MAIN_MAIL_CONFIRM_SMTP_LOGIN"] = "Login";

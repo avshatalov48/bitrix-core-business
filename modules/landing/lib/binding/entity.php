@@ -40,6 +40,20 @@ abstract class Entity
 	}
 
 	/**
+	 * Clears binding places cache.
+	 * @return void
+	 */
+	private function clearCache(): void
+	{
+		if (defined('BX_COMP_MANAGED_CACHE'))
+		{
+			\Bitrix\Landing\Manager::getCacheManager()->clearByTag(
+				'intranet_menu_binding'
+			);
+		}
+	}
+
+	/**
 	 * Returns row id for current binding and entity.
 	 * @param int $entityId Entity id.
 	 * @param string $entityType Entity type.
@@ -113,6 +127,7 @@ abstract class Entity
 	{
 		if (!$this->getBindingId($entityId, $entityType))
 		{
+			$this->clearCache();
 			return $this->addBinding($entityId, $entityType) > 0;
 		}
 		else
@@ -132,6 +147,7 @@ abstract class Entity
 		$bindingId = $this->getBindingId($entityId, $entityType);
 		if ($bindingId)
 		{
+			$this->clearCache();
 			$this->deleteBindingId($bindingId);
 			return true;
 		}

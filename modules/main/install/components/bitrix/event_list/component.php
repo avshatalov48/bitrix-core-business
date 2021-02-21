@@ -12,7 +12,10 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
  */
 
 if(!$USER->CanDoOperation('view_event_log'))
-	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+{
+	ShowError(GetMessage("ACCESS_DENIED"));
+	return;
+}
 
 /** @var CEventMain[] $arModuleObjects */
 $arModuleObjects = array();

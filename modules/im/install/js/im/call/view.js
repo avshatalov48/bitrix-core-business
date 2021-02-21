@@ -1247,6 +1247,7 @@
 		}
 
 		this.deviceSelector = new DeviceSelector({
+			viewElement: this.container,
 			parentElement: bindElement,
 			microphoneEnabled: !this.isMuted,
 			microphoneId: this.microphoneId || BX.Call.Hardware.defaultMicrophone,
@@ -4387,7 +4388,7 @@
 		}
 		BX.remove(this.elements.root);
 	};
-	
+
 	var MobileSlider = function(config)
 	{
 		this.parent = config.parent || null;
@@ -5610,6 +5611,7 @@
 	 */
 	var DeviceSelector = function(config)
 	{
+		this.viewElement = config.viewElement || document.body;
 		this.parentElement = config.parentElement;
 
 		this.cameraEnabled = BX.prop.getBoolean(config, "cameraEnabled", false);
@@ -5681,6 +5683,7 @@
 			'call-view-device-selector',
 			this.parentElement,
 			{
+				targetContainer: this.viewElement,
 				autoHide: true,
 				zIndex: window['BX'] && BX.MessengerCommon ? (BX.MessengerCommon.getDefaultZIndex() + 500) : 1500,
 				closeByEsc: true,

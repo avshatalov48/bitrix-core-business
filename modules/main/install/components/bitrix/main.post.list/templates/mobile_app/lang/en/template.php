@@ -1,5 +1,6 @@
 <?php
 $MESS["BLOG_C_HIDE"] = "Hide comments";
+$MESS["BLOG_C_LOADING"] = "Loading";
 $MESS["BLOG_C_REPLY"] = "Reply";
 $MESS["BLOG_C_VIEW"] = "View comments";
 $MESS["BPC_MES_COPYLINK"] = "Copy link";

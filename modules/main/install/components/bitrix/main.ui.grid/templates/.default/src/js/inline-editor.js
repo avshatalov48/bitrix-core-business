@@ -148,6 +148,7 @@ import {EventEmitter} from "main.core.events";
 			currencyObject.DATA = {
 				ITEMS: editObject.CURRENCY_LIST
 			};
+			currencyObject.HTML_ENTITY = editObject.HTML_ENTITY || false;
 			fieldChildren.push(this.createMoneyCurrency(currencyObject));
 
 			if (BX.type.isNotEmptyObject(value.HIDDEN))
@@ -270,6 +271,7 @@ import {EventEmitter} from "main.core.events";
 				editObject.DATA.ITEMS,
 				editObject.VALUE
 			);
+			var isHtmlEntity = 'HTML_ENTITY' in editObject && editObject.HTML_ENTITY === true;
 
 			return BX.create('div', {
 				props: {
@@ -283,11 +285,13 @@ import {EventEmitter} from "main.core.events";
 					name: editObject.NAME,
 					tabindex: '0',
 					'data-items': JSON.stringify(editObject.DATA.ITEMS),
-					'data-value': valueItem.VALUE
+					'data-value': valueItem.VALUE,
+					'data-html-entity': editObject.HTML_ENTITY
 				},
 				children: [BX.create('span', {
 					props: {className: 'main-dropdown-inner'},
-					text: valueItem.NAME
+					html: isHtmlEntity ? valueItem.NAME : null,
+					text: isHtmlEntity ? null : valueItem.NAME,
 				})]
 			});
 

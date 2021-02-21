@@ -2,9 +2,7 @@
 	'use strict';
 
 	if (!window.DOMRect || typeof DOMRect.prototype.toJSON !== 'function' || typeof DOMRect.fromRect !== 'function') {
-	  window.DOMRect =
-	  /*#__PURE__*/
-	  function () {
+	  window.DOMRect = /*#__PURE__*/function () {
 	    function DOMRect(x, y, width, height) {
 	      babelHelpers.classCallCheck(this, DOMRect);
 	      this.x = x || 0;

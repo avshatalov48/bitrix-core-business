@@ -248,7 +248,7 @@ if ($_REQUEST['unique_id'])
 			$oTest->timeout = 30;
 
 		if ($_REQUEST['global_test_vars'] && ($d = base64_decode($_REQUEST['global_test_vars'])))
-			$oTest->arTestVars = unserialize($d);
+			$oTest->arTestVars = unserialize($d, ['allowed_classes' => false]);
 		else
 			$oTest->arTestVars = array();
 
@@ -408,9 +408,7 @@ elseif($_REQUEST['test_start'])
 		$oTest = new CSiteCheckerTest($_REQUEST['step'], (int) $_REQUEST['fast']);
 		if ($_REQUEST['global_test_vars'] && ($d = base64_decode($_REQUEST['global_test_vars'])))
 		{
-			if (!CheckSerializedData($d))
-				die('Error unserialize');
-			$oTest->arTestVars = unserialize($d);
+			$oTest->arTestVars = unserialize($d, ['allowed_classes' => false]);
 		}
 
 		$oTest->Start();

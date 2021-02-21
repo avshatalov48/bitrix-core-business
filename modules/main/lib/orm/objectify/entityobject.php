@@ -141,6 +141,37 @@ abstract class EntityObject implements ArrayAccess
 		}
 	}
 
+	public function __clone()
+	{
+		$this->_actualValues = $this->cloneValues($this->_actualValues);
+		$this->_currentValues = $this->cloneValues($this->_currentValues);
+	}
+
+	protected function cloneValues(array $values): array
+	{
+		// Do not clone References to avoid infinite recursion
+		$valuesWithoutReferences = $this->filterValuesByMask($values, FieldTypeMask::REFERENCE, true);
+		$references = array_diff_key($values, $valuesWithoutReferences);
+
+		return array_merge($references, \Bitrix\Main\Type\Collection::clone($valuesWithoutReferences));
+	}
+
+	protected function filterValuesByMask(array $values, int $fieldsMask, bool $invertedFilter = false): array
+	{
+		if ($fieldsMask === FieldTypeMask::ALL)
+		{
+			return $invertedFilter ? [] : $values;
+		}
+
+		return array_filter($values, function($fieldName) use ($fieldsMask, $invertedFilter)
+		{
+			$maskOfSingleField = $this->entity->getField($fieldName)->getTypeMask();
+			$matchesMask = (bool)($fieldsMask & $maskOfSingleField);
+
+			return $invertedFilter ? !$matchesMask: $matchesMask;
+		}, ARRAY_FILTER_USE_KEY);
+	}
+
 	/**
 	 * Returns all objects values as an array
 	 *

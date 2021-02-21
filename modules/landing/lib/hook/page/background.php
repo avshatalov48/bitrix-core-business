@@ -108,12 +108,12 @@ class Background extends \Bitrix\Landing\Hook\Page
 
 	/**
 	 * Sets background.
-	 * @param string $picture Picture path or id.
+	 * @param string|null $picture Picture path or id.
 	 * @param string|null $color Color code.
 	 * @param string|null $position Position code.
 	 * @return void
 	 */
-	public static function setBackground(string $picture, ?string $color = null, ?string $position = null): void
+	public static function setBackground(?string $picture, ?string $color = null, ?string $position = null): void
 	{
 		/**
 		 * !!!

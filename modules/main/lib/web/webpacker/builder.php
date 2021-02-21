@@ -307,7 +307,20 @@ class Builder
 			}
 			else
 			{
-				$url = $server->getServerName();
+				$url = Option::get('main', 'server_name', null);
+				$url = $url ?: $server->getServerName();
+				if (!$url)
+				{
+					$defaultSites = \CAllSite::getDefList();
+					while($defaultSite = $defaultSites->fetch())
+					{
+						$url = $defaultSite['SERVER_NAME'];
+						if ($url)
+						{
+							break;
+						}
+					}
+				}
 			}
 		}
 

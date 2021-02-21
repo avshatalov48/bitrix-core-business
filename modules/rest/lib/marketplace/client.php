@@ -6,6 +6,7 @@ use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Rest\AppTable;
+use Bitrix\Rest\Engine\Access;
 
 if(!defined('REST_MP_CATEGORIES_CACHE_TTL'))
 {
@@ -63,6 +64,13 @@ class Client
 			array(
 				"code" => implode(",", $codeList)
 			)
+		);
+	}
+
+	public static function getImmuneApp()
+	{
+		return Transport::instance()->call(
+			Transport::METHOD_GET_IMMUNE
 		);
 	}
 
@@ -486,4 +494,13 @@ class Client
 		return $result;
 	}
 
+	public static function isSubscriptionAccess()
+	{
+		return Loader::includeModule('bitrix24') && \CBitrix24::getLicensePrefix() === 'ru';
+	}
+
+	public static function canBuySubscription()
+	{
+		return static::isSubscriptionAccess() && Access::isFeatureEnabled() && \CBitrix24::getLicenseFamily() !== "demo";
+	}
 }

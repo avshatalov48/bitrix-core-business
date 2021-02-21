@@ -841,7 +841,9 @@ class CTextParser
 			ExecuteModuleEventEx($arEvent, array(&$text, &$this));
 
 		if ($this->preg["counter"] > 0)
-			$text = str_replace($this->preg["pattern"], $this->preg["replace"], $text);
+		{
+			$text = str_replace(array_reverse($this->preg["pattern"]), array_reverse($this->preg["replace"]), $text);
+		}
 
 		foreach(GetModuleEvents("main", "TextParserAfter", true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array(&$text, &$this));
@@ -927,7 +929,7 @@ class CTextParser
 		$arPattern[] = "/\\[video([^\\]]*)\\](.+?)\\[\\/video[\\s]*\\]/is".BX_UTF_PCRE_MODIFIER;
 		$arReplace[] = "(VIDEO: \\2)";
 
-		$arPattern[] = "/\\[(\\/?)list\\]/is".BX_UTF_PCRE_MODIFIER;
+		$arPattern[] = "/\\[(\\/?)list(.*?)\\]/is".BX_UTF_PCRE_MODIFIER;
 		$arReplace[] = "\n";
 
 		$arPattern[] = "/\\[user([^\\]]*)\\](.+?)\\[\\/user\\]/is".BX_UTF_PCRE_MODIFIER;
@@ -1162,7 +1164,9 @@ class CTextParser
 		$html = '<img src="'.htmlspecialcharsbx($this->serverName).$this->pathToSmile.$image.'" border="0" data-code="'.$code.'" data-definition="'.$imageDefinition.'" alt="'.$code.'"'.' style="'.($width > 0 ? 'width:'.$width.'px;' : '').($height > 0 ? 'height:'.$height.'px;' : '').'"'.' title="'.$description.'" class="bx-smile" />';
 		$cacheKey = md5($html);
 		if (!isset($this->preg["cache"][$cacheKey]))
+		{
 			$this->preg["cache"][$cacheKey] = $this->defended_tags($html, 'replace');
+		}
 
 		return $this->preg["cache"][$cacheKey];
 	}
@@ -1433,19 +1437,7 @@ class CTextParser
 	{
 		static $arExtranetUser = false;
 		static $arEmailUser = false;
-
-		if (\Bitrix\Main\Loader::includeModule('socialnetwork'))
-		{
-			if ($arExtranetUser === false)
-			{
-				$arExtranetUser = \Bitrix\Socialnetwork\ComponentHelper::getExtranetUserIdList();
-			}
-
-			if ($arEmailUser === false)
-			{
-				$arEmailUser = \Bitrix\Socialnetwork\ComponentHelper::getEmailUserIdList();
-			}
-		}
+		static $userTypeList = [];
 
 		if (is_array($userId))
 		{
@@ -1453,7 +1445,7 @@ class CTextParser
 			$userId = $userId[1];
 		}
 
-		$userId = intval($userId);
+		$userId = (int)$userId;
 
 		$renderParams = array(
 			'USER_ID' => $userId,
@@ -1463,19 +1455,31 @@ class CTextParser
 		if($userId > 0)
 		{
 			$type = false;
-			if (
-				!empty($arExtranetUser)
-				&& in_array($userId, $arExtranetUser)
-			)
+
+			if (isset($userTypeList[$userId]))
 			{
-				$type = 'extranet';
+				$type = $userTypeList[$userId];
 			}
-			elseif (
-				!empty($arEmailUser)
-				&& in_array($userId, $arEmailUser)
-			)
+			else
 			{
-				$type = 'email';
+				if (\Bitrix\Main\Loader::includeModule('intranet'))
+				{
+					$res = \Bitrix\Intranet\UserTable::getList([
+						'filter' => [
+							'ID' => $userId
+						],
+						'select' => [
+							'USER_TYPE'
+						]
+					]);
+
+					if ($userFields = $res->fetch())
+					{
+						$type = $userFields['USER_TYPE'];
+					}
+				}
+
+				$userTypeList[$userId] = $type;
 			}
 
 			$pathToUser = (
@@ -1499,7 +1503,7 @@ class CTextParser
 					$pathToUser .= '';
 					if (
 						$this->pathToUserEntityType && $this->pathToUserEntityType <> ''
-						&& intval($this->pathToUserEntityId) > 0
+						&& (int)$this->pathToUserEntityId > 0
 					)
 					{
 						$pathToUser .= (mb_strpos($pathToUser, '?') === false ? '?' : '&').'entityType='.$this->pathToUserEntityType.'&entityId='.intval($this->pathToUserEntityId);
@@ -1517,14 +1521,14 @@ class CTextParser
 			);
 
 			if (
-				$type == 'email'
+				$type === 'email'
 				&& !empty($this->pathToUserEntityType)
 				&& !empty($this->pathToUserEntityId)
 			)
 			{
 				$renderParams['TOOLTIP_PARAMS'] = \Bitrix\Main\Web\Json::encode(array(
 					'entityType' => $this->pathToUserEntityType,
-					'entityId' => intval($this->pathToUserEntityId)
+					'entityId' => (int)$this->pathToUserEntityId
 				));
 			}
 		}

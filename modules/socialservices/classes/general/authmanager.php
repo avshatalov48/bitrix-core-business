@@ -1268,7 +1268,7 @@ class CSocServAuth
 		return count(array_intersect(self::getGroupsDenyAuth(), $arGroups)) > 0;
 	}
 
-	public function AuthorizeUser($socservUserFields)
+	public function AuthorizeUser($socservUserFields, $bSave = false)
 	{
 		global $USER, $APPLICATION;
 
@@ -1485,7 +1485,7 @@ class CSocServAuth
 					CTimeZone::SetCookieValue($socservUserFields["TIME_ZONE_OFFSET"]);
 				}
 
-				$USER->AuthorizeWithOtp($USER_ID);
+				$USER->AuthorizeWithOtp($USER_ID, $bSave);
 
 				if($USER->IsJustAuthorized())
 				{

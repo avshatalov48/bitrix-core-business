@@ -5,6 +5,7 @@ use Bitrix\Main;
 use Bitrix\Main\Data\Cache;
 use Bitrix\Main\EventResult;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Rest\Engine\Access;
 use Bitrix\Rest\Marketplace\Client;
 use Bitrix\Main\ORM\Fields\Relations\OneToMany;
 use Bitrix\Rest\Preset\EventController;
@@ -238,10 +239,9 @@ class AppTable extends Main\Entity\DataManager
 	public static function onAfterAdd(Main\Entity\Event $event)
 	{
 		EventController::onAddApp($event);
+		$data = $event->getParameters();
 		if(!static::$skipRemoteUpdate)
 		{
-			$data = $event->getParameters();
-
 			if(
 				$data['fields']['STATUS'] === static::STATUS_LOCAL
 				&& OAuthService::getEngine()->isRegistered()
@@ -307,6 +307,11 @@ class AppTable extends Main\Entity\DataManager
 			}
 		}
 
+		if($data['fields']['STATUS'] !== static::STATUS_LOCAL)
+		{
+			\Bitrix\Rest\Engine\Access::getActiveEntity(true);
+		}
+
 		return true;
 	}
 
@@ -350,6 +355,11 @@ class AppTable extends Main\Entity\DataManager
 
 				throw new OAuthException($updateResult);
 			}
+		}
+
+		if($data['fields']['STATUS'] !== static::STATUS_LOCAL)
+		{
+			\Bitrix\Rest\Engine\Access::getActiveEntity(true);
 		}
 
 		return true;
@@ -561,7 +571,49 @@ class AppTable extends Main\Entity\DataManager
 			$res['PAYMENT_EXPIRED'] = 'N';
 			$res['PAYMENT_ALLOW'] = 'Y';
 
-			if($app['DATE_FINISH'] <> '' && $app['STATUS'] != self::STATUS_FREE)
+			if ($app['STATUS'] === self::STATUS_SUBSCRIPTION)
+			{
+				if (!\Bitrix\Rest\Marketplace\Client::isSubscriptionAvailable())
+				{
+					$res['MESSAGE_REPLACE'] = array(
+						'#DETAIL_URL#' => $detailUrl,
+						'#DAYS#' => 0,
+						'#CODE#' => urlencode($app['CODE'])
+					);
+					$res['PAYMENT_NOTIFY'] = 'Y';
+					$res['PAYMENT_EXPIRED'] = 'Y';
+					$res['PAYMENT_ALLOW'] = 'N';
+				}
+				else
+				{
+					$dateFinish = \Bitrix\Rest\Marketplace\Client::getSubscriptionFinalDate();
+					if ($dateFinish !== false)
+					{
+						$res['DAYS_LEFT'] = floor(($dateFinish->getTimestamp() - \CTimeZone::getOffset() - time()) / 86400);
+						if($res['DAYS_LEFT'] < 0)
+						{
+							$res['MESSAGE_REPLACE'] = array(
+								'#DETAIL_URL#' => $detailUrl,
+								'#DAYS#' => $res['DAYS_LEFT'],
+								'#CODE#' => urlencode($app['CODE'])
+							);
+							$res['PAYMENT_NOTIFY'] = 'Y';
+							$res['PAYMENT_EXPIRED'] = 'Y';
+							$res['PAYMENT_ALLOW'] = 'N';
+						}
+						elseif ($res['DAYS_LEFT'] < static::PAID_NOTIFY_DAYS)
+						{
+							$res['MESSAGE_REPLACE'] = array(
+								'#DETAIL_URL#' => $detailUrl,
+								'#DAYS#' => $res['DAYS_LEFT'],
+								'#CODE#' => urlencode($app['CODE'])
+							);
+							$res['PAYMENT_NOTIFY'] = 'Y';
+						}
+					}
+				}
+			}
+			elseif($app['DATE_FINISH'] <> '' && $app['STATUS'] != self::STATUS_FREE)
 			{
 				$res['DAYS_LEFT'] = floor(
 					(MakeTimeStamp($app['DATE_FINISH']) - \CTimeZone::getOffset() - time()) / 86400

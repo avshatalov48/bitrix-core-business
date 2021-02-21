@@ -122,7 +122,7 @@ if (!$arResult['SLIDER'])
 				<div class="rest-mp-installed-item-param">
 
 						<?
-						if ($app["PUBLIC"] == "Y" && is_array($app["PRICE"]) && !empty($app["PRICE"]) && $app["CAN_INSTALL"])
+						if ($app['STATUS'] !== \Bitrix\Rest\AppTable::STATUS_SUBSCRIPTION && $app["PUBLIC"] == "Y" && is_array($app["PRICE"]) && !empty($app["PRICE"]) && $app["CAN_INSTALL"])
 						{
 						?>
 							<div class="rest-mp-installed-item-param-content">
@@ -131,16 +131,18 @@ if (!$arResult['SLIDER'])
 									<input name="rest-mp-installed-price-<?=$app["CODE"]?>" type="radio" <?if ($key == 0):?>checked="checked"<?endif?> class="rest-mp-installed-item-param-checkbox" id="rest-mp-installed-price-<?=$app["CODE"]."-".$key?>">
 									<label for="rest-mp-installed-price-<?=$app["CODE"]."-".$key?>" class="rest-mp-installed-item-param-label"><?=$price["TEXT"]?></label>
 								</div>
-								<script>
-									BX.ready(function () {
-										BX.bind(BX("rest-mp-installed-price-<?=$app["CODE"]."-".$key?>"), "change", BX.proxy(function () {
-											if (BX("rest-mp-installed-price-<?=$app["CODE"]."-".$key?>").checked)
-											{
-												BX("rest-mp-installed-buy-<?=$app["CODE"]?>").href = this.link;
-											}
-										}, {link: "<?=$price["LINK"]?>"}));
-									});
-								</script>
+								<? if ($app['REST_ACCESS']):?>
+									<script>
+										BX.ready(function () {
+											BX.bind(BX("rest-mp-installed-price-<?=$app["CODE"]."-".$key?>"), "change", BX.proxy(function () {
+												if (BX("rest-mp-installed-price-<?=$app["CODE"]."-".$key?>").checked)
+												{
+													BX("rest-mp-installed-buy-<?=$app["CODE"]?>").href = this.link;
+												}
+											}, {link: "<?=$price["LINK"]?>"}));
+										});
+									</script>
+								<? endif;?>
 							<?endforeach;?>
 							</div>
 						<?
@@ -152,11 +154,38 @@ if (!$arResult['SLIDER'])
 							if ($app["PUBLIC"] == "Y" && $app["CAN_INSTALL"]) //available in catalog
 							{
 								?>
-								<?if (is_array($app["PRICE"]) && !empty($app["PRICE"])):?>
-									<a class="ui-btn ui-btn-sm ui-btn-primary ui-btn-round" id="rest-mp-installed-buy-<?=$app["CODE"]?>" href="<?=$app['BUY'][0]["LINK"]?>">
+								<? if ($app['STATUS'] === \Bitrix\Rest\AppTable::STATUS_SUBSCRIPTION):?>
+									<a
+										class="ui-btn ui-btn-sm ui-btn-primary ui-btn-round<?=(!$app['REST_ACCESS']) ? ' ui-btn-disabled':''?>"
+										<? if ($app['REST_ACCESS']):?>
+											href="<?=$arResult['SUBSCRIPTION_BUY_URL']?>"
+											target="_blank"
+										<? else:?>
+											onclick="top.BX.UI.InfoHelper.show('<?=$arResult['REST_ACCESS_HELPER_CODE']?>');"
+											href="javascript:void(0)"
+										<? endif;?>
+									>
+										<?=GetMessage('MARKETPLACE_APP_PROLONG')?>
+									</a>
+								<? elseif (is_array($app["PRICE"]) && !empty($app["PRICE"])):?>
+									<a
+										class="ui-btn ui-btn-sm ui-btn-primary ui-btn-round"
+										id="rest-mp-installed-buy-<?=$app["CODE"]?>"
+										<? if ($app['REST_ACCESS']):?>
+											<? if (!empty($app['VENDOR_SHOP_LINK'])):?>
+												href="<?=htmlspecialcharsbx($app['VENDOR_SHOP_LINK'])?>"
+												target="_blank"
+											<? else:?>
+												href="<?=$app['BUY'][0]["LINK"]?>"
+											<? endif;?>
+										<? else:?>
+											onclick="top.BX.UI.InfoHelper.show('<?=$arResult['REST_ACCESS_HELPER_CODE']?>');"
+											href="javascript:void(0)"
+										<? endif;?>
+									>
 										<?=($app["STATUS"] == "P" && $app["DATE_FINISH"]) ? GetMessage("MARKETPLACE_APP_PROLONG") : GetMessage("MARKETPLACE_APP_BUY")?>
 									</a>
-								<?endif;?>
+								<? endif;?>
 
 								<?
 								if ($app["ACTIVE"] == "N")
@@ -166,7 +195,14 @@ if (!$arResult['SLIDER'])
 										if ($app["STATUS"] == "P")
 										{
 											?>
-											<button class="ui-btn ui-btn-sm ui-btn-primary ui-btn-round" onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp) ?>);">
+											<button
+												class="ui-btn ui-btn-sm ui-btn-primary ui-btn-round"
+												<? if ($app['REST_ACCESS']):?>
+													onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp) ?>);"
+												<? else:?>
+													onclick="top.BX.UI.InfoHelper.show('<?=$arResult['REST_ACCESS_HELPER_CODE']?>');"
+												<? endif;?>
+											>
 												<?=GetMessage("MARKETPLACE_INSTALL_BUTTON")?>
 											</button>
 											<?
@@ -174,11 +210,25 @@ if (!$arResult['SLIDER'])
 										else
 										{
 											if ($app["DEMO"] == "D"):?>
-												<button class="ui-btn ui-btn-sm ui-btn-primary ui-btn-round" onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp) ?>);">
+												<button
+													class="ui-btn ui-btn-sm ui-btn-primary ui-btn-round"
+													<? if ($app['REST_ACCESS']):?>
+														onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp) ?>);"
+													<? else:?>
+														onclick="top.BX.UI.InfoHelper.show('<?=$arResult['REST_ACCESS_HELPER_CODE']?>');"
+													<? endif?>
+												>
 													<?=GetMessage("MARKETPLACE_APP_DEMO")?>
 												</button>
 											<? elseif ($app["DEMO"] == "T" && ($app["IS_TRIALED"] == "N" || MakeTimeStamp($app["DATE_FINISH"]) > time())):?>
-												<button class="ui-btn ui-btn-sm ui-btn-primary ui-btn-round" onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp) ?>);">
+												<button
+													class="ui-btn ui-btn-sm ui-btn-primary ui-btn-round"
+													<? if ($app['REST_ACCESS']):?>
+														onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp) ?>);"
+													<? else:?>
+														onclick="top.BX.UI.InfoHelper.show('<?=$arResult['REST_ACCESS_HELPER_CODE']?>');"
+													<? endif;?>
+												>
 													<?=GetMessage("MARKETPLACE_APP_TRIAL")?>
 												</button>
 											<?endif;
@@ -187,7 +237,14 @@ if (!$arResult['SLIDER'])
 									else
 									{
 										?>
-										<button class="ui-btn ui-btn-sm ui-btn-primary ui-btn-round" onclick="BX.rest.Marketplace.install(<?=CUtil::PhpToJSObject($arParamsApp)?>);">
+										<button
+											class="ui-btn ui-btn-sm ui-btn-primary ui-btn-round"
+											<? if ($app['REST_ACCESS']):?>
+												onclick="BX.rest.Marketplace.install(<?=CUtil::PhpToJSObject($arParamsApp)?>);"
+											<? else:?>
+												onclick="top.BX.UI.InfoHelper.show('<?=$arResult['REST_ACCESS_HELPER_CODE']?>');"
+											<? endif;?>
+										>
 											<?=GetMessage("MARKETPLACE_INSTALL_BUTTON")?>
 										</button>
 										<?
@@ -196,7 +253,14 @@ if (!$arResult['SLIDER'])
 								elseif (isset($app["UPDATES_AVAILABLE"]) && $app["UPDATES_AVAILABLE"] == "Y")
 								{
 									?>
-									<button class="ui-btn ui-btn-sm ui-btn-primary ui-btn-round" onclick="BX.rest.Marketplace.install(<?=CUtil::PhpToJSObject($arParamsApp) ?>);">
+									<button
+										class="ui-btn ui-btn-sm ui-btn-primary ui-btn-round"
+										<? if ($app['REST_ACCESS']):?>
+											onclick="BX.rest.Marketplace.install(<?=CUtil::PhpToJSObject($arParamsApp) ?>);"
+										<? else:?>
+											onclick="top.BX.UI.InfoHelper.show('<?=$arResult['REST_ACCESS_HELPER_CODE']?>');"
+										<? endif;?>
+									>
 										<?=GetMessage("MARKETPLACE_UPDATE_BUTTON")?>
 									</button>
 									<?

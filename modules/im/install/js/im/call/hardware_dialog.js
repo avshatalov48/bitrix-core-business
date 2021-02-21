@@ -21,6 +21,7 @@
 	BX.Call.HardwareDialog.prototype.createPopup = function()
 	{
 		this.popup = new BX.PopupWindow('bx-messenger-call-access', this.bindNode, {
+			targetContainer: document.body,
 			lightShadow: true,
 			zIndex: 200,
 			offsetTop: this.offsetTop,

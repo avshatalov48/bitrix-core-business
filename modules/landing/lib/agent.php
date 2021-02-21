@@ -1,6 +1,11 @@
 <?php
 namespace Bitrix\Landing;
 
+use Bitrix\Main\Loader;
+use Bitrix\Landing\Internals\BlockTable;
+use Bitrix\Crm\WebForm;
+use Bitrix\Landing\Subtype;
+
 class Agent
 {
 	/**
@@ -195,5 +200,42 @@ class Agent
 		}
 
 		return __CLASS__ . '::' . __FUNCTION__ . '();';
+	}
+
+	public static function repairFormUrls(int $lastLid = 0): string
+	{
+		if(Loader::includeModule('crm'))
+		{
+			$formQuery = WebForm\Internals\LandingTable::query()
+				->addSelect('FORM_ID')
+				->addSelect('LANDING_ID')
+				->addOrder('LANDING_ID')
+				->setLimit(50)
+				->where('LANDING_ID', '>', $lastLid)
+				->exec()
+			;
+			$lastLid = 0;
+			while($form = $formQuery->fetch())
+			{
+				$blocksQuery = BlockTable::query()
+					->addSelect('ID')
+					->where('LID', $form['LANDING_ID'])
+					->where('CODE', '66.90.form_new_default')
+					->exec()
+				;
+				while ($block = $blocksQuery->fetch())
+				{
+					Subtype\Form::setFormIdToBlock($block['ID'], $form['FORM_ID']);
+				}
+				$lastLid = (int)$form['LANDING_ID'];
+			}
+
+			if($lastLid > 0)
+			{
+				return __CLASS__ . '::' . __FUNCTION__ . '(' . $lastLid . ');';
+			}
+		}
+
+		return '';
 	}
 }

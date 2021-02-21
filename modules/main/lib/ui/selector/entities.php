@@ -398,7 +398,7 @@ class Entities
 				$helper = $conn->getSqlHelper();
 
 				$runtime = array(
-					new \Bitrix\Main\Entity\ExpressionField('CONTEXT_SORT', "CASE WHEN CONTEXT = '".$helper->forSql($params["DEST_CONTEXT"])."' THEN 1 ELSE 0 END")
+					new \Bitrix\Main\Entity\ExpressionField('CONTEXT_SORT', "CASE WHEN CONTEXT = '".$helper->forSql(mb_strtoupper($params["DEST_CONTEXT"]))."' THEN 1 ELSE 0 END")
 				);
 
 				$order = array(

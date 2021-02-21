@@ -219,7 +219,7 @@ class MainUserConsentEditComponent extends CBitrixComponent
 				}
 				$fields[] = $field;
 
-				$demoTextFields[$fieldCode] = '<' . str_replace(' ', '_', mb_strtoupper($field['CAPTION'])) . '>';
+				$demoTextFields[$fieldCode] = '<' . str_replace(' ', '_', strtoupper($field['CAPTION'])) . '>';
 			}
 
 			$this->arResult['TYPE_LIST'][] = array(

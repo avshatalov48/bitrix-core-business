@@ -43,6 +43,20 @@ class Event extends \IRestService
 					'callback' => array(__CLASS__, 'eventTest'),
 					'options' => array()
 				),
+				\CRestUtil::EVENTS =>  array(
+					'onOfflineEvent' => array(
+						'rest',
+						'onAfterOfflineEventCall',
+						array(EventOfflineTable::class, 'prepareOfflineEvent'),
+						array(
+							"sendRefreshToken" => true,
+							"disableOffline" => true,
+							"allowOptions" => [
+								'minTimeout' => 'int'
+							],
+						),
+					)
+				),
 			),
 		);
 	}
@@ -148,6 +162,7 @@ class Event extends \IRestService
 		$eventType = ToLower($query['EVENT_TYPE']);
 		$eventUser = intval($query['AUTH_TYPE']);
 		$eventCallback = $query['HANDLER'];
+		$options = is_array($query['OPTIONS']) ? $query['OPTIONS'] : [];
 
 		if($eventUser > 0)
 		{
@@ -222,11 +237,39 @@ class Event extends \IRestService
 							'EVENT_NAME' => $eventName,
 							'EVENT_HANDLER' => $eventCallback,
 							'CONNECTOR_ID' => $connectorId,
+							'OPTIONS' => []
 						);
 
 						if($eventUser > 0)
 						{
 							$eventHandlerFields['USER_ID'] = $eventUser;
+						}
+
+						if (
+							$eventCallback === ''
+							&& isset($eventInfo[3]['disableOffline'])
+							&& $eventInfo[3]['disableOffline'] === true
+						)
+						{
+							throw new RestException('Offline event cannot be registered for this event.', RestException::ERROR_ARGUMENT);
+						}
+
+						if (!empty($options) && isset($eventInfo[3]['allowOptions']) && is_array($eventInfo[3]['allowOptions']))
+						{
+							foreach ($eventInfo[3]['allowOptions'] as $code => $type)
+							{
+								if (isset($options[$code]))
+								{
+									if ($type === 'int')
+									{
+										$eventHandlerFields['OPTIONS'][$code] = (int) $options[$code];
+									}
+									elseif($type === 'str' && is_string($options[$code]))
+									{
+										$eventHandlerFields['OPTIONS'][$code] = $options[$code];
+									}
+								}
+							}
 						}
 
 						$result = EventTable::add($eventHandlerFields);

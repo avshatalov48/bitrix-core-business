@@ -1,6 +1,7 @@
 <?php
 $MESS["BLOG_C_BUTTON_MORE"] = "More";
 $MESS["BLOG_C_HIDE"] = "Hide comments";
+$MESS["BLOG_C_LOADING"] = "Loading&hellip;";
 $MESS["BLOG_C_REPLY"] = "Reply";
 $MESS["BLOG_C_VIEW"] = "View older comments";
 $MESS["BLOG_C_VIEW1"] = "More comments";

@@ -2195,6 +2195,11 @@ class CMainUIGrid extends CBitrixComponent
 	{
 		if ($this->checkRequiredParams())
 		{
+			if (!is_array($this->arParams['ROWS']))
+			{
+				$this->arParams['ROWS'] = [];
+			}
+
 			$templateRow = [
 				'id' => 'template_0',
 				'not_count' => true,
@@ -2202,8 +2207,7 @@ class CMainUIGrid extends CBitrixComponent
 					'hidden' => 'true',
 				],
 			];
-
-			$this->arParams['ROWS'][] = $templateRow;
+			array_unshift($this->arParams['ROWS'], $templateRow);
 
 			$this->prepareParams();
 			$this->prepareResult();

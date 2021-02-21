@@ -17,6 +17,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 use \Bitrix\Rest\AppTable;
 use \Bitrix\Rest\Marketplace\Client;
 use \Bitrix\Main\Localization\Loc;
+use \Bitrix\Rest\Engine\Access;
 
 $APPLICATION->SetTitle(Loc::getMessage("MARKETPLACE_INSTALLED"));
 
@@ -94,6 +95,8 @@ while ($app = $dbApps->Fetch())
 		$app['APP_STATUS']['MESSAGE_REPLACE']['#DAYS#'] = FormatDate("ddiff", time(), time() + 24 * 60 * 60 * $app['APP_STATUS']['MESSAGE_REPLACE']["#DAYS#"]);
 	}
 
+	$app['REST_ACCESS'] = Access::isAvailable($app["CODE"]) && Access::isAvailableCount(Access::ENTITY_TYPE_APP, $app['CODE']);
+
 	$arResult["ITEMS"][$app["CODE"]] = $app;
 
 	if ($app["ACTIVE"] == "Y")
@@ -102,6 +105,8 @@ while ($app = $dbApps->Fetch())
 		$updateStatuses[$app["CODE"]] = $app["STATUS"];
 	}
 }
+
+$arResult['REST_ACCESS_HELPER_CODE'] = Access::getHelperCode();
 
 if (!empty($arCodes))
 {
@@ -118,6 +123,7 @@ if (!empty($arCodes))
 		$arResult['ITEMS'][$key]['PARTNER_NAME'] = $app["PARTNER_NAME"];
 		$arResult['ITEMS'][$key]['PARTNER_URL'] = $app["PARTNER_URL"];
 		$arResult['ITEMS'][$key]['OTHER_REGION'] = $app["OTHER_REGION"];
+			$arResult['ITEMS'][$key]['VENDOR_SHOP_LINK'] = $app["VENDOR_SHOP_LINK"];
 		$arResult['ITEMS'][$key]['TYPE'] = $app["TYPE"];
 		$arResult['ITEMS'][$key]['CAN_INSTALL'] = \CRestUtil::canInstallApplication($app);
 

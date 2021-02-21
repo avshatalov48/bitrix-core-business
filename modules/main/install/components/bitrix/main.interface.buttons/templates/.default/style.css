@@ -689,7 +689,7 @@
 	position: absolute;
 	width: 26px;
 	height: 60px;
-	border-right: 1px rgba(82, 92, 105, .6) solid;
+	border-right: 1px rgba(82,92,105,.35) solid;
 	cursor: pointer;
 	top: 0;
 	right: -28px;
@@ -712,7 +712,7 @@
 }
 
 .main-buttons-item-child-button:hover {
-	border-right: 1px rgba(82, 92, 105, 1) solid;
+	border-right: 1px rgba(82,92,105,.8) solid;
 }
 
 .main-buttons-item-child-button:hover::after {

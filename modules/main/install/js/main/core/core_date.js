@@ -287,11 +287,7 @@ BX.JCCalendar = function()
 	this.popup_year = null;
 	this.month_popup_classname = '';
 	this.year_popup_classname = '';
-
 	this.value = null;
-
-	this.control_id = Math.random();
-
 	this._layers = {};
 	this._current_layer = null;
 
@@ -303,7 +299,7 @@ BX.JCCalendar = function()
 
 	this._create = function(params)
 	{
-		this.popup = new BX.PopupWindow('calendar_popup_' + this.control_id, params.node, {
+		this.popup = new BX.PopupWindow('calendar_popup_' + Math.random(), params.node, {
 			closeByEsc: true,
 			autoHide: false,
 			content: this._get_content(),
@@ -338,7 +334,7 @@ BX.JCCalendar = function()
 			e = e||window.event;
 			this.SetDate(
 				new Date(parseInt(BX.proxy_context.getAttribute('data-date'))),
-				(e.type === 'dblclick' || this.params.bCompatibility)
+				(e.type === 'dblclick' || (this.params.bCompatibility && !this.params.bTimeVisibility))
 			)
 		}, this);
 
@@ -477,6 +473,7 @@ BX.JCCalendar = function()
 				BX.removeClass(this.PARTS.TIME, 'bx-calendar-set-time-opened');
 				if (this.params.bCompatibility)
 				{
+					this._saveChoice('hide');
 					BX.addClass(this.PARTS.BUTTONS, 'bx-calendar-buttons-disabled');
 				}
 				this.popup.adjustPosition();
@@ -502,12 +499,32 @@ BX.JCCalendar = function()
 		switch (BX.proxy_context.getAttribute('data-action'))
 		{
 			case 'submit':
+				if (this.params.bCompatibility)
+				{
+					this._saveChoice('show');
+				}
 				this.SaveValue();
 			break;
 			case 'cancel':
 				this.Close();
 			break;
 		}
+	};
+
+	this._saveChoice = function(state)
+	{
+		if (this.params.bCategoryTimeVisibilityOption)
+		{
+			BX.userOptions.save(
+				this.params.bCategoryTimeVisibilityOption,
+				this.params.bNameTimeVisibilityOption,
+				'visibility',
+				(state === 'show' ? 'Y' : 'N')
+			);
+		}
+
+		this._bTimeVisibility = (state === 'show');
+		this.params.bTimeVisibility = this._bTimeVisibility;
 	};
 
 	this._check_time = function(params, value, direction)
@@ -726,7 +743,7 @@ BX.JCCalendar = function()
 		if (!this.popup_month)
 		{
 			this.popup_month = new BX.PopupWindow(
-				'calendar_popup_month_' + this.control_id, this.PARTS.MONTH,
+				'calendar_popup_month_' + Math.random(), this.PARTS.MONTH,
 				{
 					content: this._menu_month_content(),
 					zIndex: 3001,
@@ -787,7 +804,7 @@ BX.JCCalendar = function()
 		if (!this.popup_year)
 		{
 			this.popup_year = new BX.PopupWindow(
-				'calendar_popup_year_' + this.control_id, this.PARTS.YEAR,
+				'calendar_popup_year_' + Math.random(), this.PARTS.YEAR,
 				{
 					content: this._menu_year_content(),
 					zIndex: 3001,
@@ -943,7 +960,22 @@ BX.JCCalendar.prototype.Show = function(params)
 
 	this.params = params;
 
-	this.params.bCompatibility = typeof this.params.bCompatibility == 'undefined' ? false : !!this.params.bCompatibility;
+	this.params.bCompatibility = (typeof this.params.bCompatibility == 'undefined' ? false : this.params.bCompatibility);
+	this.params.bTimeVisibility = (typeof this.params.bTimeVisibility == 'undefined' ? !this.params.bCompatibility : this.params.bTimeVisibility);
+	if (this.params.bCompatibility)
+	{
+		this.params.bCategoryTimeVisibilityOption = (
+			this.params.bCategoryTimeVisibilityOption ? this.params.bCategoryTimeVisibilityOption : ''
+		);
+		this.params.bNameTimeVisibilityOption = (
+			this.params.bNameTimeVisibilityOption ? this.params.bNameTimeVisibilityOption : 'time_visibility'
+		);
+
+		if (typeof this._bTimeVisibility !== 'undefined')
+		{
+			this.params.bTimeVisibility = this._bTimeVisibility;
+		}
+	}
 
 	this.params.bTime = typeof this.params.bTime == 'undefined' ? true : !!this.params.bTime;
 	this.params.bHideTime = typeof this.params.bHideTime == 'undefined' ? true : !!this.params.bHideTime;
@@ -1032,7 +1064,7 @@ BX.JCCalendar.prototype.activateDateStyle = function(bHideTime)
 
 BX.JCCalendar.prototype.activateTimeStyle = function(bHideTime)
 {
-	if (!!this.params.bCompatibility)
+	if (this.params.bCompatibility && !this.params.bTimeVisibility)
 	{
 		BX.addClass(this.PARTS.BUTTONS, 'bx-calendar-buttons-disabled');
 		BX.addClass(this.PARTS.TIME, 'bx-calendar-set-time-wrap-simple');

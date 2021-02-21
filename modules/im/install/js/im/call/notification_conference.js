@@ -88,6 +88,7 @@
 	BX.Call.NotificationConference.prototype.createPopup = function(content)
 	{
 		this.popup = new BX.PopupWindow("bx-messenger-call-notify", null, {
+			targetContainer: document.body,
 			content: content,
 			closeIcon: false,
 			noAllPaddings: true,

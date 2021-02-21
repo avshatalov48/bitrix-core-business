@@ -375,7 +375,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        var popupContent = main_core.Tag.render(_templateObject4());
 	        var random = main_core.Text.getRandom();
 
-	        if (_this4.options.condition.field.type === 'list' || _this4.options.condition.field.type === 'checkbox' || _this4.options.condition.field.type === 'bool') {
+	        if (_this4.options.condition.field.type === 'list' || _this4.options.condition.field.type === 'checkbox' || _this4.options.condition.field.type === 'radio' || _this4.options.condition.field.type === 'bool') {
 	          listValueSettingsItems.forEach(function (item, index) {
 	            main_core.Dom.append(_this4.renderOperatorRadioButton(babelHelpers.objectSpread({}, item, {
 	              id: random,

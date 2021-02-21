@@ -44,7 +44,7 @@
 										style="vertical-align: middle; ">
 									<?=getMessage('MAIN_MAIL_CONFIRM_PUBLIC') ?>
 									<span class="new-from-email-dialog-hint-icon"
-										title="<?=getMessage('MAIN_MAIL_CONFIRM_PUBLIC_HINT') ?>">?</span>
+										title="<?=getMessage('MAIN_MAIL_CONFIRM_PUBLIC_HINT1') ?>">?</span>
 								</label>
 							</div>
 						</div>

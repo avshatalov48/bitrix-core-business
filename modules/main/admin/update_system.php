@@ -4,7 +4,7 @@
 //**    MODIFICATION OF THIS FILE WILL ENTAIL SITE FAILURE            **/
 //**********************************************************************/
 if (!defined("UPDATE_SYSTEM_VERSION"))
-	define("UPDATE_SYSTEM_VERSION", "20.200.260");
+	define("UPDATE_SYSTEM_VERSION", "20.300.0");
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 define("HELP_FILE", "marketplace/sysupdate.php");
@@ -271,16 +271,16 @@ elseif (($DB->type === "MSSQL") || ($DB->type === "ORACLE"))
 $curPhpVer = PhpVersion();
 
 $minPhpErrorVersion = "7.2.0";
-$minPhpWarningVersion = ""; //"7.2.0";
+$minPhpWarningVersion = "7.3.0";
 $minPhpWarningVersionBest = "7.4.0";
-$minPhpWarningVersionDate = ""; //"2020-08-01";
+$minPhpWarningVersionDate = "2021-04-01";
 
-if (date("Y-m-d") < "2019-09-01")
+if (date("Y-m-d") < "2019-03-01")
 {
-	$minPhpErrorVersion = "5.6.0";
-	$minPhpWarningVersion = "7.1.0";
-	$minPhpWarningVersionBest = "7.2.0";
-	$minPhpWarningVersionDate = "2019-09-01";
+	$minPhpErrorVersion = "7.2.0";
+	$minPhpWarningVersion = "";
+	$minPhpWarningVersionBest = "7.4.0";
+	$minPhpWarningVersionDate = "2021-04-01";
 }
 
 if (version_compare($curPhpVer, $minPhpErrorVersion) < 0)

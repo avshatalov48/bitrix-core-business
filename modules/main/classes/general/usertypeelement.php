@@ -239,6 +239,9 @@ class CUserTypeIBlockElement extends CUserTypeEnum
 
 class CIBlockElementEnum extends CDBResult
 {
+	/**
+	 * @deprecated
+	 */
 	function getTreeList($iblockId, $activeFilter = 'N')
 	{
 		$result = false;

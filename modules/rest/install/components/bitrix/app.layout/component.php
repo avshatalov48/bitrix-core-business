@@ -1,4 +1,7 @@
 <?
+
+use Bitrix\Rest\Engine\Access;
+
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -542,6 +545,28 @@ if(
 		)
 		{
 			$componentPage = 'payment';
+		}
+
+		if (
+			!Access::isAvailable($arApp['CODE'])
+			|| (Access::needCheckCount() && !Access::isAvailableCount(Access::ENTITY_TYPE_APP, $arApp['CODE']))
+		)
+		{
+			$arResult['ERROR_MESSAGE'] = GetMessage('REST_AL_ERROR_APP_ACCESS_DENIED');
+			$componentPage = 'error';
+			if (\Bitrix\Main\Loader::includeModule('ui'))
+			{
+				$code = Access::getHelperCode();
+				if ($code !== '')
+				{
+					$arResult['HELPER_DATA']['TEMPLATE_URL'] = \Bitrix\UI\InfoHelper::getUrl();
+					$arResult['HELPER_DATA']['URL'] = str_replace(
+						'/code/',
+						'/' . $code . '/',
+						$arResult['HELPER_DATA']['TEMPLATE_URL']
+					);
+				}
+			}
 		}
 
 		$this->IncludeComponentTemplate($componentPage);

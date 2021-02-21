@@ -89,7 +89,7 @@ class Form
 				$webpack = Webpack\Form::instance($form['ID']);
 			}
 			$form['URL'] = $webpack->getEmbeddedFileUrl();
-			$forms[] = $form;
+			$forms[$form['ID']] = $form;
 		}
 
 		return $forms;
@@ -108,7 +108,7 @@ class Form
 				foreach($res['result'] as $form)
 				{
 					$form['ID'] = (int) $form['ID'];
-					$forms[] = $form;
+					$forms[$form['ID']] = $form;
 				}
 			}
 		}
@@ -375,17 +375,15 @@ class Form
 	public static function setFormIdToBlock(int $blockId, int $formId): void
 	{
 		$block = new Block($blockId);
-		foreach (self::getForms(true) as $form)
+		$forms = self::getForms(true);
+		if (array_key_exists($formId, $forms))
 		{
-			if ($form['ID'] === $formId)
-			{
-				$newParam = "{$form['ID']}|{$form['SECURITY_CODE']}|{$form['URL']}";
-				$block->setAttributes([
-					self::SELECTOR_FORM_NODE => [self::ATTR_FORM_PARAMS => $newParam]
-				]);
-				$block->save();
-				break;
-			}
+			$form = $forms[$formId];
+			$newParam = "{$form['ID']}|{$form['SECURITY_CODE']}|{$form['URL']}";
+			$block->setAttributes([
+				self::SELECTOR_FORM_NODE => [self::ATTR_FORM_PARAMS => $newParam],
+			]);
+			$block->save();
 		}
 	}
 

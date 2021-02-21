@@ -1425,39 +1425,50 @@
 					}
 					else
 					{
-						response.data.errors.forEach(
-							function (error)
+						if (!!response.data.helperCode && response.data.helperCode !== '')
+						{
+							top.BX.UI.InfoHelper.show(response.data.helperCode);
+						}
+						else
+						{
+							if (!!response.data.errors)
 							{
-								errorDom.style.display = 'block';
-								BX.ready(
-									function ()
+								response.data.errors.forEach(
+									function (error)
 									{
-										BX.append(
-											BX.create(
-												'div',
-												{
-													props:
+										errorDom.style.display = 'block';
+										BX.ready(
+											function ()
+											{
+												BX.append(
+													BX.create(
+														'div',
 														{
-															className: 'ui-alert ui-alert-danger'
-														},
-													children:
-														[
-															BX.create(
-																'span',
+															props:
 																{
-																	className: 'ui-alert-message',
-																	text: error
-																}
-															)
-														]
-												}
-											),
-											errorDom
+																	className: 'ui-alert ui-alert-danger'
+																},
+															children:
+																[
+																	BX.create(
+																		'span',
+																		{
+																			className: 'ui-alert-message',
+																			text: error
+																		}
+																	)
+																]
+														}
+													),
+													errorDom
+												);
+											}
 										);
 									}
 								);
 							}
-						);
+						}
+
 						BX.scrollToNode(
 							BX('pagetitle')
 						);

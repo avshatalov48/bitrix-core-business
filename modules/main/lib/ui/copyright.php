@@ -565,18 +565,18 @@ In addition to the Google Terms of Service (http://www.google.com/accounts/TOS),
 				->setProductUrl("https://kimmobrunfeldt.github.io/progressbar.js")
 				->setLicence(static::LICENCE_MIT),
 
-			(new static("Vue.js v2.6.10"))
-				->setCopyright("Copyright 2014-2019, Evan You")
+			(new static("Vue.js v2.6.12"))
+				->setCopyright("Copyright 2014-2020, Evan You")
 				->setProductUrl("https://vuejs.org")
 				->setLicence(static::LICENCE_MIT),
 
-			(new static("Vue-router v3.0.2"))
-				->setCopyright("Copyright 2018, Evan You")
+			(new static("Vue-router v3.4.8"))
+				->setCopyright("Copyright 2020, Evan You")
 				->setProductUrl("https://router.vuejs.org/")
 				->setLicence(static::LICENCE_MIT),
 
-			(new static("Vuex v3.0.1"))
-				->setCopyright("Copyright 2017, Evan You")
+			(new static("Vuex v3.5.1"))
+				->setCopyright("Copyright 2020, Evan You")
 				->setProductUrl("https://vuex.vuejs.org/")
 				->setLicence(static::LICENCE_MIT),
 

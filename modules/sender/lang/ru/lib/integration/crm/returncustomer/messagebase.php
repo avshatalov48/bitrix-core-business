@@ -16,4 +16,8 @@ $MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_TITLE_LEAD_DEF"] = "Повтор
 $MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_TITLE_DEAL_DEF"] = "Сделка от %date%";
 $MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_CHECK_WORK_TIME"] = "Назначать ответственным тех, у кого начат рабочий день и не установлен перерыв.";
 $MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_CHECK_WORK_TIME_HINT"] = "Если в очереди только те, у кого не начат день или установлен перерыв, то берется первый очередной.";
+$MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_CREATE_FROM_PREVIOUS"] = "Создавать заказ из предыдущей сделки";
+$MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_CREATE_FROM_PREVIOUS_HINT"] = "";
+$MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_DEAL_DAYS_AGO"] = "Сколько дней назад создан заказ";
+$MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_DEAL_DAYS_AGO_HINT"] = "";
 ?>

@@ -1186,7 +1186,7 @@ class DiscountManager
 										}
 										$intStackTimestamp = (int)$property['VALUE'];
 										$property['VALUE'] = (
-										$intStackTimestamp.'!' != $property['VALUE'].'!'
+											$intStackTimestamp.'!' != $property['VALUE'].'!'
 											? (int)MakeTimeStamp($property['VALUE'], $propertyFormat)
 											: $intStackTimestamp
 										);
@@ -1301,6 +1301,78 @@ class DiscountManager
 			unset($element);
 		}
 		unset($iblock);
+	}
+
+	/**
+	 * Fill empty property values for iblock 1.0
+	 *
+	 * @param array &$propertyValues		Product properties.
+	 * @param int $iblockId					Iblock id.
+	 * @param array $itemIds				Product id list.
+	 * @param array $propertyIds			Property id list.
+	 * @return void
+	 */
+	protected static function fillEmptyProperties(array &$propertyValues, int $iblockId, array $itemIds, array $propertyIds): void
+	{
+		if ($iblockId <= 0 || empty($itemIds) || empty($propertyIds))
+		{
+			return;
+		}
+		$propertyList = [];
+		$iterator = Iblock\PropertyTable::getList([
+			'select' => ['ID', 'PROPERTY_TYPE', 'MULTIPLE', 'USER_TYPE'],
+			'filter' => ['=IBLOCK_ID' => $iblockId, '@ID' => $propertyIds]
+		]);
+		while ($row = $iterator->fetch())
+		{
+			$id = (int)$row['ID'];
+			$multiple = ($row['MULTIPLE'] == 'Y');
+			if ($multiple)
+			{
+				$row = $row
+					+ [
+						'VALUE_ENUM' => null,
+						'VALUE_XML_ID' => null,
+						'VALUE_SORT' => null,
+						'VALUE' => false,
+						'PROPERTY_VALUE_ID' => false,
+						'DESCRIPTION' => false,
+						'~DESCRIPTION' => false,
+						'~VALUE' => false
+					];
+			}
+			else
+			{
+				$row = $row
+					+ [
+						'VALUE_ENUM' => null,
+						'VALUE_XML_ID' => null,
+						'VALUE_SORT' => null,
+						'VALUE' => '',
+						'PROPERTY_VALUE_ID' => null,
+						'DESCRIPTION' => '',
+						'~DESCRIPTION' => '',
+						'~VALUE' => '',
+					];
+			}
+			if ($row['PROPERTY_TYPE'] == Iblock\PropertyTable::TYPE_LIST)
+			{
+				$row['VALUE_ENUM_ID'] = ($multiple ? false : null);
+			}
+
+			$propertyList[$id] = $row;
+		}
+		unset($row, $iterator);
+
+		foreach ($itemIds as $id)
+		{
+			if (!empty($propertyValues[$id]))
+			{
+				continue;
+			}
+			$propertyValues[$id] = $propertyList;
+		}
+		unset($propertyList);
 	}
 
 	/**
@@ -1520,29 +1592,46 @@ class DiscountManager
 
 			if(!empty($needToLoad))
 			{
-				$iblockPropertyValues = array_fill_keys(array_keys($needToLoad), array());
-
-				$filter = array(
-					'ID' => $iblockData['iblockElement'][$iblock],
-					'IBLOCK_ID' => $iblock
-				);
+				$needProductIds = array_keys($needToLoad);
+				sort($needProductIds);
+				$iblockPropertyValues = array_fill_keys($needProductIds, array());
 
 				\CTimeZone::Disable();
-				\CIBlockElement::GetPropertyValuesArray(
-					$iblockPropertyValues,
-					$iblock,
-					$filter,
-					array('ID' => $propertyList),
-					array(
-						'USE_PROPERTY_ID' => 'Y',
-						'PROPERTY_FIELDS' => array('ID', 'PROPERTY_TYPE', 'MULTIPLE', 'USER_TYPE')
-					)
-				);
-				\CTimeZone::Enable();
+				foreach (array_chunk($needProductIds, 500) as $pageIds)
+				{
+					$filter = array(
+						'ID' => $pageIds,
+						'IBLOCK_ID' => $iblock
+					);
 
-				foreach ($iblockPropertyValues as $productId => $data)
-					$propertyValues[$productId] = $data;
-				unset($productId, $data, $iblockPropertyValues);
+					\CIBlockElement::GetPropertyValuesArray(
+						$iblockPropertyValues,
+						$iblock,
+						$filter,
+						array('ID' => $propertyList),
+						array(
+							'USE_PROPERTY_ID' => 'Y',
+							'PROPERTY_FIELDS' => array('ID', 'PROPERTY_TYPE', 'MULTIPLE', 'USER_TYPE')
+						)
+					);
+					foreach ($iblockPropertyValues as $productId => $data)
+					{
+						if (!empty($data))
+						{
+							$propertyValues[$productId] = $data;
+							unset($needToLoad[$productId]);
+						}
+					}
+					unset($productId, $data);
+				}
+				unset($pageIds);
+				\CTimeZone::Enable();
+				unset($iblockPropertyValues, $needProductIds);
+
+				if (!empty($needToLoad))
+				{
+					self::fillEmptyProperties($propertyValues, $iblock, array_keys($needToLoad), $propertyList);
+				}
 			}
 		}
 

@@ -5512,9 +5512,7 @@ this.BX = this.BX || {};
 	  return data;
 	}
 	var onValueChange = Symbol('onValueChange');
-	var Field =
-	/*#__PURE__*/
-	function (_Event$EventEmitter) {
+	var Field = /*#__PURE__*/function (_Event$EventEmitter) {
 	  babelHelpers.inherits(Field, _Event$EventEmitter);
 
 	  function Field(options) {
@@ -5811,9 +5809,7 @@ this.BX = this.BX || {};
 	}(main_core.Event.EventEmitter);
 	babelHelpers.defineProperty(Field, "instances", new WeakMap());
 
-	var Api =
-	/*#__PURE__*/
-	function () {
+	var Api = /*#__PURE__*/function () {
 	  function Api(parent) {
 	    babelHelpers.classCallCheck(this, Api);
 	    this.parent = parent;
@@ -6015,9 +6011,7 @@ this.BX = this.BX || {};
 	var errorMessages = new WeakMap();
 	var errorMessagesTypes = new WeakMap();
 	var values = new WeakMap();
-	var Fields =
-	/*#__PURE__*/
-	function () {
+	var Fields = /*#__PURE__*/function () {
 	  function Fields(parent) {
 	    babelHelpers.classCallCheck(this, Fields);
 	    this.parent = null;
@@ -7408,9 +7402,7 @@ this.BX = this.BX || {};
 	}();
 
 	/* eslint-disable no-underscore-dangle */
-	var Presets =
-	/*#__PURE__*/
-	function () {
+	var Presets = /*#__PURE__*/function () {
 	  function Presets(parent) {
 	    babelHelpers.classCallCheck(this, Presets);
 	    this.parent = null;

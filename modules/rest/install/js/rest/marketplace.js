@@ -105,6 +105,10 @@ BX.rest.Marketplace = (function(){
 									{
 										if(!!result.error)
 										{
+											if (!!result.helperCode && result.helperCode !== '')
+											{
+												top.BX.UI.InfoHelper.show(result.helperCode);
+											}
 											BX('mp_error').innerHTML = result.error
 												+ (!!result.error_description
 													? '<br /><br />' + result.error_description
@@ -320,9 +324,17 @@ BX.rest.Marketplace = (function(){
 			{
 				if(!!result.error)
 				{
-					BX.UI.Notification.Center.notify({
-						content: result.error
-					});
+
+					if (!!result.helperCode && result.helperCode !== '')
+					{
+						top.BX.UI.InfoHelper.show(result.helperCode);
+					}
+					else
+					{
+						BX.UI.Notification.Center.notify({
+							content: result.error
+						});
+					}
 				}
 				else if(!!result.redirect)
 				{
@@ -365,6 +377,32 @@ BX.rest.Marketplace = (function(){
 		},
 		buySubscription: function(params)
 		{
+			var btn = [];
+			var canBuySubscription = BX.message("CAN_BUY_SUBSCRIPTION");
+			if (!!canBuySubscription && canBuySubscription === 'Y')
+			{
+				btn.push(
+					new BX.PopupWindowButton({
+						text: BX.message("REST_MP_SUBSCRIPTION_BUTTON_TITLE"),
+						className: "popup-window-button-accept",
+						events: {
+							click: this.openBuySubscription
+						}
+					})
+				);
+			}
+			btn.push(
+				new BX.PopupWindowButtonLink({
+					text: BX.message("REST_MP_SUBSCRIPTION_BUTTON_TITLE2"),
+					className: "popup-window-button-link-cancel",
+					events: {
+						click: function()
+						{
+							this.openDemoSubscription();
+						}.bind(this)
+					}
+				})
+			);
 			var oPopup = BX.PopupWindowManager.create('marketplace_buy_subscription', null, {
 				content: [
 '\t\t<div class="rest-marketplace-popup-block">\n' +
@@ -382,25 +420,7 @@ BX.rest.Marketplace = (function(){
 				lightShadow: true,
 				overlay: true,
 				className: 'landing-marketplace-popup-wrapper',
-				buttons: [
-					new BX.PopupWindowButton({
-						text: BX.message("REST_MP_SUBSCRIPTION_BUTTON_TITLE"),
-						className: "popup-window-button-accept",
-						events: {
-							click: this.openBuySubscription
-						}
-					}),
-					new BX.PopupWindowButtonLink({
-						text: BX.message("REST_MP_SUBSCRIPTION_BUTTON_TITLE2"),
-						className: "popup-window-button-link-cancel",
-						events: {
-							click: function()
-							{
-								this.openDemoSubscription();
-							}.bind(this)
-						}
-					})
-				]
+				buttons: btn
 			}).show();
 		},
 

@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports, main_popup, main_core, main_loader) {
+(function (exports,main_popup,main_loader,main_core) {
 	'use strict';
 
 	var defaultOptions = {
@@ -561,9 +561,7 @@ this.BX = this.BX || {};
 	var onEditorClose = Symbol('onEditorClose');
 	var currentImage = Symbol('currentImage');
 	var resolver = Symbol('resolver');
-	var ImageEditor =
-	/*#__PURE__*/
-	function () {
+	var ImageEditor = /*#__PURE__*/function () {
 	  babelHelpers.createClass(ImageEditor, null, [{
 	    key: "getInstance",
 	    value: function getInstance() {
@@ -821,5 +819,5 @@ this.BX = this.BX || {};
 
 	exports.ImageEditor = ImageEditor;
 
-}(this.BX.Main = this.BX.Main || {}, BX.Main, BX, BX));
+}((this.BX.Main = this.BX.Main || {}),BX.Main,BX,BX));
 //# sourceMappingURL=imageeditor.bundle.js.map

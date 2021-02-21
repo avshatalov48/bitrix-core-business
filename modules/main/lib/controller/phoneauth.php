@@ -135,7 +135,7 @@ class PhoneAuth extends Main\Engine\Controller
 		{
 			$signer = new Main\Security\Sign\Signer();
 			$string = $signer->unsign($signedData, static::SIGNATURE_SALT);
-			return unserialize(base64_decode($string));
+			return unserialize(base64_decode($string), ['allowed_classes' => false]);
 		}
 		catch(Main\SystemException $exception)
 		{

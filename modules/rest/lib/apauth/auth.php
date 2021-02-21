@@ -13,6 +13,7 @@ use Bitrix\Main\Authentication\ApplicationPasswordTable;
 use Bitrix\Main\Context;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\UserTable;
+use Bitrix\Rest\Engine\Access;
 
 class Auth
 {
@@ -39,6 +40,7 @@ class Auth
 
 		if(count($auth) === count(static::$authQueryParams))
 		{
+
 			if(!defined('REST_APAUTH_ALLOW_HTTP') && !Context::getCurrent()->getRequest()->isHttps())
 			{
 				$res = array('error' => 'INVALID_REQUEST', 'error_description' => 'Https required.');
@@ -50,6 +52,24 @@ class Auth
 			if(is_array($tokenInfo))
 			{
 				$error = array_key_exists('error', $tokenInfo);
+
+				if (
+					!$error
+					&& (
+						!Access::isAvailable()
+						|| (
+							Access::needCheckCount()
+							&& !Access::isAvailableCount(Access::ENTITY_TYPE_WEBHOOK, $tokenInfo['password_id'])
+						)
+					)
+				)
+				{
+					$tokenInfo = [
+						'error' => 'ACCESS_DENIED',
+						'error_description' => 'REST is available only on commercial plans.'
+					];
+					$error = true;
+				}
 
 				if(!$error && $tokenInfo['user_id'] > 0)
 				{

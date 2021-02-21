@@ -465,6 +465,16 @@
 	overflow: auto;
 }
 
-body:not(.app-layout-subscribe-slider-modifier) .app-frame-layout-default .app-frame {
+.app-layout-error-iframe-modifier body {
+	overflow: hidden;
+}
+
+.app-frame-error {
+	width: calc(100% - 5px);
+	height: calc(100% - 5px);
+}
+
+body:not(.app-layout-subscribe-slider-modifier) .app-frame-layout-default .app-frame,
+body:not(.app-layout-subscribe-slider-modifier) .app-frame-error {
 	min-height: 600px;
 }

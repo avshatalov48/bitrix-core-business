@@ -48,6 +48,7 @@
 			var self = this;
 
 			this.popup = new BX.PopupWindow('bx-call-popup-settings', this.bindElement, {
+				targetContainer: document.body,
 				lightShadow : true,
 				autoHide: true,
 				closeByEsc: true,

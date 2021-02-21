@@ -946,11 +946,12 @@ class CAllUser extends CDBResult
 				$bFound = true;
 				//there is no stored auth for external authorization, but domain spread auth should work
 				$bExternal = ($arUser["EXTERNAL_AUTH_ID"] <> '');
+				$bAllowExternalSave = COption::GetOptionString("main", "allow_external_auth_stored_hash", "N") == "Y";
 				if(
 					// if old method (STORED_HASH <> '') and exact match
 					($arUser["STORED_HASH"] <> '' && $arUser["STORED_HASH"] == $arParams['HASH'])
 					|| // or new method
-					(static::CheckStoredHash($arUser["ID"], $arParams['HASH'], $bExternal))
+					(static::CheckStoredHash($arUser["ID"], $arParams['HASH'], ($bExternal) && (!$bAllowExternalSave)))
 				)
 				{
 					$bHashFound = true;
@@ -959,7 +960,7 @@ class CAllUser extends CDBResult
 						$user_id = $arUser["ID"];
 						$this->SetParam("SESSION_HASH", $arParams['HASH']);
 						$this->bLoginByHash = true;
-						$this->Authorize($arUser["ID"], !$bExternal);
+						$this->Authorize($arUser["ID"], (!$bExternal) || ($bAllowExternalSave));
 					}
 					else
 					{
@@ -1943,7 +1944,7 @@ class CAllUser extends CDBResult
 		return true;
 	}
 
-	public function AuthorizeWithOtp($user_id)
+	public function AuthorizeWithOtp($user_id, $bSave = false)
 	{
 		$doAuthorize = true;
 
@@ -1960,7 +1961,7 @@ class CAllUser extends CDBResult
 
 		if($doAuthorize)
 		{
-			return $this->Authorize($user_id);
+			return $this->Authorize($user_id, $bSave);
 		}
 
 		return false;
@@ -3742,7 +3743,7 @@ class CAllUser extends CDBResult
 			if(!empty($values))
 			{
 				$strSql = "
-					INSERT IGNORE INTO b_user_group (USER_ID, GROUP_ID, DATE_ACTIVE_FROM, DATE_ACTIVE_TO) 
+					INSERT IGNORE INTO b_user_group (USER_ID, GROUP_ID, DATE_ACTIVE_FROM, DATE_ACTIVE_TO)
 					VALUES ".implode(", ", $values);
 				$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 			}

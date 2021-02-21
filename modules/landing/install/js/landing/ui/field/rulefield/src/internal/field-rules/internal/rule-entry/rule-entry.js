@@ -149,6 +149,7 @@ export class RuleEntry extends EventEmitter
 			if (
 				this.options.condition.field.type === 'list'
 				|| this.options.condition.field.type === 'checkbox'
+				|| this.options.condition.field.type === 'radio'
 				|| this.options.condition.field.type === 'bool'
 			)
 			{

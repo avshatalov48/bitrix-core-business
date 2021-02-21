@@ -417,6 +417,7 @@
 		var self = this;
 
 		return new BX.PopupWindow(self.getId(), null, {
+			targetContainer: document.body,
 			content: this.elements.main,
 			closeIcon: false,
 			noAllPaddings: true,
@@ -2884,6 +2885,7 @@
 		};
 
 		this.qualityPopup = new BX.PopupWindow('PhoneCallViewQualityGrade', this.elements.qualityMeter, {
+			targetContainer: document.body,
 			darkMode: true,
 			closeByEsc: true,
 			autoHide: true,
@@ -4660,6 +4662,7 @@
 	{
 		var self = this;
 		return new BX.PopupWindow('bx-messenger-popup-transfer', this.bindElement, {
+			targetContainer: document.body,
 			zIndex: baseZIndex + 200,
 			lightShadow : true,
 			offsetTop: 5,
@@ -4992,6 +4995,7 @@
 	{
 		var self = this;
 		var popupOptions = {
+			targetContainer: document.body,
 			darkMode: true,
 			closeByEsc: true,
 			autoHide: true,
@@ -5227,6 +5231,7 @@
 				if(response.ERROR)
 				{
 					self.interceptErrorPopup = new BX.PopupWindow('intercept-call-error', this.elements.interceptButton, {
+						targetContainer: document.body,
 						content: BX.util.htmlspecialchars(response.ERROR),
 						autoHide: true,
 						closeByEsc: true,

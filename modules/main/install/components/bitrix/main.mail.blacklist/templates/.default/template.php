@@ -7,6 +7,10 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
+
+\Bitrix\Main\Loader::includeModule("ui");
+
 if($arParams['SET_TITLE'])
 {
 	$APPLICATION->SetTitle(Loc::getMessage('MAIN_MAIL_BLACKLIST_BLACKLIST_TITLE'));
@@ -41,16 +45,14 @@ $button["TEXT"] = Loc::getMessage("MAIN_MAIL_BLACKLIST_BTN_REMOVE_FROM_L");
 $button["TITLE"] = Loc::getMessage("MAIN_MAIL_BLACKLIST_BTN_REMOVE_FROM_L_TITLE");
 $controlPanel["GROUPS"][0]["ITEMS"][] = $button;
 
-if(\Bitrix\Main\Loader::includeModule("ui"))
-{
-	\Bitrix\UI\Toolbar\Facade\Toolbar::addFilter([
-		"GRID_ID" => $arParams["GRID_ID"],
-		"FILTER_ID" => $arParams["FILTER_ID"],
-		"FILTER" => $arParams["FILTERS"],
-		"DISABLE_SEARCH" => false,
-		"ENABLE_LABEL" => false,
-	]);
-}
+Toolbar::addFilter([
+	"GRID_ID" => $arParams["GRID_ID"],
+	"FILTER_ID" => $arParams["FILTER_ID"],
+	"FILTER" => $arParams["FILTERS"],
+	"DISABLE_SEARCH" => false,
+	"ENABLE_LABEL" => false,
+]);
+
 $APPLICATION->IncludeComponent("bitrix:main.ui.grid",
 	"",
 	[
@@ -68,7 +70,7 @@ $APPLICATION->IncludeComponent("bitrix:main.ui.grid",
 		"TOTAL_ROWS_COUNT" => $arResult["TOTAL_COUNT"],
 		"ALLOW_COLUMNS_SORT" => true,
 		"ALLOW_COLUMNS_RESIZE" => true,
-		"AJAX_MODE" => "N",
+		"AJAX_MODE" => "Y",
 		"AJAX_OPTION_JUMP" => "N",
 		"AJAX_OPTION_STYLE" => "N",
 		"AJAX_OPTION_HISTORY" => "N",

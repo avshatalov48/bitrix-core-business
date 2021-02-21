@@ -881,11 +881,22 @@ class CAdminUiList extends CAdminList
 			{
 				$gridRow["default_action"] = array();
 				if ($this->isPublicMode)
-					$gridRow["default_action"]["onclick"] = "BX.adminSidePanel.onOpenPage('".$row->link."');";
+				{
+					$skipUrlModificationEnabled = ($arParams['SKIP_URL_MODIFICATION'] ?? false) === true;
+					$skipUrlModification = $skipUrlModificationEnabled && mb_strpos($row->link, '/bitrix/admin/') === false
+						? 'true'
+						: 'false';
+					$gridRow["default_action"]["onclick"] = "BX.adminSidePanel.onOpenPage('".$row->link."', ".$skipUrlModification.");";
+				}
 				else
+				{
 					$gridRow["default_action"]["href"] = htmlspecialcharsback($row->link);
+				}
+
 				if ($row->title)
+				{
 					$gridRow["default_action"]["title"] = $row->title;
+				}
 			}
 			else
 			{
@@ -1098,6 +1109,7 @@ class CAdminUiList extends CAdminList
 				$editable = array(
 					"TYPE" => Types::MONEY,
 					"CURRENCY_LIST" => $field["edit"]["attributes"]["CURRENCY_LIST"],
+					"HTML_ENTITY" => $field["edit"]["attributes"]["HTML_ENTITY"] ?? false,
 				);
 				break;
 			default:

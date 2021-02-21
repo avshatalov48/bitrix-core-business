@@ -12,6 +12,7 @@ namespace Bitrix\Rest\OAuth;
 use Bitrix\Rest\Application;
 use Bitrix\Rest\AppTable;
 use Bitrix\Rest\AuthStorageInterface;
+use Bitrix\Rest\Engine\Access;
 use Bitrix\Rest\Event\Session;
 use Bitrix\Rest\OAuthService;
 
@@ -73,6 +74,24 @@ class Auth
 				if(!$error && !array_key_exists('client_id', $tokenInfo))
 				{
 					$tokenInfo = array('error' => 'CONNECTION_ERROR', 'error_description' => 'Error connecting to authorization server');
+					$error = true;
+				}
+
+				if (
+					!$error
+					&& (
+						!Access::isAvailable($tokenInfo['client_id'])
+						|| (
+							Access::needCheckCount()
+							&& !Access::isAvailableCount(Access::ENTITY_TYPE_APP, $tokenInfo['client_id'])
+						)
+					)
+				)
+				{
+					$tokenInfo = [
+						'error' => 'ACCESS_DENIED',
+						'error_description' => 'REST is available only on commercial plans.'
+					];
 					$error = true;
 				}
 

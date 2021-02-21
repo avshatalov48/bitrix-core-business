@@ -41,12 +41,7 @@ $sectionsTileManagerId = 'rest-integrators-sections-'.$arParams['CODE'];
 <div class="rest-integration-list-wrapper">
 	<div id="<?=$sectionsTileManagerId?>" class="rest-integration-tile-grid"></div>
 	<script type="text/javascript">
-		BX.message(<?=Json::encode(
-			[
-				'REST_INTEGRATION_LIST_ERROR_OPEN_URL' => Loc::getMessage('REST_INTEGRATION_LIST_ERROR_OPEN_URL'),
-				'REST_INTEGRATION_LIST_OPEN_PROCESS' => Loc::getMessage('REST_INTEGRATION_LIST_OPEN_PROCESS'),
-			]
-		);?>);
+
 		BX.ready(function () {
 			var RestIntegrationTileGrid = new BX.TileGrid.Grid(
 				{
@@ -56,7 +51,7 @@ $sectionsTileManagerId = 'rest-integrators-sections-'.$arParams['CODE'];
 					itemHeight: 160,
 					itemMinWidth: 400,
 					itemMaxWidth: 400,
-					itemType: 'BX.RestIntegrationList.Start.TileGridItem'
+					itemType: 'BX.rest.integration.list.TileGridItem'
 				}
 			);
 			RestIntegrationTileGrid.draw();

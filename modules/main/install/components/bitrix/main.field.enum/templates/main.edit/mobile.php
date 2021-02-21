@@ -25,6 +25,12 @@ $nodes = [$arResult['userField']['~id']];
 	<?= ($arResult['userField']['MULTIPLE'] === 'Y' ? ' multiple' : '') ?>
 >
 	<?php
+	if ($arResult['userField']['MULTIPLE'] !== 'Y')
+	{
+		?>
+		<option value=""><?= Loc::getMessage('USER_TYPE_ENUM_NO_VALUE') ?></option>
+		<?php
+	}
 	foreach($arResult['userField']['USER_TYPE']['FIELDS'] as $optionValue => $optionName)
 	{
 		if ($optionValue)

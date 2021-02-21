@@ -6,19 +6,15 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use Bitrix\Main\UI\Extension;
 
-CUtil::InitJSCore(
-	[
-		'sidepanel'
-	]
-);
-
 Extension::load(
 	[
+		'sidepanel',
 		'ui.tilegrid',
 		'ui.icons',
 		'ui.fontawesome4',
 		'ui.fonts.opensans',
-		'ui.notification'
+		'ui.notification',
+		'rest.integration',
 	]
 );
 

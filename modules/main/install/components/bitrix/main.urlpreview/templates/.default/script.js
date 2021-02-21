@@ -224,6 +224,24 @@ BXUrlPreview.bindEmbedHandler = function()
 	{
 		switchableElements.item(i).addEventListener('click', BXUrlPreview.showEmbed);
 	}
+
+	var imageElements = document.querySelectorAll('.urlpreview:not(.urlpreview__edit) .urlpreview__image img.urlpreview__image-not-inited');
+	for(i = 0; i < imageElements.length; i++)
+	{
+		imageElements.item(i).addEventListener('load', BXUrlPreview.onEmbeddedImageLoad);
+		imageElements.item(i).classList.remove('urlpreview__image-not-inited');
+	}
+};
+
+BXUrlPreview.onEmbeddedImageLoad = function(event)
+{
+	var imageNode = event.currentTarget;
+	if (BX.type.isDomNode(imageNode))
+	{
+		BX.onCustomEvent(window, 'BX.BXUrlPreview.onImageLoaded', [{
+			imageNode: imageNode
+		}]);
+	}
 };
 
 BXUrlPreview.adjustFrameHeight = function(iframe, counter)

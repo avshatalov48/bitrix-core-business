@@ -925,6 +925,7 @@ abstract class DataManager
 
 			// build standard primary
 			$primary = null;
+			$isGuessedPrimary = false;
 
 			if (!empty($id))
 			{
@@ -937,6 +938,7 @@ abstract class DataManager
 				{
 					// for those who did not set 'autocomplete' flag but wants to get id from result
 					$primary = array('ID' => $id);
+					$isGuessedPrimary = true;
 				}
 			}
 			else
@@ -949,9 +951,12 @@ abstract class DataManager
 			$result->setData($fields + $ufdata);
 			$result->setObject($object);
 
-			foreach ($primary as $primaryName => $primaryValue)
+			if (!$isGuessedPrimary)
 			{
-				$object->sysSetActual($primaryName, $primaryValue);
+				foreach ($primary as $primaryName => $primaryValue)
+				{
+					$object->sysSetActual($primaryName, $primaryValue);
+				}
 			}
 
 			// save uf data

@@ -892,7 +892,6 @@ BX["UI"].FileInput.prototype = {
 		if (this.uploadParams["maxCount"] <= 1)
 		{
 			var n = BX.findChild(this.container, {tagName : "INPUT", attr : {name : (input_name)}}, false);
-			console.log('n1: ', n);
 			if (n)
 			{
 				BX.adjust(n, { attrs : { disabled : true }});
@@ -900,7 +899,6 @@ BX["UI"].FileInput.prototype = {
 				if (input_name.indexOf('[') > 0)
 					nDelName = input_name.substr(0, input_name.indexOf('[')) + '_del' + input_name.substr(input_name.indexOf('['));
 				n = BX.findChild(this.container, {tagName : "INPUT", attr : {name : nDelName}}, false);
-				console.log('n2: ', n);
 				if (n)
 					BX.adjust(n, { attrs : { disabled : true } } );
 			}

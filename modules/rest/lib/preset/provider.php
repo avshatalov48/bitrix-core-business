@@ -178,6 +178,8 @@ class Provider
 			$result['errors'] = $errorList;
 		}
 
+		\Bitrix\Rest\Engine\Access::getActiveEntity(true);
+
 		return $result;
 	}
 
@@ -794,6 +796,7 @@ class Provider
 			$result['status'] = false;
 			$result['errors'] = $errorList;
 		}
+		\Bitrix\Rest\Engine\Access::getActiveEntity(true);
 
 		return $result;
 	}

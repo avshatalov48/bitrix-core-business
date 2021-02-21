@@ -136,7 +136,7 @@ class Redirect extends Main\HttpResponse
 		
 		foreach (GetModuleEvents("main", "OnBeforeLocalRedirect", true) as $event)
 		{
-			ExecuteModuleEventEx($event, [&$url, $this->isSkippedSecurity(), &$isExternal]);
+			ExecuteModuleEventEx($event, [&$url, $this->isSkippedSecurity(), &$isExternal, $this]);
 		}
 
 		if (!$isExternal)
@@ -150,7 +150,7 @@ class Redirect extends Main\HttpResponse
 			ExecuteModuleEventEx($event);
 		}
 
-		$_SESSION["BX_REDIRECT_TIME"] = time();
+		Main\Application::getInstance()->getKernelSession()["BX_REDIRECT_TIME"] = time();
 
 		parent::send();
 	}

@@ -410,7 +410,7 @@ Sending notification to Apple and Android devices is performed using the secure 
 
 Your Intranet needs access to this server for push notifications to work as designed.
 ";
-$MESS["SC_HELP_CHECK_REST"] = "The \"rest\" module is required for external app integration and  some of the Marketplace apps. You can add your apps to Bitrix24; follow these <a href=\"https://dev.1c-bitrix.ru/learning/course/?COURSE_ID=43&LESSON_ID=3568\" target=\"_blank\">guidelines</a>.";
+$MESS["SC_HELP_CHECK_REST"] = "The REST module is required to integrate external applications and run a number of Bitrix24.Market applications. To integrate your own applications into Bitrix24, please follow <a href=\"https://training.bitrix24.com/support/training/course/?COURSE_ID=68&INDEX=Y\" target=\"_blank\">the guidelines</a>.";
 $MESS["SC_HELP_CHECK_SEARCH"] = "The system can search text in documents in Open XML format (introduced in Microsoft Office 2007) out of the box. To support other file formats, specify paths to parsing applications <a href=\"/bitrix/admin/settings.php?mid=intranet\">in the Intranet module settings</a>. Otherwise, the system will be able to search filenames only.
 
 <a href=\"http://www.1c-bitrix.ru/products/vmbitrix/index.php\">Bitrix Virtual Appliance</a> supports it by default.";

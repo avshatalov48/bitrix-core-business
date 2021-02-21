@@ -297,11 +297,13 @@ HTML;
 			if ($delay <= 0)
 			{
 				/** @var Stepper $className */
-				$addAgent = call_user_func_array([$className, "execAgent"], $withArguments);
+				$addAgent = ('' !== call_user_func_array([$className, "execAgent"], $withArguments));
 			}
 
 			if ($addAgent)
 			{
+				if (Option::get("main.stepper.".$moduleId, $className, "") === "")
+					Option::set("main.stepper.".$moduleId, $className, serialize([]));
 				\CAgent::AddAgent(
 					$className.'::execAgent('.(empty($withArguments) ? '' : call_user_func_array([$className, "makeArguments"], [$withArguments])).');',
 					$moduleId,
@@ -314,8 +316,6 @@ HTML;
 					false,
 					false
 				);
-				if (Option::get("main.stepper.".$moduleId, $className, "") === "")
-					Option::set("main.stepper.".$moduleId, $className, serialize([]));
 			}
 		}
 		else

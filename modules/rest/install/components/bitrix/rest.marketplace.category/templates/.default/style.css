@@ -33,6 +33,12 @@
 	overflow: hidden;
 }
 
+.mp-slider-view .ui-sidepanel-menu-link-text-icon {
+	margin-right: 5px;
+	width: 13px;
+	height: 13px;
+}
+
 .mp-slider-view .ui-sidepanel-menu-link-text-counter {
 	font: 12px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
 	color: #525C69;

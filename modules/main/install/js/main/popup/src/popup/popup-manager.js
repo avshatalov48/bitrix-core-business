@@ -127,12 +127,17 @@ export default class PopupManager
 	static getMaxZIndex(): number
 	{
 		let zIndex = 0;
-		for (let i = 0; i < this._popups.length; i++)
-		{
-			zIndex = Math.max(zIndex, this._popups[i].params.zIndex);
-		}
+
+		this.getPopups().forEach((popup: Popup) => {
+			zIndex = Math.max(zIndex, popup.getZindex());
+		});
 
 		return zIndex;
+	}
+
+	static getPopups(): Popup[]
+	{
+		return this._popups;
 	}
 }
 

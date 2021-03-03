@@ -271,7 +271,6 @@ export class DateTimeControl extends EventEmitter
 
 	static showInputCalendar(e)
 	{
-		const zIndex = 4000;
 		let target = e.target || e.srcElement;
 		if (Type.isDomNode(target) && target.nodeName.toLowerCase() === 'input')
 		{
@@ -292,7 +291,6 @@ export class DateTimeControl extends EventEmitter
 			{
 				BX.removeCustomEvent(calendarPopup, 'onPopupClose', DateTimeControl.inputCalendarClosePopupHandler);
 				BX.addCustomEvent(calendarPopup, 'onPopupClose', DateTimeControl.inputCalendarClosePopupHandler);
-				calendarPopup.popupContainer.style.zIndex = zIndex;
 			}
 		}
 	}

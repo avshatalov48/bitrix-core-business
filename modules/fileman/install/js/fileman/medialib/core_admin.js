@@ -64,9 +64,10 @@ BXMedialibAdmin.prototype =
 			this.OpenCollection(this.curColl);
 		}
 
-		// Temp hack for dialogs in Opera must die when redesigned
-		if (BX('mlsd_item'))
-			document.body.appendChild(BX('mlsd_item').parentNode);
+		var container = BX('bxml-subdialog-cont');
+		Array.from(container.children).forEach(function(element) {
+			document.body.appendChild(element);
+		});
 	},
 
 	BuildCollections: function()
@@ -658,7 +659,6 @@ BXMedialibAdmin.prototype =
 
 		this.EditCollDialog.bNew = !Params.id;
 		var
-			zIndex = 600,
 			D = this.EditCollDialog,
 			w = BX.GetWindowSize(),
 			left = parseInt(w.scrollLeft + w.innerWidth / 2 - D.width / 2),
@@ -669,9 +669,6 @@ BXMedialibAdmin.prototype =
 			this._ReqBuildCollSelect(D.pParent, this.arCollectionsTree, 0, true);
 			this.bRedrawCollections = false;
 		}
-
-		D.Overlay.Show({zIndex: zIndex - 10});
-		D.pWnd.style.zIndex = zIndex;
 
 		D.pWnd.style.display = 'block';
 		this.EditCollDialog.bFocusKeywords = false;
@@ -704,10 +701,13 @@ BXMedialibAdmin.prototype =
 		}
 
 		D.typeId = this.curType.id || ''; // Set ML Type
+
+		jsFloatDiv.Show(this.EditCollDialog.pWnd, left, top);
+		D.Overlay.Show();
+
 		D.pName.onchange(); // Set title
 		D.pName.focus();
 
-		jsFloatDiv.Show(this.EditCollDialog.pWnd, left, top);
 		BX.bind(document, "keypress", window.MlEdColOnKeypress);
 	},
 
@@ -795,6 +795,9 @@ BXMedialibAdmin.prototype =
 		D.pWnd.style.height = 'auto';
 		D.pWnd.style.minHeight = '10px';
 		this.EditCollDialog = D;
+
+		D.Overlay.Create();
+		BX.ZIndexManager.register(D.pWnd, { overlay: D.Overlay.pWnd });
 	},
 
 	CloseEditCollDialog: function()
@@ -993,7 +996,6 @@ BXMedialibAdmin.prototype =
 
 		var
 			oItem, i, l,
-			zIndex = 600,
 			D = this.ViewItDialog;
 
 		if (Params.bSearch)
@@ -1027,13 +1029,13 @@ BXMedialibAdmin.prototype =
 		D.oItem = oItem;
 		D.colId = Params.colId;
 
-		D.Overlay.Show({zIndex: zIndex - 10});
-		D.pWnd.style.zIndex = zIndex;
 		D.pDel.style.display = Params.Access.del ? 'inline' : 'none';
 		D.pEdit.style.display = Params.Access.edit ? 'inline' : 'none';
 		D.pWnd.style.display = "block"
 		D.pWnd.style.visibility = "hidden";
 		D.bOpened = true;
+
+		D.Overlay.Show();
 
 		this.SetItemInfo(oItem);
 	},
@@ -1082,6 +1084,9 @@ BXMedialibAdmin.prototype =
 				_this.CloseViewItDialog();
 		};
 		this.ViewItDialog = D;
+
+		D.Overlay.Create();
+		BX.ZIndexManager.register(D.pWnd, { overlay: D.Overlay.pWnd });
 	},
 
 	CloseViewItDialog: function()
@@ -1360,14 +1365,12 @@ BXMedialibAdmin.prototype =
 			_this = this,
 			D = this.EditItemDialog,
 			id = D.Params.id,
-			zIndex = 600,
 			w = BX.GetWindowSize(),
 			left = parseInt(w.scrollLeft + w.innerWidth / 2 - D.width / 2),
 			top = parseInt(w.scrollTop + w.innerHeight / 2 - D.height / 2);
 
 		D.bNew = !id;
-		D.Overlay.Show({zIndex: zIndex - 10});
-		D.pWnd.style.zIndex = zIndex;
+		D.Overlay.Show();
 		D.pWnd.style.display = 'block';
 		this.EditItemDialog.bShow = true;
 		D.arColls = {};
@@ -1495,6 +1498,9 @@ BXMedialibAdmin.prototype =
 		D.pWnd.style.width = D.width + 'px';
 		D.pWnd.style.height = D.height + 'px';
 		this.EditItemDialog = D;
+
+		D.Overlay.Create();
+		BX.ZIndexManager.register(D.pWnd, { overlay: D.Overlay.pWnd });
 	},
 
 	EditItemDialogOnload: function()
@@ -1888,6 +1894,9 @@ BXMedialibAdmin.prototype =
 			};
 
 			D.butCancel.onclick = function(){_this.CloseConfirm();};
+
+			D.Overlay.Create();
+			BX.ZIndexManager.register(D.pWnd, { overlay: D.Overlay.pWnd });
 		}
 		else
 		{
@@ -1896,9 +1905,7 @@ BXMedialibAdmin.prototype =
 
 		D.pWnd.style.width = w + 'px';
 		D.pWnd.style.height = h + 'px';
-		D.pWnd.style.zIndex = zIndex;
 		D.pWnd.style.display = 'block';
-		D.Overlay.Show({zIndex: zIndex - 10, clickCallback:{func:this.CloseConfirm, obj: this}});
 
 		var
 			ws = BX.GetWindowSize(),
@@ -1906,6 +1913,7 @@ BXMedialibAdmin.prototype =
 			top = parseInt(ws.scrollTop + ws.innerHeight / 2 - h / 2);
 
 		jsFloatDiv.Show(D.pWnd, left, top, 0);
+		D.Overlay.Show({clickCallback:{func:this.CloseConfirm, obj: this}});
 
 		//But 1
 		D.but1.value = Params.but1.text;
@@ -2876,8 +2884,6 @@ MLContextMenu.prototype =
 		this.pref = 'ML_' + this.id + '_';
 		this.oDiv = document.body.appendChild(BX.create('DIV', {props:{className: 'bx-cm', id: this.pref + '_cont'}, style:{zIndex: this.zIndex}, html: '<table><tr><td class="bxcm-popup"><table id="' + this.pref + '_cont_items"><tr><td></td></tr></table></td></tr></table>'}));
 
-		// Part of logic of JCFloatDiv.Show()   Prevent bogus rerendering window in IE... And SpeedUp first context menu calling
-		document.body.appendChild(BX.create('IFRAME', {props:{id: this.pref + '_frame', src: "javascript:void(0)"}, style:{position: 'absolute', zIndex: this.zIndex - 5, left: '-1000px', top: '-1000px', visibility: 'hidden'}}));
 		this.menu = new PopupMenu(this.pref + '_cont');
 	},
 

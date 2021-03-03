@@ -817,6 +817,8 @@
 .ui-btn-icon-mail.ui-btn-light-border,
 .bitrix24-dark-theme .ui-btn-icon-mail.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-mail-black.svg?v=1.2); }
 
+/*endregion*/
+
 /*region ui-btn-icon-chat*/
 .ui-btn-icon-chat.ui-btn,
 .ui-btn-icon-chat.ui-btn-split,
@@ -874,7 +876,7 @@
 
 /*endregion*/
 
-/*region ui-btn-icon-chat*/
+/*region ui-btn-icon-plan*/
 .ui-btn-icon-plan.ui-btn,
 .ui-btn-icon-plan.ui-btn-split,
 .ui-btn-icon-plan.ui-btn-double,
@@ -892,6 +894,46 @@
 .ui-btn-icon-plan.ui-btn-secondary,
 .ui-btn-icon-plan.ui-btn-light-border,
 .bitrix24-dark-theme .ui-btn-icon-plan.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-plan-black.svg?v=1.2); }
+
+/*region ui-btn-icon-eye-opened*/
+.ui-btn-icon-eye-opened.ui-btn,
+.ui-btn-icon-eye-opened.ui-btn-split,
+.ui-btn-icon-eye-opened.ui-btn-double,
+.ui-btn-icon-eye-opened.ui-btn-danger,
+.ui-btn-icon-eye-opened.ui-btn-primary,
+.ui-btn-icon-eye-opened.ui-btn-default,
+.ui-btn-icon-eye-opened.ui-btn-danger-dark,
+.ui-btn-icon-eye-opened.ui-btn-success-dark,
+.ui-btn-icon-eye-opened.ui-btn-primary-dark,
+.bitrix24-light-theme .ui-btn-icon-eye-opened.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-eye-opened-white.svg?v=1.2); }
+
+.ui-btn-icon-eye-opened.ui-btn-link,
+.ui-btn-icon-eye-opened.ui-btn-light,
+.ui-btn-icon-eye-opened.ui-btn-success,
+.ui-btn-icon-eye-opened.ui-btn-secondary,
+.ui-btn-icon-eye-opened.ui-btn-light-border,
+.bitrix24-dark-theme .ui-btn-icon-eye-opened.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-eye-opened-black.svg?v=1.2); }
+
+/*endregion*/
+
+/*region ui-btn-icon-eye-closed*/
+.ui-btn-icon-eye-closed.ui-btn,
+.ui-btn-icon-eye-closed.ui-btn-split,
+.ui-btn-icon-eye-closed.ui-btn-double,
+.ui-btn-icon-eye-closed.ui-btn-danger,
+.ui-btn-icon-eye-closed.ui-btn-primary,
+.ui-btn-icon-eye-closed.ui-btn-default,
+.ui-btn-icon-eye-closed.ui-btn-danger-dark,
+.ui-btn-icon-eye-closed.ui-btn-success-dark,
+.ui-btn-icon-eye-closed.ui-btn-primary-dark,
+.bitrix24-light-theme .ui-btn-icon-eye-closed.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-eye-closed-white.svg?v=1.2); }
+
+.ui-btn-icon-eye-closed.ui-btn-link,
+.ui-btn-icon-eye-closed.ui-btn-light,
+.ui-btn-icon-eye-closed.ui-btn-success,
+.ui-btn-icon-eye-closed.ui-btn-secondary,
+.ui-btn-icon-eye-closed.ui-btn-light-border,
+.bitrix24-dark-theme .ui-btn-icon-eye-closed.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-eye-closed-black.svg?v=1.2); }
 
 /*endregion*/
 

@@ -82,7 +82,7 @@ if (
 	}
 }
 
-if (!empty($arParams['TOP_RATING_DATA']))
+if (is_array($arParams['TOP_RATING_DATA']))
 {
 	$arResult['TOP_RATING_DATA'] = $arParams['TOP_RATING_DATA'];
 }

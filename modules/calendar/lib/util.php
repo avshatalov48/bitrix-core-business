@@ -51,12 +51,17 @@ class Util
 
 	public static function isTimezoneValid(string $timeZone = null): bool
 	{
-		return (!is_null($timeZone) && $timeZone !== 'false' && in_array($timeZone, timezone_identifiers_list(), true));
+		if (!empty($timeZone) ?? in_array($timeZone, timezone_identifiers_list()))
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	public static function prepareTimezone($tz = null): \DateTimeZone
 	{
-		return (self::isTimezoneValid($tz))
+		return (!empty($tz) && $tz != 'false' && self::isTimezoneValid($tz))
 			? new \DateTimeZone($tz)
 			: new \DateTimeZone("UTC")
 		;

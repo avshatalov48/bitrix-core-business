@@ -56,7 +56,7 @@ if (
 )
 {
 	$bodyClass = $APPLICATION->GetPageProperty("BodyClass");
-	$APPLICATION->SetPageProperty("BodyClass", ($bodyClass ? $bodyClass." " : "")."workarea-transparent");
+	$APPLICATION->SetPageProperty("BodyClass", ($bodyClass ? $bodyClass." " : "")."workarea-transparent no-background");
 }
 
 if (
@@ -213,7 +213,6 @@ if (
 				sonetLMenuHref: '<?=GetMessageJS("SONET_C30_MENU_TITLE_HREF")?>',
 				sonetLMenuDelete: '<?=GetMessageJS(\Bitrix\Main\ModuleManager::isModuleInstalled('intranet') ? "SONET_C30_MENU_TITLE_DELETE2" : "SONET_C30_MENU_TITLE_DELETE")?>',
 				sonetLMenuDeleteConfirm: '<?=GetMessageJS("SONET_C30_MENU_TITLE_DELETE_CONFIRM")?>',
-				sonetLMenuDeleteSuccess: '<?=GetMessageJS("SONET_C30_MENU_TITLE_DELETE_SUCCESS")?>',
 				sonetLMenuDeleteFailure: '<?=GetMessageJS("SONET_C30_MENU_TITLE_DELETE_FAILURE")?>',
 				sonetLMenuCreateTask: '<?=GetMessageJS("SONET_C30_MENU_TITLE_CREATETASK")?>',
 				sonetLCounterType: '<?=CUtil::JSEscape($arResult["COUNTER_TYPE"])?>',
@@ -255,7 +254,7 @@ if (
 
 		if (
 			in_array($arResult['PAGE_MODE'], [ 'refresh', 'next' ])
-			&& $arParams["SHOW_RATING"] == "Y"
+			&& $arParams["SHOW_RATING"] === "Y"
 		)
 		{
 			$likeTemplate = (
@@ -264,14 +263,14 @@ if (
 					: 'like'
 			);
 
-			if ($arParams["RATING_TYPE"] == "like")
+			if ($arParams["RATING_TYPE"] === "like")
 			{
 				Asset::getInstance()->addCss('/bitrix/components/bitrix/rating.vote/templates/'.$likeTemplate.'/popup.css');
 			}
-			Asset::getInstance()->addCss('/bitrix/components/bitrix/rating.vote/templates/'.($arParams["RATING_TYPE"] == "like" ? $likeTemplate : $arParams["RATING_TYPE"]).'/style.css');
+			Asset::getInstance()->addCss('/bitrix/components/bitrix/rating.vote/templates/'.($arParams["RATING_TYPE"] === "like" ? $likeTemplate : $arParams["RATING_TYPE"]).'/style.css');
 		}
 
-		if ($arResult['PAGE_MODE'] == 'refresh')
+		if ($arResult['PAGE_MODE'] === 'refresh')
 		{
 			?>
 			if (typeof __logOnReload === 'function')
@@ -284,15 +283,15 @@ if (
 			<?
 		}
 		elseif (
-			$arParams["IS_CRM"] == "Y"
-			&& $arResult['PAGE_MODE'] == 'first'
+			$arParams["IS_CRM"] === "Y"
+			&& $arResult['PAGE_MODE'] === 'first'
 		)
 		{
 			?>
 			if (typeof __logOnReload === 'function')
 			{
 				BX.ready(function(){
-					__logOnReload(<?=intval($arResult["LOG_COUNTER"])?>);
+					__logOnReload(<?=(int)$arResult["LOG_COUNTER"]?>);
 				});
 			}
 			<?
@@ -304,14 +303,14 @@ if (
 			BX.ready(function() {
 				<?
 				if (
-					$arParams["SET_LOG_COUNTER"] != "N"
+					$arParams["SET_LOG_COUNTER"] !== "N"
 					&& !(isset($arResult["EXPERT_MODE_SET"]) && $arResult["EXPERT_MODE_SET"])
 				)
 				{
 					?>
 					BX.onCustomEvent(window, 'onSonetLogCounterClear', [BX.message('sonetLCounterType')]);
 					<?
-					if ($arResult['PAGE_MODE'] == 'first')
+					if ($arResult['PAGE_MODE'] === 'first')
 					{
 						?>
 						BX.addCustomEvent("onGoUp", function() {
@@ -353,7 +352,7 @@ if (
 					}
 				}
 
-				if ($arResult['PAGE_MODE'] == 'first')
+				if ($arResult['PAGE_MODE'] === 'first')
 				{
 					?>
 					BX.addCustomEvent('onAjaxFailure', function(status){
@@ -368,7 +367,7 @@ if (
 			});
 
 			<?
-			if ($arResult['PAGE_MODE'] == 'first')
+			if ($arResult['PAGE_MODE'] === 'first')
 			{
 				if(\Bitrix\Main\Page\Frame::isAjaxRequest())
 				{
@@ -442,7 +441,7 @@ if (
 	*/
 
 	if(
-		$arResult['PAGE_MODE'] == 'first'
+		$arResult['PAGE_MODE'] === 'first'
 		&& $arResult["ErrorMessage"] <> ''
 	)
 	{
@@ -451,7 +450,7 @@ if (
 
 	$hasBlogEvent = (
 		in_array($arResult['PAGE_MODE'], [ 'first', 'refresh'])
-		|| $_REQUEST['noblog'] == 'Y'
+		|| $_REQUEST['noblog'] === 'Y'
 			? false
 			: true
 	);
@@ -482,7 +481,7 @@ if (
 			);
 
 			$is_unread = (
-				$arResult["SHOW_UNREAD"] == "Y"
+				$arResult["SHOW_UNREAD"] === "Y"
 				&& in_array($arResult["COUNTER_TYPE"], [ '**', 'CRM_**', 'blog_post' ])
 				&& $arEvent["USER_ID"] != $arResult["currentUserId"]
 				&& intval($arResult["LAST_LOG_TS"]) > 0
@@ -540,7 +539,7 @@ if (
 	*/
 
 	if (
-		$arParams["SHOW_NAV_STRING"] != "N"
+		$arParams["SHOW_NAV_STRING"] !== "N"
 		&& is_array($arResult["Events"])
 	)
 	{
@@ -572,9 +571,9 @@ if (
 		{
 			$uriParams['pplogid'] = implode("|", $arResult["arLogTmpID"]);
 		}
-		if (intval($arResult["NEXT_PAGE_SIZE"]) > 0)
+		if ((int)$arResult["NEXT_PAGE_SIZE"] > 0)
 		{
-			$uriParams['pagesize'] = intval($arResult["NEXT_PAGE_SIZE"]);
+			$uriParams['pagesize'] = (int)$arResult["NEXT_PAGE_SIZE"];
 		}
 		if (!$hasBlogEvent)
 		{
@@ -583,6 +582,31 @@ if (
 
 		$uriParams['preset_filter_top_id'] = $arResult['presetFilterTopIdValue'];
 		$uriParams['preset_filter_id'] = $arResult['presetFilterIdValue'];
+
+		if (
+			isset($arParams['CREATED_BY_ID'])
+			&& (int)$arParams['CREATED_BY_ID'] > 0
+		)
+		{
+			$uriParams['CREATED_BY_ID'] = (int)$arParams['CREATED_BY_ID'];
+		}
+
+		$request = \Bitrix\Main\Context::getCurrent()->getRequest();
+
+		if ($request->get('flt_date_datesel'))
+		{
+			$uriParams['flt_date_datesel'] = preg_replace('/[^a-z0-9_]/i', '', $request->get('flt_date_datesel'));
+		}
+
+		if ($request->get('flt_date_from'))
+		{
+			$uriParams['flt_date_from'] = preg_replace('/[^0-9\/]/i', '', $request->get('flt_date_from'));
+		}
+
+		if ($request->get('flt_date_to'))
+		{
+			$uriParams['flt_date_to'] = preg_replace('/[^0-9\/]/i', '', $request->get('flt_date_to'));
+		}
 
 		$uri->addParams($uriParams);
 
@@ -640,7 +664,7 @@ if (
 			$blockContent = ob_get_contents();
 			ob_end_clean();
 
-			if ($arResult['PAGE_MODE'] == 'refresh')
+			if ($arResult['PAGE_MODE'] === 'refresh')
 			{
 				$targetHtml .= $blockContent;
 			}
@@ -656,7 +680,7 @@ if (
 		?><div class="feed-new-message-inf-wrap feed-new-message-active" id="feed-new-message-inf-wrap" style="display: none;"><?=$stub?></div><?
 	}
 
-	if ($arResult['PAGE_MODE'] == 'first')
+	if ($arResult['PAGE_MODE'] === 'first')
 	{
 			?></div><? // feed-wrap
 		?></div><? // log_internal_container

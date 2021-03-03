@@ -1205,7 +1205,6 @@ class Manager
 		{
 			Site::update($row['ID'], []);
 		}
-		self::setOption('html_disabled', 'Y');
 	}
 
 	/**

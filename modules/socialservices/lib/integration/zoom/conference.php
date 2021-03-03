@@ -106,9 +106,8 @@ class Conference
 			$result->addError(new Error('Invalid entity type'));
 		}
 
-		$dateTimeStart = \Bitrix\Main\Type\DateTime::createFromUserTime($data['dateTimeStart']);
-		$timestamp = $dateTimeStart->getTimestamp();
-		if ($timestamp < time())
+		$timestampStart = $data['timestampStart'] / 1000;
+		if ($timestampStart < time())
 		{
 			$result->addError(new Error('Invalid date'));
 		}
@@ -124,6 +123,7 @@ class Conference
 			return $result;
 		}
 
+		$dateTimeStart = \Bitrix\Main\Type\DateTime::createFromTimestamp($timestampStart);
 		$data['start_time'] = $dateTimeStart->setTimeZone(new \DateTimeZone('UTC'))->format(DATE_ATOM);
 
 		if ($data['durationType'] === 'h')

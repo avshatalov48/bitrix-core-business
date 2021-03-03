@@ -564,6 +564,9 @@ class CZoomInterface extends CSocServOAuthTransport
 	private const CREATE_MEETING_ENDPOINT = 'users/me/meetings';
 	private const UPDATE_MEETING_ENDPOINT = 'meetings/';
 
+	private const CACHE_TIME_CONNECT_INFO = "86400"; //One day
+	public const CACHE_DIR_CONNECT_INFO = "/socialservices/zoom/";
+
 	protected $userId = false;
 	protected $responseData = array();
 	protected $idToken;
@@ -911,21 +914,28 @@ class CZoomInterface extends CSocServOAuthTransport
 	 * @throws ObjectPropertyException
 	 * @throws SystemException
 	 */
-	public static function isConnected($userId): bool
+	public static function isConnected(int $userId): bool
 	{
-		$user = UserTable::getRow([
-			'filter' => [
-				'=USER_ID' => $userId,
-				'=EXTERNAL_AUTH_ID' => self::SERVICE_ID
-			]
-		]);
-
-		if ($user !== null)
+		$cache = \Bitrix\Main\Data\Cache::createInstance();
+		$cacheId = self::SERVICE_ID .'|'. $userId;
+		$user = null;
+		if ($cache->initCache(self::CACHE_TIME_CONNECT_INFO, $cacheId, self::CACHE_DIR_CONNECT_INFO))
 		{
-			return true;
+			$user = $cache->getVars()['user'];
+		}
+		elseif ($cache->startDataCache())
+		{
+			$user = UserTable::getRow([
+					'filter' => [
+						'=USER_ID' => $userId,
+						'=EXTERNAL_AUTH_ID' => self::SERVICE_ID
+					]
+				]);
+
+			$cache->endDataCache(['user' => $user]);
 		}
 
-		return false;
+		return $user !== null;
 	}
 
 	public function GetAppInfo(): bool

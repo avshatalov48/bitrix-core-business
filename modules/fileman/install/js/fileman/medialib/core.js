@@ -56,7 +56,6 @@ BXMediaLib.prototype =
 
 				if (innerHTML)
 				{
-					_this.Overlay.Show({zIndex: _this.zIndex - 10, clickCallback:{func:_this.Close, obj: _this}});
 					_this.arCollections = window.MLCollections;
 					_this.pWnd = document.body.appendChild(BX.create("DIV", {props:{id: 'bxmedialib', className: 'bxml-dialog'}}));
 					var
@@ -66,14 +65,19 @@ BXMediaLib.prototype =
 
 					if (!_this.bReadOnly)
 					{
-						_this.pDialogCont = document.body.appendChild(BX.create("DIV", {props:{className: 'bxml-subdialog-cont'}}));
-						_this.pDialogCont.innerHTML = innerHTML.substring(innerHTML.indexOf('#ML_SUBDIALOGS_BEGIN#') + 21, innerHTML.indexOf('#ML_SUBDIALOGS_END#'));
-						_this.pDialogCont.style.zIndex = _this.zIndex + 250;
+						var container = BX.create("DIV", {props:{className: 'bxml-subdialog-cont'}});
+						container.innerHTML = innerHTML.substring(innerHTML.indexOf('#ML_SUBDIALOGS_BEGIN#') + 21, innerHTML.indexOf('#ML_SUBDIALOGS_END#'));
+						Array.from(container.children).forEach(function(element) {
+							document.body.appendChild(element);
+						});
 					}
 
-					_this.pWnd.style.zIndex = _this.zIndex;
 					_this.pWnd.innerHTML = innerHTML.substring(innerHTML.indexOf('#ML_MAIN_DIALOG_BEGIN#') + 22, innerHTML.indexOf('#ML_MAIN_DIALOG_END#'));
+
+					_this.Overlay.Create();
+					BX.ZIndexManager.register(_this.pWnd, { overlay: _this.Overlay.pWnd });
 					jsFloatDiv.Show(_this.pWnd, left, top, 5, false, false);
+					_this.Overlay.Show({clickCallback:{func:_this.Close, obj: _this}});
 
 					_this.OnDialogOpen();
 				}
@@ -86,10 +90,10 @@ BXMediaLib.prototype =
 		jsFloatDiv.Close(this.pWnd);
 		BX.unbind(document, "keypress", window.MlOnKeypress);
 		if (this.pWnd.parentNode)
+		{
+			BX.ZIndexManager.unregister(this.pWnd);
 			this.pWnd.parentNode.removeChild(this.pWnd);
-
-		if (this.pDialogCont.parentNode)
-			this.pDialogCont.parentNode.removeChild(this.pDialogCont);
+		}
 
 		this.Overlay.Remove();
 		if (this.EditCollDialog)
@@ -799,7 +803,6 @@ BXMediaLib.prototype =
 
 		this.EditCollDialog.bNew = !Params.id;
 		var
-			zIndex = Params.zIndex || this.zIndex + 200,
 			D = this.EditCollDialog,
 			w = BX.GetWindowSize(),
 			left = parseInt(w.scrollLeft + w.innerWidth / 2 - D.width / 2),
@@ -811,8 +814,6 @@ BXMediaLib.prototype =
 			this.arRedrawCollections[this.curType.id] = false;
 		}
 
-		D.Overlay.Show({zIndex: zIndex - 10});
-		D.pWnd.style.zIndex = zIndex;
 		D.pWnd.style.display = 'block';
 
 		this.bSubdialogOpened = true;
@@ -851,6 +852,8 @@ BXMediaLib.prototype =
 		D.pName.onchange(); // Set title
 
 		jsFloatDiv.Show(this.EditCollDialog.pWnd, left, top, 5, false, false);
+		D.Overlay.Show();
+
 		BX.bind(document, "keypress", window.MlEdColOnKeypress);
 	},
 
@@ -938,6 +941,9 @@ BXMediaLib.prototype =
 		D.pWnd.style.height = 'auto';
 		D.pWnd.style.minHeight = '10px';
 		this.EditCollDialog = D;
+
+		D.Overlay.Create();
+		BX.ZIndexManager.register(D.pWnd, { overlay: D.Overlay.pWnd });
 	},
 
 	CloseEditCollDialog: function()
@@ -1107,10 +1113,7 @@ BXMediaLib.prototype =
 		if (!this.ViewItDialog)
 			this.CreateViewItDialog(Params);
 
-		var
-			oItem, i, l,
-			zIndex = 600,
-			D = this.ViewItDialog;
+		var D = this.ViewItDialog;
 
 		var oItem = this.oCurItems[Params.id].oItem;
 		this.bSubdialogOpened = true;
@@ -1121,13 +1124,13 @@ BXMediaLib.prototype =
 		D.oItem = oItem;
 		D.colId = Params.colId;
 
-		D.Overlay.Show({zIndex: zIndex - 10});
-		D.pWnd.style.zIndex = zIndex;
 		D.pDel.style.display = Params.Access.del ? 'inline' : 'none';
 		D.pEdit.style.display = Params.Access.edit ? 'inline' : 'none';
 		D.pWnd.style.display = "block";
 		D.pWnd.style.visibility = "hidden";
 		D.bOpened = true;
+
+		D.Overlay.Show();
 
 		this.SetItemInfo(oItem);
 	},
@@ -1176,6 +1179,9 @@ BXMediaLib.prototype =
 				_this.CloseViewItDialog();
 		};
 		this.ViewItDialog = D;
+
+		D.Overlay.Create();
+		BX.ZIndexManager.register(D.pWnd, { overlay: D.Overlay.pWnd });
 	},
 
 	CloseViewItDialog: function()
@@ -1524,15 +1530,14 @@ BXMediaLib.prototype =
 		var
 			D = this.EditItemDialog,
 			id = D.Params.id,
-			zIndex = Params.zIndex || this.zIndex + 200,
 			w = BX.GetWindowSize(),
 			left = parseInt(w.scrollLeft + w.innerWidth / 2 - D.width / 2),
 			top = parseInt(w.scrollTop + w.innerHeight / 2 - D.height / 2);
 
 		D.bNew = !id;
-		D.Overlay.Show({zIndex: zIndex - 10});
-		D.pWnd.style.zIndex = zIndex;
 		D.pWnd.style.display = 'block';
+		D.Overlay.Show();
+
 		this.EditItemDialog.bShow = true;
 		this.bSubdialogOpened = true;
 		D.arColls = {};
@@ -1637,6 +1642,9 @@ BXMediaLib.prototype =
 		D.pWnd.style.width = D.width + 'px';
 		D.pWnd.style.height = D.height + 'px';
 		this.EditItemDialog = D;
+
+		D.Overlay.Create();
+		BX.ZIndexManager.register(D.pWnd, { overlay: D.Overlay.pWnd });
 
 		window.MlEdItemOnKeypress = function(e)
 		{
@@ -2129,6 +2137,9 @@ BXMediaLib.prototype =
 			};
 
 			D.butCancel.onclick = function(){_this.CloseConfirm();};
+
+			D.Overlay.Create();
+			BX.ZIndexManager.register(D.pWnd, { overlay: D.Overlay.pWnd });
 		}
 		else
 		{
@@ -2137,9 +2148,8 @@ BXMediaLib.prototype =
 
 		D.pWnd.style.width = w + 'px';
 		D.pWnd.style.height = h + 'px';
-		D.pWnd.style.zIndex = zIndex;
 		D.pWnd.style.display = 'block';
-		D.Overlay.Show({zIndex: zIndex - 10, clickCallback:{func:this.CloseConfirm, obj: this}});
+
 		this.bSubdialogOpened = true;
 
 		var
@@ -2148,6 +2158,7 @@ BXMediaLib.prototype =
 			top = parseInt(ws.scrollTop + ws.innerHeight / 2 - h / 2);
 
 		jsFloatDiv.Show(D.pWnd, left, top, 0, false, false);
+		D.Overlay.Show({clickCallback:{func:this.CloseConfirm, obj: this}});
 
 		//But 1
 		D.but1.value = Params.but1.text;

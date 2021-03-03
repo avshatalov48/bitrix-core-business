@@ -1150,7 +1150,7 @@ ML_MESS.Save = '<?= GetMessageJS('ML_SAVE')?>';
 				for($i = 0, $l = count($arItems); $i < $l; $i++)
 					$strItems .= ",".intval($arItems[$i]);
 
-				$strSql = "DELETE FROM b_medialib_collection_item WHERE ITEM_ID IN (".$strItems.") AND COLLECTION_ID=".$colId;
+				$strSql = "DELETE FROM b_medialib_collection_item WHERE ITEM_ID IN (".$strItems.") AND COLLECTION_ID=".intval($colId);
 				$z = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 			}
 		}

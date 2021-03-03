@@ -29,7 +29,8 @@ return array(
 		'RATING_LIKE_EMOTION_LAUGH_CALC' => CUtil::JSEscape(\CRatingsComponentsMain::getRatingLikeMessage('LAUGH')),
 		'RATING_LIKE_EMOTION_WONDER_CALC' => CUtil::JSEscape(\CRatingsComponentsMain::getRatingLikeMessage('WONDER')),
 		'RATING_LIKE_EMOTION_CRY_CALC' => CUtil::JSEscape(\CRatingsComponentsMain::getRatingLikeMessage('CRY')),
-		'RATING_LIKE_EMOTION_ANGRY_CALC' => CUtil::JSEscape(\CRatingsComponentsMain::getRatingLikeMessage('ANGRY'))
+		'RATING_LIKE_EMOTION_ANGRY_CALC' => CUtil::JSEscape(\CRatingsComponentsMain::getRatingLikeMessage('ANGRY')),
+		'RATING_LIKE_EMOTION_FACEPALM_CALC' => CUtil::JSEscape(\CRatingsComponentsMain::getRatingLikeMessage('FACEPALM'))
 	),
 	'rel' => array('popup')
 );

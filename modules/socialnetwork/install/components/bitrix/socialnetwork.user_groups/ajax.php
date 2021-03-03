@@ -29,11 +29,6 @@ else
 	define("LANGUAGE_ID", "en");
 }
 
-if(Loader::includeModule("compression"))
-{
-	CCompress::disable2048Spaces();
-}
-
 if (!Loader::includeModule("socialnetwork"))
 {
 	echo CUtil::phpToJsObject(Array('ERROR' => 'SONET_MODULE_NOT_INSTALLED'));

@@ -78,7 +78,7 @@ class Param
 					$componentParams['LOG_DATE_TO'] = convertTimeStamp(mktime(0, 0, 0, date('n'), 0));
 					break;
 				case 'days':
-					$componentParams['LOG_DATE_FROM'] = convertTimeStamp(time() - intval($request->get('flt_date_days'))*86400);
+					$componentParams['LOG_DATE_FROM'] = convertTimeStamp(time() - (int)$request->get('flt_date_days')*86400);
 					$componentParams['LOG_DATE_TO'] = '';
 					break;
 				case 'exact':
@@ -112,7 +112,7 @@ class Param
 			|| $componentParams['RATING_TYPE'] == ''
 		)
 		{
-			$componentParams['RATING_TYPE'] = Option::get('main', 'rating_vote_template', (Option::get('main', 'rating_vote_type', 'standart') == 'like'? 'like': 'standart'));
+			$componentParams['RATING_TYPE'] = Option::get('main', 'rating_vote_template', (Option::get('main', 'rating_vote_type', 'standart') === 'like'? 'like': 'standart'));
 		}
 		switch ($componentParams['RATING_TYPE'])
 		{
@@ -403,7 +403,7 @@ class Param
 
 		if (
 			$USER->isAuthorized()
-			|| $componentParams['AUTH'] == 'Y'
+			|| $componentParams['AUTH'] === 'Y'
 		)
 		{
 			$presetFilterId = $this->getComponent()->getPresetFilterIdValue();
@@ -473,7 +473,7 @@ class Param
 					!is_array($componentParams['EVENT_ID'])
 					&& $componentParams['EVENT_ID'] <> ''
 				)
-				|| $presetFilterId == 'extranet'
+				|| $presetFilterId === 'extranet'
 				|| $componentParams['CREATED_BY_ID'] > 0
 				|| (
 					isset($componentParams['LOG_DATE_FROM'])
@@ -493,7 +493,7 @@ class Param
 				$componentParams['USE_FOLLOW'] = 'N';
 			}
 
-			if ($componentParams['IS_CRM'] == 'Y')
+			if ($componentParams['IS_CRM'] === 'Y')
 			{
 				Util::checkEmptyParamString($componentParams, 'CRM_ENTITY_TYPE', '');
 				Util::checkEmptyParamInteger($componentParams, 'CRM_ENTITY_ID', 0);
@@ -509,7 +509,7 @@ class Param
 					$componentParams['SET_LOG_COUNTER'] = 'N';
 					$componentParams['SHOW_UNREAD'] = 'N';
 				}
-				$componentParams['CRM_EXTENDED_MODE'] = (isset($componentParams['CRM_EXTENDED_MODE']) && $componentParams['CRM_EXTENDED_MODE'] == 'Y' ? 'Y' : 'N');
+				$componentParams['CRM_EXTENDED_MODE'] = (isset($componentParams['CRM_EXTENDED_MODE']) && $componentParams['CRM_EXTENDED_MODE'] === 'Y' ? 'Y' : 'N');
 			}
 
 			if ($componentParams['LOG_CNT'] > 0)
@@ -521,10 +521,10 @@ class Param
 			if (
 				(
 					!isset($componentParams['USE_FAVORITES'])
-					|| $componentParams['USE_FAVORITES'] != 'N'
+					|| $componentParams['USE_FAVORITES'] !== 'N'
 				)
 				&& isset($componentParams['FAVORITES'])
-				&& $componentParams['FAVORITES'] == 'Y'
+				&& $componentParams['FAVORITES'] === 'Y'
 			)
 			{
 				$componentParams['SET_LOG_COUNTER'] = 'N';
@@ -532,7 +532,7 @@ class Param
 				$componentParams['SHOW_UNREAD'] = 'N';
 			}
 
-			if (intval($request->get('pagesize')) > 0)
+			if ((int)$request->get('pagesize') > 0)
 			{
 				$componentParams['SET_LOG_PAGE_CACHE'] = 'N';
 			}
@@ -567,7 +567,7 @@ class Param
 
 		if(
 			$request->get('preset_filter_id') <> ''
-			&& $request->get('preset_filter_id') != 'clearall'
+			&& $request->get('preset_filter_id') !== 'clearall'
 		)
 		{
 			$presetFilterId = $request->get('preset_filter_id');
@@ -584,7 +584,7 @@ class Param
 		$presetFiltersOptions = $presetFiltersList = false;
 		if (
 			$USER->isAuthorized()
-			&& $componentParams['SHOW_EVENT_ID_FILTER'] != 'N'
+			&& $componentParams['SHOW_EVENT_ID_FILTER'] !== 'N'
 		)
 		{
 			$presetFiltersOptions = \CUserOptions::getOption('socialnetwork', '~log_filter_'.SITE_ID);
@@ -596,8 +596,8 @@ class Param
 
 		if (
 			is_array($presetFiltersOptions)
-			&& $componentParams['SHOW_EVENT_ID_FILTER'] != 'N'
-			&& $componentParams['IS_CRM'] != 'Y'
+			&& $componentParams['SHOW_EVENT_ID_FILTER'] !== 'N'
+			&& $componentParams['IS_CRM'] !== 'Y'
 		)
 		{
 			if($request->get('preset_filter_id') <> '')
@@ -705,7 +705,7 @@ class Param
 	{
 		if (
 			!empty($componentParams['PUBLIC_MODE'])
-			&& $componentParams['PUBLIC_MODE'] == 'Y'
+			&& $componentParams['PUBLIC_MODE'] === 'Y'
 		)
 		{
 			$componentParams['MODE'] = 'PUB';
@@ -713,7 +713,7 @@ class Param
 
 		if (!empty($componentParams['MODE']))
 		{
-			if ($componentParams['MODE'] == 'LANDING')
+			if ($componentParams['MODE'] === 'LANDING')
 			{
 				$componentParams['HIDE_EDIT_FORM'] = 'Y';
 				$componentParams['SHOW_RATING'] = 'N';
@@ -724,7 +724,7 @@ class Param
 				$componentParams['SET_LOG_PAGE_CACHE'] = 'N';
 				$componentParams['EVENT_ID'] = 'blog_post';
 			}
-			elseif ($componentParams['MODE'] == 'PUB')
+			elseif ($componentParams['MODE'] === 'PUB')
 			{
 				$componentParams['PUBLIC_MODE'] = 'Y';
 			}

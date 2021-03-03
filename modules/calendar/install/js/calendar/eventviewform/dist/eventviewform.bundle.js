@@ -76,7 +76,6 @@ this.BX = this.BX || {};
 	    key: "destroy",
 	    value: function destroy(event) {
 	      this.BX.removeCustomEvent("SidePanel.Slider:onCloseComplete", this.BX.proxy(this.destroy, this));
-	      main_core.Event.unbind(document, "click", calendar_util.Util.applyHacksForPopupzIndex);
 	      this.BX.SidePanel.Instance.destroy(this.sliderId);
 	      calendar_util.Util.closeAllPopups();
 	      this.opened = false;
@@ -252,9 +251,6 @@ this.BX = this.BX || {};
 	      if (this.DOM.copyButton) {
 	        main_core.Event.bind(this.DOM.copyButton, 'click', this.copyEventUrl.bind(this));
 	      }
-
-	      main_core.Event.unbind(document, "click", calendar_util.Util.applyHacksForPopupzIndex);
-	      main_core.Event.bind(document, "click", calendar_util.Util.applyHacksForPopupzIndex);
 	    }
 	  }, {
 	    key: "handleEntryData",

@@ -211,7 +211,6 @@ this.BX = this.BX || {};
 	      var _this = this;
 
 	      this.keyHandlerBind = this.keyHandler.bind(this);
-	      main_core.Event.bind(document, "click", calendar_util.Util.applyHacksForPopupzIndex);
 	      main_core.Event.bind(document, 'keydown', this.keyHandlerBind); // region 'protection from closing slider by accident'
 
 	      this.mouseUpNodeCheck = null;
@@ -466,7 +465,6 @@ this.BX = this.BX || {};
 
 	        this.BX.SidePanel.Instance.destroy(this.sliderId);
 	        calendar_util.Util.closeAllPopups();
-	        main_core.Event.unbind(document, "click", calendar_util.Util.applyHacksForPopupzIndex);
 	        this.planner = null;
 	        this.opened = false;
 	      }

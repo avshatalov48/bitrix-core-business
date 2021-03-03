@@ -1316,28 +1316,6 @@ this.BX = this.BX || {};
 	      return window.top.BX || window.BX;
 	    }
 	  }, {
-	    key: "applyHacksForPopupzIndex",
-	    value: function applyHacksForPopupzIndex(zIndex) {
-	      var timeout = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-
-	      if (timeout) {
-	        setTimeout(function () {
-	          Util.applyHacksForPopupzIndex(zIndex, false);
-	        }, 0);
-	      } else {
-	        zIndex = main_core.Type.isInteger(zIndex) ? zIndex : 4200;
-
-	        if (BX.PopupMenu && BX.PopupMenu.Data) {
-	          for (var id in BX.PopupMenu.Data) {
-	            if (BX.PopupMenu.Data.hasOwnProperty(id) && BX.type.isObject(BX.PopupMenu.Data[id]) && BX.PopupMenu.Data[id].popupWindow && BX.PopupMenu.Data[id].popupWindow.isShown()) {
-	              BX.PopupMenu.Data[id].popupWindow.params.zIndex = zIndex;
-	              BX.PopupMenu.Data[id].popupWindow.popupContainer.style.zIndex = zIndex;
-	            }
-	          }
-	        }
-	      }
-	    }
-	  }, {
 	    key: "closeAllPopups",
 	    value: function closeAllPopups() {
 	      if (main_popup.PopupManager.isAnyPopupShown()) {

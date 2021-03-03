@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["MARKETPLACE_APP_BUY"] = "Buy";
 $MESS["MARKETPLACE_APP_BY_SUBSCRIPTION"] = "Subscription";
 $MESS["MARKETPLACE_APP_DELETE"] = "Delete";
@@ -32,22 +32,7 @@ $MESS["MARKETPLACE_APP_VERSION_MESS"] = "Version";
 $MESS["MARKETPLACE_CONFIGURATION_INSTALL_SETTING_BTN"] = "Configure";
 $MESS["MARKETPLACE_HIDDEN_BUY"] = "Containts in-app purchases";
 $MESS["MARKETPLACE_LICENSE_ERROR"] = "You have to read and agree with the Privacy Policy to install the application";
-$MESS["MARKETPLACE_LICENSE_TOS_ERROR"] = "You have to agree to Bitrix24 Terms of Service to install the application.";
+$MESS["MARKETPLACE_LICENSE_TOS_ERROR_2"] = "You have to agree to the Bitrix24.Market Terms of Use to install the application";
 $MESS["MARKETPLACE_MORE_BUTTON"] = "More...";
-$MESS["PAYMENT_MESSAGE_D_N_Y"] = "Some of the application features are unavailable. Please contact your administrator to install the full version.";
-$MESS["PAYMENT_MESSAGE_D_N_Y_A"] = "Some of the application features are unavailable. Please buy the full version.";
-$MESS["PAYMENT_MESSAGE_D_Y_Y"] = "Your application subscription has expired. Some of the application features are unavailable. Please contact your administrator to install the full version.";
-$MESS["PAYMENT_MESSAGE_D_Y_Y_A"] = "Your application subscription has expired. Some of the application features are unavailable.";
-$MESS["PAYMENT_MESSAGE_P_N_Y"] = "Your application subscription will expire in <b>#DAYS#</b> days. Please contact your administrator to renew the subscription.";
-$MESS["PAYMENT_MESSAGE_P_N_Y_A"] = "Your application subscription will expire in <b>#DAYS#</b> days.";
-$MESS["PAYMENT_MESSAGE_P_Y_N"] = "Application is no longer available because your subscription has expired. Please contact your administrator to renew the subscription.";
-$MESS["PAYMENT_MESSAGE_P_Y_N_A"] = "Application is no longer available because your subscription has expired.";
-$MESS["PAYMENT_MESSAGE_P_Y_Y"] = "Your application subscription has expired. Please contact your administrator to install the full version.";
-$MESS["PAYMENT_MESSAGE_P_Y_Y_A"] = "Your application subscription has expired.";
-$MESS["PAYMENT_MESSAGE_T_N_Y"] = "The trial period will expire in <b>#DAYS#</b> days. Please contact your administrator to install the full version.";
-$MESS["PAYMENT_MESSAGE_T_N_Y_A"] = "The trial period will expire in <b>#DAYS#</b> days.";
-$MESS["PAYMENT_MESSAGE_T_Y_N"] = "The trial period has expired. Please contact your administrator to install the full version.";
-$MESS["PAYMENT_MESSAGE_T_Y_N_A"] = "The trial period has expired. Please buy the full version.";
 $MESS["REST_MP_APP_INSTALL_REQUEST"] = "Send";
 $MESS["REST_MP_INSTALL_REQUEST_CONFIRM"] = "Insufficient permissions to install this app.<br/>Do you want to send a request to the administrators to install it?";
-?>

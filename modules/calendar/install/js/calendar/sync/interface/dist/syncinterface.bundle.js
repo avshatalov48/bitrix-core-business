@@ -996,7 +996,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    babelHelpers.defineProperty(this, "QRC", null);
 	    this.type = options.type;
 	    this.helpDeskCode = options.helpDeskCode || '11828176';
-	    this.fixHintPopupZIndexBinded = this.fixHintPopupZIndex.bind(this);
 	  }
 
 	  babelHelpers.createClass(MobileSyncBanner, [{
@@ -1031,7 +1030,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 
 	      if (this.DOM.mobileHintIcon && BX.UI.Hint) {
 	        BX.UI.Hint.initNode(this.DOM.mobileHintIcon);
-	        BX.addCustomEvent('onPopupShow', this.fixHintPopupZIndexBinded);
 	      }
 
 	      return this.DOM.container;
@@ -1101,18 +1099,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    key: "getHelpdeskCode",
 	    value: function getHelpdeskCode() {
 	      return this.helpDeskCode;
-	    }
-	  }, {
-	    key: "fixHintPopupZIndex",
-	    value: function fixHintPopupZIndex(popupWindow) {
-	      if (popupWindow.uniquePopupId === 'ui-hint-popup' && popupWindow.bindElement === this.DOM.mobileHintIcon) {
-	        var Z_INDEX = 3200;
-
-	        if (popupWindow.params.zIndex && popupWindow.params.zIndex < Z_INDEX || popupWindow.popupContainer.style.zIndex && popupWindow.popupContainer.style.zIndex < Z_INDEX) {
-	          popupWindow.params.zIndex = Z_INDEX;
-	          popupWindow.popupContainer.style.zIndex = Z_INDEX;
-	        }
-	      }
 	    }
 	  }]);
 	  return MobileSyncBanner;

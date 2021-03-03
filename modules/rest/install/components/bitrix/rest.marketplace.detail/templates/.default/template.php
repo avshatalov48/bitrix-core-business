@@ -57,14 +57,10 @@ if($arResult['CHECK_HASH'])
 			//additional info
 			if ($arResult["APP"]["ACTIVE"] == "Y" && is_array($arResult["APP"]['APP_STATUS']) && $arResult["APP"]['APP_STATUS']['PAYMENT_NOTIFY'] == 'Y')
 			{
-				if($arResult["ADMIN"])
-				{
-					$arResult["APP"]['APP_STATUS']['MESSAGE_SUFFIX'] .= '_A';
-				}
 				?>
 				<div class='ui-alert ui-alert-warning ui-alert-xs' style='margin-top:10px'>
 					<span class="ui-alert-message">
-						<?=GetMessage('PAYMENT_MESSAGE'.$arResult["APP"]['APP_STATUS']['MESSAGE_SUFFIX'], $arResult["APP"]['APP_STATUS']['MESSAGE_REPLACE'])?>
+						<?=\Bitrix\Rest\AppTable::getStatusMessage($arResult["APP"]['APP_STATUS']['MESSAGE_SUFFIX'], $arResult["APP"]['APP_STATUS']['MESSAGE_REPLACE'])?>
 					</span>
 				</div>
 				<?
@@ -430,7 +426,7 @@ $arJSParams = array(
 	BX.message({
 		"MARKETPLACE_APP_INSTALL_REQUEST" : "<?=GetMessageJS("MARKETPLACE_APP_INSTALL_REQUEST")?>",
 		"MARKETPLACE_LICENSE_ERROR" : "<?=GetMessageJS("MARKETPLACE_LICENSE_ERROR")?>",
-		"MARKETPLACE_LICENSE_TOS_ERROR" : "<?=GetMessageJS("MARKETPLACE_LICENSE_TOS_ERROR")?>",
+		"MARKETPLACE_LICENSE_TOS_ERROR_2" : "<?=GetMessageJS("MARKETPLACE_LICENSE_TOS_ERROR_2")?>",
 		"REST_MP_INSTALL_REQUEST_CONFIRM" : "<?=GetMessageJS("REST_MP_INSTALL_REQUEST_CONFIRM")?>",
 		"REST_MP_APP_INSTALL_REQUEST" : "<?=GetMessageJS("REST_MP_APP_INSTALL_REQUEST")?>"
 	});

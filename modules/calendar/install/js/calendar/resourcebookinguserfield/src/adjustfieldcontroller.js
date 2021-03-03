@@ -1,4 +1,4 @@
-import {BookingUtil, FieldViewControllerEdit, FieldViewControllerPreview, Dom, Loc, Type, BaseEvent, EventEmitter} from "calendar.resourcebooking";
+import {BookingUtil, FieldViewControllerEdit, FieldViewControllerPreview, Dom, Loc, Type, BaseEvent, EventEmitter, Runtime} from "calendar.resourcebooking";
 import {ResourcebookingUserfield} from "./resourcebookinguserfield";
 import {UserSelectorFieldTunner} from "./controls/userselectorfieldtunner";
 import {ResourceSelectorFieldTunner} from "./controls/resourceselectorfieldtunner";
@@ -6,8 +6,6 @@ import {ServiceSelectorFieldTunner} from "./controls/serviceselectorfieldtunner"
 import {DurationSelectorFieldTunner} from "./controls/durationselectorfieldtunner";
 import {DateSelectorFieldTunner} from "./controls/dateselectorfieldtunner";
 import {TimeSelectorFieldTunner} from "./controls/timeselectorfieldtunner";
-import 'helper';
-import 'socnetlogdest';
 
 export class AdjustFieldController extends EventEmitter
 {
@@ -20,6 +18,7 @@ export class AdjustFieldController extends EventEmitter
 		this.complexFields = {};
 		this.userFieldParams = null;
 		this.id = 'resbook-settings-popup-' + Math.round(Math.random() * 100000);
+
 		this.settingsData = AdjustFieldController.getSettingsData(this.params.settings.data);
 		this.params.settings.data = this.settingsData;
 
@@ -153,8 +152,8 @@ export class AdjustFieldController extends EventEmitter
 		this.DOM.captionInput = this.DOM.captionWrap.appendChild(Dom.create("input", {
 			attrs: {
 				id: titleId,
-				className: "calendar-resbook-webform-settings-popup-input",
-				type: "text",
+				className: 'calendar-resbook-webform-settings-popup-input',
+				type: 'text',
 				value: this.getCaption()
 			},
 			events: {
@@ -165,7 +164,7 @@ export class AdjustFieldController extends EventEmitter
 		}));
 		this.updateCaption();
 
-		this.DOM.fieldsOuterWrap = wrap.appendChild(Dom.create("div", {
+		this.DOM.fieldsOuterWrap = wrap.appendChild(Dom.create('div', {
 			props : { className : 'calendar-resbook-webform-settings-popup-content'},
 			html: '<div class="calendar-resbook-webform-settings-popup-head">' +
 				'<div class="calendar-resbook-webform-settings-popup-head-inner">' +
@@ -178,7 +177,7 @@ export class AdjustFieldController extends EventEmitter
 				'</div>'
 		}));
 
-		this.DOM.fieldsWrap = this.DOM.fieldsOuterWrap.appendChild(Dom.create("div", {
+		this.DOM.fieldsWrap = this.DOM.fieldsOuterWrap.appendChild(Dom.create('div', {
 			props : { className : 'calendar-resbook-webform-settings-popup-list'}
 		}));
 
@@ -246,7 +245,7 @@ export class AdjustFieldController extends EventEmitter
 			});
 		}
 
-		this.DOM.fieldsWrap.appendChild(Dom.create("div", {
+		this.DOM.fieldsWrap.appendChild(Dom.create('div', {
 			props : { className : 'calendar-resbook-webform-settings-popup-item'},
 			html: '<div class="calendar-resbook-webform-settings-popup-decs">' +
 				(Loc.getMessage('WEBF_RES_BOOKING_SETTINGS_HELP')
@@ -437,9 +436,9 @@ export class AdjustFieldController extends EventEmitter
 		let uniKey = key.join('-');
 		if (!this.DOM.settingsInputs[uniKey])
 		{
-			this.DOM.settingsInputs[uniKey] = this.DOM.settingsWrap.appendChild(Dom.create("input", {
+			this.DOM.settingsInputs[uniKey] = this.DOM.settingsWrap.appendChild(Dom.create('input', {
 				attrs: {
-					type: "hidden",
+					type: 'hidden',
 					name: this.params.formName + '[SETTINGS_DATA][' + key.join('][') + ']'
 				}
 			}));

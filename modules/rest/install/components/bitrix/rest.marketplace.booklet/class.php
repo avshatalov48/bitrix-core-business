@@ -22,7 +22,7 @@ class RestMarketplaceBookletComponent extends CBitrixComponent
 	protected $iconList = [
 		'default' => '/bitrix/images/rest/icon/default.svg',
 		'add' => '/bitrix/images/rest/icon/phone-rent.svg',
-		'adjust' => '/bitrix/images/rest/icon/phone-rent.svg',
+		'adjust' => '/bitrix/images/rest/icon/adjust.svg',
 		'phone-rent' => '/bitrix/images/rest/icon/phone-rent.svg',
 	];
 
@@ -98,7 +98,7 @@ class RestMarketplaceBookletComponent extends CBitrixComponent
 
 		if ($this->arParams['SET_TITLE'])
 		{
-			$result['TITLE'] = !empty($booklet['OPTION']['TITLE']) ? $booklet['OPTION']['TITLE'] : Loc::getMessage('REST_MARKETPLACE_BOOKLET_DEFAULT_TITLE');
+			$result['TITLE'] = !empty($booklet['OPTION']['TITLE']) ? $booklet['OPTION']['TITLE'] : Loc::getMessage('REST_MARKETPLACE_BOOKLET_DEFAULT_TITLE_2');
 		}
 
 		if (!empty($booklet['OPTION']['ACTION_TITLE']))

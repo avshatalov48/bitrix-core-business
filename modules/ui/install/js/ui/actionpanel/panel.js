@@ -15,7 +15,7 @@ BX.UI.ActionPanel = function(options)
 		totalSelected: null,
 		totalSelectedItem: null
 	};
-	this.zIndex = options.zIndex;
+
 	this.itemContainer = null;
 	this.className = options.className;
 	this.renderTo = options.renderTo;
@@ -305,19 +305,6 @@ BX.UI.ActionPanel.prototype =
 		}
 	},
 
-	getMaxZindex: function()
-	{
-		var highestIndex = 0;
-		var elements = document.getElementsByTagName('*');
-		for (var i = 0; i < elements.length - 1; i++) {
-			if (parseInt(elements[i].style.zIndex) > highestIndex) {
-				highestIndex = parseInt(elements[i].style.zIndex);
-			}
-		}
-
-		return highestIndex;
-	},
-
 	handleClickMoreBlock: function (event)
 	{
 		var bindElement = this.layout.more;
@@ -326,7 +313,6 @@ BX.UI.ActionPanel.prototype =
 			angle: true,
 			offsetLeft: bindElement.offsetWidth / 2,
 			closeByEsc: true,
-			zIndex: this.getMaxZindex() + 1,
 			events: {
 				onPopupShow: function() {
 					BX.bind(popupMenu.popupWindow.popupContainer, 'click', function(event) {

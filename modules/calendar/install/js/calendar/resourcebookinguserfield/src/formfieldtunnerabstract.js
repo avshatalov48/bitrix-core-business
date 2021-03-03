@@ -57,7 +57,8 @@ export class FormFieldTunnerAbstract {
 
 		// Value popup
 		this.buildValuePopup({
-			wrap: this.DOM.fieldWrap, config: params.config || {}
+			wrap: this.DOM.fieldWrap,
+			config: params.config || {}
 		});
 
 		if (Type.isFunction(params.changeSettingsCallback))

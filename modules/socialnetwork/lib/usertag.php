@@ -107,9 +107,15 @@ class UserTagTable extends Entity\DataManager
 				: ($userId ? ' IN (SELECT NAME FROM '.self::getTableName().' WHERE USER_ID = '.$userId.')' : '')
 		);
 
-		$whereClause = (!empty($nameFilter) ? 'WHERE NAME '.$nameFilter : '');
+		$whereClause = "WHERE U.ACTIVE='Y' ".(!empty($nameFilter) ? 'AND UT.NAME '.$nameFilter : '');
 
-		$sql = 'SELECT CASE WHEN (MIN(USER_ID) = 0) THEN COUNT(USER_ID)-1 ELSE COUNT(USER_ID) END AS CNT, NAME FROM '.self::getTableName().' '.$whereClause.' GROUP BY NAME';
+		$sql = '
+			SELECT CASE WHEN (MIN(USER_ID) = 0) THEN COUNT(USER_ID)-1 ELSE COUNT(USER_ID) END AS CNT, UT.NAME AS NAME
+			FROM '.self::getTableName().' UT 
+			INNER JOIN b_user U ON U.ID=UT.USER_ID '.
+			$whereClause.' 
+			GROUP BY UT.NAME
+		';
 
 		$res = $connection->query($sql);
 		while ($tagData = $res->fetch())
@@ -202,10 +208,12 @@ class UserTagTable extends Entity\DataManager
 				FROM
 					b_rating_subordinate RS1,
 					".self::getTableName()." UT1
+				INNER JOIN b_user U ON U.ID = UT1.USER_ID
 				WHERE
 					RS1.RATING_ID = ".intval($ratingId)."
 					AND RS1.ENTITY_ID = UT1.USER_ID
 					AND UT1.NAME IN (".$tagsSql.")
+					AND U.ACTIVE = 'Y'
 				GROUP BY
 					UT1.NAME, RS1.ENTITY_ID
 				ORDER BY
@@ -231,8 +239,10 @@ class UserTagTable extends Entity\DataManager
 					UT1.NAME as NAME
 				FROM
 					".self::getTableName()." UT1
+				INNER JOIN b_user U ON U.ID = UT1.USER_ID
 				WHERE
 					UT1.NAME IN (".$tagsSql.")
+					AND U.ACTIVE = 'Y'
 				ORDER BY
 					UT1.NAME
 			) tmp");

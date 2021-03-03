@@ -4,6 +4,7 @@ This is callback page for Dropbox OAuth 2.0 authentication.
 Dropbox redirects only to specific back url set in the OAuth application.
 The page opens in popup window after user authorized on Dropbox.
 */
+
 define("NO_KEEP_STATISTIC", "Y");
 define("NO_AGENT_STATISTIC","Y");
 define("DisableEventsCheck", true);
@@ -30,6 +31,7 @@ if(CModule::IncludeModule("socialservices") && CSocServAuthManager::CheckUniqueK
 		$clientId = (int)$_REQUEST['proxy_client_id'];
 		$engine = (string)$_REQUEST['engine'];
 		\Bitrix\Seo\Service::clearClientsCache($engine, $clientId);
+		\Bitrix\Seo\BusinessSuite\Utils\QueueEventHandler::handleEvent($clientId,$engine);
 
 		$jsEventData = [
 			'reload' => true,

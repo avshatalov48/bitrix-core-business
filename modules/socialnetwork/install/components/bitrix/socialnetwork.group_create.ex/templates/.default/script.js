@@ -310,6 +310,15 @@ function BXGCESubmitForm(e)
 								if (eventData)
 								{
 									window.top.BX.SidePanel.Instance.postMessageAll(window, 'sonetGroupEvent', eventData);
+									if (obResponsedata.ACTION === 'create')
+									{
+										var createdGroupsData = JSON.parse(obResponsedata.SELECTOR_GROUPS);
+										if (BX.type.isArray(createdGroupsData))
+										{
+											window.top.BX.SidePanel.Instance.postMessageAll(window, 'BX.Socialnetwork.Workgroup:onAdd', { projects: createdGroupsData });
+										}
+									}
+
 									BX.SidePanel.Instance.close();
 
 									if (

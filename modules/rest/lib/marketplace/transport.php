@@ -101,7 +101,7 @@ class Transport
 		$fields['lang'] = LANGUAGE_ID;
 		$fields['bsm'] = ModuleManager::isModuleInstalled('intranet') ? '0' : '1';
 
-		if(Loader::includeModule('bitrix24'))
+		if(Loader::includeModule('bitrix24') && defined('BX24_HOST_NAME'))
 		{
 			$fields['tariff'] = \CBitrix24::getLicensePrefix();
 			$fields['host_name'] = BX24_HOST_NAME;

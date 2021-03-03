@@ -161,7 +161,7 @@ if (typeof(CrmAdsRetargeting) === "undefined")
 			}, this));
 
 			BX.bind(this.uiNodes.addClientBtn, 'click', BX.proxy(function () {
-				BX.util.popup(_this.provider.AUTH_URL, 800, 600);
+				BX.Seo.Ads.LoginFactory.getLoginObject(this.provider).login()
 			}, this));
 
 			this.listenSeoAuth();
@@ -177,7 +177,7 @@ if (typeof(CrmAdsRetargeting) === "undefined")
 					canAddItems: true,
 					events: {
 						onNewItem: function() {
-							BX.util.popup(_this.provider.AUTH_URL, 800, 600);
+							BX.Seo.Ads.LoginFactory.getLoginObject(_this.provider).login();
 						},
 						onSelectItem: function(item) {
 							_this.setProfile(item);
@@ -281,10 +281,9 @@ if (typeof(CrmAdsRetargeting) === "undefined")
 			var btn = BX('seo-ads-login-btn');
 			if (btn && this.provider && this.provider.AUTH_URL)
 			{
-				btn.setAttribute(
-					'onclick',
-					'BX.util.popup(\'' + this.provider.AUTH_URL + '\', 800, 600);'
-				);
+				BX.bind(btn, 'click', BX.proxy(function () {
+					BX.Seo.Ads.LoginFactory.getLoginObject(this.provider).login();
+				}, this));
 			}
 			if (this.uiNodes.clientInput) {
 				this.uiNodes.clientInput.value = "";

@@ -1,4 +1,4 @@
-import {BookingUtil} from "calendar.resourcebooking";
+import { BookingUtil, Event, Loc, Dom } from 'calendar.resourcebooking';
 
 export class UserSelectorFieldEditControl
 {
@@ -7,7 +7,6 @@ export class UserSelectorFieldEditControl
 		this.params = params || {};
 		this.id = this.params.id || 'user-selector-' + Math.round(Math.random() * 100000);
 		this.wrapNode = this.params.wrapNode;
-		this.zIndex = this.params.zIndex || 3100;
 		this.destinationInputName = this.params.inputName || 'EVENT_DESTINATION';
 		this.params.selectGroups = false;
 		this.addMessage = this.params.addMessage || BX.message('USER_TYPE_RESOURCE_ADD_USER');
@@ -34,7 +33,7 @@ export class UserSelectorFieldEditControl
 	{
 		if (this.DOM.outerWrap)
 		{
-			BX.addClass(this.DOM.outerWrap, 'calendar-resourcebook-folding-block' + (this.params.shown !== false ? ' shown' : ''));
+			Dom.addClass(this.DOM.outerWrap, 'calendar-resourcebook-folding-block' + (this.params.shown !== false ? ' shown' : ''));
 		}
 
 		let id = this.id;
@@ -98,7 +97,7 @@ export class UserSelectorFieldEditControl
 	{
 		if (this.DOM.outerWrap)
 		{
-			BX.addClass(this.DOM.outerWrap, 'shown');
+			Dom.addClass(this.DOM.outerWrap, 'shown');
 		}
 	}
 
@@ -210,11 +209,11 @@ export class UserSelectorFieldEditControl
 
 		if (animation !== false)
 		{
-			setTimeout(BX.delegate(function (){BX.addClass(itemWrap, 'shown');}, this), 1);
+			setTimeout(BX.delegate(function (){Dom.addClass(itemWrap, 'shown');}, this), 1);
 		}
 		else
 		{
-			BX.addClass(itemWrap, 'shown');
+			Dom.addClass(itemWrap, 'shown');
 		}
 
 		this.wrapNode.appendChild(this.socnetDestinationInputWrap);
@@ -239,20 +238,6 @@ export class UserSelectorFieldEditControl
 
 	openDialogCallback ()
 	{
-		if (BX.SocNetLogDestination.popupWindow)
-		{
-			// Fix zIndex for slider issues
-			BX.SocNetLogDestination.popupWindow.params.zIndex = this.zIndex;
-			BX.SocNetLogDestination.popupWindow.popupContainer.style.zIndex = this.zIndex;
-		}
-
-		if (BX.SocNetLogDestination.popupSearchWindow)
-		{
-			// Fix zIndex for slider issues
-			BX.SocNetLogDestination.popupSearchWindow.params.zIndex = this.zIndex;
-			BX.SocNetLogDestination.popupSearchWindow.popupContainer.style.zIndex = this.zIndex;
-		}
-
 		BX.style(this.socnetDestinationInputWrap, 'display', 'inline-block');
 		BX.style(this.socnetDestinationLink, 'display', 'none');
 		BX.focus(this.socnetDestinationInput);
@@ -451,79 +436,5 @@ export class UserSelectorFieldEditControl
 	getId()
 	{
 		return this.id;
-	}
-}
-
-
-export class WebformUserSelectorFieldEditControl extends UserSelectorFieldEditControl
-{
-	constructor(params)
-	{
-		super(params);
-		this.DOM.externalWrap = params.externalWrap;
-		this.closeDialogDelayFlag = false;
-		this.finalShowClassName = 'calendar-resbook-socnet-dest-custom-wrap-appearing';
-	}
-
-	openDialogCallback()
-	{
-		super.openDialogCallback();
-		BX.cleanNode(this.DOM.externalWrap);
-
-		let useAnimation = !this.closeDialogDelayFlag;
-		if ((this.popupContent && BX.hasClass(this.popupContent, this.finalShowClassName))
-			||
-			(this.popupSearchContent && BX.hasClass(this.popupSearchContent, this.finalShowClassName))
-		)
-		{
-			useAnimation = false;
-		}
-
-		if (BX.SocNetLogDestination.popupWindow)
-		{
-			this.popupContent = this.DOM.externalWrap.appendChild(BX.SocNetLogDestination.popupWindow.contentContainer);
-			BX.addClass(BX.SocNetLogDestination.popupWindow.popupContainer, 'calendar-resbook-socnet-dest-popup-hide');
-
-			if (useAnimation)
-			{
-				BX.addClass(this.popupContent, 'calendar-resbook-socnet-dest-custom-wrap');
-				BX.defer(function(){
-					BX.addClass(this.popupContent, 'calendar-resbook-socnet-dest-custom-wrap-show');
-
-					setTimeout(BX.delegate(function(){
-						BX.addClass(this.popupContent, this.finalShowClassName);
-					}, this), 200);
-				}, this)();
-			}
-			else
-			{
-				BX.addClass(this.popupContent, this.finalShowClassName);
-			}
-		}
-
-		if (BX.SocNetLogDestination.popupSearchWindow)
-		{
-			this.popupSearchContent = this.DOM.externalWrap.appendChild(BX.SocNetLogDestination.popupSearchWindow.contentContainer);
-			BX.addClass(this.popupSearchContent, this.finalShowClassName);
-			BX.addClass(BX.SocNetLogDestination.popupSearchWindow.popupContainer, 'calendar-resbook-socnet-dest-popup-hide');
-		}
-	}
-
-	closeDialogCallback()
-	{
-		super.closeDialogCallback();
-
-		this.closeDialogDelayFlag = true;
-		setTimeout(function()
-		{
-			this.closeDialogDelayFlag = false;
-		}.bind(this), 10);
-
-		if (this.popupContent)
-		{
-			BX.removeClass(this.popupContent, 'calendar-resbook-socnet-dest-custom-wrap');
-			BX.removeClass(this.popupContent, 'calendar-resbook-socnet-dest-custom-wrap-show');
-			BX.removeClass(this.popupContent, this.finalShowClassName);
-		}
 	}
 }

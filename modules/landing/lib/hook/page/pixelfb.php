@@ -1,8 +1,10 @@
 <?php
 namespace Bitrix\Landing\Hook\Page;
 
-use \Bitrix\Landing\Field;
+use \Bitrix\Seo\BusinessSuite\ExtensionFacade;
 use \Bitrix\Main\Localization\Loc;
+use \Bitrix\Main\Config\Option;
+use \Bitrix\Landing\Field;
 use \Bitrix\Landing\Manager;
 
 Loc::loadMessages(__FILE__);
@@ -52,7 +54,59 @@ class PixelFb extends \Bitrix\Landing\Hook\Page
 			return true;
 		}
 
+		if (!$this->isPage() && Manager::isB24())
+		{
+			return true;
+		}
+
 		return $this->fields['USE']->getValue() == 'Y';
+	}
+
+	/**
+	 * Returns global business pixel (from SEO module).
+	 * @return string|null
+	 */
+	private static function getBusinessPixelFromSeo(): ?string
+	{
+		if (\Bitrix\Main\Loader::includeModule('seo'))
+		{
+			$businessSuite = ExtensionFacade::getInstance();
+			if ($businessSuite->isInstalled())
+			{
+				return $businessSuite->getCurrentInstalls()->getPixel();
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns global business pixel.
+	 * @return string|null
+	 */
+	private function getBusinessPixel(): ?string
+	{
+		$pixelStored = Manager::getOption('business_pixel');
+		if ($pixelStored === null)
+		{
+			$pixelStored = $this->getBusinessPixelFromSeo();
+			Manager::setOption('business_pixel', $pixelStored);
+		}
+
+		return $pixelStored;
+	}
+
+	/**
+	 * Event handler on business pixel global change.
+	 * @return void
+	 */
+	public static function changeBusinessPixel(): void
+	{
+		if (self::getBusinessPixelFromSeo() !== Manager::getOption('business_pixel'))
+		{
+			Option::delete('landing', ['name' => 'business_pixel']);
+			Manager::clearCache();
+		}
 	}
 
 	/**
@@ -66,8 +120,21 @@ class PixelFb extends \Bitrix\Landing\Hook\Page
 			return;
 		}
 
-		$counter = \htmlspecialcharsbx(trim($this->fields['COUNTER']));
-		$counter = \CUtil::jsEscape($counter);
+		$counter = null;
+		$businessPixel = $this->getBusinessPixel();
+
+		if ($this->fields['USE']->getValue() === 'Y')
+		{
+			$counter = \htmlspecialcharsbx(trim($this->fields['COUNTER']));
+			$counter = \CUtil::jsEscape($counter);
+		}
+
+		if (!$counter || $counter === $businessPixel)
+		{
+			$counter = $businessPixel;
+			$businessPixel = null;
+		}
+
 		if ($counter)
 		{
 			Cookies::addCookieScript(
@@ -81,7 +148,11 @@ class PixelFb extends \Bitrix\Landing\Hook\Page
 				s.parentNode.insertBefore(t,s)}(window, document,\'script\',
 				\'https://connect.facebook.net/en_US/fbevents.js\');
 				fbq(\'init\', \'' . $counter . '\');
-				fbq(\'track\', \'PageView\');'
+				fbq(\'track\', \'PageView\');'.
+				($businessPixel
+					? "\n				fbq('init', '{$businessPixel}');" .
+					  "\n				fbq('track', 'PageView');"
+					: '')
 			);
 			Manager::setPageView(
 				'Noscript',

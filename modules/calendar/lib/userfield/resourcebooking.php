@@ -81,12 +81,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 
 	function getDBColumnType()
 	{
-		global $DB;
-		switch($DB->type)
-		{
-			case "MYSQL":
-				return "text";
-		}
+		return "text";
 	}
 
 	function checkFields($userField, $value)

@@ -1,0 +1,169 @@
+.rest_mp_install_container {
+	width: 450px;
+	margin: 0 auto;
+}
+
+.rest_mp_install_header {
+	min-height: 90px;
+}
+
+.rest_mp_install_title_section, .rest_mp_install_version_section {
+	text-align: left;
+	margin: 0 0 0 95px;
+}
+
+.rest_mp_install_title_img {
+	background: url("images/default-upic-mp.png") no-repeat center center / 95% 95%;
+	border-radius: 4px;
+	box-sizing: border-box;
+	display: block;
+	height: 79px;
+	overflow: hidden;
+	position: absolute;
+	width: 79px;
+	z-index: 102;
+}
+
+.rest_mp_install_title_img span {
+	display: block;
+	height: 79px;
+	left: 50%;
+	margin-left: -150px;
+	position: absolute;
+	text-align: center;
+	top: 0;
+	width: 300px;
+}
+
+.rest_mp_install_title_img img {
+	border-radius: 4px;
+	height: 79px;
+	width: auto;
+}
+
+
+.rest_mp_install_content {
+	color: #555;
+	font-size: 14px;
+}
+
+.rest_mp_install_scope_ul {
+	overflow: auto;
+	padding: 10px 0;
+	max-width: 500px;
+	max-height: 170px;
+	border-top: 1px solid #edeef0;
+	text-align: left;
+}
+
+.rest_mp_install_scope_ul li {
+	display: block;
+	margin: 0;
+	padding: 0 0 0 43px;
+	background-color: transparent;
+	cursor: pointer;
+	transition: all 220ms linear;
+	background-position: 15px 16px;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2217%22%20height%3D%2213%22%20viewBox%3D%220%200%2017%2013%22%3E%3Cpolygon%20fill%3D%22%232FC6F6%22%20fill-rule%3D%22evenodd%22%20points%3D%225.218%2012.5%200%207.373%201.248%206.156%205.218%2010.067%2015.418%200%2016.667%201.216%22/%3E%3C/svg%3E');
+	background-repeat: no-repeat;
+}
+
+.rest_mp_install_scope_ul li:hover {
+	background-color: #f6f7f8;
+}
+
+.rest_mp_install_scope_ul li:last-child {
+	border-bottom: none;
+}
+
+.rest_mp_install_scope_ul li dl {
+	margin: 0;
+	border-bottom: 1px solid #f6f7f8;
+	padding: 11px 5px 11px 0;
+}
+
+.rest_mp_install_scope_ul li dt {
+	padding: 0;
+	margin: 0 0 2px;
+	color: #000;
+	font: 600 14px/19px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.rest_mp_install_scope_ul li dd {
+	padding: 0;
+	margin: 0;
+	color: #828b95;
+	font: 400 13px/18px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.rest_mp_install_scope_ul li[bx-denied="Y"] {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2217%22%20height%3D%2213%22%20viewBox%3D%220%200%2017%2013%22%3E%3Cpolygon%20fill%3D%22%23D83E3E%22%20fill-rule%3D%22evenodd%22%20points%3D%225.218%2012.5%200%207.373%201.248%206.156%205.218%2010.067%2015.418%200%2016.667%201.216%22/%3E%3C/svg%3E');
+}
+
+.rest_mp_install_scope_ul li[bx-denied="Y"] dt {
+	color: #d83e3e;
+}
+
+.rest_mp_install_ls_shadow {
+	background: url("images/frame.png") no-repeat left top;
+	height: 91px;
+	left: 2px;
+	position: absolute;
+	top: 4px;
+	width: 87px;
+	z-index: 104;
+}
+
+.rest_mp_install_content_controls {
+	margin: 22px 0;
+}
+
+.rest_mp_install_notify_message {
+	-moz-border-bottom-colors: none;
+	-moz-border-left-colors: none;
+	-moz-border-right-colors: none;
+	-moz-border-top-colors: none;
+	background-color: #fdfaea;
+	border-color: #e5e0c4 #f1edd7 #f9f6e4;
+	border-image: none;
+	border-radius: 2px;
+	border-style: solid;
+	border-width: 1px;
+	box-shadow: 0 1px 1px #ede8cc inset;
+	color: #555;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	line-height: 20px;
+	margin-bottom: 12px;
+	padding: 11px 14px;
+	position: relative;
+}
+
+.rest_mp_install_title_section {
+	font-size: 18px;
+	padding-top: 5px;
+}
+
+.rest_mp_install_title_icon_shadow {
+	background: url("images/frame.png") no-repeat left top;
+	height: 91px;
+	left: 2px;
+	position: absolute;
+	top: 4px;
+	width: 87px;
+	z-index: 104;
+}
+
+.rest_mp_install_licebse_block {
+	font: 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.rest_mp_install_content {
+	color: #555;
+	font-size: 14px;
+	text-align: left;
+}
+
+.mp_notice_cursiv {
+	font-style: italic;
+}

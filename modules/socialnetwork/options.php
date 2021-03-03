@@ -969,9 +969,9 @@ $tabControl->BeginNextTab();
 			}
 			elseif ($Option[0] == "livefeed_toall_rights")
 			{
-				$arToAllRights = unserialize($val);
+				$arToAllRights = unserialize($val, [ 'allowed_classes' => false ]);
 				if (!$arToAllRights)
-					$arToAllRights = unserialize($Option[2]);
+					$arToAllRights = unserialize($Option[2], [ 'allowed_classes' => false ]);
 
 				$access = new CAccess();
 				$arNames = $access->GetNames($arToAllRights);
@@ -1133,7 +1133,7 @@ $tabControl->BeginNextTab();
 
 				if (in_array($type[0], array("select_fields", "select_properties", "select_rating")))
 				{
-					$val = ($type[1] == true ? unserialize($val) : array($val)); // multiple select
+					$val = ($type[1] == true ? unserialize($val, [ 'allowed_classes' => false ]) : array($val)); // multiple select
 				}
 				?><tr>
 					<td <?=set_valign($type[0], $type[1])?> width="40%" align="right"><?

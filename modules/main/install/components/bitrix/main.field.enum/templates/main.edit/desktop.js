@@ -7,6 +7,7 @@ BX.Desktop.Field.Enum = function (params)
 	this.valueContainerId = null;
 	this.value = null;
 	this.items = null;
+	this.defaultFieldName = null;
 	this.block = null;
 	this.formName = null;
 	this.params = {};
@@ -20,6 +21,7 @@ BX.Desktop.Field.Enum.prototype = {
 		this.value = params['value'];
 		this.items = params['items'];
 		this.block = params['block'];
+		this.defaultFieldName = (params['defaultFieldName'] || this.fieldName+'_default');
 		this.formName = (params['formName'] || '');
 		this.params = (params['params'] || {});
 		this.bindElement();
@@ -92,6 +94,6 @@ BX.Desktop.Field.Enum.prototype = {
 			s += '<input type="hidden" name="'+this.fieldName+'" value="" />';
 		}
 		BX(this.valueContainerId).innerHTML = s;
-		BX.fireEvent(BX(this.fieldName+'_default'), 'change');
+		BX.fireEvent(BX(this.defaultFieldName), 'change');
 	}
 };

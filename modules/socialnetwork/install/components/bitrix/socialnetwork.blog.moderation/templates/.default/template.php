@@ -1,5 +1,15 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+
+use Bitrix\Main\UI;
+
 $APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/socialnetwork.log.ex/templates/.default/style.css');
+$APPLICATION->AddHeadScript("/bitrix/components/bitrix/socialnetwork.log.ex/templates/.default/script.js");
+UI\Extension::load([
+	'socialnetwork.livefeed',
+	'socialnetwork.commentaux'
+]);
+
+
 ?><div id="blog-posts-content">
 <?
 if(!empty($arResult["OK_MESSAGE"]))

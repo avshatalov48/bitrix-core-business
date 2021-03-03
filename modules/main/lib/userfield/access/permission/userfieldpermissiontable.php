@@ -133,10 +133,17 @@ class UserFieldPermissionTable extends AccessPermissionTable
 	 * @param string $fieldName
 	 * @param int $entityTypeId
 	 * @param string $permissionId
+	 * @param string|null $entityTypeName
 	 */
-	public static function saveEntityConfiguration($accessCodes, string $fieldName, int $entityTypeId, string $permissionId): void
+	public static function saveEntityConfiguration(
+		$accessCodes,
+		string $fieldName,
+		int $entityTypeId,
+		string $permissionId,
+		?string $entityTypeName = null
+	): void
 	{
-		if ($userField = self::getUserFieldIdByName($fieldName))
+		if ($userField = self::getUserFieldId($fieldName, $entityTypeName))
 		{
 			self::removeEntityConfiguration($userField['ID'], $entityTypeId);
 			if (is_array($accessCodes))
@@ -173,15 +180,20 @@ class UserFieldPermissionTable extends AccessPermissionTable
 
 	/**
 	 * @param string $fieldName
+	 * @param string $entityId
 	 * @return array|null
 	 */
-	private static function getUserFieldIdByName(string $fieldName): ?array
+	private static function getUserFieldId(string $fieldName, ?string $entityId = null): ?array
 	{
+		$filter = ['=FIELD_NAME' => $fieldName];
+		if ($entityId)
+		{
+			$filter['=ENTITY_ID'] = $entityId;
+		}
+
 		return UserFieldTable::getRow([
 			'select' => ['ID'],
-			'filter' => [
-				'=FIELD_NAME' => $fieldName
-			]
+			'filter' => $filter
 		]);
 	}
 }

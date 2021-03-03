@@ -13,6 +13,8 @@ class BlogPost extends Provider
 	public const PROVIDER_ID = 'BLOG_POST';
 	public const CONTENT_TYPE_ID = 'BLOG_POST';
 
+	protected static $blogPostClass = \CBlogPost::class;
+
 	public static function getId(): string
 	{
 		return static::PROVIDER_ID;
@@ -60,11 +62,11 @@ class BlogPost extends Provider
 		}
 		elseif (Loader::includeModule('blog'))
 		{
-			$res = \CBlogPost::getList(
-				array(),
-				array(
-					"ID" => $postId
-				)
+			$res = self::$blogPostClass::getList(
+				[],
+				[
+					'ID' => $postId
+				]
 			);
 
 			$post = $res->fetch();
@@ -128,8 +130,8 @@ class BlogPost extends Provider
 			return $result;
 		}
 
-		$result = truncateText(htmlspecialcharsBack(\CTextParser::clearAllTags($post['DETAIL_TEXT'])), 100);
-		$result = str_replace((\Bitrix\Main\Application::isUtfMode() ? "\xC2\xA0" : "\xA0"), '', $result);
+		$result = truncateText(str_replace('&#39;', "'", htmlspecialcharsBack(\CTextParser::clearAllTags($post['DETAIL_TEXT']))), 100);
+		$result = preg_replace('/^'.(\Bitrix\Main\Application::isUtfMode() ? "\xC2\xA0" : "\xA0").'$/', '', $result);
 
 		if (
 			$result === ''
@@ -276,7 +278,10 @@ class BlogPost extends Provider
 			&& !empty($post)
 		)
 		{
-			$pathToPost = \CComponentEngine::makePathFromTemplate($pathToPost, array("post_id" => $post["ID"], "user_id" => $post["AUTHOR_ID"]));
+			$pathToPost = \CComponentEngine::makePathFromTemplate($pathToPost, [
+				'post_id' => $post['ID'],
+				'user_id' => $post['AUTHOR_ID']
+			]);
 		}
 
 		return $pathToPost;

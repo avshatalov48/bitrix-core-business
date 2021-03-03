@@ -573,7 +573,7 @@ function __logDeleteSuccess(node)
 								}
 							}),
 							BX.create('span', {
-								html: BX.message('sonetLMenuDeleteSuccess')
+								html: BX.message('SONET_EXT_LIVEFEED_DELETE_SUCCESS')
 							})
 						]
 					})
@@ -900,6 +900,8 @@ BitrixLF.prototype.initOnce = function(params)
 		}
 	}, this));
 
+	BX.addCustomEvent('BX.Forum.Spoiler:toggle', this.processForumSpoilerToggle.bind(this));
+
 	if (
 		typeof params != 'undefined'
 		&& typeof params.crmEntityTypeName != 'undefined'
@@ -1097,14 +1099,13 @@ BitrixLF.prototype.getNextPage = function()
 		BX.addClass(BX('feed-new-message-inf-wrap-first'), 'feed-new-message-inf-wrap-first-visible');
 	}
 
-	var
-		nextUrl = new BX.Uri(this.nextURL),
-		nextUrlParam = nextUrl.getQueryParams(),
-		pageNumber = 1,
-		prevPageLogId = '',
-		ts = 0,
-		noblog = 'N',
-		found = null;
+	var nextUrl = new BX.Uri(this.nextURL);
+	var nextUrlParam = nextUrl.getQueryParams();
+	var pageNumber = 1;
+	var prevPageLogId = '';
+	var ts = 0;
+	var noblog = 'N';
+	var found = null;
 
 	for (var key in nextUrlParam)
 	{
@@ -1132,22 +1133,46 @@ BitrixLF.prototype.getNextPage = function()
 		}
 	}
 
+	var queryParams = {
+		PAGE_NUMBER: pageNumber,
+		LAST_LOG_TIMESTAMP: ts,
+		PREV_PAGE_LOG_ID: prevPageLogId,
+		siteTemplateId: BX.message('sonetLSiteTemplateId'),
+		useBXMainFilter: this.useBXMainFilter,
+		preset_filter_top_id: (BX.type.isNotEmptyString(nextUrlParam['preset_filter_top_id']) && nextUrlParam['preset_filter_top_id'] !== '0' ? nextUrlParam['preset_filter_top_id'] : ''),
+		preset_filter_id: (BX.type.isNotEmptyString(nextUrlParam['preset_filter_id']) && nextUrlParam['preset_filter_id'] !== '0' ? nextUrlParam['preset_filter_id'] : '')
+	};
+
+	var queryData = {
+		c: this.componentName,
+		logajax: 'Y', // compatibility with socialnetwork.blog.post.comment
+		noblog: noblog, // compatibility with socialnetwork.blog.post.comment
+		params: queryParams
+	};
+
+	if (typeof nextUrlParam.CREATED_BY_ID !== 'undefined')
+	{
+		queryData.flt_created_by_id = parseInt(nextUrlParam.CREATED_BY_ID);
+	}
+
+	if (typeof nextUrlParam.flt_date_datesel !== 'undefined')
+	{
+		queryData.flt_date_datesel = nextUrlParam.flt_date_datesel;
+	}
+
+	if (typeof nextUrlParam.flt_date_from !== 'undefined')
+	{
+		queryData.flt_date_from = decodeURIComponent(nextUrlParam.flt_date_from);
+	}
+
+	if (typeof nextUrlParam.flt_date_to !== 'undefined')
+	{
+		queryData.flt_date_to = decodeURIComponent(nextUrlParam.flt_date_to);
+	}
+
 	BX.ajax.runAction('socialnetwork.api.livefeed.getNextPage', {
 		signedParameters: this.signedParameters,
-		data: {
-			c: this.componentName,
-			logajax: 'Y', // compatibility with socialnetwork.blog.post.comment
-			noblog: noblog, // compatibility with socialnetwork.blog.post.comment
-			params: {
-				PAGE_NUMBER: pageNumber,
-				LAST_LOG_TIMESTAMP: ts,
-				PREV_PAGE_LOG_ID: prevPageLogId,
-				siteTemplateId: BX.message('sonetLSiteTemplateId'),
-				useBXMainFilter: this.useBXMainFilter,
-				preset_filter_top_id: (BX.type.isNotEmptyString(nextUrlParam['preset_filter_top_id']) && nextUrlParam['preset_filter_top_id'] !== '0' ? nextUrlParam['preset_filter_top_id'] : ''),
-				preset_filter_id: (BX.type.isNotEmptyString(nextUrlParam['preset_filter_id']) && nextUrlParam['preset_filter_id'] !== '0' ? nextUrlParam['preset_filter_id'] : '')
-			}
-		}
+		data: queryData
 	}).then(function(response) {
 		var responseData = response.data;
 
@@ -1600,6 +1625,32 @@ BitrixLF.prototype.recalcMoreButton = function()
 	}
 };
 
+BitrixLF.prototype.processForumSpoilerToggle = function(params)
+{
+	if (!BX.type.isDomNode(params.node))
+	{
+		return;
+	}
+
+	var outerBlock = BX.findParent(params.node, { className: 'feed-post-block' }, BX('log_internal_container'));
+	if (!outerBlock)
+	{
+		return;
+	}
+
+	var bodyBlock = BX.findChild(outerBlock, { className: 'feed-post-text-block-inner-inner'}, true);
+	if (!bodyBlock)
+	{
+		return
+	}
+
+	this.recalcMoreButtonPost({
+		bodyBlock: bodyBlock,
+		moreButtonBlock: BX.findChild(outerBlock, { className: 'feed-post-text-more'}, true),
+		informerBlock: BX.findChild(outerBlock, { className: 'feed-post-text-more'}, true)
+	});
+};
+
 BitrixLF.prototype.recalcMoreButtonPost = function(params)
 {
 	var arPos = (typeof params.arPos != 'undefined' ? params.arPos : BX.pos(params.bodyBlock));
@@ -1889,7 +1940,6 @@ BitrixLF.prototype.createTask = function(params)
 		}
 	});
 
-	this.createTaskPopup.params.zIndex = (BX.WindowManager ? BX.WindowManager.GetZIndex() : 0);
 	this.createTaskPopup.show();
 };
 

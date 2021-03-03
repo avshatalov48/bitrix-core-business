@@ -3147,14 +3147,17 @@ BXWaitWindow.prototype =
 			this.oDiv.className = "waitwindow";
 			this.oDiv.style.position = "absolute";
 			this.oDiv.innerHTML = FD_MESS.FD_LOADIND;//"Loading...";
-			this.oDiv.style.zIndex = "3000";
 			this.oDiv.width = "150px";
 			this.oDiv.style.left = '320px';
 			this.oDiv.style.top = '200px';
 			fd.appendChild(this.oDiv);
+
+			BX.ZIndexManager.register(this.oDiv);
 		}
 
 		this.oDiv.style.display = "block";
+
+		BX.ZIndexManager.bringToFront(this.oDiv);
 	},
 	Hide: function()
 	{

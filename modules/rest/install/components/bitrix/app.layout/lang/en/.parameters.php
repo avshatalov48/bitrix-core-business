@@ -1,5 +1,4 @@
-<?
-$MESS["RMP_VA_ID"] = "Application ID";
+<?php
+$MESS["RMP_DETAIL_URL_2"] = "Application page URL template";
 $MESS["RMP_SEF_APPLICATION"] = "Application page URL";
-$MESS["RMP_DETAIL_URL"] = "URL template for Marketplace24 application page";
-?>
+$MESS["RMP_VA_ID"] = "Application ID";

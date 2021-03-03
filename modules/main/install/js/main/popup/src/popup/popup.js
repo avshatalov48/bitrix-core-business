@@ -3,6 +3,7 @@ import Button from '../compatibility/button';
 import { Type, Text, Tag, Event, Dom, Browser, Reflection } from 'main.core';
 import { EventEmitter, BaseEvent } from 'main.core.events';
 import { type PopupOptions, type PopupTarget, type PopupAnimationOptions } from './popup-types';
+import { ZIndexManager, ZIndexComponent } from 'main.core.z-index-manager';
 
 declare type TargetPosition = {
 	left: number,
@@ -158,6 +159,7 @@ export default class Popup extends EventEmitter
 		this.isAutoHideBinded = false;
 		this.closeByEsc = params.closeByEsc === true;
 		this.isCloseByEscBinded = false;
+		this.toFrontOnShow = true;
 
 		this.cacheable = true;
 		this.destroyed = false;
@@ -258,11 +260,13 @@ export default class Popup extends EventEmitter
 			`<div 
 				class="${popupClassName}" 
 				id="${popupId}"
-				style="display: none; position: absolute; left: 0; top: 0; z-index: ${this.getZindex()}"
+				style="display: none; position: absolute; left: 0; top: 0;"
 			>${[this.titleBar, this.contentContainer, this.closeIcon]}</div>`
 		;
 
 		this.appendContainer.appendChild(this.popupContainer);
+
+		this.zIndexComponent = ZIndexManager.register(this.popupContainer, params.zIndexOptions);
 
 		this.buttonsContainer = null;
 
@@ -294,6 +298,7 @@ export default class Popup extends EventEmitter
 		this.setContentBackground(params.contentBackground);
 		this.setAnimation(params.animation);
 		this.setCacheable(params.cacheable);
+		this.setToFrontOnShow(params.toFrontOnShow);
 
 		// Compatibility
 		if (params.contentNoPaddings)
@@ -801,6 +806,16 @@ export default class Popup extends EventEmitter
 		return this.cacheable;
 	}
 
+	setToFrontOnShow(flag: boolean): void
+	{
+		this.toFrontOnShow = flag !== false;
+	}
+
+	shouldFrontOnShow(): boolean
+	{
+		return this.toFrontOnShow;
+	}
+
 	setResizeMode(mode: boolean): void
 	{
 		if (mode === true || Type.isPlainObject(mode))
@@ -1170,10 +1185,10 @@ export default class Popup extends EventEmitter
 				`
 			};
 
-			this.adjustOverlayZindex();
 			this.resizeOverlay();
 
 			this.appendContainer.appendChild(this.overlay.element);
+			this.getZIndexComponent().setOverlay(this.overlay.element);
 		}
 
 		if (params && Type.isNumber(params.opacity) && params.opacity >= 0 && params.opacity <= 100)
@@ -1192,6 +1207,7 @@ export default class Popup extends EventEmitter
 		if (this.overlay !== null && this.overlay.element !== null)
 		{
 			Dom.remove(this.overlay.element);
+			this.getZIndexComponent().setOverlay(null);
 		}
 
 		if (this.overlayTimeout)
@@ -1251,33 +1267,12 @@ export default class Popup extends EventEmitter
 
 	getZindex(): number
 	{
-		if (this.overlay !== null)
-		{
-			return (
-				this.params.zIndexAbsolute > 0
-					? this.params.zIndexAbsolute
-					: Popup.getOption('popupOverlayZindex') + this.params.zIndex
-			);
-		}
-		else
-		{
-			return (
-				this.params.zIndexAbsolute > 0
-					? this.params.zIndexAbsolute
-					: Popup.getOption('popupZindex') + this.params.zIndex
-			);
-		}
+		return this.getZIndexComponent().getZIndex();
 	}
 
-	/**
-	 * @private
-	 */
-	adjustOverlayZindex(): void
+	getZIndexComponent(): ZIndexComponent
 	{
-		if (this.overlay !== null && this.overlay.element !== null)
-		{
-			this.overlay.element.style.zIndex = parseInt(this.getPopupContainer().style.zIndex) - 1;
-		}
+		return this.zIndexComponent;
 	}
 
 	show(): void
@@ -1297,6 +1292,12 @@ export default class Popup extends EventEmitter
 
 		this.showOverlay();
 		this.getPopupContainer().style.display = 'block';
+
+		if (this.shouldFrontOnShow())
+		{
+			this.bringToFront();
+		}
+
 		this.adjustPosition();
 
 		this.animateOpening(() => {
@@ -1372,6 +1373,14 @@ export default class Popup extends EventEmitter
 			}
 
 		});
+	}
+
+	bringToFront(): void
+	{
+		if (this.isShown())
+		{
+			ZIndexManager.bringToFront(this.getPopupContainer());
+		}
 	}
 
 	toggle(): void
@@ -1516,9 +1525,12 @@ export default class Popup extends EventEmitter
 		Event.unbind(document, 'mouseup', this.handleDocumentMouseUp);
 		Event.unbind(window, 'resize', this.handleResizeWindow);
 
-		Dom.remove(this.popupContainer);
-
 		this.removeOverlay();
+
+		ZIndexManager.unregister(this.popupContainer);
+		this.zIndexComponent = null;
+
+		Dom.remove(this.popupContainer);
 
 		this.popupContainer = null;
 		this.contentContainer = null;
@@ -1658,12 +1670,9 @@ export default class Popup extends EventEmitter
 		Dom.adjust(this.popupContainer, {
 			style: {
 				top: top + 'px',
-				left: left + 'px',
-				zIndex: this.getZindex()
+				left: left + 'px'
 			}
 		});
-
-		this.adjustOverlayZindex();
 	}
 
 	enterFullScreen(): void
@@ -1867,6 +1876,11 @@ export default class Popup extends EventEmitter
 		document.body.style.cursor = this.dragOptions.cursor;
 		document.body.style.MozUserSelect = 'none';
 		this.popupContainer.style.MozUserSelect = 'none';
+
+		if (this.shouldFrontOnShow())
+		{
+			this.bringToFront();
+		}
 
 		event.preventDefault();
 	}

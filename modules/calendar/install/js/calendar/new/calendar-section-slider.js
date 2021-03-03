@@ -1137,13 +1137,7 @@
 					}, this),
 					bind: this.calendar.id + '_calendar_section_' + Math.round(Math.random() * 100000)
 				});
-
-				if (top.BX.Access.popup && top.BX.Access.popup.popupContainer)
-				{
-					top.BX.Access.popup.popupContainer.style.zIndex = this.zIndex + 10;
-				}
 			}, this));
-
 
 			top.BX.bind(this.accessWrapInner, 'click', BX.proxy(function(e)
 			{

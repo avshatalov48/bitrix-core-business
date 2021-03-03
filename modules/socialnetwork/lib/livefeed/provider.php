@@ -61,6 +61,8 @@ abstract class Provider
 	protected $logEntityType = null;
 	protected $logEntityId = null;
 
+	protected static $logTable = LogTable::class;
+
 	/**
 	 * @return string the fully qualified name of this class.
 	 */
@@ -203,6 +205,7 @@ abstract class Provider
 	public static function init(array $params)
 	{
 		$provider = self::getProvider($params['ENTITY_TYPE']);
+
 		if ($provider)
 		{
 			$provider->setEntityId($params['ENTITY_ID']);
@@ -216,10 +219,10 @@ abstract class Provider
 			}
 			if (
 				isset($params['LOG_ID'])
-				&& intval($params['LOG_ID']) > 0
+				&& (int)$params['LOG_ID'] > 0
 			)
 			{
-				$provider->setLogId(intval($params['LOG_ID']));
+				$provider->setLogId((int)$params['LOG_ID']);
 			}
 		}
 
@@ -854,20 +857,20 @@ abstract class Provider
 		)
 		{
 			$contentEntityType = self::DATA_ENTITY_TYPE_LOG_ENTRY;
-			$contentEntityId = intval($event["ID"]);
+			$contentEntityId = (int)$event["ID"];
 		}
 		elseif (
 			!empty($event["RATING_TYPE_ID"])
 			&& !empty($event["RATING_ENTITY_ID"])
-			&& intval($event["RATING_ENTITY_ID"]) > 0
+			&& (int)$event["RATING_ENTITY_ID"] > 0
 		)
 		{
 			$contentEntityType = $event["RATING_TYPE_ID"];
-			$contentEntityId = intval($event["RATING_ENTITY_ID"]);
+			$contentEntityId = (int)$event["RATING_ENTITY_ID"];
 
 			if (in_array($event["RATING_TYPE_ID"], array('IBLOCK_ELEMENT', 'IBLOCK_SECTION')))
 			{
-				$res = LogTable::getList(array(
+				$res = self::$logTable::getList(array(
 					'filter' => array(
 						'=RATING_TYPE_ID' => $event["RATING_TYPE_ID"],
 						'=RATING_ENTITY_ID' => $event["RATING_ENTITY_ID"],
@@ -908,6 +911,12 @@ abstract class Provider
 						}
 					}
 				}
+			}
+			elseif (preg_match('/^wiki_[\d]+_page$/i', $event["RATING_TYPE_ID"], $matches))
+			{
+				$contentEntityType = self::DATA_ENTITY_TYPE_WIKI;
+				$contentEntityId = (int)$event['SOURCE_ID'];
+				$found = true;
 			}
 		}
 		elseif (
@@ -1139,7 +1148,7 @@ abstract class Provider
 
 	final private function setLogEntityId($entityId = 0)
 	{
-		if (intval($entityId) <= 0)
+		if ((int)$entityId <= 0)
 		{
 			return false;
 		}
@@ -1154,12 +1163,12 @@ abstract class Provider
 		$return = array();
 
 		$logId = $this->getLogId();
-		if (intval($logId) <= 0)
+		if ((int)$logId <= 0)
 		{
 			return $return;
 		}
 
-		$res = LogTable::getList(array(
+		$res = self::$logTable::getList(array(
 			'filter' => array(
 				'ID' => $logId
 			),
@@ -1374,5 +1383,10 @@ abstract class Provider
 	public function warmUpAuxCommentsStaticCache(array $params = [])
 	{
 		return;
+	}
+
+	protected function getUnavailableTitle()
+	{
+		return Loc::getMessage('SONET_LIVEFEED_BASE_TITLE_UNAVAILABLE');
 	}
 }

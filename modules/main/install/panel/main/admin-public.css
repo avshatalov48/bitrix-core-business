@@ -1352,7 +1352,6 @@
 	box-shadow:0 19px 18px 0 rgba(72, 93, 99, 0.45) !important;
 	position:absolute !important;
 	width: 249px !important;
-	z-index:1000 !important;
 	opacity: 0;
 	-webkit-transition:opacity 0.3s ease-out;
 	-ms-transition:opacity 0.3s ease-out;

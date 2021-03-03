@@ -4,9 +4,10 @@ namespace Bitrix\Seo\Analytics;
 
 use Bitrix\Main\Loader;
 
+use Bitrix\Seo\BusinessSuite\IInternalService;
 use Bitrix\Seo\Retargeting;
 
-class Service implements Retargeting\IService, Retargeting\IMultiClientService
+class Service implements Retargeting\IService, Retargeting\IMultiClientService, IInternalService
 {
 	const GROUP = 'analytics';
 
@@ -136,6 +137,7 @@ class Service implements Retargeting\IService, Retargeting\IMultiClientService
 				'AUTH_URL' => $authAdapter->getAuthUrl(),
 				'HAS_ACCOUNTS' => $account->hasAccounts(),
 				'PROFILE' => $account->getProfileCached(),
+				'ENGINE_CODE' => static::getEngineCode($type),
 				'CLIENTS' => static::getClientsProfiles($authAdapter)
 			);
 
@@ -278,5 +280,36 @@ class Service implements Retargeting\IService, Retargeting\IMultiClientService
 				return null;
 			}
 		}, $authAdapter->getAuthorizedClientsList())));
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function getTypeByEngine(string $engineCode): ?string
+	{
+		foreach (static::getTypes() as $type)
+		{
+			if($engineCode == static::getEngineCode($type))
+			{
+				return $type;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function canUseAsInternal(): bool
+	{
+		return true;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function getMethodPrefix(): string
+	{
+		return 'analytics';
 	}
 }

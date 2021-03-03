@@ -20,9 +20,6 @@ if ($arSite = $rsSite->Fetch())
 else
 	define("LANGUAGE_ID", "en");
 
-if(CModule::IncludeModule("compression"))
-	CCompress::Disable2048Spaces();
-
 if (!CModule::IncludeModule("socialnetwork"))
 {
 	echo CUtil::PhpToJsObject(Array('ERROR' => 'SONET_MODULE_NOT_INSTALLED'));

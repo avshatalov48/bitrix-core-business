@@ -335,6 +335,7 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 			'LOG_ID' => $logId,
 			'SITE_TEMPLATE_ID' => 'mobile_app',
 			'TARGET' => 'postContent',
+			'PATH_TO_USER' => SITE_DIR.'mobile/users/?user_id=#user_id#'
 		]);
 	}
 

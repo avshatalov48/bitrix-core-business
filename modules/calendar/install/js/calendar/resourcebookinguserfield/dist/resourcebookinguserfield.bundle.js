@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,helper,socnetlogdest,main_core,calendar_resourcebookinguserfield,calendar_resourcebooking) {
+(function (exports,ui_entitySelector,main_core_events,helper,socnetlogdest,main_core,calendar_resourcebookinguserfield,calendar_resourcebooking) {
 	'use strict';
 
 	var FormFieldTunnerAbstract = /*#__PURE__*/function () {
@@ -727,498 +727,25 @@ this.BX = this.BX || {};
 	  return FormFieldTunnerMultipleChecknoxPopupAbstract;
 	}(FormFieldTunnerValuePopupAbstract);
 
-	var UserSelectorFieldEditControl = /*#__PURE__*/function () {
-	  function UserSelectorFieldEditControl(params) {
-	    babelHelpers.classCallCheck(this, UserSelectorFieldEditControl);
-	    this.params = params || {};
-	    this.id = this.params.id || 'user-selector-' + Math.round(Math.random() * 100000);
-	    this.wrapNode = this.params.wrapNode;
-	    this.zIndex = this.params.zIndex || 3100;
-	    this.destinationInputName = this.params.inputName || 'EVENT_DESTINATION';
-	    this.params.selectGroups = false;
-	    this.addMessage = this.params.addMessage || BX.message('USER_TYPE_RESOURCE_ADD_USER');
-	    this.checkLimit = BX.type.isFunction(params.checkLimitCallback) ? params.checkLimitCallback : false;
+	function _templateObject2() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t<span \n\t\t\t\t\t\t\tclass=\"calendar-resbook-webform-settings-popup-select-value\"\n\t\t\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t\t\t>\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t"]);
 
-	    if (BX.type.isArray(this.params.itemsSelected)) {
-	      this.params.itemsSelected = this.convertAttendeesCodes(this.params.itemsSelected);
-	    } else {
-	      this.params.itemsSelected = this.getSocnetDestinationConfig('itemsSelected');
-	    }
+	  _templateObject2 = function _templateObject2() {
+	    return data;
+	  };
 
-	    this.DOM = {
-	      outerWrap: this.params.outerWrap,
-	      wrapNode: this.params.wrapNode
-	    };
-	    this.create();
-	  }
+	  return data;
+	}
 
-	  babelHelpers.createClass(UserSelectorFieldEditControl, [{
-	    key: "create",
-	    value: function create() {
-	      if (this.DOM.outerWrap) {
-	        BX.addClass(this.DOM.outerWrap, 'calendar-resourcebook-folding-block' + (this.params.shown !== false ? ' shown' : ''));
-	      }
+	function _templateObject() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-resbook-webform-settings-popup-select-result\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
 
-	      var id = this.id;
-	      BX.bind(this.wrapNode, 'click', BX.delegate(function (e) {
-	        var target = e.target || e.srcElement;
+	  _templateObject = function _templateObject() {
+	    return data;
+	  };
 
-	        if (target.className === 'calendar-resourcebook-content-block-control-delete') // Delete button
-	          {
-	            BX.SocNetLogDestination.deleteItem(target.getAttribute('data-item-id'), target.getAttribute('data-item-type'), id);
-	            var block = BX.findParent(target, {
-	              className: 'calendar-resourcebook-content-block-control-inner'
-	            });
-
-	            if (block && BX.hasClass(block, 'shown')) {
-	              BX.removeClass(block, 'shown');
-	              setTimeout(function () {
-	                BX.remove(block);
-	              }, 300);
-	            }
-	          } else {
-	          BX.SocNetLogDestination.openDialog(id);
-	        }
-	      }, this));
-	      this.socnetDestinationInputWrap = this.wrapNode.appendChild(BX.create('SPAN', {
-	        props: {
-	          className: 'calendar-resourcebook-destination-input-box'
-	        }
-	      }));
-	      this.socnetDestinationInput = this.socnetDestinationInputWrap.appendChild(BX.create('INPUT', {
-	        props: {
-	          id: id + '-inp',
-	          className: 'calendar-resourcebook-destination-input'
-	        },
-	        attrs: {
-	          value: '',
-	          type: 'text'
-	        },
-	        events: {
-	          keydown: function keydown(e) {
-	            return BX.SocNetLogDestination.searchBeforeHandler(e, {
-	              formName: id,
-	              inputId: id + '-inp'
-	            });
-	          },
-	          keyup: function keyup(e) {
-	            return BX.SocNetLogDestination.searchHandler(e, {
-	              formName: id,
-	              inputId: id + '-inp',
-	              linkId: 'event-grid-dest-add-link',
-	              sendAjax: true
-	            });
-	          }
-	        }
-	      }));
-	      this.socnetDestinationLink = this.wrapNode.appendChild(BX.create('DIV', {
-	        props: {
-	          className: 'calendar-resourcebook-content-block-control-text calendar-resourcebook-content-block-control-text-add'
-	        },
-	        text: this.addMessage
-	      }));
-	      this.init();
-	    }
-	  }, {
-	    key: "show",
-	    value: function show() {
-	      if (this.DOM.outerWrap) {
-	        BX.addClass(this.DOM.outerWrap, 'shown');
-	      }
-	    }
-	  }, {
-	    key: "hide",
-	    value: function hide() {
-	      if (this.DOM.outerWrap) {
-	        BX.removeClass(this.DOM.outerWrap, 'shown');
-	      }
-	    }
-	  }, {
-	    key: "isShown",
-	    value: function isShown() {
-	      if (this.DOM.outerWrap) {
-	        return BX.hasClass(this.DOM.outerWrap, 'shown');
-	      }
-	    }
-	  }, {
-	    key: "init",
-	    value: function init() {
-	      if (!this.socnetDestinationInput || !this.wrapNode) return;
-
-	      var _this = this;
-
-	      this.params.items = this.getSocnetDestinationConfig('items');
-	      this.params.itemsLast = this.getSocnetDestinationConfig('itemsLast');
-
-	      if (this.params.selectGroups === false) {
-	        this.params.items.groups = {};
-	        this.params.items.department = {};
-	        this.params.items.sonetgroups = {};
-	      }
-
-	      BX.SocNetLogDestination.init({
-	        name: this.id,
-	        searchInput: this.socnetDestinationInput,
-	        extranetUser: false,
-	        userSearchArea: 'I',
-	        bindMainPopup: {
-	          node: this.wrapNode,
-	          offsetTop: '5px',
-	          offsetLeft: '15px'
-	        },
-	        bindSearchPopup: {
-	          node: this.wrapNode,
-	          offsetTop: '5px',
-	          offsetLeft: '15px'
-	        },
-	        callback: {
-	          select: BX.proxy(this.selectCallback, this),
-	          unSelect: BX.proxy(this.unSelectCallback, this),
-	          openDialog: BX.proxy(this.openDialogCallback, this),
-	          closeDialog: BX.proxy(this.closeDialogCallback, this),
-	          openSearch: BX.proxy(this.openDialogCallback, this),
-	          closeSearch: function closeSearch() {
-	            _this.closeDialogCallback(true);
-	          }
-	        },
-	        items: this.params.items,
-	        itemsLast: this.params.itemsLast,
-	        itemsSelected: this.params.itemsSelected,
-	        departmentSelectDisable: this.params.selectGroups === false
-	      });
-	    }
-	  }, {
-	    key: "closeAll",
-	    value: function closeAll() {
-	      if (BX.SocNetLogDestination.isOpenDialog()) {
-	        BX.SocNetLogDestination.closeDialog();
-	      }
-
-	      BX.SocNetLogDestination.closeSearch();
-	    }
-	  }, {
-	    key: "selectCallback",
-	    value: function selectCallback(item, type) {
-	      if (type === 'users') {
-	        this.addUserBlock(item);
-	        BX.onCustomEvent('OnResourceBookDestinationAddNewItem', [item, this.id]);
-	        this.socnetDestinationInput.value = '';
-	      }
-	    }
-	  }, {
-	    key: "addUserBlock",
-	    value: function addUserBlock(item, animation) {
-	      if (this.checkLimit && !this.checkLimit()) {
-	        return calendar_resourcebooking.BookingUtil.showLimitationPopup();
-	      }
-
-	      if (this.getAttendeesCodesList().includes(item.id)) {
-	        return;
-	      }
-
-	      var blocks = this.wrapNode.querySelectorAll("calendar-resourcebook-content-block-control-inner[data-id='".concat(item.id, "']"));
-
-	      for (var i = 0; i < blocks.length; i++) {
-	        BX.remove(blocks[i]);
-	      }
-
-	      var itemWrap = this.wrapNode.appendChild(BX.create("DIV", {
-	        attrs: {
-	          'data-id': item.id,
-	          className: "calendar-resourcebook-content-block-control-inner green"
-	        },
-	        html: '<div class="calendar-resourcebook-content-block-control-text">' + item.name + '</div>' + '<div data-item-id="' + item.id + '" data-item-type="users" class="calendar-resourcebook-content-block-control-delete"></div>' + '<input type="hidden" name="' + this.destinationInputName + '[U][]' + '" value="' + item.id + '">'
-	      }));
-
-	      if (animation !== false) {
-	        setTimeout(BX.delegate(function () {
-	          BX.addClass(itemWrap, 'shown');
-	        }, this), 1);
-	      } else {
-	        BX.addClass(itemWrap, 'shown');
-	      }
-
-	      this.wrapNode.appendChild(this.socnetDestinationInputWrap);
-	      this.wrapNode.appendChild(this.socnetDestinationLink);
-	    }
-	  }, {
-	    key: "unSelectCallback",
-	    value: function unSelectCallback(item) {
-	      var elements = BX.findChildren(this.wrapNode, {
-	        attribute: {
-	          'data-id': item.id
-	        }
-	      }, true);
-
-	      if (elements != null) {
-	        for (var j = 0; j < elements.length; j++) {
-	          BX.remove(elements[j]);
-	        }
-	      }
-
-	      BX.onCustomEvent('OnResourceBookDestinationUnselect', [item, this.id]);
-	      this.socnetDestinationInput.value = '';
-	      this.socnetDestinationLink.innerHTML = this.addMessage;
-	    }
-	  }, {
-	    key: "openDialogCallback",
-	    value: function openDialogCallback() {
-	      if (BX.SocNetLogDestination.popupWindow) {
-	        // Fix zIndex for slider issues
-	        BX.SocNetLogDestination.popupWindow.params.zIndex = this.zIndex;
-	        BX.SocNetLogDestination.popupWindow.popupContainer.style.zIndex = this.zIndex;
-	      }
-
-	      if (BX.SocNetLogDestination.popupSearchWindow) {
-	        // Fix zIndex for slider issues
-	        BX.SocNetLogDestination.popupSearchWindow.params.zIndex = this.zIndex;
-	        BX.SocNetLogDestination.popupSearchWindow.popupContainer.style.zIndex = this.zIndex;
-	      }
-
-	      BX.style(this.socnetDestinationInputWrap, 'display', 'inline-block');
-	      BX.style(this.socnetDestinationLink, 'display', 'none');
-	      BX.focus(this.socnetDestinationInput);
-	    }
-	  }, {
-	    key: "closeDialogCallback",
-	    value: function closeDialogCallback(cleanInputValue) {
-	      if (!BX.SocNetLogDestination.isOpenSearch() && this.socnetDestinationInput.value.length <= 0) {
-	        BX.style(this.socnetDestinationInputWrap, 'display', 'none');
-	        BX.style(this.socnetDestinationLink, 'display', 'inline-block');
-	        if (cleanInputValue === true) this.socnetDestinationInput.value = ''; // Disable backspace
-
-	        if (BX.SocNetLogDestination.backspaceDisable || BX.SocNetLogDestination.backspaceDisable != null) BX.unbind(window, 'keydown', BX.SocNetLogDestination.backspaceDisable);
-	        BX.bind(window, 'keydown', BX.SocNetLogDestination.backspaceDisable = function (e) {
-	          if (e.keyCode === 8) {
-	            e.preventDefault();
-	            return false;
-	          }
-	        });
-	        setTimeout(function () {
-	          BX.unbind(window, 'keydown', BX.SocNetLogDestination.backspaceDisable);
-	          BX.SocNetLogDestination.backspaceDisable = null;
-	        }, 5000);
-	      }
-	    }
-	  }, {
-	    key: "getCodes",
-	    value: function getCodes() {
-	      var inputsList = this.wrapNode.getElementsByTagName('INPUT'),
-	          codes = [],
-	          i,
-	          value;
-
-	      for (i = 0; i < inputsList.length; i++) {
-	        value = BX.util.trim(inputsList[i].value);
-
-	        if (value) {
-	          codes.push(inputsList[i].value);
-	        }
-	      }
-
-	      return codes;
-	    }
-	  }, {
-	    key: "getAttendeesCodes",
-	    value: function getAttendeesCodes() {
-	      var inputsList = this.wrapNode.getElementsByTagName('INPUT'),
-	          values = [],
-	          i;
-
-	      for (i = 0; i < inputsList.length; i++) {
-	        values.push(inputsList[i].value);
-	      }
-
-	      return this.convertAttendeesCodes(values);
-	    }
-	  }, {
-	    key: "convertAttendeesCodes",
-	    value: function convertAttendeesCodes(values) {
-	      var attendeesCodes = {};
-
-	      if (BX.type.isArray(values)) {
-	        values.forEach(function (code) {
-	          if (code.substr(0, 2) === 'DR') {
-	            attendeesCodes[code] = "department";
-	          } else if (code.substr(0, 2) === 'UA') {
-	            attendeesCodes[code] = "groups";
-	          } else if (code.substr(0, 2) === 'SG') {
-	            attendeesCodes[code] = "sonetgroups";
-	          } else if (code.substr(0, 1) === 'U') {
-	            attendeesCodes[code] = "users";
-	          }
-	        });
-	      }
-
-	      return attendeesCodes;
-	    }
-	  }, {
-	    key: "getAttendeesCodesList",
-	    value: function getAttendeesCodesList(codes) {
-	      var result = [];
-	      if (!codes) codes = this.getAttendeesCodes();
-
-	      for (var i in codes) {
-	        if (codes.hasOwnProperty(i)) {
-	          result.push(i);
-	        }
-	      }
-
-	      return result;
-	    }
-	  }, {
-	    key: "getSocnetDestinationConfig",
-	    value: function getSocnetDestinationConfig(key) {
-	      var res,
-	          socnetDestination = this.params.socnetDestination || {};
-
-	      if (key === 'items') {
-	        res = {
-	          users: socnetDestination.USERS || {},
-	          groups: socnetDestination.EXTRANET_USER === 'Y' || socnetDestination.DENY_TOALL ? {} : {
-	            UA: {
-	              id: 'UA',
-	              name: BX.message('USER_TYPE_RESOURCE_TO_ALL_USERS')
-	            }
-	          },
-	          sonetgroups: socnetDestination.SONETGROUPS || {},
-	          department: socnetDestination.DEPARTMENT || {},
-	          departmentRelation: socnetDestination.DEPARTMENT_RELATION || {}
-	        };
-	      } else if (key === 'itemsLast' && socnetDestination.LAST) {
-	        res = {
-	          users: socnetDestination.LAST.USERS || {},
-	          groups: socnetDestination.EXTRANET_USER === 'Y' ? {} : {
-	            UA: true
-	          },
-	          sonetgroups: socnetDestination.LAST.SONETGROUPS || {},
-	          department: socnetDestination.LAST.DEPARTMENT || {}
-	        };
-	      } else if (key === 'itemsSelected') {
-	        res = socnetDestination.SELECTED || {};
-	      }
-
-	      return res || {};
-	    }
-	  }, {
-	    key: "getSelectedValues",
-	    value: function getSelectedValues() {
-	      var result = [],
-	          i,
-	          inputs = this.wrapNode.querySelectorAll('input');
-
-	      for (i = 0; i < inputs.length; i++) {
-	        if (inputs[i].type === 'hidden' && inputs[i].value) {
-	          if (inputs[i].value.substr(0, 1) === 'U') {
-	            result.push(parseInt(inputs[i].value.substr(1)));
-	          }
-	        }
-	      }
-
-	      return result;
-	    }
-	  }, {
-	    key: "setValues",
-	    value: function setValues(userList, trigerOnChange) {
-	      var i, user;
-	      var blocks = this.wrapNode.querySelectorAll('.calendar-resourcebook-content-block-control-inner');
-
-	      for (i = 0; i < blocks.length; i++) {
-	        BX.remove(blocks[i]);
-	      }
-
-	      for (i = 0; i < userList.length; i++) {
-	        if (BX.SocNetLogDestination.obItems[this.id]['users']) {
-	          user = BX.SocNetLogDestination.obItems[this.id]['users']['U' + userList[i]];
-
-	          if (user) {
-	            this.addUserBlock({
-	              id: 'U' + userList[i],
-	              name: user.name
-	            }, false);
-	          }
-	        }
-	      }
-
-	      if (trigerOnChange !== false && this.onChangeCallback && BX.type.isFunction(this.onChangeCallback)) {
-	        setTimeout(BX.proxy(this.onChangeCallback, this), 100);
-	      }
-	    }
-	  }, {
-	    key: "getId",
-	    value: function getId() {
-	      return this.id;
-	    }
-	  }]);
-	  return UserSelectorFieldEditControl;
-	}();
-	var WebformUserSelectorFieldEditControl = /*#__PURE__*/function (_UserSelectorFieldEdi) {
-	  babelHelpers.inherits(WebformUserSelectorFieldEditControl, _UserSelectorFieldEdi);
-
-	  function WebformUserSelectorFieldEditControl(params) {
-	    var _this2;
-
-	    babelHelpers.classCallCheck(this, WebformUserSelectorFieldEditControl);
-	    _this2 = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(WebformUserSelectorFieldEditControl).call(this, params));
-	    _this2.DOM.externalWrap = params.externalWrap;
-	    _this2.closeDialogDelayFlag = false;
-	    _this2.finalShowClassName = 'calendar-resbook-socnet-dest-custom-wrap-appearing';
-	    return _this2;
-	  }
-
-	  babelHelpers.createClass(WebformUserSelectorFieldEditControl, [{
-	    key: "openDialogCallback",
-	    value: function openDialogCallback() {
-	      babelHelpers.get(babelHelpers.getPrototypeOf(WebformUserSelectorFieldEditControl.prototype), "openDialogCallback", this).call(this);
-	      BX.cleanNode(this.DOM.externalWrap);
-	      var useAnimation = !this.closeDialogDelayFlag;
-
-	      if (this.popupContent && BX.hasClass(this.popupContent, this.finalShowClassName) || this.popupSearchContent && BX.hasClass(this.popupSearchContent, this.finalShowClassName)) {
-	        useAnimation = false;
-	      }
-
-	      if (BX.SocNetLogDestination.popupWindow) {
-	        this.popupContent = this.DOM.externalWrap.appendChild(BX.SocNetLogDestination.popupWindow.contentContainer);
-	        BX.addClass(BX.SocNetLogDestination.popupWindow.popupContainer, 'calendar-resbook-socnet-dest-popup-hide');
-
-	        if (useAnimation) {
-	          BX.addClass(this.popupContent, 'calendar-resbook-socnet-dest-custom-wrap');
-	          BX.defer(function () {
-	            BX.addClass(this.popupContent, 'calendar-resbook-socnet-dest-custom-wrap-show');
-	            setTimeout(BX.delegate(function () {
-	              BX.addClass(this.popupContent, this.finalShowClassName);
-	            }, this), 200);
-	          }, this)();
-	        } else {
-	          BX.addClass(this.popupContent, this.finalShowClassName);
-	        }
-	      }
-
-	      if (BX.SocNetLogDestination.popupSearchWindow) {
-	        this.popupSearchContent = this.DOM.externalWrap.appendChild(BX.SocNetLogDestination.popupSearchWindow.contentContainer);
-	        BX.addClass(this.popupSearchContent, this.finalShowClassName);
-	        BX.addClass(BX.SocNetLogDestination.popupSearchWindow.popupContainer, 'calendar-resbook-socnet-dest-popup-hide');
-	      }
-	    }
-	  }, {
-	    key: "closeDialogCallback",
-	    value: function closeDialogCallback() {
-	      babelHelpers.get(babelHelpers.getPrototypeOf(WebformUserSelectorFieldEditControl.prototype), "closeDialogCallback", this).call(this);
-	      this.closeDialogDelayFlag = true;
-	      setTimeout(function () {
-	        this.closeDialogDelayFlag = false;
-	      }.bind(this), 10);
-
-	      if (this.popupContent) {
-	        BX.removeClass(this.popupContent, 'calendar-resbook-socnet-dest-custom-wrap');
-	        BX.removeClass(this.popupContent, 'calendar-resbook-socnet-dest-custom-wrap-show');
-	        BX.removeClass(this.popupContent, this.finalShowClassName);
-	      }
-	    }
-	  }]);
-	  return WebformUserSelectorFieldEditControl;
-	}(UserSelectorFieldEditControl);
-
+	  return data;
+	}
 	var UserSelectorFieldTunner = /*#__PURE__*/function (_FormFieldTunnerAbstr) {
 	  babelHelpers.inherits(UserSelectorFieldTunner, _FormFieldTunnerAbstr);
 
@@ -1230,6 +757,7 @@ this.BX = this.BX || {};
 	    _this.label = main_core.Loc.getMessage('WEBF_RES_USERS');
 	    _this.formLabel = main_core.Loc.getMessage('WEBF_RES_USERS_LABEL');
 	    _this.displayed = true;
+	    _this.selectedUsers = [];
 	    return _this;
 	  }
 
@@ -1249,7 +777,60 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "buildValuePopup",
 	    value: function buildValuePopup(params) {
-	      this.valuePopup = new UsersValuePopup(params);
+	      this.selectedUsers = main_core.Type.isArray(params.config.selected) ? params.config.selected : params.config.selected.split('|');
+	      this.DOM.valueWrap = params.wrap;
+	      this.DOM.valueWrap.appendChild(main_core.Tag.render(_templateObject(), this.DOM.usersValueLink = main_core.Tag.render(_templateObject2(), this.showUserSelectorDialog.bind(this), this.getCurrentUsersValueText())));
+	    }
+	  }, {
+	    key: "getCurrentUsersValueText",
+	    value: function getCurrentUsersValueText() {
+	      var count = this.selectedUsers.length;
+	      return count ? count + ' ' + ResourcebookingUserfield.getPluralMessage('WEBF_RES_USER', count) : main_core.Loc.getMessage('WEBF_RES_NO_VALUE');
+	    }
+	  }, {
+	    key: "showUserSelectorDialog",
+	    value: function showUserSelectorDialog() {
+	      if (!(this.userSelectorDialog instanceof ui_entitySelector.Dialog)) {
+	        this.userSelectorDialog = new ui_entitySelector.Dialog({
+	          targetNode: this.DOM.usersValueLink,
+	          context: 'RESOURCEBOOKING',
+	          preselectedItems: this.selectedUsers.map(function (userId) {
+	            return ['user', userId];
+	          }),
+	          enableSearch: true,
+	          zIndex: this.zIndex + 10,
+	          events: {
+	            'Item:onSelect': this.handleUserSelectorChanges.bind(this),
+	            'Item:onDeselect': this.handleUserSelectorChanges.bind(this)
+	          },
+	          entities: [{
+	            id: 'user',
+	            options: {
+	              inviteGuestLink: false,
+	              emailUsers: false
+	            }
+	          }]
+	        });
+	      }
+
+	      this.userSelectorDialog.show();
+	    }
+	  }, {
+	    key: "handleUserSelectorChanges",
+	    value: function handleUserSelectorChanges() {
+	      var _this2 = this;
+
+	      this.selectedUsers = [];
+	      this.userSelectorDialog.getSelectedItems().forEach(function (item) {
+	        if (item.entityId === "user") {
+	          _this2.selectedUsers.push(item.id);
+	        }
+	      });
+	      this.DOM.usersValueLink.innerHTML = this.getCurrentUsersValueText();
+	      main_core_events.EventEmitter.emit('ResourceBooking.settingsUserSelector:onChanged');
+	      setTimeout(function () {
+	        main_core_events.EventEmitter.emit('ResourceBooking.webformSettings:onChanged');
+	      }, 50);
 	    }
 	  }, {
 	    key: "displayInForm",
@@ -1272,7 +853,7 @@ this.BX = this.BX || {};
 	        show: this.isDisplayed() ? 'Y' : 'N',
 	        label: this.getFormLabel(),
 	        defaultMode: this.statePopup.getDefaultMode(),
-	        value: this.valuePopup.getSelectedValues()
+	        value: this.selectedUsers
 	      };
 	    }
 	  }]);
@@ -1283,21 +864,21 @@ this.BX = this.BX || {};
 	  babelHelpers.inherits(UsersStatePopup, _FormFieldTunnerPopup);
 
 	  function UsersStatePopup(params) {
-	    var _this2;
+	    var _this3;
 
 	    babelHelpers.classCallCheck(this, UsersStatePopup);
-	    _this2 = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(UsersStatePopup).call(this, params));
-	    _this2.name = 'usersStatePopup';
-	    _this2.inputName = 'user-select-mode';
-	    _this2.id = 'users-state-' + Math.round(Math.random() * 1000);
-	    _this2.defaultMode = params.defaultMode === 'none' ? 'none' : 'auto';
-	    _this2.isDisplayed = main_core.Type.isFunction(params.isDisplayed) ? params.isDisplayed : function () {
+	    _this3 = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(UsersStatePopup).call(this, params));
+	    _this3.name = 'usersStatePopup';
+	    _this3.inputName = 'user-select-mode';
+	    _this3.id = 'users-state-' + Math.round(Math.random() * 1000);
+	    _this3.defaultMode = params.defaultMode === 'none' ? 'none' : 'auto';
+	    _this3.isDisplayed = main_core.Type.isFunction(params.isDisplayed) ? params.isDisplayed : function () {
 	      return false;
 	    };
 
-	    _this2.build();
+	    _this3.build();
 
-	    return _this2;
+	    return _this3;
 	  }
 
 	  babelHelpers.createClass(UsersStatePopup, [{
@@ -1311,7 +892,7 @@ this.BX = this.BX || {};
 	    value: function getMenuItems() {
 	      var submenuClass = 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label';
 	      return [{
-	        text: '<span>' + main_core.Loc.getMessage('WEBF_RES_SELECT_DEFAULT_TITLE') + '</span>',
+	        html: '<span>' + main_core.Loc.getMessage('WEBF_RES_SELECT_DEFAULT_TITLE') + '</span>',
 	        className: submenuClass
 	      }, {
 	        id: 'users-state-list',
@@ -1367,167 +948,6 @@ this.BX = this.BX || {};
 	  }]);
 	  return UsersStatePopup;
 	}(FormFieldTunnerPopupAbstract);
-
-	var UsersValuePopup = /*#__PURE__*/function (_FormFieldTunnerValue) {
-	  babelHelpers.inherits(UsersValuePopup, _FormFieldTunnerValue);
-
-	  function UsersValuePopup(params) {
-	    var _this3;
-
-	    babelHelpers.classCallCheck(this, UsersValuePopup);
-	    _this3 = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(UsersValuePopup).call(this, params));
-	    _this3.name = 'usersValuePopup';
-	    _this3.values = [];
-	    _this3.selectedValues = [];
-	    _this3.selectedCodes = [];
-	    var selectedItems,
-	        selectedIndex = {},
-	        selectAll = params.config.selected === null;
-	    selectedItems = main_core.Type.isArray(params.config.selected) ? params.config.selected : params.config.selected.split('|');
-
-	    if (main_core.Type.isArray(selectedItems)) {
-	      for (var i = 0; i < selectedItems.length; i++) {
-	        selectedIndex[selectedItems[i]] = true;
-
-	        _this3.selectedValues.push(selectedItems[i]);
-
-	        _this3.selectedCodes.push('U' + selectedItems[i]);
-	      }
-	    }
-
-	    if (main_core.Type.isArray(params.config.users) && selectAll) {
-	      params.config.users.forEach(function (userId) {
-	        if (!selectedIndex[userId]) {
-	          this.selectedValues.push(userId);
-	          this.selectedCodes.push('U' + userId);
-	        }
-	      }, babelHelpers.assertThisInitialized(_this3));
-	    }
-
-	    _this3.config = {};
-
-	    _this3.build();
-
-	    return _this3;
-	  }
-
-	  babelHelpers.createClass(UsersValuePopup, [{
-	    key: "getPopupContent",
-	    value: function getPopupContent() {
-	      var _this4 = this;
-
-	      babelHelpers.get(babelHelpers.getPrototypeOf(UsersValuePopup.prototype), "getPopupContent", this).call(this);
-	      new Promise(function (resolve) {
-	        if (!_this4.config.socnetDestination) {
-	          _this4.showPopupLoader();
-
-	          BX.ajax.runAction('calendar.api.resourcebookingajax.getuserselectordata', {
-	            data: {
-	              selectedUserList: _this4.selectedValues
-	            }
-	          }).then(function (response) {
-	            this.hidePopupLoader();
-	            this.config.socnetDestination = response.data;
-	            resolve();
-	          }.bind(_this4), function (response) {
-	            resolve(response);
-	          });
-	        } else {
-	          resolve();
-	        }
-	      }).then(this.buildUserSelector.bind(this));
-	      return this.DOM.innerWrap;
-	    }
-	  }, {
-	    key: "showPopupLoader",
-	    value: function showPopupLoader() {
-	      if (this.DOM.innerWrap) {
-	        this.hidePopupLoader();
-	        this.DOM.popupLoader = this.DOM.innerWrap.appendChild(main_core.Dom.create("div", {
-	          props: {
-	            className: 'calendar-resourcebook-popup-loader-wrap'
-	          }
-	        }));
-	        this.DOM.popupLoader.appendChild(calendar_resourcebooking.BookingUtil.getLoader(38));
-	      }
-	    }
-	  }, {
-	    key: "getPopupWidth",
-	    value: function getPopupWidth() {
-	      return 680;
-	    }
-	  }, {
-	    key: "buildUserSelector",
-	    value: function buildUserSelector() {
-	      this.DOM.userCurrentvalueWrap = this.DOM.innerWrap.appendChild(main_core.Dom.create("div", {
-	        props: {
-	          className: 'calendar-resourcebook-content-block-control custom-field-item'
-	        }
-	      }));
-	      this.DOM.userSelectorWrap = this.DOM.innerWrap.appendChild(main_core.Dom.create("div", {
-	        props: {
-	          className: 'calendar-resourcebook-pseudo-popup-wrap'
-	        }
-	      }));
-	      this.userSelector = new WebformUserSelectorFieldEditControl({
-	        wrapNode: this.DOM.userCurrentvalueWrap,
-	        socnetDestination: this.config.socnetDestination,
-	        itemsSelected: this.selectedCodes,
-	        addMessage: main_core.Loc.getMessage('USER_TYPE_RESOURCE_SELECT_USER'),
-	        externalWrap: this.DOM.userSelectorWrap
-	      });
-	      this.userSelectorId = this.userSelector.getId();
-	      BX.addCustomEvent('OnResourceBookDestinationAddNewItem', this.triggerUserSelectorUpdate.bind(this));
-	      BX.addCustomEvent('OnResourceBookDestinationUnselect', this.triggerUserSelectorUpdate.bind(this));
-	    }
-	  }, {
-	    key: "getSelectedValues",
-	    value: function getSelectedValues() {
-	      return this.selectedValues;
-	    }
-	  }, {
-	    key: "triggerUserSelectorUpdate",
-	    value: function triggerUserSelectorUpdate(item, selectroId, delayExecution) {
-	      if (selectroId === this.userSelectorId) {
-	        if (this.selectorUpdateTimeout) {
-	          this.selectorUpdateTimeout = clearTimeout(this.selectorUpdateTimeout);
-	        }
-
-	        if (delayExecution !== false) {
-	          this.selectorUpdateTimeout = setTimeout(function () {
-	            this.triggerUserSelectorUpdate(item, selectroId, false);
-	          }.bind(this), 300);
-	          return;
-	        }
-
-	        this.selectedValues = [];
-	        this.selectedCodes = this.userSelector.getAttendeesCodesList();
-	        this.selectedCodes.forEach(function (code) {
-	          if (code.substr(0, 1) === 'U') {
-	            this.selectedValues.push(parseInt(code.substr(1)));
-	          }
-	        }, this);
-	        this.handleControlChanges();
-	      }
-	    }
-	  }, {
-	    key: "getCurrentValueState",
-	    value: function getCurrentValueState() {
-	      var count = this.selectedValues.length;
-	      return count ? count + ' ' + ResourcebookingUserfield.getPluralMessage('WEBF_RES_USER', count) : main_core.Loc.getMessage('WEBF_RES_NO_VALUE');
-	    }
-	  }, {
-	    key: "handleControlChanges",
-	    value: function handleControlChanges() {
-	      BX.onCustomEvent('ResourceBooking.settingsUserSelector:onChanged');
-	      babelHelpers.get(babelHelpers.getPrototypeOf(UsersValuePopup.prototype), "handleControlChanges", this).call(this);
-	      main_core.Dom.adjust(this.DOM.valueLink, {
-	        text: this.getCurrentValueState()
-	      });
-	    }
-	  }]);
-	  return UsersValuePopup;
-	}(FormFieldTunnerValuePopupAbstract);
 
 	var ResourceSelectorFieldTunner = /*#__PURE__*/function (_FormFieldTunnerAbstr) {
 	  babelHelpers.inherits(ResourceSelectorFieldTunner, _FormFieldTunnerAbstr);
@@ -1624,7 +1044,7 @@ this.BX = this.BX || {};
 	    value: function getMenuItems() {
 	      var submenuClass = 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label';
 	      return [{
-	        text: '<span>' + main_core.Loc.getMessage('WEBF_RES_SELECT_DEFAULT_TITLE') + '</span>',
+	        html: '<span>' + main_core.Loc.getMessage('WEBF_RES_SELECT_DEFAULT_TITLE') + '</span>',
 	        className: submenuClass
 	      }, {
 	        id: 'resources-state-list',
@@ -1860,14 +1280,17 @@ this.BX = this.BX || {};
 	    if (main_core.Type.isArray(params.config.services)) {
 	      params.config.services.forEach(function (service) {
 	        service.id = calendar_resourcebooking.BookingUtil.translit(service.name);
-	        this.values.push({
-	          id: service.id,
-	          title: service.name + ' - ' + calendar_resourcebooking.BookingUtil.getDurationLabel(service.duration),
-	          dataset: service
-	        });
 
-	        if (selectAll || selectedIndex[calendar_resourcebooking.BookingUtil.translit(service.name)]) {
-	          this.selectedValues.push(service.id);
+	        if (service.id !== '') {
+	          this.values.push({
+	            id: service.id,
+	            title: service.name + ' - ' + calendar_resourcebooking.BookingUtil.getDurationLabel(service.duration),
+	            dataset: service
+	          });
+
+	          if (selectAll || selectedIndex[calendar_resourcebooking.BookingUtil.translit(service.name)]) {
+	            this.selectedValues.push(service.id);
+	          }
 	        }
 	      }, babelHelpers.assertThisInitialized(_this2));
 	    }
@@ -2146,7 +1569,7 @@ this.BX = this.BX || {};
 	    value: function getMenuItems() {
 	      var submenuClass = 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label';
 	      return [{
-	        text: '<span>' + main_core.Loc.getMessage('WEBF_RES_CALENDAR_STYLE') + '</span>',
+	        html: '<span>' + main_core.Loc.getMessage('WEBF_RES_CALENDAR_STYLE') + '</span>',
 	        className: submenuClass
 	      }, {
 	        id: 'date-state-style-popup',
@@ -2169,7 +1592,7 @@ this.BX = this.BX || {};
 	        },
 	        onclick: this.menuItemClick.bind(this)
 	      }, {
-	        text: '<span>' + main_core.Loc.getMessage('WEBF_RES_CALENDAR_START_FROM') + '</span>',
+	        html: '<span>' + main_core.Loc.getMessage('WEBF_RES_CALENDAR_START_FROM') + '</span>',
 	        className: submenuClass
 	      }, {
 	        id: 'date-state-start-from-today',
@@ -2316,7 +1739,7 @@ this.BX = this.BX || {};
 	    value: function getMenuItems() {
 	      var submenuClass = 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label';
 	      return [{
-	        text: '<span>' + main_core.Loc.getMessage('WEBF_RES_TIME_STYLE') + '</span>',
+	        html: '<span>' + main_core.Loc.getMessage('WEBF_RES_TIME_STYLE') + '</span>',
 	        className: submenuClass
 	      }, {
 	        id: 'time-state-style-select',
@@ -2621,8 +2044,8 @@ this.BX = this.BX || {};
 	      this.DOM.captionInput = this.DOM.captionWrap.appendChild(calendar_resourcebooking.Dom.create("input", {
 	        attrs: {
 	          id: titleId,
-	          className: "calendar-resbook-webform-settings-popup-input",
-	          type: "text",
+	          className: 'calendar-resbook-webform-settings-popup-input',
+	          type: 'text',
 	          value: this.getCaption()
 	        },
 	        events: {
@@ -2632,13 +2055,13 @@ this.BX = this.BX || {};
 	        }
 	      }));
 	      this.updateCaption();
-	      this.DOM.fieldsOuterWrap = wrap.appendChild(calendar_resourcebooking.Dom.create("div", {
+	      this.DOM.fieldsOuterWrap = wrap.appendChild(calendar_resourcebooking.Dom.create('div', {
 	        props: {
 	          className: 'calendar-resbook-webform-settings-popup-content'
 	        },
 	        html: '<div class="calendar-resbook-webform-settings-popup-head">' + '<div class="calendar-resbook-webform-settings-popup-head-inner">' + '<span class="calendar-resbook-webform-settings-popup-head-text">' + calendar_resourcebooking.Loc.getMessage('WEBF_RES_FIELD_NAME') + '</span>' + '<span class="calendar-resbook-webform-settings-popup-head-decs">' + calendar_resourcebooking.Loc.getMessage('WEBF_RES_FIELD_NAME_IN_FORM') + '</span>' + '</div>' + '<div class="calendar-resbook-webform-settings-popup-head-inner">' + '<span class="calendar-resbook-webform-settings-popup-head-text">' + calendar_resourcebooking.Loc.getMessage('WEBF_RES_FIELD_SHOW_IN_FORM') + '</span>' + '</div>' + '</div>'
 	      }));
-	      this.DOM.fieldsWrap = this.DOM.fieldsOuterWrap.appendChild(calendar_resourcebooking.Dom.create("div", {
+	      this.DOM.fieldsWrap = this.DOM.fieldsOuterWrap.appendChild(calendar_resourcebooking.Dom.create('div', {
 	        props: {
 	          className: 'calendar-resbook-webform-settings-popup-list'
 	        }
@@ -2701,7 +2124,7 @@ this.BX = this.BX || {};
 	        });
 	      }
 
-	      this.DOM.fieldsWrap.appendChild(calendar_resourcebooking.Dom.create("div", {
+	      this.DOM.fieldsWrap.appendChild(calendar_resourcebooking.Dom.create('div', {
 	        props: {
 	          className: 'calendar-resbook-webform-settings-popup-item'
 	        },
@@ -2804,9 +2227,9 @@ this.BX = this.BX || {};
 	      var uniKey = key.join('-');
 
 	      if (!this.DOM.settingsInputs[uniKey]) {
-	        this.DOM.settingsInputs[uniKey] = this.DOM.settingsWrap.appendChild(calendar_resourcebooking.Dom.create("input", {
+	        this.DOM.settingsInputs[uniKey] = this.DOM.settingsWrap.appendChild(calendar_resourcebooking.Dom.create('input', {
 	          attrs: {
-	            type: "hidden",
+	            type: 'hidden',
 	            name: this.params.formName + '[SETTINGS_DATA][' + key.join('][') + ']'
 	          }
 	        }));
@@ -3005,6 +2428,419 @@ this.BX = this.BX || {};
 	  }]);
 	  return AdjustFieldController;
 	}(calendar_resourcebooking.EventEmitter);
+
+	var UserSelectorFieldEditControl = /*#__PURE__*/function () {
+	  function UserSelectorFieldEditControl(params) {
+	    babelHelpers.classCallCheck(this, UserSelectorFieldEditControl);
+	    this.params = params || {};
+	    this.id = this.params.id || 'user-selector-' + Math.round(Math.random() * 100000);
+	    this.wrapNode = this.params.wrapNode;
+	    this.destinationInputName = this.params.inputName || 'EVENT_DESTINATION';
+	    this.params.selectGroups = false;
+	    this.addMessage = this.params.addMessage || BX.message('USER_TYPE_RESOURCE_ADD_USER');
+	    this.checkLimit = BX.type.isFunction(params.checkLimitCallback) ? params.checkLimitCallback : false;
+
+	    if (BX.type.isArray(this.params.itemsSelected)) {
+	      this.params.itemsSelected = this.convertAttendeesCodes(this.params.itemsSelected);
+	    } else {
+	      this.params.itemsSelected = this.getSocnetDestinationConfig('itemsSelected');
+	    }
+
+	    this.DOM = {
+	      outerWrap: this.params.outerWrap,
+	      wrapNode: this.params.wrapNode
+	    };
+	    this.create();
+	  }
+
+	  babelHelpers.createClass(UserSelectorFieldEditControl, [{
+	    key: "create",
+	    value: function create() {
+	      if (this.DOM.outerWrap) {
+	        calendar_resourcebooking.Dom.addClass(this.DOM.outerWrap, 'calendar-resourcebook-folding-block' + (this.params.shown !== false ? ' shown' : ''));
+	      }
+
+	      var id = this.id;
+	      BX.bind(this.wrapNode, 'click', BX.delegate(function (e) {
+	        var target = e.target || e.srcElement;
+
+	        if (target.className === 'calendar-resourcebook-content-block-control-delete') // Delete button
+	          {
+	            BX.SocNetLogDestination.deleteItem(target.getAttribute('data-item-id'), target.getAttribute('data-item-type'), id);
+	            var block = BX.findParent(target, {
+	              className: 'calendar-resourcebook-content-block-control-inner'
+	            });
+
+	            if (block && BX.hasClass(block, 'shown')) {
+	              BX.removeClass(block, 'shown');
+	              setTimeout(function () {
+	                BX.remove(block);
+	              }, 300);
+	            }
+	          } else {
+	          BX.SocNetLogDestination.openDialog(id);
+	        }
+	      }, this));
+	      this.socnetDestinationInputWrap = this.wrapNode.appendChild(BX.create('SPAN', {
+	        props: {
+	          className: 'calendar-resourcebook-destination-input-box'
+	        }
+	      }));
+	      this.socnetDestinationInput = this.socnetDestinationInputWrap.appendChild(BX.create('INPUT', {
+	        props: {
+	          id: id + '-inp',
+	          className: 'calendar-resourcebook-destination-input'
+	        },
+	        attrs: {
+	          value: '',
+	          type: 'text'
+	        },
+	        events: {
+	          keydown: function keydown(e) {
+	            return BX.SocNetLogDestination.searchBeforeHandler(e, {
+	              formName: id,
+	              inputId: id + '-inp'
+	            });
+	          },
+	          keyup: function keyup(e) {
+	            return BX.SocNetLogDestination.searchHandler(e, {
+	              formName: id,
+	              inputId: id + '-inp',
+	              linkId: 'event-grid-dest-add-link',
+	              sendAjax: true
+	            });
+	          }
+	        }
+	      }));
+	      this.socnetDestinationLink = this.wrapNode.appendChild(BX.create('DIV', {
+	        props: {
+	          className: 'calendar-resourcebook-content-block-control-text calendar-resourcebook-content-block-control-text-add'
+	        },
+	        text: this.addMessage
+	      }));
+	      this.init();
+	    }
+	  }, {
+	    key: "show",
+	    value: function show() {
+	      if (this.DOM.outerWrap) {
+	        calendar_resourcebooking.Dom.addClass(this.DOM.outerWrap, 'shown');
+	      }
+	    }
+	  }, {
+	    key: "hide",
+	    value: function hide() {
+	      if (this.DOM.outerWrap) {
+	        BX.removeClass(this.DOM.outerWrap, 'shown');
+	      }
+	    }
+	  }, {
+	    key: "isShown",
+	    value: function isShown() {
+	      if (this.DOM.outerWrap) {
+	        return BX.hasClass(this.DOM.outerWrap, 'shown');
+	      }
+	    }
+	  }, {
+	    key: "init",
+	    value: function init() {
+	      if (!this.socnetDestinationInput || !this.wrapNode) return;
+
+	      var _this = this;
+
+	      this.params.items = this.getSocnetDestinationConfig('items');
+	      this.params.itemsLast = this.getSocnetDestinationConfig('itemsLast');
+
+	      if (this.params.selectGroups === false) {
+	        this.params.items.groups = {};
+	        this.params.items.department = {};
+	        this.params.items.sonetgroups = {};
+	      }
+
+	      BX.SocNetLogDestination.init({
+	        name: this.id,
+	        searchInput: this.socnetDestinationInput,
+	        extranetUser: false,
+	        userSearchArea: 'I',
+	        bindMainPopup: {
+	          node: this.wrapNode,
+	          offsetTop: '5px',
+	          offsetLeft: '15px'
+	        },
+	        bindSearchPopup: {
+	          node: this.wrapNode,
+	          offsetTop: '5px',
+	          offsetLeft: '15px'
+	        },
+	        callback: {
+	          select: BX.proxy(this.selectCallback, this),
+	          unSelect: BX.proxy(this.unSelectCallback, this),
+	          openDialog: BX.proxy(this.openDialogCallback, this),
+	          closeDialog: BX.proxy(this.closeDialogCallback, this),
+	          openSearch: BX.proxy(this.openDialogCallback, this),
+	          closeSearch: function closeSearch() {
+	            _this.closeDialogCallback(true);
+	          }
+	        },
+	        items: this.params.items,
+	        itemsLast: this.params.itemsLast,
+	        itemsSelected: this.params.itemsSelected,
+	        departmentSelectDisable: this.params.selectGroups === false
+	      });
+	    }
+	  }, {
+	    key: "closeAll",
+	    value: function closeAll() {
+	      if (BX.SocNetLogDestination.isOpenDialog()) {
+	        BX.SocNetLogDestination.closeDialog();
+	      }
+
+	      BX.SocNetLogDestination.closeSearch();
+	    }
+	  }, {
+	    key: "selectCallback",
+	    value: function selectCallback(item, type) {
+	      if (type === 'users') {
+	        this.addUserBlock(item);
+	        BX.onCustomEvent('OnResourceBookDestinationAddNewItem', [item, this.id]);
+	        this.socnetDestinationInput.value = '';
+	      }
+	    }
+	  }, {
+	    key: "addUserBlock",
+	    value: function addUserBlock(item, animation) {
+	      if (this.checkLimit && !this.checkLimit()) {
+	        return calendar_resourcebooking.BookingUtil.showLimitationPopup();
+	      }
+
+	      if (this.getAttendeesCodesList().includes(item.id)) {
+	        return;
+	      }
+
+	      var blocks = this.wrapNode.querySelectorAll("calendar-resourcebook-content-block-control-inner[data-id='".concat(item.id, "']"));
+
+	      for (var i = 0; i < blocks.length; i++) {
+	        BX.remove(blocks[i]);
+	      }
+
+	      var itemWrap = this.wrapNode.appendChild(BX.create("DIV", {
+	        attrs: {
+	          'data-id': item.id,
+	          className: "calendar-resourcebook-content-block-control-inner green"
+	        },
+	        html: '<div class="calendar-resourcebook-content-block-control-text">' + item.name + '</div>' + '<div data-item-id="' + item.id + '" data-item-type="users" class="calendar-resourcebook-content-block-control-delete"></div>' + '<input type="hidden" name="' + this.destinationInputName + '[U][]' + '" value="' + item.id + '">'
+	      }));
+
+	      if (animation !== false) {
+	        setTimeout(BX.delegate(function () {
+	          calendar_resourcebooking.Dom.addClass(itemWrap, 'shown');
+	        }, this), 1);
+	      } else {
+	        calendar_resourcebooking.Dom.addClass(itemWrap, 'shown');
+	      }
+
+	      this.wrapNode.appendChild(this.socnetDestinationInputWrap);
+	      this.wrapNode.appendChild(this.socnetDestinationLink);
+	    }
+	  }, {
+	    key: "unSelectCallback",
+	    value: function unSelectCallback(item) {
+	      var elements = BX.findChildren(this.wrapNode, {
+	        attribute: {
+	          'data-id': item.id
+	        }
+	      }, true);
+
+	      if (elements != null) {
+	        for (var j = 0; j < elements.length; j++) {
+	          BX.remove(elements[j]);
+	        }
+	      }
+
+	      BX.onCustomEvent('OnResourceBookDestinationUnselect', [item, this.id]);
+	      this.socnetDestinationInput.value = '';
+	      this.socnetDestinationLink.innerHTML = this.addMessage;
+	    }
+	  }, {
+	    key: "openDialogCallback",
+	    value: function openDialogCallback() {
+	      BX.style(this.socnetDestinationInputWrap, 'display', 'inline-block');
+	      BX.style(this.socnetDestinationLink, 'display', 'none');
+	      BX.focus(this.socnetDestinationInput);
+	    }
+	  }, {
+	    key: "closeDialogCallback",
+	    value: function closeDialogCallback(cleanInputValue) {
+	      if (!BX.SocNetLogDestination.isOpenSearch() && this.socnetDestinationInput.value.length <= 0) {
+	        BX.style(this.socnetDestinationInputWrap, 'display', 'none');
+	        BX.style(this.socnetDestinationLink, 'display', 'inline-block');
+	        if (cleanInputValue === true) this.socnetDestinationInput.value = ''; // Disable backspace
+
+	        if (BX.SocNetLogDestination.backspaceDisable || BX.SocNetLogDestination.backspaceDisable != null) BX.unbind(window, 'keydown', BX.SocNetLogDestination.backspaceDisable);
+	        BX.bind(window, 'keydown', BX.SocNetLogDestination.backspaceDisable = function (e) {
+	          if (e.keyCode === 8) {
+	            e.preventDefault();
+	            return false;
+	          }
+	        });
+	        setTimeout(function () {
+	          BX.unbind(window, 'keydown', BX.SocNetLogDestination.backspaceDisable);
+	          BX.SocNetLogDestination.backspaceDisable = null;
+	        }, 5000);
+	      }
+	    }
+	  }, {
+	    key: "getCodes",
+	    value: function getCodes() {
+	      var inputsList = this.wrapNode.getElementsByTagName('INPUT'),
+	          codes = [],
+	          i,
+	          value;
+
+	      for (i = 0; i < inputsList.length; i++) {
+	        value = BX.util.trim(inputsList[i].value);
+
+	        if (value) {
+	          codes.push(inputsList[i].value);
+	        }
+	      }
+
+	      return codes;
+	    }
+	  }, {
+	    key: "getAttendeesCodes",
+	    value: function getAttendeesCodes() {
+	      var inputsList = this.wrapNode.getElementsByTagName('INPUT'),
+	          values = [],
+	          i;
+
+	      for (i = 0; i < inputsList.length; i++) {
+	        values.push(inputsList[i].value);
+	      }
+
+	      return this.convertAttendeesCodes(values);
+	    }
+	  }, {
+	    key: "convertAttendeesCodes",
+	    value: function convertAttendeesCodes(values) {
+	      var attendeesCodes = {};
+
+	      if (BX.type.isArray(values)) {
+	        values.forEach(function (code) {
+	          if (code.substr(0, 2) === 'DR') {
+	            attendeesCodes[code] = "department";
+	          } else if (code.substr(0, 2) === 'UA') {
+	            attendeesCodes[code] = "groups";
+	          } else if (code.substr(0, 2) === 'SG') {
+	            attendeesCodes[code] = "sonetgroups";
+	          } else if (code.substr(0, 1) === 'U') {
+	            attendeesCodes[code] = "users";
+	          }
+	        });
+	      }
+
+	      return attendeesCodes;
+	    }
+	  }, {
+	    key: "getAttendeesCodesList",
+	    value: function getAttendeesCodesList(codes) {
+	      var result = [];
+	      if (!codes) codes = this.getAttendeesCodes();
+
+	      for (var i in codes) {
+	        if (codes.hasOwnProperty(i)) {
+	          result.push(i);
+	        }
+	      }
+
+	      return result;
+	    }
+	  }, {
+	    key: "getSocnetDestinationConfig",
+	    value: function getSocnetDestinationConfig(key) {
+	      var res,
+	          socnetDestination = this.params.socnetDestination || {};
+
+	      if (key === 'items') {
+	        res = {
+	          users: socnetDestination.USERS || {},
+	          groups: socnetDestination.EXTRANET_USER === 'Y' || socnetDestination.DENY_TOALL ? {} : {
+	            UA: {
+	              id: 'UA',
+	              name: BX.message('USER_TYPE_RESOURCE_TO_ALL_USERS')
+	            }
+	          },
+	          sonetgroups: socnetDestination.SONETGROUPS || {},
+	          department: socnetDestination.DEPARTMENT || {},
+	          departmentRelation: socnetDestination.DEPARTMENT_RELATION || {}
+	        };
+	      } else if (key === 'itemsLast' && socnetDestination.LAST) {
+	        res = {
+	          users: socnetDestination.LAST.USERS || {},
+	          groups: socnetDestination.EXTRANET_USER === 'Y' ? {} : {
+	            UA: true
+	          },
+	          sonetgroups: socnetDestination.LAST.SONETGROUPS || {},
+	          department: socnetDestination.LAST.DEPARTMENT || {}
+	        };
+	      } else if (key === 'itemsSelected') {
+	        res = socnetDestination.SELECTED || {};
+	      }
+
+	      return res || {};
+	    }
+	  }, {
+	    key: "getSelectedValues",
+	    value: function getSelectedValues() {
+	      var result = [],
+	          i,
+	          inputs = this.wrapNode.querySelectorAll('input');
+
+	      for (i = 0; i < inputs.length; i++) {
+	        if (inputs[i].type === 'hidden' && inputs[i].value) {
+	          if (inputs[i].value.substr(0, 1) === 'U') {
+	            result.push(parseInt(inputs[i].value.substr(1)));
+	          }
+	        }
+	      }
+
+	      return result;
+	    }
+	  }, {
+	    key: "setValues",
+	    value: function setValues(userList, trigerOnChange) {
+	      var i, user;
+	      var blocks = this.wrapNode.querySelectorAll('.calendar-resourcebook-content-block-control-inner');
+
+	      for (i = 0; i < blocks.length; i++) {
+	        BX.remove(blocks[i]);
+	      }
+
+	      for (i = 0; i < userList.length; i++) {
+	        if (BX.SocNetLogDestination.obItems[this.id]['users']) {
+	          user = BX.SocNetLogDestination.obItems[this.id]['users']['U' + userList[i]];
+
+	          if (user) {
+	            this.addUserBlock({
+	              id: 'U' + userList[i],
+	              name: user.name
+	            }, false);
+	          }
+	        }
+	      }
+
+	      if (trigerOnChange !== false && this.onChangeCallback && BX.type.isFunction(this.onChangeCallback)) {
+	        setTimeout(BX.proxy(this.onChangeCallback, this), 100);
+	      }
+	    }
+	  }, {
+	    key: "getId",
+	    value: function getId() {
+	      return this.id;
+	    }
+	  }]);
+	  return UserSelectorFieldEditControl;
+	}();
 
 	var ResourceSelectorFieldEditControl = /*#__PURE__*/function () {
 	  function ResourceSelectorFieldEditControl(params) {
@@ -4111,9 +3947,7 @@ this.BX = this.BX || {};
 
 	          return new Promise(function (resolve) {
 	            resolve();
-	          }); // let _validationPromise = new BX.Promise();
-	          // _validationPromise.fulfill();
-	          // return _validationPromise;
+	          });
 	        }.bind(this)]);
 	      }.bind(this), 100);
 	      setTimeout(this.onChangeValues.bind(this), 100);
@@ -4240,6 +4074,8 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "buildTimeControl",
 	    value: function buildTimeControl() {
+	      var _this = this;
+
 	      if (!this.params.fullDay) {
 	        this.DOM.timeWrap = this.DOM.dateTimeWrap.appendChild(calendar_resourcebooking.Dom.create("div", {
 	          props: {
@@ -4268,11 +4104,12 @@ this.BX = this.BX || {};
 	          input: this.DOM.timeFromInput,
 	          values: calendar_resourcebooking.BookingUtil.getSimpleTimeList(),
 	          onChangeCallback: this.triggerUpdatePlanner.bind(this),
-	          onAfterMenuOpen: function (ind, popupMenu) {
+	          onAfterMenuOpen: function onAfterMenuOpen(ind, popupMenu) {
 	            if (!ind && popupMenu) {
-	              var i,
-	                  menuItem,
-	                  nearestTimeValue = calendar_resourcebooking.BookingUtil.adaptTimeValue({
+	              var formatDatetime = BX.isAmPmMode() ? calendar_resourcebooking.Loc.getMessage("FORMAT_DATETIME").replace(':SS', '') : calendar_resourcebooking.Loc.getMessage("FORMAT_DATETIME");
+	              var dateFrom = calendar_resourcebooking.BookingUtil.parseDate(_this.DOM.fromInput.value + ' ' + _this.DOM.timeFromInput.value, false, false, formatDatetime);
+	              var i, menuItem;
+	              var nearestTimeValue = calendar_resourcebooking.BookingUtil.adaptTimeValue({
 	                h: dateFrom.getHours(),
 	                m: dateFrom.getMinutes()
 	              });
@@ -4287,7 +4124,7 @@ this.BX = this.BX || {};
 	                }
 	              }
 	            }
-	          }.bind(this)
+	          }
 	        });
 	      }
 	    }
@@ -4602,16 +4439,16 @@ this.BX = this.BX || {};
 	    key: "plannerSelectorOnChange",
 	    value: function plannerSelectorOnChange(params) {
 	      if (params.plannerId === this.params.plannerId && calendar_resourcebooking.Type.isDate(params.dateFrom) && calendar_resourcebooking.Type.isDate(params.dateTo)) {
-	        var _dateFrom = params.dateFrom,
+	        var dateFrom = params.dateFrom,
 	            dateTo = params.dateTo;
-	        this.DOM.fromInput.value = calendar_resourcebooking.BookingUtil.formatDate(calendar_resourcebooking.BookingUtil.getDateFormat(), _dateFrom);
+	        this.DOM.fromInput.value = calendar_resourcebooking.BookingUtil.formatDate(calendar_resourcebooking.BookingUtil.getDateFormat(), dateFrom);
 
 	        if (this.DOM.timeFromInput) {
-	          this.DOM.timeFromInput.value = calendar_resourcebooking.BookingUtil.formatDate(calendar_resourcebooking.BookingUtil.getTimeFormatShort(), _dateFrom);
+	          this.DOM.timeFromInput.value = calendar_resourcebooking.BookingUtil.formatDate(calendar_resourcebooking.BookingUtil.getTimeFormatShort(), dateFrom);
 	        } // Duration in minutes
 
 
-	        this.duration = (dateTo.getTime() - _dateFrom.getTime() + (this.params.fullDay ? calendar_resourcebooking.BookingUtil.getDayLength() : 0)) / 60000;
+	        this.duration = (dateTo.getTime() - dateFrom.getTime() + (this.params.fullDay ? calendar_resourcebooking.BookingUtil.getDayLength() : 0)) / 60000;
 	        this.duration = Math.round(Math.max(this.duration, 0));
 	        this.durationList.setValue(this.duration);
 	        this.onChangeValues();
@@ -6512,5 +6349,5 @@ this.BX = this.BX || {};
 	exports.AdminSettingsViewer = AdminSettingsViewer;
 	exports.ResourcebookingUserfield = ResourcebookingUserfield;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX,BX,BX,BX.Calendar,BX.Calendar));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX.UI.EntitySelector,BX.Event,BX,BX,BX,BX.Calendar,BX.Calendar));
 //# sourceMappingURL=resourcebookinguserfield.bundle.js.map

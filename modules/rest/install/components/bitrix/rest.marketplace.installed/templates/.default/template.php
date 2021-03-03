@@ -86,14 +86,10 @@ if (!$arResult['SLIDER'])
 				}
 				elseif ($app["ACTIVE"] == "Y" && is_array($app['APP_STATUS']) && $app['APP_STATUS']['PAYMENT_NOTIFY'] == 'Y')
 				{
-					if ($arResult['ADMIN'])
-					{
-						$app['APP_STATUS']['MESSAGE_SUFFIX'] .= '_A';
-					}
 					?>
 					<div class="ui-alert ui-alert-xs ui-alert-warning">
 						<span class="ui-alert-message">
-							<?=GetMessage('PAYMENT_MESSAGE'.$app['APP_STATUS']['MESSAGE_SUFFIX'], $app['APP_STATUS']['MESSAGE_REPLACE']);?>
+							<?=\Bitrix\Rest\AppTable::getStatusMessage($app['APP_STATUS']['MESSAGE_SUFFIX'], $app['APP_STATUS']['MESSAGE_REPLACE'])?>
 						</span>
 					</div>
 					<?

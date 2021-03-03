@@ -188,8 +188,11 @@ if($REQUEST_METHOD == "POST" && $Update <> '' && $USER->CanDoOperation('fileman_
 
 
 	//Entities
-	COption::SetOptionString($module_id, "ar_entities", count($ar_entities) <= 0 ? 'none' : implode(',',$ar_entities));
-
+	if (isset($_POST['ar_entities']))
+	{
+		$ar_entities = is_array($_POST['ar_entities']) ? $_POST['ar_entities'] : [];
+		COption::SetOptionString($module_id, "ar_entities", count($ar_entities) <= 0 ? 'none' : implode(',', $ar_entities));
+	}
 	COption::SetOptionString($module_id, "editor_body_id", htmlspecialcharsbx($editor_body_id));
 	COption::SetOptionString($module_id, "editor_body_class", htmlspecialcharsbx($editor_body_class));
 

@@ -59,12 +59,21 @@ $component = $this->getComponent();
 		}
 		elseif($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_UI)
 		{
+			$postfix = $this->randString();
+			if ($component->isAjaxRequest())
+			{
+				$postfix .= time();
+			}
+			$arResult['valueContainerId'] .= $postfix;
+			$arResult['spanAttrList']['id'] = $arResult['valueContainerId'];
+			$arResult['controlNodeId'] .= $postfix;
+			$defaultFieldName = $arResult['fieldName'].'_default_'.$postfix;
 			?>
 
 			<input
 				type="hidden"
 				value=""
-				id="<?= $arResult['fieldName'] ?>_default"
+				id="<?= $defaultFieldName ?>"
 			>
 			<span <?= $component->getHtmlBuilder()->buildTagAttributes($arResult['spanAttrList']) ?>>
 			<?php
@@ -84,6 +93,7 @@ $component = $this->getComponent();
 
 			<?php
 			$scriptParams = CUtil::PhpToJSObject([
+				'defaultFieldName' => $defaultFieldName,
 				'fieldName' => $arResult['fieldNameJs'],
 				'container' => $arResult['controlNodeId'],
 				'valueContainerId' => $arResult['valueContainerId'],
@@ -162,6 +172,7 @@ EOT;
 	else
 	{
 		$arResult['additionalParameters']['mode'] = BaseType::MODE_VIEW;
+		$arResult['additionalParameters']['showInputs'] = true;
 		$field = new \Bitrix\Main\UserField\Renderer($arResult['userField'], $arResult['additionalParameters']);
 		print $field->render();
 	}

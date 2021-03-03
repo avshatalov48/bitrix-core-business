@@ -6,7 +6,7 @@ use \Bitrix\Main\UI\Extension;
 
 /** @var array $arParams */
 
-Extension::load(['ui.hint', 'seo.ads.client_selector']);
+Extension::load(['ui.hint', 'seo.ads.client_selector','seo.ads.login']);
 
 $containerNodeId = $arParams['CONTAINER_NODE_ID'];
 $destroyEventName = $arParams['JS_DESTROY_EVENT_NAME'];
@@ -42,7 +42,6 @@ $multiClients = array_key_exists('CLIENTS', $arParams['PROVIDER']);
 		<div class="crm-ads-rtg-popup-social crm-ads-rtg-popup-social-<?=$type?>">
 			<span
 				id="seo-ads-login-btn"
-				onclick="BX.util.popup('<?=htmlspecialcharsbx($provider['AUTH_URL'])?>', 800, 600);"
 				class="webform-small-button webform-small-button-transparent">
 				<?=Loc::getMessage('CRM_ADS_RTG_LOGIN')?>
 			</span>
@@ -324,8 +323,7 @@ $multiClients = array_key_exists('CLIENTS', $arParams['PROVIDER']);
 </script>
 
 <script>
-	BX.ready(function () {
-
+		BX.ready(function () {
 		var r = (Date.now()/1000|0);
 		BX.loadCSS('<?=$this->GetFolder()?>/configurator.css?' + r);
 		BX.loadScript('<?=$this->GetFolder()?>/configurator.js?' + r, function()

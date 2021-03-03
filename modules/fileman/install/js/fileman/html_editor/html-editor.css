@@ -2096,31 +2096,12 @@ border-radius: 2px; cursor: pointer;
 }
 
 
-
-
-
-
-
 .bxhtmled-paste-control .bx-core-popup-menu-angle{
 	display: none;
 }
 .bxhtmled-paste-control .bx-core-popup-menu-angle-bottom {
 	display: none;
 }
-
-
-
-/* dirty hacks for old filedialog and medialib dialog*/
-/* File dialog*/
-.editor_dialog{z-index: 3500 !important;}
-/*.bx-js-float-shadow {z-index: 3498 !important;}*/
-.bxfd-sys-frame {z-index: 3495 !important;}
-div#__BXFDContextMenu {z-index: 3501 !important;}
-/* Medialib */
-.bxml-dialog{z-index: 3500 !important;}
-.bxml-subdialog-cont {z-index: 3505 !important;}
-img#mlsd_item_shadow, img#mlsd_coll_shadow{z-index: 3502 !important;}
-/* dirty hacks END */
 
 .bxhtmled-warning {
 	padding: 10px;

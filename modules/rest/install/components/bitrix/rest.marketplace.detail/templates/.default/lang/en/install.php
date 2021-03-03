@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["B24_APP_INSTALL_CANCEL"] = "Close";
 $MESS["B24_APP_INSTALL_VERSION"] = "Version";
 $MESS["BX24_APP_INSTALL_ADMIN_ERROR"] = "Please contact your Intranet administrator to install the application.";
@@ -13,5 +13,4 @@ $MESS["BX24_APP_INSTALL_PRIVACY_LINK"] = "https://www.bitrix24.com/privacy/";
 $MESS["BX24_APP_INSTALL_PRIVACY_TEXT"] = "I have read and agree with the <a href=\"#LINK#\" target=\"_blank\">Privacy Policy</a>";
 $MESS["BX24_APP_INSTALL_RIGHTS"] = "The application requests permissions for:";
 $MESS["BX24_APP_INSTALL_SUCCESS"] = "The application has been installed. <a href='#LINK#'>Open</a>";
-$MESS["BX24_APP_INSTALL_TERMS_OF_SERVICE_TEXT"] = "By installing or downloading third party applications or integration connectors you agree to <a href=\"#LINK#\" target=\"_blank\">Bitrix24 Marketplace Terms of Service</a>";
-?>
+$MESS["BX24_APP_INSTALL_TERMS_OF_SERVICE_TEXT_2"] = "By installing or downloading apps or solutions, you agree to the <a href=\"#LINK#\" target=\"_blank\">Bitrix24.Market Terms of Use</a>";

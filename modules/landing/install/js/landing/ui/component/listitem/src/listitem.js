@@ -283,7 +283,16 @@ export class ListItem extends EventEmitter
 
 		if (this.options.sourceOptions)
 		{
-			return Runtime.merge(this.options.sourceOptions, value);
+			const sourceOptions = Runtime.clone(this.options.sourceOptions);
+			if (
+				Type.isArray(this.options.sourceOptions.items)
+				&& Type.isArray(value.items)
+			)
+			{
+				delete sourceOptions.items;
+			}
+
+			return Runtime.merge(sourceOptions, value);
 		}
 
 		return value;

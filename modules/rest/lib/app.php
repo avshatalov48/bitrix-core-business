@@ -679,6 +679,24 @@ class AppTable extends Main\Entity\DataManager
 		return $res;
 	}
 
+	/**
+	 * @param $suffix
+	 * @param array|null $replace
+	 * @param bool $checkAdmin
+	 * @param string|null $language
+	 *
+	 * @return string
+	 */
+	public static function getStatusMessage($suffix, $replace = null, $checkAdmin = true, $language = null)
+	{
+		if ($checkAdmin && \CRestUtil::isAdmin())
+		{
+			$suffix .= '_A';
+		}
+
+		return Loc::getMessage('PAYMENT_MESSAGE' . $suffix, $replace, $language);
+	}
+
 	public static function getAccess($appId)
 	{
 		$appInfo = static::getByClientId($appId);

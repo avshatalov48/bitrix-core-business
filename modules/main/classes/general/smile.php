@@ -687,8 +687,8 @@ class CSmile
 
 				$smile['IMAGE'] = GetFileName($smile['IMAGE']);
 
-				$imgArray = CFile::GetImageSize($sUnpackDir.$smile['IMAGE']);
-				if (!is_array($imgArray))
+				$info = (new \Bitrix\Main\File\Image($sUnpackDir.$smile['IMAGE']))->getInfo();
+				if (!$info)
 					continue;
 
 				$arInsert = Array(
@@ -723,8 +723,8 @@ class CSmile
 
 					if (is_file($sUnpackDir.$file))
 					{
-						$imgArray = CFile::GetImageSize($sUnpackDir.$file);
-						if (is_array($imgArray))
+						$info = (new \Bitrix\Main\File\Image($sUnpackDir.$file))->getInfo();
+						if ($info)
 						{
 							$smileHR = self::IMAGE_SD;
 							$smileType = CSmile::TYPE_SMILE;
@@ -764,8 +764,8 @@ class CSmile
 								'CLICKABLE' => 'Y',
 								'SORT' => $sort,
 								'IMAGE' => $file,
-								'IMAGE_WIDTH' => intval($imgArray[0]),
-								'IMAGE_HEIGHT' => intval($imgArray[1]),
+								'IMAGE_WIDTH' => intval($info->getWidth()),
+								'IMAGE_HEIGHT' => intval($info->getHeight()),
 								'IMAGE_DEFINITION' => $smileHR,
 								'TYPING' => ':'.(isset($smileSet['STRING_ID'])? $smileSet['STRING_ID']: $smileSet['ID']).'/'.$smileCode.':',
 							);

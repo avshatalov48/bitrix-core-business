@@ -12,7 +12,7 @@ class ZoomUser extends BaseReceiver
 	public function deauthorizeAction(string $socServLogin, array $payload): void
 	{
 		$result = UserTable::getList([
-			'select' => ['ID'],
+			'select' => ['ID', 'USER_ID'],
 			'filter' => [
 				'=LOGIN' => $socServLogin,
 				'=EXTERNAL_AUTH_ID' => 'zoom',
@@ -22,6 +22,11 @@ class ZoomUser extends BaseReceiver
 		while ($user = $result->fetch())
 		{
 			$deleteResult = UserTable::delete($user['ID']);
+
+			//clean cache to update zoom connect page
+			$cacheId = 'zoom' . '|' . $user['USER_ID'];
+			$cache = \Bitrix\Main\Data\Cache::createInstance();
+			$cache->clean($cacheId, \CZoomInterface::CACHE_DIR_CONNECT_INFO);
 		}
 
 		//we send compliance request only once, even if a zoom user was connected on several Bitrix24.

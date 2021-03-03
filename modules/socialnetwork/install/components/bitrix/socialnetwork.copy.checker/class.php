@@ -134,7 +134,7 @@ class SocialnetworkCopyChecker extends CBitrixComponent implements Controllerabl
 			$this->arResult["errorOption"].$this->arParams["queueId"],
 			""
 		);
-		$option = ($option !== "" ? unserialize($option) : []);
+		$option = ($option !== "" ? unserialize($option, [ 'allowed_classes' => false ]) : []);
 
 		return (is_array($option) ? $option : []);
 	}

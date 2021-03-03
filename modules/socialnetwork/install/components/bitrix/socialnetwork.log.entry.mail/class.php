@@ -277,7 +277,7 @@ class CBitrixSocialnetworkLogEntryMailComponent extends CBitrixComponent
 						unset($comment["UF"]["UF_SONET_COM_URL_PRV"]);
 					}
 
-					$commentFormatted = __SLEGetLogCommentRecord($comment, array(
+					$commentFormatted = \Bitrix\Socialnetwork\Component\LogEntry::getLogCommentRecord($comment, array(
 						"MAIL" => "Y",
 						"AVATAR_SIZE" => $this->arParams["AVATAR_SIZE_COMMENT"],
 						"NAME_TEMPLATE" => \CSite::getNameFormat(false, $arResult["SITE"]["ID"]),

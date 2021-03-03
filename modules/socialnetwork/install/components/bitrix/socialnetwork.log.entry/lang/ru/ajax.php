@@ -3,6 +3,5 @@ $MESS["SONET_LOG_COMMENT_EMPTY"] = "Не указан текст сообщен�
 $MESS["SONET_LOG_COMMENT_NO_PERMISSIONS"] = "Нет прав на добавление комментария";
 $MESS["SONET_LOG_COMMENT_NO_PERMISSIONS_UPDATE"] = "Нет прав на изменение комментария";
 $MESS["SONET_C73_CREATED_BY_ANONYMOUS"] = "Неавторизованный пользователь";
-$MESS["SONET_LOG_EXTRANET_SUFFIX"] = " (экстранет)";
 $MESS["SONET_LOG_COMMENT_DELETED"] = "Комментарий был удален";
 ?>

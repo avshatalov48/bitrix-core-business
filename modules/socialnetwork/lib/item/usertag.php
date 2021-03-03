@@ -8,6 +8,7 @@
 namespace Bitrix\Socialnetwork\Item;
 
 use Bitrix\Main\Loader;
+use Bitrix\Main\ModuleManager;
 use Bitrix\Socialnetwork\UserTagTable;
 use Bitrix\Main\Entity;
 
@@ -21,8 +22,9 @@ class UserTag
 
 		if (
 			empty($params)
-			&& !is_array($params)
-			|| empty(trim($params['tag']))
+			|| !is_array($params)
+			|| !isset($params['tag'])
+			|| trim($params['tag']) === ''
 		)
 		{
 			return $result;
@@ -30,14 +32,14 @@ class UserTag
 
 		$tag = trim($params['tag']);
 
-		$currentUserId = (isset($params['currentUserId']) ? intval($params['currentUserId']) : 0);
-		$avatarSize = (isset($params['avatarSize']) ? intval($params['avatarSize']) : 100);
-		$pageSize = (isset($params['pageSize']) ? intval($params['pageSize']) : 10);
-		$pageNum = (!empty($params['page']) ? intval($params['page']) : 1);
+		$currentUserId = (isset($params['currentUserId']) ? (int)$params['currentUserId'] : 0);
+		$avatarSize = (isset($params['avatarSize']) ? (int)$params['avatarSize'] : 100);
+		$pageSize = (isset($params['pageSize']) ? (int)$params['pageSize'] : 10);
+		$pageNum = (!empty($params['page']) ? (int)$params['page'] : 1);
 		$pathToUser = (!empty($params['pathToUser']) ? $params['pathToUser'] : '');
 
-		$ratingId = \CRatings::getAuthorityRating();
-		if (intval($ratingId) <= 0)
+		$ratingId = (int)\CRatings::getAuthorityRating();
+		if ($ratingId <= 0)
 		{
 			return $result;
 		}
@@ -46,22 +48,23 @@ class UserTag
 
 		$queryParams = [
 			'order' => (
-				\Bitrix\Main\ModuleManager::isModuleInstalled('intranet')
+				ModuleManager::isModuleInstalled('intranet')
 					? [
 						'SUBORDINATE.VOTES' => 'DESC'
 					]
 				: []
 			),
 			'filter' => [
-				'NAME' => $tag
+				'NAME' => $tag,
+				'=USER.ACTIVE' => 'Y'
 			],
 			'runtime' => (
-				\Bitrix\Main\ModuleManager::isModuleInstalled('intranet')
+				ModuleManager::isModuleInstalled('intranet')
 					? [
 						new \Bitrix\Main\Entity\ReferenceField(
 							'SUBORDINATE',
 							'\Bitrix\Intranet\RatingSubordinateTable',
-							Entity\Query\Join::on('this.USER_ID', 'ref.ENTITY_ID')->where('ref.RATING_ID', intval($ratingId)),
+							Entity\Query\Join::on('this.USER_ID', 'ref.ENTITY_ID')->where('ref.RATING_ID', $ratingId),
 							["join_type" => "left"]
 						)
 					]
@@ -85,7 +88,7 @@ class UserTag
 
 		if (!empty($userIdList))
 		{
-			$userData = \Bitrix\Socialnetwork\Item\UserTag::getUserData([
+			$userData = self::getUserData([
 				'userIdList' => $userIdList,
 				'pathToUser' => $pathToUser,
 				'avatarSize' => $avatarSize
@@ -103,7 +106,7 @@ class UserTag
 		$result['CAN_ADD'] = 'N';
 		if ($currentUserId > 0)
 		{
-			$res = \Bitrix\Socialnetwork\UserTagTable::getList([
+			$res = UserTagTable::getList([
 				'filter' => [
 					'USER_ID' => $currentUserId,
 					'NAME' => $tag
@@ -131,7 +134,7 @@ class UserTag
 		}
 
 		$userIdList = (!empty($params['userIdList']) && is_array($params['userIdList']) ? $params['userIdList'] : []);
-		$avatarSize = (!empty($params['avatarSize']) && intval($params['avatarSize']) > 0 ? intval($params['avatarSize']) : 100);
+		$avatarSize = (!empty($params['avatarSize']) && (int)$params['avatarSize'] > 0 ? (int)$params['avatarSize'] : 100);
 
 		if (empty($userIdList))
 		{
@@ -173,7 +176,7 @@ class UserTag
 				'TYPE' => (!empty($userFields['USER_TYPE']) ? $userFields['USER_TYPE'] : '')
 			);
 
-			if (intval($userFields['PERSONAL_PHOTO']) > 0)
+			if ((int)$userFields['PERSONAL_PHOTO'] > 0)
 			{
 				$imageFile = \CFile::getFileArray($userFields["PERSONAL_PHOTO"]);
 				if ($imageFile !== false)

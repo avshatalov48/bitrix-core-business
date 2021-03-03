@@ -28,12 +28,27 @@ if ($arParams['IS_SLIDER'])
 $needPadding = $arParams['SET_TITLE'] == 'Y' ? true : false;
 
 Loader::includeModule('ui');
-Extension::load(['ui.common','ui.buttons']);
+Extension::load(['ui.common','ui.buttons','marketplace']);
 
+$demoButton = '';
 if ($arResult['PAYMENT_TYPE'] === AppTable::STATUS_SUBSCRIPTION || $arResult['APP_STATUS']['STATUS'] === AppTable::STATUS_SUBSCRIPTION)
 {
-	$title = Loc::getMessage('REST_APP_LAYOUT_PAYMENT_ACCESS_TITLE_SUBSCRIBE');
-	$buyButton = Loc::getMessage('REST_APP_LAYOUT_PAYMENT_ACCESS_BTN_BUY_SUBSCRIBE');
+	if (!$arResult['SUBSCRIPTION_FINISH'])
+	{
+		$title = Loc::getMessage(
+			'REST_APP_LAYOUT_PAYMENT_ACCESS_TITLE_SUBSCRIBE_APP',
+			[
+				'#APP_NAME#' => htmlspecialcharsbx($arResult['APP_NAME'])
+			]
+		);
+		$buyButton = Loc::getMessage('REST_APP_LAYOUT_PAYMENT_ACCESS_BTN_BUY_SUBSCRIBE_NEW');
+		$demoButton = Loc::getMessage('REST_APP_LAYOUT_PAYMENT_ACCESS_BTN_DEMO_SUBSCRIBE');
+	}
+	else
+	{
+		$title = Loc::getMessage('REST_APP_LAYOUT_PAYMENT_ACCESS_TITLE_SUBSCRIBE_2');
+		$buyButton = Loc::getMessage('REST_APP_LAYOUT_PAYMENT_ACCESS_BTN_BUY_SUBSCRIBE');
+	}
 	$buyUrl = '/settings/license_buy.php?product=subscr';
 }
 else
@@ -66,12 +81,22 @@ else
 			<div class="app-layout-icon-clock"></div>
 		</div>
 	</div>
-	<?php
-	if ($arResult['PAYMENT_TYPE'] === AppTable::STATUS_SUBSCRIPTION || $arResult['APP_STATUS']['STATUS'] === AppTable::STATUS_SUBSCRIPTION):?>
-		<a class="ui-btn ui-btn-success ui-btn-lg ui-btn-round app-layout-subscribe-renew-button" target="_blank" href="<?=$buyUrl; ?>"><?=$buyButton; ?></a>
-	<?php else:?>
-		<a class="ui-btn ui-btn-success ui-btn-lg ui-btn-round app-layout-subscribe-renew-button" href="<?=$buyUrl; ?>"><?=$buyButton; ?></a>
-	<?php endif;?>
+	<div>
+		<?php
+		if ($arResult['PAYMENT_TYPE'] === AppTable::STATUS_SUBSCRIPTION || $arResult['APP_STATUS']['STATUS'] === AppTable::STATUS_SUBSCRIPTION):?>
+			<a class="ui-btn ui-btn-success ui-btn-lg ui-btn-round app-layout-subscribe-renew-button" target="_blank" href="<?=$buyUrl; ?>"><?=$buyButton; ?></a>
+			<?php if ($demoButton !== ''):?>
+				<span
+					class="ui-btn ui-btn-sm ui-btn-link app-layout-subscribe-renew-button"
+					onclick="BX.rest.Marketplace.openDemoSubscription();"
+				>
+					<?=$demoButton?>
+				</span>
+			<?php endif;?>
+		<?php else:?>
+			<a class="ui-btn ui-btn-success ui-btn-lg ui-btn-round app-layout-subscribe-renew-button" href="<?=$buyUrl; ?>"><?=$buyButton; ?></a>
+		<?php endif;?>
+	</div>
 </div>
 <?php
 

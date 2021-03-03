@@ -1,7 +1,7 @@
 ;(function ()
 {
 	BX.namespace('BX.rest.integration');
-	if (BX.rest.integration.Selector)
+	if (BX.rest.integration.selector)
 	{
 		return;
 	}
@@ -201,7 +201,7 @@
 		return new Selector(params);
 	};
 
-	BX.rest.integration.Selector = Selector;
-	BX.rest.integration.SelectorManager = new Manager();
+	BX.rest.integration.selector = Selector;
+	BX.rest.integration.selectorManager = new Manager();
 
 })(window);

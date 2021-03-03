@@ -3,10 +3,13 @@
 namespace Bitrix\Seo\Retargeting;
 
 use Bitrix\Main\Loader;
-use Bitrix\Main\Web\Uri;
 use Bitrix\Main\SystemException;
+use Bitrix\Main\Web\Uri;
+use Bitrix\Seo\BusinessSuite\Utils\QueueRemoveEventHandler;
 use Bitrix\Seo\Service;
 use Bitrix\Seo\Service as SeoService;
+use Bitrix\Main\Event;
+use Bitrix\Main\EventManager;
 
 class AuthAdapter
 {
@@ -17,7 +20,7 @@ class AuthAdapter
 	protected $transport;
 	protected $requestCodeParamName;
 	protected $data;
-	
+
 	/** @var array $parameters Parameters. */
 	protected $parameters = ['URL_PARAMETERS' => []];
 
@@ -99,6 +102,7 @@ class AuthAdapter
 
 		if ($existedAuthData = $this->getAuthData(false))
 		{
+			QueueRemoveEventHandler::handleEvent($existedAuthData['proxy_client_id'], $existedAuthData['engine_code']);
 			if ($this->canUseMultipleClients())
 			{
 				SeoService::clearAuthForClient($existedAuthData);
@@ -136,7 +140,10 @@ class AuthAdapter
 
 	public function hasAuth()
 	{
-		return $this->canUseMultipleClients() ? count($this->getAuthorizedClientsList()) > 0 : $this->getToken() <> '';
+		$multiple = $this->canUseMultipleClients();
+		$authorized = count($this->getAuthorizedClientsList()) > 0;
+		$token = $this->getToken() <> '';
+		return  $multiple? $authorized : $token;
 	}
 
 	public function canUseMultipleClients()

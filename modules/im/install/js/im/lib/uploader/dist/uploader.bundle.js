@@ -27,6 +27,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    this.host = options.host || null;
 	    this.actionUploadChunk = options.actionUploadChunk || 'disk.api.content.upload';
 	    this.actionCommitFile = options.actionCommitFile || 'disk.api.file.createByContent';
+	    this.actionRollbackUpload = options.actionRollbackUpload || 'disk.api.content.rollbackUpload';
 	    this.customHeaders = options.customHeaders || null;
 	  }
 
@@ -68,26 +69,23 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      }).then(function (response) {
 	        return response.json();
 	      }).then(function (result) {
-	        if (result.data.token) {
-	          if (result.errors.length > 0) {
-	            _this.status = Uploader.STATUSES.FAILED;
+	        if (result.errors.length > 0) {
+	          _this.status = Uploader.STATUSES.FAILED;
 
-	            _this.listener('onUploadFileError', {
-	              id: _this.taskId,
-	              result: result
-	            });
+	          _this.listener('onUploadFileError', {
+	            id: _this.taskId,
+	            result: result
+	          });
 
-	            console.error(result.errors[0].message);
+	          console.error(result.errors[0].message);
+	        } else if (result.data.token) {
+	          _this.token = result.data.token;
+	          _this.readOffset = _this.readOffset + _this.chunkSizeInBytes;
+
+	          if (!_this.isEndOfFile()) {
+	            _this.uploadContent();
 	          } else {
-	            _this.token = result.data.token;
-
-	            if (!_this.isEndOfFile()) {
-	              _this.readOffset = _this.readOffset + _this.chunkSizeInBytes;
-
-	              _this.uploadContent();
-	            } else {
-	              _this.createFileFromUploadedChunks();
-	            }
+	            _this.createFileFromUploadedChunks();
 	          }
 	        }
 	      }).catch(function (err) {
@@ -109,13 +107,24 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        return;
 	      }
 
-	      var url = "".concat(this.host ? this.host : "", "/bitrix/services/main/ajax.php?\n\t\taction=disk.api.content.rollbackUpload&token=").concat(this.token);
+	      var url = "".concat(this.host ? this.host : "", "/bitrix/services/main/ajax.php?\n\t\taction=").concat(this.actionRollbackUpload, "&token=").concat(this.token);
+	      var headers = {};
+
+	      if (!this.customHeaders) {
+	        headers['X-Bitrix-Csrf-Token'] = BX.bitrix_sessid();
+	      } else //if (this.customHeaders)
+	        {
+	          for (var customHeader in this.customHeaders) {
+	            if (this.customHeaders.hasOwnProperty(customHeader)) {
+	              headers[customHeader] = this.customHeaders[customHeader];
+	            }
+	          }
+	        }
+
 	      fetch(url, {
 	        method: 'POST',
 	        credentials: "include",
-	        headers: {
-	          "X-Bitrix-Csrf-Token": BX.bitrix_sessid()
-	        }
+	        headers: headers
 	      }).then(function (response) {
 	        return response.json();
 	      }).then(function (result) {
@@ -251,6 +260,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          host: options.sender.host,
 	          actionUploadChunk: options.sender.actionUploadChunk,
 	          actionCommitFile: options.sender.actionCommitFile,
+	          actionRollbackUpload: options.sender.actionRollbackUpload,
 	          customHeaders: options.sender.customHeaders || {}
 	        };
 	      }

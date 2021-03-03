@@ -32,7 +32,15 @@ $bodyClass = $APPLICATION->getPageProperty('BodyClass', false);
 $bodyClasses = 'no-hidden no-background no-all-paddings no-margin-toolbar';
 $APPLICATION->setPageProperty('BodyClass', trim(sprintf('%s %s', $bodyClass, $bodyClasses)));
 
-Extension::load(['ui.tilegrid', 'ui.buttons', 'ui.sidepanel-content']);
+Extension::load(
+	[
+		'ui.tilegrid',
+		'ui.buttons',
+		'ui.sidepanel-content',
+		'rest.integration',
+	]
+);
+
 if (!empty($arResult['ITEMS'])):
 	?>
 	<div class="rest-market-section">

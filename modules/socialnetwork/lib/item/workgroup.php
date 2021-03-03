@@ -121,6 +121,22 @@ class Workgroup
 		return ($this->fields['SCRUM_MASTER_ID'] ? $this->fields['SCRUM_MASTER_ID'] : 0);
 	}
 
+	public function getScrumTaskResponsible(): string
+	{
+		if ($this->fields['SCRUM_TASK_RESPONSIBLE'])
+		{
+			$scrumTaskResponsible = $this->fields['SCRUM_TASK_RESPONSIBLE'];
+			$availableResponsibleTypes = ['A', 'M'];
+			return (
+				in_array($scrumTaskResponsible, $availableResponsibleTypes) ? $scrumTaskResponsible : 'A'
+			);
+		}
+		else
+		{
+			return 'A';
+		}
+	}
+
 	public static function getListSprintDuration(): array
 	{
 		$oneWeek = \DateInterval::createFromDateString('1 week')->format('%d') * 86400;
@@ -133,6 +149,14 @@ class Workgroup
 			$twoWeek => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_SCRUM_SPRINT_DURATION_TWO_WEEK'),
 			$threeWeek => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_SCRUM_SPRINT_DURATION_THREE_WEEK'),
 			$fourWeek => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_SCRUM_SPRINT_DURATION_FOUR_WEEK'),
+		];
+	}
+
+	public static function getScrumTaskResponsibleList(): array
+	{
+		return [
+			'A' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_SCRUM_TASK_RESPONSIBLE_AUTHOR'),
+			'M' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_SCRUM_TASK_RESPONSIBLE_MASTER')
 		];
 	}
 
@@ -211,7 +235,7 @@ class Workgroup
 		)
 		{
 			$workgroupsToSync = Option::get('socialnetwork', 'workgroupsToSync', "");
-			$workgroupsToSync = ($workgroupsToSync !== "" ? @unserialize($workgroupsToSync) : []);
+			$workgroupsToSync = ($workgroupsToSync !== "" ? @unserialize($workgroupsToSync, [ 'allowed_classes' => false ]) : []);
 			if (!is_array($workgroupsToSync))
 			{
 				$workgroupsToSync = [];
@@ -513,6 +537,14 @@ class Workgroup
 				: array()
 		);
 
+		$entityOptions = (
+			!empty($params)
+			&& is_array($params['entityOptions'])
+			&& !empty($params['entityOptions'])
+				? $params['entityOptions']
+				: []
+		);
+
 		$fullMode = (
 			!empty($params)
 			&& isset($params["fullMode"])
@@ -532,29 +564,40 @@ class Workgroup
 		{
 			if (!$currentExtranetSite)
 			{
-				$result['project-open'] = array(
-					'SORT' => $sort = $sort + 10,
-					'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_OPEN'),
-					'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_OPEN_DESC'),
-					'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_OPEN_DESC2'),
-					'VISIBLE' => 'Y',
-					'OPENED' => 'Y',
-					'PROJECT' => 'Y',
-					'EXTERNAL' => 'N',
-					'TILE_CLASS' => 'social-group-tile-item-cover-open social-group-tile-item-icon-project-open'
-				);
-				$result['project-closed'] = array(
-					'SORT' => $sort = $sort + 10,
-					'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_CLOSED'),
-					'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_CLOSED_DESC'),
-					'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_CLOSED_DESC'),
-					'VISIBLE' => 'N',
-					'OPENED' => 'N',
-					'PROJECT' => 'Y',
-					'EXTERNAL' => 'N',
-					'TILE_CLASS' => 'social-group-tile-item-cover-close social-group-tile-item-icon-project-close'
-				);
-				if (Option::get('tasks', 'tasks_scrum_enabled', 'N') === 'Y')
+				if (self::checkEntityOption([ 'project', 'open', '!extranet', '!landing' ], $entityOptions))
+				{
+					$result['project-open'] = array(
+						'SORT' => $sort = $sort + 10,
+						'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_OPEN'),
+						'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_OPEN_DESC'),
+						'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_OPEN_DESC2'),
+						'VISIBLE' => 'Y',
+						'OPENED' => 'Y',
+						'PROJECT' => 'Y',
+						'EXTERNAL' => 'N',
+						'TILE_CLASS' => 'social-group-tile-item-cover-open social-group-tile-item-icon-project-open'
+					);
+				}
+
+				if (self::checkEntityOption([ 'project', '!open', '!extranet', '!landing' ], $entityOptions))
+				{
+					$result['project-closed'] = array(
+						'SORT' => $sort = $sort + 10,
+						'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_CLOSED'),
+						'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_CLOSED_DESC'),
+						'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_CLOSED_DESC'),
+						'VISIBLE' => 'N',
+						'OPENED' => 'N',
+						'PROJECT' => 'Y',
+						'EXTERNAL' => 'N',
+						'TILE_CLASS' => 'social-group-tile-item-cover-close social-group-tile-item-icon-project-close'
+					);
+				}
+
+				if (
+					Option::get('tasks', 'tasks_scrum_enabled', 'N') === 'Y'
+					&& self::checkEntityOption([ 'project', 'scrum', '!extranet', '!landing' ], $entityOptions)
+				)
 				{
 					$result['project-scrum'] = [
 						'SORT' => $sort = $sort + 10,
@@ -569,7 +612,11 @@ class Workgroup
 						'TILE_CLASS' => 'social-group-tile-item-cover-scrum social-group-tile-item-icon-project-scrum'
 					];
 				}
-				if ($fullMode)
+
+				if (
+					$fullMode
+					&& self::checkEntityOption([ 'project', '!open', '!extranet', '!landing' ], $entityOptions)
+				)
 				{
 					$result['project-closed-visible'] = array(
 						'SORT' => $sort = $sort + 10,
@@ -585,7 +632,10 @@ class Workgroup
 				}
 			}
 
-			if ($extranetInstalled)
+			if (
+				$extranetInstalled
+				&& self::checkEntityOption([ 'project', 'extranet', '!landing' ], $entityOptions)
+			)
 			{
 				$result['project-external'] = array(
 					'SORT' => $sort = $sort + 10,
@@ -609,50 +659,54 @@ class Workgroup
 			)
 		)
 		{
-			$result['group-open'] = array(
-				'SORT' => $sort = $sort + 10,
-				'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_OPEN'),
-				'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_OPEN_DESC'),
-				'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_OPEN_DESC2'),
-				'VISIBLE' => 'Y',
-				'OPENED' => 'Y',
-				'PROJECT' => 'N',
-				'EXTERNAL' => 'N',
-				'TILE_CLASS' => 'social-group-tile-item-cover-open social-group-tile-item-icon-group-open'
-			);
-			$result['group-closed'] = array(
-				'SORT' => $sort = $sort + 10,
-				'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_CLOSED'),
-				'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_CLOSED_DESC'),
-				'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_CLOSED_DESC'),
-				'VISIBLE' => 'N',
-				'OPENED' => 'N',
-				'PROJECT' => 'N',
-				'EXTERNAL' => 'N',
-				'TILE_CLASS' => 'social-group-tile-item-cover-close social-group-tile-item-icon-group-close'
-			);
-			if ($fullMode)
+			if (self::checkEntityOption([ '!project', 'open', '!extranet', '!landing' ], $entityOptions))
 			{
-				$result['group-closed-visible'] = array(
+				$result['group-open'] = array(
 					'SORT' => $sort = $sort + 10,
-					'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_CLOSED_VISIBLE'),
-					'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_CLOSED_VISIBLE_DESC'),
-					'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_CLOSED_VISIBLE_DESC'),
+					'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_OPEN'),
+					'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_OPEN_DESC'),
+					'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_OPEN_DESC2'),
 					'VISIBLE' => 'Y',
+					'OPENED' => 'Y',
+					'PROJECT' => 'N',
+					'EXTERNAL' => 'N',
+					'TILE_CLASS' => 'social-group-tile-item-cover-open social-group-tile-item-icon-group-open'
+				);
+			}
+
+			if (self::checkEntityOption([ '!project', '!open', '!extranet', '!landing' ], $entityOptions))
+			{
+				$result['group-closed'] = array(
+					'SORT' => $sort = $sort + 10,
+					'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_CLOSED'),
+					'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_CLOSED_DESC'),
+					'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_CLOSED_DESC'),
+					'VISIBLE' => 'N',
 					'OPENED' => 'N',
 					'PROJECT' => 'N',
 					'EXTERNAL' => 'N',
-					'TILE_CLASS' => ''
+					'TILE_CLASS' => 'social-group-tile-item-cover-close social-group-tile-item-icon-group-close'
 				);
+				if ($fullMode)
+				{
+					$result['group-closed-visible'] = array(
+						'SORT' => $sort = $sort + 10,
+						'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_CLOSED_VISIBLE'),
+						'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_CLOSED_VISIBLE_DESC'),
+						'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_CLOSED_VISIBLE_DESC'),
+						'VISIBLE' => 'Y',
+						'OPENED' => 'N',
+						'PROJECT' => 'N',
+						'EXTERNAL' => 'N',
+						'TILE_CLASS' => ''
+					);
+				}
 			}
 		}
 
 		if (
 			$extranetInstalled
-			&& (
-				empty($categoryList)
-				|| in_array('groups', $categoryList)
-			)
+			&& self::checkEntityOption([ '!project', 'extranet', '!landing' ], $entityOptions)
 		)
 		{
 			$result['group-external'] = array(
@@ -670,10 +724,7 @@ class Workgroup
 
 		if (
 			$landingInstalled
-			&& (
-				empty($categoryList)
-				|| in_array('groups', $categoryList)
-			)
+			&& self::checkEntityOption([ '!project', 'landing', '!extranet' ], $entityOptions)
 		)
 		{
 			$result['group-landing'] = array(
@@ -686,7 +737,37 @@ class Workgroup
 				'PROJECT' => 'N',
 				'EXTERNAL' => 'N',
 				'LANDING' => 'Y',
-				'TILE_CLASS' => 'social-group-tile-item-cover-public social-group-tile-item-icon-group-public'			);
+				'TILE_CLASS' => 'social-group-tile-item-cover-public social-group-tile-item-icon-group-public'
+			);
+		}
+
+		return $result;
+	}
+
+	private static function checkEntityOption(array $keysList = [], array $entityOptions = [])
+	{
+		$result = true;
+
+		foreach($keysList as $key)
+		{
+			if (
+				!empty($entityOptions)
+				&& (
+					(
+						isset($entityOptions[$key])
+						&& !$entityOptions[$key]
+					)
+					|| (
+						preg_match('/^\!(\w+)$/', $key, $matches)
+						&& isset($entityOptions[$matches[1]])
+						&& $entityOptions[$matches[1]]
+					)
+				)
+			)
+			{
+				$result = false;
+				break;
+			}
 		}
 
 		return $result;
@@ -1008,7 +1089,7 @@ class Workgroup
 
 		$feature = (isset($params['feature']) ? $params['feature'] : '');
 		$operation = (isset($params['operation']) ? $params['operation'] : '');
-		$userId = (isset($params['userId']) ? intval($params['userId']) : (is_object($USER) && $USER instanceof \CUser ? $USER->getId() : 0));
+		$userId = (isset($params['userId']) ? (int)$params['userId'] : (is_object($USER) && $USER instanceof \CUser ? $USER->getId() : 0));
 
 		if (
 			$feature == ''
@@ -1037,7 +1118,14 @@ class Workgroup
 
 		$query = new \Bitrix\Main\Entity\Query(WorkgroupTable::getEntity());
 		$query->addFilter('=ACTIVE', 'Y');
-		if (Option::get('socialnetwork', 'work_with_closed_groups', 'N') != 'Y')
+
+		if (
+			(
+				!is_array($featuresSettings[$feature]['minoperation'])
+				|| !in_array($operation, $featuresSettings[$feature]['minoperation'])
+			)
+			&& Option::get('socialnetwork', 'work_with_closed_groups', 'N') !== 'Y'
+		)
 		{
 			$query->addFilter('!=CLOSED', 'Y');
 		}
@@ -1087,42 +1175,7 @@ class Workgroup
 				[ 'join_type' => 'LEFT' ]
 			)
 		);
-/*
-		$query->registerRuntimeField(new \Bitrix\Main\Entity\ExpressionField(
-			'IS_OWNER',
-			'CASE WHEN %s = \''.\Bitrix\Socialnetwork\UserToGroupTable::ROLE_OWNER.'\' THEN \'Y\' ELSE \'N\' END',
-			[ 'UG.ROLE' ]
-		));
 
-		$query->registerRuntimeField(new \Bitrix\Main\Entity\ExpressionField(
-			'IS_MODERATOR',
-			'CASE WHEN %s IN (\''.\Bitrix\Socialnetwork\UserToGroupTable::ROLE_OWNER.'\', \''.\Bitrix\Socialnetwork\UserToGroupTable::ROLE_MODERATOR.'\') THEN \'Y\' ELSE \'N\' END',
-			[ 'UG.ROLE' ]
-		));
-
-		$query->registerRuntimeField(new \Bitrix\Main\Entity\ExpressionField(
-			'IS_USER',
-			'CASE WHEN %s IN (\''.\Bitrix\Socialnetwork\UserToGroupTable::ROLE_OWNER.'\', \''.\Bitrix\Socialnetwork\UserToGroupTable::ROLE_MODERATOR.'\', \''.\Bitrix\Socialnetwork\UserToGroupTable::ROLE_USER.'\') THEN \'Y\' ELSE \'N\' END',
-			[ 'UG.ROLE' ]
-		));
-
-		$query->registerRuntimeField(new \Bitrix\Main\Entity\ExpressionField(
-			'HAS_ACCESS',
-			'CASE 
-				WHEN %s = \''.FeaturePermTable::PERM_OWNER.'\' AND %s = \'Y\' THEN \'Y\' 
-				WHEN %s = \''.FeaturePermTable::PERM_MODERATOR.'\' AND %s = \'Y\' THEN \'Y\'
-				WHEN %s = \''.FeaturePermTable::PERM_USER.'\' AND %s = \'Y\' THEN \'Y\'
-				WHEN %s IN (\''.FeaturePermTable::PERM_AUTHORIZED.'\', \''.FeaturePermTable::PERM_ALL.'\') THEN \'Y\'
-				ELSE \'N\' 
-			END',
-			[
-				'PERM_ROLE_CALCULATED',  'IS_OWNER',
-				'PERM_ROLE_CALCULATED',  'IS_MODERATOR',
-				'PERM_ROLE_CALCULATED',  'IS_USER',
-				'PERM_ROLE_CALCULATED'
-			]
-		));
-*/
 		$query->registerRuntimeField(new \Bitrix\Main\Entity\ExpressionField(
 			'HAS_ACCESS',
 			'CASE 

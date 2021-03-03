@@ -6160,12 +6160,6 @@ input.calendar-error {
 	padding: 9px 30px 8px 9px!important;
 }
 
-#b24InfoPopupcalendar_location {z-index: 4000!important;}
-#popup-window-overlay-b24InfoPopupcalendar_location{z-index: 3999!important;}
-#bx-selector-dialog-event-edit-form-uf-crm-cal-event{z-index: 4000!important;}
-#bx-selector-dialog-event-edit-form-uf-crm-cal-event-search{z-index: 4000!important;}
-#DiskFileDialog{z-index: 4000!important;}
-
 .calendar-header-btn-container {
 	display: flex;
 	align-items: center;

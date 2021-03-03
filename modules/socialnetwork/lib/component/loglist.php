@@ -279,7 +279,7 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 		$this->setExtranetSiteValue((Loader::includeModule('extranet') && \CExtranet::isExtranetSite()));
 		$this->setCommentsNeededValue(
 			$request->get('log_filter_submit') <> ''
-			&& $request->get('flt_comments')== 'Y'
+			&& $request->get('flt_comments') === 'Y'
 		);
 
 		Util::checkEmptyParamInteger($params, 'LOG_CNT', 0);
@@ -290,7 +290,7 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 
 		$params['HIDE_EDIT_FORM'] = ($params['LOG_ID'] > 0 ? 'Y' : (isset($params['HIDE_EDIT_FORM']) ? $params['HIDE_EDIT_FORM'] : 'N'));
 		$params['SHOW_EVENT_ID_FILTER'] = ($params['LOG_ID'] > 0 ? 'N' : $params['SHOW_EVENT_ID_FILTER']);
-		$params['AUTH'] = (isset($params['AUTH']) && mb_strtoupper($params['AUTH']) == 'Y' ? 'Y' : 'N');
+		$params['AUTH'] = (isset($params['AUTH']) && mb_strtoupper($params['AUTH']) === 'Y' ? 'Y' : 'N');
 		$params['PAGE_NUMBER'] = (isset($params['PAGE_NUMBER']) && intval($params['PAGE_NUMBER']) > 0 ? intval($params['PAGE_NUMBER']) : 1);
 
 		$paramsInstance->prepareModeParams($params);
@@ -309,9 +309,9 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 		);
 
 		$params['SHOW_LOGIN'] = (isset($params['SHOW_LOGIN']) ? $params['SHOW_LOGIN'] : 'Y');
-		$this->useLogin = ($params['SHOW_LOGIN'] != 'N');
+		$this->useLogin = ($params['SHOW_LOGIN'] !== 'N');
 
-		$params['SHOW_UNREAD'] = ($USER->isAuthorized() && $params['LOG_ID'] <= 0 && $params['MODE'] != 'LANDING' ? 'Y' : 'N');
+		$params['SHOW_UNREAD'] = ($USER->isAuthorized() && $params['LOG_ID'] <= 0 && $params['MODE'] !== 'LANDING' ? 'Y' : 'N');
 
 		$paramsInstance->prepareRatingParams($params);
 		$paramsInstance->prepareRequestVarParams($params);
@@ -365,7 +365,7 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 		$result['PATH_TO_LOG_TAG'] = $pathsProcessorInstance->getFolderUsersValue().'log/?TAG=#tag#';
 		if (
 			defined('SITE_TEMPLATE_ID')
-			&& SITE_TEMPLATE_ID == 'bitrix24'
+			&& SITE_TEMPLATE_ID === 'bitrix24'
 		)
 		{
 			$result['PATH_TO_LOG_TAG'] .= '&apply_filter=Y';
@@ -495,11 +495,11 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 
 		if (empty($result['RETURN_EMPTY_LIST']))
 		{
-			$this->getEntryIdList($result);
+			$queryResultData = $this->getEntryIdList($result);
 
 			if (
-				count($result['arLogTmpID']) < $params['PAGE_SIZE']
-				&& $logPageProcessorInstance->getNeedSetLogPage() // no log pages for user
+				(int)$queryResultData['countAll'] < (int)$params['PAGE_SIZE']
+				&& !empty($processorInstance->getFilterKey('>=LOG_UPDATE'))
 			)
 			{
 				$result['arLogTmpID'] = [];
@@ -598,12 +598,15 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 						'LOG_ID' => $eventFields['ID']
 					]);
 
-					$result['pinnedIdList'][] = $eventFields['ID'];
-					$eventFields['PINNED_PANEL_DATA'] = [
-						'TITLE' => $postProvider->getPinnedTitle(),
-						'DESCRIPTION' => $postProvider->getPinnedDescription()
-					];
-					$processorInstance->appendEventsList($eventFields, 'pinned');
+					if ($postProvider)
+					{
+						$result['pinnedIdList'][] = $eventFields['ID'];
+						$eventFields['PINNED_PANEL_DATA'] = [
+							'TITLE' => $postProvider->getPinnedTitle(),
+							'DESCRIPTION' => $postProvider->getPinnedDescription()
+						];
+						$processorInstance->appendEventsList($eventFields, 'pinned');
+					}
 				}
 			}
 		}
@@ -633,16 +636,20 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 	{
 		global $NavNum;
 
+		$returnResult = [
+			'countAll' => 0
+		];
+
 		$processorInstance = $this->getProcessorInstance();
 		if (!$processorInstance)
 		{
-			return;
+			return $returnResult;
 		}
 
 		if ($processorInstance->getListParamsKey('EMPTY_LIST') === 'Y')
 		{
 			$result['arLogTmpID'] = [];
-			return;
+			return $returnResult;
 		}
 
 		$res = \CSocNetLog::getList(
@@ -677,6 +684,10 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 				'pageNumber' => $res->NavPageNomer
 			]);
 		}
+
+		$returnResult['countAll'] = $res->selectedRowsCount();
+
+		return $returnResult;
 	}
 
 	protected function getPinnedIdList(&$result)

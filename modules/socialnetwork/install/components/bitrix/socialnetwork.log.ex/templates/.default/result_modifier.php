@@ -41,7 +41,7 @@ $arResult['TOP_RATING_DATA'] = (
 	\Bitrix\Main\ModuleManager::isModuleInstalled('intranet')
 	&& !empty($arResult["arLogTmpID"])
 		? \Bitrix\Socialnetwork\ComponentHelper::getLivefeedRatingData(array(
-			'logId' => array_unique($arResult["arLogTmpID"]),
+			'logId' => array_unique(array_merge($arResult["arLogTmpID"], $arResult["pinnedIdList"])),
 		))
 		: array()
 );

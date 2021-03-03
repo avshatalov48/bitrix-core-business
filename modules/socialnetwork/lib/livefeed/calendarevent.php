@@ -12,6 +12,8 @@ final class CalendarEvent extends Provider
 	public const PROVIDER_ID = 'CALENDAR';
 	public const CONTENT_TYPE_ID = 'CALENDAR_EVENT';
 
+	protected static $calendarEventClass = \CCalendarEvent::class;
+
 	public static function getId(): string
 	{
 		return static::PROVIDER_ID;
@@ -61,7 +63,7 @@ final class CalendarEvent extends Provider
 		}
 		elseif (Loader::includeModule('calendar'))
 		{
-			$res = \CCalendarEvent::getList(
+			$res = self::$calendarEventClass::getList(
 				[
 					'arFilter' => [
 						"ID" => $calendarEventId,
@@ -121,10 +123,10 @@ final class CalendarEvent extends Provider
 			&& !empty($calendarEvent)
 		)
 		{
-			$pathToCalendarEvent = \CComponentEngine::makePathFromTemplate($userPage."user/#user_id#/calendar/?EVENT_ID=#event_id#/", array(
+			$pathToCalendarEvent = \CComponentEngine::makePathFromTemplate($userPage."user/#user_id#/calendar/?EVENT_ID=#event_id#", [
 				"user_id" => $calendarEvent["CREATED_BY"],
 				"event_id" => $calendarEvent["ID"]
-			));
+			]);
 		}
 
 		return $pathToCalendarEvent;

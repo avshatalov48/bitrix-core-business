@@ -139,7 +139,7 @@ if (\Bitrix\Main\Config\Option::get("sale", "~IS_SALE_CRM_SITE_MASTER_FINISH") =
 )
 {
 	$defaultSite = $crmSite = [];
-	$siteList = \Bitrix\Main\SiteTable::getList([
+	$crmSiteIterator = \Bitrix\Main\SiteTable::getList([
 		"select" => ["DEF", "SERVER_NAME"],
 		"filter" => [
 			"LOGIC" => "OR",
@@ -150,18 +150,19 @@ if (\Bitrix\Main\Config\Option::get("sale", "~IS_SALE_CRM_SITE_MASTER_FINISH") =
 				"=DEF" => "Y"
 			]
 		]
-	])->fetchAll();
-	foreach($siteList as $site)
+	]);
+	while ($crmSiteRow = $crmSiteIterator->fetch())
 	{
-		if ($site["DEF"] === "Y")
+		if ($crmSiteRow["DEF"] === "Y")
 		{
-			$defaultSite = $site;
+			$defaultSite = $crmSiteRow;
 		}
 		else
 		{
-			$crmSite = $site;
+			$crmSite = $crmSiteRow;
 		}
 	}
+	unset($crmSiteRow, $crmSiteList);
 
 	$crmServerName = '';
 	if ($crmSite && !empty($crmSite["SERVER_NAME"]))

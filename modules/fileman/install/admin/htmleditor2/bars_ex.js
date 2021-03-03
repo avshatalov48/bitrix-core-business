@@ -218,7 +218,6 @@ BXToolbarSet.prototype =
 		pToolbar.col = col;
 
 		pToolbar.pWnd.style.position = "relative";
-		pToolbar.pWnd.style.zIndex = "200";
 		pToolbar.pWnd.style.left = null;
 		pToolbar.pWnd.style.top = null;
 
@@ -241,6 +240,7 @@ BXToolbarSet.prototype =
 		CACHE_DISPATCHER['pEditorFrame'] = null;
 
 		pToolbar.parentCell.removeChild(pToolbar.pWnd);
+
 		pToolbar.pToolbarSet = null;
 		this.__ReCalc();
 	},
@@ -486,9 +486,13 @@ MouseDown: function (e)
 
 	pBXEventDispatcher.SetCursor("move");
 	this.pWnd.oldBorder = this.pWnd.style.border;
-	this.pWnd.style.zIndex = "1000";
-	var _this = this;
 
+	if (BX.ZIndexManager.getComponent(this.pWnd))
+	{
+		BX.ZIndexManager.bringToFront(this.pWnd);
+	}
+
+	var _this = this;
 
 	var __BXToolbarMouseMove = function(e){_this.MouseMove(getRealMousePos(e, _this.pMainObj));};
 	var __BXToolbarMouseMoveF = function(e){_this.MouseMove(getRealMousePos(e, _this.pMainObj, true));};
@@ -510,7 +514,6 @@ MouseDown: function (e)
 		{
 			_this.pMainObj.bDragging = false;
 			_this.bDragging = false;
-			_this.pWnd.style.zIndex = "200";
 			_this.pWnd.style.border = _this.pWnd.oldBorder;
 			pBXEventDispatcher.SetCursor("auto");
 
@@ -549,9 +552,12 @@ UnDock: function ()
 {
 	if(this.pToolbarSet)
 		this.pToolbarSet.DelToolbar(this);
-	this.pWnd.style.zIndex = "1000";
+
 	this.pWnd.style.position = "absolute";
 	document.body.appendChild(this.pWnd);
+
+	BX.ZIndexManager.register(this.pWnd);
+
 	var rowIcons = this.pIconsTable.rows[0];
 	this.pTitleRow.style.display = GetDisplStr(1);
 	this.SetDirection(false);

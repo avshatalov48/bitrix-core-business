@@ -31,7 +31,6 @@
 
 			this.calendar.disableKeyHandler();
 
-			BX.bind(document, "click", BX.proxy(this.calendar.util.applyHacksForPopupzIndex, this.calendar.util));
 			this.opened = true;
 		},
 
@@ -54,7 +53,6 @@
 		{
 			if (event && event.getSliderPage && event.getSliderPage().getUrl() === this.sliderId)
 			{
-				BX.unbind(document, "click", BX.proxy(this.calendar.util.applyHacksForPopupzIndex, this.calendar.util));
 				BX.removeCustomEvent("SidePanel.Slider:onCloseComplete", BX.proxy(this.destroy, this));
 				BX.onCustomEvent('OnCalendarPlannerDoUninstall', [{plannerId: this.plannerId}]);
 				BX.SidePanel.Instance.destroy(this.sliderId);

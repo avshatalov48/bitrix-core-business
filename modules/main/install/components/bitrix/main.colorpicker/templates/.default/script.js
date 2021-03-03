@@ -43,7 +43,9 @@ BXColorPicker.prototype.Create = function ()
 	window['bx_colpic_keypress_' + this.fid] = function(e){_this.OnKeyPress(e);};
 	window['bx_colpic_click_' + this.fid] = function(e){_this.OnDocumentClick(e);};
 
-	this.pColCont = document.body.appendChild(BX.create("DIV", {props: {className: "bx-colpic-cont"}, style: {zIndex: this.zIndex}}));
+	this.pColCont = document.body.appendChild(BX.create("DIV", {props: {className: "bx-colpic-cont"} }));
+
+	BX.ZIndexManager.register(this.pColCont);
 
 	var arColors = [
 		'#ACE9FB', '#BEEDF1', '#9AE1DD', '#E3F19E', '#FFED9A', '#FFDD99', '#DFD3B7', '#E2C6BC', '#FEAD99', '#FFBDBC', '#FFCBD8', '#FEC5E4', '#C5BBEC', '#DBDDE0', '#DBF199', '#FFBEBD',
@@ -136,6 +138,8 @@ BXColorPicker.prototype.Open = function ()
 	this.pColCont.style.display = 'block';
 	this.pColCont.style.top = pos.top + 'px';
 	this.pColCont.style.left = pos.left + 'px';
+
+	BX.ZIndexManager.bringToFront(this.pColCont);
 
 	this.bOpened = true;
 }

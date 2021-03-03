@@ -7,14 +7,14 @@ require_once __DIR__.'/autoload.php';
 	'currency',
 	array(
 		'js' => '/bitrix/js/currency/core_currency.js',
-		'rel' => array('core', 'main.polyfill.promise')
+		'rel' => array('core', 'main.polyfill.promise', 'currency.currency-core')
 	)
 );
 
 \CJSCore::RegisterExt(
 	'core_money_editor',
 	array(
-		'js' => '/bitrix/js/currency/core_money_editor.js',
+		'rel' => array('core', 'currency.money-editor'),
 		'oninit' => function()
 		{
 			return array(

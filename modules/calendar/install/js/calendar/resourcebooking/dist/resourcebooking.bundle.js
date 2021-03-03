@@ -4979,11 +4979,11 @@ this.BX = this.BX || {};
 	    key: "getLiveField",
 	    value: function getLiveField(params) {
 	      if (!params.wrap || !main_core.Type.isDomNode(params.wrap)) {
-	        throw new Error("The argument \"params.wrap\" must be a DOM node.");
+	        throw new Error('The argument "params.wrap" must be a DOM node');
 	      }
 
 	      if (main_core.Type.isNull(CoreDate)) {
-	        throw new Error("The error occured during Date extention loading");
+	        throw new Error('The error occured during Date extention loading');
 	      }
 
 	      var liveFieldController = new LiveFieldController(params);

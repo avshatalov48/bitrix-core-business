@@ -75,7 +75,7 @@ if (empty($arParams["GROUP_ID"]))
 	$tmpVal = COption::GetOptionString("socialnetwork", "sonet_blog_group", false, SITE_ID);
 	if ($tmpVal)
 	{
-		$arTmpVal = unserialize($tmpVal);
+		$arTmpVal = unserialize($tmpVal, [ 'allowed_classes' => false ]);
 		if (is_array($arTmpVal))
 		{
 			$arParams["GROUP_ID"] = $arTmpVal;

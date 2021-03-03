@@ -67,7 +67,6 @@ export class CompactEventForm extends EventEmitter
 		Dom.addClass(this.popup.titleBar, 'calendar-add-popup-titlebar');
 		Dom.removeClass(this.popup.popupContainer, 'popup-window-with-titlebar');
 		Dom.removeClass(this.popup.closeIcon, 'popup-window-titlebar-close-icon');
-		//Event.bind(document, "click", Util.applyHacksForPopupzIndex);
 		Event.bind(document, "mousedown", this.outsideMouseDownClose);
 		Event.bind(document, "mouseup", this.checkOutsideClickClose);
 		Event.bind(document, "keydown", this.keyHandler);
@@ -138,7 +137,6 @@ export class CompactEventForm extends EventEmitter
 		//Dom.addClass(this.popup.popupContainer, 'calendar-simple-view-popup-close');
 		this.displayed = false;
 		this.emit('onClose');
-		//Event.unbind(document, "click", Util.applyHacksForPopupzIndex);
 		Event.unbind(document, "mousedown", this.outsideMouseDownClose);
 		Event.unbind(document, "mouseup", this.checkOutsideClickClose);
 		Event.unbind(document, "keydown", this.keyHandler);

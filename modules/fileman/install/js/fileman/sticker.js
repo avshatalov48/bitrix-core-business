@@ -204,7 +204,6 @@ BXSticker.prototype = {
 		// Init common window object with basic functionality
 		var pWin = new BX.CWindow(false, 'float');
 		pWin.Show(true); // Show window
-		pWin.Get().style.zIndex = pWin.zIndex = this.Params.zIndex;
 
 		// Set resize limits
 		pWin.SETTINGS.min_width = this.Params.min_width;
@@ -276,7 +275,13 @@ BXSticker.prototype = {
 			pAddBut.style.display = 'none';
 
 		// Create shadow
-		pShadow = document.body.appendChild(BX.create("DIV", {props: {className: 'bxst-shadow'}, style: {zIndex: parseInt(pWin.Get().style.zIndex) - 5}}));
+		pShadow = document.body.appendChild(BX.create("DIV", {props: {className: 'bxst-shadow'} }));
+
+		var component = BX.ZIndexManager.getComponent(pWin.Get());
+		if (component)
+		{
+			component.setOverlay(pShadow);
+		}
 
 		this.RegisterSticker({
 			obj: oSticker,
@@ -309,7 +314,14 @@ BXSticker.prototype = {
 		this.CollapseSticker(ind, false, oSticker.collapsed);
 
 		pWin.SetDraggable(pHead);
-		BX.addCustomEvent(pWin, 'onWindowDragStart', function(){this.__stWasDragged = true;});
+		BX.addCustomEvent(pWin, 'onWindowDragStart', function(){
+			this.__stWasDragged = true;
+			var component = BX.ZIndexManager.getComponent(pWin.Get());
+			if (component)
+			{
+				BX.ZIndexManager.bringToFront(pWin.Get());
+			}
+		});
 		BX.addCustomEvent(pWin, 'onWindowDragFinished', function(){_this.OnDragEnd(this);});
 		BX.addCustomEvent(pWin, 'onWindowDrag', function(){_this.OnDragDrop(this);});
 
@@ -1002,9 +1014,13 @@ BXSticker.prototype = {
 			oSt = this.arStickers[ind];
 
 		if (!this.pColorOverlay)
+		{
 			this.pColorOverlay = document.body.appendChild(BX.create("DIV", {props: {className: 'bx-sticker-overlay'}}));
+			BX.ZIndexManager.register(this.pColorOverlay);
+		}
 
-		this.pColorOverlay.style.zIndex = parseInt(oSt.pWin.Get().style.zIndex) + 10;
+		BX.ZIndexManager.bringToFront(this.pColorOverlay);
+
 		this.pColorOverlay.style.top = oSt.pWin.Get().style.top;
 		this.pColorOverlay.style.left = oSt.pWin.Get().style.left;
 		this.pColorOverlay.style.width = oSt.pWin.Get().style.width;
@@ -1268,9 +1284,14 @@ BXSticker.prototype = {
 
 			// Create overlay
 			if (!this.oMarker.pOverlay)
+			{
 				this.oMarker.pOverlay = document.body.appendChild(BX.create('DIV', {props: {className: 'bxst-marker-overlay'}}));
+				BX.ZIndexManager.register(this.oMarker.pOverlay);
+			}
+
 			// Show overlay
 			this.oMarker.pOverlay.style.display = 'block';
+			BX.ZIndexManager.bringToFront(this.oMarker.pOverlay);
 
 			// Adjust overlay to size
 			var ss = BX.GetWindowScrollSize(document);
@@ -1279,15 +1300,22 @@ BXSticker.prototype = {
 
 			// Create hint near cursor
 			if (!this.oMarker.pCursorHint)
+			{
 				this.oMarker.pCursorHint = document.body.appendChild(BX.create('DIV', {props: {className: 'bxst-cursor-hint'}, text: this.MESS.CursorHint}));
+				BX.ZIndexManager.register(this.oMarker.pCursorHint);
+			}
 
 			this.oMarker.pCursorHint.style.top = '';
 			this.oMarker.pCursorHint.style.left = '';
 			this.oMarker.pCursorHint.style.display = 'block';
 
+			BX.ZIndexManager.bringToFront(this.oMarker.pCursorHint);
+
 			// Marker selection area object
 			this.oMarker.pWnd = document.body.appendChild(BX.create('DIV'));
 			this.oMarker.pWnd.className = 'bxst-cur-marker ' + this.colorSchemes[oSt.obj.colorInd].name;
+
+			BX.ZIndexManager.register(this.oMarker.pWnd);
 		}
 		else // Element
 		{
@@ -1570,10 +1598,15 @@ BXSticker.prototype = {
 				if (pos)
 				{
 					if (!oSt.pMarker)
+					{
 						oSt.pMarker = document.body.appendChild(BX.create('DIV', {props: {className: 'bxst-sticker-marker ' + this.colorSchemes[oSt.obj.colorInd].name}}));
+						BX.ZIndexManager.register(oSt.pMarker);
+					}
 
 					if (bNew)
 						BX.addClass(oSt.pMarker, "bxst-marker-over");
+
+					BX.ZIndexManager.bringToFront(oSt.pMarker);
 
 					oSt.pMarker.style.display = "";
 					oSt.pMarker.style.width = (pos.width - 4) + "px";
@@ -1592,10 +1625,16 @@ BXSticker.prototype = {
 		if (oSt.obj.marker && oSt.obj.marker.width > 0)
 		{
 			if (!oSt.pMarker)
+			{
 				oSt.pMarker = document.body.appendChild(BX.create('DIV', {props: {className: 'bxst-sticker-marker ' + this.colorSchemes[oSt.obj.colorInd].name}}));
+				BX.ZIndexManager.register(oSt.pMarker);
+			}
 
 			if (bNew)
 				BX.addClass(oSt.pMarker, "bxst-marker-over");
+
+
+			BX.ZIndexManager.bringToFront(oSt.pMarker);
 
 			oSt.pMarker.style.display = "";
 			oSt.pMarker.style.width = oSt.obj.marker.width + "px";
@@ -1950,6 +1989,9 @@ BXSticker.prototype = {
 		if (!oSt.pColSelector)
 		{
 			oSt.pColSelector = document.body.appendChild(BX.create("DIV", {props: {className: 'bxst-col-sel'}}));
+
+			BX.ZIndexManager.register(oSt.pColSelector);
+
 			for (var i = 0, l = this.colorSchemes.length; i < l; i++)
 			{
 				b = oSt.pColSelector.appendChild(BX.create("SPAN", {props: {id: 'bxst_' + ind + '_' + i, className: 'bxst-col-pic ' + this.colorSchemes[i].name, title: this.colorSchemes[i].title}}));
@@ -1958,7 +2000,6 @@ BXSticker.prototype = {
 					_this.ShowColorSelector(ind); // Hide
 				};
 			}
-			oSt.pColSelector.style.zIndex = this.Params.zIndex + 20;
 		}
 
 		oSt.bColSelShowed = !oSt.bColSelShowed;
@@ -1969,7 +2010,10 @@ BXSticker.prototype = {
 			oSt.pColSelector.style.left = (pos.left) + "px";
 			oSt.pColSelector.style.display = "block";
 
-			this.ShowOverlay(true, this.Params.zIndex + 15);
+			var component = BX.ZIndexManager.bringToFront(oSt.pColSelector);
+			var zIndex = component.getZIndex();
+
+			this.ShowOverlay(true, zIndex - 1);
 			this.pTransOverlay.onmousedown = function(){_this.ShowColorSelector(ind);};
 			BX.bind(document, 'keydown', BX.proxy(function(e){this.OnKeyDown(e, ind);}, this));
 		}
@@ -2058,9 +2102,13 @@ BXSticker.prototype = {
 			oSt = this.arStickers[ind];
 
 		if (!this.pBlinkRed)
+		{
 			this.pBlinkRed = document.body.appendChild(BX.create("DIV", {props: {className: 'bxst-blink-red'}}));
+			BX.ZIndexManager.register(this.pBlinkRed);
+		}
 
-		this.pBlinkRed.style.zIndex = parseInt(oSt.pWin.Get().style.zIndex) + 10;
+		BX.ZIndexManager.bringToFront(this.pBlinkRed);
+
 		this.pBlinkRed.style.top = oSt.pWin.Get().style.top;
 		this.pBlinkRed.style.left = oSt.pWin.Get().style.left;
 		this.pBlinkRed.style.width = oSt.pWin.Get().style.width;

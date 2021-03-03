@@ -83,8 +83,17 @@ $result = $server->process();
 
 $APPLICATION->RestartBuffer();
 
-$server->sendHeaders();
-echo $server->output($result);
+$output = $server->output($result);
+if (is_object($output) && $output instanceof \Bitrix\Main\HttpResponse)
+{
+	$server->sendHeadersAdditional();
+	$output->send();
+}
+else
+{
+	$server->sendHeaders();
+	echo $output;
+}
 
 CMain::FinalActions();
 die();

@@ -2268,11 +2268,13 @@
 				fontSize: '11px',
 				padding: '10px 30px 10px 37px',
 				position: 'absolute',
-				zIndex:'10000',
 				textAlign:'center'
 			},
 			text: msg
 		}));
+
+		BX.ZIndexManager.register(obMsg);
+		BX.ZIndexManager.bringToFront(obMsg);
 
 		setTimeout(BX.delegate(_adjustWait, node), 10);
 
@@ -2302,6 +2304,7 @@
 				}
 			}
 
+			BX.ZIndexManager.unregister(obMsg);
 			obMsg.parentNode.removeChild(obMsg);
 			if (node) node.bxmsg = null;
 			BX.cleanNode(obMsg, true);
@@ -3471,6 +3474,8 @@
 		if (this.prepareAdjustPos())
 		{
 			this.DIV.style.display = 'block';
+			BX.ZIndexManager.bringToFront(this.DIV);
+
 			this.adjustPos();
 
 			BX.CHint.openHints.add(this);
@@ -3554,13 +3559,15 @@
 			]
 		}));
 
+		BX.ZIndexManager.register(this.DIV);
+
 		if (this.ID)
 		{
 			this.CONTENT.insertBefore(BX.create('A', {
 				attrs: {href: 'javascript:void(0)'},
 				props: {className: 'bx-panel-tooltip-close'},
 				events: {click: BX.delegate(this.Close, this)}
-			}), this.CONTENT.firstChild)
+			}), this.CONTENT.firstChild);
 		}
 
 		if (this.HINT_TITLE)
@@ -3570,7 +3577,7 @@
 					props: {className: 'bx-panel-tooltip-title'},
 					text: this.HINT_TITLE
 				})
-			)
+			);
 		}
 
 		if (this.HINT)
@@ -3714,6 +3721,8 @@
 		{
 			BX.unbind(this.DIV, 'mouseover', BX.proxy(this.Show, this));
 			BX.unbind(this.DIV, 'mouseout', BX.proxy(this.Hide, this));
+
+			BX.ZIndexManager.unregister(this.DIV);
 
 			BX.cleanNode(this.DIV, true);
 		}

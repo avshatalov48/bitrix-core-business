@@ -53,6 +53,9 @@ class Landing extends \CModule
 			'onRestApplicationConfigurationImport' => ['\Bitrix\Landing\Transfer\AppConfiguration', 'onEventImportController'],
 			'onRestApplicationConfigurationFinish' => ['\Bitrix\Landing\Transfer\AppConfiguration', 'onFinish']
 		],
+		'seo' => [
+			'onExtensionInstall' => ['\Bitrix\Landing\Hook\Page\PixelFb', 'changeBusinessPixel'],
+		],
 		'socialnetwork' => [
 			'onFillSocNetFeaturesList' => ['\Bitrix\Landing\Connector\SocialNetwork', 'onFillSocNetFeaturesList'],
 			'onFillSocNetMenu' => ['\Bitrix\Landing\Connector\SocialNetwork', 'onFillSocNetMenu'],

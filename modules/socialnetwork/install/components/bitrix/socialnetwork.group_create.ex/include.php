@@ -58,6 +58,7 @@ if (!function_exists('__GCE_GetGroup'))
 			$arGroupTmp["SCRUM_OWNER_ID"] = ($arGroup["SCRUM_OWNER_ID"] ? $arGroup["SCRUM_OWNER_ID"] : null);
 			$arGroupTmp["SCRUM_MASTER_ID"] = ($arGroup["SCRUM_MASTER_ID"] ? $arGroup["SCRUM_MASTER_ID"] : null);
 			$arGroupTmp["SCRUM_SPRINT_DURATION"] = ($arGroup["SCRUM_SPRINT_DURATION"] ? $arGroup["SCRUM_SPRINT_DURATION"] : null);
+			$arGroupTmp["SCRUM_TASK_RESPONSIBLE"] = ($arGroup["SCRUM_TASK_RESPONSIBLE"] ? $arGroup["SCRUM_TASK_RESPONSIBLE"] : null);
 
 			foreach($arGroupProperties as $field => $arUserField)
 			{

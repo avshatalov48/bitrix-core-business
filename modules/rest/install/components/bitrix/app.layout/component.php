@@ -152,7 +152,7 @@ $arParams['INITIALIZE'] = $arParams['INITIALIZE']  == 'N' ? 'N' : 'Y';
 $arParams['DETAIL_URL'] = isset($arParams['DETAIL_URL']) ? trim($arParams['DETAIL_URL']) : '/marketplace/detail/#code#/';
 $arParams['PLACEMENT'] = isset($arParams['PLACEMENT']) ? ToUpper($arParams['PLACEMENT']) : \Bitrix\Rest\PlacementTable::PLACEMENT_DEFAULT;
 $arParams['PLACEMENT_OPTIONS'] = isset($arParams['PLACEMENT_OPTIONS']) ? $arParams['PLACEMENT_OPTIONS'] : '';
-
+$arResult['SUBSCRIPTION_FINISH'] = \Bitrix\Rest\Marketplace\Client::getSubscriptionFinalDate();
 if($arParams['PLACEMENT'] === \Bitrix\Rest\PlacementTable::PLACEMENT_DEFAULT && empty($arParams['PLACEMENT_OPTIONS']))
 {
 	$requestOptions = $_GET;
@@ -251,7 +251,7 @@ if(
 		// common application options set via setAppOption
 		$arResult['APP_OPTIONS'] = COption::GetOptionString("rest", "options_".$arResult['APP_ID'], "");
 		if($arResult['APP_OPTIONS'] <> '')
-			$arResult['APP_OPTIONS'] = unserialize($arResult['APP_OPTIONS']);
+			$arResult['APP_OPTIONS'] = unserialize($arResult['APP_OPTIONS'], ['allowed_classes' => false]);
 		else
 			$arResult['APP_OPTIONS'] = array();
 

@@ -14,6 +14,84 @@ class Feed
 
 	}
 
+	changeFollow(params)
+	{
+		const logId = (params.logId ? parseInt(params.logId) : 0);
+		if (!logId)
+		{
+			return false;
+		}
+
+		const followNode = document.getElementById('log_entry_follow_' + logId);
+		const valueOld = (followNode && followNode.getAttribute('data-follow') === 'Y' ? 'Y' : 'N');
+		const valueNew = (valueOld === 'Y' ? 'N' : 'Y');
+
+		this.renderFollow({
+			logId: logId,
+			value: valueNew
+		});
+
+		ajax.runAction('socialnetwork.api.livefeed.changeFollow', {
+			data: {
+				logId: logId,
+				value: valueNew
+			},
+			analyticsLabel: {
+				b24statAction: (valueNew === 'Y' ? 'setFollow' : 'setUnfollow')
+			}
+		}).then((response) => {
+			if (!response.data.success)
+			{
+				this.renderFollow({
+					logId: logId,
+					value: valueOld
+				});
+			}
+		}, () => {
+			this.renderFollow({
+				logId: logId,
+				value: valueOld
+			});
+		});
+
+		return false;
+	}
+
+	renderFollow(params)
+	{
+		const logId = (params.logId ? parseInt(params.logId) : 0);
+		if (!logId)
+		{
+			return;
+		}
+		const followNode = document.getElementById('log_entry_follow_' + logId);
+		const value = (params.value && params.value === 'Y' ? 'Y' : 'N');
+
+		if (followNode)
+		{
+			followNode.setAttribute('data-follow', value);
+		}
+
+		const textNode = (followNode ? followNode.querySelector('a') : null);
+		if (textNode)
+		{
+			textNode.innerHTML = Loc.getMessage('SONET_EXT_LIVEFEED_FOLLOW_TITLE_' + value);
+		}
+
+		const postNode = (followNode ? followNode.closest('.feed-post-block') : null);
+		if (postNode)
+		{
+			if (value === 'N')
+			{
+				postNode.classList.add('feed-post-block-unfollowed');
+			}
+			else if (value === 'Y')
+			{
+				postNode.classList.remove('feed-post-block-unfollowed');
+			}
+		}
+	}
+
 	changeFavorites(params)
 	{
 		const logId = (params.logId ? parseInt(params.logId) : 0);

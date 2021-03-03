@@ -2,6 +2,7 @@
 
 namespace Bitrix\Seo\LeadAds;
 
+use Bitrix\Seo\BusinessSuite\IInternalService;
 use Bitrix\Seo\Retargeting\AuthAdapter;
 use Bitrix\Seo\Retargeting\IService;
 
@@ -10,7 +11,7 @@ use Bitrix\Seo\Retargeting\IService;
  *
  * @package Bitrix\Seo\LeadAds
  */
-class Service implements IService
+class Service implements IService,IInternalService
 {
 	const GROUP = 'leadads';
 	const TYPE_FACEBOOK = 'facebook';
@@ -161,5 +162,36 @@ class Service implements IService
 		}
 
 		return $adapter;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function getTypeByEngine(string $engineCode): ?string
+	{
+		foreach (static::getTypes() as $type)
+		{
+			if($engineCode == static::getEngineCode($type))
+			{
+				return $type;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function canUseAsInternal(): bool
+	{
+		return true;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function getMethodPrefix(): string
+	{
+		return 'leadads';
 	}
 }

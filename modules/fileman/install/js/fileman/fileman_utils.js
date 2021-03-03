@@ -2485,7 +2485,6 @@ BXFMInpSel.prototype = {
 		setTimeout(function(){BX.bind(document, "click", BX.proxy(_this.ClosePopup, _this));}, 100);
 
 		//GetRealPos
-		this.Popup.style.zIndex = 1100;
 		var pos = jsUtils.GetRealPos(this.pInput);
 
 		jsFloatDiv.Show(this.Popup, pos.left + this.posCorrection.left, pos.top + this.posCorrection.top, 3);
@@ -2760,9 +2759,10 @@ BXFMSiteSel.prototype = {
 		var pos = BX.pos(this.pDiv);
 
 		this.Popup.style.display = 'block';
-		this.Popup.style.zIndex = 1100;
 		this.Popup.style.top = (pos.top + 18) + "px";
 		this.Popup.style.left = pos.left  + "px";
+
+		BX.ZIndexManager.bringToFront(this.Popup);
 
 		BX.WindowManager.disableKeyCheck();
 		setTimeout(function(){BX.bind(document, "click", BX.proxy(_this.ClosePopup, _this));}, 100);
@@ -2789,6 +2789,9 @@ BXFMSiteSel.prototype = {
 			pRow, i, l = this.sites.length;
 
 		this.Popup = document.body.appendChild(BX.create("DIV", {props:{className: "bxfm-at-is-popup"}}));
+
+		BX.ZIndexManager.register(this.Popup);
+
 		this.Popup.style.width = "200px";
 		this.bCreated = true;
 
@@ -2894,9 +2897,10 @@ BXFMArcTypeSel.prototype = {
 		var pos = BX.pos(this.pDiv);
 
 		this.Popup.style.display = 'block';
-		this.Popup.style.zIndex = 1200;
 		this.Popup.style.top = (pos.top + 18) + "px";
 		this.Popup.style.left = pos.left  + "px";
+
+		BX.ZIndexManager.bringToFront(this.Popup);
 
 		BX.WindowManager.disableKeyCheck();
 		setTimeout(function(){BX.bind(document, "click", BX.proxy(_this.ClosePopup, _this));}, 100);
@@ -2925,6 +2929,8 @@ BXFMArcTypeSel.prototype = {
 		this.Popup = document.body.appendChild(BX.create("DIV", {props:{className: "bxfm-at-is-popup"}}));
 		this.Popup.style.width = "260px";
 		this.bCreated = true;
+
+		BX.ZIndexManager.register(this.Popup);
 
 		for (i = 0; i < l; i++)
 		{

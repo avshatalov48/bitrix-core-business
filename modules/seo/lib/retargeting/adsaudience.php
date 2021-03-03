@@ -323,6 +323,7 @@ class AdsAudience
 				'HAS_AUTH' => $authAdapter->hasAuth(),
 				'AUTH_URL' => $authAdapter->getAuthUrl(),
 				'PROFILE' => $authAdapter->getToken() ? $account->getProfileCached() : false,
+				'ENGINE_CODE' => $service::getEngineCode($type)
 			);
 			if ($canUserMultiClients)
 			{

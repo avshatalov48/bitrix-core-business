@@ -1221,7 +1221,7 @@
 
 		return [
 			{
-				text: '<span>' + BX.message('WEBF_RES_SELECT_DEFAULT_TITLE') + '</span>',
+				html: '<span>' + BX.message('WEBF_RES_SELECT_DEFAULT_TITLE') + '</span>',
 				className: submenuClass
 			},
 			{
@@ -1315,7 +1315,7 @@
 
 		return [
 			{
-				text: '<span>' + BX.message('WEBF_RES_SELECT_DEFAULT_TITLE') + '</span>',
+				html: '<span>' + BX.message('WEBF_RES_SELECT_DEFAULT_TITLE') + '</span>',
 				className: submenuClass
 			},
 			{
@@ -1556,7 +1556,7 @@
 
 		return [
 			{
-				text: '<span>' + BX.message('WEBF_RES_CALENDAR_STYLE') + '</span>',
+				html: '<span>' + BX.message('WEBF_RES_CALENDAR_STYLE') + '</span>',
 				className: submenuClass
 			},
 			{
@@ -1582,7 +1582,7 @@
 				onclick: BX.proxy(this.menuItemClick, this)
 			},
 			{
-				text: '<span>' + BX.message('WEBF_RES_CALENDAR_START_FROM') + '</span>',
+				html: '<span>' + BX.message('WEBF_RES_CALENDAR_START_FROM') + '</span>',
 				className: submenuClass
 			},
 			{
@@ -1689,7 +1689,7 @@
 
 		return [
 			{
-				text: '<span>' + BX.message('WEBF_RES_TIME_STYLE') + '</span>',
+				html: '<span>' + BX.message('WEBF_RES_TIME_STYLE') + '</span>',
 				className: submenuClass
 			},
 			{

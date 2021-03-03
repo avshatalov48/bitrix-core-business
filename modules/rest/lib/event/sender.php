@@ -252,14 +252,8 @@ class Sender
 
 		if(count(static::$queryData) > 0 && !static::$forkSet)
 		{
-			if(\CMain::forkActions(array(__CLASS__, "send"), array()))
-			{
-				static::$forkSet = true;
-			}
-			else
-			{
-				static::send();
-			}
+			\Bitrix\Main\Application::getInstance()->addBackgroundJob(array(__CLASS__, "send"));
+			static::$forkSet = true;
 		}
 	}
 

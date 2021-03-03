@@ -1,5 +1,7 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
+$APPLICATION->SetAdditionalCSS("/bitrix/js/intranet/intranet-common.css");
+
 if (!is_array($arResult["PresetFilters"]) &&
 	!(array_key_exists("SHOW_SETTINGS_LINK", $arParams) && $arParams["SHOW_SETTINGS_LINK"] == "Y"))
 	return;
@@ -160,6 +162,7 @@ if ($arResult["MODE"] == "AJAX")
 		?></div>
 		<input type="hidden" name="skip_subscribe" value="<?=(isset($_REQUEST["skip_subscribe"]) && $_REQUEST["skip_subscribe"] == "Y" ? "Y" : "N")?>">
 		<input type="hidden" name="preset_filter_id" value="<?=(array_key_exists("preset_filter_id", $_GET) ? htmlspecialcharsbx($_GET["preset_filter_id"]) : "")?>" />
+		<input type="hidden" name="preset_filter_top_id" value="<?=(array_key_exists("preset_filter_top_id", $_GET) ? htmlspecialcharsbx($_GET["preset_filter_top_id"]) : "")?>" />
 		</form>
 	</div><?
 	die();	
@@ -206,9 +209,9 @@ else
 						<?
 					}
 				}
-				?>,			
+				?>,
 				{ 
-					text : "<?=(!empty($arResult["ALL_ITEM_TITLE"]) > 0 ? $arResult["ALL_ITEM_TITLE"] : GetMessageJS("SONET_C30_PRESET_FILTER_ALL"))?>",
+					text : "<?=(!empty($arResult["ALL_ITEM_TITLE"]) ? $arResult["ALL_ITEM_TITLE"] : GetMessageJS("SONET_C30_PRESET_FILTER_ALL"))?>",
 					className : (window.bRefreshed !== undefined && window.bRefreshed ? "lenta-sort-item lenta-sort-item-selected" : "lenta-sort-item<?=(!$arResult["PresetFilterActive"] ? " lenta-sort-item-selected" : "")?>"), 
 					href : "<?=CUtil::JSEscape($GLOBALS["APPLICATION"]->GetCurPageParam("preset_filter_id=clearall", array_merge($arResult["PageParamsToClear"], array("preset_filter_id"))))?>" 
 				},
@@ -218,12 +221,26 @@ else
 				{
 					foreach($arResult["PresetFilters"] as $preset_filter_id => $arPresetFilter)
 					{
-						$href = $actionUrl !== "" ? $actionUrl : $GLOBALS["APPLICATION"]->GetCurPage();
-						$href = CHTTP::urlAddParams(CHTTP::urlDeleteParams($href, array_merge($arResult["PageParamsToClear"], array("preset_filter_id"))), array("preset_filter_id"=>$preset_filter_id));
+						$href = (
+							$actionUrl !== ""
+								? $actionUrl
+								: $GLOBALS["APPLICATION"]->GetCurPage()
+						);
 
-						if ($arResult["PresetFilterActive"] == $preset_filter_id)
+						$urlParams = [
+							'preset_filter_id' => $preset_filter_id
+						];
+						if (!empty($arResult["PresetFilterTopActive"]))
+						{
+							$urlParams['preset_filter_top_id'] = $arResult["PresetFilterTopActive"];
+						}
+
+						$href = CHTTP::urlAddParams(CHTTP::urlDeleteParams($href, array_merge($arResult["PageParamsToClear"], [ 'preset_filter_top_id', 'preset_filter_id' ])), $urlParams);
+						if ($arResult["PresetFilterActive"] === $preset_filter_id)
+						{
 							$buttonName = $arPresetFilter["NAME"];
-						?>{ 
+						}
+						?>{
 							text : "<?=$arPresetFilter["NAME"]?>", 
 							className : (window.bRefreshed !== undefined && window.bRefreshed ? "lenta-sort-item" : "lenta-sort-item<?=($arResult["PresetFilterActive"] == $preset_filter_id ? " lenta-sort-item-selected" : "")?>"), 
 							href : "<?=CUtil::JSEscape($href)?>"

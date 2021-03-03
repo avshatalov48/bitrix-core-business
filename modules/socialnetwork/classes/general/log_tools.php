@@ -1550,10 +1550,10 @@ class CSocNetLogTools
 			}
 			elseif (
 				$arLog["PARAMS"] <> ''
-				&& unserialize($arLog["PARAMS"])
+				&& unserialize($arLog["PARAMS"], [ 'allowed_classes' => false ])
 			)
 			{
-				$arTmp = unserialize($arLog["PARAMS"]);
+				$arTmp = unserialize($arLog["PARAMS"], [ 'allowed_classes' => false ]);
 				if (
 					array_key_exists("PATH_TO_MESSAGE", $arTmp)
 					&& $arTmp["PATH_TO_MESSAGE"] <> ''
@@ -1611,7 +1611,7 @@ class CSocNetLogTools
 		$count = false;
 		if ($arFields["PARAMS"] <> '')
 		{
-			$arTmp = unserialize(htmlspecialcharsback($arFields["PARAMS"]));
+			$arTmp = unserialize(htmlspecialcharsback($arFields["PARAMS"]), [ 'allowed_classes' => false ]);
 			if ($arTmp)
 				$count = $arTmp["COUNT"];
 			else
@@ -1775,7 +1775,7 @@ class CSocNetLogTools
 		$album_tmp = GetMessage("SONET_GL_EVENT_TITLE_PHOTO_ALBUM");
 		if ($arFields["PARAMS"] <> '')
 		{
-			$arTmp = unserialize(htmlspecialcharsback($arFields["PARAMS"]));
+			$arTmp = unserialize(htmlspecialcharsback($arFields["PARAMS"]), [ 'allowed_classes' => false ]);
 			if ($arTmp && array_key_exists("SECTION_NAME", $arTmp))
 			{
 				if (
@@ -1890,7 +1890,7 @@ class CSocNetLogTools
 			&& $arLog["PARAMS"] <> ''
 		)
 		{
-			$arTmp = unserialize($arLog["PARAMS"]);
+			$arTmp = unserialize($arLog["PARAMS"], [ 'allowed_classes' => false ]);
 			if ($arTmp && array_key_exists("SECTION_NAME", $arTmp))
 				$album_name = $arTmp["SECTION_NAME"];
 		}
@@ -3166,7 +3166,7 @@ class CSocNetLogTools
 						$arParams["URL"] = "";
 						if ($arLog["PARAMS"] <> '')
 						{
-							$arTmp = unserialize(htmlspecialcharsback($arLog["PARAMS"]));
+							$arTmp = unserialize(htmlspecialcharsback($arLog["PARAMS"]), [ 'allowed_classes' => false ]);
 							if (
 								$arTmp
 								&& array_key_exists("PATH_TO_MESSAGE", $arTmp)
@@ -5019,7 +5019,8 @@ class CSocNetLogTools
 				break;
 			case "FORUM_POST":
 				$log_type = "comment";
-				$log_event_id = array("forum", "photo_comment", "files_comment", "commondocs_comment", "tasks_comment", "wiki_comment", "news_comment", "lists_new_element_comment", "calendar_comment");
+				$forumPostLivefeedProvider = new \Bitrix\Socialnetwork\Livefeed\ForumPost();
+				$log_event_id = $forumPostLivefeedProvider->getEventId();
 				break;
 			case "IBLOCK_ELEMENT":
 				$log_type = "log";
@@ -5905,49 +5906,9 @@ class logTextParser extends CTextParser
 	function logTextParser($strLang = False, $pathToSmile = false)
 	{
 		$this->CTextParser();
-		global $CACHE_MANAGER;
-
 		$this->MaxStringLen = 0;
-		$this->smiles = array();
 		if ($strLang === False)
 			$strLang = LANGUAGE_ID;
-		$this->pathToSmile = $pathToSmile;
-
-		if($CACHE_MANAGER->Read(604800, "b_sonet_smile"))
-		{
-			$arSmiles = $CACHE_MANAGER->Get("b_sonet_smile");
-		}
-		else
-		{
-			$arSmiles = [];
-			$db_res = CSocNetSmile::GetList(array("SORT" => "ASC"), array("SMILE_TYPE" => "S"/*, "LANG_LID" => $strLang*/), false, false, Array("LANG_LID", "ID", "IMAGE", "DESCRIPTION", "TYPING", "SMILE_TYPE", "SORT"));
-			while ($res = $db_res->Fetch())
-			{
-				$tok = strtok($res['TYPING'], " ");
-				while ($tok !== false)
-				{
-					if (!isset($arSmiles[$res['LANG_LID']]))
-					{
-						$arSmiles[$res['LANG_LID']] = [];
-					}
-					$arSmiles[$res['LANG_LID']][] = array(
-						'TYPING' => $tok,
-						'IMAGE'  => stripslashes($res['IMAGE']), // stripslashes is not needed here
-						'DESCRIPTION' => stripslashes($res['NAME']) // stripslashes is not needed here
-					);
-					$tok = strtok(" ");
-				}
-			}
-
-			foreach ($arSmiles as $LID => $arSmilesLID)
-			{
-				uasort($arSmilesLID, array('logTextParser', 'sonet_sortlen'));
-				$arSmiles[$LID] = $arSmilesLID;
-			}
-
-			$CACHE_MANAGER->Set("b_sonet_smile", $arSmiles);
-		}
-		$this->smiles = $arSmiles[$strLang];
 	}
 
 	function convert($text, $arImages = array(), $allow = array("HTML" => "N", "ANCHOR" => "Y", "BIU" => "Y", "IMG" => "Y", "QUOTE" => "Y", "CODE" => "Y", "FONT" => "Y", "LIST" => "Y", "SMILES" => "Y", "NL2BR" => "N", "VIDEO" => "Y", "TABLE" => "Y", "CUT_ANCHOR" => "N", "SHORT_ANCHOR" => "N"), $arParams = Array())

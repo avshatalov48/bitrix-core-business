@@ -127,6 +127,10 @@ class WorkgroupTable extends Entity\DataManager
 			'SCRUM_SPRINT_DURATION' => array(
 				'data_type' => 'integer',
 			),
+			'SCRUM_TASK_RESPONSIBLE' => [
+				'data_type' => 'string',
+				'values' => ['A', 'M']
+			],
 		);
 
 		return $fieldsMap;

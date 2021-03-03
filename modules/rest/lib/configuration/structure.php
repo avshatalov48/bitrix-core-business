@@ -14,10 +14,13 @@ use CFile;
 
 class Structure
 {
+	public const CODE_CONFIGURATION_FILES_LIST = 'CONFIGURATION_FILES_LIST';
+	public const CODE_FILES_LIST = 'FILES_LIST';
+	public const CODE_UNPACK_FILE_PREFIX = 'UNPACK_FILE_';
 	private static $maxAgentTime = 10;
 	private static $fileDescriptionDelete = 'configuration_delete';
-	private $context = '';
-	private $setting = null;
+	private $context;
+	private $setting;
 	private $zipMimeType = [
 		'application/zip',
 		'application/x-zip-compressed'
@@ -29,6 +32,8 @@ class Structure
 	{
 		$this->context = $context;
 		$this->setting = new Setting($context);
+		$this->setting->addMultipleCode(self::CODE_CONFIGURATION_FILES_LIST);
+		$this->setting->addMultipleCode(self::CODE_FILES_LIST);
 	}
 
 	/**
@@ -116,21 +121,13 @@ class Structure
 	 */
 	private function saveConfigurationFile($id, $name)
 	{
-		$id = intVal($id);
-		$files = $this->getConfigurationFileList();
-		if(!is_array($files))
-		{
-			$files = [];
-		}
-		$key = array_search($name, $files);
-		if($key !== false)
-		{
-			unset($files[$key]);
-		}
+		$id = (int) $id;
+		$file = [
+			'ID' => $id,
+			'NAME' => $name
+		];
 
-		$files[$id] = $name;
-
-		return $this->setting->set('CONFIGURATION_FILES_LIST', $files);
+		return $this->setting->set(self::CODE_CONFIGURATION_FILES_LIST, $file);
 	}
 
 	/**
@@ -139,7 +136,7 @@ class Structure
 	 */
 	public function getConfigurationFileList()
 	{
-		return $this->setting->get('CONFIGURATION_FILES_LIST');
+		return $this->setting->get(self::CODE_CONFIGURATION_FILES_LIST);
 	}
 
 	/**
@@ -150,15 +147,8 @@ class Structure
 	 */
 	public function saveFile($id, $additionalData = [])
 	{
-		$id = intval($id);
-		$files = $this->getFileList();
-		if(!is_array($files))
-		{
-			$files = [];
-		}
-		$files[$id] = $additionalData;
-
-		return $this->setting->set('FILES_LIST', $files);
+		$additionalData['ID'] = (int) $id;
+		return $this->setting->set(self::CODE_FILES_LIST, $additionalData);
 	}
 
 	/**
@@ -167,7 +157,7 @@ class Structure
 	 */
 	public function getFileList()
 	{
-		return $this->setting->get('FILES_LIST');
+		return $this->setting->get(self::CODE_FILES_LIST);
 	}
 
 	/**
@@ -211,17 +201,15 @@ class Structure
 				$files = Json::decode($content);
 				if(is_array($files))
 				{
-					$saveFiles = [];
 					foreach ($files as $file)
 					{
-						$id = intval($file['ID']);
-						if($id > 0 && File::isFileExists($folder.Helper::STRUCTURE_FILES_NAME.'/'.$id))
+						$id = (int) $file['ID'];
+						if ($id > 0 && File::isFileExists($folder . Helper::STRUCTURE_FILES_NAME . '/' . $id))
 						{
-							$file['PATH'] = $folder.Helper::STRUCTURE_FILES_NAME.'/'.$id;
-							$saveFiles[$id] = $file;
+							$file['PATH'] = $folder . Helper::STRUCTURE_FILES_NAME . '/' . $id;
+							$this->setting->set(self::CODE_UNPACK_FILE_PREFIX . $id, $file);
 						}
 					}
-					$this->setting->set('UNPACK_FILES', $saveFiles);
 				}
 			}
 			catch (\Exception $e)
@@ -290,23 +278,22 @@ class Structure
 											]
 										);
 
-										$saveFiles = [];
 										foreach ($folderFiles as $file)
 										{
 											$id = $file->getOriginalName();
-											if(!empty($fileList[$id]))
+											if (!empty($fileList[$id]))
 											{
 												$path = $documentRoot . CFile::GetPath(
 													$file->getFileId()
 												);
-												if(File::isFileExists($path))
+												if (File::isFileExists($path))
 												{
-													$saveFiles[$id] = $fileList[$id];
-													$saveFiles[$id]['PATH'] = $path;
+													$saveFile = $fileList[$id];
+													$saveFile['PATH'] = $path;
+													$this->setting->set(self::CODE_UNPACK_FILE_PREFIX . $file->getFileId(), $saveFile);
 												}
 											}
 										}
-										$this->setting->set('UNPACK_FILES', $saveFiles);
 
 										$result = true;
 									}
@@ -331,8 +318,7 @@ class Structure
 	 */
 	public function getUnpackFile($id)
 	{
-		$files = $this->setting->get('UNPACK_FILES');
-		return !empty($files[$id]) ? $files[$id] : false;
+		return $this->setting->get(self::CODE_UNPACK_FILE_PREFIX . (int) $id);
 	}
 
 	/**
@@ -372,6 +358,19 @@ class Structure
 	{
 		$deleteDate = new DateTime();
 		$deleteDate->add('-2 days');
+
+		$res = StorageTable::getList(
+			[
+				'filter' => [
+					'<CREATE_TIME' => $deleteDate
+				]
+			]
+		);
+		while ($item = $res->fetch())
+		{
+			StorageTable::deleteFile($item);
+			StorageTable::delete($item['ID']);
+		}
 
 		$res = CFile::getList(
 			[],

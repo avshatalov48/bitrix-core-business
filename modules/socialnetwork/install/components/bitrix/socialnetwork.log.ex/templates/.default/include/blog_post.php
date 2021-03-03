@@ -88,7 +88,7 @@ $arComponentParams = [
 	"GROUP_READ_ONLY" => (isset($arResult["Group"]) && isset($arResult["Group"]["READ_ONLY"]) && $arResult["Group"]["READ_ONLY"] === "Y" ? "Y" : "N"),
 	"BLOG_NO_URL_IN_COMMENTS" => $arParams["BLOG_NO_URL_IN_COMMENTS"],
 	"BLOG_NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["BLOG_NO_URL_IN_COMMENTS_AUTHORITY"],
-	'TOP_RATING_DATA' => (!empty($arResult['TOP_RATING_DATA'][$arEvent["ID"]]) ? $arResult['TOP_RATING_DATA'][$arEvent["ID"]] : false),
+	'TOP_RATING_DATA' => ($arResult['TOP_RATING_DATA'][$arEvent["ID"]] ?? false),
 	"SELECTOR_VERSION" => 2,
 ];
 

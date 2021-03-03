@@ -24,7 +24,6 @@ BX.SidePanel.Slider = function(url, options)
 
 	this.url = this.contentCallback ? url : this.refineUrl(url);
 
-	this.zIndex = BX.prop.getInteger(options, 'zIndex', 3000);
 	this.offset = null;
 	this.width = BX.type.isNumber(options.width) ? options.width : null;
 	this.cacheable = options.cacheable !== false;
@@ -163,6 +162,8 @@ BX.SidePanel.Slider.prototype =
 		BX.addClass(this.getOverlay(), "side-panel-overlay-open side-panel-overlay-opening");
 		this.adjustLayout();
 
+		BX.ZIndexManager.bringToFront(this.getOverlay());
+
 		this.opened = true;
 
 		this.fireEvent("onOpenStart");
@@ -262,14 +263,12 @@ BX.SidePanel.Slider.prototype =
 
 	/**
 	 * @public
+	 * @deprecated
 	 * @param {number} zIndex
 	 */
 	setZindex: function(zIndex)
 	{
-		if (BX.type.isNumber(zIndex))
-		{
-			this.zIndex = zIndex;
-		}
+
 	},
 
 	/**
@@ -278,7 +277,9 @@ BX.SidePanel.Slider.prototype =
 	 */
 	getZindex: function()
 	{
-		return this.zIndex;
+		var component = BX.ZIndexManager.getComponent(this.getOverlay());
+
+		return component.getZIndex();
 	},
 
 	/**
@@ -775,6 +776,8 @@ BX.SidePanel.Slider.prototype =
 			frameWindow.removeEventListener("focus", this.handleFrameFocus);
 		}
 
+		BX.ZIndexManager.unregister(this.layout.overlay);
+
 		BX.remove(this.layout.overlay);
 
 		this.layout.container = null;
@@ -888,6 +891,8 @@ BX.SidePanel.Slider.prototype =
 			document.body.appendChild(this.getOverlay());
 			this.setFrameSrc(); //setFrameSrc must be below than appendChild, otherwise POST method fails.
 		}
+
+		BX.ZIndexManager.register(this.getOverlay());
 	},
 
 	/**
@@ -936,9 +941,6 @@ BX.SidePanel.Slider.prototype =
 			},
 			events: {
 				mousedown: this.handleOverlayClick.bind(this)
-			},
-			style: {
-				zIndex: this.getZindex()
 			},
 			children: [
 				this.getContainer()
@@ -995,9 +997,6 @@ BX.SidePanel.Slider.prototype =
 		this.layout.container = BX.create("div", {
 			props: {
 				className: "side-panel side-panel-container"
-			},
-			style: {
-				zIndex: this.getZindex() + 1
 			},
 			children: [
 				this.getContentContainer(),

@@ -147,7 +147,7 @@ class CSocNetLogToolsPhoto
 		{
 			if ($res["PARAMS"] <> '')
 			{
-				$arResParams = unserialize($res["PARAMS"]);
+				$arResParams = unserialize($res["PARAMS"], [ 'allowed_classes' => false ]);
 				array_push($arResParams["arItems"], $arFields["ID"]);
 			}
 			else
@@ -336,7 +336,7 @@ class CSocNetLogToolsPhoto
 		{
 			if ($res["PARAMS"] <> '')
 			{
-				$arResParams = unserialize($res["PARAMS"]);
+				$arResParams = unserialize($res["PARAMS"], [ 'allowed_classes' => false ]);
 			}
 			else
 			{
@@ -793,7 +793,7 @@ class CSocNetPhotoCommentEvent
 		{
 			if ($arLog["PARAMS"] <> '')
 			{
-				$arTmp = unserialize(htmlspecialcharsback($arLog["PARAMS"]));
+				$arTmp = unserialize(htmlspecialcharsback($arLog["PARAMS"]), [ 'allowed_classes' => false ]);
 				if ($arTmp)
 				{
 					$FORUM_ID = $arTmp["FORUM_ID"];
@@ -1215,7 +1215,7 @@ class CSocNetPhotoCommentEvent
 
 				if ($arRes["PARAMS"] <> '')
 				{
-					$arTmp = unserialize($arRes["PARAMS"]);
+					$arTmp = unserialize($arRes["PARAMS"], [ 'allowed_classes' => false ]);
 					if ($arTmp)
 					{
 						if (
@@ -1531,7 +1531,7 @@ class CSocNetPhotoCommentEvent
 
 				if ($arRes["PARAMS"] <> '')
 				{
-					$arTmp = unserialize($arRes["PARAMS"]);
+					$arTmp = unserialize($arRes["PARAMS"], [ 'allowed_classes' => false ]);
 					if ($arTmp)
 					{
 						if (

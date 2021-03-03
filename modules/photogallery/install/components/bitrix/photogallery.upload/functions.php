@@ -539,7 +539,7 @@ function handleFile($Info, $arFiles, $Params)
 							imagepng($sourceImage, $file['tmp_name']);
 							break;
 						default:
-							if ($arSourceFileSizeTmp[2] == IMAGETYPE_BMP)
+							if ($type == IMAGETYPE_BMP)
 								$file['tmp_name'] .= ".jpg";
 							imagejpeg($sourceImage, $file['tmp_name'], 100);
 							break;

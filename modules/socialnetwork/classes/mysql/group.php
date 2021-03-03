@@ -505,6 +505,7 @@ class CSocNetGroup extends CAllSocNetGroup
 			"SCRUM_OWNER_ID" => ["FIELD" => "G.SCRUM_OWNER_ID", "TYPE" => "int"],
 			"SCRUM_MASTER_ID" => ["FIELD" => "G.SCRUM_MASTER_ID", "TYPE" => "int"],
 			"SCRUM_SPRINT_DURATION" => ["FIELD" => "G.SCRUM_SPRINT_DURATION", "TYPE" => "int"],
+			"SCRUM_TASK_RESPONSIBLE" => ["FIELD" => "G.SCRUM_TASK_RESPONSIBLE", "TYPE" => "string"],
 		);
 
 		if (array_key_exists("SITE_ID", $arFilter))

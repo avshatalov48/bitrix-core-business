@@ -1,5 +1,9 @@
 <?php
 
+use Bitrix\Main;
+use Bitrix\Main\Event;
+use Bitrix\Main\EventResult;
+
 IncludeModuleLangFile(__FILE__);
 if (class_exists("highloadblock"))
 	return;
@@ -162,23 +166,51 @@ class highloadblock extends CModule
 		global $USER, $APPLICATION, $step;
 		if ($USER->IsAdmin())
 		{
-			$step = intval($step);
+			$step = (int)$step;
 			if ($step < 2)
 			{
 				$APPLICATION->IncludeAdminFile(GetMessage("HLBLOCK_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/highloadblock/install/unstep1.php");
 			}
 			elseif ($step == 2)
 			{
-				$this->UnInstallDB(array(
-					"save_tables" => $_REQUEST["save_tables"],
-				));
-				//message types and templates
-				if ($_REQUEST["save_templates"] != "Y")
+				$errorMessages = [];
+				$event = new Event('highloadblock', 'OnBeforeModuleUninstall', ['module' => 'highloadblock']);
+				$event->send();
+				/** @var EventResult[] $eventResultList */
+				$eventResultList = $event->getResults();
+				foreach ($eventResultList as $eventResult)
 				{
-					$this->UnInstallEvents();
+					if ($eventResult->getType() === EventResult::ERROR)
+					{
+						$data = $eventResult->getParameters();
+						if (is_array($data) && !empty($data['error']))
+						{
+							$errorMessages[] = $data['error'];
+						}
+					}
 				}
-				$this->UnInstallFiles();
-				$GLOBALS["errors"] = $this->errors;
+				if (Main\UserFieldTable::getCount(['=USER_TYPE_ID' => 'hlblock']) > 0)
+				{
+					$errorMessages[] = GetMessage('HLBLOCK_USERFIELD_EXISTS');
+				}
+				if (!empty($errorMessages))
+				{
+					$APPLICATION->ResetException();
+					$APPLICATION->ThrowException(implode(' ', $errorMessages));
+				}
+				else
+				{
+					$this->UnInstallDB(array(
+						"save_tables" => $_REQUEST["save_tables"],
+					));
+					//message types and templates
+					if ($_REQUEST["save_templates"] != "Y")
+					{
+						$this->UnInstallEvents();
+					}
+					$this->UnInstallFiles();
+					$GLOBALS["errors"] = $this->errors;
+				}
 				$APPLICATION->IncludeAdminFile(GetMessage("HLBLOCK_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/highloadblock/install/unstep2.php");
 			}
 		}

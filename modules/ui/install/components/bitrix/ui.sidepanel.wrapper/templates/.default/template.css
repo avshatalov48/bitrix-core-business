@@ -284,8 +284,13 @@ div.ui-side-panel-wrap-title-container.ui-side-panel-wrap-title-align-right-cont
 	background-color: #eef2f4;
 }
 
-.ui-page-slider-wrapper .feed-post-block {
-	border-bottom: 15px solid #eef2f4;
+/*.ui-page-slider-wrapper .feed-post-block {*/
+/*	border-bottom: 15px solid #eef2f4;*/
+/*}*/
+
+.ui-page-slider-wrapper .feed-post-block,
+.ui-page-slider-wrapper .feed-add-post-block {
+	background-color: #fff;
 }
 
 /*.ui-page-slider-wrapper .ui-toolbar {*/

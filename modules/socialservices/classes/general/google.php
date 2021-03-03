@@ -443,9 +443,9 @@ class CGoogleOAuthInterface extends CSocServOAuthTransport
 	protected function checkSavedScope()
 	{
 		$savedScope = \Bitrix\Main\Config\Option::get('socialservices', 'saved_scope_'.static::SERVICE_ID, '');
-		if($savedScope <> '' && CheckSerializedData($savedScope))
+		if($savedScope)
 		{
-			$savedScope = unserialize($savedScope);
+			$savedScope = unserialize($savedScope, ['allowed_classes' => false]);
 			if(is_array($savedScope))
 			{
 				$this->scope = array_merge($this->scope, $savedScope);

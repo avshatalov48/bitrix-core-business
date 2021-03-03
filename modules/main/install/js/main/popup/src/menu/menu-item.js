@@ -265,14 +265,12 @@ export default class MenuItem extends EventEmitter
 		options.autoHide = false;
 		options.menuShowDelay = this.menuShowDelay;
 		options.cacheable = this.isCacheable();
-		options.zIndexAbsolute = this.getMenuWindow().getPopupWindow().getZindex() + 2;
 		options.bindOptions = {
 			forceTop: true,
 			forceLeft: true,
 			forceBindPosition: true
 		};
 
-		delete options.zIndex;
 		delete options.events;
 		delete options.angle;
 		delete options.overlay;

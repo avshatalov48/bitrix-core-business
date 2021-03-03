@@ -42,8 +42,9 @@ class Configuration extends Controller
 				if(is_array($fileList))
 				{
 					$folderName = Helper::STRUCTURE_FILES_NAME;
-					foreach ($fileList as $id => $file)
+					foreach ($fileList as $file)
 					{
+						$id = (int) $file['ID'];
 						$entry = ArchiveEntry::createFromFileId($id);
 						if ($entry)
 						{
@@ -65,12 +66,12 @@ class Configuration extends Controller
 				}
 
 				$folderFiles = $structure->getConfigurationFileList();
-				foreach ($folderFiles as $id => $name)
+				foreach ($folderFiles as $file)
 				{
-					$entry = ArchiveEntry::createFromFileId($id);
+					$entry = ArchiveEntry::createFromFileId((int) $file['ID']);
 					if ($entry)
 					{
-						$entry->setName($name);
+						$entry->setName($file['NAME']);
 						$archive->addEntry($entry);
 					}
 				}

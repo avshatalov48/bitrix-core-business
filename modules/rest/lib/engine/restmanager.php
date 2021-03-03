@@ -108,7 +108,7 @@ class RestManager extends \IRestService
 		$autoWirings = $this->getAutoWirings();
 
 		$this->registerAutoWirings($autoWirings);
-		$result = $controller->run($action, [$params]);
+		$result = $controller->run($action, [$params, ['__restServer' => $restServer]]);
 		$this->unRegisterAutoWirings($autoWirings);
 
 		if ($result instanceof Engine\Response\File)
@@ -125,6 +125,11 @@ class RestManager extends \IRestService
 			}
 
 			$result = $result->getContent();
+		}
+
+		if(is_a($result, "\\Bitrix\\Rest\\RestException"))
+		{
+			throw $result;
 		}
 
 		if ($result === null)

@@ -343,7 +343,7 @@ class CSocNetLogDestination
 	{
 		global $USER, $CACHE_MANAGER;
 
-		$userId = intval($USER->GetID());
+		$userId = (int)$USER->GetID();
 
 		if (
 			isset($arParams['all'])
@@ -380,7 +380,9 @@ class CSocNetLogDestination
 			$filter['!=EMAIL'] = false;
 		}
 
-		$arExternalAuthId = self::getExternalAuthIdBlackList();
+		$arExternalAuthId = self::getExternalAuthIdBlackList([
+			'ALLOW_BOTS' => (isset($arParams['ALLOW_BOTS']) && $arParams['ALLOW_BOTS'] === true)
+		]);
 
 		if (!empty($arExternalAuthId))
 		{
@@ -601,9 +603,14 @@ class CSocNetLogDestination
 							isset($arUser["UF_DEPARTMENT"])
 							&& $arUser['EXTERNAL_AUTH_ID'] !== 'email'
 							&& (
+								$arUser['EXTERNAL_AUTH_ID'] !== 'bot'
+								|| !isset($arParams['ALLOW_BOTS'])
+								|| $arParams['ALLOW_BOTS'] !== true
+							)
+							&& (
 								!is_array($arUser["UF_DEPARTMENT"])
 								|| empty($arUser["UF_DEPARTMENT"])
-								|| intval($arUser["UF_DEPARTMENT"][0]) <= 0
+								|| (int)$arUser["UF_DEPARTMENT"][0] <= 0
 							) // extranet user
 							&& (
 								empty($arUserIdVisible)
@@ -777,29 +784,31 @@ class CSocNetLogDestination
 
 		CUtil::JSPostUnescape();
 
+		$nameTemplate = $nt;
+		$bEmailUsers = false;
+		$bCrmEmailUsers = false;
+		$bActiveOnly = true;
+		$bNetworkSearch = false;
+		$bSearchOnlyWithEmail = false;
+		$allowBots = false;
+		$showAllExtranetContacts = false;
+
 		if (is_array($search))
 		{
 			$arParams = $search;
 			$search = $arParams["SEARCH"];
-			$nameTemplate = (isset($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : '');
-			$bSelf = (isset($arParams["SELF"]) ? $arParams["SELF"] : true);
-			$bEmployeesOnly = (isset($arParams["EMPLOYEES_ONLY"]) ? $arParams["EMPLOYEES_ONLY"] : false);
-			$bExtranetOnly = (isset($arParams["EXTRANET_ONLY"]) ? $arParams["EXTRANET_ONLY"] : false);
-			$departmentId = (isset($arParams["DEPARTAMENT_ID"]) ? $arParams["DEPARTAMENT_ID"] : false);
-			$bEmailUsers = (isset($arParams["EMAIL_USERS"]) ? $arParams["EMAIL_USERS"] : false);
+			$nameTemplate = ($arParams["NAME_TEMPLATE"] ?? '');
+			$bSelf = ($arParams["SELF"] ?? true);
+			$bEmployeesOnly = ($arParams["EMPLOYEES_ONLY"] ?? false);
+			$bExtranetOnly = ($arParams["EXTRANET_ONLY"] ?? false);
+			$departmentId = ($arParams["DEPARTAMENT_ID"] ?? false);
+			$bEmailUsers = ($arParams["EMAIL_USERS"] ?? false);
 			$bCrmEmailUsers = (isset($arParams["CRMEMAIL_USERS"]) && ModuleManager::isModuleInstalled('crm') ? $arParams["CRMEMAIL_USERS"] : false);
 			$bActiveOnly = (isset($arParams["CHECK_ACTIVITY"]) && $arParams["CHECK_ACTIVITY"] === false ? false : true);
-			$bNetworkSearch = (isset($arParams["NETWORK_SEARCH"]) ? $arParams["NETWORK_SEARCH"] : false);
-			$bSearchOnlyWithEmail = (isset($arParams["ONLY_WITH_EMAIL"]) ? $arParams["ONLY_WITH_EMAIL"] : false);
-		}
-		else
-		{
-			$nameTemplate = $nt;
-			$bEmailUsers = false;
-			$bCrmEmailUsers = false;
-			$bActiveOnly = true;
-			$bNetworkSearch = false;
-			$bSearchOnlyWithEmail = false;
+			$bNetworkSearch = ($arParams["NETWORK_SEARCH"] ?? false);
+			$bSearchOnlyWithEmail = ($arParams["ONLY_WITH_EMAIL"] ?? false);
+			$allowBots = ($arParams['ALLOW_BOTS'] ?? false);
+			$showAllExtranetContacts = ($arParams['SHOW_ALL_EXTRANET_CONTACTS'] ?? false);
 		}
 
 		$arUsers = array();
@@ -892,7 +901,8 @@ class CSocNetLogDestination
 		if ($bIntranetEnabled)
 		{
 			$arExternalAuthId = self::getExternalAuthIdBlackList(array(
-				"NETWORK_SEARCH" => $bNetworkSearch
+				'NETWORK_SEARCH' => $bNetworkSearch,
+				'ALLOW_BOTS' => $allowBots
 			));
 
 			if (!empty($arExternalAuthId))
@@ -961,7 +971,9 @@ class CSocNetLogDestination
 					"INTRANET_ONLY" => ($bEmployeesOnly || ($bBitrix24Enabled && !$bExtranetEnabled)),
 					"EXTRANET_ONLY" => $bExtranetOnly,
 					"EMAIL_USERS_ALL" => $bEmailUsersAll,
-					"MY_USERS" => $arMyUserId
+					"MY_USERS" => $arMyUserId,
+					'ALLOW_BOTS' => $allowBots,
+					'SHOW_ALL_EXTRANET_CONTACTS' => $showAllExtranetContacts
 				),
 				$filter,
 				$bFilteredByMyUserId
@@ -1963,104 +1975,111 @@ class CSocNetLogDestination
 			: ['ID'];
 
 		$usersToFetch = [];
-		foreach($accessCodes as $code)
+
+		if (is_array($accessCodes))
 		{
-			// All users
-			if ($code === 'UA')
+			foreach($accessCodes as $code)
 			{
-				$dbRes = CUser::GetList(
-					$by = 'ID',
-					$order = 'ASC',
-					['INTRANET_USERS' => true],
-					['FIELDS' => $fields]
-				);
-
-				while ($user = $dbRes->Fetch())
+				// All users
+				if ($code === 'UA')
 				{
-					if (!in_array($user['ID'], $userIds))
+					$dbRes = CUser::GetList(
+						$by = 'ID',
+						$order = 'ASC',
+						['INTRANET_USERS' => true],
+						['FIELDS' => $fields]
+					);
+
+					while ($user = $dbRes->Fetch())
 					{
-						$userIds[] = $user['ID'];
-						if ($fetchUsers)
+						if (!in_array($user['ID'], $userIds))
 						{
-							$user['USER_ID'] = $user['ID'];
-							$users[] = $user;
+							$userIds[] = $user['ID'];
+							if ($fetchUsers)
+							{
+								$user['USER_ID'] = $user['ID'];
+								$users[] = $user;
+							}
+						}
+					}
+					break;
+				}
+				elseif (mb_substr($code, 0, 1) === 'U')
+				{
+					$userId = (int)mb_substr($code, 1);
+					if (!in_array($userId, $userIds))
+					{
+						$usersToFetch[] = $userId;
+						if (!$fetchUsers)
+						{
+							$userIds[] = $userId;
 						}
 					}
 				}
-				break;
-			}
-			elseif (mb_substr($code, 0, 1) === 'U')
-			{
-				$userId = intval(mb_substr($code, 1));
-				if (!in_array($userId, $userIds))
+				elseif (mb_substr($code, 0, 2) === 'SG')
 				{
-					$usersToFetch[] = $userId;
-					if (!$fetchUsers)
-					{
-						$userIds[] = $userId;
-					}
-				}
-			}
-			elseif (mb_substr($code, 0, 2) === 'SG')
-			{
-				$groupId = intval(mb_substr($code, 2));
-				$dbMembers = CSocNetUserToGroup::GetList(
-					["RAND" => "ASC"],
-					["GROUP_ID" => $groupId, "<=ROLE" => SONET_ROLES_USER, "USER_ACTIVE" => "Y"],
-					false,
-					false,
-					["ID", "USER_ID", "ROLE", "USER_NAME", "USER_LAST_NAME", "USER_SECOND_NAME", "USER_LOGIN", "USER_EMAIL", "USER_PERSONAL_PHOTO", "USER_WORK_POSITION"]
-				);
+					$groupId = intval(mb_substr($code, 2));
+					$dbMembers = CSocNetUserToGroup::GetList(
+						["RAND" => "ASC"],
+						["GROUP_ID" => $groupId, "<=ROLE" => SONET_ROLES_USER, "USER_ACTIVE" => "Y"],
+						false,
+						false,
+						["ID", "USER_ID", "ROLE", "USER_NAME", "USER_LAST_NAME", "USER_SECOND_NAME", "USER_LOGIN", "USER_EMAIL", "USER_PERSONAL_PHOTO", "USER_WORK_POSITION"]
+					);
 
-				if ($dbMembers)
-				{
-					while ($user = $dbMembers->GetNext())
+					if ($dbMembers)
 					{
-						if (!in_array($user["USER_ID"], $userIds))
+						while ($user = $dbMembers->GetNext())
 						{
-							$userIds[] = $user["USER_ID"];
-							$users[] = [
-								'ID' => $user["USER_ID"],
-								'USER_ID' => $user["USER_ID"],
-								'LOGIN' => $user["USER_LOGIN"],
-								'NAME' => $user["USER_NAME"],
-								'LAST_NAME' => $user["USER_LAST_NAME"],
-								'SECOND_NAME' => $user["USER_SECOND_NAME"],
-								'EMAIL' => $user["USER_EMAIL"],
-								'PERSONAL_PHOTO' => $user["USER_PERSONAL_PHOTO"],
-								'WORK_POSITION' => $user["USER_WORK_POSITION"]
-							];
+							if (!in_array($user["USER_ID"], $userIds))
+							{
+								$userIds[] = $user["USER_ID"];
+								$users[] = [
+									'ID' => $user["USER_ID"],
+									'USER_ID' => $user["USER_ID"],
+									'LOGIN' => $user["USER_LOGIN"],
+									'NAME' => $user["USER_NAME"],
+									'LAST_NAME' => $user["USER_LAST_NAME"],
+									'SECOND_NAME' => $user["USER_SECOND_NAME"],
+									'EMAIL' => $user["USER_EMAIL"],
+									'PERSONAL_PHOTO' => $user["USER_PERSONAL_PHOTO"],
+									'WORK_POSITION' => $user["USER_WORK_POSITION"]
+								];
+							}
 						}
 					}
 				}
-			}
-			elseif (mb_substr($code, 0, 2) === 'DR')
-			{
-				$depId = intval(mb_substr($code, 2));
-
-				$res = \Bitrix\Intranet\Util::getDepartmentEmployees([
-					'DEPARTMENTS' => $depId,
-					'RECURSIVE' => 'Y',
-					'ACTIVE' => 'Y',
-					'SELECT' => $fields
-				]);
-
-				while ($user = $res->Fetch())
+				elseif (mb_substr($code, 0, 2) === 'DR')
 				{
-					if (!in_array($user['ID'], $userIds))
+					$depId = (int)mb_substr($code, 2);
+
+					$res = \Bitrix\Intranet\Util::getDepartmentEmployees([
+						'DEPARTMENTS' => $depId,
+						'RECURSIVE' => 'Y',
+						'ACTIVE' => 'Y',
+						'SELECT' => $fields
+					]);
+
+					while ($user = $res->Fetch())
 					{
-						$userIds[] = $user['ID'];
-						if ($fetchUsers)
+						if (!in_array($user['ID'], $userIds))
 						{
-							$user['USER_ID'] = $user['ID'];
-							$users[] = $user;
+							$userIds[] = $user['ID'];
+							if ($fetchUsers)
+							{
+								$user['USER_ID'] = $user['ID'];
+								$users[] = $user;
+							}
 						}
 					}
 				}
 			}
 		}
 
-		if (count($usersToFetch) > 0 && $fetchUsers)
+		if (
+			!empty($usersToFetch)
+			&& $fetchUsers
+		)
 		{
 			$dbRes = CUser::GetList($by = 'ID', $order = 'ASC',
 				[
@@ -2212,7 +2231,7 @@ class CSocNetLogDestination
 		);
 		if($arRes = $rsData->Fetch())
 		{
-			$UFId = intval($arRes["ID"]);
+			$UFId = (int)$arRes["ID"];
 		}
 		else
 		{
@@ -2238,7 +2257,9 @@ class CSocNetLogDestination
 			$arFilter["CONFIRM_CODE"] = false;
 		}
 
-		$arExternalAuthId = self::getExternalAuthIdBlackList();
+		$arExternalAuthId = self::getExternalAuthIdBlackList([
+			'ALLOW_BOTS' => (isset($arParams['ALLOW_BOTS']) && $arParams['ALLOW_BOTS'] === true)
+		]);
 		$arExternalAuthId[] = 'email';
 		$arFilter['!EXTERNAL_AUTH_ID'] = $arExternalAuthId;
 
@@ -2711,10 +2732,9 @@ class CSocNetLogDestination
 
 	private static function getExternalAuthIdBlackList($params = array())
 	{
-		$result = array(
-			"bot",
+		$result = [
 			"imconnector"
-		);
+		];
 
 		if (
 			!is_array($params)
@@ -2723,6 +2743,15 @@ class CSocNetLogDestination
 		)
 		{
 			$result[] = 'replica';
+		}
+
+		if (
+			!is_array($params)
+			|| !isset($params['ALLOW_BOTS'])
+			|| !$params['ALLOW_BOTS']
+		)
+		{
+			$result[] = 'bot';
 		}
 
 		return $result;

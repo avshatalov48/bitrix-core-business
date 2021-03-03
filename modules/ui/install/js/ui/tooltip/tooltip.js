@@ -337,6 +337,8 @@ BX.UI.TooltipBalloon.prototype.showTooltip = function()
 		_this.ROOT_DIV = document.body.appendChild(document.createElement('DIV'));
 		_this.ROOT_DIV.style.position = 'absolute';
 
+		BX.ZIndexManager.register(_this.ROOT_DIV);
+
 		_this.DIV = _this.ROOT_DIV.appendChild(document.createElement('DIV'));
 		_this.DIV.className = 'bx-ui-tooltip-info-shadow';
 
@@ -360,7 +362,8 @@ BX.UI.TooltipBalloon.prototype.showTooltip = function()
 
 	_this.ROOT_DIV.style.left = parseInt(left) + "px";
 	_this.ROOT_DIV.style.top = parseInt(top) + "px";
-	_this.ROOT_DIV.style.zIndex = 3200;
+
+	BX.ZIndexManager.bringToFront(_this.ROOT_DIV);
 
 	BX.bind(BX(_this.ROOT_DIV), "click", BX.eventCancelBubble);
 

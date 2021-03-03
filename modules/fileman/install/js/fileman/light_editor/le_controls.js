@@ -400,11 +400,20 @@ LHEList.prototype = {
 			this.bRunOnOpen = false;
 		}
 
+		var firstOpen = this.pValuesCont.parentNode === null;
 		document.body.appendChild(this.pValuesCont);
+
+		if (firstOpen)
+		{
+			BX.ZIndexManager.register(this.pValuesCont);
+		}
+
+		var component = BX.ZIndexManager.bringToFront(this.pValuesCont);
+		var zIndex = component.getZIndex();
 
 		this.pValuesCont.style.display = 'block';
 		var
-			pOverlay = this.pLEditor.oTransOverlay.Show(),
+			pOverlay = this.pLEditor.oTransOverlay.Show({ zIndex: zIndex - 1 }),
 			pos = BX.align(BX.pos(this.pWnd), parseInt(this.pValuesCont.offsetWidth) || 150, parseInt(this.pValuesCont.offsetHeight) || 200),
 			_this = this;
 
@@ -545,6 +554,8 @@ LHEColorPicker.prototype = {
 		var _this = this;
 		this.pColCont = document.body.appendChild(BX.create("DIV", {props: {className: "lhe-colpick-cont"}, style: {zIndex: this.zIndex}}));
 
+		BX.ZIndexManager.register(this.pColCont);
+
 		var
 			arColors = this.pLEditor.arColors,
 			row, cell, colorCell,
@@ -632,19 +643,23 @@ LHEColorPicker.prototype = {
 	Open: function ()
 	{
 		var
-			pOverlay = this.pLEditor.oTransOverlay.Show(),
 			pos = BX.align(BX.pos(this.pWnd), 325, 155),
 			_this = this;
 
 		this.pLEditor.oPrevRange = this.pLEditor.GetSelectionRange();
 
 		BX.bind(window, "keypress", BX.proxy(this.OnKeyPress, this));
-		pOverlay.onclick = function(){_this.Close()};
 
 		this.pColCont.style.display = 'block';
 		this.pColCont.style.top = pos.top + 'px';
 		this.pColCont.style.left = pos.left + 'px';
 		this.bOpened = true;
+
+		var component = BX.ZIndexManager.bringToFront(this.pColCont);
+		var zIndex = component.getZIndex();
+
+		var pOverlay = this.pLEditor.oTransOverlay.Show({ zIndex: zIndex - 1 });
+		pOverlay.onclick = function(){_this.Close()};
 
 		setTimeout(function()
 		{
@@ -742,15 +757,17 @@ LHEContextMenu.prototype = {
 		var
 			_this = this,
 			w = parseInt(this.oDiv.offsetWidth),
-			h = parseInt(this.oDiv.offsetHeight),
-			pOverlay = this.pLEditor.oTransOverlay.Show();
-		pOverlay.onclick = function(){_this.Close()};
+			h = parseInt(this.oDiv.offsetHeight);
+
 		BX.bind(window, "keypress", BX.proxy(this.OnKeyPress, this));
 
 		arParams.oPos.right = arParams.oPos.left + w;
 		arParams.oPos.bottom = arParams.oPos.top;
 
 		this.menu.PopupShow(arParams.oPos);
+
+		var pOverlay = this.pLEditor.oTransOverlay.Show({ zIndex: BX(this.pref + '_cont').style.zIndex - 1 });
+		pOverlay.onclick = function(){_this.Close()};
 	},
 
 	Close: function()

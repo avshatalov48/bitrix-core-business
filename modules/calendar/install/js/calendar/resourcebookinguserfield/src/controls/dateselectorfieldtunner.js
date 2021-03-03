@@ -56,7 +56,7 @@ class DateStatePopup extends FormFieldTunnerPopupAbstract
 
 		return [
 			{
-				text: '<span>' + Loc.getMessage('WEBF_RES_CALENDAR_STYLE') + '</span>',
+				html: '<span>' + Loc.getMessage('WEBF_RES_CALENDAR_STYLE') + '</span>',
 				className: submenuClass
 			},
 			{
@@ -82,7 +82,7 @@ class DateStatePopup extends FormFieldTunnerPopupAbstract
 				onclick: this.menuItemClick.bind(this)
 			},
 			{
-				text: '<span>' + Loc.getMessage('WEBF_RES_CALENDAR_START_FROM') + '</span>',
+				html: '<span>' + Loc.getMessage('WEBF_RES_CALENDAR_START_FROM') + '</span>',
 				className: submenuClass
 			},
 			{

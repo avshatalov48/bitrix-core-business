@@ -475,23 +475,6 @@ if (empty($arResult["NAV_RESULT"]) && CModule::IncludeModule("blog"))
 	if (!empty($arIdToGet))
 	{
 		$arResult["userCache"] = CBlogUser::GetUserInfoArray($arIdToGet, $arParams["PATH_TO_USER"],array("AVATAR_SIZE" => $arParams["AVATAR_SIZE"]));
-
-		foreach($arResult["userCache"] as $userId => $arUserCache)
-		{
-			$arUserCache["~AUTHOR_NAME"] = CUser::FormatName(
-				$arParams["NAME_TEMPLATE"],
-				array(
-					"LAST_NAME" => $arUserCache["~LAST_NAME"],
-					"NAME" => $arUserCache["~NAME"],
-					"SECOND_NAME" => $arUserCache["~SECOND_NAME"],
-					"LOGIN" => $arUserCache["~LOGIN"]
-				),
-				$arParams["SHOW_LOGIN"],
-				false
-			);
-			$arUserCache["AUTHOR_NAME"] = htmlspecialcharsbx($arUserCache["~AUTHOR_NAME"]);
-			$arResult["userCache"][$userId] = $arUserCache;
-		}
 	}
 
 	$db_user = CUser::GetById($GLOBALS["USER"]->GetId());
@@ -513,8 +496,6 @@ if (empty($arResult["NAV_RESULT"]) && CModule::IncludeModule("blog"))
 
 		$arUser = $arResult["userCache"][$arPost["AUTHOR_ID"]];
 
-		$arPost["~AUTHOR_NAME"] = $arUser["~AUTHOR_NAME"];
-		$arPost["AUTHOR_NAME"] = $arUser["AUTHOR_NAME"];
 		$arPost["AUTHOR_AVATAR"] = $arUser["PERSONAL_PHOTO_resized"];
 
 		$arPost["urlToPost"] = CComponentEngine::MakePathFromTemplate($arParams["~PATH_TO_POST"],
@@ -587,6 +568,34 @@ if (empty($arResult["NAV_RESULT"]) && CModule::IncludeModule("blog"))
 /*******************************************************************
 				/ CACHE
 *******************************************************************/
+}
+
+if (!empty($arResult["userCache"]))
+{
+	foreach($arResult["userCache"] as $userId => $arUserCache)
+	{
+		$arUserCache["~AUTHOR_NAME"] = CUser::FormatName(
+			$arParams["NAME_TEMPLATE"],
+			array(
+				"LAST_NAME" => $arUserCache["~LAST_NAME"],
+				"NAME" => $arUserCache["~NAME"],
+				"SECOND_NAME" => $arUserCache["~SECOND_NAME"],
+				"LOGIN" => $arUserCache["~LOGIN"]
+			),
+			$arParams["SHOW_LOGIN"],
+			false
+		);
+		$arUserCache["AUTHOR_NAME"] = htmlspecialcharsbx($arUserCache["~AUTHOR_NAME"]);
+		$arResult["userCache"][$userId] = $arUserCache;
+	}
+}
+
+foreach($arResult["POST"] as $postId => $arPost)
+{
+	$arUser = $arResult["userCache"][$arPost["AUTHOR_ID"]];
+
+	$arResult["POST"][$postId]["~AUTHOR_NAME"] = $arUser["~AUTHOR_NAME"];
+	$arResult["POST"][$postId]["AUTHOR_NAME"] = $arUser["AUTHOR_NAME"];
 }
 
 if($arParams["SHOW_RATING"] == "Y" && !empty($arResult["IDS"]))

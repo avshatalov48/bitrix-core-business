@@ -65,7 +65,7 @@ if ($arParams["PATH_TO_GROUP_BAN"] == '')
 $arParams["PATH_TO_GROUP_BLOG"] = trim($arParams["PATH_TO_GROUP_BLOG"]);
 if($arParams["PATH_TO_GROUP_BLOG"] == '')
 	$arParams["PATH_TO_GROUP_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_blog&".$arParams["GROUP_VAR"]."=#group_id#");
-	
+
 $arParams["PATH_TO_GROUP_MICROBLOG"] = trim($arParams["PATH_TO_GROUP_MICROBLOG"]);
 if($arParams["PATH_TO_GROUP_MICROBLOG"] == '')
 	$arParams["PATH_TO_GROUP_MICROBLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_microblog&".$arParams["GROUP_VAR"]."=#group_id#");
@@ -102,8 +102,8 @@ if ($arParams["USE_MAIN_MENU"] == "Y" && !array_key_exists("MAIN_MENU_TYPE", $ar
 $arGroup = CSocNetGroup::GetByID($arParams["GROUP_ID"]);
 
 if (
-	$arGroup 
-	&& is_array($arGroup) 
+	$arGroup
+	&& is_array($arGroup)
 	&& $arGroup["ACTIVE"] == "Y"
 
 )
@@ -247,7 +247,7 @@ if (
 					array_key_exists('marketplace', $arResult["ActiveFeatures"])
 					&& $arResult["ActiveFeatures"]['marketplace'] <> ''
 						? $arResult["ActiveFeatures"]['marketplace']
-						: Loc::getMessage('SONET_UM_MARKETPLACE')
+						: Loc::getMessage('SONET_UM_MARKETPLACE_2')
 				);
 				$arResult["Urls"]['marketplace'] = $arResult["Urls"]["view"]."marketplace/";
 

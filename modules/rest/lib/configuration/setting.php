@@ -2,9 +2,7 @@
 
 namespace Bitrix\Rest\Configuration;
 
-use Bitrix\Main\ArgumentException;
-use Bitrix\Main\Config\Option;
-use Bitrix\Main\Web\Json;
+use Bitrix\Main\Type\DateTime;
 
 /**
  * Temp work with current context for step by step action
@@ -17,9 +15,8 @@ class Setting
 	const SETTING_EXPORT_ARCHIVE_NAME = 'EXPORT_ARCHIVE_NAME';
 
 	private $context = 'null';
-	private $optionCode = '~configuration_action_setting';
-	private $optionModule = 'rest';
 	private $ttlContext = 14400;//3600*4
+	private $multipleCode = [];
 
 	/**
 	 * @param $context string [a-zA-Z0-9_]
@@ -33,6 +30,17 @@ class Setting
 		}
 	}
 
+	public function addMultipleCode($code) : bool
+	{
+		$this->multipleCode[] = $code;
+		return true;
+	}
+
+	public function getMultipleCode()
+	{
+		return $this->multipleCode;
+	}
+
 	/**
 	 * Add data in context
 	 *
@@ -43,10 +51,40 @@ class Setting
 	 */
 	public function set($code, $data)
 	{
-		$option = $this->getOption();
-		$option['TTL_CONTENT'][$this->context] = time();
-		$option['CONTENT'][$this->context][$code] = $data;
-		return $this->saveOption($option);
+		$id = 0;
+		if (!in_array($code, $this->multipleCode, true))
+		{
+			$res = StorageTable::getList(
+				[
+					'filter' => [
+						'=CONTEXT' => $this->context,
+						'=CODE' => $code,
+					],
+				]
+			);
+			if ($item = $res->fetch())
+			{
+				StorageTable::deleteFile($item);
+				$id = $item['ID'];
+			}
+		}
+
+		$save = [
+			'CREATE_TIME' => new DateTime(),
+			'CONTEXT' => $this->context,
+			'CODE' => $code,
+			'DATA' => $data
+		];
+		if ($id > 0)
+		{
+			$result = StorageTable::update($id, $save);
+		}
+		else
+		{
+			$result = StorageTable::add($save);
+		}
+
+		return $result->isSuccess();
 	}
 
 	/**
@@ -57,33 +95,39 @@ class Setting
 	 */
 	public function get($code)
 	{
-		$settingList = $this->getFull();
-		return array_key_exists($code, $settingList) ? $settingList[$code] : null;
-	}
+		$result = null;
+		$now = new DateTime();
+		$isMultiple = in_array($code, $this->multipleCode, true);
 
-	/**
-	 * All setting with context
-	 *
-	 * @return array
-	 */
-	public function getFull()
-	{
-		$return = [];
-		$data = $this->getOption();
-		if (!empty($data['CONTENT'][$this->context]))
+		$res = StorageTable::getList(
+			[
+				'filter' => [
+					'=CONTEXT' => $this->context,
+					'=CODE' => $code,
+				],
+			]
+		);
+		while ($item = $res->fetch())
 		{
-			if ($data['TTL_CONTENT'][$this->context] < (time() + $this->ttlContext))
+			$item['CREATE_TIME']->add($this->ttlContext . 'second');
+			if ($item['CREATE_TIME'] > $now)
 			{
-				$return = $data['CONTENT'][$this->context];
+				if (!$isMultiple)
+				{
+					$result = $item['DATA'];
+					break;
+				}
+
+				$result[$item['ID']] = $item['DATA'];
 			}
 			else
 			{
-				unset($data['CONTENT'][$this->context], $data['TTL_CONTENT'][$this->context]);
-				$this->saveOption($data);
+				StorageTable::deleteFile($item);
+				StorageTable::delete($item['ID']);
 			}
 		}
 
-		return $return;
+		return $result;
 	}
 
 	/**
@@ -93,15 +137,14 @@ class Setting
 	 */
 	public function delete($code)
 	{
-		$option = $this->getOption();
-		if (isset($option['CONTENT'][$this->context]) && array_key_exists($code, $option['CONTENT'][$this->context]))
-		{
-			unset($option['CONTENT'][$this->context][$code]);
+		StorageTable::deleteByFilter(
+			[
+				'=CONTEXT' => $this->context,
+				'=CODE' => $code,
+			]
+		);
 
-			return $this->saveOption($option);
-		}
-
-		return false;
+		return true;
 	}
 
 	/**
@@ -109,58 +152,11 @@ class Setting
 	 */
 	public function deleteFull()
 	{
-		$option = $this->getOption();
-		if (isset($option['CONTENT'][$this->context]))
-		{
-			unset($option['CONTENT'][$this->context]);
-			return $this->saveOption($option);
-		}
-
-		return true;
-	}
-
-	/**
-	 * All setting
-	 *
-	 * @return array
-	 */
-	private function getOption()
-	{
-		$data = Option::get($this->optionModule, $this->optionCode);
-		if ($data)
-		{
-			try
-			{
-				$data = Json::decode($data);
-			}
-			catch (ArgumentException $e)
-			{
-				$data = [];
-			}
-		}
-		else
-		{
-			$data = [];
-		}
-
-		return $data;
-	}
-
-	private function saveOption($data)
-	{
-		if (is_array($data))
-		{
-			Option::set($this->optionModule, $this->optionCode, Json::encode($data));
-
-			return true;
-		}
-
-		return false;
-	}
-
-	public function deleteOption()
-	{
-		Option::delete($this->optionModule, ['name' => $this->optionCode]);
+		StorageTable::deleteByFilter(
+			[
+				'=CONTEXT' => $this->context,
+			]
+		);
 
 		return true;
 	}

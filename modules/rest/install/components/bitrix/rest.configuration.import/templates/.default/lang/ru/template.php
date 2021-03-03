@@ -3,9 +3,10 @@ $MESS['REST_CONFIGURATION_IMPORT_APP_ERROR_TYPE'] = 'Данное приложе
 $MESS['REST_CONFIGURATION_IMPORT_SAVE_FILE_BTN'] = 'Загрузить';
 $MESS['REST_CONFIGURATION_IMPORT_TITLE_BLOCK'] = 'Импорт отраслевых настроек';
 $MESS['REST_CONFIGURATION_IMPORT_ROLLBACK_TITLE_BLOCK'] = 'Восстановление отраслевых настроек';
+$MESS['REST_CONFIGURATION_IMPORT_INSTALL_APP_TITLE_BLOCK'] = 'Установка приложения';
 $MESS['REST_CONFIGURATION_IMPORT_SAVE_FILE_DESCRIPTION'] = 'Загрузите файл с отраслевыми настройками';
 $MESS['REST_CONFIGURATION_IMPORT_ROLLBACK_SUBMIT_BTN'] = 'Применить';
-$MESS['REST_CONFIGURATION_IMPORT_ROLLBACK_MODE_DESCRIPTION'] = 'Для удаления используемого приложения необходимо выбрать один из доступных вариантов настройки вашего Битрикс24, либо выбрать в маркетплейсе новое приложение';
+$MESS['REST_CONFIGURATION_IMPORT_ROLLBACK_MODE_DESCRIPTION_2'] = 'Для удаления используемого приложения необходимо выбрать один из доступных вариантов настройки вашего Битрикс24, либо выбрать в Битрикс24.Маркет новое приложение';
 $MESS['REST_CONFIGURATION_IMPORT_EASY_DELETE_APP'] = 'У вас нет доступных вариантов для изменения настроек Битрикс24, поэтому мы просто удалили приложение';
 
 $MESS['REST_CONFIGURATION_IMPORT_FINISH_DESCRIPTION'] = 'Настройки успешно импортированы';

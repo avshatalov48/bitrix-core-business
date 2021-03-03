@@ -767,7 +767,9 @@ BX.SocialnetworkUISelector = {
 					allowSearchSelf: (selectorInstance.getOption('allowSearchSelf') == 'N' ? 'N' : 'Y'), // obAllowSearchSelf,
 					allowSearchCrmEmailUsers: (selectorInstance.getOption('allowSearchCrmEmailUsers') == 'Y' ? 'Y' : 'N'), // allowSearchCrmEmailUsers
 					showVacations: (selectorInstance.getOption('showVacations') == 'Y' ? 'Y' : 'N'), // showVacations
-					onlyWithEmail: (selectorInstance.getOption('onlyWithEmail') == 'Y' ? 'Y' : 'N')
+					onlyWithEmail: (selectorInstance.getOption('onlyWithEmail') == 'Y' ? 'Y' : 'N'),
+					allowBots: (selectorInstance.getOption('allowBots') == 'Y' ? 'Y' : 'N'),
+					showAllExtranetContacts: (selectorInstance.getOption('showAllExtranetContacts') == 'Y' ? 'Y' : 'N')
 				}
 			};
 		}

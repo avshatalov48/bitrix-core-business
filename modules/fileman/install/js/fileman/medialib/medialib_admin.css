@@ -118,7 +118,7 @@ a.ml-add-el-link img{width: 18px; height: 18px; margin: 0px 3px -4px 0px; backgr
 
 /* Subdialogs */
 div.bxml-subdialog-cont{position: absolute; top: 0; left: 0; width: 1px; height: 1px; z-index: 2000 !important;}
-div.mlsd {display: none; position: absolute;overflow: hidden; background-color: #FFFFFF;border: 1px solid #808080;z-index: 2000 !important;}
+div.mlsd {display: none; position: absolute;overflow: hidden; background-color: #FFFFFF;border: 1px solid #808080;}
 div.mlsd table {border-collapse: collapse;}
 div.mlsd table td{padding: 0;}
 div.mlsd table.mlsd-frame{width: 100%;}

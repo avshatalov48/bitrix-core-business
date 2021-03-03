@@ -7,7 +7,7 @@ var Errors = {
 
 function SonetJsTc(oHandler, sParams, sParser, oBtn, bHint)
 {
-	var 
+	var
 		t = this,
 		tmp = 0;
 
@@ -21,8 +21,8 @@ function SonetJsTc(oHandler, sParams, sParser, oBtn, bHint)
 	t.oThis = {"str":false, "arr":false};
 	t.oEl = {"start":false, "end":false};
 	t.oUnfinedWords = {};
-	// Flags 
-	t.bReady = true, t.eFocus = true; 
+	// Flags
+	t.bReady = true, t.eFocus = true;
 	// Array with results & it`s showing
 	t.aDiv = null, t.oDiv = null;
 	// Pointers
@@ -43,8 +43,8 @@ function SonetJsTc(oHandler, sParams, sParser, oBtn, bHint)
 
 	this.CheckModif = function(__data)
 	{
-		var 
-			sThis = false, tmp = 0, 
+		var
+			sThis = false, tmp = 0,
 			bUnfined = false, word = "",
 			cursor = {};
 
@@ -133,9 +133,9 @@ function SonetJsTc(oHandler, sParams, sParser, oBtn, bHint)
 				t.bReady = true;
 				if (
 					typeof result == 'object'
-					&& result.length != 0 
+					&& result.length != 0
 					&& !(
-						result.length == 1 
+						result.length == 1
 						&& result[0]['NAME'] == t.oEl['content']
 					)
 				)
@@ -157,22 +157,10 @@ function SonetJsTc(oHandler, sParams, sParser, oBtn, bHint)
 		t.oDiv = document.body.appendChild(document.createElement("DIV"));
 		t.oDiv.id = t.oObj.id+'_div';
 
-		// This operation very importaint to do there.
-		var oFrame = document.getElementById(t.oDiv.id+"_frame");
-		if(!oFrame)
-		{
-			oFrame = document.createElement("IFRAME");
-			oFrame.src = "javascript:''";
-			oFrame.id = t.oDiv.id+"_frame";
-			oFrame.style.width = "0px";
-			oFrame.style.height = "0px";
-			oFrame.style.visibility = 'hidden';
-			document.body.appendChild(oFrame);
-		}
+		BX.ZIndexManager.register(t.oDiv);
 
 		t.oDiv.className = "search-popup";
 		t.oDiv.style.position = 'absolute';
-		t.oDiv.style.zIndex = "1000";					
 
 		t.aDiv = t.Print(result);
 		var pos = SonetTCJsUtils.GetRealPos(t.oObj);
@@ -195,10 +183,10 @@ function SonetJsTc(oHandler, sParams, sParser, oBtn, bHint)
 
 	t.Print = function(aArr)
 	{
-		var 
+		var
 			aEl = null, sPrefix = '', sColumn = '',
 			aResult = Array(), aRes = Array(),
-			iCnt = 0, tmp = 0, tmp_ = 0, bFirst = true, 
+			iCnt = 0, tmp = 0, tmp_ = 0, bFirst = true,
 			oDiv = null, oSpan = null;
 
 		sPrefix = t.oDiv.id;
@@ -248,11 +236,13 @@ function SonetJsTc(oHandler, sParams, sParser, oBtn, bHint)
 		if (t.oDiv && t.oDiv.parentNode)
 		{
 			SonetTCJsUtils.hide(t.oDiv);
+
+			BX.ZIndexManager.unregister(t.oDiv);
 			t.oDiv.parentNode.removeChild(t.oDiv);
 		}
 		t.aDiv = Array();
 		t.oPointer = Array(), t.oPointer_default = Array(), t.oPointer_this = 'input_field';
-		t.bReady = true, t.eFocus = true, oError = {}, 
+		t.bReady = true, t.eFocus = true, oError = {},
 		t.oActive = null;
 
 		SonetTCJsUtils.removeEvent(document, "click", t.CheckMouse);
@@ -265,7 +255,7 @@ function SonetJsTc(oHandler, sParams, sParser, oBtn, bHint)
 		{
 			var tmp = t.aDiv[t.oActive];
 			var tmp1 = '';
-			if (typeof tmp == 'object')	
+			if (typeof tmp == 'object')
 			{
 //				tmp1 = tmp['NAME'].replace("&lt;", "<").replace("&gt;", ">");
 				tmp1 = tmp['NAME'].replace(/\&lt;/g, "<").replace(/\&gt;/g, ">").replace(/\&quot;/g, "\"").replace(/\&amp;/g, "\&");
@@ -286,7 +276,7 @@ function SonetJsTc(oHandler, sParams, sParser, oBtn, bHint)
 		t.Clear();
 		t.oPointer_this	= 'input_pointer';
 	},
-	
+
 	t.Clear = function()
 	{
 		var oEl = {}, ii = '';
@@ -315,7 +305,7 @@ function SonetJsTc(oHandler, sParams, sParser, oBtn, bHint)
 	{
 		if (!e)
 			e = window.event;
-		var 
+		var
 			oP = null,
 			oEl = null,
 			ii = null;
@@ -426,7 +416,7 @@ var SonetTCJsUtils =
 			if (document.selection != null && oObj.selectionStart == null)
 			{
 				oObj.focus();
-				var 
+				var
 					oRange = document.selection.createRange(),
 					oParent = oRange.parentElement(),
 					sBookmark = oRange.getBookmark(),
@@ -437,12 +427,12 @@ var SonetTCJsUtils =
 				{
 					sMarker = '__' + Math.random() + '__';
 				}
-				
+
 				if (!oParent || oParent == null || (oParent.type != "textarea" && oParent.type != "text"))
 				{
 					return result;
 				}
-				
+
 				oRange.text = sMarker + oRange.text + sMarker;
 				sContents = oObj.value;
 				result['start'] = sContents.indexOf(sMarker);
@@ -453,11 +443,11 @@ var SonetTCJsUtils =
 				oRange.select();
 				return result;
 			}
-			else 
+			else
 			{
 				return {
-				 	'start': oObj.selectionStart, 
-					'end': oObj.selectionEnd 
+				 	'start': oObj.selectionStart,
+					'end': oObj.selectionEnd
 				};
 			}
 		}
@@ -473,14 +463,14 @@ var SonetTCJsUtils =
 
 		oObj.focus();
 
-		try 
+		try
 		{
-			if (document.selection != null && oObj.selectionStart == null) 
+			if (document.selection != null && oObj.selectionStart == null)
 			{
 				var oRange = document.selection.createRange();
 				oRange.select();
 			}
-			else 
+			else
 			{
 				oObj.selectionStart = iPosition;
 				oObj.selectionEnd = iPosition;
@@ -497,7 +487,7 @@ var SonetTCJsUtils =
 	{
 	    try
 	    {
-	        var result = '', 
+	        var result = '',
 	        	space = '',
 	        	i=null, j=0;
 
@@ -540,36 +530,20 @@ var SonetTCJsUtils =
 
 	show: function(oDiv, iLeft, iTop)
 	{
-		if (typeof oDiv != 'object')	
+		if (typeof oDiv != 'object')
 			return;
-		var zIndex = parseInt(oDiv.style.zIndex);
-		if(zIndex <= 0 || isNaN(zIndex))
-			zIndex = 1000;
-		oDiv.style.zIndex = zIndex;
+
+		var component = BX.ZIndexManager.getComponent(oDiv);
+		if (!component)
+		{
+			BX.ZIndexManager.register(oDiv);
+		}
+
+		BX.ZIndexManager.bringToFront(oDiv);
+
 		oDiv.style.left = iLeft + "px";
 		oDiv.style.top = iTop + "px";
-		if(SonetTCJsUtils.IsIE())
-		{
-			var oFrame = document.getElementById(oDiv.id+"_frame");
-			if(!oFrame)
-			{
-				oFrame = document.createElement("IFRAME");
-				oFrame.src = "javascript:''";
-				oFrame.id = oDiv.id+"_frame";
-				oFrame.style.position = 'absolute';
-				oFrame.style.zIndex = zIndex-1;
-				document.body.appendChild(oFrame);
-			}
-			oFrame.style.position = 'absolute';
-			oFrame.style.zIndex = zIndex-1;
-			oFrame.style.width = oDiv.offsetWidth + "px";
-			oFrame.style.height = oDiv.offsetHeight + "px";
-			oFrame.style.left = oDiv.style.left;
-			oFrame.style.top = oDiv.style.top;
-			oFrame.style.visibility = 'visible';
-			oFrame.style.display = 'inline';
 
-		}
 		return oDiv;
 	},
 
@@ -577,12 +551,7 @@ var SonetTCJsUtils =
 	{
 		if(!oDiv)
 			return;
-		var oFrame = document.getElementById(oDiv.id+"_frame");
-		if(oFrame)
-		{
-			oFrame.style.visibility = 'hidden';
-			oFrame.style.display = 'none';
-		}
+
 		oDiv.style.display = 'none';
 	},
 

@@ -540,7 +540,7 @@ class CAllSocNetGroup
 				}
 				if (ModuleManager::isModuleInstalled('tasks'))
 				{
-					$arSelect = array_merge($arSelect, ["SCRUM_OWNER_ID", "SCRUM_MASTER_ID", "SCRUM_SPRINT_DURATION"]);
+					$arSelect = array_merge($arSelect, ["SCRUM_OWNER_ID", "SCRUM_MASTER_ID", "SCRUM_SPRINT_DURATION", "SCRUM_TASK_RESPONSIBLE"]);
 				}
 				$dbResult = CSocNetGroup::getList(
 					array(),

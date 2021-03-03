@@ -527,6 +527,14 @@ abstract class BaseUfComponent extends CBitrixComponent
 	}
 
 	/**
+	 * @return bool
+	 */
+	final public function isAjaxRequest(): bool
+	{
+		return Context::getCurrent()->getRequest()->isAjaxRequest();
+	}
+
+	/**
 	 * @return string
 	 */
 	abstract protected static function getUserTypeId(): string;

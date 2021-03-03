@@ -28,17 +28,13 @@ if($arParams['IS_SLIDER'])
 
 if($arResult['APP_STATUS']['PAYMENT_NOTIFY'] == 'Y')
 {
-	if($arResult['IS_ADMIN'])
-	{
-		$arResult['APP_STATUS']['MESSAGE_SUFFIX'] .= '_A';
-	}
 
 	if(isset($arResult['APP_STATUS']['MESSAGE_REPLACE']['#DAYS#']))
 	{
 		$arResult['APP_STATUS']['MESSAGE_REPLACE']['#DAYS#']++;
 	}
 ?>
-<div class="app-update-avail"><?=GetMessage('PAYMENT_MESSAGE'.$arResult['APP_STATUS']['MESSAGE_SUFFIX'], $arResult['APP_STATUS']['MESSAGE_REPLACE'])?></div>
+<div class="app-update-avail"><?=\Bitrix\Rest\AppTable::getStatusMessage($arResult['APP_STATUS']['MESSAGE_SUFFIX'], $arResult['APP_STATUS']['MESSAGE_REPLACE'])?></div>
 <?
 	if($arResult['APP_STATUS']['PAYMENT_ALLOW'] == 'N')
 	{

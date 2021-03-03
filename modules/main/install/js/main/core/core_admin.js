@@ -710,14 +710,6 @@ BX.admin.panel = {
 		(BX.defer(BX.admin.panel.__adjustBackDiv, this))();
 		setTimeout(BX.proxy(BX.admin.panel.__adjustBackDiv, this), 310);
 	}
-
-	/*,
-	setZIndex: function()
-	{
-		var zIndex = BX.WindowManager.GetZIndex()-6;
-		BX.admin.panel.DIV.setAttribute('style', 'z-index: ' + zIndex + ' !important;');
-	}
-	*/
 };
 
 BX.admin.toggle = {

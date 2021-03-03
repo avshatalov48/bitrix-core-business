@@ -1674,18 +1674,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }, {
 	    key: "openDialogCallback",
 	    value: function openDialogCallback() {
-	      if (top.BX.SocNetLogDestination.popupWindow) {
-	        // Fix zIndex for slider issues
-	        top.BX.SocNetLogDestination.popupWindow.params.zIndex = this.zIndex;
-	        top.BX.SocNetLogDestination.popupWindow.popupContainer.style.zIndex = this.zIndex;
-	      }
-
-	      if (top.BX.SocNetLogDestination.popupSearchWindow) {
-	        // Fix zIndex for slider issues
-	        top.BX.SocNetLogDestination.popupSearchWindow.params.zIndex = this.zIndex;
-	        top.BX.SocNetLogDestination.popupSearchWindow.popupContainer.style.zIndex = this.zIndex;
-	      }
-
 	      BX.style(this.socnetDestinationInputWrap, 'display', 'inline-block');
 	      BX.style(this.socnetDestinationLink, 'display', 'none');
 	      BX.focus(this.socnetDestinationInput);
@@ -4210,7 +4198,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }], [{
 	    key: "showInputCalendar",
 	    value: function showInputCalendar(e) {
-	      var zIndex = 4000;
 	      var target = e.target || e.srcElement;
 
 	      if (main_core.Type.isDomNode(target) && target.nodeName.toLowerCase() === 'input') {
@@ -4235,7 +4222,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        if (calendarPopup) {
 	          BX.removeCustomEvent(calendarPopup, 'onPopupClose', DateTimeControl.inputCalendarClosePopupHandler);
 	          BX.addCustomEvent(calendarPopup, 'onPopupClose', DateTimeControl.inputCalendarClosePopupHandler);
-	          calendarPopup.popupContainer.style.zIndex = zIndex;
 	        }
 	      }
 	    }
@@ -4772,7 +4758,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 
 	        if (groupUsers.length > 0) {
 	          menuItems.push({
-	            text: '<span>' + group.title.replace('#COUNT#', groupUsers.length) + '</span>',
+	            html: '<span>' + group.title.replace('#COUNT#', groupUsers.length) + '</span>',
 	            className: submenuClass
 	          });
 	          groupUsers.forEach(function (user) {

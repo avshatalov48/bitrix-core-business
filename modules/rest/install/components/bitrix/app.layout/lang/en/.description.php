@@ -1,5 +1,4 @@
-<?
-$MESS["RMP_LAYOUT_COMP_NAME"] = "Marketplace24 Application";
-$MESS["RMP_LAYOUT_COMP_DESCR"] = "Implements a Marketplace24 application page";
-$MESS["RMP_PATH_B24MP_DESCR"] = "Bitrix24 marketplace";
-?>
+<?php
+$MESS["RMP_LAYOUT_COMP_DESCR_2"] = "Application page";
+$MESS["RMP_LAYOUT_COMP_NAME_2"] = "Application page";
+$MESS["RMP_PATH_B24MP_DESCR_2"] = "Bitrix24.Market";

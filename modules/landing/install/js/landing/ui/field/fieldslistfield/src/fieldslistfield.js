@@ -394,13 +394,20 @@ export class FieldsListField extends BaseField
 				new ListSettingsField({
 					selector: 'items',
 					title: Loc.getMessage('LANDING_FIELDS_ITEM_FORM_LIST_SETTINGS_TITLE'),
-					items: field.editing.items.map((item) => {
-						return {
-							name: item.value,
-							value: item.id,
-							checked: true,
-						};
-					}),
+					items: (() => {
+						return field.editing.items.map((item) => {
+							const selectedItem = field.items.find((currentItem) => {
+								return String(currentItem.value) === String(item.id);
+							});
+							const checked = !!selectedItem;
+
+							return {
+								name: checked ? selectedItem.label : item.value,
+								value: item.id,
+								checked,
+							};
+						});
+					})(),
 				}),
 			);
 

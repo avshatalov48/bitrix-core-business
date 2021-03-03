@@ -42,7 +42,7 @@ $APPLICATION->IncludeComponent(
 		'FILTER_ID' => '_configuration_banner',
 		'BLOCK_COUNT' => 3,
 		'SET_TITLE' => 'N',
-		'SECTION_TITLE' => Loc::getMessage('REST_CONFIGURATION_APP_SECTION_TITLE'),
+		'SECTION_TITLE' => Loc::getMessage('REST_CONFIGURATION_APP_SECTION_TITLE_2'),
 		'HOLD_BANNER_ITEMS' => 'Y',
 		'DETAIL_URL_TPL' => $arResult['MP_DETAIL_URL_TPL'],
 		'MP_TAG_PATH' => $arResult['MP_TAG_PATH']

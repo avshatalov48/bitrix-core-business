@@ -85,7 +85,7 @@ class ResourcesStatePopup extends FormFieldTunnerPopupAbstract
 
 		return [
 			{
-				text: '<span>' + Loc.getMessage('WEBF_RES_SELECT_DEFAULT_TITLE') + '</span>',
+				html: '<span>' + Loc.getMessage('WEBF_RES_SELECT_DEFAULT_TITLE') + '</span>',
 				className: submenuClass
 			},
 			{

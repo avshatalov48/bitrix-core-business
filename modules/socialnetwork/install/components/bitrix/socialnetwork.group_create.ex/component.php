@@ -21,6 +21,7 @@ use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Socialnetwork\Integration\UI\EntitySelector;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/components/bitrix/socialnetwork.group_create.ex/include.php");
 
@@ -80,6 +81,15 @@ if (strlen($arParams["NAME_TEMPLATE"]) <= 0)
 $bUseLogin = $arParams["SHOW_LOGIN"] != "N" ? true : false;
 
 $arParams["USE_KEYWORDS"] = ($arParams["USE_KEYWORDS"] != "N" ? "Y" : "N");
+
+$arParams['PROJECT_OPTIONS'] = (isset($arParams['PROJECT_OPTIONS']) && is_array($arParams['PROJECT_OPTIONS']) ? $arParams['PROJECT_OPTIONS'] : []);
+foreach($arParams['PROJECT_OPTIONS'] as $key => $option)
+{
+	if (!in_array($key, ['extranet', 'features', 'project', 'open', 'landing']))
+	{
+		unset($arParams['PROJECT_OPTIONS'][$key]);
+	}
+}
 
 $arResult["GROUP_PROPERTIES"] = $USER_FIELD_MANAGER->GetUserFields("SONET_GROUP", 0, LANGUAGE_ID);
 
@@ -223,9 +233,10 @@ else
 	$arResult["USE_PRESETS"] = ($arResult["intranetInstalled"] ? 'Y' : 'N');
 
 	$arResult['Types'] = (
-		$arResult["USE_PRESETS"] == 'Y'
+		$arResult["USE_PRESETS"] === 'Y'
 			? \Bitrix\Socialnetwork\Item\Workgroup::getTypes([
-				'currentExtranetSite' => $arResult["bExtranet"]
+				'currentExtranetSite' => $arResult["bExtranet"],
+				'entityOptions' => $arParams['PROJECT_OPTIONS']
 			])
 			: []
 	);
@@ -375,6 +386,19 @@ else
 				{
 					$errorMessage[] .= GetMessage("SONET_GCE_ERR_SPAM_PERMS");
 					$arResult["ErrorFields"][] = "GROUP_SPAM_PERMS";
+				}
+				if (!empty($_POST["SCRUM_PROJECT"]))
+				{
+					if (strlen($_POST["SCRUM_OWNER_CODE"]) <= 0)
+					{
+						$errorMessage[] = GetMessage("SONET_GCE_ERR_SCRUM_OWNER_ID");
+						$arResult["ErrorFields"][] = "SCRUM_OWNER_ID";
+					}
+					if (strlen($_POST["SCRUM_MASTER_CODE"]) <= 0)
+					{
+						$errorMessage[] = GetMessage("SONET_GCE_ERR_SCRUM_MASTER_ID");
+						$arResult["ErrorFields"][] = "SCRUM_MASTER_ID";
+					}
 				}
 
 				foreach ($arResult["POST"]["FEATURES"] as $feature => $arFeature)
@@ -690,15 +714,23 @@ else
 				{
 					if (preg_match('/^U(\d+)$/', $_POST["SCRUM_OWNER_CODE"], $match) && intval($match[1]) > 0)
 					{
-						$ownerMasterId = (int) $match[1];
+						$arFields['SCRUM_OWNER_ID'] = (int) $match[1];
 					}
 					if (preg_match('/^U(\d+)$/', $_POST["SCRUM_MASTER_CODE"], $match) && intval($match[1]) > 0)
 					{
-						$scrumMasterId = (int) $match[1];
+						$arFields['SCRUM_MASTER_ID'] = (int) $match[1];
 					}
-					$arFields['SCRUM_OWNER_ID'] = $ownerMasterId;
-					$arFields['SCRUM_MASTER_ID'] = $scrumMasterId;
+
 					$arFields['SCRUM_SPRINT_DURATION'] = (int) $_POST["SCRUM_SPRINT_DURATION"];
+
+					$availableResponsibleTypes = ['A', 'M'];
+					$scrumTaskResponsible = (
+						is_string($_POST["SCRUM_TASK_RESPONSIBLE"]) ? $_POST["SCRUM_TASK_RESPONSIBLE"] : 'A'
+					);
+					$scrumTaskResponsible = (
+						in_array($scrumTaskResponsible, $availableResponsibleTypes) ? $scrumTaskResponsible : 'A'
+					);
+					$arFields['SCRUM_TASK_RESPONSIBLE'] = $scrumTaskResponsible;
 
 					//todo
 					$subjectQueryObject = CSocNetGroupSubject::getList(
@@ -1451,6 +1483,9 @@ else
 						'MESSAGE' => 'SUCCESS',
 						'URL' => $redirectPath,
 						'GROUP' => array_merge($groupFieldsList, array('ID' => $arResult["GROUP_ID"])),
+						'SELECTOR_GROUPS' => Bitrix\Main\Web\Json::encode(EntitySelector\ProjectProvider::makeItems(EntitySelector\ProjectProvider::getProjects(array_merge($arParams['PROJECT_OPTIONS'], [
+								'projectId' => $arResult['GROUP_ID']
+							])))),
 						'ACTION' => (
 							!array_key_exists("TAB", $arResult)
 								? 'create'
@@ -1578,10 +1613,11 @@ else
 		if ($arResult["GROUP_ID"])
 		{
 			$group = Bitrix\Socialnetwork\Item\Workgroup::getById($arResult["GROUP_ID"]);
-			$arResult["isScrumProject"] = $group->isScrumProject();
+			$arResult["isScrumProject"] = ($group && $group->isScrumProject());
 		}
 
 		$arResult['ScrumSprintDuration'] = Bitrix\Socialnetwork\Item\Workgroup::getListSprintDuration();
+		$arResult['ScrumTaskResponsible'] = Bitrix\Socialnetwork\Item\Workgroup::getScrumTaskResponsibleList();
 
 		if (
 			!array_key_exists("TAB", $arResult)

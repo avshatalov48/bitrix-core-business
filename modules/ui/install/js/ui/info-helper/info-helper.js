@@ -55,18 +55,22 @@ BX.UI.InfoHelper =
 			return;
 		}
 
-		this.frameUrl = this.frameUrlTemplate.replace(/code/, code);
-
-		if (this.getFrame().src !== this.frameUrl)
-		{
-			this.getFrame().src = this.frameUrl;
-		}
-
 		BX.SidePanel.Instance.open(this.getSliderId(), {
 			contentCallback: function(slider) {
-				var promise = new BX.Promise();
-				promise.fulfill(this.getContent());
-				return promise;
+				return new Promise(function(resolve, reject) {
+					BX.ajax.runAction("ui.infoHelper.getInitParams").then(function(response)
+					{
+						this.init(response.data);
+						this.frameUrl = this.frameUrlTemplate.replace(/code/, code);
+
+						if (this.getFrame().src !== this.frameUrl)
+						{
+							this.getFrame().src = this.frameUrl;
+						}
+
+						resolve(this.getContent());
+					}.bind(this));
+				}.bind(this));
 			}.bind(this),
 			width: 700,
 			loader: 'default-loader',

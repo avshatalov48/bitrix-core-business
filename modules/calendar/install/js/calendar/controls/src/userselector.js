@@ -284,20 +284,6 @@ export class UserSelector
 
 	openDialogCallback()
 	{
-		if (top.BX.SocNetLogDestination.popupWindow)
-		{
-			// Fix zIndex for slider issues
-			top.BX.SocNetLogDestination.popupWindow.params.zIndex = this.zIndex;
-			top.BX.SocNetLogDestination.popupWindow.popupContainer.style.zIndex = this.zIndex;
-		}
-
-		if (top.BX.SocNetLogDestination.popupSearchWindow)
-		{
-			// Fix zIndex for slider issues
-			top.BX.SocNetLogDestination.popupSearchWindow.params.zIndex = this.zIndex;
-			top.BX.SocNetLogDestination.popupSearchWindow.popupContainer.style.zIndex = this.zIndex;
-		}
-
 		BX.style(this.socnetDestinationInputWrap, 'display', 'inline-block');
 		BX.style(this.socnetDestinationLink, 'display', 'none');
 		BX.focus(this.socnetDestinationInput);

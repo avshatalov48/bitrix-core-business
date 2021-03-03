@@ -1586,7 +1586,6 @@
 	function SettingsSlider()
 	{
 		this.id = 'calendar_custom_settings_' + Math.round(Math.random() * 1000000);
-		this.zIndex = 3100;
 		this.sliderId = "calendar:resbook-settings-slider";
 
 		this.SLIDER_WIDTH = 400;
@@ -1699,7 +1698,6 @@
 		this.params = params || {};
 		this.id = this.params.id || 'user-selector-' + Math.round(Math.random() * 100000);
 		this.wrapNode = this.params.wrapNode;
-		this.zIndex = this.params.zIndex || 3100;
 		this.destinationInputName = this.params.inputName || 'EVENT_DESTINATION';
 		this.params.selectGroups = false;
 		this.addMessage = this.params.addMessage || BX.message('USER_TYPE_RESOURCE_ADD_USER');
@@ -1929,20 +1927,6 @@
 
 		openDialogCallback: function ()
 		{
-			if (BX.SocNetLogDestination.popupWindow)
-			{
-				// Fix zIndex for slider issues
-				BX.SocNetLogDestination.popupWindow.params.zIndex = this.zIndex;
-				BX.SocNetLogDestination.popupWindow.popupContainer.style.zIndex = this.zIndex;
-			}
-
-			if (BX.SocNetLogDestination.popupSearchWindow)
-			{
-				// Fix zIndex for slider issues
-				BX.SocNetLogDestination.popupSearchWindow.params.zIndex = this.zIndex;
-				BX.SocNetLogDestination.popupSearchWindow.popupContainer.style.zIndex = this.zIndex;
-			}
-
 			BX.style(this.socnetDestinationInputWrap, 'display', 'inline-block');
 			BX.style(this.socnetDestinationLink, 'display', 'none');
 			BX.focus(this.socnetDestinationInput);
@@ -2887,7 +2871,6 @@
 		this.currentValueIndex = params.valueIndex;
 		this.onChangeCallback = BX.type.isFunction(params.onChangeCallback) ? params.onChangeCallback : null;
 		this.onAfterMenuOpen = params.onAfterMenuOpen || null;
-		this.zIndex = params.zIndex || 1200;
 		this.disabled = params.disabled;
 		this.editable = params.editable !== false;
 		this.setFirstIfNotFound = !!params.setFirstIfNotFound;
@@ -2997,7 +2980,6 @@
 				{
 					closeByEsc : true,
 					autoHide : true,
-					zIndex: this.zIndex,
 					offsetTop: 0,
 					offsetLeft: 0
 				}

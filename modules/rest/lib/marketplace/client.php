@@ -121,7 +121,7 @@ class Client
 	public static function getAvailableUpdate($code = false)
 	{
 		$updates = Option::get("rest", "mp_updates", "");
-		$updates = $updates == "" ? array() : unserialize($updates);
+		$updates = $updates == "" ? array() : unserialize($updates, ['allowed_classes' => false]);
 
 		if($code !== false)
 		{

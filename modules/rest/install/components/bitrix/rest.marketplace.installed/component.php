@@ -51,6 +51,7 @@ else if (!\Bitrix\Rest\OAuthService::getEngine()->isRegistered())
 	}
 }
 
+$arResult['SUBSCRIPTION_BUY_URL'] = '/settings/license_buy.php?product=subscr';
 $arResult["FILTER"]["FILTER_ID"] = "marketplace_installed";
 $filterOptions = new \Bitrix\Main\UI\Filter\Options($arResult["FILTER"]["FILTER_ID"]);
 $filterData = $filterOptions->getFilter();
@@ -112,34 +113,39 @@ if (!empty($arCodes))
 {
 	$arAppsBuy = Client::getBuy($arCodes);
 
-	foreach ($arAppsBuy["ITEMS"] as $key => $app)
+	if (is_array($arAppsBuy))
 	{
-		$arResult['ITEMS'][$key]['VER'] = $app["VER"];
-		$arResult['ITEMS'][$key]['NAME'] = $app["NAME"];
-		$arResult['ITEMS'][$key]['ICON'] = $app["ICON"];
-		$arResult['ITEMS'][$key]['DESC'] = $app["DESC"];
-		$arResult['ITEMS'][$key]['PUBLIC'] = $app["PUBLIC"];
-		$arResult['ITEMS'][$key]['DEMO'] = $app["DEMO"];
-		$arResult['ITEMS'][$key]['PARTNER_NAME'] = $app["PARTNER_NAME"];
-		$arResult['ITEMS'][$key]['PARTNER_URL'] = $app["PARTNER_URL"];
-		$arResult['ITEMS'][$key]['OTHER_REGION'] = $app["OTHER_REGION"];
+		foreach ($arAppsBuy["ITEMS"] as $key => $app) {
+			$arResult['ITEMS'][$key]['VER'] = $app["VER"];
+			$arResult['ITEMS'][$key]['NAME'] = $app["NAME"];
+			$arResult['ITEMS'][$key]['ICON'] = $app["ICON"];
+			$arResult['ITEMS'][$key]['DESC'] = $app["DESC"];
+			$arResult['ITEMS'][$key]['PUBLIC'] = $app["PUBLIC"];
+			$arResult['ITEMS'][$key]['DEMO'] = $app["DEMO"];
+			$arResult['ITEMS'][$key]['PARTNER_NAME'] = $app["PARTNER_NAME"];
+			$arResult['ITEMS'][$key]['PARTNER_URL'] = $app["PARTNER_URL"];
+			$arResult['ITEMS'][$key]['OTHER_REGION'] = $app["OTHER_REGION"];
 			$arResult['ITEMS'][$key]['VENDOR_SHOP_LINK'] = $app["VENDOR_SHOP_LINK"];
-		$arResult['ITEMS'][$key]['TYPE'] = $app["TYPE"];
-		$arResult['ITEMS'][$key]['CAN_INSTALL'] = \CRestUtil::canInstallApplication($app);
+			$arResult['ITEMS'][$key]['TYPE'] = $app["TYPE"];
+			$arResult['ITEMS'][$key]['CAN_INSTALL'] = \CRestUtil::canInstallApplication($app);
 
-		if(is_array($app["PRICE"]) && !empty($app["PRICE"]) && $arResult['ADMIN'])
-		{
-			$arResult['ITEMS'][$key]['PRICE'] = $app["PRICE"];
-			$arResult['ITEMS'][$key]['PRICE'] = $app["PRICE"];
-			$arResult['ITEMS'][$key]['BUY'] = array();
-			foreach($app["PRICE"] as $num => $price)
+			if (
+				is_array($app["PRICE"])
+				&& !empty($app["PRICE"])
+				&& $arResult['ADMIN']
+				&& $app['BY_SUBSCRIPTION'] !== 'Y'
+			)
 			{
-				if($num > 1)
-				{
-					$arResult['ITEMS'][$key]['BUY'][] = array(
-						'LINK' => Client::getBuyLink($num, $app['CODE']),
-						'TEXT' => Loc::getMessage("RMP_APP_TIME_LIMIT_".$num).' - '.$price
-					);
+				$arResult['ITEMS'][$key]['PRICE'] = $app["PRICE"];
+				$arResult['ITEMS'][$key]['PRICE'] = $app["PRICE"];
+				$arResult['ITEMS'][$key]['BUY'] = array();
+				foreach ($app["PRICE"] as $num => $price) {
+					if ($num > 1) {
+						$arResult['ITEMS'][$key]['BUY'][] = array(
+							'LINK' => Client::getBuyLink($num, $app['CODE']),
+							'TEXT' => Loc::getMessage("RMP_APP_TIME_LIMIT_" . $num) . ' - ' . $price
+						);
+					}
 				}
 			}
 		}

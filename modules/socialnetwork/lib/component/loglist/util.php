@@ -23,5 +23,10 @@ class Util
 		global $USER;
 		return (isset($USER) && is_object($USER) ? $USER->isAuthorized() : false);
 	}
+
+	public static function getCollapsedPinnedPanelItemsLimit()
+	{
+		return 3;
+	}
 }
 ?>

@@ -189,7 +189,7 @@ class RestIntegrationSelectComponent extends CBitrixComponent implements Control
 				$name = Loc::getMessage('REST_SCOPE_' . mb_strtoupper($val));
 				$items[] = [
 					'id' => $val,
-					'name' => (!empty($name))?$name:$val
+					'name' => (!empty($name)) ? $name . ' (' . $val . ')' : $val
 				];
 			}
 			$result['list'][] = [
@@ -219,7 +219,7 @@ class RestIntegrationSelectComponent extends CBitrixComponent implements Control
 				$name = Loc::getMessage('REST_SCOPE_' . mb_strtoupper($scope));
 				$result[] = [
 					'id' => $scope,
-					'name' => (!empty($name))?$name:$scope
+					'name' => (!empty($name)) ? $name . ' (' . $scope . ')' : $scope
 				];
 			}
 
@@ -230,7 +230,7 @@ class RestIntegrationSelectComponent extends CBitrixComponent implements Control
 					$name = Loc::getMessage('REST_SCOPE_' . mb_strtoupper($scope));
 					$result[] = [
 						'id' => $scope,
-						'name' => (!empty($name))?$name:$scope
+						'name' => (!empty($name)) ? $name . ' (' . $scope . ')' : $scope
 					];
 				}
 			}

@@ -8,8 +8,9 @@ return [
 	'css' => 'dist/resourcebookinguserfield.bundle.css',
 	'js' => 'dist/resourcebookinguserfield.bundle.js',
 	'rel' => [
+		'ui.entity-selector',
+		'main.core.events',
 		'helper',
-		'socnetlogdest',
 		'main.core',
 		'calendar.resourcebookinguserfield',
 		'calendar.resourcebooking',

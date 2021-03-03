@@ -123,4 +123,5 @@ $MESS["SONET_GCE_T_SCRUM_OWNER"] = "SCRUM владелец";
 $MESS["SONET_GCE_T_CHANGE_SCRUM_OWNER"] = "Назначить владельца";
 $MESS["SONET_GCE_T_CHANGE_SCRUM_OWNER_MORE"] = "Сменить";
 $MESS["SONET_GCE_T_SCRUM_PAGE_TITLE"] = "Создать SCRUM проект";
+$MESS["SONET_GCE_T_SCRUM_TASK_RESPONSIBLE"] = "Ответственный по умолчанию";
 ?>

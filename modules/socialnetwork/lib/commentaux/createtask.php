@@ -9,7 +9,7 @@ use Bitrix\Forum\MessageTable;
 
 Loc::loadMessages(__FILE__);
 
-final class CreateTask extends Base
+class CreateTask extends Base
 {
 	const TYPE = 'CREATETASK';
 	const POST_TEXT = 'commentAuxCreateTask';
@@ -53,6 +53,9 @@ final class CreateTask extends Base
 	);
 	private $postTypeListInited = false;
 	private $commentTypeListInited = false;
+
+	protected static $blogPostClass = \CBlogPost::class;
+	protected static $blogCommentClass = \CBlogComment::class;
 
 	public function addPostTypeList($type)
 	{
@@ -252,27 +255,23 @@ final class CreateTask extends Base
 			return $result;
 		}
 
-		if ($provider = \Bitrix\Socialnetwork\Livefeed\Provider::init([
-			'ENTITY_TYPE' => $params['sourcetype'],
-			'ENTITY_ID' => $params['sourceid'],
-			'LOG_ID' => (isset($options['logId']) && (int)$options['logId'] > 0 ? (int)$options['logId'] : 0)
-		]))
+		if ($provider = $this->getLivefeedProvider($params, $options))
 		{
-			$options['suffix'] = $provider->getSuffix();
+			$options['suffix'] = $provider->getSuffix($options['suffix']);
 		}
 
-		if ($task = $this->getTask($params['taskid'], false))
+		if ($userPage === null)
 		{
-			if ($userPage === null)
-			{
-				$userPage = Option::get(
+			$userPage = Option::get(
 					'socialnetwork',
 					'user_page',
 					SITE_DIR.'company/personal/',
 					$siteId
 				).'user/#user_id#/';
-			}
+		}
 
+		if ($task = $this->getTask($params['taskid'], false))
+		{
 			$taskPath = (
 				(!isset($options['cache']) || !$options['cache'])
 				&& (!isset($options['im']) || !$options['im'])
@@ -296,8 +295,8 @@ final class CreateTask extends Base
 			if (
 				$params['sourcetype'] == self::SOURCE_TYPE_BLOG_COMMENT
 				&& Loader::includeModule('blog')
-				&& ($comment = \CBlogComment::getByID($params['sourceid']))
-				&& ($post = \CBlogPost::getByID($comment['POST_ID']))
+				&& ($comment = self::$blogCommentClass::getById($params['sourceid']))
+				&& ($post = self::$blogPostClass::getById($comment['POST_ID']))
 			)
 			{
 				$commentPath = (
@@ -366,6 +365,15 @@ final class CreateTask extends Base
 		return $result;
 	}
 
+	public function getLivefeedProvider(array $params = [], array $options = [])
+	{
+		return \Bitrix\Socialnetwork\Livefeed\Provider::init([
+			'ENTITY_TYPE' => $params['sourcetype'],
+			'ENTITY_ID' => $params['sourceid'],
+			'LOG_ID' => (isset($options['logId']) && (int)$options['logId'] > 0 ? (int)$options['logId'] : 0)
+		]);
+	}
+
 	public function checkRecalcNeeded($fields, $params)
 	{
 		$result = false;
@@ -395,7 +403,7 @@ final class CreateTask extends Base
 		return $result;
 	}
 
-	private function getTask($taskId, $checkPermissions = true)
+	function getTask($taskId, $checkPermissions = true)
 	{
 		static $cache = array(
 			'Y' => array(),

@@ -32,64 +32,6 @@ else
 	$randomString = RandString(8);
 	$randomId = 0;
 
-	if (!defined("SONET_LOG_JS"))
-	{
-		define("SONET_LOG_JS", true);
-
-		$message = array(
-			'sonetLEGetPath' => '/bitrix/components/bitrix/socialnetwork.log.entry/ajax.php',
-			'sonetLESetPath' => '/bitrix/components/bitrix/socialnetwork.log.entry/ajax.php',
-			'sonetLPathToUser' => $arParams["PATH_TO_USER"],
-			'sonetLPathToGroup' => $arParams["PATH_TO_GROUP"],
-			'sonetLPathToDepartment' => $arParams["PATH_TO_CONPANY_DEPARTMENT"],
-			'sonetLPathToSmile' => $arParams["PATH_TO_SMILE"],
-			'sonetLShowRating' => $arParams["SHOW_RATING"],
-			'sonetLTextLikeY' => COption::GetOptionString("main", "rating_text_like_y", GetMessage("SONET_C30_TEXT_LIKE_Y")),
-			'sonetLTextLikeN' => COption::GetOptionString("main", "rating_text_like_n", GetMessage("SONET_C30_TEXT_LIKE_N")),
-			'sonetLTextLikeD' => COption::GetOptionString("main", "rating_text_like_d", GetMessage("SONET_C30_TEXT_LIKE_D")),
-			'sonetLTextPlus' => GetMessage("SONET_C30_TEXT_PLUS"),
-			'sonetLTextMinus' => GetMessage("SONET_C30_TEXT_MINUS"),
-			'sonetLTextCancel' => GetMessage("SONET_C30_TEXT_CANCEL"),
-			'sonetLTextAvailable' => GetMessage("SONET_C30_TEXT_AVAILABLE"),
-			'sonetLTextDenied' => GetMessage("SONET_C30_TEXT_DENIED"),
-			'sonetLTextRatingY' => GetMessage("SONET_C30_TEXT_RATING_YES"),
-			'sonetLTextRatingN' => GetMessage("SONET_C30_TEXT_RATING_NO"),
-			'sonetLTextCommentError' => GetMessage("SONET_COMMENT_ERROR"),
-			'sonetLPathToUserBlogPost' => $arParams["PATH_TO_USER_BLOG_POST"],
-			'sonetLPathToGroupBlogPost' => $arParams["PATH_TO_GROUP_BLOG_POST"],
-			'sonetLPathToUserMicroblogPost' => $arParams["PATH_TO_USER_MICROBLOG_POST"],
-			'sonetLPathToGroupMicroblogPost' => $arParams["PATH_TO_GROUP_MICROBLOG_POST"],
-			'sonetLNameTemplate' => $arParams["NAME_TEMPLATE"],
-			'sonetLDateTimeFormat' => $arParams["DATE_TIME_FORMAT"],
-			'sonetLShowLogin' => $arParams["SHOW_LOGIN"],
-			'sonetLRatingType' => $arParams["RATING_TYPE"],
-			'sonetLCurrentUserID' => intval($USER->GetID()),
-			'sonetLAvatarSize' => $arParams["AVATAR_SIZE"],
-			'sonetLAvatarSizeComment' => $arParams["AVATAR_SIZE_COMMON"],
-			'sonetLBlogAllowPostCode' => $arParams["BLOG_ALLOW_POST_CODE"],
-			'sonetLDestinationHidden1' => GetMessage("SONET_C30_DESTINATION_HIDDEN_1"),
-			'sonetLDestinationHidden2' => GetMessage("SONET_C30_DESTINATION_HIDDEN_2"),
-			'sonetLDestinationHidden3' => GetMessage("SONET_C30_DESTINATION_HIDDEN_3"),
-			'sonetLDestinationHidden4' => GetMessage("SONET_C30_DESTINATION_HIDDEN_4"),
-			'sonetLDestinationHidden5' => GetMessage("SONET_C30_DESTINATION_HIDDEN_5"),
-			'sonetLDestinationHidden6' => GetMessage("SONET_C30_DESTINATION_HIDDEN_6"),
-			'sonetLDestinationHidden7' => GetMessage("SONET_C30_DESTINATION_HIDDEN_7"),
-			'sonetLDestinationHidden8' => GetMessage("SONET_C30_DESTINATION_HIDDEN_8"),
-			'sonetLDestinationHidden9' => GetMessage("SONET_C30_DESTINATION_HIDDEN_9"),
-			'sonetLDestinationHidden0' => GetMessage("SONET_C30_DESTINATION_HIDDEN_0"),
-			'sonetLDestinationLimit' => intval($arParams["DESTINATION_LIMIT_SHOW"]),
-		);
-		if ($arParams["USE_FOLLOW"] == "Y")
-		{
-			$message['sonetLFollowY'] = GetMessage("SONET_LOG_T_FOLLOW_Y");
-			$message['sonetLFollowN'] = GetMessage("SONET_LOG_T_FOLLOW_N");
-		}
-		?><script>
-			BX.message(<?echo CUtil::PhpToJSObject($message)?>);
-		</script>
-		<?
-	}
-
 	if($arResult["ErrorMessage"] <> '')
 	{
 		?><span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br /><?
@@ -101,6 +43,66 @@ else
 		&& !empty($arResult["Event"])
 	)
 	{
+		?><div class="feed-item-wrap" data-livefeed-id="<?=(int)$arEvent["EVENT"]["ID"]?>"><?
+
+		if (!defined("SONET_LOG_JS"))
+		{
+			define("SONET_LOG_JS", true);
+
+			$message = array(
+				'sonetLEGetPath' => '/bitrix/components/bitrix/socialnetwork.log.entry/ajax.php',
+				'sonetLESetPath' => '/bitrix/components/bitrix/socialnetwork.log.entry/ajax.php',
+				'sonetLPathToUser' => $arParams["PATH_TO_USER"],
+				'sonetLPathToGroup' => $arParams["PATH_TO_GROUP"],
+				'sonetLPathToDepartment' => $arParams["PATH_TO_CONPANY_DEPARTMENT"],
+				'sonetLPathToSmile' => $arParams["PATH_TO_SMILE"],
+				'sonetLShowRating' => $arParams["SHOW_RATING"],
+				'sonetLTextLikeY' => COption::GetOptionString("main", "rating_text_like_y", GetMessage("SONET_C30_TEXT_LIKE_Y")),
+				'sonetLTextLikeN' => COption::GetOptionString("main", "rating_text_like_n", GetMessage("SONET_C30_TEXT_LIKE_N")),
+				'sonetLTextLikeD' => COption::GetOptionString("main", "rating_text_like_d", GetMessage("SONET_C30_TEXT_LIKE_D")),
+				'sonetLTextPlus' => GetMessage("SONET_C30_TEXT_PLUS"),
+				'sonetLTextMinus' => GetMessage("SONET_C30_TEXT_MINUS"),
+				'sonetLTextCancel' => GetMessage("SONET_C30_TEXT_CANCEL"),
+				'sonetLTextAvailable' => GetMessage("SONET_C30_TEXT_AVAILABLE"),
+				'sonetLTextDenied' => GetMessage("SONET_C30_TEXT_DENIED"),
+				'sonetLTextRatingY' => GetMessage("SONET_C30_TEXT_RATING_YES"),
+				'sonetLTextRatingN' => GetMessage("SONET_C30_TEXT_RATING_NO"),
+				'sonetLTextCommentError' => GetMessage("SONET_COMMENT_ERROR"),
+				'sonetLPathToUserBlogPost' => $arParams["PATH_TO_USER_BLOG_POST"],
+				'sonetLPathToGroupBlogPost' => $arParams["PATH_TO_GROUP_BLOG_POST"],
+				'sonetLPathToUserMicroblogPost' => $arParams["PATH_TO_USER_MICROBLOG_POST"],
+				'sonetLPathToGroupMicroblogPost' => $arParams["PATH_TO_GROUP_MICROBLOG_POST"],
+				'sonetLNameTemplate' => $arParams["NAME_TEMPLATE"],
+				'sonetLDateTimeFormat' => $arParams["DATE_TIME_FORMAT"],
+				'sonetLShowLogin' => $arParams["SHOW_LOGIN"],
+				'sonetLRatingType' => $arParams["RATING_TYPE"],
+				'sonetLCurrentUserID' => intval($USER->GetID()),
+				'sonetLAvatarSize' => $arParams["AVATAR_SIZE"],
+				'sonetLAvatarSizeComment' => $arParams["AVATAR_SIZE_COMMON"],
+				'sonetLBlogAllowPostCode' => $arParams["BLOG_ALLOW_POST_CODE"],
+				'sonetLDestinationHidden1' => GetMessage("SONET_C30_DESTINATION_HIDDEN_1"),
+				'sonetLDestinationHidden2' => GetMessage("SONET_C30_DESTINATION_HIDDEN_2"),
+				'sonetLDestinationHidden3' => GetMessage("SONET_C30_DESTINATION_HIDDEN_3"),
+				'sonetLDestinationHidden4' => GetMessage("SONET_C30_DESTINATION_HIDDEN_4"),
+				'sonetLDestinationHidden5' => GetMessage("SONET_C30_DESTINATION_HIDDEN_5"),
+				'sonetLDestinationHidden6' => GetMessage("SONET_C30_DESTINATION_HIDDEN_6"),
+				'sonetLDestinationHidden7' => GetMessage("SONET_C30_DESTINATION_HIDDEN_7"),
+				'sonetLDestinationHidden8' => GetMessage("SONET_C30_DESTINATION_HIDDEN_8"),
+				'sonetLDestinationHidden9' => GetMessage("SONET_C30_DESTINATION_HIDDEN_9"),
+				'sonetLDestinationHidden0' => GetMessage("SONET_C30_DESTINATION_HIDDEN_0"),
+				'sonetLDestinationLimit' => intval($arParams["DESTINATION_LIMIT_SHOW"]),
+			);
+			if ($arParams["USE_FOLLOW"] === "Y")
+			{
+				$message['sonetLFollowY'] = GetMessage("SONET_LOG_T_FOLLOW_Y");
+				$message['sonetLFollowN'] = GetMessage("SONET_LOG_T_FOLLOW_N");
+			}
+			?><script>
+				BX.message(<?echo CUtil::PhpToJSObject($message)?>);
+			</script>
+			<?
+		}
+
 		$arEvent = &$arResult["Event"];
 
 		$ind = $arParams["IND"];
@@ -169,6 +171,14 @@ else
 		}
 
 		if (
+			!empty($arEvent['EVENT']['FOLLOW'])
+			&& $arEvent['EVENT']['FOLLOW'] === 'N'
+		)
+		{
+			$classNameList[] = 'feed-post-block-unfollowed';
+		}
+
+		if (
 			(
 				isset($arResult["EVENT_FORMATTED"])
 				&& isset($arResult["EVENT_FORMATTED"]["UF"])
@@ -221,7 +231,11 @@ else
 				|| (isset($arParams['EVENT']['PINNED']) && $arParams['EVENT']['PINNED'] === 'Y')
 			);
 
-			$classNameList[] = ($pinned ? 'feed-post-block-pin-active' : 'feed-post-block-pin-inactive');
+			$classNameList[] = 'feed-post-block-pin';
+			if ($pinned)
+			{
+				$classNameList[] = 'feed-post-block-pin-active';
+			}
 		}
 
 		?><div
@@ -754,7 +768,7 @@ else
 							$photo_section_id = $arEvent["EVENT"]["SOURCE_ID"];
 							if ($arEvent["EVENT"]["PARAMS"] <> '')
 							{
-								$arEventParams = unserialize(htmlspecialcharsback($arEvent["EVENT"]["PARAMS"]));
+								$arEventParams = unserialize(htmlspecialcharsback($arEvent["EVENT"]["PARAMS"]), [ 'allowed_classes' => false ]);
 								if (
 									$arEventParams
 									&& isset($arEventParams["arItems"])
@@ -774,7 +788,7 @@ else
 
 							if ($arEvent["EVENT"]["PARAMS"] <> '')
 							{
-								$arEventParams = unserialize(htmlspecialcharsback($arEvent["EVENT"]["PARAMS"]));
+								$arEventParams = unserialize(htmlspecialcharsback($arEvent["EVENT"]["PARAMS"]), [ 'allowed_classes' => false ]);
 								if (
 									$arEventParams
 									&& isset($arEventParams["SECTION_ID"])
@@ -788,7 +802,7 @@ else
 
 						if ($arEvent["EVENT"]["PARAMS"] <> '')
 						{
-							$arEventParams = unserialize(htmlspecialcharsback($arEvent["EVENT"]["PARAMS"]));
+							$arEventParams = unserialize(htmlspecialcharsback($arEvent["EVENT"]["PARAMS"]), [ 'allowed_classes' => false ]);
 
 							$photo_iblock_type = $arEventParams["IBLOCK_TYPE"];
 							$photo_iblock_id = $arEventParams["IBLOCK_ID"];
@@ -1148,13 +1162,19 @@ else
 
 						?><div class="feed-inform-item feed-inform-comments feed-inform-comments-pinned">
 							<?=Loc::getMessage('SONET_C30_PINNED_COMMENTS')?>
+							<span class="feed-inform-comments-pinned-all"><?=$arResult['ALL_COMMENTS_COUNT']?></span>
 							<span class="feed-inform-comments-pinned-old"><?=$arResult['ALL_COMMENTS_COUNT'] - $arResult['NEW_COMMENTS_COUNT']?></span><?
 							$classList = [ 'feed-inform-comments-pinned-new' ];
 							if ($arResult['NEW_COMMENTS_COUNT'] > 0)
 							{
 								$classList[] = 'feed-inform-comments-pinned-new-active';
 							}
-							?><span class="<?=implode(' ', $classList)?>">+<?=$arResult['NEW_COMMENTS_COUNT']?></span><?
+							?><span class="<?=implode(' ', $classList)?>"><?
+								?><svg width="6" height="6" viewBox="0 0 6 6" fill="none" xmlns="http://www.w3.org/2000/svg"><?
+									?><path opacity="0.840937" d="M3.36051 5.73145V3.76115H5.33081V2.70174H3.36051V0.731445H2.30111V2.70174H0.330811V3.76115H2.30111V5.73145H3.36051Z" fill="white"></path><?
+								?></svg><?
+								?><span class="feed-inform-comments-pinned-new-value"><?=$arResult['NEW_COMMENTS_COUNT']?></span><?
+							?></span><?
 						?></div><?
 					}
 					else
@@ -1665,6 +1685,8 @@ else
 
 
 		?></div><?
+
+		?></div><? // feed-item-wrap
 	}
 }
 ?>

@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["BLG_NAME"] = "Started by";
 $MESS["BLG_SHARE"] = "Shared with: ";
 $MESS["BLG_SHARE_1"] = "Shared with: ";
@@ -15,5 +15,5 @@ $MESS["SBPE_MULTIPLE_PREMODERATION"] = "Cannot publish post because some of the 
 $MESS["SBPE_MULTIPLE_PREMODERATION2"] = "Cannot publish items because pre-moderation is enabled in these workgroups: #GROUPS_LIST#";
 $MESS["SONET_HELPER_CREATED_BY_ANONYMOUS"] = "Unauthorized Visitor";
 $MESS["SONET_HELPER_STEPPER_LIVEFEED"] = "Activity Stream re-indexing";
+$MESS["SONET_HELPER_STEPPER_LIVEFEED2"] = "Re-index Feed posts";
 $MESS["SONET_HELPER_VIDEO_CONVERSION_COMPLETED"] = "Video file attached to your message \"#POST_TITLE#\" has been converted. It is now available to the recipients.";
-?>

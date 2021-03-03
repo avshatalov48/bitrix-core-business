@@ -121,7 +121,12 @@ class LogTable extends Main\Entity\DataManager
 			return false;
 		}
 
-		$logOptions = @unserialize(\Bitrix\Main\Config\Option::get('rest', 'log_filters', ''));
+		$logOptions = @unserialize(
+			\Bitrix\Main\Config\Option::get('rest', 'log_filters', ''),
+			[
+				'allowed_classes' => false
+			]
+		);
 		if (!is_array($logOptions))
 		{
 			$logOptions = array();

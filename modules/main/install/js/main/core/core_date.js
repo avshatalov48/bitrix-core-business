@@ -303,7 +303,6 @@ BX.JCCalendar = function()
 			closeByEsc: true,
 			autoHide: false,
 			content: this._get_content(),
-			zIndex: 3000,
 			bindOptions: {forceBindPosition: true}
 		});
 
@@ -746,7 +745,6 @@ BX.JCCalendar = function()
 				'calendar_popup_month_' + Math.random(), this.PARTS.MONTH,
 				{
 					content: this._menu_month_content(),
-					zIndex: 3001,
 					closeByEsc: true,
 					autoHide: true,
 					offsetTop: -29,
@@ -807,7 +805,6 @@ BX.JCCalendar = function()
 				'calendar_popup_year_' + Math.random(), this.PARTS.YEAR,
 				{
 					content: this._menu_year_content(),
-					zIndex: 3001,
 					closeByEsc: true,
 					autoHide: true,
 					offsetTop: -29,
@@ -1338,8 +1335,7 @@ BX.CClockSelector = function(params)
 			offsetTop: -135,
 			autoHide: true,
 			closeIcon: true,
-			closeByEsc: true,
-			zIndex: this.params.zIndex
+			closeByEsc: true
 		}
 	);
 

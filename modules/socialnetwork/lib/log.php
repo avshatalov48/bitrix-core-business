@@ -7,10 +7,10 @@
  */
 namespace Bitrix\Socialnetwork;
 
-use Bitrix\Main\Application;
-use Bitrix\Main\Entity;
+use Bitrix\Main\ORM;
+use Bitrix\Socialnetwork\Item\LogIndex;
 
-class LogTable extends Entity\DataManager
+class LogTable extends ORM\Data\DataManager
 {
 	public static function getTableName()
 	{
@@ -97,5 +97,54 @@ class LogTable extends Entity\DataManager
 		return self::update($id, array(
 			'INACTIVE' => ($status ? 'Y' : 'N')
 		));
+	}
+
+	public static function onDelete(ORM\Event $event)
+	{
+		$result = new ORM\EventResult;
+		$primary = $event->getParameter('primary');
+		$logId = (!empty($primary['ID']) ? (int)$primary['ID'] : 0);
+
+		if ($logId > 0)
+		{
+			$tabletList = [
+				[ '\Bitrix\Socialnetwork\LogCommentTable', 'LOG_ID' ],
+				[ '\Bitrix\Socialnetwork\LogRightTable', 'LOG_ID' ],
+				[ '\Bitrix\Socialnetwork\LogSiteTable', 'LOG_ID' ],
+				[ '\Bitrix\Socialnetwork\LogFavoritesTable', 'LOG_ID' ],
+				[ '\Bitrix\Socialnetwork\LogTagTable', 'LOG_ID' ]
+			];
+
+			foreach($tabletList as list($tablet, $fieldName))
+			{
+				$collection = $tablet::query()
+					->where($fieldName, $logId)
+					->fetchCollection();
+
+				foreach ($collection as $entity)
+				{
+					$entity->delete();
+				}
+			}
+		}
+
+		return $result;
+	}
+
+	public static function onAfterDelete(ORM\Event $event)
+	{
+		$result = new ORM\EventResult;
+		$primary = $event->getParameter('primary');
+		$logId = (!empty($primary['ID']) ? (int)$primary['ID'] : 0);
+
+		if ($logId > 0)
+		{
+			LogIndex::deleteIndex(array(
+				'itemType' => LogIndexTable::ITEM_TYPE_LOG,
+				'itemId' => $logId
+			));
+		}
+
+		return $result;
 	}
 }

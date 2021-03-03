@@ -13,6 +13,7 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Socialnetwork\UserContentViewTable;
 use Bitrix\Main\DB\SqlQueryException;
+use Bitrix\Socialnetwork\Livefeed;
 
 class UserContentView
 {
@@ -45,7 +46,7 @@ class UserContentView
 
 	}
 
-	public static function getViewData($params = array())
+	public static function getViewData($params = [])
 	{
 		if (!is_array($params))
 		{
@@ -58,23 +59,23 @@ class UserContentView
 			return false;
 		}
 
-		$result = array();
+		$result = [];
 
 		if (!is_array($contentId))
 		{
-			$contentId = array($contentId);
+			$contentId = [ $contentId ];
 		}
 
-		$res = UserContentViewTable::getList(array(
-			'filter' => array(
+		$res = UserContentViewTable::getList([
+			'filter' => [
 				'@CONTENT_ID' => $contentId
-			),
-			'select' => array('CNT', 'CONTENT_ID', 'RATING_TYPE_ID', 'RATING_ENTITY_ID'),
-			'runtime' => array(
+			],
+			'select' => [ 'CNT', 'CONTENT_ID', 'RATING_TYPE_ID', 'RATING_ENTITY_ID' ],
+			'runtime' => [
 				new ExpressionField('CNT', 'COUNT(*)')
-			),
-			'group' => array('CONTENT_ID')
-		));
+			],
+			'group' => [ 'CONTENT_ID' ]
+		]);
 
 		while ($content = $res->fetch())
 		{
@@ -84,7 +85,7 @@ class UserContentView
 		return $result;
 	}
 
-	public static function getUserList($params = array())
+	public static function getUserList($params = [])
 	{
 		global $USER;
 
@@ -94,7 +95,7 @@ class UserContentView
 		];
 
 		$contentId = (!empty($params['contentId']) ? $params['contentId'] : false);
-		$pageNum = (!empty($params['page']) ? intval($params['page']) : 1);
+		$pageNum = (!empty($params['page']) ? (int)$params['page'] : 1);
 		$pathToUserProfile = (!empty($params['pathToUserProfile']) ? $params['pathToUserProfile'] : '');
 		$pageSize = 10;
 
@@ -118,7 +119,7 @@ class UserContentView
 		];
 
 		$extranetInstalled = $mailInstalled = false;
-		$extranetIdList = array();
+		$extranetIdList = [];
 
 		if (ModuleManager::isModuleInstalled('extranet'))
 		{
@@ -157,7 +158,7 @@ class UserContentView
 		{
 			$photoSrc = '';
 
-			if (intval($fields['USER_PERSONAL_PHOTO']) <= 0)
+			if ((int)$fields['USER_PERSONAL_PHOTO'] <= 0)
 			{
 				switch ($fields['USER_PERSONAL_GENDER'])
 				{
@@ -175,12 +176,12 @@ class UserContentView
 
 			if (
 				!empty($fields['USER_PERSONAL_PHOTO'])
-				&& intval($fields['USER_PERSONAL_PHOTO']) > 0
+				&& (int)$fields['USER_PERSONAL_PHOTO'] > 0
 			)
 			{
 				$file = \CFile::resizeImageGet(
 					$fields["USER_PERSONAL_PHOTO"],
-					array('width' => 58, 'height' => 58),
+					[ 'width' => 58, 'height' => 58 ],
 					BX_RESIZE_IMAGE_EXACT,
 					false,
 					false,
@@ -199,7 +200,7 @@ class UserContentView
 			$userType = '';
 			if (
 				$mailInstalled
-				&& $fields["USER_EXTERNAL_AUTH_ID"] == "email"
+				&& $fields["USER_EXTERNAL_AUTH_ID"] === "email"
 			)
 			{
 				$userType = "mail";
@@ -208,7 +209,7 @@ class UserContentView
 				$extranetInstalled
 				&& (
 					empty($fields["USER_UF_DEPARTMENT"])
-					|| intval($fields["USER_UF_DEPARTMENT"][0]) <= 0
+					|| (int)$fields["USER_UF_DEPARTMENT"][0] <= 0
 				)
 			)
 			{
@@ -226,7 +227,7 @@ class UserContentView
 					"user_id" => $fields["USER_ID"],
 					"USER_ID" => $fields["USER_ID"]
 				])),
-				'PHOTO_SRC' => \CHTTP::urnEncode($photoSrc),
+				'PHOTO_SRC' => $photoSrc,
 				'FULL_NAME' => \CUser::formatName(\CSite::getNameFormat(), $userFields, true, true),
 				'DATE_VIEW' => $dateView,
 				'DATE_VIEW_FORMATTED' => (!empty($dateView) ? \CComponentUtil::getDateTimeFormatted(MakeTimeStamp($dateView), "FULL", $timeZoneOffset) : '')
@@ -288,7 +289,7 @@ class UserContentView
 
 	public static function deleteNoDemand($userId = 0)
 	{
-		$userId = intval($userId);
+		$userId = (int)$userId;
 		if ($userId <= 0)
 		{
 			return false;
@@ -308,16 +309,84 @@ class UserContentView
 		return $result;
 	}
 
+	public static function set(array $params = [])
+	{
+		$xmlIdList = (
+			isset($params["xmlIdList"])
+			&& is_array($params["xmlIdList"])
+				? $params["xmlIdList"]
+				: []
+		);
+
+		$context = ($params['context'] ?? '');
+
+		$userId = (
+			isset($params['userId'])
+			&& (int)$params['userId'] > 0
+				? (int)$params['userId'] :
+				0
+		);
+
+		if (!empty($xmlIdList))
+		{
+			foreach($xmlIdList as $val)
+			{
+				$xmlId = $val['xmlId'];
+				$save = (
+					!isset($val['save'])
+					|| $val['save'] !== 'N'
+				);
+
+				$tmp = explode('-', $xmlId, 2);
+				$entityType = trim($tmp[0]);
+				$entityId = (int)$tmp[1];
+
+				if (
+					!empty($entityType)
+					&& $entityId > 0
+				)
+				{
+					$provider = Livefeed\Provider::init([
+						'ENTITY_TYPE' => $entityType,
+						'ENTITY_ID' => $entityId,
+					]);
+					if ($provider)
+					{
+						$provider->setContentView([
+							'save' => $save
+						]);
+/*
+TODO: https://cp.bitrix.ru/company/personal/user/15/tasks/task/view/167281/
+						$provider->deleteCounter([
+							'userId' => $this->getCurrentUser()->getId(),
+							'siteId' => SITE_ID
+						]);
+*/
+					}
+				}
+			}
+
+			UserContentView::finalize([
+				'userId' => $userId,
+				'context' => $context
+			]);
+		}
+	}
+
 	public static function finalize($params = [])
 	{
-		$userId = (!empty($params['userId']) ? intval($params['userId']) : 0);
+		$userId = (!empty($params['userId']) ? (int)$params['userId'] : 0);
+		$context = (!empty($params['context']) ? $params['context'] : '');
 
 		if (!$userId)
 		{
 			return false;
 		}
 
-		if (ModuleManager::isModuleInstalled('tasks'))
+		if (
+			ModuleManager::isModuleInstalled('tasks')
+			&& $context !== 'forum.comments/mobile'
+		)
 		{
 			$taskIdList = \Bitrix\Socialnetwork\Integration\Forum\TaskComment::getViewedCommentsTasksList();
 			if (!empty($taskIdList))

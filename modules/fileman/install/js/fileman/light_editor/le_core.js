@@ -215,7 +215,7 @@ Init: function(arConfig)
 
 	this.SetContent(this.content);
 	this.SetEditorContent(this.content);
-	this.oTransOverlay = new LHETransOverlay({zIndex: 995}, this);
+	this.oTransOverlay = new LHETransOverlay({}, this);
 	// TODO: Fix it
 	//this.oContextMenu = new LHEContextMenu({zIndex: 1000}, this);
 

@@ -9,7 +9,7 @@ class socialservices extends CModule
 	var $MODULE_NAME;
 	var $MODULE_DESCRIPTION;
 
-	function socialservices()
+	public function __construct()
 	{
 		$arModuleVersion = array();
 

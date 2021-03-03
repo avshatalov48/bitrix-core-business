@@ -24,7 +24,7 @@ $arComponentParameters = array(
 		),
 		"DETAIL_URL" => array(
 			"PARENT" => "BASE",
-			"NAME" => Loc::getMessage("RMP_DETAIL_URL"),
+			"NAME" => Loc::getMessage("RMP_DETAIL_URL_2"),
 			"TYPE" => "STRING",
 			"DEFAULT" => '/marketplace/detail/#code#/'
 		),

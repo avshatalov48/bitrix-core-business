@@ -62,7 +62,7 @@ class CRestConfigurationActionComponent extends CBitrixComponent
 		if ($this->arParams['MP_LOAD_PATH'])
 		{
 			$result['ITEMS'][] = [
-				'title' => Loc::getMessage('REST_CONFIGURATION_ACTION_TITLE_LOAD_MARKETPLACE'),
+				'title' => Loc::getMessage('REST_CONFIGURATION_ACTION_TITLE_LOAD_MARKETPLACE_2'),
 				'link' => $this->arParams['MP_LOAD_PATH'],
 				'icon' => '/bitrix/images/rest/configuration/rest-market-site-download.svg'
 			];

@@ -14,8 +14,6 @@
 
 		this.SLIDER_WIDTH = 500;
 		this.SLIDER_DURATION = 80;
-
-		this.fixPopupZIndexBinded = this.fixPopupZIndex.bind(this);
 	}
 
 	SettingsSlider.prototype = {
@@ -36,8 +34,6 @@
 
 			this.calendar.disableKeyHandler();
 			this.isOpenedState = true;
-
-			BX.addCustomEvent('onPopupShow', this.fixPopupZIndexBinded);
 		},
 
 		close: function ()
@@ -63,8 +59,6 @@
 				{
 					BX.removeCustomEvent("SidePanel.Slider:onClose", BX.proxy(this.hide, this));
 				}
-
-				BX.removeCustomEvent('onPopupShow', this.fixPopupZIndexBinded);
 			}
 		},
 
@@ -445,11 +439,6 @@
 					}, this),
 					bind: this.accessButton
 				});
-
-				if (top.BX.Access.popup && top.BX.Access.popup.popupContainer)
-				{
-					top.BX.Access.popup.popupContainer.style.zIndex = this.zIndex + 10;
-				}
 			}, this));
 
 
@@ -585,20 +574,6 @@
 				top.BX.PopupMenu.destroy(menuId);
 				_this.accessPopupMenu = null;
 			});
-		},
-
-		fixPopupZIndex: function(popupWindow)
-		{
-			var Z_INDEX = 4200;
-			if (popupWindow.params.zIndex && popupWindow.params.zIndex < Z_INDEX
-				||
-				popupWindow.popupContainer.style.zIndex
-				&& popupWindow.popupContainer.style.zIndex < Z_INDEX
-			)
-			{
-				popupWindow.params.zIndex = Z_INDEX;
-				popupWindow.popupContainer.style.zIndex = Z_INDEX;
-			}
 		}
 	};
 

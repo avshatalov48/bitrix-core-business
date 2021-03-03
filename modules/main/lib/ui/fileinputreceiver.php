@@ -48,7 +48,13 @@ class FileInputReceiver
 	protected static function resizePicture(&$f, $resize = array())
 	{
 		$file = $f["tmp_name"];
-		$orig = ((file_exists($file) && is_file($file)) ? \CFile::GetImageSize($file, true) : false);
+		if(!file_exists($file) || !is_file($file))
+		{
+			return false;
+		}
+
+		$imageFile = new \Bitrix\Main\File\Image($file);
+		$orig = $imageFile->getInfo();
 
 		if ($orig)
 		{
@@ -60,22 +66,22 @@ class FileInputReceiver
 				"height" => intval($resize["height"])
 			);
 			$size = array(
-				"width" => $orig[0],
-				"height" => $orig[1]
+				"width" => $orig->getWidth(),
+				"height" => $orig->getHeight()
 			);
 			$orientation = 0;
-			$image_type = $orig[2];
+			$image_type = $orig->getFormat();
 
 			if($image_type == IMAGETYPE_JPEG)
 			{
-				$exifData = \CFile::extractImageExif($file);
-				if ($exifData  && isset($exifData['Orientation']))
+				$exifData = $imageFile->getExifData();
+				if (isset($exifData['Orientation']))
 				{
 					$orientation = $exifData['Orientation'];
 					if ($orientation >= 5 && $orientation <= 8)
 					{
-						$size["width"] = $orig[1];
-						$size["height"] = $orig[0];
+						$size["width"] = $orig->getHeight();
+						$size["height"] = $orig->getWidth();
 					}
 				}
 			}

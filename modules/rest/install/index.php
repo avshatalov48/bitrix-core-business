@@ -14,7 +14,7 @@ class rest extends CModule
 
 	private $errors = false;
 
-	function rest()
+	public function __construct()
 	{
 		$arModuleVersion = array();
 
@@ -85,7 +85,7 @@ class rest extends CModule
 				'SORT' => 1000,
 				'LANG' => array(
 					LANGUAGE_ID => array(
-						'NAME' => GetMessage('REST_IBLOCK_NAME'),
+						'NAME' => GetMessage('REST_IBLOCK_NAME_2'),
 						'SECTION_NAME' => GetMessage('REST_IBLOCK_SECTION_NAME'),
 						'ELEMENT_NAME' => GetMessage('REST_IBLOCK_ELEMENT_NAME'),
 					)

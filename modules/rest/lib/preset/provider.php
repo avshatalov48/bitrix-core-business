@@ -337,6 +337,21 @@ class Provider
 			return $result;
 		}
 
+		if (!OAuthService::getEngine()->isRegistered())
+		{
+			try
+			{
+				OAuthService::register();
+				OAuthService::getEngine()->getClient()->getApplicationList();
+			}
+			catch (SystemException $e)
+			{
+				$result['status'] = false;
+				$result['errors'][] = $e->getCode() . ': ' . $e->getMessage();
+				return $result;
+			}
+		}
+
 		$presetData = $presetData['OPTIONS'];
 
 		$saveData = [
@@ -836,18 +851,6 @@ class Provider
 				{
 					$errorList[] = strip_tags($eventResult);
 				}
-			}
-		}
-
-		if (!OAuthService::getEngine()->isRegistered())
-		{
-			try
-			{
-				OAuthService::register();
-			}
-			catch (SystemException $e)
-			{
-				$errorList[] = $e->getCode() . ': ' . $e->getMessage();
 			}
 		}
 

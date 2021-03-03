@@ -57,9 +57,6 @@ else
 	die();
 }
 
-if(CModule::IncludeModule("compression"))
-	CCompress::Disable2048Spaces();
-
 if(CModule::IncludeModule("socialnetwork"))
 {
 	$userID = intval($_REQUEST["user_id"]);

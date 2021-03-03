@@ -278,9 +278,17 @@ class CloudStorage extends Storage implements Storable
 				$file["tmp_name"] = $res["tmp_name"];
 				$file["size"] = $res["size"];
 				$file["type"] = $res["type"];
-				$img = \CFile::GetImageSize($file["tmp_name"]);
-				$file["width"] = $img[0];
-				$file["height"] = $img[1];
+				$info = (new \Bitrix\Main\File\Image($file["tmp_name"]))->getInfo();
+				if($info)
+				{
+					$file["width"] = $info->getWidth();
+					$file["height"] = $info->getHeight();
+				}
+				else
+				{
+					$file["width"] = 0;
+					$file["height"] = 0;
+				}
 				if ($bucket = $this->findBucket($file))
 				{
 					unset($file["count"]);
@@ -307,10 +315,10 @@ class CloudStorage extends Storage implements Storable
 			else if ($file["start"] <= 0)
 			{
 				$res = $result->getData();
-				if ($img = \CFile::GetImageSize($file["tmp_name"]))
+				if (($info = (new \Bitrix\Main\File\Image($file["tmp_name"]))->getInfo()))
 				{
-					$file["width"] = $img[0];
-					$file["height"] = $img[1];
+					$file["width"] = $info->getWidth();
+					$file["height"] = $info->getHeight();
 					$result->setData(array_merge($res, ["width" => $file["width"], "height" => $file["height"]]));
 				}
 			}

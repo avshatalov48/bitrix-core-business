@@ -602,7 +602,6 @@ function JCAdminList(table_id)
 			div.id = "settings_float_div";
 			div.className = "settings-float-form";
 			div.style.position = 'absolute';
-			div.style.zIndex = 1000;
 			div.innerHTML = result;
 
 			var left = parseInt(document.body.scrollLeft + document.body.clientWidth/2 - div.offsetWidth/2);
@@ -976,7 +975,6 @@ function TabControl(name, unique_name, aTabs)
 			div.id = "settings_float_div";
 			div.className = "settings-float-form";
 			div.style.position = 'absolute';
-			div.style.zIndex = 1000;
 			div.innerHTML = result;
 
 			var left = parseInt(document.body.scrollLeft + document.body.clientWidth/2 - div.offsetWidth/2);

@@ -123,10 +123,8 @@ class UserDataProvider extends EntityDataProvider
 				$USER->canDoOperation('edit_all_users')
 				&& (
 					!ModuleManager::isModuleInstalled('extranet')
-					|| (
-						Option::get("extranet", "extranet_site") <> ''
-						&& !self::extranetSite()
-					)
+					|| Option::get("extranet", "extranet_site", "") === ""
+					|| !self::extranetSite()
 				)
 			);
 		}

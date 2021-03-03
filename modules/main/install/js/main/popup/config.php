@@ -8,6 +8,7 @@ return [
 	'css' => 'dist/main.popup.bundle.css',
 	'js' => 'dist/main.popup.bundle.js',
 	'rel' => [
+		'main.core.z-index-manager',
 		'main.core.events',
 		'main.core',
 		'ui.fonts.opensans',

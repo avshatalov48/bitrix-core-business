@@ -425,7 +425,7 @@ export class UserPlannerSelector extends EventEmitter
 			if (groupUsers.length > 0)
 			{
 				menuItems.push({
-					text: '<span>' + group.title.replace('#COUNT#', groupUsers.length) + '</span>',
+					html: '<span>' + group.title.replace('#COUNT#', groupUsers.length) + '</span>',
 					className: submenuClass
 				});
 

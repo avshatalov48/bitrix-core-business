@@ -948,6 +948,10 @@ HIBSELECT;
 				{
 					$item['NAME'] = "<span class=\"catalog-list-dictionary-select-icon\" style=\"background-image:url('{$image['SRC']}');\"></span> ".htmlspecialcharsbx($item['NAME']);
 				}
+				else
+				{
+					$item['NAME'] = htmlspecialcharsbx($item['NAME']);
+				}
 			}
 
 			$items[] = $item;

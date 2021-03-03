@@ -90,9 +90,9 @@ else
 }
 
 if (!array_key_exists("SHOW_FIELDS_TOOLTIP", $arParams))
-	$arParams["SHOW_FIELDS_TOOLTIP"] = unserialize(COption::GetOptionString("socialnetwork", "tooltip_fields", $arTooltipFieldsDefault));
+	$arParams["SHOW_FIELDS_TOOLTIP"] = unserialize(COption::GetOptionString("socialnetwork", "tooltip_fields", $arTooltipFieldsDefault), [ 'allowed_classes' => false ]);
 if (!array_key_exists("USER_PROPERTY_TOOLTIP", $arParams))
-	$arParams["USER_PROPERTY_TOOLTIP"] = unserialize(COption::GetOptionString("socialnetwork", "tooltip_properties", $arTooltipPropertiesDefault));
+	$arParams["USER_PROPERTY_TOOLTIP"] = unserialize(COption::GetOptionString("socialnetwork", "tooltip_properties", $arTooltipPropertiesDefault), [ 'allowed_classes' => false ]);
 
 $arResult["ShowForm"] = "Input";
 
@@ -510,24 +510,14 @@ else
 								if($def_group!="")
 								{
 									$GROUP_ID = explode(",", $def_group);
-									$arPolicy = $USER->GetGroupPolicy($GROUP_ID);
 								}
 								else
-									$arPolicy = $USER->GetGroupPolicy(array());
+								{
+									$GROUP_ID = [];
+								}
 
-								$password_min_length = intval($arPolicy["PASSWORD_LENGTH"]);
-								if($password_min_length <= 0)
-									$password_min_length = 6;
-								$password_chars = array(
-									"abcdefghijklnmopqrstuvwxyz",
-									"ABCDEFGHIJKLNMOPQRSTUVWXYZ",
-									"0123456789",
-								);
+								$password = \CUser::GeneratePasswordByPolicy($GROUP_ID);
 
-								if($arPolicy["PASSWORD_PUNCTUATION"] === "Y")
-									$password_chars[] = ",.<>/?;:'\"[]{}\\|`~!@#\$%^&*()-_+=";
-
-								$password = randString($password_min_length, $password_chars);
 								$checkword = randString(8);
 
 								$user = new CUser;

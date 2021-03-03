@@ -87,12 +87,8 @@ if (is_array($arResult["ITEMS_DB"]) && !empty($arResult["ITEMS_DB"])):
 		else:
 			//additional info
 			if($app["ACTIVE"] == "Y" && is_array($app['APP_STATUS']) && $app['APP_STATUS']['PAYMENT_NOTIFY'] == 'Y'):
-				if($arResult['ADMIN'])
-				{
-					$app['APP_STATUS']['MESSAGE_SUFFIX'] .= '_A';
-				}
 ?>
-					<div class="mp_notify_message" style="margin-top:10px"><?=GetMessage('PAYMENT_MESSAGE'.$app['APP_STATUS']['MESSAGE_SUFFIX'], $app['APP_STATUS']['MESSAGE_REPLACE']);?></div>
+					<div class="mp_notify_message" style="margin-top:10px"><?=\Bitrix\Rest\AppTable::getStatusMessage($app['APP_STATUS']['MESSAGE_SUFFIX'], $app['APP_STATUS']['MESSAGE_REPLACE'])?></div>
 <?php
 			endif;
 		endif;

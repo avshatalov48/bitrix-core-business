@@ -313,13 +313,19 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        fields.push(new landing_ui_field_listsettingsfield.ListSettingsField({
 	          selector: 'items',
 	          title: landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_FORM_LIST_SETTINGS_TITLE'),
-	          items: field.editing.items.map(function (item) {
-	            return {
-	              name: item.value,
-	              value: item.id,
-	              checked: true
-	            };
-	          })
+	          items: function () {
+	            return field.editing.items.map(function (item) {
+	              var selectedItem = field.items.find(function (currentItem) {
+	                return String(currentItem.value) === String(item.id);
+	              });
+	              var checked = !!selectedItem;
+	              return {
+	                name: checked ? selectedItem.label : item.value,
+	                value: item.id,
+	                checked: checked
+	              };
+	            });
+	          }()
 	        }));
 	        fields.push(defaultValueField);
 	      }

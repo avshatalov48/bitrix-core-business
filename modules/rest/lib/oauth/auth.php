@@ -78,21 +78,15 @@ class Auth
 				}
 
 				if (
-					!$error
-					&& (
-						!Access::isAvailable($tokenInfo['client_id'])
-						|| (
-							Access::needCheckCount()
-							&& !Access::isAvailableCount(Access::ENTITY_TYPE_APP, $tokenInfo['client_id'])
-						)
-					)
+					!Access::isAvailable($tokenInfo['client_id'])
+					|| (Access::needCheckCount() && !Access::isAvailableCount(Access::ENTITY_TYPE_APP, $tokenInfo['client_id']))
 				)
 				{
-					$tokenInfo = [
+					$res = [
 						'error' => 'ACCESS_DENIED',
 						'error_description' => 'REST is available only on commercial plans.'
 					];
-					$error = true;
+					return false;
 				}
 
 				if(!$error)

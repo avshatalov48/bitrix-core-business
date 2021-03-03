@@ -452,7 +452,6 @@ ShowPopup: function(bOpen)
 Open: function ()
 {
 	var
-		pOverlay = this.pMainObj.oTransOverlay.Show(),
 		pos = BX.pos(this.pWnd),
 		_this = this;
 
@@ -460,7 +459,6 @@ Open: function ()
 	BX.bind(this.pMainObj.pEditorDocument, "keyup", BX.proxy(this.OnKey, this));
 
 	oPrevRange = BXGetSelectionRange(this.pMainObj.pEditorDocument, this.pMainObj.pEditorWindow);
-	pOverlay.onclick = function(){_this.Close()};
 
 	if(this.bSetGlobalStyles)
 		BXPopupWindow.SetStyles(this.CSS);
@@ -474,6 +472,11 @@ Open: function ()
 		width: this.width,
 		height: this.height
 	});
+
+	var zIndex = BXPopupWindow.pFrame.style.zIndex - 1;
+	var pOverlay = this.pMainObj.oTransOverlay.Show({ zIndex: zIndex });
+	pOverlay.onclick = function(){_this.Close()};
+
 	this.bOpened = true;
 },
 
@@ -984,7 +987,9 @@ BXEdColorPicker.prototype = {
 	Create: function ()
 	{
 		var _this = this;
-		this.pColCont = document.body.appendChild(BX.create("DIV", {props: {className: "bx-colpick-cont"}, style: {zIndex: this.zIndex}}));
+		this.pColCont = document.body.appendChild(BX.create("DIV", {props: {className: "bx-colpick-cont"}}));
+
+		BX.ZIndexManager.register(this.pColCont);
 
 		var
 			row, cell, colorCell,
@@ -1043,7 +1048,6 @@ BXEdColorPicker.prototype = {
 	Open: function ()
 	{
 		var
-			pOverlay = this.pMainObj.oTransOverlay.Show(),
 			pos = BX.align(BX.pos(this.pIcon), 325, 155),
 			_this = this;
 
@@ -1051,6 +1055,11 @@ BXEdColorPicker.prototype = {
 		BX.bind(this.pMainObj.pEditorDocument, "keyup", BX.proxy(this.OnKey, this));
 
 		oPrevRange = BXGetSelectionRange(this.pMainObj.pEditorDocument, this.pMainObj.pEditorWindow);
+
+		BX.ZIndexManager.bringToFront(this.pColCont);
+
+		var zIndex = this.pColCont.style.zIndex - 1;
+		var pOverlay = this.pMainObj.oTransOverlay.Show({ zIndex: zIndex });
 		pOverlay.onclick = function(){_this.Close()};
 
 		this.pColCont.style.display = 'block';
@@ -1175,7 +1184,9 @@ _Create: function ()
 
 Create: function ()
 {
-	this.pPopupNode = document.body.appendChild(BX.create("DIV", {props: {className: "bx-alpick-cont"}, style: {zIndex: this.zIndex}}));
+	this.pPopupNode = document.body.appendChild(BX.create("DIV", {props: {className: "bx-alpick-cont"}}));
+
+	BX.ZIndexManager.register(this.pPopupNode);
 
 	var
 		_this = this,
@@ -1227,13 +1238,17 @@ Create: function ()
 Open: function ()
 {
 	var
-		pOverlay = this.pMainObj.oTransOverlay.Show(),
 		pos = BX.align(BX.pos(this.pIcon), 91, 102),
 		_this = this;
 
 	BX.bind(document, "keyup", BX.proxy(this.OnKey, this));
 	BX.bind(this.pMainObj.pEditorDocument, "keyup", BX.proxy(this.OnKey, this));
 	oPrevRange = BXGetSelectionRange(this.pMainObj.pEditorDocument, this.pMainObj.pEditorWindow);
+
+	BX.ZIndexManager.bringToFront(this.pPopupNode);
+
+	var zIndex = this.pPopupNode.style.zIndex - 1;
+	var pOverlay = this.pMainObj.oTransOverlay.Show({ zIndex: zIndex });
 	pOverlay.onclick = function(){_this.Close()};
 
 	this.pPopupNode.style.display = 'block';

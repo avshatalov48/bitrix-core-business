@@ -1,6 +1,6 @@
 // * * * * * * MEDIALIBRARY  * * * * * * *
 // Common objects for medialibrary
-//  * * * * * * * * * * * * * * * * * * * * * * 
+//  * * * * * * * * * * * * * * * * * * * * * *
 function BXMLTypeSelector(Params)
 {
 	this.oML = Params.oML;
@@ -127,7 +127,7 @@ BXMLTypeSelector.prototype = {
 			},
 			timeInt
 		);
-		
+
 		this.bOpen = bOpen;
 		this.oML.bSubdialogOpened = bOpen;
 		setTimeout(function()
@@ -144,14 +144,14 @@ BXMLTypeSelector.prototype = {
 			}
 		}, 100);
 	},
-	
+
 	OnKeyPress: function(e)
 	{
 		if(!e) e = window.event;
 		if(e && e.keyCode == 27)
 			this.ShowPopup(false);
 	},
-	
+
 	OnMouseDown: function(e)
 	{
 		if(!e) e = window.event;
@@ -179,7 +179,7 @@ BXOverlay.prototype = {
 		this.bCreated = true;
 		this.bShowed = false;
 		var windowSize = BX.GetWindowScrollSize();
-		this.pWnd = document.body.appendChild(BX.create("DIV", {props: {id: this.id, className: "bx-trans-overlay"}, style:{zIndex: this.zIndex, width: windowSize.scrollWidth + "px", height: windowSize.scrollHeight + "px"}, events: {drag: BX.False, selectstart: BX.False}}));
+		this.pWnd = document.body.appendChild(BX.create("DIV", {props: {id: this.id, className: "bx-trans-overlay"}, style:{ width: windowSize.scrollWidth + "px", height: windowSize.scrollHeight + "px"}, events: {drag: BX.False, selectstart: BX.False}}));
 
 		var _this = this;
 		window[this.id + '_resize'] = function(){_this.Resize();};
@@ -214,9 +214,6 @@ BXOverlay.prototype = {
 				return BX.PreventDefault(e);
 			};
 		}
-
-		if (arParams.zIndex)
-			this.pWnd.style.zIndex = arParams.zIndex;
 
 		BX.bind(window, "resize", window[this.id + '_resize']);
 		return this.pWnd;

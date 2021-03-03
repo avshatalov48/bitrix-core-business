@@ -1,3 +1,22 @@
-<?
+<?php
 $MESS["MP_ERROR_INCORRECT_URL_INSTALL"] = "Incorrect installation URL.";
-?>
+$MESS["PAYMENT_MESSAGE_D_N_Y"] = "Some of the application features are unavailable. Please contact your administrator to install the full version.";
+$MESS["PAYMENT_MESSAGE_D_N_Y_A"] = "Some of the application features are unavailable. Please buy the full version.";
+$MESS["PAYMENT_MESSAGE_D_Y_Y"] = "Your application subscription has expired. Some of the application features are unavailable. Please contact your administrator to install the full version.";
+$MESS["PAYMENT_MESSAGE_D_Y_Y_A"] = "Your application subscription has expired. Some of the application features are unavailable.";
+$MESS["PAYMENT_MESSAGE_P_N_Y"] = "Your application subscription will expire in <b>#DAYS#</b> days. Please contact your administrator to renew the subscription.";
+$MESS["PAYMENT_MESSAGE_P_N_Y_A"] = "Your application subscription will expire in <b>#DAYS#</b> days.";
+$MESS["PAYMENT_MESSAGE_P_Y_N"] = "Application is no longer available because your subscription has expired. Please contact your administrator to renew the subscription.";
+$MESS["PAYMENT_MESSAGE_P_Y_N_A"] = "Application is no longer available because your subscription has expired.";
+$MESS["PAYMENT_MESSAGE_P_Y_Y"] = "Your application subscription has expired. Please contact your administrator to install the full version.";
+$MESS["PAYMENT_MESSAGE_P_Y_Y_A"] = "Your application subscription has expired.";
+$MESS["PAYMENT_MESSAGE_S_N_Y"] = "You have <b>#DAYS#</b> more days until your application subscription expires. Please contact the administrator to renew the subscription.";
+$MESS["PAYMENT_MESSAGE_S_N_Y_A"] = "You have <b>#DAYS#</b> more days until your application subscription expires.";
+$MESS["PAYMENT_MESSAGE_S_Y_N"] = "Application was blocked because your subscription had expired. Please contact the administrator to renew the subscription.";
+$MESS["PAYMENT_MESSAGE_S_Y_N_A"] = "Application was blocked because your subscription had expired.";
+$MESS["PAYMENT_MESSAGE_S_Y_Y"] = "Your application subscription has expired. Please contact the administrator to renew the subscription.";
+$MESS["PAYMENT_MESSAGE_S_Y_Y_A"] = "Your application subscription has expired.";
+$MESS["PAYMENT_MESSAGE_T_N_Y"] = "The trial period will expire in <b>#DAYS#</b> days. Please contact your administrator to install the full version.";
+$MESS["PAYMENT_MESSAGE_T_N_Y_A"] = "The trial period will expire in <b>#DAYS#</b> days.";
+$MESS["PAYMENT_MESSAGE_T_Y_N"] = "The trial period has expired. Please contact your administrator to install the full version.";
+$MESS["PAYMENT_MESSAGE_T_Y_N_A"] = "The trial period has expired. Please buy the full version.";

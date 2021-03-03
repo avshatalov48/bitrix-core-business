@@ -35,37 +35,50 @@ final class TimemanReport extends Provider
 
 	public function initSourceFields()
 	{
-		$timemanReportId = $this->entityId;
+		static $cache = [];
 
-		if (
-			$timemanReportId > 0
-			&& Loader::includeModule('timeman')
-		)
+		$timemanReportId = (int)$this->entityId;
+
+		if ($timemanReportId <= 0)
 		{
-			$res = \CTimeManReportFull::getById(intval($timemanReportId));
-			if ($timemanReport = $res->fetch())
+			return;
+		}
+
+		if (isset($cache[$timemanReportId]))
+		{
+			$timemanReport = $cache[$timemanReportId];
+		}
+		elseif (Loader::includeModule('timeman'))
+		{
+			$res = \CTimeManReportFull::getById($timemanReportId);
+			$timemanReport = $res->fetch();
+			$cache[$timemanReportId] = $timemanReport;
+		}
+
+		if (!empty($timemanReport))
+		{
+			$this->setSourceFields($timemanReport);
+
+			$userName = '';
+			$res = \CUser::getById($timemanReport['USER_ID']);
+			if ($userFields = $res->fetch())
 			{
-				$this->setSourceFields($timemanReport);
-
-				$userName = '';
-				$res = \CUser::getById($timemanReport["USER_ID"]);
-				if ($userFields = $res->fetch())
-				{
-					$userName = \CUser::formatName(
-						\CSite::getNameFormat(),
-						$userFields,
-						true,
-						false
-					);
-				}
-
-				$this->setSourceTitle(Loc::getMessage('SONET_LIVEFEED_TIMEMAN_REPORT_TITLE', array(
-					'#USER_NAME#' => $userName,
-					'#DATE#' => FormatDate('j F', MakeTimeStamp($timemanReport['DATE_FROM']))." - ".FormatDate('j F', MakeTimeStamp($timemanReport['DATE_TO']))
-				)));
-
-//				$this->setSourceDescription();
+				$userName = \CUser::formatName(
+					\CSite::getNameFormat(),
+					$userFields,
+					true,
+					false
+				);
 			}
+
+			$this->setSourceTitle(Loc::getMessage('SONET_LIVEFEED_TIMEMAN_REPORT_TITLE', array(
+				'#USER_NAME#' => $userName,
+				'#DATE#' => FormatDate('j F', MakeTimeStamp($timemanReport['DATE_FROM']))." - ".FormatDate('j F', MakeTimeStamp($timemanReport['DATE_TO']))
+			)));
+		}
+		else
+		{
+			$this->setSourceTitle($this->getUnavailableTitle());
 		}
 	}
 

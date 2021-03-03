@@ -203,7 +203,7 @@ Loc::loadMessages(__FILE__);
 										array(
 											'ACTION' => 'Method',
 											'LIST' => $data['METHOD'],
-											'ON_CHANGE' => 'BX.rest.integration.makeCurlString();',
+											'ON_CHANGE' => 'BX.rest.integration.edit.makeCurlString();',
 											'INPUT_NAME' => 'QUERY[' . $data['CODE'] . '][METHOD]',
 											'INPUT_SCOPE_NAME' => 'SCOPE',
 											'READONLY' => false,
@@ -690,7 +690,7 @@ Loc::loadMessages(__FILE__);
 												name="WIDGET_HANDLER_URL"
 												class="ui-ctl-element integration-required integration-required"
 												placeholder="https://example.com/handler.php"
-												value="<?=($arResult['WIDGET_HANDLER_URL']) ? : ''?>">
+												value="<?=($arResult['WIDGET_HANDLER_URL']) ? htmlspecialcharsbx($arResult['WIDGET_HANDLER_URL']) : ''?>">
 										</div>
 									</div>
 									<? if (!empty($arResult[$block . '_DOWNLOAD_EXAMPLE_URL'])): ?>
@@ -818,7 +818,7 @@ if ($arResult['READ_ONLY'] == 'Y')
 			'TYPE' => 'save',
 			'NAME' => 'gen_save',
 			'CAPTION' => Loc::getMessage('REST_INTEGRATION_EDIT_BTN_SAVE_AND_GENERATE_WEBHOOK'),
-			'ONCLICK' => 'BX.rest.integration.actionSaveRegenBtnClick()'
+			'ONCLICK' => 'BX.rest.integration.edit.actionSaveRegenBtnClick()'
 		];
 	}
 }
@@ -826,7 +826,7 @@ else
 {
 	$actionBtn[] = [
 		'TYPE' => 'save',
-		'ONCLICK' => 'BX.rest.integration.actionSaveBtnClick()'
+		'ONCLICK' => 'BX.rest.integration.edit.actionSaveBtnClick()'
 	];
 }
 $actionBtn[] = 'close';

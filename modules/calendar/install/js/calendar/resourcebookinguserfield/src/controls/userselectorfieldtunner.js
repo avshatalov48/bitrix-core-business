@@ -3,8 +3,10 @@ import {FormFieldTunnerPopupAbstract} from "../formfieldtunnerpopupabstract";
 import {FormFieldTunnerValuePopupAbstract} from "../formfieldtunnervaluepopupabstract";
 import {ResourcebookingUserfield} from "../resourcebookinguserfield";
 import {BookingUtil} from "calendar.resourcebooking";
-import {Loc, Type, Dom} from "main.core";
-import {WebformUserSelectorFieldEditControl} from "./userselectorfieldeditcontrol";
+import {Loc, Type, Dom, Tag, Text} from "main.core";
+import { Dialog as EntitySelectorDialog } from 'ui.entity-selector';
+import {EventEmitter} from 'main.core.events';
+
 
 export class UserSelectorFieldTunner extends FormFieldTunnerAbstract {
 	constructor()
@@ -13,6 +15,7 @@ export class UserSelectorFieldTunner extends FormFieldTunnerAbstract {
 		this.label = Loc.getMessage('WEBF_RES_USERS');
 		this.formLabel = Loc.getMessage('WEBF_RES_USERS_LABEL');
 		this.displayed = true;
+		this.selectedUsers = [];
 	}
 
 	updateConfig(params)
@@ -30,7 +33,80 @@ export class UserSelectorFieldTunner extends FormFieldTunnerAbstract {
 
 	buildValuePopup(params)
 	{
-		this.valuePopup = new UsersValuePopup(params);
+		this.selectedUsers = Type.isArray(params.config.selected)
+			? params.config.selected
+			: params.config.selected.split('|');
+
+		this.DOM.valueWrap = params.wrap;
+
+		this.DOM.valueWrap.appendChild(
+			Tag.render`
+				<div class="calendar-resbook-webform-settings-popup-select-result">
+					${this.DOM.usersValueLink = Tag.render`
+						<span 
+							class="calendar-resbook-webform-settings-popup-select-value"
+							onclick="${this.showUserSelectorDialog.bind(this)}"
+							>
+								${this.getCurrentUsersValueText()}
+						</span>
+					`}
+				</div>
+			`
+		);
+	}
+
+	getCurrentUsersValueText()
+	{
+		const count = this.selectedUsers.length;
+		return count
+			? (count + ' ' + ResourcebookingUserfield.getPluralMessage('WEBF_RES_USER', count))
+			: Loc.getMessage('WEBF_RES_NO_VALUE');
+	}
+
+	showUserSelectorDialog()
+	{
+		if (!(this.userSelectorDialog instanceof EntitySelectorDialog))
+		{
+			this.userSelectorDialog = new EntitySelectorDialog({
+				targetNode: this.DOM.usersValueLink,
+				context: 'RESOURCEBOOKING',
+				preselectedItems: this.selectedUsers.map((userId) => {return ['user', userId]}),
+				enableSearch: true,
+				zIndex: this.zIndex + 10,
+				events: {
+					'Item:onSelect': this.handleUserSelectorChanges.bind(this),
+					'Item:onDeselect': this.handleUserSelectorChanges.bind(this),
+				},
+				entities: [
+					{
+						id: 'user',
+						options: {
+							inviteGuestLink: false,
+							emailUsers: false,
+						}
+					}
+				]
+			});
+		}
+
+		this.userSelectorDialog.show();
+	}
+
+	handleUserSelectorChanges()
+	{
+		this.selectedUsers = [];
+
+		this.userSelectorDialog.getSelectedItems().forEach((item) => {
+			if (item.entityId === "user")
+			{
+				this.selectedUsers.push(item.id);
+			}
+		});
+
+		this.DOM.usersValueLink.innerHTML = this.getCurrentUsersValueText();
+
+		EventEmitter.emit('ResourceBooking.settingsUserSelector:onChanged');
+		setTimeout(() => {EventEmitter.emit('ResourceBooking.webformSettings:onChanged')}, 50);
 	}
 
 	displayInForm()
@@ -53,7 +129,7 @@ export class UserSelectorFieldTunner extends FormFieldTunnerAbstract {
 			show: this.isDisplayed() ? 'Y' : 'N',
 			label: this.getFormLabel(),
 			defaultMode: this.statePopup.getDefaultMode(),
-			value: this.valuePopup.getSelectedValues()
+			value: this.selectedUsers
 		};
 	}
 }
@@ -83,7 +159,7 @@ class UsersStatePopup extends FormFieldTunnerPopupAbstract
 
 		return [
 			{
-				text: '<span>' + Loc.getMessage('WEBF_RES_SELECT_DEFAULT_TITLE') + '</span>',
+				html: '<span>' + Loc.getMessage('WEBF_RES_SELECT_DEFAULT_TITLE') + '</span>',
 				className: submenuClass
 			},
 			{
@@ -147,170 +223,5 @@ class UsersStatePopup extends FormFieldTunnerPopupAbstract
 	getDefaultMode()
 	{
 		return this.defaultMode;
-	}
-}
-
-class UsersValuePopup extends FormFieldTunnerValuePopupAbstract
-{
-	constructor(params)
-	{
-		super(params);
-		this.name = 'usersValuePopup';
-
-		this.values = [];
-		this.selectedValues = [];
-		this.selectedCodes = [];
-		let
-			selectedItems, selectedIndex = {},
-			selectAll = params.config.selected === null;
-
-		selectedItems = Type.isArray(params.config.selected) ? params.config.selected : params.config.selected.split('|');
-		if (Type.isArray(selectedItems))
-		{
-			for(let i = 0; i < selectedItems.length; i++)
-			{
-				selectedIndex[selectedItems[i]] = true;
-				this.selectedValues.push(selectedItems[i]);
-				this.selectedCodes.push('U' + selectedItems[i]);
-			}
-		}
-
-		if (Type.isArray(params.config.users) && selectAll)
-		{
-			params.config.users.forEach(function(userId)
-			{
-				if (!selectedIndex[userId])
-				{
-					this.selectedValues.push(userId);
-					this.selectedCodes.push('U' + userId);
-				}
-			}, this);
-		}
-
-		this.config = {};
-		this.build();
-	}
-
-	getPopupContent()
-	{
-		super.getPopupContent();
-		new Promise((resolve) => {
-
-			if (!this.config.socnetDestination)
-			{
-				this.showPopupLoader();
-				BX.ajax.runAction('calendar.api.resourcebookingajax.getuserselectordata', {
-					data: {
-						selectedUserList: this.selectedValues
-					}
-				}).then(function (response)
-					{
-						this.hidePopupLoader();
-						this.config.socnetDestination = response.data;
-						resolve();
-					}.bind(this),
-					function (response) {
-						resolve(response);
-					});
-			}
-			else
-			{
-				resolve();
-			}
-		}).then(this.buildUserSelector.bind(this));
-
-		return this.DOM.innerWrap;
-	}
-
-	showPopupLoader ()
-	{
-		if (this.DOM.innerWrap)
-		{
-			this.hidePopupLoader();
-			this.DOM.popupLoader = this.DOM.innerWrap.appendChild(Dom.create("div", {props: {className: 'calendar-resourcebook-popup-loader-wrap'}}));
-			this.DOM.popupLoader.appendChild(BookingUtil.getLoader(38));
-		}
-	}
-
-	getPopupWidth()
-	{
-		return 680;
-	}
-
-	buildUserSelector()
-	{
-		this.DOM.userCurrentvalueWrap = this.DOM.innerWrap.appendChild(Dom.create("div", {
-			props: {
-				className: 'calendar-resourcebook-content-block-control custom-field-item'
-			}
-		}));
-		this.DOM.userSelectorWrap = this.DOM.innerWrap.appendChild(Dom.create("div", {
-			props: {
-				className: 'calendar-resourcebook-pseudo-popup-wrap'
-			}
-		}));
-
-		this.userSelector = new WebformUserSelectorFieldEditControl({
-			wrapNode: this.DOM.userCurrentvalueWrap,
-			socnetDestination: this.config.socnetDestination,
-			itemsSelected: this.selectedCodes,
-			addMessage: Loc.getMessage('USER_TYPE_RESOURCE_SELECT_USER'),
-			externalWrap: this.DOM.userSelectorWrap
-		});
-
-		this.userSelectorId = this.userSelector.getId();
-
-		BX.addCustomEvent('OnResourceBookDestinationAddNewItem', this.triggerUserSelectorUpdate.bind(this));
-		BX.addCustomEvent('OnResourceBookDestinationUnselect', this.triggerUserSelectorUpdate.bind(this));
-	}
-
-	getSelectedValues()
-	{
-		return this.selectedValues;
-	}
-
-	triggerUserSelectorUpdate(item, selectroId, delayExecution)
-	{
-		if (selectroId === this.userSelectorId)
-		{
-			if (this.selectorUpdateTimeout)
-			{
-				this.selectorUpdateTimeout = clearTimeout(this.selectorUpdateTimeout);
-			}
-
-			if (delayExecution !== false)
-			{
-				this.selectorUpdateTimeout = setTimeout(function(){
-					this.triggerUserSelectorUpdate(item, selectroId, false);
-				}.bind(this), 300);
-				return;
-			}
-
-			this.selectedValues = [];
-			this.selectedCodes = this.userSelector.getAttendeesCodesList();
-
-			this.selectedCodes.forEach(function(code)
-			{
-				if (code.substr(0, 1) === 'U')
-				{
-					this.selectedValues.push(parseInt(code.substr(1)));
-				}
-			}, this);
-
-			this.handleControlChanges();
-		}
-	}
-
-	getCurrentValueState()
-	{
-		const count = this.selectedValues.length;
-		return count ? (count + ' ' + ResourcebookingUserfield.getPluralMessage('WEBF_RES_USER', count)) : Loc.getMessage('WEBF_RES_NO_VALUE');
-	}
-
-	handleControlChanges()
-	{
-		BX.onCustomEvent('ResourceBooking.settingsUserSelector:onChanged');
-		super.handleControlChanges();
-		Dom.adjust(this.DOM.valueLink, {text: this.getCurrentValueState()});
 	}
 }

@@ -3,8 +3,9 @@
 namespace Bitrix\Seo\Retargeting;
 
 use Bitrix\Main\Config\Option;
+use Bitrix\Seo\BusinessSuite\IInternalService;
 
-class Service implements IService, IMultiClientService
+class Service implements IService, IMultiClientService, IInternalService
 {
 	const GROUP = 'retargeting';
 
@@ -109,5 +110,35 @@ class Service implements IService, IMultiClientService
 	public function setClientId($clientId)
 	{
 		$this->clientId = $clientId;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function getTypeByEngine(string $engineCode): ?string
+	{
+		foreach (static::getTypes() as $type)
+		{
+			if($engineCode === static::getEngineCode($type))
+			{
+				return $type;
+			}
+		}
+		return null;
+	}
+	/**
+	 * @inheritDoc
+	 */
+	public static function canUseAsInternal(): bool
+	{
+		return true;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function getMethodPrefix(): string
+	{
+		return 'retargeting';
 	}
 }

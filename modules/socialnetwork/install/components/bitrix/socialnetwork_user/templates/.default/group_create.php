@@ -25,7 +25,8 @@ $componentParameters = array(
 	"SHOW_LOGIN" => $arParams["SHOW_LOGIN"],
 	"USE_KEYWORDS" => $arParams["GROUP_USE_KEYWORDS"],
 	"USE_AUTOSUBSCRIBE" => "N",
-	"FIRST_ROW" => ($_GET["firstRow"] == "project" ? "project" : ""),
+	"FIRST_ROW" => ($_GET["firstRow"] === "project" ? "project" : ""),
+	"PROJECT_OPTIONS" => (isset($_REQUEST["PROJECT_OPTIONS"]) && is_array($_REQUEST["PROJECT_OPTIONS"]) ? $_REQUEST["PROJECT_OPTIONS"] : []),
 	"LID" => (isset($_GET["lid"]) ? $_GET["lid"] : false)
 );
 

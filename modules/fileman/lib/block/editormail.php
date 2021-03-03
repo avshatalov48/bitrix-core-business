@@ -10,9 +10,9 @@ namespace Bitrix\Fileman\Block;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventResult;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\SiteTable;
 use Bitrix\Main\Mail\EventMessageCompiler;
-use \Bitrix\Main\Web\DOM\StyleInliner;
+use Bitrix\Main\SiteTable;
+use Bitrix\Main\Web\DOM\StyleInliner;
 
 Loc::loadMessages(__FILE__);
 
@@ -317,9 +317,7 @@ class EditorMail
 									<tbody>
 										<tr>
 											<td valign="top" class="bxBlockPadding bxBlockContentImage">
-												<a href="#">
-													<img align="left" data-bx-editor-def-image="1" src="/bitrix/images/fileman/block_editor/photo-default.png" class="bxImage">
-												</a>
+												<img align="left" data-bx-editor-def-image="1" src="/bitrix/images/fileman/block_editor/photo-default.png" class="bxImage">
 											</td>
 										</tr>
 									</tbody>
@@ -327,9 +325,7 @@ class EditorMail
 									<tbody>
 										<tr>
 											<td valign="top" class="bxBlockPadding bxBlockContentImage">
-												<a href="#">
-													<img align="left" data-bx-editor-def-image="1" src="/bitrix/images/fileman/block_editor/photo-default.png" class="bxImage">
-												</a>
+												<img align="left" data-bx-editor-def-image="1" src="/bitrix/images/fileman/block_editor/photo-default.png" class="bxImage">
 											</td>
 										</tr>
 									</tbody>

@@ -899,8 +899,7 @@
 				this.dialogShownTimeout = clearTimeout(this.dialogShownTimeout);
 			}
 			this.oDialog.Show();
-			this.oDialog.DIV.style.zIndex = this.zIndex;
-			this.oDialog.OVERLAY.style.zIndex = this.zIndex - 2;
+
 			var
 				top = parseInt(this.oDialog.DIV.style.top) - 180,
 				scrollPos = BX.GetWindowScrollPos(document),
@@ -1901,7 +1900,6 @@
 				});
 				this.OPENER.Open();
 				var popupDiv = this.OPENER.GetMenu().DIV;
-				popupDiv.style.zIndex = '3005';
 				popupDiv.id = 'bx-admin-prefix';
 				BX.addClass(popupDiv, 'bx-core-popup-menu-editor');
 
@@ -2568,7 +2566,7 @@
 			this.bCreated = true;
 			this.bShown = false;
 			var ws = BX.GetWindowScrollSize();
-			this.pWnd = document.body.appendChild(BX.create("DIV", {props: {id: this.id, className: "bxhtmled-overlay"}, style: {zIndex: this.zIndex, width: ws.scrollWidth + "px", height: ws.scrollHeight + "px"}}));
+			this.pWnd = document.body.appendChild(BX.create("DIV", {props: {id: this.id, className: "bxhtmled-overlay"}, style: { width: ws.scrollWidth + "px", height: ws.scrollHeight + "px"}}));
 			this.pWnd.ondrag = BX.False;
 			this.pWnd.onselectstart = BX.False;
 		},
@@ -2934,11 +2932,22 @@
 			{
 				this.popupShownTimeout = clearTimeout(this.popupShownTimeout);
 			}
+
+			var firstOpen = this.pValuesCont.parentNode === null;
 			document.body.appendChild(this.pValuesCont);
+
+			if (firstOpen)
+			{
+				BX.ZIndexManager.register(this.pValuesCont);
+			}
+
+			var component = BX.ZIndexManager.bringToFront(this.pValuesCont);
+			var zIndex = component.getZIndex();
+
 			this.pValuesCont.style.display = 'block';
 			BX.addClass(this.pCont, this.activeClassName);
 			var
-				pOverlay = this.editor.overlay.Show({zIndex: this.zIndex - 1}),
+				pOverlay = this.editor.overlay.Show({ zIndex: zIndex - 1 }),
 				bindCont = this.GetPopupBindCont(),
 				pos = BX.pos(bindCont),
 				left = Math.round(pos.left - this.pValuesCont.offsetWidth / 2 + bindCont.offsetWidth / 2 + this.posOffset.left),
@@ -3543,7 +3552,16 @@
 				this.popupShownTimeout = clearTimeout(this.popupShownTimeout);
 			}
 
+			var firstShow = this.pValuesCont.parentNode === null;
 			document.body.appendChild(this.pValuesCont);
+
+			if (firstShow)
+			{
+				BX.ZIndexManager.register(this.pValuesCont);
+			}
+
+			BX.ZIndexManager.bringToFront(this.pValuesCont);
+
 			this.pValuesCont.style.display = 'block';
 
 			var
@@ -3830,7 +3848,6 @@
 			this.OPENER.Open();
 
 			var popupDiv = this.OPENER.GetMenu().DIV;
-			popupDiv.style.zIndex = '3005';
 			BX.addClass(popupDiv, 'bxhtmled-paste-control bx-core-popup-menu-editor');
 
 			BX.addCustomEvent(this.OPENER.GetMenu(), 'onMenuClose', BX.proxy(this.Hide, this));

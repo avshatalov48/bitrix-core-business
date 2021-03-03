@@ -9,6 +9,8 @@ final class ListsItem extends Provider
 	public const PROVIDER_ID = 'LISTS_NEW_ELEMENT';
 	public const CONTENT_TYPE_ID = 'LISTS_NEW_ELEMENT';
 
+	protected static $logTableClass = LogTable::class;
+
 	public static function getId(): string
 	{
 		return static::PROVIDER_ID;
@@ -46,7 +48,7 @@ final class ListsItem extends Provider
 		}
 		else
 		{
-			$res = LogTable::getList([
+			$res = self::$logTableClass::getList([
 				'filter' => [
 					'SOURCE_ID' => $elementId,
 					'@EVENT_ID' => $this->getEventId(),

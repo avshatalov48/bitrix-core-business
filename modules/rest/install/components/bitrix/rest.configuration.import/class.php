@@ -70,6 +70,46 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 		return $url;
 	}
 
+	private function getArchive($url, $app = [])
+	{
+		$result = [];
+		$fileInfo = \CFile::MakeFileArray($url);
+
+		if (!empty($fileInfo['tmp_name']))
+		{
+			$result['ERRORS_UPLOAD_FILE'] = \CFile::CheckFile(
+				$fileInfo,
+				0,
+				[
+					'application/gzip',
+					'application/x-gzip',
+					'application/zip',
+					'application/x-zip-compressed',
+					'application/x-tar'
+				]
+			);
+
+			if ($result['ERRORS_UPLOAD_FILE'] === '')
+			{
+				$context = $this->getContext();
+
+				$setting = new Setting($context);
+				$setting->deleteFull();
+
+				$structure = new Structure($context);
+				if ($structure->unpack($fileInfo))
+				{
+					$result['IMPORT_CONTEXT'] = $context;
+					$result['APP'] = $app;
+					$result['IMPORT_FOLDER_FILES'] = $structure->getFolder();
+					$result['IMPORT_ACCESS'] = true;
+				}
+			}
+		}
+
+		return $result;
+	}
+
 	protected function prepareResult()
 	{
 		$result = [
@@ -78,6 +118,7 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 			'IMPORT_MANIFEST_FILE' => [],
 			'MANIFEST' => []
 		];
+		$title = '';
 
 		$result['MAX_FILE_SIZE']['MEGABYTE'] = Helper::getInstance()->getMaxFileSize();
 		$result['MAX_FILE_SIZE']['BYTE'] = round($result['MAX_FILE_SIZE']['MEGABYTE']*1024*1024, 2);
@@ -93,27 +134,6 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 			else
 			{
 				$result['MANIFEST_CODE'] = $result['MANIFEST']['CODE'];
-			}
-		}
-
-		if(isset($this->arParams['SET_TITLE']) && $this->arParams['SET_TITLE'] == 'Y')
-		{
-			global $APPLICATION;
-			if($this->arParams['MODE'] == 'ROLLBACK')
-			{
-				$APPLICATION->SetTitle(Loc::getMessage('REST_CONFIGURATION_IMPORT_ROLLBACK_TITLE'));
-			}
-			else
-			{
-				if(!empty($result['MANIFEST']['IMPORT_TITLE_PAGE']))
-				{
-					$title = $result['MANIFEST']['IMPORT_TITLE_PAGE'];
-				}
-				else
-				{
-					$title = Loc::getMessage('REST_CONFIGURATION_IMPORT_TITLE');
-				}
-				$APPLICATION->SetTitle($title);
 			}
 		}
 
@@ -221,10 +241,40 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 			}
 		}
 
-		if(!empty($this->arParams['APP']))
+		if (
+			$this->arParams['MODE'] === 'ZIP'
+			&& (int)$this->arParams['ZIP_ID'] > 0
+			&& defined('LANDING_DEMO_ZIP_URL')
+		)
+		{
+			$http = new Bitrix\Main\Web\HttpClient;
+			$zip = $http->post(
+				LANDING_DEMO_ZIP_URL,
+					[
+						'id' => (int)$this->arParams['ZIP_ID'],
+						'zip' => 'Y'
+					]
+			);
+			if ($zip)
+			{
+				$zip = Json::decode($zip);
+			}
+
+			$app = AppTable::getByClientId($zip['app_code']);
+			if ($app['ACTIVE'] === 'Y' && $app['INSTALLED'] === 'Y' && !empty($zip['path']))
+			{
+				$result = array_merge($result, $this->getArchive($zip['path'], $app));
+			}
+			else
+			{
+				$result['INSTALL_APP'] = $zip['app_code'];
+				$title = Loc::getMessage('REST_CONFIGURATION_IMPORT_PREPARATION_TITLE');
+			}
+		}
+		elseif (!empty($this->arParams['APP']))
 		{
 			$app = AppTable::getByClientId($this->arParams['APP']);
-			if($app['ACTIVE'] == 'Y')
+			if ($app['ACTIVE'] === 'Y')
 			{
 				$request = Application::getInstance()->getContext()->getRequest();
 				$check_hash = $request->getQuery("check_hash");
@@ -236,47 +286,14 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 					($install_hash)?:false
 				);
 
-				if($appInfo)
+				if ($appInfo)
 				{
 					$appInfo = $appInfo["ITEMS"];
 
-					if($appInfo['TYPE'] === AppTable::TYPE_CONFIGURATION && !empty($appInfo['CONFIG_URL']))
+					if ($appInfo['TYPE'] === AppTable::TYPE_CONFIGURATION && !empty($appInfo['CONFIG_URL']))
 					{
 						$url = $this->prepareConfigurationUrl($appInfo['CONFIG_URL']);
-
-						$fileInfo = \CFile::MakeFileArray($url);
-
-						if(!empty($fileInfo['tmp_name']))
-						{
-							$result['ERRORS_UPLOAD_FILE'] = \CFile::CheckFile(
-								$fileInfo,
-								0,
-								[
-									'application/gzip',
-									'application/x-gzip',
-									'application/zip',
-									'application/x-zip-compressed',
-									'application/x-tar'
-								]
-							);
-
-							if($result['ERRORS_UPLOAD_FILE'] === '')
-							{
-								$context = $this->getContext();
-
-								$setting = new Setting($context);
-								$setting->deleteFull();
-
-								$structure = new Structure($context);
-								if($structure->unpack($fileInfo))
-								{
-									$result['IMPORT_CONTEXT'] = $context;
-									$result['APP'] = $app;
-									$result['IMPORT_FOLDER_FILES'] = $structure->getFolder();
-									$result['IMPORT_ACCESS'] = true;
-								}
-							}
-						}
+						$result = array_merge($result, $this->getArchive($url, $app));
 					}
 				}
 			}
@@ -415,6 +432,34 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 			}
 			catch (\Exception $e)
 			{
+			}
+		}
+
+		if (isset($this->arParams['SET_TITLE']) && $this->arParams['SET_TITLE'] == 'Y')
+		{
+			global $APPLICATION;
+			if ($this->arParams['MODE'] == 'ROLLBACK')
+			{
+				$APPLICATION->SetTitle(Loc::getMessage('REST_CONFIGURATION_IMPORT_ROLLBACK_TITLE'));
+			}
+			else
+			{
+				if (empty($result['MANIFEST']) && !empty($result['IMPORT_MANIFEST_FILE']['CODE']))
+				{
+					$result['MANIFEST'] = Manifest::get($result['IMPORT_MANIFEST_FILE']['CODE']);
+				}
+				if ($title === '')
+				{
+					if (!empty($result['MANIFEST']['IMPORT_TITLE_PAGE']))
+					{
+						$title = $result['MANIFEST']['IMPORT_TITLE_PAGE'];
+					}
+					else
+					{
+						$title = Loc::getMessage('REST_CONFIGURATION_IMPORT_TITLE');
+					}
+				}
+				$APPLICATION->SetTitle($title);
 			}
 		}
 

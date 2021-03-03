@@ -1143,13 +1143,15 @@ class CWizardStep
 
 		if ($make_preview && $max_width > 0 && $max_height > 0)
 		{
-			list($sourceWidth, $sourceHeight, $type, $attr) = CFile::GetImageSize($arFile["tmp_name"]);
-
-			if ($sourceWidth > $max_width || $sourceHeight > $max_height)
+			$info = (new \Bitrix\Main\File\Image($arFile["tmp_name"]))->getInfo();
+			if($info)
 			{
-				$success = CWizardUtil::CreateThumbnail($arFile["tmp_name"], $arFile["tmp_name"], $max_width, $max_height);
-				if ($success)
-					$arFile["size"] = @filesize($arFile["tmp_name"]);
+				if ($info->getWidth() > $max_width || $info->getHeight() > $max_height)
+				{
+					$success = CWizardUtil::CreateThumbnail($arFile["tmp_name"], $arFile["tmp_name"], $max_width, $max_height);
+					if ($success)
+						$arFile["size"] = @filesize($arFile["tmp_name"]);
+				}
 			}
 		}
 		elseif ($max_width > 0 || $max_height > 0)

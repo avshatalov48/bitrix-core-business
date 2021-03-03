@@ -1951,14 +1951,6 @@
 				}
 			};
 
-			if (BX.getClass('BX.SidePanel.Instance'))
-			{
-				var slider = BX.SidePanel.Instance.getTopSlider();
-				if (slider && slider.isSelfContained())
-				{
-					popupParams.zIndex = slider.getZindex();
-				}
-			}
 			BX.onCustomEvent("OnUCCommentActionsShown", [eventNode, ID, panels, popupParams]);
 			BX.PopupMenu.show("action-" + linkId, el,
 				panels,

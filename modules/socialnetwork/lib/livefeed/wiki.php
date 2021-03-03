@@ -11,6 +11,9 @@ final class Wiki extends Provider
 	public const PROVIDER_ID = 'WIKI';
 	public const CONTENT_TYPE_ID = 'WIKI';
 
+	protected static $wikiClass = \CWiki::class;
+	protected static $logTableClass = LogTable::class;
+
 	public static function getId(): string
 	{
 		return static::PROVIDER_ID;
@@ -51,7 +54,7 @@ final class Wiki extends Provider
 		}
 		elseif (Loader::includeModule('wiki'))
 		{
-			$element = \CWiki::getElementById($elementId, [
+			$element = self::$wikiClass::getElementById($elementId, [
 				'CHECK_PERMISSIONS' => 'N',
 				'ACTIVE' => 'Y'
 			]);
@@ -60,7 +63,7 @@ final class Wiki extends Provider
 			{
 				$sourceFields = $element;
 
-				$res = LogTable::getList([
+				$res = self::$logTableClass::getList([
 					'filter' => [
 						'SOURCE_ID' => $elementId,
 						'@EVENT_ID' => $this->getEventId(),

@@ -484,7 +484,7 @@ class CRestProvider
 
 		if($appOptions <> '')
 		{
-			$appOptions = unserialize($appOptions);
+			$appOptions = unserialize($appOptions, ['allowed_classes' => false]);
 		}
 		else
 		{
@@ -536,7 +536,7 @@ class CRestProvider
 			$appOptions = Option::get("rest", "options_".$server->getClientId(), "");
 			if($appOptions <> '')
 			{
-				$appOptions = unserialize($appOptions);
+				$appOptions = unserialize($appOptions, ['allowed_classes' => false]);
 			}
 			else
 			{

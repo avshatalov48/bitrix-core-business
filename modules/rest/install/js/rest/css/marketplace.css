@@ -20,6 +20,9 @@
 .rest-marketplace-popup-text + .rest-marketplace-popup-text {
 	margin-top: 16px;
 }
+.rest-marketplace-popup-text ul {
+	margin-top: 1px;
+}
 
 .rest-marketplace-popup-note {
 	color: #828b95;

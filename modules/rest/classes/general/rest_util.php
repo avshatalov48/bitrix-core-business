@@ -1,6 +1,7 @@
 <?php
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Main\Security;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -203,7 +204,7 @@ class CRestUtil
 
 	public static function signLicenseRequest(array $request, $licenseKey)
 	{
-		if(Loader::includeModule('bitrix24'))
+		if(Loader::includeModule('bitrix24') && defined('BX24_HOST_NAME'))
 		{
 			$request['BX_TYPE'] = 'B24';
 			$request['BX_LICENCE'] = BX24_HOST_NAME;
@@ -575,7 +576,7 @@ class CRestUtil
 			{
 				if($fileName == '')
 				{
-					$fileName = md5(mt_rand());
+					$fileName = Security\Random::getString(32);
 				}
 				else
 				{

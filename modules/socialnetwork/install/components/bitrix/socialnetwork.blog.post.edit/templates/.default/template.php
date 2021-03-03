@@ -211,7 +211,12 @@ else
 		$arTabs[] = array(
 			"ID" => "lists",
 			"NAME" => GetMessage("BLOG_TAB_LISTS"),
-			"ONCLICK" => "window.SBPETabs.getInstance().getLists();"
+			"ONCLICK" => (
+				\CModule::IncludeModule('bitrix24')
+				&& !\Bitrix\Bitrix24\Feature::isFeatureEnabled('livefeed_bp')
+					? "BX.UI.InfoHelper.show('limit_office_bp_stream');"
+					: "window.SBPETabs.getInstance().getLists();"
+			)
 		);
 	}
 
@@ -230,7 +235,7 @@ else
 			?></span><?
 			?><script>
 				BX.bind(BX('feed-add-post-form-tab-<?=$arTab["ID"]?>'), 'click', function() {
-					SBPEFullForm.getInstance().get({
+					SBPEFullForm && SBPEFullForm.getInstance().get({
 						callback: function() {
 							window.SBPETabs.getInstance().getLists();
 						}
@@ -253,7 +258,7 @@ else
 					else
 					{
 						?>
-						SBPEFullForm.getInstance().get({
+						SBPEFullForm && SBPEFullForm.getInstance().get({
 							callback: function() {
 								setTimeout(function() {
 									window.SBPETabs.changePostFormTab('<?=$arTab["ID"]?>');
@@ -299,7 +304,7 @@ else
 		?></span><?
 		?><script>
 			BX.bind(BX('feed-add-post-form-link-more'), 'click', function() {
-				SBPEFullForm.getInstance().get({
+				SBPEFullForm && SBPEFullForm.getInstance().get({
 					callback: function() {
 						window.SBPETabs.getInstance().showMoreMenu();
 					},
@@ -374,7 +379,7 @@ HTML;
 	?><div class="feed-add-post-micro" id="micro<?=$jsObjName?>" <?
 		?>onclick="
 
-		SBPEFullForm.getInstance().get({
+		SBPEFullForm && SBPEFullForm.getInstance().get({
 			callback: function() {
 				BX.onCustomEvent(BX('div<?=$jsObjName?>'), 'OnControlClick');
 				if(BX('div<?=$jsObjName?>').style.display=='none')
@@ -407,7 +412,7 @@ HTML;
 			SBPE_MORE : '<?=GetMessageJS("SBPE_MORE")?>'
 		});
 
-		SBPEFullForm.getInstance().init({
+		SBPEFullForm && SBPEFullForm.getInstance().init({
 			lazyLoad: <?=(!$arResult["SHOW_FULL_FORM"] ? 'true' : 'false')?>,
 			ajaxUrl : '<?=CUtil::JSEscape(htmlspecialcharsBack(POST_FORM_ACTION_URI))?>',
 			container: <?=(!$arResult["SHOW_FULL_FORM"] ? "BX('full".$jsObjName."')" : "false")?>,
@@ -997,8 +1002,9 @@ HTML;
 				);
 
 				if(
-					$arParams["MICROBLOG"] != "Y"
+					$arParams["MICROBLOG"] !== "Y"
 					&& !in_array($arParams["PAGE_ID"], [ "user_blog_post_edit_profile", "user_blog_post_edit_grat", "user_grat", "user_blog_post_edit_post" ])
+					&& (int)$arResult['UserID'] === (int)$arResult['Blog']['OWNER_ID']
 				)
 				{
 					$arButtons[] = Array(

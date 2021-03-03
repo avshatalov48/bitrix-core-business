@@ -27,7 +27,7 @@ final class WorkgroupIndex extends Stepper
 		$return = false;
 
 		$params = Option::get("socialnetwork", "workgroupindex", "");
-		$params = ($params !== "" ? @unserialize($params) : array());
+		$params = ($params !== "" ? @unserialize($params, [ 'allowed_classes' => false ]) : array());
 		$params = (is_array($params) ? $params : array());
 		if (empty($params))
 		{

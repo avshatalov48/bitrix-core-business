@@ -132,7 +132,7 @@ BXHTMLEditor.prototype.OnLoad = function()
 		BX.WindowManager.disableKeyCheck();
 	}
 
-	this.oTransOverlay = new BXTransOverlay({zIndex: 2080, edId: this.name});
+	this.oTransOverlay = new BXTransOverlay({edId: this.name});
 
 	this.fullEditMode = window.fullEditMode || false;
 

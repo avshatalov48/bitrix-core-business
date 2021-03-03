@@ -56,9 +56,6 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/components/bitrix/socialnetwork.
 
 Loc::loadLanguageFile(__FILE__, $lng);
 
-if(CModule::IncludeModule("compression"))
-	CCompress::Disable2048Spaces();
-
 if(CModule::IncludeModule("socialnetwork"))
 {
 	$bCurrentUserIsAdmin = CSocNetUser::IsCurrentUserModuleAdmin();
@@ -222,7 +219,7 @@ if(CModule::IncludeModule("socialnetwork"))
 							if ($arLog["PARAMS"] <> '')
 							{
 								$photo_forum_id = 0;
-								$arLogParams = unserialize(htmlspecialcharsback($arLog["PARAMS"]));
+								$arLogParams = unserialize(htmlspecialcharsback($arLog["PARAMS"]), [ 'allowed_classes' => false ]);
 								if (
 									isset($arLogParams["FORUM_ID"])
 									&& intval($arLogParams["FORUM_ID"]) > 0
@@ -832,15 +829,18 @@ if(CModule::IncludeModule("socialnetwork"))
 					"UF_*"
 				);
 
-				$arUFMeta = __SLGetUFMeta();
+				$arUFMeta = \Bitrix\Socialnetwork\Component\LogEntry::getUserFieldsFMetaData();
 
-				$arAssets = array(
-					"CSS" => array(),
-					"JS" => array()
-				);
+				$arAssets = [
+					"CSS" => [],
+					"JS" => []
+				];
 
 				$dbComments = CSocNetLogComments::GetList(
-					array("LOG_DATE" => "ASC"),
+					[
+						'LOG_DATE' => 'ASC',
+						'ID' => 'ASC'
+					],
 					$arFilter,
 					false,
 					false,
@@ -899,7 +899,7 @@ if(CModule::IncludeModule("socialnetwork"))
 
 				foreach($commentsList as $arComment)
 				{
-					$arResult["arComments"][$arComment["ID"]] = __SLEGetLogCommentRecord($arComment, $arParams, $arAssets);
+					$arResult["arComments"][$arComment["ID"]] = \Bitrix\Socialnetwork\Component\LogEntry::getLogCommentRecord($arComment, $arParams, $arAssets);
 				}
 
 				if (is_object($cache))
@@ -917,20 +917,25 @@ if(CModule::IncludeModule("socialnetwork"))
 			}
 
 			if (
-				intval($_REQUEST["commentID"]) > 0
-				|| intval($_REQUEST["commentTS"]) > 0
+				(int)$_REQUEST["commentID"] > 0
+				|| (int)$_REQUEST["commentTS"] > 0
 			)
 			{
 				foreach($arResult["arComments"] as $key => $res)
 				{
 					if (
 						(
-							intval($_REQUEST["commentTS"]) > 0
-							&& $res["LOG_DATE_TS"] >= $_REQUEST["commentTS"]
+							(int)$_REQUEST["commentTS"] > 0
+							&& (int)$res["LOG_DATE_TS"] > (int)$_REQUEST["commentTS"]
 						)
 						|| (
-							intval($_REQUEST["commentTS"]) <= 0
-							&& $key >= $_REQUEST["commentID"]
+							(int)$_REQUEST["commentTS"] > 0
+							&& (int)$res["LOG_DATE_TS"] === (int)$_REQUEST["commentTS"]
+							&& (int)$key >= (int)$_REQUEST["commentID"]
+						)
+						|| (
+							(int)$_REQUEST["commentTS"] <= 0
+							&& (int)$key >= (int)$_REQUEST["commentID"]
 						)
 					)
 					{
@@ -1388,6 +1393,8 @@ if(CModule::IncludeModule("socialnetwork"))
 			}
 		}
 	}
+
+	$APPLICATION->RestartBuffer();
 
 	header('Content-Type:application/json; charset=UTF-8');
 	?><?=\Bitrix\Main\Web\Json::encode($arResult)?><?

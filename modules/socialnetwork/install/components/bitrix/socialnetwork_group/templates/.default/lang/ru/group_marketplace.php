@@ -1,3 +1,3 @@
 <?
-$MESS["GROUP_MARKETPLACE_TITLE"] = "Приложения";
+$MESS["GROUP_MARKETPLACE_TITLE_2"] = "Маркет";
 ?>

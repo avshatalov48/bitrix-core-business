@@ -430,7 +430,6 @@
 				offsetLeft: Math.ceil(res.width / 2),
 				autoHide: true,
 				closeByEsc: true,
-				zIndex : BX.PopupWindow.defaultOptions.popupOverlayZindex - BX.PopupWindow.defaultOptions.popupZindex + 2,
 				bindOptions: {position: "top"},
 				overlay : false,
 				events : {

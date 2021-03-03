@@ -418,7 +418,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 		{
 			$errorMessage .= $MESS['ERROR_EMPTY_COUPON'].". ";
 		}
-		elseif (!preg_match("#^[A-Z0-9]{3}-[A-Z]{2}-?[A-Z0-9]{12,18}$#i", $_POST["coupon"]) && !preg_match("#^[A-Z0-9]{3}-[A-Z0-9]{10}-[A-Z0-9]{10}$#i", $_POST["coupon"]))
+		elseif (!preg_match("#^[A-Z0-9]{3}-[A-Z]{2}-?[A-Z0-9]{12,30}$#i", $_POST["coupon"]) && !preg_match("#^[A-Z0-9]{3}-[A-Z0-9]{10}-[A-Z0-9]{10}$#i", $_POST["coupon"]))
 		{
 			$errorMessage .= $MESS['ERROR_INVALID_COUPON'].". ";
 		}

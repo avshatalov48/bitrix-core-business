@@ -89,7 +89,7 @@ BX.SGCP.ShowForm = function(action, popupName, event)
 	}
 
 	if (
-		actionURL 
+		actionURL
 		&& actionURL.length > 0
 	)
 	{
@@ -110,7 +110,7 @@ BX.SGCP.ShowForm = function(action, popupName, event)
 			contentColor : 'white',
 			contentNoPaddings: true,
 			closeIcon: {
-				right : "12px", 
+				right : "12px",
 				top : "10px"
 			},
 			buttons: [],
@@ -146,8 +146,7 @@ BX.SGCP.ShowForm = function(action, popupName, event)
 				}
 			}
 		});
-			
-		BX.SGCP.popup.params.zIndex = (BX.WindowManager? BX.WindowManager.GetZIndex() : 0);
+
 		BX.SGCP.popup.show();
 	}
 

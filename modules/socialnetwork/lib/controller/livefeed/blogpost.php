@@ -23,7 +23,7 @@ class BlogPost extends \Bitrix\Socialnetwork\Controller\Base
 		$checkModeration = (isset($params['checkModeration']) ? $params['checkModeration'] : 'N');
 
 		$currentUserId = $this->getCurrentUser()->getId();
-		$currentModuleAdmin = \CSocNetUser::isCurrentUserModuleAdmin(SITE_ID, ($mobile != 'Y'));
+		$currentModuleAdmin = \CSocNetUser::isCurrentUserModuleAdmin(SITE_ID, false);
 
 		if ($postId <= 0)
 		{
@@ -122,16 +122,16 @@ class BlogPost extends \Bitrix\Socialnetwork\Controller\Base
 		}
 		else
 		{
-			if (!$logId)
-			{
-				$perms = Permissions::DENY;
-			}
-			elseif (
+			if (
 				$currentModuleAdmin
-				|| $APPLICATION->getGroupRight('blog') >= 'W'
+				|| \CMain::getGroupRight('blog') >= 'W'
 			)
 			{
 				$perms = Permissions::FULL;
+			}
+			elseif (!$logId)
+			{
+				$perms = Permissions::DENY;
 			}
 			else
 			{

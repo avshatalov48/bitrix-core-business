@@ -87,6 +87,19 @@ class Placement extends \IRestService
 		return $result;
 	}
 
+	/**
+	 * Clears placement's cache in other modules.
+	 * @return void
+	 */
+	protected static function clearPlacementCache(): void
+	{
+		if (defined('BX_COMP_MANAGED_CACHE'))
+		{
+			global $CACHE_MANAGER;
+			$CACHE_MANAGER->clearByTag('intranet_menu_binding');
+		}
+	}
+
 
 	public static function bind($params, $n, \CRestServer $server)
 	{
@@ -182,6 +195,8 @@ class Placement extends \IRestService
 				);
 			}
 
+			self::clearPlacementCache();
+
 			return true;
 		}
 
@@ -237,6 +252,11 @@ class Placement extends \IRestService
 					$cnt++;
 				}
 			}
+		}
+
+		if ($cnt > 0)
+		{
+			self::clearPlacementCache();
 		}
 
 		return array('count' => $cnt);

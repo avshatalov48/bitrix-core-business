@@ -30,6 +30,9 @@ if (empty($arParams))
 	$arParams["IBLOCK_ID"] = intval($_REQUEST["IBLOCK_ID"]);
 	$arParams["PERMISSION"] = CIBlock::GetPermission($arParams["IBLOCK_ID"]);
 }
+
+$arParams["IBLOCK_ID"] = intval($arParams["IBLOCK_ID"]);
+
 if ($arParams["PERMISSION"] < "W")
 {
 	ShowError(GetMessage("P_DENIED_ACCESS"));
@@ -59,7 +62,7 @@ if ($_REQUEST["AJAX"] == "Y" && check_bitrix_sessid())
 			"elements_cnt" => CIBlock::GetElementCount($arParams["IBLOCK_ID"]),
 			"element_number" => 0,
 			"element_id" => 0,
-			"id" => $_REQUEST["ID"],
+			"id" => intval($_REQUEST["ID"]),
 			"date" => ConvertTimeStamp());
 	}
 	else

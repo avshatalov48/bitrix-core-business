@@ -367,9 +367,21 @@ if (!empty($arResult["CATEGORIES"]))
 	foreach ($arResult["CATEGORIES"] as $category)
 	{
 		$sum += $category["CNT"];
+
+		$name = '';
+		if (!empty($category['ICON_PATH']))
+		{
+			$name = '<img class="ui-sidepanel-menu-link-text-icon" src="' . $category['ICON_PATH'] . '" />';
+		}
+		$name .= '<span class="ui-sidepanel-menu-link-text-item">' . $category['NAME'] . '</span>';
+		if ($category['CNT'] > 0)
+		{
+			$name .= '<span class="ui-sidepanel-menu-link-text-counter">' . $category['CNT'] . '</span>';
+		}
+
 		$item = [
 			"ATTRIBUTES" => ["bx-role" => "mp-left-menu-item", "bx-mp-left-menu-item" => $category["CODE"], "onclick" => "BX.onCustomEvent('BX.Main.Filter:clickMPMenu', [this])"],
-			"NAME_HTML" => "<span class=\"ui-sidepanel-menu-link-text-item\">".$category["NAME"]."</span>".($category["CNT"] > 0 ? " <span class=\"ui-sidepanel-menu-link-text-counter\">{$category["CNT"]}</span>" : ""),
+			"NAME_HTML" => $name,
 			"ACTIVE" => in_array($category["CODE"], $activeItems),
 			"OPERATIVE" => true,
 			"CHILDREN" => []

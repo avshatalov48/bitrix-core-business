@@ -17,7 +17,10 @@ Loc::loadMessages(__FILE__);
  */
 class Notification
 {
-	private static $notifyTo1January = 1609452000;
+	private const MODULE_ID = 'rest';
+	private const OPTION_ACCESS_NOTIFICATION = 'rest_access_notification';
+	private const OPTION_LAST_CHECK_ACCESS_NOTIFICATION = 'last_check_rest_access_notify';
+	private const OPTION_LAST_CHECK_NOTIFICATION = 'last_check_rest_notify';
 	private static $timestampNotifyDays = 259200; // 3 * 86400
 	private static $codeToNotification = [
 		'rest_buy' => 'REST_BUY',
@@ -32,7 +35,7 @@ class Notification
 	public static function get()
 	{
 		$result = false;
-		$option = Option::get('rest', 'rest_access_notification', '');
+		$option = Option::get(static::MODULE_ID, static::OPTION_ACCESS_NOTIFICATION, '');
 		if ($option !== '' && !empty(static::$codeToNotification[$option]))
 		{
 			$url = Loc::getMessage('REST_MARKETPLACE_NOTIFICATION_'.static::$codeToNotification[$option].'_URL');
@@ -115,14 +118,14 @@ class Notification
 
 	public static function setLastCheckTimestamp($timestamp)
 	{
-		Option::set('rest', 'last_check_rest_notify', $timestamp);
+		Option::set(static::MODULE_ID, static::OPTION_LAST_CHECK_NOTIFICATION, $timestamp);
 		return true;
 	}
 
 	public static function getLastCheckTimestamp()
 	{
 		$result = false;
-		$option = (int) Option::get('rest', 'last_check_rest_notify', 0);
+		$option = (int) Option::get(static::MODULE_ID, static::OPTION_LAST_CHECK_NOTIFICATION, 0);
 		if ($option > 0)
 		{
 			$result = $option + static::$timestampNotifyDays;
@@ -139,22 +142,7 @@ class Notification
 		if (Loader::includeModule('bitrix24'))
 		{
 			$code = '';
-			$endSale = Option::get('rest', 'sale_notify', static::$notifyTo1January);
-			if ($endSale > time())
-			{
-				if (
-					!Access::isFeatureEnabled()
-					&& !(
-						Loader::includeModule('voximplant')
-						&& method_exists('\Bitrix\Voximplant\Notification', 'shouldShowWarningForFreePortals')
-						&& \Bitrix\Voximplant\Notification::shouldShowWarningForFreePortals(true)
-					)
-				)
-				{
-					$code = 'rest_buy';
-				}
-			}
-			elseif (Access::isActiveRules() && Client::isSubscriptionAccess())
+			if (Access::isActiveRules() && Client::isSubscriptionAccess())
 			{
 				$dateFinish = Client::getSubscriptionFinalDate();
 				$entity = Access::getActiveEntity();
@@ -189,8 +177,13 @@ class Notification
 
 			if ($code !== '')
 			{
-				Option::set('rest', 'rest_access_notification', $code);
-				Option::set('rest', 'last_check_rest_access_notify', time());
+				Option::set(static::MODULE_ID, static::OPTION_ACCESS_NOTIFICATION, $code);
+				Option::set(static::MODULE_ID, static::OPTION_LAST_CHECK_ACCESS_NOTIFICATION, time());
+			}
+			elseif(Option::get(static::MODULE_ID, static::OPTION_ACCESS_NOTIFICATION, false) !== false)
+			{
+				Option::delete(static::MODULE_ID, ['name' => static::OPTION_ACCESS_NOTIFICATION]);
+				Option::delete(static::MODULE_ID, ['name' => static::OPTION_LAST_CHECK_ACCESS_NOTIFICATION]);
 			}
 		}
 

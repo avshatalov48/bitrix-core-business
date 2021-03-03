@@ -60,29 +60,31 @@ final class TimemanEntry extends Provider
 			$cache[$timemanEntryId] = $timemanEntry;
 		}
 
-		if (empty($timemanEntry))
+		if (!empty($timemanEntry))
 		{
-			return;
+			$this->setSourceFields($timemanEntry);
+
+			$userName = '';
+			$res = \CUser::getById($timemanEntry['USER_ID']);
+			if ($userFields = $res->fetch())
+			{
+				$userName = \CUser::formatName(
+					\CSite::getNameFormat(),
+					$userFields,
+					true,
+					false
+				);
+			}
+
+			$this->setSourceTitle(Loc::getMessage('SONET_LIVEFEED_TIMEMAN_ENTRY_TITLE', [
+				'#USER_NAME#' => $userName,
+				'#DATE#' => FormatDate('j F', makeTimeStamp($timemanEntry['DATE_START']))
+			]));
 		}
-
-		$this->setSourceFields($timemanEntry);
-
-		$userName = '';
-		$res = \CUser::getById($timemanEntry['USER_ID']);
-		if ($userFields = $res->fetch())
+		else
 		{
-			$userName = \CUser::formatName(
-				\CSite::getNameFormat(),
-				$userFields,
-				true,
-				false
-			);
+			$this->setSourceTitle($this->getUnavailableTitle());
 		}
-
-		$this->setSourceTitle(Loc::getMessage('SONET_LIVEFEED_TIMEMAN_ENTRY_TITLE', [
-			'#USER_NAME#' => $userName,
-			'#DATE#' => FormatDate('j F', makeTimeStamp($timemanEntry['DATE_START']))
-		]));
 	}
 
 	public function getPinnedDescription()

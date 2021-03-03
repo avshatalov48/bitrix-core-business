@@ -175,8 +175,14 @@ class CAPConnectComponent extends \CBitrixComponent
 
 		$this->arResult['PLACEMENT'] = $this->placementId;
 		$this->arResult['APPLICATION_LIST'] = $this->appList;
-		$this->arResult['APPLICATION_CURRENT'] = intval($this->currentApp);
+		$this->arResult['APPLICATION_CURRENT'] = (int) $this->currentApp;
+		$this->arResult['SHOW_MARKET_EMPTY_COUNT'] = (int) $this->arParams['SHOW_MARKET_EMPTY_COUNT'];
 
+		$this->arResult["IS_SLIDER"] =  isset($this->arParams['IS_SLIDER']) && $this->arParams['IS_SLIDER'] === 'Y';
+		$this->arResult['APPLICATION_TAGS'] = [
+			'placement',
+			$this->placementId
+		];
 		if($this->arResult['APPLICATION_CURRENT'] <= 0)
 		{
 			$this->arResult['APPLICATION_CURRENT'] = $this->appList[0]['ID'];

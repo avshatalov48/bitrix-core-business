@@ -236,12 +236,14 @@ class CAllSocNetLogComments
 						'ENTITY_ID' => $arComment['RATING_ENTITY_ID']
 					]);
 
-					if (intval($arComment["LOG_ID"]) > 0)
+					if ((int)$arComment["LOG_ID"] > 0)
 					{
 						CSocNetLogComments::UpdateLogData($arComment["LOG_ID"], false, true);
 
 						$cache = new CPHPCache;
-						$cache->CleanDir("/sonet/log/".intval(intval($arComment["LOG_ID"]) / 1000)."/".$arComment["LOG_ID"]."/comments/");
+						$cacheSubFolder = (int)((int)$arComment["LOG_ID"] / 1000);
+						$cache->CleanDir("/sonet/log/".$cacheSubFolder."/".$arComment["LOG_ID"]."/entry/");
+						$cache->CleanDir("/sonet/log/".$cacheSubFolder."/".$arComment["LOG_ID"]."/comments/");
 					}
 				}
 			}

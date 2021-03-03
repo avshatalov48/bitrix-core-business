@@ -300,7 +300,13 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      }
 
 	      if (this.options.sourceOptions) {
-	        return main_core.Runtime.merge(this.options.sourceOptions, value);
+	        var sourceOptions = main_core.Runtime.clone(this.options.sourceOptions);
+
+	        if (main_core.Type.isArray(this.options.sourceOptions.items) && main_core.Type.isArray(value.items)) {
+	          delete sourceOptions.items;
+	        }
+
+	        return main_core.Runtime.merge(sourceOptions, value);
 	      }
 
 	      return value;

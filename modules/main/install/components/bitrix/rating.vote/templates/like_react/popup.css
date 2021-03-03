@@ -62,6 +62,7 @@
 	/*transition: all .3s;*/
 	text-decoration: none;
 	cursor: pointer;
+	background-size: cover;
 }
 .bx-ilike-wrap-block-react .bx-ilike-popup-head-item {
 	display: flex;

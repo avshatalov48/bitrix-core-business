@@ -117,7 +117,7 @@ final class WorkgroupDeptSync extends Stepper
 		$result = 0;
 
 		$workgroupsToSync = Option::get('socialnetwork', 'workgroupsToSync', "");
-		$workgroupsToSync = ($workgroupsToSync !== "" ? @unserialize($workgroupsToSync) : []);
+		$workgroupsToSync = ($workgroupsToSync !== "" ? @unserialize($workgroupsToSync, [ 'allowed_classes' => false ]) : []);
 
 		if (
 			is_array($workgroupsToSync)
@@ -190,7 +190,7 @@ final class WorkgroupDeptSync extends Stepper
 		$return = false;
 
 		$params = Option::get("socialnetwork", "workgroupdeptsync", "");
-		$params = ($params !== "" ? @unserialize($params) : array());
+		$params = ($params !== "" ? @unserialize($params, [ 'allowed_classes' => false ]) : array());
 		$params = (is_array($params) ? $params : array());
 
 		$countRemain = self::getCount();
@@ -213,7 +213,7 @@ final class WorkgroupDeptSync extends Stepper
 			$breakFlag = false;
 
 			$workgroupsToSync = Option::get('socialnetwork', 'workgroupsToSync', "");
-			$workgroupsToSync = ($workgroupsToSync !== "" ? @unserialize($workgroupsToSync) : []);
+			$workgroupsToSync = ($workgroupsToSync !== "" ? @unserialize($workgroupsToSync, [ 'allowed_classes' => false ]) : []);
 
 			if (
 				is_array($workgroupsToSync)

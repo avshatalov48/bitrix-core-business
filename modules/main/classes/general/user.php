@@ -3674,7 +3674,14 @@ class CAllUser extends CDBResult
 				$CACHE_MANAGER->ClearByTag("USER_CARD_".intval($ID / TAGGED_user_card_size));
 				$CACHE_MANAGER->ClearByTag($isRealUser? "USER_CARD": "EXTERNAL_USER_CARD");
 
-				static $arNameFields = array("NAME", "ACTIVE", "LAST_NAME", "SECOND_NAME", "LOGIN", "EMAIL", "PERSONAL_GENDER", "PERSONAL_PHOTO", "WORK_POSITION", "PERSONAL_PROFESSION", "PERSONAL_WWW", "PERSONAL_BIRTHDAY", "TITLE", "EXTERNAL_AUTH_ID", "UF_DEPARTMENT");
+				static $arNameFields = [
+					"NAME", "LAST_NAME", "SECOND_NAME",
+					"ACTIVE",
+					"LOGIN", "EMAIL",
+					"PERSONAL_GENDER", "PERSONAL_PHOTO", "WORK_POSITION", "PERSONAL_PROFESSION", "PERSONAL_WWW", "PERSONAL_BIRTHDAY", "TITLE",
+					"EXTERNAL_AUTH_ID", "UF_DEPARTMENT",
+					"AUTO_TIME_ZONE", "TIME_ZONE", "TIME_ZONE_OFFSET"
+				];
 				$bClear = false;
 				foreach($arNameFields as $val)
 				{

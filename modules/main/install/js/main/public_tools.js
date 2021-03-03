@@ -110,6 +110,13 @@ JCPopup.prototype.AjaxAction = function(result)
 	var left = parseInt(windowScroll.scrollLeft + windowSize.innerWidth / 2 - div.offsetWidth / 2);
 	var top = parseInt(windowScroll.scrollTop + windowSize.innerHeight / 2 - div.offsetHeight / 2);
 
+	var component = BX.ZIndexManager.register(div);
+	if (component && this.overlay)
+	{
+		BX.ZIndexManager.unregister(this.overlay);
+		component.setOverlay(this.overlay);
+	}
+
 	jsFloatDiv.Show(div, left, top, 5, true);
 	jsUtils.addEvent(document, "keypress", window['JCPopup_OnKeyPress' + this.suffix]);
 
@@ -195,7 +202,10 @@ JCPopup.prototype.RemoveOverlay = function()
 {
 	//var overlay = document.getElementById(this.overlay_id);
 	if (this.overlay)
+	{
+		BX.ZIndexManager.unregister(this.overlay);
 		this.overlay.parentNode.removeChild(this.overlay);
+	}
 	jsUtils.removeEvent(window, "resize", window['JCPopup_OverlayResize' + this.suffix]);
 };
 
@@ -218,6 +228,8 @@ JCPopup.prototype.CreateOverlay = function()
 	this.overlay.className = "bx-popup-overlay";
 	this.overlay.id = this.overlay_id;
 	this.overlay.style.zIndex = this.zIndex - 5;
+
+	BX.ZIndexManager.register(this.overlay);
 
 	var windowSize = jsUtils.GetWindowScrollSize();
 
@@ -243,6 +255,9 @@ JCPopup.prototype.CloseDialog = function()
 	if (!div)
 		return;
 	jsFloatDiv.Close(div);
+
+	BX.ZIndexManager.unregister(div);
+
 	div.parentNode.removeChild(div);
 	this.clearAdditionalResize();
 	this.RemoveOverlay();

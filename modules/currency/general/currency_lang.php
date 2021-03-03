@@ -593,6 +593,12 @@ class CAllCurrencyLang
 					$arCurFormat['FORMAT_STRING'] = self::$arDefaultValues['FORMAT_STRING'];
 				}
 
+				$sanitizer = new \CBXSanitizer();
+				$sanitizer->setLevel(\CBXSanitizer::SECURE_LEVEL_LOW);
+				$sanitizer->ApplyDoubleEncode(false);
+				$arCurFormat["FORMAT_STRING"] = $sanitizer->SanitizeHtml($arCurFormat["FORMAT_STRING"]);
+				unset($sanitizer);
+
 				if ($safeFormat)
 				{
 					$arCurFormat["FORMAT_STRING"] = strip_tags(preg_replace(
@@ -604,6 +610,22 @@ class CAllCurrencyLang
 				if (!isset($arCurFormat['HIDE_ZERO']) || empty($arCurFormat['HIDE_ZERO']))
 					$arCurFormat['HIDE_ZERO'] = self::$arDefaultValues['HIDE_ZERO'];
 			}
+
+			$arCurFormat['TEMPLATE'] = [
+				'SINGLE' => $arCurFormat['FORMAT_STRING'],
+				'PARTS' => [
+					0 => $arCurFormat['FORMAT_STRING']
+				],
+				'VALUE_INDEX' => 0
+			];
+			$parts = static::explodeFormatTemplate($arCurFormat['FORMAT_STRING']);
+			if (!empty($parts))
+			{
+				$arCurFormat['TEMPLATE']['PARTS'] = $parts;
+				$arCurFormat['TEMPLATE']['VALUE_INDEX'] = (int)array_search('#', $parts);
+			}
+			unset($parts);
+
 			self::$arCurrencyFormat[$currency] = $arCurFormat;
 		}
 		else
@@ -692,14 +714,19 @@ class CAllCurrencyLang
 		return false;
 	}
 
-	public static function getParsedCurrencyFormat(string $currency): ?array
+	public static function getParsedCurrencyFormat(string $currency): array
 	{
-		$arCurFormat = (isset(self::$arCurrencyFormat[$currency])
+		$result = (isset(self::$arCurrencyFormat[$currency])
 			? self::$arCurrencyFormat[$currency]
 			: self::GetFormatDescription($currency)
 		);
 
-		$result = preg_split('/(?<!&)(#)/', $arCurFormat['FORMAT_STRING'], -1, PREG_SPLIT_DELIM_CAPTURE);
+		return $result['TEMPLATE']['PARTS'];
+	}
+
+	protected static function explodeFormatTemplate(string $template): ?array
+	{
+		$result = preg_split('/(?<!&)(#)/', $template, -1, PREG_SPLIT_DELIM_CAPTURE);
 		if (!is_array($result))
 			return null;
 		$resultCount = count($result);

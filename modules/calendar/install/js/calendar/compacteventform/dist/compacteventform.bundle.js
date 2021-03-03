@@ -278,8 +278,7 @@ this.BX = this.BX || {};
 
 	      main_core.Dom.addClass(this.popup.titleBar, 'calendar-add-popup-titlebar');
 	      main_core.Dom.removeClass(this.popup.popupContainer, 'popup-window-with-titlebar');
-	      main_core.Dom.removeClass(this.popup.closeIcon, 'popup-window-titlebar-close-icon'); //Event.bind(document, "click", Util.applyHacksForPopupzIndex);
-
+	      main_core.Dom.removeClass(this.popup.closeIcon, 'popup-window-titlebar-close-icon');
 	      main_core.Event.bind(document, "mousedown", this.outsideMouseDownClose);
 	      main_core.Event.bind(document, "mouseup", this.checkOutsideClickClose);
 	      main_core.Event.bind(document, "keydown", this.keyHandler);
@@ -345,8 +344,7 @@ this.BX = this.BX || {};
 
 
 	      this.displayed = false;
-	      this.emit('onClose'); //Event.unbind(document, "click", Util.applyHacksForPopupzIndex);
-
+	      this.emit('onClose');
 	      main_core.Event.unbind(document, "mousedown", this.outsideMouseDownClose);
 	      main_core.Event.unbind(document, "mouseup", this.checkOutsideClickClose);
 	      main_core.Event.unbind(document, "keydown", this.keyHandler); //Dom.removeClass(popup.popupContainer, 'calendar-simple-view-popup-close');

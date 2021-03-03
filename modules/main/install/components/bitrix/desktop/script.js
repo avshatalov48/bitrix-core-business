@@ -96,7 +96,7 @@ function BXGadget(gadgetHolderID, allGadgets)
 	_this.zind = 0;
 
 	_this.tmpDiv = false;
-	
+
 	_this.DragStart = function(n, e)
 	{
 		if(e)
@@ -139,6 +139,8 @@ function BXGadget(gadgetHolderID, allGadgets)
 
 		document.body.appendChild(t);
 
+		BX.ZIndexManager.register(t);
+
 		_this.mousePos.x = e.clientX + document.body.scrollLeft;
 		_this.mousePos.y = e.clientY + document.body.scrollTop;
 		return false;
@@ -177,11 +179,11 @@ function BXGadget(gadgetHolderID, allGadgets)
 						if(center2 < mm.bottom)
 						{
 							el = _this.gdList[i][te];
-							
+
 							_this.tmpDiv = document.createElement("DIV");
 							_this.tmpDiv.style.display = "none";
 							_this.tmpDiv.innerHTML = '';
-		
+
 							if(_this.gdList[i][te].id == t.id)
 								document.getElementById('d'+_this.gdDrag).parentNode.insertBefore(_this.tmpDiv, document.getElementById('d'+_this.gdDrag));
 							else
@@ -235,6 +237,7 @@ function BXGadget(gadgetHolderID, allGadgets)
 		var d = BX('d' + _this.gdDrag);
 		d.style.display = 'none';
 
+		BX.ZIndexManager.unregister(t);
 		t.parentNode.removeChild(t);
 		d.parentNode.insertBefore(t, d);
 
@@ -432,7 +435,7 @@ function BXGadget(gadgetHolderID, allGadgets)
 		{
 			if (arguments[0] == 'SU')
 				langGDConfirm = langGDConfirmUser;
-	
+
 			if (arguments[0] == 'SG')
 				langGDConfirm = langGDConfirmGroup;
 		}
@@ -506,7 +509,7 @@ function BXGadget(gadgetHolderID, allGadgets)
 		var dS = document.getElementById("dset"+id);
 		var is_selected = '';
 
-		t = t || 'get_settings';		
+		t = t || 'get_settings';
 		_this = this;
 
 		if(dS.style.display != 'none')
@@ -580,7 +583,7 @@ function BXGadget(gadgetHolderID, allGadgets)
 													is_selected = ' selected';
 													break;
 												}
-											}										
+											}
 										}
 										else
 											is_selected = (param["VALUE"] == vid ? ' selected' : '');
@@ -622,7 +625,7 @@ function BXGadget(gadgetHolderID, allGadgets)
 
 		return false;
 	};
-	
+
 	BXGadget.prototype.ShowAddGDMenu  = function(a)
 	{
 		this.menu = new PopupMenu('gadgets_float_menu');

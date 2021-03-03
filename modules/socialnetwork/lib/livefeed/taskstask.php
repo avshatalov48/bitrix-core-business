@@ -12,6 +12,8 @@ final class TasksTask extends Provider
 	const PROVIDER_ID = 'TASK';
 	const CONTENT_TYPE_ID = 'TASK';
 
+	protected static $tasksTaskClass = \CTasks::class;
+
 	public static function getId(): string
 	{
 		return static::PROVIDER_ID;
@@ -52,7 +54,7 @@ final class TasksTask extends Provider
 		}
 		elseif (Loader::includeModule('tasks'))
 		{
-			$res = \CTasks::getByID($taskId, true);
+			$res = self::$tasksTaskClass::getByID($taskId, true);
 			$task = $res->fetch();
 			$cache[$taskId] = $task;
 		}

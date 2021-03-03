@@ -52,7 +52,7 @@ $containerId = $prefix . $id;
 	?>
 	<script type="text/javascript">
 		BX.ready(function () {
-			BX.rest.integration.SelectorManager.create(<?=Json::encode(array(
+			BX.rest.integration.selectorManager.create(<?=Json::encode(array(
 				'id' => $containerId,
 				'containerId' => $containerId,
 				'scopeSelectorName' => $scopeCode,

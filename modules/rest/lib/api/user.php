@@ -7,22 +7,33 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\UserTable;
 use Bitrix\Rest\RestException;
+use Bitrix\Rest\Controller\File;
 
 class User extends \IRestService
 {
 	const SCOPE_USER = 'user';
+	private static $entityUser = 'USER';
+	private static $nameFieldFullPrefix = 'UF_USR_';
 
 	protected static $allowedUserFields = array(
 		"ID", /*"LOGIN", */
-		"ACTIVE", "EMAIL",
+		"ACTIVE", "EMAIL", "LAST_LOGIN", "DATE_REGISTER", "IS_ONLINE",
 		"NAME", "LAST_NAME", "SECOND_NAME",
 		"PERSONAL_GENDER", "PERSONAL_PROFESSION", "PERSONAL_WWW", "PERSONAL_BIRTHDAY", "PERSONAL_PHOTO",
 		"PERSONAL_ICQ", "PERSONAL_PHONE", "PERSONAL_FAX", "PERSONAL_MOBILE", "PERSONAL_PAGER", "PERSONAL_STREET", "PERSONAL_CITY", "PERSONAL_STATE", "PERSONAL_ZIP", "PERSONAL_COUNTRY",
 
+		"TIME_ZONE_OFFSET",
 		"WORK_COMPANY", "WORK_POSITION", "WORK_PHONE",
 
 		"UF_DEPARTMENT", "UF_INTERESTS", "UF_SKILLS", "UF_WEB_SITES", "UF_XING", "UF_LINKEDIN", "UF_FACEBOOK", "UF_TWITTER", "UF_SKYPE", "UF_DISTRICT", "UF_PHONE_INNER"
 	);
+
+	protected static $holdEditFields = [
+		"LAST_LOGIN",
+		"DATE_REGISTER",
+		"IS_ONLINE",
+		"TIME_ZONE_OFFSET",
+	];
 
 	public static function getDefaultAllowedUserFields()
 	{
@@ -39,6 +50,11 @@ class User extends \IRestService
 	public static function unsetDefaultAllowedUserField($key)
 	{
 		unset(static::$allowedUserFields[$key]);
+	}
+
+	public static function setDefaultAllowedUserField($field)
+	{
+		static::$allowedUserFields[] = $field;
 	}
 
 	public static function onRestServiceBuildDescription()
@@ -66,6 +82,13 @@ class User extends \IRestService
 					'OnUserAdd' => array('main', 'OnUserInitialize', array(__CLASS__, 'onUserInitialize')),
 				),
 			);
+			$result[UserField::SCOPE_USER_USERFIELD] = [
+				'user.userfield.add' => [UserField::class, 'addRest'],
+				'user.userfield.update' => [UserField::class, 'updateRest'],
+				'user.userfield.delete' => [UserField::class, 'deleteRest'],
+				'user.userfield.list' => [UserField::class, 'getListRest'],
+				'user.userfield.file.get' => [__CLASS__, 'getFile'],
+			];
 		}
 
 		return $result;
@@ -82,6 +105,14 @@ class User extends \IRestService
 			if(mb_substr($field, 0, 3) === 'UF_' && !array_key_exists($field, $fields))
 			{
 				static::unsetDefaultAllowedUserField($key);
+			}
+		}
+
+		foreach ($fields as $code => $field)
+		{
+			if (mb_strpos($code, static::$nameFieldFullPrefix) === 0)
+			{
+				static::setDefaultAllowedUserField($code);
 			}
 		}
 	}
@@ -253,6 +284,7 @@ class User extends \IRestService
 		{
 			$allowedUserFields[] = 'FIND';
 			$allowedUserFields[] = 'UF_DEPARTMENT_NAME';
+			$allowedUserFields[] = 'CONFIRM_CODE';
 		}
 
 		if(isset($query['FILTER']) && is_array($query['FILTER']))
@@ -493,7 +525,7 @@ class User extends \IRestService
 				unset($userFields["EXTRANET"]);
 			}
 
-			$inviteFields = self::prepareUserData($userFields);
+			$inviteFields = self::prepareSaveData($userFields);
 
 			$userFields["EMAIL"] = trim($userFields["EMAIL"]);
 			if(check_email($userFields["EMAIL"]))
@@ -519,7 +551,7 @@ class User extends \IRestService
 					$ID = \CIntranetInviteDialog::RegisterUser($inviteFields);
 					if(is_array($ID))
 					{
-						throw new \Exception(implode($ID, "\n"));
+						throw new \Exception(implode("\n", $ID));
 					}
 					elseif($ID > 0)
 					{
@@ -588,7 +620,7 @@ class User extends \IRestService
 
 		$bB24 = ModuleManager::isModuleInstalled('bitrix24');
 
-		$bAdmin = $bB24 && $USER->canDoOperation('bitrix24_invite')
+		$bAdmin = ($bB24 && $USER->canDoOperation('bitrix24_invite'))
 			|| $USER->canDoOperation('edit_all_users');
 
 		$userFields = array_change_key_case($userFields, CASE_UPPER);
@@ -597,7 +629,7 @@ class User extends \IRestService
 		{
 			if($bAdmin || ($USER->getID() == $userFields['ID'] && $USER->CanDoOperation('edit_own_profile')))
 			{
-				$updateFields = self::prepareUserData($userFields);
+				$updateFields = self::prepareSaveData($userFields);
 
 				// security
 				if(!$bAdmin)
@@ -628,6 +660,77 @@ class User extends \IRestService
 		}
 
 		return $res;
+	}
+
+	private static function prepareUserField($params, $data)
+	{
+		$result = $data;
+		switch ($params['USER_TYPE_ID'])
+		{
+			case 'datetime':
+				$result = \CRestUtil::unConvertDateTime($data);
+				break;
+			case 'date':
+				$result = \CRestUtil::unConvertDate($data);
+				break;
+			case 'file':
+				if (is_array($data))
+				{
+					if ($params['MULTIPLE'] === 'N')
+					{
+						if (!empty($data['fileData']))
+						{
+							$result = \CRestUtil::saveFile($data['fileData']);
+							$result['old_id'] = $params['VALUE'];
+						}
+						$id = isset($data['id']) ? (int)$data['id'] : 0;
+						$remove = isset($data['remove']) && is_string($data['remove']) && mb_strtoupper($data['remove']) === 'Y';
+						if ($remove && $id > 0)
+						{
+							$result = [
+								'old_id' => $id,
+								'del' => 'Y'
+							];
+						}
+					}
+					else
+					{
+						if ($params['VALUE'])
+						{
+							$result = array_merge($result, $params['VALUE']);
+						}
+
+						foreach ($result as $key => $value)
+						{
+							if ($value['fileData'])
+							{
+								$result[$key] = \CRestUtil::saveFile($value['fileData']);
+							}
+							else
+							{
+								$id = isset($value['id']) ? (int)$value['id'] : 0;
+								$remove = isset($value['remove']) && is_string($value['remove']) && mb_strtoupper($value['remove']) === 'Y';
+								if ($remove && $id > 0)
+								{
+									$result[$key] = [
+										'old_id' => $id,
+										'del' => 'Y'
+									];
+								}
+								elseif ($value > 0)
+								{
+									$result[$key] = [
+										'old_id' => $value,
+										'error' => 'Y'
+									];
+								}
+							}
+						}
+					}
+				}
+				break;
+		}
+		return $result;
 	}
 
 	protected static function prepareUserData($userData, $allowedUserFields = null)
@@ -670,6 +773,9 @@ class User extends \IRestService
 		if(isset($user['UF_DEPARTMENT']) && !is_array($user['UF_DEPARTMENT']) && !empty($user['UF_DEPARTMENT']))
 			$user['UF_DEPARTMENT'] = array($user['UF_DEPARTMENT']);
 
+		if(isset($user['AUTO_TIME_ZONE']))
+			$user['AUTO_TIME_ZONE'] = ($user['AUTO_TIME_ZONE'] && $user['AUTO_TIME_ZONE'] === 'Y') ? 'Y' : 'N';
+
 		if(isset($user['PERSONAL_PHOTO']))
 		{
 			$user['PERSONAL_PHOTO'] = \CRestUtil::saveFile($user['PERSONAL_PHOTO']);
@@ -679,6 +785,68 @@ class User extends \IRestService
 				$user['PERSONAL_PHOTO'] = array('del' => 'Y');
 			}
 		}
+
+		if(
+			isset($user['CONFIRM_CODE'])
+			&& $user['CONFIRM_CODE'] === '0'
+		)
+		{
+			$user['CONFIRM_CODE'] = false;
+		}
+
+		return $user;
+	}
+
+	protected static function prepareSaveData($userData, $allowedUserFields = null)
+	{
+		global $USER_FIELD_MANAGER;
+		$user = array();
+
+		if (!$allowedUserFields)
+		{
+			$allowedUserFields = static::getDefaultAllowedUserFields();
+		}
+
+		$userId = (int) $userData['ID'];
+
+		$fieldsList = $USER_FIELD_MANAGER->getUserFields('USER', $userId, LANGUAGE_ID);
+
+		foreach ($userData as $key => $value)
+		{
+			if (in_array($key, $allowedUserFields, true))
+			{
+				if (mb_strpos($key, static::$nameFieldFullPrefix) === 0)
+				{
+					$user[$key] = static::prepareUserField($fieldsList[$key], $value);
+				}
+				else
+				{
+					$user[$key] = $value;
+				}
+			}
+		}
+
+
+		if (isset($user['ACTIVE']))
+			$user['ACTIVE'] = ($user['ACTIVE'] && $user['ACTIVE'] != 'N') ? 'Y' : 'N';
+
+		if (isset($user['PERSONAL_BIRTHDAY']))
+			$user['PERSONAL_BIRTHDAY'] = \CRestUtil::unConvertDate($user['PERSONAL_BIRTHDAY']);
+
+		if (isset($user['UF_DEPARTMENT']) && !is_array($user['UF_DEPARTMENT']) && !empty($user['UF_DEPARTMENT']))
+			$user['UF_DEPARTMENT'] = array($user['UF_DEPARTMENT']);
+
+		if (isset($user['PERSONAL_PHOTO']))
+		{
+			$user['PERSONAL_PHOTO'] = \CRestUtil::saveFile($user['PERSONAL_PHOTO']);
+
+			if (!$user['PERSONAL_PHOTO'])
+			{
+				$user['PERSONAL_PHOTO'] = array('del' => 'Y');
+			}
+		}
+
+		$user = array_diff_key($user, array_fill_keys(static::$holdEditFields, 'Y'));
 
 		return $user;
 	}
@@ -690,29 +858,123 @@ class User extends \IRestService
 		{
 			$extranetModuleInstalled = ModuleManager::isModuleInstalled('extranet');
 		}
+		global $USER_FIELD_MANAGER;
+		$fieldsList = $USER_FIELD_MANAGER->getUserFields(static::$entityUser, 0, LANGUAGE_ID);
+
+		$urlManager = \Bitrix\Main\Engine\UrlManager::getInstance();
 
 		$res = array();
-		foreach(static::getDefaultAllowedUserFields() as $key)
+		foreach (static::getDefaultAllowedUserFields() as $key)
 		{
-			switch($key)
+			switch ($key)
 			{
 				case 'ACTIVE':
 					$res[$key] = $userFields[$key] == 'Y';
-				break;
+					break;
 				case 'PERSONAL_BIRTHDAY':
+				case 'LAST_LOGIN':
+				case 'DATE_REGISTER':
 					$res[$key] = \CRestUtil::convertDate($userFields[$key]);
-				break;
+					break;
 				case 'EXTERNAL_AUTH_ID':
 					$res['IS_NETWORK'] = $userFields[$key] == 'replica';
 					$res['IS_EMAIL'] = $userFields[$key] == 'email';
 					unset($userFields[$key]);
-				break;
+					break;
 				default:
-					$res[$key] = $userFields[$key];
+					if (!empty($fieldsList[$key]))
+					{
+						if ($fieldsList[$key]['USER_TYPE_ID'] === 'date')
+						{
+							if ($fieldsList[$key]['MULTIPLE'] === 'Y' && is_array($userFields[$key]))
+							{
+								foreach ($userFields[$key] as $k => $value)
+								{
+									$res[$key][$k] = \CRestUtil::convertDate($userFields[$key][$k]);
+								}
+							}
+							else
+							{
+								$res[$key] = \CRestUtil::convertDate($userFields[$key]);
+							}
+						}
+						elseif ($fieldsList[$key]['USER_TYPE_ID'] === 'datetime')
+						{
+							if ($fieldsList[$key]['MULTIPLE'] === 'Y' && is_array($userFields[$key]))
+							{
+								foreach ($userFields[$key] as $k => $value)
+								{
+									$res[$key][$k] = \CRestUtil::convertDateTime($userFields[$key][$k]);
+								}
+							}
+							else
+							{
+								$res[$key] = \CRestUtil::convertDateTime($userFields[$key]);
+							}
+						}
+						elseif ($fieldsList[$key]['USER_TYPE_ID'] === 'file')
+						{
+							if ($fieldsList[$key]['MULTIPLE'] === 'Y' && is_array($userFields[$key]))
+							{
+								foreach ($userFields[$key] as $k => $value)
+								{
+									$res[$key][$k] = [
+										'id' => $userFields[$key][$k],
+										'showUrl' => $urlManager->create(
+											'rest.file.get',
+											[
+												'entity' => static::$entityUser,
+												'id' => $userFields['ID'],
+												'field' => $key,
+												'value' => $userFields[$key]
+											]
+										),
+										'downloadData' => [
+											'id' => $userFields['ID'],
+											'field' => $key,
+											'value' => $userFields[$key][$k],
+										],
+									];
+								}
+							}
+							else
+							{
+								$res[$key] = [
+									'id' => $userFields[$key],
+									'showUrl' => $urlManager->create(
+										'rest.file.get',
+										[
+											'entity' => static::$entityUser,
+											'id' => $userFields['ID'],
+											'field' => $key,
+											'value' => $userFields[$key]
+										]
+									),
+									'downloadData' => [
+										'id' => $userFields['ID'],
+										'field' => $key,
+										'value' => $userFields[$key]
+									]
+								];
+							}
+						}
+					}
+
+					if (!isset($res[$key]))
+					{
+						$res[$key] = $userFields[$key];
+					}
+					break;
 			}
 		}
 
 		return $res;
+	}
+
+	public static function getFile($query, $n, \CRestServer $server)
+	{
+		$file = new File();
+		return $file->getAction(static::$entityUser, $query['id'], $query['field'], $query['value'], $server);
 	}
 
 	protected static function getDefaultSite()

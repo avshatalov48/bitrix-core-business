@@ -1566,7 +1566,6 @@
 				{
 					className: params.countryPopupClassName || '',
 					autoHide: true,
-					zIndex: (BX.WindowManager ? BX.WindowManager.GetZIndex() + 100 : 100),
 					closeByEsc: true,
 					bindOptions: {
 						position: 'top'

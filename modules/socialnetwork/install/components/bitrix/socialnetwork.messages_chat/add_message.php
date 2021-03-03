@@ -9,9 +9,6 @@ $path = str_replace(array("\\", "//"), "/", dirname(__FILE__)."/lang/en/add_mess
 $path = str_replace(array("\\", "//"), "/", dirname(__FILE__)."/lang/".LANGUAGE_ID."/add_message.php");
 @include_once($path);
 
-if(CModule::IncludeModule("compression"))
-	Ccompress::Disable2048Spaces();
-
 if (CModule::IncludeModule("socialnetwork"))
 {
 	$aUserId = array();

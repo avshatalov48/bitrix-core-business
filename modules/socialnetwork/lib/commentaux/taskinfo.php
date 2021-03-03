@@ -10,6 +10,8 @@ final class TaskInfo extends Base
 	const TYPE = 'TASKINFO';
 	const POST_TEXT = 'commentAuxTaskInfo';
 
+	protected static $forumMessageTableClass = MessageTable::class;
+
 	public function getParamsFromFields($fields = array())
 	{
 		static $cacheData = [];
@@ -57,6 +59,7 @@ final class TaskInfo extends Base
 			{
 				$forumPostLivefeedProvider = new \Bitrix\Socialnetwork\Livefeed\ForumPost();
 				$commentData = $forumPostLivefeedProvider->getAuxCommentCachedData($messageId);
+
 				if (
 					!empty($commentData)
 					&& isset($commentData['SERVICE_TYPE'])
@@ -70,6 +73,10 @@ final class TaskInfo extends Base
 					try
 					{
 						$messageParams = Json::decode(!empty($commentData['SERVICE_DATA']) ? $commentData['SERVICE_DATA'] : $commentData['POST_MESSAGE']);
+						if (!is_array($messageParams))
+						{
+							$messageParams = [];
+						}
 					}
 					catch(\Bitrix\Main\ArgumentException $e)
 					{
@@ -80,7 +87,7 @@ final class TaskInfo extends Base
 				}
 				else
 				{
-					$res = MessageTable::getList([
+					$res = self::$forumMessageTableClass::getList([
 						'filter' => [
 							'=ID' => $messageId
 						],
@@ -91,7 +98,7 @@ final class TaskInfo extends Base
 						&& !empty($forumMessageFields['TOPIC_ID'])
 					)
 					{
-						$res = MessageTable::getList([
+						$res = self::$forumMessageTableClass::getList([
 							'filter' => [
 								'=TOPIC_ID' => (int)$forumMessageFields['TOPIC_ID']
 							],
@@ -108,6 +115,10 @@ final class TaskInfo extends Base
 							try
 							{
 								$messageParams = Json::decode(!empty($forumMessageFields['SERVICE_DATA']) ? $forumMessageFields['SERVICE_DATA'] : $forumMessageFields['POST_MESSAGE']);
+								if (!is_array($messageParams))
+								{
+									$messageParams = [];
+								}
 							}
 							catch(\Bitrix\Main\ArgumentException $e)
 							{
@@ -117,7 +128,7 @@ final class TaskInfo extends Base
 							$cacheData[$forumMessageFields['ID']] = $messageParams;
 						}
 
-						$params = $cacheData[$messageId];
+						$params = ($cacheData[$messageId] ?? []);
 					}
 				}
 			}

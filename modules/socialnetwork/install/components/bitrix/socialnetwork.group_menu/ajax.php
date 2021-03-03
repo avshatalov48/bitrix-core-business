@@ -18,11 +18,6 @@ use Bitrix\Main\Localization\Loc;
 Loc::loadLanguageFile(__FILE__, $lng);
 header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
 
-if(CModule::IncludeModule("compression"))
-{
-	CCompress::Disable2048Spaces();
-}
-
 if (!CModule::IncludeModule("socialnetwork"))
 {
 	echo CUtil::PhpToJsObject(Array('ERROR' => 'SONET_MODULE_NOT_INSTALLED'));

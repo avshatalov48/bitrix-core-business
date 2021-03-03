@@ -13,5 +13,5 @@ $MESS["BX24_APP_INSTALL_EULA_LINK"] = "https://www.1c-bitrix.ru/license.php?modu
 $MESS["BX24_APP_INSTALL_PRIVACY_TEXT"] = "Я ознакомлен и согласен с <a href=\"#LINK#\" target=\"_blank\">политикой конфиденциальности</a>";
 $MESS["BX24_APP_INSTALL_PRIVACY_LINK"] = "https://www.bitrix24.ru/about/privacy.php";
 $MESS["BX24_APP_INSTALL_HTTPS_WARNING"] = "<b>Внимание!</b> При работе без https работоспособность устанавливаемых приложений не гарантируется.";
-$MESS["BX24_APP_INSTALL_TERMS_OF_SERVICE_TEXT"] = "Устанавливая или загружая приложения или интеграции, вы соглашаетесь с <a href=\"#LINK#\" target=\"_blank\">Условиями использования Маркетплейс Битрикс24</a>";
+$MESS["BX24_APP_INSTALL_TERMS_OF_SERVICE_TEXT_2"] = "Устанавливая или загружая приложения или интеграции, вы соглашаетесь с <a href=\"#LINK#\" target=\"_blank\">Условиями использования Битрикс24.Маркет</a>";
 ?>

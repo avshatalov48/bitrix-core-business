@@ -18,7 +18,6 @@ export default class MobileSyncBanner
 	{
 		this.type = options.type;
 		this.helpDeskCode = options.helpDeskCode || '11828176';
-		this.fixHintPopupZIndexBinded = this.fixHintPopupZIndex.bind(this);
 	}
 
 	show()
@@ -79,7 +78,6 @@ export default class MobileSyncBanner
 		if (this.DOM.mobileHintIcon && BX.UI.Hint)
 		{
 			BX.UI.Hint.initNode(this.DOM.mobileHintIcon);
-			BX.addCustomEvent('onPopupShow', this.fixHintPopupZIndexBinded);
 		}
 
 		return this.DOM.container;
@@ -153,23 +151,5 @@ export default class MobileSyncBanner
 	getHelpdeskCode()
 	{
 		return this.helpDeskCode;
-	}
-
-	fixHintPopupZIndex(popupWindow)
-	{
-		if (popupWindow.uniquePopupId === 'ui-hint-popup'
-			&& popupWindow.bindElement === this.DOM.mobileHintIcon)
-		{
-			const Z_INDEX = 3200;
-			if (popupWindow.params.zIndex && popupWindow.params.zIndex < Z_INDEX
-				||
-				popupWindow.popupContainer.style.zIndex
-				&& popupWindow.popupContainer.style.zIndex < Z_INDEX
-			)
-			{
-				popupWindow.params.zIndex = Z_INDEX;
-				popupWindow.popupContainer.style.zIndex = Z_INDEX;
-			}
-		}
 	}
 }

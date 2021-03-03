@@ -458,6 +458,19 @@
 					}
 					if (this.params["name"])
 						result.name = this.params["name"];
+
+					if (result.type === 'image/png'
+						&& (result.name || '').substr(-4, 4).toLowerCase() !== '.png')
+					{
+						var name = (result.name || 'image');
+
+						if (name.lastIndexOf('.') > 0
+							&& BX.UploaderUtils.isImageExt(name.substr(name.lastIndexOf('.') + 1).toLowerCase()))
+						{
+							result.name = name.substr(0, name.lastIndexOf('.'));
+						}
+						result.name = result.name + '.png';
+					}
 				}
 				return result;
 			}

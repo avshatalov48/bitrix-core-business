@@ -485,33 +485,6 @@ export class Util
 		return window.top.BX || window.BX;
 	}
 
-	static applyHacksForPopupzIndex(zIndex, timeout = true)
-	{
-		if (timeout)
-		{
-			setTimeout(()=>{Util.applyHacksForPopupzIndex(zIndex, false)},0);
-		}
-		else
-		{
-			zIndex = Type.isInteger(zIndex) ? zIndex : 4200;
-			if (BX.PopupMenu && BX.PopupMenu.Data)
-			{
-				for(let id in BX.PopupMenu.Data)
-				{
-					if (BX.PopupMenu.Data.hasOwnProperty(id)
-						&& BX.type.isObject(BX.PopupMenu.Data[id])
-						&& BX.PopupMenu.Data[id].popupWindow
-						&& BX.PopupMenu.Data[id].popupWindow.isShown()
-					)
-					{
-						BX.PopupMenu.Data[id].popupWindow.params.zIndex = zIndex;
-						BX.PopupMenu.Data[id].popupWindow.popupContainer.style.zIndex = zIndex;
-					}
-				}
-			}
-		}
-	}
-
 	static closeAllPopups()
 	{
 		if (PopupManager.isAnyPopupShown())

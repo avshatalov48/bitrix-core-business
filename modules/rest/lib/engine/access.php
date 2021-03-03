@@ -24,6 +24,7 @@ class Access
 	public const ENTITY_COUNT = 'count';
 	private const MODULE_ID = 'rest';
 	private const OPTION_APP_USAGE_LIST = 'app_usage_list';
+	private const OPTION_REST_UNLIMITED_FINISH = 'rest_unlimited_finish';
 	private const OPTION_ACCESS_ACTIVE = 'access_active';
 	private const OPTION_HOLD_CHECK_COUNT_APP = '~hold_check_count_app';
 
@@ -170,8 +171,12 @@ class Access
 			&& \CBitrix24::getLicensePrefix() === 'ru'
 		)
 		{
+			$restUnlimitedFinish = Option::get(static::MODULE_ID, static::OPTION_REST_UNLIMITED_FINISH, null);
 			$count = (int) \Bitrix\Bitrix24\Feature::getVariable('rest_no_subscribe_access_limit');
-			if ($count >= 0)
+			if (
+				(!$restUnlimitedFinish || $restUnlimitedFinish < time())
+				&& $count >= 0
+			)
 			{
 				$result = $count;
 			}
@@ -382,6 +387,6 @@ class Access
 	 */
 	public static function isActiveRules()
 	{
-		return Option::get(static::MODULE_ID, static::OPTION_ACCESS_ACTIVE);
+		return Option::get(static::MODULE_ID, static::OPTION_ACCESS_ACTIVE, 'N') === 'Y';
 	}
 }

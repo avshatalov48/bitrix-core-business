@@ -7,6 +7,13 @@ $commonSecurityPage = CComponentEngine::MakePathFromTemplate($arResult["PATH_TO_
 $componentTemplate = (!\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24')? '':'bitrix24');
 
 $APPLICATION->setTitle(\Bitrix\Main\Localization\Loc::getMessage("SONET_USER_SOCSERV_PAGE_TITLE"));
+
+$uri = new \Bitrix\Main\Web\Uri($APPLICATION->GetCurPage());
+if (isset($_REQUEST['IFRAME']) && $_REQUEST['IFRAME'] == 'Y')
+{
+	$uri->addParams(['IFRAME' => 'Y', 'IFRAME_TYPE' => 'SIDE_SLIDER']);
+}
+
 $APPLICATION->IncludeComponent(
 	"bitrix:ui.sidepanel.wrapper",
 	"",
@@ -17,6 +24,7 @@ $APPLICATION->IncludeComponent(
 		"POPUP_COMPONENT_PARAMS" => array(
 			"SHOW_PROFILES" => "Y",
 			"CAN_DELETE" => "Y",
+			"BACKURL" => $uri->getUri()
 		),
 		"POPUP_COMPONENT_PARENT" => $this->getComponent()
 	)

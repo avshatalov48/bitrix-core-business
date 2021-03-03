@@ -86,7 +86,6 @@ export class EventViewForm {
 	destroy(event)
 	{
 		this.BX.removeCustomEvent("SidePanel.Slider:onCloseComplete", this.BX.proxy(this.destroy, this));
-		Event.unbind(document, "click", Util.applyHacksForPopupzIndex);
 		this.BX.SidePanel.Instance.destroy(this.sliderId);
 		Util.closeAllPopups();
 		this.opened = false;
@@ -280,9 +279,6 @@ export class EventViewForm {
 		{
 			Event.bind(this.DOM.copyButton, 'click', this.copyEventUrl.bind(this));
 		}
-
-		Event.unbind(document, "click", Util.applyHacksForPopupzIndex);
-		Event.bind(document, "click", Util.applyHacksForPopupzIndex);
 	}
 
 	handleEntryData(entryData, userIndex, sectionData)

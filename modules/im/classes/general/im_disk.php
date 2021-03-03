@@ -1740,6 +1740,11 @@ class CIMDisk
 		$fileId = $fileModel->getId();
 
 		$signer = new \Bitrix\Main\Security\Sign\Signer;
+		$signKey = self::GetFileLinkSign();
+		if (is_string($signKey))
+		{
+			$signer->setKey($signKey);
+		}
 		$signedValue = $signer->sign($fileId);
 
 		$urlManager = \Bitrix\Main\Engine\UrlManager::getInstance();
@@ -1759,6 +1764,20 @@ class CIMDisk
 		}
 
 		return $shortLink;
+	}
+
+	public static function GetFileLinkSign()
+	{
+		$key = \Bitrix\Main\Config\Option::get('im', 'file_link_default_key', null);
+		if (!$key)
+		{
+			$key = \Bitrix\Main\Config\Option::get('main', 'signer_default_key', null);
+			if (is_string($key))
+			{
+				\Bitrix\Main\Config\Option::set('im', 'file_link_default_key', $key);
+			}
+		}
+		return $key;
 	}
 
 	public static function RemoveTmpFileAgent()

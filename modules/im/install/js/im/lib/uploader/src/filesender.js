@@ -29,6 +29,7 @@ export class FileSender
 		this.host = options.host || null;
 		this.actionUploadChunk = options.actionUploadChunk || 'disk.api.content.upload';
 		this.actionCommitFile = options.actionCommitFile || 'disk.api.file.createByContent';
+		this.actionRollbackUpload = options.actionRollbackUpload || 'disk.api.content.rollbackUpload';
 		this.customHeaders = options.customHeaders || null;
 	}
 
@@ -80,26 +81,23 @@ export class FileSender
 		})
 			.then(response => response.json())
 			.then(result => {
-				if (result.data.token)
+				if (result.errors.length > 0)
 				{
-					if (result.errors.length > 0)
+					this.status = Uploader.STATUSES.FAILED;
+					this.listener('onUploadFileError', {id: this.taskId, result: result});
+					console.error(result.errors[0].message)
+				}
+				else if(result.data.token)
+				{
+					this.token = result.data.token;
+					this.readOffset = this.readOffset + this.chunkSizeInBytes;
+					if (!this.isEndOfFile())
 					{
-						this.status = Uploader.STATUSES.FAILED;
-						this.listener('onUploadFileError', {id: this.taskId, result: result});
-						console.error(result.errors[0].message)
+						this.uploadContent();
 					}
 					else
 					{
-						this.token = result.data.token;
-						if (!this.isEndOfFile())
-						{
-							this.readOffset = this.readOffset + this.chunkSizeInBytes;
-							this.uploadContent();
-						}
-						else
-						{
-							this.createFileFromUploadedChunks();
-						}
+						this.createFileFromUploadedChunks();
 					}
 				}
 			}).catch(err => {
@@ -120,14 +118,28 @@ export class FileSender
 		}
 
 		const url = `${this.host ? this.host : ""}/bitrix/services/main/ajax.php?
-		action=disk.api.content.rollbackUpload&token=${this.token}`;
+		action=${this.actionRollbackUpload}&token=${this.token}`;
+
+		const headers = {};
+		if (!this.customHeaders)
+		{
+			headers['X-Bitrix-Csrf-Token'] = BX.bitrix_sessid();
+		}
+		else //if (this.customHeaders)
+		{
+			for (const customHeader in this.customHeaders)
+			{
+				if (this.customHeaders.hasOwnProperty(customHeader))
+				{
+					headers[customHeader] = this.customHeaders[customHeader];
+				}
+			}
+		}
 
 		fetch(url, {
 			method: 'POST',
 			credentials: "include",
-			headers: {
-				"X-Bitrix-Csrf-Token": BX.bitrix_sessid()
-			}
+			headers: headers
 		})
 			.then(response => response.json())
 			.then(result => console.log())

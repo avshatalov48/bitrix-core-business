@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SONET_GCE_CANNOT_EMAILS_ADD"] = "The addresses #EMAIL# are already in use by other users.";
 $MESS["SONET_GCE_CANNOT_EMAIL_ADD"] = "This e-mail address (#EMAIL#) is already in use by another user.";
 $MESS["SONET_GCE_CANNOT_USER_ADD"] = "The user with e-mail \"#EMAIL#\" was not added:";
@@ -7,6 +7,8 @@ $MESS["SONET_GCE_ERR_NAME"] = "The group name is not specified.";
 $MESS["SONET_GCE_ERR_NAME_PROJECT"] = "The project name is not specified";
 $MESS["SONET_GCE_ERR_PERMS"] = "Invitation permission is not specified.";
 $MESS["SONET_GCE_ERR_PERMS_PROJECT"] = "Project invitation permissions are not assigned";
+$MESS["SONET_GCE_ERR_SCRUM_MASTER_ID"] = "SCRUM master not assigned";
+$MESS["SONET_GCE_ERR_SCRUM_OWNER_ID"] = "SCRUM owner not assigned";
 $MESS["SONET_GCE_ERR_SECURITY"] = "You do not have permission to edit group parameters.";
 $MESS["SONET_GCE_ERR_SPAM_PERMS"] = "Permissions for sending messages to workgroup are not set";
 $MESS["SONET_GCE_ERR_SUBJECT"] = "The group topic is not specified.";
@@ -34,4 +36,3 @@ $MESS["SONET_GCE_USER_IN_GROUP"] = "A user with e-mail #EMAIL# is already a grou
 $MESS["SONET_GCE_USER_IN_GROUP_PROJECT"] = "A user with email #EMAIL# is already a member of the project";
 $MESS["SONET_GCE_USER_REQUEST_SENT"] = "Invite has already been sent to a user with e-mail #EMAIL#.";
 $MESS["SONET_MODULE_NOT_INSTALL"] = "The Social Network module is not installed.";
-?>

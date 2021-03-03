@@ -75,7 +75,7 @@ class TimeStatePopup extends FormFieldTunnerPopupAbstract
 
 		return [
 			{
-				text: '<span>' + Loc.getMessage('WEBF_RES_TIME_STYLE') + '</span>',
+				html: '<span>' + Loc.getMessage('WEBF_RES_TIME_STYLE') + '</span>',
 				className: submenuClass
 			},
 			{

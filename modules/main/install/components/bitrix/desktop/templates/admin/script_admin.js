@@ -5,7 +5,7 @@ function __ShowDesktopSettingsDialog(e)
 
 		(new BX.CAdminDialog({
 			'title': BX.message('langGDSettingsDialogTitle'),
-			'content_url': '/bitrix/components/bitrix/desktop/admin_settings.php?lang='+language_id+'&bxpublic=Y', 
+			'content_url': '/bitrix/components/bitrix/desktop/admin_settings.php?lang='+language_id+'&bxpublic=Y',
 			'content_post': 'sessid='+bxsessid+'&type=desktop&desktop_page='+desktopPage,
 			'draggable': true,
 			'resizable': true,
@@ -20,7 +20,7 @@ function __ShowDesktopAllSettingsDialog(e)
 
 		(new BX.CDialog({
 			'title': BX.message('langGDSettingsAllDialogTitle'),
-			'content_url': '/bitrix/components/bitrix/desktop/admin_settings_all.php?lang='+language_id+'&bxpublic=Y', 
+			'content_url': '/bitrix/components/bitrix/desktop/admin_settings_all.php?lang='+language_id+'&bxpublic=Y',
 			'content_post': 'sessid='+bxsessid+'&desktop_backurl='+desktopBackurl,
 			'draggable': true,
 			'resizable': true,
@@ -35,7 +35,7 @@ function __ShowDesktopAddDialog(e)
 
 		(new BX.CAdminDialog({
 			'title': BX.message('langGDSettingsDialogTitle'),
-			'content_url': '/bitrix/components/bitrix/desktop/admin_settings.php?lang='+language_id+'&bxpublic=Y', 
+			'content_url': '/bitrix/components/bitrix/desktop/admin_settings.php?lang='+language_id+'&bxpublic=Y',
 			'content_post': 'sessid='+bxsessid+'&type=desktop&desktop_page='+desktopPage+'&action=new&desktop_backurl='+desktopBackurl,
 			'draggable': true,
 			'resizable': true,
@@ -61,12 +61,12 @@ BX.AdminGadget.prototype.ShowSettings = function(id, title)
 {
 	(new BX.CAdminDialog({
 		'title': title,
-		'content_url': '/bitrix/components/bitrix/desktop/admin_settings.php?lang='+language_id+'&bxpublic=Y', 
+		'content_url': '/bitrix/components/bitrix/desktop/admin_settings.php?lang='+language_id+'&bxpublic=Y',
 		'content_post': 'sessid='+bxsessid+'&type=gadget&gd_ajax='+this.gadgetHolderID+'&gid='+id+'&desktop_page='+desktopPage,
 		'draggable': true,
 		'resizable': true
 	})).Show();
-	
+
 	return false;
 }
 
@@ -77,7 +77,7 @@ gdTabControl = function(id)
 	if (this.aTabs == 'undefined' || this.aTabs == null || this.aTabs == false || this.aTabs.length == 0)
 		this.aTabs = BX.findChildren(BX(this.id), {'tag':'span', 'class':'bx-gadgets-tab-new'}, true);
 	if (this.aTabs == 'undefined' || this.aTabs == null || this.aTabs == false || this.aTabs.length == 0)
-		this.aTabs = BX.findChildren(BX(this.id), {'tag':'span', 'class':'bx-gadgets-tab-wrap'}, true);	
+		this.aTabs = BX.findChildren(BX(this.id), {'tag':'span', 'class':'bx-gadgets-tab-wrap'}, true);
 }
 
 gdTabControl.prototype.SelectTab = function(tab)
@@ -98,7 +98,7 @@ gdTabControl.prototype.SelectTab = function(tab)
 			if (BX(t.id+'_content'))
 				BX(t.id+'_content').style.display = 'none';
 			else if (BX(t.id.substr(9)+'_content'))
-				BX(t.id.substr(9)+'_content').style.display = 'none';					
+				BX(t.id.substr(9)+'_content').style.display = 'none';
 		}
 	}
 	content_div.style.display = 'block';
@@ -130,7 +130,7 @@ gdTabControl.prototype.LoadTab = function(tab, url, tabControl)
 			if (BX(t.id+'_content'))
 				BX(t.id+'_content').style.display = 'none';
 			else if (BX(t.id.substr(9)+'_content'))
-				BX(t.id.substr(9)+'_content').style.display = 'none';			
+				BX(t.id.substr(9)+'_content').style.display = 'none';
 		}
 	}
 
@@ -169,6 +169,8 @@ gdTabControl.prototype.showWait = function(el)
 			}
 		}));
 
+		BX.ZIndexManager.register(el.bxwaiter);
+
 		this.lastWaitElement = el;
 
 		return el.bxwaiter;
@@ -183,6 +185,7 @@ gdTabControl.prototype.closeWait = function(el)
 	{
 		if (el.bxwaiter)
 		{
+			BX.ZIndexManager.unregister(el.bxwaiter);
 			el.bxwaiter.parentNode.removeChild(el.bxwaiter);
 			el.bxwaiter = null;
 		}

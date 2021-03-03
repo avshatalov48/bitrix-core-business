@@ -37,4 +37,6 @@ export default class ButtonIcon
 	static SHARE = 'ui-btn-icon-share';
 	static ANGLE_UP = 'ui-btn-icon-angle-up';
 	static ANGLE_DOWN = 'ui-btn-icon-angle-down';
+	static EYE_OPENED = 'ui-btn-icon-eye-opened';
+	static EYE_CLOSED = 'ui-btn-icon-eye-closed';
 }

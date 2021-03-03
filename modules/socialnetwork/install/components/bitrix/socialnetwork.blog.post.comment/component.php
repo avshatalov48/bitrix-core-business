@@ -88,7 +88,21 @@ $arResult["TZ_OFFSET"] = CTimeZone::GetOffset();
 
 if ((int)$_REQUEST["LAST_LOG_TS"] > 0)
 {
-	$arParams["LAST_LOG_TS"] = (int)$_REQUEST["LAST_LOG_TS"] + (isset($_REQUEST["AJAX_CALL"]) ? $arResult["TZ_OFFSET"] : 0); // next mobile livefeed page or get_empty_comments
+	$timeZoneOffset = (
+		(
+			isset($_REQUEST['AJAX_CALL'])
+			&& $_REQUEST['AJAX_CALL'] === 'Y'
+		)
+		|| (
+			isset($_REQUEST['empty_get_comments'])
+			&& $_REQUEST['empty_get_comments'] === 'Y'
+
+		)
+			? $arResult["TZ_OFFSET"]
+			: 0
+	);
+
+	$arParams["LAST_LOG_TS"] = (int)$_REQUEST["LAST_LOG_TS"] + $timeZoneOffset; // next mobile livefeed page or get_empty_comments
 	if ($arParams["MOBILE"] !== "Y")
 	{
 		$arParams["MARK_NEW_COMMENTS"] = "Y";

@@ -10,7 +10,7 @@ function CBXSession()
 	this.Expand = function(key)
 	{
 		this.key = key;
-		
+
 		BX.ready(function(){
 			BX.bind(document, "keypress", _this.OnUserInput);
 			BX.bind(document.body, "mousemove", _this.OnUserInput);
@@ -20,13 +20,13 @@ function CBXSession()
 			setInterval(_this.CheckSession, _this.checkInterval*1000);
 		})
 	};
-		
+
 	this.OnUserInput = function()
 	{
 		var curr = new Date();
 		_this.dateInput.setTime(curr.valueOf());
 	};
-	
+
 	this.CheckSession = function()
 	{
 		var currentDate = new Date();
@@ -57,7 +57,7 @@ function CBXSession()
 			BX.ajax(config);
 		}
 	};
-	
+
 	this.CheckResult = function(data)
 	{
 		var currentDate = new Date();
@@ -91,6 +91,9 @@ function CBXSession()
 							BX.message("SessExpired")
 					}));
 
+					BX.ZIndexManager.register(_this.notifier);
+					BX.ZIndexManager.bringToFront(_this.notifier);
+
 					var windowScroll = BX.GetWindowScrollPos();
 					var windowSize = BX.GetWindowInnerSize();
 
@@ -116,7 +119,7 @@ function CBXSession()
 			}
 		}
 	};
-	
+
 	this.Close = function()
 	{
 		this.notifier.style.display = 'none';

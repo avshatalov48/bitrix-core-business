@@ -8,9 +8,6 @@ $path = str_replace(array("\\", "//"), "/", dirname(__FILE__)."/lang/en/get_mess
 $path = str_replace(array("\\", "//"), "/", dirname(__FILE__)."/lang/".LANGUAGE_ID."/get_message.php");
 @include_once($path);
 
-if(CModule::IncludeModule("compression"))
-	CCompress::Disable2048Spaces();
-
 if (CModule::IncludeModule("socialnetwork"))
 {
 	$userId = intval($_REQUEST["user_id"]);

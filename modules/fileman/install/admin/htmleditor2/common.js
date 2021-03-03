@@ -223,6 +223,8 @@ _BXPopupWindow.prototype = {
 
 		this.pFrame = document.body.appendChild(BX.create('IFRAME', {props: {src : 'javascript:void(0)', className : 'bxedpopupframe', frameBorder : 'no', scrolling : 'no', unselectable : 'on'}}));
 
+		BX.ZIndexManager.register(this.pFrame);
+
 		if(this.pFrame.contentDocument && !BX.browser.IsIE())
 			this.pDocument = this.pFrame.contentDocument;
 		else
@@ -263,6 +265,8 @@ _BXPopupWindow.prototype = {
 			this.Create();
 
 		this.pFrame.style.display = "block";
+		BX.ZIndexManager.bringToFront(this.pFrame);
+
 		BX.cleanNode(this.pDocument.body);
 		this.pDocument.body.appendChild(Params.node);
 		Params.node.style.display = 'block';
@@ -872,9 +876,6 @@ BXContextMenu.prototype.Create = function()
 	this.pref = this.pMainObj.name.toUpperCase()+'_';
 	this.oDiv = document.body.appendChild(BXCreateElement('DIV', {className: 'bx_ed_context_menu', id: this.pref + '_BXContextMenu'}, {position: 'absolute', zIndex: 1500, left: '-1000px', top: '-1000px', visibility: 'hidden'}, document));
 	this.oDiv.innerHTML = '<table cellpadding="0" cellspacing="0"><tr><td class="popupmenu"><table cellpadding="0" cellspacing="0" id="' + this.pref + '_BXContextMenu_items"><tr><td></td></tr></table></td></tr></table>';
-
-	// Part of logic of JCFloatDiv.Show()   Prevent bogus rerendering window in IE... And SpeedUp first context menu calling
-	document.body.appendChild(BXCreateElement('IFRAME',{id: this.pref + '_BXContextMenu_frame', src: "javascript:void(0)"}, {position: 'absolute', zIndex: 1495, left: '-1000px', top: '-1000px', visibility: 'hidden'}, document));
 
 	this.menu = new PopupMenu(this.pref + '_BXContextMenu');
 };

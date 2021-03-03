@@ -16,7 +16,7 @@ $arComponentDescription = array(
 		"ID" => "content",
 		"CHILD" => array(
 			"ID" => "b24marketplace",
-			"NAME" => Loc::getMessage("RMP_PATH_B24MP_DESCR"),
+			"NAME" => Loc::getMessage("RMP_PATH_B24MP_DESCR_2"),
 		)
 	),
 //	"CACHE_PATH" => "Y",

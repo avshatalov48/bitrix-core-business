@@ -306,26 +306,6 @@ else
 								</div><?
 							}?>
 
-							<div id="scrum-block" class="social-group-create-options-item">
-								<div class="social-group-create-options-item-column-left">
-									<div class="social-group-create-options-item-name">
-										<?=Loc::getMessage('SONET_GCE_T_SCRUM_SPRINT_DURATION')?>
-									</div>
-								</div>
-								<div class="social-group-create-options-item-column-right">
-									<div class="social-group-create-field-block">
-										<select name="SCRUM_SPRINT_DURATION" id="SCRUM_SPRINT_DURATION" class="
-											social-group-create-field social-group-create-field-select">
-											<? foreach ($arResult["ScrumSprintDuration"] as $key => $value): ?>
-											<option value="<?=$key?>"<?=
-												($key == $arResult["POST"]["SCRUM_SPRINT_DURATION"]) ?
-													" selected" : "" ?>><?=$value?></option>
-											<? endforeach; ?>
-										</select>
-									</div>
-								</div>
-							</div>
-
 							<div class="social-group-create-options-item">
 								<div id="GROUP_OWNER_LABEL_block" class="social-group-create-options-item-column-left<?=($arResult["POST"]["PROJECT"] == "Y" ? " sgcp-switch-project" : "")?>">
 									<div class="social-group-create-options-item-name sgcp-block-nonproject"><?=GetMessage("SONET_GCE_T_DEST_TITLE_OWNER")?></div>
@@ -430,6 +410,46 @@ else
 											]
 										);
 										?>
+									</div>
+								</div>
+							</div>
+
+							<div id="scrum-block" class="social-group-create-options-item">
+								<div class="social-group-create-options-item-column-left">
+									<div class="social-group-create-options-item-name">
+										<?=Loc::getMessage('SONET_GCE_T_SCRUM_SPRINT_DURATION')?>
+									</div>
+								</div>
+								<div class="social-group-create-options-item-column-right">
+									<div class="social-group-create-field-block">
+										<select name="SCRUM_SPRINT_DURATION" id="SCRUM_SPRINT_DURATION" class="
+											social-group-create-field social-group-create-field-select">
+											<? foreach ($arResult["ScrumSprintDuration"] as $key => $value): ?>
+												<option value="<?=$key?>"<?=
+												($key == $arResult["POST"]["SCRUM_SPRINT_DURATION"]) ?
+													" selected" : "" ?>><?=$value?></option>
+											<? endforeach; ?>
+										</select>
+									</div>
+								</div>
+							</div>
+
+							<div id="scrum-block" class="social-group-create-options-item">
+								<div class="social-group-create-options-item-column-left">
+									<div class="social-group-create-options-item-name">
+										<?=Loc::getMessage('SONET_GCE_T_SCRUM_TASK_RESPONSIBLE')?>
+									</div>
+								</div>
+								<div class="social-group-create-options-item-column-right">
+									<div class="social-group-create-field-block">
+										<select name="SCRUM_TASK_RESPONSIBLE" id="SCRUM_TASK_RESPONSIBLE" class="
+											social-group-create-field social-group-create-field-select">
+											<? foreach ($arResult["ScrumTaskResponsible"] as $key => $value): ?>
+												<option value="<?=$key?>"<?=
+												($key == $arResult["POST"]["SCRUM_TASK_RESPONSIBLE"]) ?
+													" selected" : "" ?>><?=$value?></option>
+											<? endforeach; ?>
+										</select>
 									</div>
 								</div>
 							</div>
@@ -799,11 +819,20 @@ else
 															}
 
 															if (
-																$feature == 'search'
-																&& SITE_TEMPLATE_ID == 'bitrix24'
+																$feature === 'search'
+																&& SITE_TEMPLATE_ID === 'bitrix24'
 															)
 															{
 																?><input type="hidden" name="<?=htmlspecialcharsbx($feature)?>_active"  value="<?=($arFeature["Active"] ? 'Y' : 'N')?>">
+																<input type="hidden" name="<?=htmlspecialcharsbx($feature)?>_name" value="<?=($customTitle ? $featureTitle : '')?>"><?
+															}
+															elseif (
+																isset($arParams['PROJECT_OPTIONS']['features'])
+																&& is_array($arParams['PROJECT_OPTIONS']['features'])
+																&& isset($arParams['PROJECT_OPTIONS']['features'][$feature])
+															)
+															{
+																?><input type="hidden" name="<?=htmlspecialcharsbx($feature)?>_active"  value="<?=($arParams['PROJECT_OPTIONS']['features'][$feature] ? 'Y' : 'N')?>">
 																<input type="hidden" name="<?=htmlspecialcharsbx($feature)?>_name" value="<?=($customTitle ? $featureTitle : '')?>"><?
 															}
 															else

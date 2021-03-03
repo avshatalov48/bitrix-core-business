@@ -677,16 +677,15 @@ function JCFloatDiv()
 		return div;
 	}
 
-	this.Show = function(div, left, top, dxShadow, restrictDrag, showSubFrame)
+	this.Show = function(div, left, top, dxShadow, restrictDrag)
 	{
-		if (showSubFrame !== false)
-			showSubFrame = true;
-		var zIndex = parseInt(div.style.zIndex);
-		if(zIndex <= 0 || isNaN(zIndex))
-			zIndex = 100;
+		var component = BX.ZIndexManager.getComponent(div);
+		if (!component)
+		{
+			BX.ZIndexManager.register(div);
+		}
 
-		//document.title = 'zIndex = ' + zIndex;
-		div.style.zIndex = zIndex;
+		BX.ZIndexManager.bringToFront(div);
 
 		if (left < 0)
 			left = 0;
@@ -697,26 +696,6 @@ function JCFloatDiv()
 		div.style.left = parseInt(left) + "px";
 		div.style.top = parseInt(top) + "px";
 
-		if(jsUtils.IsIE() && showSubFrame === true)
-		{
-			var frame = document.getElementById(div.id+"_frame");
-			if(!frame)
-			{
-				frame = document.createElement("IFRAME");
-				frame.src = "javascript:''";
-				frame.id = div.id+"_frame";
-				frame.style.position = 'absolute';
-				frame.style.borderWidth = '0px';
-				frame.style.zIndex = zIndex-1;
-				document.body.appendChild(frame);
-			}
-			frame.style.width = div.offsetWidth + "px";
-			frame.style.height = div.offsetHeight + "px";
-			frame.style.left = div.style.left;
-			frame.style.top = div.style.top;
-			frame.style.visibility = 'visible';
-		}
-
 		/*Restrict drag*/
 		div.restrictDrag = restrictDrag || false;
 
@@ -724,36 +703,6 @@ function JCFloatDiv()
 		if(isNaN(dxShadow))
 			dxShadow = 5;
 
-		if(dxShadow > 0)
-		{
-			var img = document.getElementById(div.id+'_shadow');
-			if(!img)
-			{
-				if(jsUtils.IsIE())
-				{
-		 			img = document.createElement("DIV");
-		 			img.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/bitrix/themes/"+phpVars.ADMIN_THEME_ID+"/images/shadow.png',sizingMethod='scale')";
-				}
-				else
-				{
-		 			img = document.createElement("IMG");
-					img.src = '/bitrix/themes/' + phpVars.ADMIN_THEME_ID+'/images/shadow.png';
-				}
-				img.id = div.id+'_shadow';
-				img.style.position = 'absolute';
-				img.style.zIndex = zIndex-2;
-				img.style.left = '-1000px';
-				img.style.top = '-1000px';
-				img.style.lineHeight = 'normal';
-				img.className = "bx-js-float-shadow";
-				document.body.appendChild(img);
-			}
-			img.style.width = div.offsetWidth+'px';
-			img.style.height = div.offsetHeight+'px';
-			img.style.left = parseInt(div.style.left)+dxShadow+'px';
-			img.style.top = parseInt(div.style.top)+dxShadow+'px';
-			img.style.visibility = 'visible';
-		}
 		div.dxShadow = dxShadow;
 	}
 
@@ -1085,8 +1034,6 @@ BXHint.prototype.Show = function(innerHTML, width, height, className)
 
 	pos = this.AlignToPos(pos, w, h);
 
-	oDiv.style.zIndex = 2100;
-
 	jsFloatDiv.Show(oDiv, pos.left, pos.top,3);
 
 //	oDiv.ondrag = jsUtils.False;
@@ -1113,6 +1060,8 @@ BXHint.prototype.Hide = function()
 
 	if (!oDiv)
 		return;
+
+	BX.ZIndexManager.unregister(oDiv);
 
 	jsFloatDiv.Close(oDiv);
 	oDiv.parentNode.removeChild(oDiv);

@@ -48,9 +48,6 @@ if (empty($lng))
 
 Loc::loadLanguageFile(__FILE__, $lng);
 
-if(CModule::IncludeModule("compression"))
-	CCompress::Disable2048Spaces();
-
 if(CModule::IncludeModule("socialnetwork"))
 {
 	$bCurrentUserIsAdmin = CSocNetUser::IsCurrentUserModuleAdmin();

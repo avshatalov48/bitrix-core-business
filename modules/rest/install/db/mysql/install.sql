@@ -265,3 +265,13 @@ CREATE TABLE b_rest_integration (
 	BOT_HANDLER_URL varchar(2048) DEFAULT NULL,
 	PRIMARY KEY (ID)
 );
+
+CREATE TABLE b_rest_configuration_storage
+(
+	ID INT NOT NULL AUTO_INCREMENT,
+	CREATE_TIME TIMESTAMP null,
+	CONTEXT VARCHAR(128) not null,
+	CODE VARCHAR(32) not null,
+	DATA TEXT not null,
+	PRIMARY KEY (ID)
+);

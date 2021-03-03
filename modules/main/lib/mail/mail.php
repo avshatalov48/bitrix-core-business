@@ -918,19 +918,19 @@ class Mail
 		}
 
 
-		$imageSize = \CFile::GetImageSize($filePath, true);
-		if (!is_array($imageSize))
+		$imageInfo = (new \Bitrix\Main\File\Image($filePath))->getInfo();
+		if (!$imageInfo)
 		{
 			return $matches[0];
 		}
 
 		if (function_exists("image_type_to_mime_type"))
 		{
-			$contentType = image_type_to_mime_type($imageSize[2]);
+			$contentType = image_type_to_mime_type($imageInfo->getFormat());
 		}
 		else
 		{
-			$contentType = $this->imageTypeToMimeType($imageSize[2]);
+			$contentType = $this->imageTypeToMimeType($imageInfo->getFormat());
 		}
 
 		$uid = uniqid(md5($src));

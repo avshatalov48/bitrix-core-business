@@ -271,7 +271,7 @@ BX.ready(function()
 </table>
 <?endif;?>
 
-<div class="bxml-subdialog-cont">
+<div id="bxml-subdialog-cont" class="bxml-subdialog-cont">
 <?
 CMedialib::BuildAddCollectionDialog($Params);
 CMedialib::BuildAddItemDialog($Params);

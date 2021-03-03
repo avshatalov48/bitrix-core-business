@@ -33,11 +33,6 @@ $pathToUserProfile = (isset($_REQUEST["pathToUserProfile"]) && is_string($_REQUE
 use Bitrix\Socialnetwork\Livefeed;
 use Bitrix\Main\Loader;
 
-if(Loader::includeModule("compression"))
-{
-	CCompress::Disable2048Spaces();
-}
-
 $result = array();
 if(
 	check_bitrix_sessid()

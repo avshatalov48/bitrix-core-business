@@ -43,6 +43,7 @@ create table b_sonet_group
 	SCRUM_OWNER_ID int null,
 	SCRUM_MASTER_ID int null,
 	SCRUM_SPRINT_DURATION int null,
+	SCRUM_TASK_RESPONSIBLE char(1) null,
 	primary key (ID),
 	index IX_SONET_GROUP_1(OWNER_ID)
 );

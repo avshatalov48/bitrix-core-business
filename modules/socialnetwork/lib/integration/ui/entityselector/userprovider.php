@@ -5,6 +5,7 @@ use Bitrix\Intranet\Integration\Mail\EmailUser;
 use Bitrix\Intranet\Internals\InvitationTable;
 use Bitrix\Intranet\Invitation;
 use Bitrix\Intranet\UserAbsence;
+use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Engine\Router;
 use Bitrix\Main\Engine\UrlManager;
@@ -313,66 +314,81 @@ class UserProvider extends BaseProvider
 
 	public static function isIntranetUser(int $userId = null): bool
 	{
-		if (!ModuleManager::isModuleInstalled('intranet'))
-		{
-			return false;
-		}
-
-		static $cache = [];
-
-		if (is_null($userId))
-		{
-			$userId = is_object($GLOBALS['USER']) ? $GLOBALS['USER']->getId() : 0;
-			if ($userId <= 0)
-			{
-				return false;
-			}
-		}
-
-		if (!isset($cache[$userId]))
-		{
-			$cache[$userId] = UserTable::getList([
-				'filter' => [
-					'=ID' => $userId,
-					'!UF_DEPARTMENT' => false,
-					'IS_REAL_USER' => true
-				],
-			])->fetchCollection()->count() === 1;
-		}
-
-		return $cache[$userId];
+		return self::hasUserRole($userId, 'intranet');
 	}
 
 	public static function isExtranetUser(int $userId = null): bool
 	{
-		if (!ModuleManager::isModuleInstalled('intranet'))
+		return self::hasUserRole($userId, 'extranet');
+	}
+
+	private static function hasUserRole(?int $userId, string $role): bool
+	{
+		static $roles = [
+			'intranet' => [],
+			'extranet' => []
+		];
+
+		if (!ModuleManager::isModuleInstalled('intranet') || !isset($roles[$role]))
 		{
 			return false;
 		}
 
-		static $cache = [];
-
 		if (is_null($userId))
 		{
-			$userId = is_object($GLOBALS['USER']) ? $GLOBALS['USER']->getId() : 0;
+			$userId = is_object($GLOBALS['USER']) ? (int)$GLOBALS['USER']->getId() : 0;
 			if ($userId <= 0)
 			{
 				return false;
 			}
 		}
 
-		if (!isset($cache[$userId]))
+		if (isset($roles[$role][$userId]))
 		{
-			$cache[$userId] = UserTable::getList([
-				'filter' => [
-					'=ID' => $userId,
-					'UF_DEPARTMENT' => false,
-					'IS_REAL_USER' => true
-				],
-			])->fetchCollection()->count() === 1;
+			return $roles[$role][$userId];
 		}
 
-		return $cache[$userId];
+		$cacheId = 'UserRole:'.$role;
+		$cachePath = '/external_user_info/'.substr(md5($userId),-2).'/'.$userId.'/';
+		$cache = Application::getInstance()->getCache();
+		$ttl = 2592000; // 1 month
+
+		if ($cache->initCache($ttl, $cacheId, $cachePath))
+		{
+			$roles[$role][$userId] = (bool)$cache->getVars();
+		}
+		else
+		{
+			$cache->startDataCache();
+
+			$taggedCache = Application::getInstance()->getTaggedCache();
+			$taggedCache->startTagCache($cachePath);
+			$taggedCache->registerTag('USER_NAME_'.$userId);
+			$taggedCache->endTagCache();
+
+			$filter = [
+				'=ID' => $userId,
+				'IS_REAL_USER' => true
+			];
+
+			if ($role === 'intranet')
+			{
+				$filter['!UF_DEPARTMENT'] = false;
+			}
+			else if ($role === 'extranet')
+			{
+				$filter['UF_DEPARTMENT'] = false;
+			}
+
+			$roles[$role][$userId] =
+				UserTable::getList(['select' => ['ID'], 'filter' => $filter])
+					->fetchCollection()->count() === 1
+			;
+
+			$cache->endDataCache($roles[$role][$userId]);
+		}
+
+		return $roles[$role][$userId];
 	}
 
 	public static function isIntegrator(int $userId = null): bool
@@ -658,7 +674,10 @@ class UserProvider extends BaseProvider
 			$query->setOrder(['LAST_NAME' => 'asc']);
 		}
 
-		$query->setLimit(isset($options['limit']) && is_int($options['limit']) ? $options['limit'] : 100);
+		if ($userFilter === null || empty($userIds))
+		{
+			$query->setLimit(isset($options['limit']) && is_int($options['limit']) ? $options['limit'] : 100);
+		}
 
 		//echo '<pre>'.$query->getQuery().'</pre>';
 

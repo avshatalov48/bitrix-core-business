@@ -34,5 +34,6 @@ $MESS["SONET_GCE_USERNAME_BANNED_IN_GROUP"] = "Пользователь #NAME# �
 $MESS["SONET_GCE_USERNAME_REQUEST_SENT"] = "Пользователю #NAME# уже отправлено приглашение";
 $MESS["SONET_GCE_USERNAME_IN_GROUP"] = "Пользователь #NAME# уже состоит в группе";
 $MESS["SONET_GCE_USERNAME_IN_GROUP_PROJECT"] = "Пользователь #NAME# уже состоит в проекте";
-
+$MESS["SONET_GCE_ERR_SCRUM_OWNER_ID"] = "Не назначен SCRUM владелец";
+$MESS["SONET_GCE_ERR_SCRUM_MASTER_ID"] = "Не назначен SCRUM мастер";
 ?>

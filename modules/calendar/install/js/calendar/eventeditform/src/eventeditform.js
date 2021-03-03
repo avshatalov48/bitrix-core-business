@@ -106,7 +106,6 @@ export class EventEditForm
 	bindEventHandlers()
 	{
 		this.keyHandlerBind = this.keyHandler.bind(this);
-		Event.bind(document, "click", Util.applyHacksForPopupzIndex);
 		Event.bind(document, 'keydown', this.keyHandlerBind);
 
 		// region 'protection from closing slider by accident'
@@ -395,7 +394,6 @@ export class EventEditForm
 			this.BX.SidePanel.Instance.destroy(this.sliderId);
 
 			Util.closeAllPopups();
-			Event.unbind(document, "click", Util.applyHacksForPopupzIndex);
 
 			this.planner = null;
 			this.opened = false;

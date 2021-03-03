@@ -368,43 +368,9 @@ function __logShowHiddenDestination(log_id, created_by_id, bindElement)
 
 function __logSetFollow(log_id)
 {
-	var
-		strFollowOld = (BX("log_entry_follow_" + log_id).getAttribute("data-follow") == "Y" ? "Y" : "N"),
-		strFollowNew = (strFollowOld == "Y" ? "N" : "Y"),
-		followNode = BX("log_entry_follow_" + log_id);
-
-	if (followNode)
-	{
-		BX.findChild(followNode, { tagName: 'a' }).innerHTML = BX.message('sonetLFollow' + strFollowNew);
-		followNode.setAttribute("data-follow", strFollowNew);
-	}
-
-	BX.ajax.runAction('socialnetwork.api.livefeed.changeFollow', {
-		data: {
-			logId: log_id,
-			value: strFollowNew
-		},
-		analyticsLabel: {
-			b24statAction: (strFollowNew == 'Y' ? 'setFollow' : 'setUnfollow')
-		}
-	}).then(function(response) {
-		if (
-			!response.data.success
-			&& followNode
-		)
-		{
-			BX.findChild(followNode, { tagName: 'a' }).innerHTML = BX.message('sonetLFollow' + strFollowOld);
-			followNode.setAttribute("data-follow", strFollowOld);
-		}
-	}, function(response) {
-		if (followNode)
-		{
-			BX.findChild(followNode, { tagName: 'a' }).innerHTML = BX.message('sonetLFollow' + strFollowOld);
-			followNode.setAttribute("data-follow", strFollowOld);
-		}
+	return BX.Livefeed.FeedInstance.changeFollow({
+		logId: log_id
 	});
-
-	return false;
 }
 
 function __logRefreshEntry(params) // crm.livefeed.activity

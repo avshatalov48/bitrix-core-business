@@ -52,6 +52,10 @@ foreach($arResult['value'] as $res)
 		?>
 	</span>
 	<?php
+	if (!empty($arParams['additionalParameters']['showInputs']))
+	{
+		print '<input type="hidden" name="'.$arResult['fieldName'].'" value="'.$res.'">';
+	}
 }
 
 if($isEmpty)

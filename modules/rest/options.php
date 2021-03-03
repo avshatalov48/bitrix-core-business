@@ -320,7 +320,12 @@ $tabControl->Begin();
 		<td colspan="2"><?=GetMessage("REST_OPT_LOG_FILTERS")?></td>
 	</tr>
 	<? foreach($filterOptions as $option):
-		$filters = @unserialize(\Bitrix\Main\Config\Option::get('rest', 'log_filters', ''));
+		$filters = @unserialize(
+			\Bitrix\Main\Config\Option::get('rest', 'log_filters', ''),
+			[
+				'allowed_classes' => false
+			]
+		);
 		if (!is_array($filters))
 		{
 			$filters = array();

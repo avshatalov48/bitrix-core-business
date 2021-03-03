@@ -34,8 +34,7 @@ export default class WarningStore
 
 	print()
 	{
-		for (let [target, warnings] of this.warnings)
-		{
+		this.warnings.forEach((warnings) => {
 			for (let eventName in warnings)
 			{
 				console.groupCollapsed(
@@ -46,7 +45,7 @@ export default class WarningStore
 				console.dir(warnings[eventName].errors);
 				console.groupEnd();
 			}
-		}
+		});
 
 		this.clear();
 	}

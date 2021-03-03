@@ -40,6 +40,7 @@ export class Uploader extends EventEmitter
 					host: options.sender.host,
 					actionUploadChunk: options.sender.actionUploadChunk,
 					actionCommitFile: options.sender.actionCommitFile,
+					actionRollbackUpload: options.sender.actionRollbackUpload,
 					customHeaders: options.sender.customHeaders || {},
 				}
 			}

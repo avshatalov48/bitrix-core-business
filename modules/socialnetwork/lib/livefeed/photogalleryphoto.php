@@ -14,6 +14,10 @@ final class PhotogalleryPhoto extends Provider
 	public const PROVIDER_ID = 'PHOTO_PHOTO';
 	public const CONTENT_TYPE_ID = 'PHOTO_PHOTO';
 
+	protected static $iblockElementClass = ElementTable::class;
+	protected static $logTableClass = LogTable::class;
+	protected static $logClass = \CSocNetLog::class;
+
 	public static function getId(): string
 	{
 		return static::PROVIDER_ID;
@@ -53,7 +57,7 @@ final class PhotogalleryPhoto extends Provider
 		}
 		elseif (Loader::includeModule('iblock'))
 		{
-			$res = ElementTable::getList([
+			$res = self::$iblockElementClass::getList([
 				'filter' => [
 					'=ID' => $elementId
 				],
@@ -63,7 +67,7 @@ final class PhotogalleryPhoto extends Provider
 			{
 				$logId = false;
 
-				$res = LogTable::getList([
+				$res = self::$logTableClass::getList([
 					'filter' => [
 						'SOURCE_ID' => $elementId,
 						'@EVENT_ID' => $this->getEventId(),
@@ -77,7 +81,7 @@ final class PhotogalleryPhoto extends Provider
 
 				if ($logId)
 				{
-					$res = \CSocNetLog::getList(
+					$res = self::$logClass::getList(
 						[],
 						[
 							'=ID' => $logId

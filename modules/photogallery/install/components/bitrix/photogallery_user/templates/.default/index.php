@@ -250,7 +250,7 @@ if (!$bEmptyBest)
 <?
 	if ($arParams["PERMISSION"] >= "W")
 	{
-		$arGalleries = unserialize(COption::GetOptionString("photogallery", "UF_GALLERY_SIZE"));
+		$arGalleries = unserialize(COption::GetOptionString("photogallery", "UF_GALLERY_SIZE"), ['allowed_classes' => false]);
 		$arGalleries = (is_array($arGalleries) ? $arGalleries : array());
 		$arGallery = $arGalleries[$arParams["IBLOCK_ID"]];
 		if (empty($arGallery))

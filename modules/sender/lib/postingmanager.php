@@ -86,10 +86,6 @@ class PostingManager
 				$row['CONTACT_ID'],
 				[
 					'IS_READ' => 'Y',
-					'AGENT'   => Recipient\Agent::detect(),
-					'IP'      => Context::getCurrent()
-										->getRequest()
-										->getRemoteAddress()
 				]
 			);
 		}
@@ -202,7 +198,6 @@ class PostingManager
 				$row['CONTACT_ID'],
 				[
 					'IS_CLICK' => 'Y',
-					'IP'       => Context::getCurrent()->getRequest()->getRemoteAddress()
 				]
 			);
 		}

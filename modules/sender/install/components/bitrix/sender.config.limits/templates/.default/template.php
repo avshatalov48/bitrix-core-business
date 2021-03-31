@@ -141,4 +141,33 @@ $containerId = 'sender-start-container';
 		</div>
 	<?endforeach;?>
 
+	<h4 class="sender-config-limits-title">
+		<?=htmlspecialcharsbx(Loc::getMessage('SENDER_TRACK_MAIL_NAME'))?>
+
+		<?if (Loc::getMessage('SENDER_TRACK_MAIL_HELP')):?>
+			<span class="sender-config-limits-info">
+						<?=(htmlspecialcharsbx($item['HELP_CAPTION']) ?:
+							Loc::getMessage('SENDER_TRACK_MAIL_HELP', array(
+								'%link_start%' => '<a href="https://helpdesk.bitrix24.ru/open/13170876" target="_blank" class="sender-config-limits-setup-link">',
+								'%link_end%' => '</a>'
+							))
+						)?>
+					</span>
+		<?endif;?>
+	</h4>
+
+	<div class="sender-config-limits-block">
+		<div class="sender-config-limits-bottom">
+			<div class="sender-config-limits-bottom-left">
+				<label for="sender-track-mail-option">
+					<input type="checkbox"
+						<?php if ($arResult['CAN_TRACK_MAIL']): ?>
+							checked="checked"
+						<?php endif;?>
+						class="sender-track-mail-option" id="sender-track-mail-option" />
+					<?=Loc::getMessage('SENDER_TRACK_MAIL_OPTION')?>
+				</label>
+			</div>
+		</div>
+	</div>
 </div>

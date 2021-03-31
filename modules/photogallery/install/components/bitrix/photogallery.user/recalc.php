@@ -17,7 +17,7 @@ $arFile = array(
 	"COUNT" => 0);
 $bAjaxCall = ($_REQUEST["AJAX_CALL"] == "Y" ? "Y" : "N");
 $sSatus = ($_REQUEST["status"] == "continue" ? "CONTINUE" : "BEGIN");
-$arInfoRecalc = @unserialize($arResult["GALLERY"]["~UF_GALLERY_RECALC"]);
+$arInfoRecalc = @unserialize($arResult["GALLERY"]["~UF_GALLERY_RECALC"], ['allowed_classes' => false]);
 	
 if (empty($arInfoRecalc) || !is_array($arInfoRecalc) || $arInfoRecalc["STATUS"] == "DONE" || $sSatus != "CONTINUE")
 {

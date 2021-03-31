@@ -964,6 +964,15 @@ class Site extends \Bitrix\Landing\Internals\BaseTable
 	 */
 	public static function touch(int $id): void
 	{
+		static $touched = [];
+
+		if (isset($touched[$id]))
+		{
+			return;
+		}
+
+		$touched[$id] = true;
+
 		self::update($id, [
 			'TOUCH' => 'Y'
 		]);

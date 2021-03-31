@@ -48,11 +48,4 @@ $MESS["P_WATERMARK_FILE_ORDER_RESIZE"] = "Stretch";
 $MESS["P_WATERMARK_FILE_ORDER_REPEAT"] = "Tile";
 $MESS["P_WATERMARK_POSITION"] = "Watermark Position";
 $MESS["P_WATERMARK_TRANSPARENCY"] = "Watermark Transparency";
-$MESS["P_UPLOADER_TYPE"] = "Loader type";
-$MESS["P_APPLET_LAYOUT"] = "Bulk uploader layout";
-$MESS["P_APPLET_LAYOUT_SIMPLE"] = "Simplified template";
-$MESS["P_APPLET_LAYOUT_EXTENDED"] = "Standard template";
-$MESS["P_UPLOADER_TYPE_FORM_SIMPLE"] = "HTML5 uploader";
-$MESS["P_UPLOADER_TYPE_APPLET"] = "HTML5 or Java/ActiveX uploader";
-$MESS["P_UPLOADER_TYPE_FLASH"] = "HTML5 or Flash uploader";
 ?>

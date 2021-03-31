@@ -5,7 +5,7 @@ if ($RIGHTS > "D"):
 	$counter = 0;
 	$bVarsFromForm = false;
 
-	$arSights = @unserialize(COption::GetOptionString("photogallery", "pictures"));
+	$arSights = @unserialize(COption::GetOptionString("photogallery", "pictures"), ['allowed_classes' => false]);
 	if (!is_array($arSights))
 		$arSights = array();
 

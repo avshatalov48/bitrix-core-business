@@ -39,6 +39,7 @@
 			BX.bind(this.input, 'blur', this.onSave.bind(this));
 		}
 	};
+
 	Percentage.prototype.setValue = function (response)
 	{
 		this.current = parseInt(response.percentage);
@@ -96,6 +97,10 @@
 			.forEach(this.initPercentage, this);
 
 		this.ajaxAction = new BX.AjaxAction(this.actionUri);
+
+		this.canTrackMailNode = document.querySelector('.sender-track-mail-option');
+		BX.bind(this.canTrackMailNode, 'change', this.switchCanTrackMail.bind(this));
+
 	};
 	Limits.prototype.initPercentage = function (context)
 	{
@@ -114,6 +119,18 @@
 			'name': name,
 			'context': context,
 			'manager': this
+		});
+	};
+	Limits.prototype.switchCanTrackMail = function ()
+	{
+		this.ajaxAction.request({
+			action: 'switchTrackMailOption',
+			onsuccess: function (response)
+			{
+			},
+			data: {
+				'canTrackMail': this.canTrackMailNode.checked
+			}
 		});
 	};
 	Limits.prototype.showMailPopup = function ()

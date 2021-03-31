@@ -1,8 +1,14 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 if (!CModule::IncludeModule("photogallery"))
-	return ShowError(GetMessage("P_MODULE_IS_NOT_INSTALLED"));
+{
+	ShowError(GetMessage("P_MODULE_IS_NOT_INSTALLED"));
+	return;
+}
 elseif (!IsModuleInstalled("iblock"))
-	return ShowError(GetMessage("IBLOCK_MODULE_NOT_INSTALLED"));
+{
+	ShowError(GetMessage("IBLOCK_MODULE_NOT_INSTALLED"));
+	return;
+}
 
 $arParams['WIDTH'] = $arParams['WIDTH'] > 0 ? $arParams['WIDTH'] : '300';
 $arParams['HEIGHT'] = $arParams['HEIGHT'] > 0 ? $arParams['HEIGHT'] : '300';
@@ -92,7 +98,7 @@ endif;?>
 	die();
 }
 
-if (!function_exists(bxRotatorAddFlashvar))
+if (!function_exists('bxRotatorAddFlashvar'))
 {
 	function bxRotatorAddFlashvar($config, $key, $value)
 	{

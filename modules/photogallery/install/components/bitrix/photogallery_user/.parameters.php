@@ -27,7 +27,7 @@ while($arUGroups = $dbUGroups -> Fetch())
 		continue;
 	$arUGroupsEx[$arUGroups["ID"]] = $arUGroups["NAME"]."[".$arUGroups["ID"]."]";
 }
-$res = unserialize(COption::GetOptionString("photogallery", "pictures"));
+$res = unserialize(COption::GetOptionString("photogallery", "pictures"), ['allowed_classes' => false]);
 $arSights = array();
 if (is_array($res))
 {

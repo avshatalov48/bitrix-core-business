@@ -288,7 +288,7 @@ if (!$request->offsetExists('landing_mode')):
 				<div class="ui-btn-split ui-btn-primary landing-btn-menu<?= !$arResult['CAN_PUBLIC_SITE'] ? ' ui-btn-disabled' : '';?>">
 					<a href="<?= ($arParams['FULL_PUBLICATION'] == 'Y') ? $urls['publicationAll']->getUri() : $urls['publication']->getUri();?>" <?
 					?>id="landing-publication" data-slider-ignore-autobinding="true" <?
-					?>class="ui-btn-main" <?
+					?>class="ui-btn-main" rel="opener" <?
 					?>target="<?= ($arParams['DONT_LEAVE_AFTER_PUBLICATION'] == 'Y') ? '_self' : '_blank';?>">
 						<?= Loc::getMessage('LANDING_TPL_PUBLIC_URL');?>
 					</a>
@@ -313,6 +313,7 @@ if (!$request->offsetExists('landing_mode')):
 
 <script type="text/javascript">
 	var landingParams = <?= \CUtil::phpToJSObject($arParams);?>;
+	var landingSiteType = '<?= $arParams['TYPE'];?>';
 	BX.ready(function()
 	{
 		BX.message({

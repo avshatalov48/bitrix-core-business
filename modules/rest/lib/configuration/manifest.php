@@ -4,12 +4,14 @@ namespace Bitrix\Rest\Configuration;
 
 use Bitrix\Main\Event;
 use Bitrix\Main\EventManager;
+use Bitrix\Main\Loader;
 
 class Manifest
 {
-
-	const ON_REST_APP_CONFIGURATION_GET_MANIFEST = 'OnRestApplicationConfigurationGetManifest';
-	const ON_REST_APP_CONFIGURATION_GET_MANIFEST_SETTING = 'OnRestApplicationConfigurationGetManifestSetting';
+	public const ACCESS_TYPE_IMPORT = 'import';
+	public const ACCESS_TYPE_EXPORT = 'export';
+	public const ON_REST_APP_CONFIGURATION_GET_MANIFEST = 'OnRestApplicationConfigurationGetManifest';
+	public const ON_REST_APP_CONFIGURATION_GET_MANIFEST_SETTING = 'OnRestApplicationConfigurationGetManifestSetting';
 	private static $manifestList = [];
 
 	public static function getList()
@@ -89,6 +91,50 @@ class Manifest
 			if($key !== false)
 			{
 				$result = $manifestList[$key];
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Check user access to action in manifest
+	 *
+	 * @param $type string static::ACCESS_TYPE_IMPORT | static::ACCESS_TYPE_EXPORT
+	 * @param $manifestCode mixed
+	 *
+	 * @return array
+	 */
+	public static function checkAccess(string $type, $manifestCode = ''): array
+	{
+		$result = [
+			'result' => false,
+			'message' => '',
+		];
+
+		if(\CRestUtil::isAdmin())
+		{
+			$result['result'] = true;
+		}
+		elseif (!empty($manifestCode))
+		{
+			$manifest = static::get($manifestCode);
+			try
+			{
+				if (
+					!empty($manifest['ACCESS']['MODULE_ID'])
+					&& is_array($manifest['ACCESS']['CALLBACK'])
+					&& Loader::includeModule($manifest['ACCESS']['MODULE_ID'])
+					&& is_callable($manifest['ACCESS']['CALLBACK'])
+				)
+				{
+					$access = call_user_func($manifest['ACCESS']['CALLBACK'], $type, $manifest);
+					$result['result'] = $access['result'] === true;
+					$result['message'] = (is_string($access['message']) && $access['message'] !== '') ? $access['message'] : '';
+				}
+			}
+			catch (\Exception $exception)
+			{
 			}
 		}
 

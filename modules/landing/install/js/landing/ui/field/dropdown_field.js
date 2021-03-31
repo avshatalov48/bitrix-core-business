@@ -65,7 +65,8 @@
 					bindElement: this.input,
 					items: this.items.map(function(item) {
 						return {
-							text: item.html ? item.html : escapeText(item.name),
+							html: item.html,
+							text: !item.html ? escapeText(item.name) : undefined,
 							onclick: function() {
 								this.onItemClick(item)
 							}.bind(this)

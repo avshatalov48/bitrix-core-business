@@ -14192,6 +14192,515 @@
 	babelHelpers.defineProperty(Cache, "MemoryCache", MemoryCache);
 	babelHelpers.defineProperty(Cache, "LocalStorageCache", LocalStorageCache);
 
+	var _Symbol$iterator;
+
+	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+
+	var _searchIndexToInsert = new WeakSet();
+
+	_Symbol$iterator = Symbol.iterator;
+
+	var OrderedArray = /*#__PURE__*/function () {
+	  function OrderedArray() {
+	    var comparator = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+	    babelHelpers.classCallCheck(this, OrderedArray);
+
+	    _searchIndexToInsert.add(this);
+
+	    babelHelpers.defineProperty(this, "comparator", null);
+	    babelHelpers.defineProperty(this, "items", []);
+	    this.comparator = Type.isFunction(comparator) ? comparator : null;
+	  }
+
+	  babelHelpers.createClass(OrderedArray, [{
+	    key: "add",
+	    value: function add(item) {
+	      var index = -1;
+
+	      if (this.comparator) {
+	        index = _classPrivateMethodGet(this, _searchIndexToInsert, _searchIndexToInsert2).call(this, item);
+	        this.items.splice(index, 0, item);
+	      } else {
+	        this.items.push(item);
+	      }
+
+	      return index;
+	    }
+	  }, {
+	    key: "has",
+	    value: function has(item) {
+	      return this.items.includes(item);
+	    }
+	  }, {
+	    key: "getIndex",
+	    value: function getIndex(item) {
+	      return this.items.indexOf(item);
+	    }
+	  }, {
+	    key: "getByIndex",
+	    value: function getByIndex(index) {
+	      if (Type.isNumber(index) && index >= 0) {
+	        var item = this.items[index];
+	        return Type.isUndefined(item) ? null : item;
+	      }
+
+	      return null;
+	    }
+	  }, {
+	    key: "getFirst",
+	    value: function getFirst() {
+	      var first = this.items[0];
+	      return Type.isUndefined(first) ? null : first;
+	    }
+	  }, {
+	    key: "getLast",
+	    value: function getLast() {
+	      var last = this.items[this.count() - 1];
+	      return Type.isUndefined(last) ? null : last;
+	    }
+	  }, {
+	    key: "count",
+	    value: function count() {
+	      return this.items.length;
+	    }
+	  }, {
+	    key: "delete",
+	    value: function _delete(item) {
+	      var index = this.getIndex(item);
+
+	      if (index !== -1) {
+	        this.items.splice(index, 1);
+	        return true;
+	      }
+
+	      return false;
+	    }
+	  }, {
+	    key: "clear",
+	    value: function clear() {
+	      this.items = [];
+	    }
+	  }, {
+	    key: _Symbol$iterator,
+	    value: function value() {
+	      return this.items[Symbol.iterator]();
+	    }
+	  }, {
+	    key: "forEach",
+	    value: function forEach(callbackfn, thisArg) {
+	      return this.items.forEach(callbackfn, thisArg);
+	    }
+	  }, {
+	    key: "getAll",
+	    value: function getAll() {
+	      return this.items;
+	    }
+	  }, {
+	    key: "getComparator",
+	    value: function getComparator() {
+	      return this.comparator;
+	    }
+	  }, {
+	    key: "sort",
+	    value: function sort() {
+	      var _this = this;
+
+	      var comparator = this.getComparator();
+
+	      if (comparator === null) {
+	        return;
+	      }
+	      /*
+	      Simple implementation
+	      this.items.sort((item1, item2) => {
+	      	return comparator(item1, item2);
+	      });
+	      */
+	      // For stable sorting https://v8.dev/features/stable-sort
+
+
+	      var length = this.items.length;
+	      var indexes = new Array(length);
+
+	      for (var i = 0; i < length; i++) {
+	        indexes[i] = i;
+	      } // If the comparator returns zero, use the original indexes
+
+
+	      indexes.sort(function (index1, index2) {
+	        return comparator(_this.items[index1], _this.items[index2]) || index1 - index2;
+	      });
+
+	      for (var _i = 0; _i < length; _i++) {
+	        indexes[_i] = this.items[indexes[_i]];
+	      }
+
+	      for (var _i2 = 0; _i2 < length; _i2++) {
+	        this.items[_i2] = indexes[_i2];
+	      }
+	    }
+	  }]);
+	  return OrderedArray;
+	}();
+
+	var _searchIndexToInsert2 = function _searchIndexToInsert2(value) {
+	  var low = 0;
+	  var high = this.items.length;
+
+	  while (low < high) {
+	    var mid = Math.floor((low + high) / 2);
+
+	    if (this.comparator(this.items[mid], value) >= 0) {
+	      high = mid;
+	    } else {
+	      low = mid + 1;
+	    }
+	  }
+
+	  return low;
+	};
+
+	var ZIndexComponent = /*#__PURE__*/function (_EventEmitter) {
+	  babelHelpers.inherits(ZIndexComponent, _EventEmitter);
+
+	  function ZIndexComponent(element) {
+	    var _this;
+
+	    var componentOptions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+	    babelHelpers.classCallCheck(this, ZIndexComponent);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ZIndexComponent).call(this));
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "sort", 0);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "alwaysOnTop", false);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "zIndex", 0);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "element", null);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "overlay", null);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "overlayGap", -5);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "stack", null);
+
+	    _this.setEventNamespace('BX.Main.ZIndexManager.Component');
+
+	    if (!Type.isElementNode(element)) {
+	      throw new Error('ZIndexManager.Component: The argument \'element\' must be a DOM element.');
+	    }
+
+	    _this.element = element;
+	    var options = Type.isPlainObject(componentOptions) ? componentOptions : {};
+
+	    _this.setAlwaysOnTop(options.alwaysOnTop);
+
+	    _this.setOverlay(options.overlay);
+
+	    _this.setOverlayGap(options.overlayGap);
+
+	    _this.subscribeFromOptions(options.events);
+
+	    return _this;
+	  }
+
+	  babelHelpers.createClass(ZIndexComponent, [{
+	    key: "getSort",
+	    value: function getSort() {
+	      return this.sort;
+	    }
+	    /**
+	     * @internal
+	     * @param sort
+	     */
+
+	  }, {
+	    key: "setSort",
+	    value: function setSort(sort) {
+	      if (Type.isNumber(sort)) {
+	        this.sort = sort;
+	      }
+	    }
+	    /**
+	     * @internal
+	     * @param stack
+	     */
+
+	  }, {
+	    key: "setStack",
+	    value: function setStack(stack) {
+	      this.stack = stack;
+	    }
+	  }, {
+	    key: "getStack",
+	    value: function getStack() {
+	      return this.stack;
+	    }
+	  }, {
+	    key: "getZIndex",
+	    value: function getZIndex() {
+	      return this.zIndex;
+	    }
+	    /**
+	     * @internal
+	     */
+
+	  }, {
+	    key: "setZIndex",
+	    value: function setZIndex(zIndex) {
+	      var changed = this.getZIndex() !== zIndex;
+	      this.getElement().style.setProperty('z-index', zIndex, 'important');
+	      this.zIndex = zIndex;
+
+	      if (this.getOverlay() !== null) {
+	        this.getOverlay().style.setProperty('z-index', zIndex + this.getOverlayGap(), 'important');
+	      }
+
+	      if (changed) {
+	        this.emit('onZIndexChange', {
+	          component: this
+	        });
+	      }
+	    }
+	  }, {
+	    key: "getAlwaysOnTop",
+	    value: function getAlwaysOnTop() {
+	      return this.alwaysOnTop;
+	    }
+	  }, {
+	    key: "setAlwaysOnTop",
+	    value: function setAlwaysOnTop(value) {
+	      if (Type.isNumber(value) || Type.isBoolean(value)) {
+	        this.alwaysOnTop = value;
+	      }
+	    }
+	  }, {
+	    key: "getElement",
+	    value: function getElement() {
+	      return this.element;
+	    }
+	  }, {
+	    key: "setOverlay",
+	    value: function setOverlay(overlay, gap) {
+	      if (Type.isElementNode(overlay) || overlay === null) {
+	        this.overlay = overlay;
+	        this.setOverlayGap(gap);
+
+	        if (this.getStack()) {
+	          this.getStack().sort();
+	        }
+	      }
+	    }
+	  }, {
+	    key: "getOverlay",
+	    value: function getOverlay() {
+	      return this.overlay;
+	    }
+	  }, {
+	    key: "setOverlayGap",
+	    value: function setOverlayGap(gap) {
+	      if (Type.isNumber(gap)) {
+	        this.overlayGap = gap;
+	      }
+	    }
+	  }, {
+	    key: "getOverlayGap",
+	    value: function getOverlayGap() {
+	      return this.overlayGap;
+	    }
+	  }]);
+	  return ZIndexComponent;
+	}(EventEmitter);
+
+	var ZIndexStack = /*#__PURE__*/function () {
+	  function ZIndexStack(container) {
+	    babelHelpers.classCallCheck(this, ZIndexStack);
+	    babelHelpers.defineProperty(this, "container", null);
+	    babelHelpers.defineProperty(this, "components", null);
+	    babelHelpers.defineProperty(this, "elements", new WeakMap());
+	    babelHelpers.defineProperty(this, "baseIndex", 1000);
+	    babelHelpers.defineProperty(this, "baseStep", 50);
+	    babelHelpers.defineProperty(this, "sortCount", 0);
+
+	    if (!Type.isDomNode(container)) {
+	      throw new Error('ZIndexManager.Stack: The \'container\' argument must be a DOM element.');
+	    }
+
+	    this.container = container;
+
+	    var comparator = function comparator(componentA, componentB) {
+	      var result = (componentA.getAlwaysOnTop() || 0) - (componentB.getAlwaysOnTop() || 0);
+
+	      if (!result) {
+	        result = componentA.getSort() - componentB.getSort();
+	      }
+
+	      return result;
+	    };
+
+	    this.components = new OrderedArray(comparator);
+	  }
+
+	  babelHelpers.createClass(ZIndexStack, [{
+	    key: "register",
+	    value: function register(element) {
+	      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+	      if (this.getComponent(element)) {
+	        console.warn('ZIndexManager: You cannot register the element twice.', element);
+	        return this.getComponent(element);
+	      }
+
+	      var component = new ZIndexComponent(element, options);
+	      component.setStack(this);
+	      component.setSort(++this.sortCount);
+	      this.elements.set(element, component);
+	      this.components.add(component);
+	      this.sort();
+	      return component;
+	    }
+	  }, {
+	    key: "unregister",
+	    value: function unregister(element) {
+	      var component = this.elements.get(element);
+	      this.components.delete(component);
+	      this.elements.delete(element);
+	      this.sort();
+	    }
+	  }, {
+	    key: "getComponent",
+	    value: function getComponent(element) {
+	      return this.elements.get(element) || null;
+	    }
+	  }, {
+	    key: "getComponents",
+	    value: function getComponents() {
+	      return this.components.getAll();
+	    }
+	  }, {
+	    key: "getMaxZIndex",
+	    value: function getMaxZIndex() {
+	      var last = this.components.getLast();
+	      return last ? last.getZIndex() : this.baseIndex;
+	    }
+	  }, {
+	    key: "sort",
+	    value: function sort() {
+	      var _this = this;
+
+	      this.components.sort();
+	      var zIndex = this.baseIndex;
+	      this.components.forEach(function (component) {
+	        component.setZIndex(zIndex);
+	        zIndex += _this.baseStep;
+	      });
+	    }
+	  }, {
+	    key: "bringToFront",
+	    value: function bringToFront(element) {
+	      var component = this.getComponent(element);
+
+	      if (!component) {
+	        console.error('ZIndexManager: element was not found in the stack.', element);
+	        return null;
+	      }
+
+	      component.setSort(++this.sortCount);
+	      this.sort();
+	      return component;
+	    }
+	  }]);
+	  return ZIndexStack;
+	}();
+
+	function _classStaticPrivateMethodGet(receiver, classConstructor, method) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } return method; }
+
+	/**
+	 * @memberof BX
+	 */
+	var ZIndexManager = /*#__PURE__*/function () {
+	  function ZIndexManager() {
+	    babelHelpers.classCallCheck(this, ZIndexManager);
+	  }
+
+	  babelHelpers.createClass(ZIndexManager, null, [{
+	    key: "register",
+	    value: function register(element) {
+	      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+	      var parentNode = _classStaticPrivateMethodGet(this, ZIndexManager, _getParentNode).call(this, element);
+
+	      if (!parentNode) {
+	        return null;
+	      }
+
+	      var stack = this.getOrAddStack(parentNode);
+	      return stack.register(element, options);
+	    }
+	  }, {
+	    key: "unregister",
+	    value: function unregister(element) {
+	      var parentNode = _classStaticPrivateMethodGet(this, ZIndexManager, _getParentNode).call(this, element);
+
+	      var stack = this.getStack(parentNode);
+
+	      if (stack) {
+	        stack.unregister(element);
+	      }
+	    }
+	  }, {
+	    key: "addStack",
+	    value: function addStack(container) {
+	      var stack = new ZIndexStack(container);
+	      this.stacks.set(container, stack);
+	      return stack;
+	    }
+	  }, {
+	    key: "getStack",
+	    value: function getStack(container) {
+	      return this.stacks.get(container) || null;
+	    }
+	  }, {
+	    key: "getOrAddStack",
+	    value: function getOrAddStack(container) {
+	      return this.getStack(container) || this.addStack(container);
+	    }
+	  }, {
+	    key: "getComponent",
+	    value: function getComponent(element) {
+	      var parentNode = _classStaticPrivateMethodGet(this, ZIndexManager, _getParentNode).call(this, element);
+
+	      if (!parentNode) {
+	        return null;
+	      }
+
+	      var stack = this.getStack(parentNode);
+	      return stack ? stack.getComponent(element) : null;
+	    }
+	  }, {
+	    key: "bringToFront",
+	    value: function bringToFront(element) {
+	      var parentNode = _classStaticPrivateMethodGet(this, ZIndexManager, _getParentNode).call(this, element);
+
+	      var stack = this.getStack(parentNode);
+
+	      if (stack) {
+	        return stack.bringToFront(element);
+	      }
+
+	      return null;
+	    }
+	  }]);
+	  return ZIndexManager;
+	}();
+
+	var _getParentNode = function _getParentNode(element) {
+	  if (!Type.isElementNode(element)) {
+	    console.error('ZIndexManager: The argument \'element\' must be a DOM element.', element);
+	    return null;
+	  } else if (!Type.isElementNode(element.parentNode)) {
+	    console.error('ZIndexManager: The \'element\' doesn\'t have a parent node.', element);
+	    return null;
+	  }
+
+	  return element.parentNode;
+	};
+
+	babelHelpers.defineProperty(ZIndexManager, "stacks", new WeakMap());
+
 	function getElement(element) {
 	  if (Type.isString(element)) {
 	    return document.getElementById(element);
@@ -14526,6 +15035,7 @@
 	exports.Validation = Validation;
 	exports.Cache = Cache;
 	exports.BaseError = BaseError;
+	exports.ZIndexManager = ZIndexManager;
 	exports.getClass = getClass;
 	exports.namespace = namespace;
 	exports.message = message$1;

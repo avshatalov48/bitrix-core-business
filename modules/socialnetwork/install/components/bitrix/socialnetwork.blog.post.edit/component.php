@@ -249,7 +249,6 @@ if (Loader::includeModule('mail'))
 
 $arResult['BLOG_POST_LISTS'] = (
 	Loader::includeModule("lists")
-	&& CLists::isFeatureEnabled()
 	&& !$arResult["bExtranetSite"]
 	&& !$arParams["SOCNET_GROUP_ID"]
 	&& ModuleManager::isModuleInstalled('intranet')

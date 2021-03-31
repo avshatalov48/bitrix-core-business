@@ -2556,7 +2556,7 @@
 	{
 		this.editor = editor;
 		this.id = 'bxeditor_overlay' + this.editor.id;
-		this.zIndex = params && params.zIndex ? params.zIndex : 3001;
+		this.zIndex = params && params.zIndex ? params.zIndex : 1001;
 	}
 
 	Overlay.prototype =
@@ -3790,7 +3790,7 @@
 			this.lastPreviewMode = false;
 			this.Hide();
 
-			this.pOverlay = this.editor.overlay.Show();
+			this.pOverlay = this.editor.overlay.Show({zIndex: 1040});
 			BX.bind(this.pOverlay, 'click', BX.proxy(this.Hide, this));
 			BX.bind(this.pOverlay, 'mousemove', BX.proxy(function(){this.PreviewContent({mode: 'default'});}, this));
 

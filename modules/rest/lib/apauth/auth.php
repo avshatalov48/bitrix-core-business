@@ -54,20 +54,23 @@ class Auth
 				$error = array_key_exists('error', $tokenInfo);
 
 				if (
-					!Access::isAvailable()
-					|| (
-						Access::needCheckCount()
-						&& !Access::isAvailableCount(Access::ENTITY_TYPE_WEBHOOK, $tokenInfo['password_id'])
+					!$error
+					&& (
+						!Access::isAvailable()
+						|| (
+							Access::needCheckCount()
+							&& !Access::isAvailableCount(Access::ENTITY_TYPE_WEBHOOK, $tokenInfo['password_id'])
+						)
 					)
 				)
 				{
-					$res = [
+					$tokenInfo = [
 						'error' => 'ACCESS_DENIED',
 						'error_description' => 'REST is available only on commercial plans.'
 					];
-
-					return false;
+					$error = true;
 				}
+
 				if(!$error && $tokenInfo['user_id'] > 0)
 				{
 					$tokenInfo['scope'] = implode(',', static::getPasswordScope($tokenInfo['password_id']));

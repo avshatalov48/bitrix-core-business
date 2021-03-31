@@ -56,7 +56,11 @@ $arWatermarkDefault = array(
 	"fileWidth" => $arParams["WATERMARK_FILE_WIDTH"],
 	"fileHeight" => $arParams["WATERMARK_FILE_HEIGHT"]);
 
-$arWatermark = ($arParams["WATERMARK_RULES"] == "ALL" ? $arWatermarkDefault : array_merge($arWatermarkDefault, $arParams["USER_SETTINGS"]));
+$arWatermark = $arWatermarkDefault;
+if ($arParams["WATERMARK_RULES"] == "USER" && is_array($arParams["USER_SETTINGS"]))
+{
+	$arWatermark = array_intersect_key($arParams["USER_SETTINGS"], $arWatermarkDefault) + $arWatermarkDefault;
+}
 $arWatermark["additional"] = ($arWatermark["additional"] == "Y");
 $arWatermark["use"] = ($arWatermark["use"] == "Y" ? "Y" : "N");
 $arWatermark["type"] = (in_array($arWatermark["type"], array("text", "image")) ? $arWatermark["type"] : "text");
@@ -137,7 +141,9 @@ if ($arParams["SHOW_WATERMARK"] == "Y")
 HTML;
 }
 if (empty($htmlSettings))
+{
 	$htmlSettings = "";
+}
 else
 {
 	$params = CUtil::PhpToJSObject(array(
@@ -147,11 +153,11 @@ else
 		"params" => $arWatermark ));
 	$htmlSettings = implode("", $htmlSettings);
 	$htmlSettings = <<<HTML
-<div class="bxiu-add-params">$htmlSettings<div style="clear: both"></div></div>
+<div class="bxiu-add-params">{$htmlSettings}<div style="clear: both"></div></div>
 <script type="text/javascript">
 	BX.ready(function(){
 		new BX.UploaderSettings({$params});
-	})
+	});
 </script>
 HTML;
 	$htmlSettings .=

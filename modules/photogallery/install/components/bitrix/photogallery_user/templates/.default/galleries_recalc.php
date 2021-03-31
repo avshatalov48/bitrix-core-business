@@ -44,7 +44,7 @@ elseif ($arParams["IBLOCK_ID"] <= 0)
 	return false;
 }
 
-$arGalleries = unserialize(COption::GetOptionString("photogallery", "UF_GALLERY_SIZE"));
+$arGalleries = unserialize(COption::GetOptionString("photogallery", "UF_GALLERY_SIZE"), ['allowed_classes' => false]);
 $arGalleries = (is_array($arGalleries) ? $arGalleries : array());
 $arGallery = $arGalleries[$arParams["IBLOCK_ID"]];
 

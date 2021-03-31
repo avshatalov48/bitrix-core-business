@@ -517,7 +517,8 @@ class SiteTable extends Entity\DataManager
 				'CREATED_BY_ID',
 				'MODIFIED_BY_ID',
 				'DATE_CREATE',
-				'DATE_MODIFY'
+				'DATE_MODIFY',
+				'TOUCH'
 			];
 			if (in_array(Rights::ACCESS_TYPES['sett'], $rights))
 			{

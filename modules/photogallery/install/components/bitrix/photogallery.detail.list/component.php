@@ -206,7 +206,7 @@ include_once(str_replace(array("\\", "//"), "/", dirname(__FILE__)."/action.php"
 if (!empty($arParams["ADDITIONAL_SIGHTS"]))
 {
 	$_REQUEST["PICTURES_SIGHT"] = (empty($_REQUEST["PICTURES_SIGHT"]) && !empty($_REQUEST["picture_sight"]) ? $_REQUEST["picture_sight"] : $_REQUEST["PICTURES_SIGHT"]);
-	$arParams["PICTURES_INFO"] = @unserialize(COption::GetOptionString("photogallery", "pictures"));
+	$arParams["PICTURES_INFO"] = @unserialize(COption::GetOptionString("photogallery", "pictures"), ['allowed_classes' => false]);
 	$arParams["PICTURES_INFO"] = (is_array($arParams["PICTURES_INFO"]) ? $arParams["PICTURES_INFO"] : array());
 	foreach ($arParams["PICTURES_INFO"] as $key => $val):
 		if (in_array(str_pad($key, 5, "_").$val["code"], $arParams["ADDITIONAL_SIGHTS"]))

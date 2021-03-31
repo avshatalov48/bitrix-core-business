@@ -14,6 +14,7 @@ import Uri from '../../src/lib/uri';
 import Validation from '../../src/lib/validation';
 import Cache from '../../src/lib/cache';
 import BaseError from '../../src/lib/base-error';
+import ZIndexManager from '../../src/lib/z-index/z-index-manager';
 
 export {
 	Type,
@@ -30,6 +31,7 @@ export {
 	Validation,
 	Cache,
 	BaseError,
+	ZIndexManager,
 };
 
 export * from '../../src/core-compatibility';

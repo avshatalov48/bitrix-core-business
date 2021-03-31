@@ -212,8 +212,7 @@ else
 			"ID" => "lists",
 			"NAME" => GetMessage("BLOG_TAB_LISTS"),
 			"ONCLICK" => (
-				\CModule::IncludeModule('bitrix24')
-				&& !\Bitrix\Bitrix24\Feature::isFeatureEnabled('livefeed_bp')
+				!\CLists::isFeatureEnabled()
 					? "BX.UI.InfoHelper.show('limit_office_bp_stream');"
 					: "window.SBPETabs.getInstance().getLists();"
 			)

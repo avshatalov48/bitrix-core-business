@@ -141,7 +141,7 @@ class Calendar extends BasicComponent implements ParserComponent
 		return $this->timezones;
 	}
 
-	public function getMethod(): string
+	public function getMethod(): ?string
 	{
 		return $this->method;
 	}

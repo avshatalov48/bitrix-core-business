@@ -383,7 +383,6 @@ $currentZone = Manager::getZone();
 $agreementCode = 'landing_agreement';
 $agreementsId = array();
 $agreements = array(
-	'ru' => array(),
 	'en' => array(),
 	$currentLang => array()
 );

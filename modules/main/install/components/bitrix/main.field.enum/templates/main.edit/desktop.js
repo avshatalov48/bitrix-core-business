@@ -52,6 +52,11 @@ BX.Desktop.Field.Enum.prototype = {
 	},
 	onChange: function(controlObject, value)
 	{
+		if (!BX(this.valueContainerId))
+		{
+			return;
+		}
+
 		var currentValue = null;
 
 		if(

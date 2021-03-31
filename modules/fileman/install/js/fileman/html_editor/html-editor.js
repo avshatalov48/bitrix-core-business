@@ -1063,6 +1063,13 @@
 				BX.addCustomEvent(this, 'OnIframeKeydown', BX.proxy(this.CheckEscCollapse, this));
 				BX.bind(document.body, "keydown", BX.proxy(this.CheckEscCollapse, this));
 				BX.bind(window, "scroll", BX.proxy(this.PreventScroll, this));
+
+				if (BX.ZIndexManager)
+				{
+					BX.ZIndexManager.register(this.dom.cont);
+					BX.ZIndexManager.addStack(this.dom.cont);
+					BX.ZIndexManager.bringToFront(this.dom.cont);
+				}
 			}
 			else
 			{
@@ -1122,6 +1129,11 @@
 						_this.dom.cont.style.top = '';
 						_this.dom.cont.style.left = '';
 						BX.removeClass(_this.dom.cont, 'bx-html-editor-absolute');
+						if (BX.ZIndexManager)
+						{
+							BX.ZIndexManager.unregister(_this.dom.cont);
+						}
+						_this.dom.cont.style.removeProperty('z-index');
 						document.body.style.overflow = _this._bodyOverflow;
 						_this.config.width = _this.savedSize.configWidth;
 						_this.config.height = _this.savedSize.configHeight;

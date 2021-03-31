@@ -679,7 +679,7 @@ var landingAlertMessage = function landingAlertMessage(errorText, payment, error
 	{
 		(function()
 		{
-			if (BX.message('LANDING_SITE_TYPE') === 'STORE')
+			if (landingSiteType === 'STORE')
 			{
 				top.BX.UI.InfoHelper.show('limit_shop_number');
 			}

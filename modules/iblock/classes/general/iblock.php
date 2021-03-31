@@ -3411,88 +3411,52 @@ REQ
 	public static function FilterPicture($filePath, $arFilter)
 	{
 		if (!file_exists($filePath))
-			return false;
-
-		$arFileSize = CFile::GetImageSize($filePath, true);
-		if(!is_array($arFileSize))
-			return false;
-
-		if ($arFilter["type"] === "text" && mb_strlen($arFilter["text"]) > 1 && $arFilter["coefficient"] > 0)
 		{
-			$arFilter["text_width"] = ($arFileSize[0]-5) * $arFilter["coefficient"] / 100;
+			return false;
+		}
+		if (
+			!isset($arFilter['name'])
+			|| ($arFilter['name'] !== 'sharpen' && $arFilter['name'] !== 'watermark')
+		)
+		{
+			return false;
 		}
 
-		switch ($arFileSize[2])
+		$image = new Main\File\Image($filePath);
+		$imageInfo = $image->getInfo();
+		if (empty($imageInfo))
 		{
-		case IMAGETYPE_GIF:
-			$picture = imagecreatefromgif($filePath);
-			$bHasAlpha = true;
-			break;
+			return false;
+		}
+		if (!$image->load())
+		{
+			return false;
+		}
 
-		case IMAGETYPE_PNG:
-			$picture = imagecreatefrompng($filePath);
-			$bHasAlpha = true;
-			break;
-
-		case IMAGETYPE_JPEG:
-			$picture = imagecreatefromjpeg($filePath);
-			$orientation = 0;
-			$exifData = CFile::ExtractImageExif($filePath);
-			if ($exifData && isset($exifData['Orientation']))
-			{
-				$orientation = $exifData['Orientation'];
-			}
-			if ($orientation > 1)
-			{
-				if ($orientation == 7 || $orientation == 8)
-					$picture = imagerotate($picture, 90, null);
-				elseif ($orientation == 3 || $orientation == 4)
-					$picture = imagerotate($picture, 180, null);
-				elseif ($orientation == 5 || $orientation == 6)
-					$picture = imagerotate($picture, 270, null);
-
-				if (
-					$orientation == 2 || $orientation == 7
-					|| $orientation == 4 || $orientation == 5
-				)
+		$orientation = 0;
+		$exifData = $image->getExifData();
+		if (isset($exifData['Orientation']))
+		{
+			$orientation = $exifData['Orientation'];
+		}
+		$image->autoRotate($orientation);
+		switch ($arFilter['name'])
+		{
+			case 'sharpen':
+				$image->filter(Main\File\Image\Mask::createSharpen($arFilter['precision']));
+				break;
+			case 'watermark':
+				if ($arFilter['type'] === 'text' && mb_strlen($arFilter['text']) > 1 && $arFilter['coefficient'] > 0)
 				{
-					CFile::ImageFlipHorizontal($picture);
+					$arFilter['text_width'] = ($imageInfo->getWidth() - 5) * $arFilter['coefficient'] / 100;
 				}
-			}
-			$bHasAlpha = false;
-			break;
-
-		default:
-			$picture = false;
-			$bHasAlpha = false;
-			break;
+				$watermark = Main\File\Image\Watermark::createFromArray($arFilter);
+				$image->drawWatermark($watermark);
+				break;
 		}
-		if (!is_resource($picture))
-			return false;
+		$image->save(self::getDefaultJpegQuality());
+		$image->clear();
 
-		$bNeedCreatePicture = CFile::ApplyImageFilter($picture, $arFilter, $bHasAlpha);
-		if ($bNeedCreatePicture)
-		{
-			switch ($arFileSize[2])
-			{
-			case IMAGETYPE_GIF:
-				imagegif($picture, $filePath);
-				break;
-
-			case IMAGETYPE_PNG:
-				imagealphablending($picture, false);
-				imagesavealpha($picture, true);
-				imagepng($picture, $filePath);
-				break;
-
-			case IMAGETYPE_JPEG:
-				$jpgQuality = self::getDefaultJpegQuality();
-
-				imagejpeg($picture, $filePath, $jpgQuality);
-				break;
-			}
-		}
-		imagedestroy($picture);
 		return true;
 	}
 

@@ -254,7 +254,7 @@ class Section extends Stepper
 	protected function getOptionData($optionName)
 	{
 		$option = Option::get(static::$moduleId, $optionName);
-		$option = ($option !== "" ? unserialize($option) : []);
+		$option = ($option !== "" ? unserialize($option, ['allowed_classes' => false]) : []);
 		return (is_array($option) ? $option : []);
 	}
 

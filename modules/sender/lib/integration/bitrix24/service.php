@@ -96,6 +96,24 @@ class Service
 	}
 
 	/**
+	 * Return true if region of cloud portal is Russian.
+	 *
+	 * @return bool
+	 */
+	public static function isCloudRegionMayTrackMails()
+	{
+		return self::isCloud() && in_array(
+			\CBitrix24::getPortalZone(), [
+					'de',
+					'eu',
+					'it',
+					'pl',
+					'fr',
+				]
+			);
+	}
+
+	/**
 	 * Return true if Ad provider is available in region.
 	 *
 	 * @param string $code Service message code.

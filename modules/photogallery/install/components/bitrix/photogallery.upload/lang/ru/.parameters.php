@@ -48,11 +48,4 @@ $MESS["P_WATERMARK_FILE_ORDER_RESIZE"] = "Растянуть";
 $MESS["P_WATERMARK_FILE_ORDER_REPEAT"] = "Замостить";
 $MESS["P_WATERMARK_POSITION"] = "Размещение авторского знака";
 $MESS["P_WATERMARK_TRANSPARENCY"] = "Прозрачность авторского знака";
-$MESS["P_UPLOADER_TYPE"] = "Тип загрузчика";
-$MESS["P_UPLOADER_TYPE_FORM_SIMPLE"] = "Загрузчик HTML5";
-$MESS["P_UPLOADER_TYPE_APPLET"] = "Загрузчик HTML5 или Java/ActiveX";
-$MESS["P_UPLOADER_TYPE_FLASH"] = "Загрузчик HTML5 или Flash-загрузчик";
-$MESS["P_APPLET_LAYOUT"] = "Схема множественного загрузчика";
-$MESS["P_APPLET_LAYOUT_SIMPLE"] = "Упрощенный шаблон загрузчика";
-$MESS["P_APPLET_LAYOUT_EXTENDED"] = "Стандартный шаблон";
 ?>

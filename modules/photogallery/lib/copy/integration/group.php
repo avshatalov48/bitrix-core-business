@@ -88,7 +88,7 @@ class Group implements Feature
 	private function addToQueue(int $copiedGroupId)
 	{
 		$option = Option::get(self::MODULE_ID, self::QUEUE_OPTION, "");
-		$option = ($option !== "" ? unserialize($option) : []);
+		$option = ($option !== "" ? unserialize($option, ['allowed_classes' => false]) : []);
 		$option = (is_array($option) ? $option : []);
 
 		$option[] = $copiedGroupId;

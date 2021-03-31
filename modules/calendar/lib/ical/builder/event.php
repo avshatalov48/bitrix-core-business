@@ -57,9 +57,12 @@ class Event extends BasicComponent implements BuilderComponent
 		return 'VEVENT';
 	}
 
-	public function setRRule(?array $rrule = null): Event
+	public function setRRule($rrule): Event
 	{
-		$this->rrule = new RecurrenceRuleProperty($rrule);
+		$this->rrule = is_array($rrule)
+			? new RecurrenceRuleProperty($rrule)
+			: null
+		;
 
 		return $this;
 	}
@@ -300,7 +303,7 @@ class Event extends BasicComponent implements BuilderComponent
 			$content->property(AttendeesPropertyType::getInstance('ATTENDEE', $attendee));
 		}
 
-		if (!empty($this->rrule->freq) && $this->rrule->freq !== 'NONE')
+		if ($this->rrule !== null && !empty($this->rrule->freq) && $this->rrule->freq !== 'NONE')
 		{
 			$content->property(RecurrenceRulePropertyType::getInstance('RRULE', $this->rrule));
 

@@ -127,7 +127,7 @@ export class Metrika
 					if (!this.formsLoaded.includes(formData[0] + '|' + formData[1]))
 					{
 						this.sendLabel(
-							formData[2],
+							null,
 							'formFailLoad',
 							formData[0] + '|' + formData[1]
 						);
@@ -143,7 +143,7 @@ export class Metrika
 	 * @param {string} label
 	 * @param {string} value
 	 */
-	sendLabel(portalUrl: string, label: string, value: string): void
+	sendLabel(portalUrl: ?string, label: string, value: string): void
 	{
 		if (this.sendedLabel.includes(label + value))
 		{
@@ -151,7 +151,7 @@ export class Metrika
 		}
 		this.sendedLabel.push(label + value);
 		BX.ajax({url:
-			portalUrl + '/bitrix/images/landing/analytics/pixel.gif?action=' + label +
+			(portalUrl ? portalUrl : '') + '/bitrix/images/landing/analytics/pixel.gif?action=' + label +
 			(value ? '&value=' + value : '') +
 			'&time=' + (new Date().getTime())
 		});

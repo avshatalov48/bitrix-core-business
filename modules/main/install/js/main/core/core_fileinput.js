@@ -3277,6 +3277,7 @@ CanvasCrop.prototype = {
 				}
 			});
 			document.body.appendChild(this.root);
+			BX.ZIndexManager.register(this.root);
 			this.preventer = BX.create('DIV', {
 				attrs : {
 					className : "adm-photoeditor-crop-area"
@@ -3725,6 +3726,7 @@ CanvasCrop.prototype = {
 			height : pos.height + 'px',
 			display : "block"
 		}});
+		BX.ZIndexManager.bringToFront(this.root);
 
 		var projection = { left : 0, top : 0, right : 0, bottom : 0, display : "block" };
 		if (this.canvas.visiblePart.topGap > 0)

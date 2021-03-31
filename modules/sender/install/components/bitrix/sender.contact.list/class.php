@@ -161,8 +161,15 @@ class SenderContactListComponent extends Bitrix\Sender\Internals\CommonSenderCom
 	protected function getDataSelectedFields()
 	{
 		return [
-			'ID', 'NAME', 'TYPE_ID', 'CODE', 'BLACKLISTED', 'DATE_INSERT',
-			'IS_READ', 'IS_CLICK', 'IS_UNSUB', 'IP', 'AGENT'
+			'ID',
+			'NAME',
+			'TYPE_ID',
+			'CODE',
+			'BLACKLISTED',
+			'DATE_INSERT',
+			'IS_READ',
+			'IS_CLICK',
+			'IS_UNSUB',
 		];
 	}
 

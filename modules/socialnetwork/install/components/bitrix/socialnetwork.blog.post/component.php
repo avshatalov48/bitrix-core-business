@@ -1154,7 +1154,7 @@ if(
 
 					if (!empty($arResult['POST_PROPERTIES']['DATA']['UF_BLOG_POST_FILE']['VALUE']))
 					{
-						$arResult["Post"]["hasInlineDiskFile"] = ComponentHelper::hasTextInlineImage($arPost["~DETAIL_TEXT"], $arResult['POST_PROPERTIES']['DATA']['UF_BLOG_POST_FILE']);
+						$arResult["Post"]["hasInlineDiskFile"] = ComponentHelper::hasTextInlineImage((string)$arPost["~DETAIL_TEXT"], $arResult['POST_PROPERTIES']['DATA']['UF_BLOG_POST_FILE']);
 					}
 				}
 

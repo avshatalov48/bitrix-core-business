@@ -10,6 +10,7 @@ namespace Bitrix\Main\Mail;
 
 use Bitrix\Main;
 use Bitrix\Main\Application;
+use Bitrix\Main\Config;
 use Bitrix\Main\EventResult;
 use Bitrix\Main\Security\Sign\BadSignatureException;
 use Bitrix\Main\Security\Sign\Signer;
@@ -27,6 +28,7 @@ class Tracking
 	const onClick = 'OnMailEventMailClick';
 	const onUnsubscribe = 'OnMailEventSubscriptionDisable';
 	const onChangeStatus = 'OnMailEventMailChangeStatus';
+	const CUSTOM_SIGNER_KEY = 'signer_sender_mail_key';
 
 	/**
 	 * Get tag.
@@ -82,7 +84,17 @@ class Tracking
 	 */
 	public static function parseSignedTag($signedTag)
 	{
-		$signer = new Signer;
+		try
+		{
+			$signer = new Signer;
+			$unsignedTag = $signer->unsign($signedTag, static::SIGN_SALT_ACTION);
+			return static::parseTag($unsignedTag);
+		}
+		catch (BadSignatureException $e)
+		{
+		}
+
+		$signer->setKey(self::getSignKey());
 		$unsignedTag = $signer->unsign($signedTag, static::SIGN_SALT_ACTION);
 		return static::parseTag($unsignedTag);
 	}
@@ -205,12 +217,54 @@ class Tracking
 		try
 		{
 			$signer = new Signer;
+			$result = $signer->validate($value, $signature, static::SIGN_SALT_ACTION);
+		}
+		catch (BadSignatureException $exception)
+		{
+			$result = false;
+		}
+
+		if(!$result)
+		{
+			return self::validateSignWithStoredKey($value, $signature);
+		}
+
+		return $result;
+	}
+
+	private static function validateSignWithStoredKey($value, $signature)
+	{
+		try
+		{
+			$signer = new Signer;
+			$key = self::getSignKey();
+
+			if (is_string($key))
+			{
+				$signer->setKey($key);
+			}
+
 			return $signer->validate($value, $signature, static::SIGN_SALT_ACTION);
 		}
 		catch (BadSignatureException $exception)
 		{
 			return false;
 		}
+	}
+
+	private static function getSignKey()
+	{
+		$key = Config\Option::get('sender', self::CUSTOM_SIGNER_KEY, null);
+		if (!$key)
+		{
+			$key = Config\Option::get('main', 'signer_default_key', null);
+			if (is_string($key))
+			{
+				Config\Option::set('sender', self::CUSTOM_SIGNER_KEY, $key);
+			}
+		}
+
+		return $key;
 	}
 
 	/**

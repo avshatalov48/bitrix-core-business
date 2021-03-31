@@ -26,7 +26,7 @@ while($arUGroups = $dbUGroups -> Fetch())
 	$arUGroupsEx[$arUGroups["ID"]] = $arUGroups["NAME"];
 }
 
-$res = unserialize(COption::GetOptionString("photogallery", "pictures"));
+$res = unserialize(COption::GetOptionString("photogallery", "pictures"), ['allowed_classes' => false]);
 $arSights = array();
 if (is_array($res))
 {
@@ -94,37 +94,6 @@ $arComponentParameters = array(
 		)
 	)
 );
-
-if ($arCurrentValues["UPLOADER_TYPE"])
-{
-	$arComponentParameters["PARAMETERS"]["UPLOADER_TYPE"] = array(
-		"PARENT" => "PHOTO_SETTINGS",
-		"NAME" => GetMessage("P_UPLOADER_TYPE"),
-		"TYPE" => "LIST",
-		"VALUES" => array(
-			"form" => GetMessage("P_UPLOADER_TYPE_FORM_SIMPLE"),
-			"applet" => GetMessage("P_UPLOADER_TYPE_APPLET"),
-			"flash" => GetMessage("P_UPLOADER_TYPE_FLASH")
-		),
-		"DEFAULT" => "form",
-		"HIDDEN" => $arCurrentValues["UPLOADER_TYPE"] == "form" ? "Y" : "N",
-		"REFRESH" => "Y"
-	);
-}
-
-if ($arCurrentValues["UPLOADER_TYPE"] == "applet")
-{
-	$arComponentParameters["PARAMETERS"]["APPLET_LAYOUT"] = array(
-			"PARENT" => "PHOTO_SETTINGS",
-			"NAME" => GetMessage("P_APPLET_LAYOUT"),
-			"TYPE" => "LIST",
-			"VALUES" => array(
-				"extended" => GetMessage("P_APPLET_LAYOUT_EXTENDED"),
-				"simple" => GetMessage("P_APPLET_LAYOUT_SIMPLE"),
-			),
-			"DEFAULT" => "extended"
-	);
-}
 
 $arComponentParameters["PARAMETERS"]["UPLOAD_MAX_FILE_SIZE"] = array(
 	"PARENT" => "PHOTO_SETTINGS",
@@ -267,15 +236,12 @@ if ($arCurrentValues["USE_WATERMARK"] != "N")
 		);
 	}
 
-	if ($arCurrentValues["UPLOADER_TYPE"] != "applet")
-	{
-		$arComponentParameters["PARAMETERS"]["PATH_TO_FONT"] = array(
-			"PARENT" => "WATERMARK",
-			"NAME" => GetMessage("P_PATH_TO_FONT"),
-			"TYPE" => "STRING",
-			"DEFAULT" => "default.ttf"
-		);
-	}
+	$arComponentParameters["PARAMETERS"]["PATH_TO_FONT"] = array(
+		"PARENT" => "WATERMARK",
+		"NAME" => GetMessage("P_PATH_TO_FONT"),
+		"TYPE" => "STRING",
+		"DEFAULT" => "default.ttf"
+	);
 
 	$arComponentParameters["PARAMETERS"]["WATERMARK_MIN_PICTURE_SIZE"] = array(
 		"PARENT" => "WATERMARK",
@@ -284,13 +250,6 @@ if ($arCurrentValues["USE_WATERMARK"] != "N")
 		"DEFAULT" => "800"
 	);
 }
-
-// $arComponentParameters["PARAMETERS"]["ALBUM_PHOTO_WIDTH"] = array(
-	// "PARENT" => "PHOTO_SETTINGS",
-	// "NAME" => GetMessage("P_ALBUM_PHOTO_WIDTH"),
-	// "TYPE" => "STRING",
-	// "DEFAULT" => "200"
-// );
 
 $arComponentParameters["PARAMETERS"]["ALBUM_PHOTO_THUMBS_WIDTH"] = array(
 	"PARENT" => "PHOTO_SETTINGS",
@@ -321,10 +280,5 @@ $arComponentParameters["PARAMETERS"]["JPEG_QUALITY"] = array(
 	"DEFAULT" => "100"
 );
 
-// $arComponentParameters["PARAMETERS"]["DISPLAY_PANEL"] = array(
-	// "PARENT" => "ADDITIONAL_SETTINGS",
-	// "NAME" => GetMessage("T_IBLOCK_DESC_NEWS_PANEL"),
-	// "TYPE" => "CHECKBOX",
-	// "DEFAULT" => "N");
 $arComponentParameters["PARAMETERS"]["SET_TITLE"] = array();
 ?>

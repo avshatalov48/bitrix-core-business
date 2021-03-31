@@ -259,6 +259,7 @@ class Site
 
 		if (isset($ratio['LANDING']))
 		{
+			\Bitrix\Landing\Rights::setGlobalOff();
 			$siteType = $ratio['LANDING']['TYPE'];
 			$siteId = $ratio['LANDING']['SITE_ID'];
 			$blocks = $ratio['LANDING']['BLOCKS'];
@@ -401,6 +402,8 @@ class Site
 				}
 			}
 
+			\Bitrix\Landing\Rights::setGlobalOn();
+
 			return [
 				'CREATE_DOM_LIST' => [
 					[
@@ -418,6 +421,8 @@ class Site
 				],
 			];
 		}
+
+		\Bitrix\Landing\Rights::setGlobalOn();
 
 		return [];
 	}

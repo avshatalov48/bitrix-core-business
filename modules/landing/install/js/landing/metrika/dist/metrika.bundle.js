@@ -134,7 +134,7 @@ this.BX = this.BX || {};
 	            var formData = dataAttr.split('|');
 
 	            if (!_this3.formsLoaded.includes(formData[0] + '|' + formData[1])) {
-	              _this3.sendLabel(formData[2], 'formFailLoad', formData[0] + '|' + formData[1]);
+	              _this3.sendLabel(null, 'formFailLoad', formData[0] + '|' + formData[1]);
 	            }
 	          }
 	        });
@@ -156,7 +156,7 @@ this.BX = this.BX || {};
 
 	      this.sendedLabel.push(label + value);
 	      BX.ajax({
-	        url: portalUrl + '/bitrix/images/landing/analytics/pixel.gif?action=' + label + (value ? '&value=' + value : '') + '&time=' + new Date().getTime()
+	        url: (portalUrl ? portalUrl : '') + '/bitrix/images/landing/analytics/pixel.gif?action=' + label + (value ? '&value=' + value : '') + '&time=' + new Date().getTime()
 	      });
 	    }
 	  }]);

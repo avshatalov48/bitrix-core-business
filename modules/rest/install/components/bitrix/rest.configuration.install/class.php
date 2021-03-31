@@ -40,11 +40,30 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 	protected function checkRequiredParams()
 	{
 		$this->errors = new ErrorCollection();
-		if(!\CRestUtil::isAdmin())
+
+		$manifestCode = '';
+		if (!empty($this->arParams['IMPORT_MANIFEST']['CODE']))
 		{
-			$this->errors->setError(new Error(Loc::getMessage('REST_CONFIGURATION_INSTALL_ACCESS_DENIED')));
+			$manifestCode = $this->arParams['IMPORT_MANIFEST']['CODE'];
+		}
+		elseif ($this->arParams['MANIFEST_CODE'])
+		{
+			$manifestCode = $this->arParams['MANIFEST_CODE'];
+		}
+		$access = Manifest::checkAccess(Manifest::ACCESS_TYPE_IMPORT, $manifestCode);
+		if ($access['result'] !== true)
+		{
+			$this->errors->setError(
+				new Error(
+					$access['message'] !== ''
+						? htmlspecialcharsbx($access['message'])
+						: Loc::getMessage('REST_CONFIGURATION_INSTALL_ACCESS_DENIED')
+				)
+			);
+
 			return false;
 		}
+
 		if($this->arParams['IMPORT_DISK_FOLDER_ID'])
 		{
 			$this->diskFolder = $this->getDiskFolder();

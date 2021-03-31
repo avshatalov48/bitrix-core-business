@@ -32,11 +32,20 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 
 	protected function checkRequiredParams()
 	{
-		if(!\CRestUtil::isAdmin())
+		$access = Manifest::checkAccess(Manifest::ACCESS_TYPE_IMPORT, $this->arParams['MANIFEST_CODE']);
+		if ($access['result'] !== true)
 		{
-			$this->errors->setError(new Error(Loc::getMessage('REST_CONFIGURATION_IMPORT_ACCESS_DENIED')));
+			$this->errors->setError(
+				new Error(
+					$access['message'] !== ''
+						? htmlspecialcharsbx($access['message'])
+						: Loc::getMessage('REST_CONFIGURATION_IMPORT_ACCESS_DENIED')
+				)
+			);
+
 			return false;
 		}
+
 		return true;
 	}
 

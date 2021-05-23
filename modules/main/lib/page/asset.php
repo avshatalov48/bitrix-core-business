@@ -2443,7 +2443,7 @@ class Asset
 				}
 
 				$startData = $offset + strlen(self::HEADER_START_TAG);
-				$data = unserialize(substr($content, $startData, $endingPos - $startData));
+				$data = unserialize(substr($content, $startData, $endingPos - $startData), ['allowed_classes' => false]);
 
 				if (is_array($data))
 				{

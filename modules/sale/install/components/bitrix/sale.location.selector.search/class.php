@@ -28,7 +28,7 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 	 * Fatal error list. Any fatal error makes useless further execution of a component code. 
 	 * In most cases, there will be only one error in a list according to the scheme "one shot - one dead body"
 	 *
-	 * @var string[] Array of fatal errors.
+	 * @var array Array of fatal errors.
 	 */
 
 	protected $errors = array();
@@ -55,14 +55,21 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 
 	/**
 	 * Function checks if required modules installed. If not, throws an exception
-	 * @return void
+	 * @return bool
 	 */
 	protected function checkRequiredModules()
 	{
-		if (!Loader::includeModule('sale'))
+		if (!static::includeRequiredModules())
+		{
 			$this->errors['FATAL'][] = Loc::getMessage("SALE_SLS_SALE_MODULE_NOT_INSTALL");
+		}
 
 		return true;
+	}
+
+	protected static function includeRequiredModules(): bool
+	{
+		return Loader::includeModule('sale');
 	}
 
 	/**
@@ -721,7 +728,7 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 
 	public static function processSearchRequestV2($parameters)
 	{
-		static::checkRequiredModules();
+		static::includeRequiredModules();
 		$parameters = static::processSearchRequestV2CheckQuery($parameters);
 
 		// map page & page_size => limit & offset
@@ -1063,7 +1070,7 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 	 */
 	public static function processSearchRequest()
 	{
-		static::checkRequiredModules();
+		static::includeRequiredModules();
 
 		$parameters = static::processSearchGetParameters();
 

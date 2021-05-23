@@ -36,7 +36,7 @@ Vue.component('bx-smiles', {
 		this.setSelected = 0;
 		this.serverLoad = false;
 
-		let restClient = this.$root.$bitrixRestClient || rest;
+		let restClient = this.$root.$bitrixRestClient || this.$Bitrix.RestClient.get();
 
 		this.smilesController = new SmileManager(restClient);
 		this.smilesController.loadFromCache().then((result) => {

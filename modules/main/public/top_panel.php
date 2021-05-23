@@ -976,7 +976,7 @@ class CTopPanel
 		//we have settings in the main module options
 		if($bShowPanel == false)
 		{
-			$arCodes = unserialize(COption::GetOptionString("main", "show_panel_for_users"));
+			$arCodes = unserialize(COption::GetOptionString("main", "show_panel_for_users"), ['allowed_classes' => false]);
 			if(!empty($arCodes))
 			{
 				$userCodes = $USER->GetAccessCodes();
@@ -990,7 +990,7 @@ class CTopPanel
 		//hiding the panel has the higher priority
 		if($bShowPanel == true)
 		{
-			$arCodes = unserialize(COption::GetOptionString("main", "hide_panel_for_users"));
+			$arCodes = unserialize(COption::GetOptionString("main", "hide_panel_for_users"), ['allowed_classes' => false]);
 			if(!empty($arCodes))
 			{
 				if($userCodes == null)

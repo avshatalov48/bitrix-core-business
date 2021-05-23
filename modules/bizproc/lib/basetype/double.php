@@ -121,11 +121,23 @@ class Double extends Base
 
 		if ($renderMode & FieldType::RENDER_MODE_PUBLIC)
 		{
-			$renderResult = '<input type="text" class="'.htmlspecialcharsbx($className)
-				.'" name="'.htmlspecialcharsbx($name).'" value="'.htmlspecialcharsbx((string) $value)
-				.'" placeholder="'.htmlspecialcharsbx($fieldType->getDescription()).'" value="'.htmlspecialcharsbx((string) $value).'"'
-				.($allowSelection ? ' data-role="inline-selector-target"' : '')
-				.'/>';
+			$selectorAttributes = '';
+			if ($allowSelection)
+			{
+				$selectorAttributes = sprintf(
+					'data-role="inline-selector-target" data-property="%s" ',
+					htmlspecialcharsbx(Main\Web\Json::encode($fieldType->getProperty()))
+				);
+			}
+
+			$renderResult = sprintf(
+				'<input type="text" class="%s" name="%s" value="%s" placeholder="%s" %s/>',
+				htmlspecialcharsbx($className),
+				htmlspecialcharsbx($name),
+				htmlspecialcharsbx((string)$value),
+				htmlspecialcharsbx($fieldType->getDescription()),
+				$selectorAttributes
+			);
 		}
 		else
 		{

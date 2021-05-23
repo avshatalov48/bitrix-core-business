@@ -1,4 +1,4 @@
-<?
+<?php
 /** @global \CMain $APPLICATION */
 define('STOP_STATISTICS', true);
 define('NOT_CHECK_PERMISSIONS', true);
@@ -29,7 +29,7 @@ catch (\Bitrix\Main\Security\Sign\BadSignatureException $e)
 	die();
 }
 
-$parameters = unserialize(base64_decode($paramString));
+$parameters = unserialize(base64_decode($paramString), ['allowed_classes' => false]);
 if (isset($parameters['PARENT_NAME']))
 {
 	$parent = new CBitrixComponent();

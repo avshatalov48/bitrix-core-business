@@ -36,4 +36,7 @@ $MESS["REST_MP_APP_INSTALL_REQUEST"] = "Отправить";
 $MESS["MARKETPLACE_MORE_BUTTON"] = "Ещё";
 $MESS["MARKETPLACE_HIDDEN_BUY"] = "Содержит встроенные покупки";
 $MESS["MARKETPLACE_CONFIGURATION_INSTALL_SETTING_BTN"] = "Настроить";
-?>
+$MESS["REST_MARKETPLACE_HIDDEN_BUY"] = "содержит встроенные покупки";
+$MESS["REST_MARKETPLACE_SUBSCRIPTION_EXPANDS"] = "расширенный функционал по подписке на Битрикс24.Маркет";
+$MESS["REST_MARKETPLACE_EXTERNAL_PAYMENT"] = "требуется оплата внешнего сервиса";
+$MESS["REST_MARKETPLACE_SUBSCRIPTION_REQUIRED"] = "требуется подписка";

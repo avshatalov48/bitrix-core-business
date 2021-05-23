@@ -254,12 +254,7 @@ class Apply
 						$content = $source->getContents();
 						$content = str_replace(array("\r\n", "\r"), array("\n", "\n"), $content);
 
-						$errorMessage = '';
-						$content = Main\Text\Encoding::convertEncoding($content, $this->encodingIn, $this->encodingOut, $errorMessage);
-						if (!$content && !empty($errorMessage))
-						{
-							$this->addError(new Main\Error($errorMessage));
-						}
+						$content = Main\Text\Encoding::convertEncoding($content, $this->encodingIn, $this->encodingOut);
 						$target->putContents($content);
 					}
 					else

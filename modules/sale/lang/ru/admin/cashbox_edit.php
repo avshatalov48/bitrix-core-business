@@ -42,4 +42,5 @@ $MESS['CASHBOX_CHECK_CONNECTION_TITLE_POPUP_CLOSE'] = 'Закрыть';
 $MESS["ERROR_NO_OFD_EXIST"] = "Неверный ОФД";
 $MESS["SALE_CASHBOX_NOTE_VALUE_PRECISION"] = "Внимание, в настройках интернет-магазина у Вас установлена точность округления при расчетах свыше двух знаков.<br> Это может приводить к ошибкам округления при печати чеков. Установите, пожалуйста, точность округления при расчетах до двух знаков";
 $MESS["SALE_CASHBOX_FOR_UA"] = "(для Украины)";
-$MESS["SALE_CASHBOX_UA_HINT"] = "Обратите внимание: данный обработчик будет работать только для Украины.";
+$MESS["SALE_CASHBOX_CASHBOXCHECKBOX_HINT"] = "Обратите внимание: данный обработчик будет работать только для Украины.";
+$MESS["SALE_CASHBOX_CASHBOXBUSINESSRU_HINT"] = "Для подключения необходимо оставить <a target='_blank' href='https://online-check.business.ru/form-bitrix/'>заявку</a> сайте";

@@ -26,8 +26,8 @@ IncludeModuleLangFile(dirname(__FILE__).'/dump.php');
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/backup.php");
 $strBXError = '';
 $bGzip = function_exists('gzcompress');
-$bMcrypt = function_exists('mcrypt_encrypt') || function_exists('openssl_encrypt');
-$bBitrixCloud = $bMcrypt;
+$encrypt = function_exists('openssl_encrypt');
+$bBitrixCloud = $encrypt;
 if (!CModule::IncludeModule('bitrixcloud'))
 {
 	$bBitrixCloud = false;
@@ -80,7 +80,7 @@ if($_REQUEST['save'])
 	else
 	{
 		$BUCKET_ID = $_REQUEST['dump_bucket_id'];
-		if (!$bMcrypt)
+		if (!$encrypt)
 		{
 			$_REQUEST['dump_encrypt_key'] = '';
 			if ($BUCKET_ID == -1)
@@ -274,10 +274,10 @@ else
 			"HTML" => true));
 }
 
-if (!$bMcrypt)
+if (!$encrypt)
 {
 	CAdminMessage::ShowMessage(array(
-		"MESSAGE" => GetMessage("MAIN_DUMP_NOT_INSTALLED"),
+		"MESSAGE" => GetMessage("MAIN_DUMP_NOT_INSTALLED1"),
 		"DETAILS" => GetMessage("MAIN_DUMP_NO_ENC_FUNCTIONS"),
 		"TYPE" => "ERROR",
 		"HTML" => true));
@@ -616,7 +616,7 @@ if ($BUCKET_ID == -1 && !$bBitrixCloud)
 		<td>
 			<?
 				if ($s = COption::GetOptionString("main", "dump_site_id"."_auto", ($NS['dump_site_id'])))
-					$dump_site_id = unserialize($s);
+					$dump_site_id = unserialize($s, ['allowed_classes' => false]);
 				else
 					$dump_site_id = array();
 				$i = 0;
@@ -686,7 +686,7 @@ if ($DB->type == 'MYSQL')
 		<?
 		$i=-1;
 
-		$res = unserialize(COption::GetOptionString("main","skip_mask_array_auto"));
+		$res = unserialize(COption::GetOptionString("main","skip_mask_array_auto"), ['allowed_classes' => false]);
 		$skip_mask_array = is_array($res)?$res:array();
 
 		foreach($skip_mask_array as $mask)
@@ -717,7 +717,7 @@ if ($DB->type == 'MYSQL')
 
 <tr>
 	<td><?=GetMessage("MAIN_DUMP_ENABLE_ENC")?><span class="required"><sup>2</sup></td>
-	<td><input type="checkbox" name="dump_encrypt" value="Y" <?=($BUCKET_ID == -1 || CPasswordStorage::Get('dump_temporary_cache') ? "checked" : "")?> <?=!$bMcrypt || $BUCKET_ID == -1  ? 'disabled' : ''?>></td>
+	<td><input type="checkbox" name="dump_encrypt" value="Y" <?=($BUCKET_ID == -1 || CPasswordStorage::Get('dump_temporary_cache') ? "checked" : "")?> <?=!$encrypt || $BUCKET_ID == -1  ? 'disabled' : ''?>></td>
 </tr>
 <tr>
 	<td width=40%><?=GetMessage('INTEGRITY_CHECK_OPTION')?></td>

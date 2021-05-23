@@ -258,7 +258,7 @@ class RestClient
 
 		if($accessSettings != '')
 		{
-			$accessSettings =  unserialize($accessSettings);
+			$accessSettings =  unserialize($accessSettings, ['allowed_classes' => false]);
 
 			if($accessSettings)
 				return $accessSettings;
@@ -323,7 +323,7 @@ class RestClient
 		$result = Option::get('sale', static::UNSUCCESSFUL_CALL_OPTION, "");
 
 		if($result <> '')
-			$result = unserialize($result);
+			$result = unserialize($result, ['allowed_classes' => false]);
 
 		return is_array($result) ? $result : array();
 	}

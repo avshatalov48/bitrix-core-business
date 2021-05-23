@@ -20,7 +20,7 @@ if (empty($arResult))
 	<ul class="bx-inclinksfooter-list">
 		<?foreach($arResult as $itemIdex => $arItem):?>
 			<?if ($arItem["DEPTH_LEVEL"] == "1"):?>
-				<li class="bx-inclinksfooter-item"><a href="<?=htmlspecialcharsbx($arItem["LINK"])?>"><?=htmlspecialcharsbx($arItem["TEXT"])?></a></li>
+				<li class="bx-inclinksfooter-item"><a href="<?=htmlspecialcharsbx($arItem["LINK"])?>"><?=htmlspecialcharsbx($arItem["TEXT"], ENT_COMPAT, false)?></a></li>
 			<?endif?>
 		<?endforeach;?>
 	</ul>

@@ -16,7 +16,7 @@ $arResult = array("STATUS" => "N", "NOTIFY_URL" => "", "ERRORS" => "");
 $notifyOption = COption::GetOptionString("sale", "subscribe_prod", "");
 $arNotify = Array();
 if($notifyOption <> '')
-	$arNotify = unserialize($notifyOption);
+	$arNotify = unserialize($notifyOption, ['allowed_classes' => false]);
 
 if (CModule::IncludeModule('sale') && CModule::IncludeModule('catalog') && $arParams["NOTIFY_ID"] > 0 && !empty($arNotify) && $arNotify[SITE_ID]['use'] == 'Y')
 {

@@ -6,7 +6,10 @@
  * @copyright 2001-2020 Bitrix
  */
 
-class COperation
+/**
+ * @deprecated Use COperation
+ */
+class CAllOperation
 {
 	public static function err_mess()
 	{
@@ -142,4 +145,8 @@ class COperation
 
 		return $desc;
 	}
+}
+
+class COperation extends CAllOperation
+{
 }

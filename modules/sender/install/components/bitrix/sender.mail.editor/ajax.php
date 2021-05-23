@@ -6,6 +6,7 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_befo
 
 use Bitrix\Main\HttpRequest;
 use Bitrix\Sender\Internals\CommonAjax;
+use Bitrix\Sender\Internals\PostFiles;
 use Bitrix\Sender\Internals\QueryController as Controller;
 
 if (!Bitrix\Main\Loader::includeModule('sender'))
@@ -57,43 +58,18 @@ $actions[] = Controller\Action::create('saveFile')
 						continue;
 					}
 
-					$isCheckedSuccess = false;
-					$io = \CBXVirtualIo::GetInstance();
-					$docRoot = \Bitrix\Main\Application::getDocumentRoot();
-					if(mb_strpos($filePath, \CTempFile::GetAbsoluteRoot()) === 0)
-					{
-						$absPath = $filePath;
-					}
-					elseif(mb_strpos($io->CombinePath($docRoot, $filePath), \CTempFile::GetAbsoluteRoot()) === 0)
-					{
-						$absPath = $io->CombinePath($docRoot, $filePath);
-					}
-					else
-					{
-						$absPath = $io->CombinePath(\CTempFile::GetAbsoluteRoot(), $filePath);
-						$isCheckedSuccess = true;
-					}
+					$checkResult = PostFiles::checkAbsolutePath($filePath);
 
-					$absPath = realpath(str_replace("\\", "/", $absPath));
-					if (mb_strpos($absPath, realpath(\CTempFile::GetAbsoluteRoot())) !== 0)
+					if(is_null($checkResult))
 					{
 						continue;
 					}
-
-					if (!$isCheckedSuccess && $io->ValidatePathString($absPath) && $io->FileExists($absPath))
-					{
-						$docRoot = $io->CombinePath($docRoot, '/');
-						$relPath = str_replace($docRoot, '', $absPath);
-						$perm = $GLOBALS['APPLICATION']->GetFileAccessPermission($relPath);
-						if ($perm >= "W")
-						{
-							$isCheckedSuccess = true;
-						}
-					}
+					$isCheckedSuccess = $checkResult['isSuccess'];
 
 					if($isCheckedSuccess)
 					{
-						$fileList[$filePath] = \CFile::MakeFileArray($io->GetPhysicalName($absPath));
+						$io = \CBXVirtualIo::GetInstance();
+						$fileList[$filePath] = \CFile::MakeFileArray($io->GetPhysicalName($checkResult['absPath']));
 						if(isset($value['name']))
 						{
 							$fileList[$filePath]['name'] = $value['name'];

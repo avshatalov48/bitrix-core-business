@@ -2,9 +2,9 @@
 
 namespace Bitrix\Catalog\v2\Price;
 
-use Bitrix\Catalog\v2\BaseCollection;
 use Bitrix\Catalog\v2\BaseEntity;
 use Bitrix\Catalog\v2\Fields\TypeCasters\MapTypeCaster;
+use Bitrix\Catalog\v2\HasSettingsTrait;
 
 /**
  * Class BasePrice
@@ -16,35 +16,33 @@ use Bitrix\Catalog\v2\Fields\TypeCasters\MapTypeCaster;
  */
 abstract class BasePrice extends BaseEntity
 {
+	use HasSettingsTrait;
+
 	public function __construct(PriceRepositoryContract $priceRepository)
 	{
 		parent::__construct($priceRepository);
 	}
 
-	public function setParentCollection(?BaseCollection $collection): BaseEntity
-	{
-		parent::setParentCollection($collection);
-
-		$parent = $this->getParent();
-
-		if ($parent && !$parent->isNew())
-		{
-			$this->setProductId($parent->getId());
-		}
-
-		return $this;
-	}
-
-	public function setPrice(float $price): self
+	public function setPrice(?float $price): self
 	{
 		$this->setField('PRICE', $price);
 
 		return $this;
 	}
 
-	public function getPrice(): float
+	public function unsetPrice(): self
 	{
-		return (float)$this->getField('PRICE');
+		return $this->setPrice(null);
+	}
+
+	public function hasPrice(): bool
+	{
+		return $this->hasField('PRICE');
+	}
+
+	public function getPrice(): ?float
+	{
+		return $this->hasPrice() ? (float)$this->getField('PRICE') : null;
 	}
 
 	public function setCurrency($currency): self
@@ -61,14 +59,7 @@ abstract class BasePrice extends BaseEntity
 
 	public function isPriceBase(): bool
 	{
-		return $this->getField('BASE') === 'Y';
-	}
-
-	public function setPriceBase(bool $state): self
-	{
-		$this->setField('BASE', $state ? 'Y' : 'N');
-
-		return $this;
+		return $this->getSetting('BASE') === 'Y';
 	}
 
 	public function setGroupId(int $groupId): self
@@ -102,7 +93,7 @@ abstract class BasePrice extends BaseEntity
 			'PRODUCT_ID' => MapTypeCaster::INT,
 			'EXTRA_ID' => MapTypeCaster::NULLABLE_INT,
 			'CATALOG_GROUP_ID' => MapTypeCaster::INT,
-			'PRICE' => MapTypeCaster::FLOAT,
+			'PRICE' => MapTypeCaster::NULLABLE_FLOAT,
 			'CURRENCY' => MapTypeCaster::STRING,
 			'TIMESTAMP_X' => MapTypeCaster::DATETIME,
 			'QUANTITY_FROM' => MapTypeCaster::NULLABLE_INT,

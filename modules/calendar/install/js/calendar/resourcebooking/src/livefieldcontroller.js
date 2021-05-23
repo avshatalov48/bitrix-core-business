@@ -27,6 +27,8 @@ export class LiveFieldController extends EventEmitter
 		this.userFieldParams = null;
 		this.loadedDates = [];
 
+		this.externalSiteContext = Type.isFunction(params.actionAgent);
+
 		this.accessibility = {
 			user : {},
 			resource: {}
@@ -121,6 +123,13 @@ export class LiveFieldController extends EventEmitter
 		}
 		else
 		{
+			if (this.externalSiteContext && BX.ZIndexManager)
+			{
+				const stack = BX.ZIndexManager.getOrAddStack(document.body);
+				stack.baseIndex = 100000;
+				stack.sort();
+			}
+
 			this.preparaAutoSelectValues();
 			this.displayUsersControl();
 			this.displayResourcesControl();
@@ -1157,16 +1166,15 @@ export class LiveFieldController extends EventEmitter
 		}
 
 		let slotIndex = {};
-
 		if (Type.isDate(params.date))
 		{
 			if (this.getFieldParams().ALLOW_OVERBOOKING !== "Y"
 				&& (this.isUserSelectorInAutoMode() || this.isResourceSelectorInAutoMode()))
 			{
+				const fieldParams = this.getFieldParams();
 				let
 					freeSlot,
 					i, j, time,
-					settingsData = this.getSettingsData(),
 					slotGap = 1,
 					todayNowTime = 0,
 					timeSlots = this.getTimeSlots(),
@@ -1176,8 +1184,11 @@ export class LiveFieldController extends EventEmitter
 
 				if (this.checkIsTodayDate(dateKey))
 				{
-					let today = new Date();
-					todayNowTime = today.getHours() * 60 + today.getMinutes();
+					const today = new Date();
+					const deltaOffset = fieldParams.USE_USER_TIMEZONE === 'N'
+						? today.getTimezoneOffset() * 60 + this.timezoneOffset:
+						0;
+					todayNowTime = today.getHours() * 60 + today.getMinutes() + (deltaOffset / 60);
 				}
 
 				// Prefill slotIndex
@@ -1257,15 +1268,16 @@ export class LiveFieldController extends EventEmitter
 
 	getAvailableSlotIndex(params)
 	{
+		let todayNowTime = 0;
+		const fieldParams = this.getFieldParams();
 		let
 			dateKey, loadedDate, i, j, time,
-			todayNowTime = 0,
 			slotGap,
 			userKey = params.user ? 'user' + params.user : null,
 			slotsAmount = Math.ceil(params.duration / this.scale),
 			userIsFree, resourcesAreFree,
 			timeSlots = this.getTimeSlots(),
-			allowOverbooking = this.getFieldParams().ALLOW_OVERBOOKING === "Y",
+			allowOverbooking = fieldParams.ALLOW_OVERBOOKING === "Y",
 			slotIndex = {};
 
 		// Prefill slotIndex
@@ -1279,8 +1291,11 @@ export class LiveFieldController extends EventEmitter
 
 			if (this.checkIsTodayDate(dateKey))
 			{
-				let today = new Date();
-				todayNowTime = today.getHours() * 60 + today.getMinutes();
+				const today = new Date();
+				const deltaOffset = fieldParams.USE_USER_TIMEZONE === 'N'
+					? today.getTimezoneOffset() * 60 + this.timezoneOffset:
+					0;
+				todayNowTime = today.getHours() * 60 + today.getMinutes() + (deltaOffset / 60);
 			}
 
 			for (i = timeSlots.length; i--; i >= 0)

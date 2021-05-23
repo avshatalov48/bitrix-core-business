@@ -98,7 +98,8 @@ class ProductConverter
 
 		/** @var \Bitrix\Catalog\v2\Sku\SkuCollection $skuCollection */
 		$skuCollection = $simpleItem->getParentCollection();
-		$skuCollection->remove($simpleItem)
+		$skuCollection
+			->remove($simpleItem)
 			->clearRemoved($simpleItem)
 			->add($skuItem)
 		;
@@ -107,6 +108,10 @@ class ProductConverter
 			'ID' => true,
 			'IBLOCK_ID' => true,
 			'TYPE' => true,
+			'DETAIL_TEXT' => true,
+			'DETAIL_TEXT_TYPE' => true,
+			'PREVIEW_TEXT' => true,
+			'PREVIEW_TEXT_TYPE' => true,
 		]);
 		$skuItem->setFields($fields);
 

@@ -65,8 +65,24 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 		));
 
 		$this->arParams['SERVICES'] = array();
+
+		$mailServicesOnlyForTheRuZone = [
+			'yandex',
+			'mail.ru',
+		];
+
+		$isRuZone = \Bitrix\Main\Loader::includeModule('bitrix24')
+			? in_array(\CBitrix24::getPortalZone(), ['ru', 'kz', 'by'])
+			: in_array(LANGUAGE_ID, ['ru', 'kz', 'by'])
+		;
+
 		while ($service = $res->fetch())
 		{
+			if(!$isRuZone && in_array($service['NAME'],$mailServicesOnlyForTheRuZone))
+			{
+				continue;
+			}
+
 			$this->arParams['SERVICES'][$service['ID']] = array(
 				'id'         => $service['ID'],
 				'type'       => $service['SERVICE_TYPE'],

@@ -405,16 +405,33 @@ HTML;
 
 		if ($renderMode & FieldType::RENDER_MODE_PUBLIC)
 		{
-			return '<input type="text" class="'.htmlspecialcharsbx($className)
-				.'" name="'.htmlspecialcharsbx($name).'" value="'.htmlspecialcharsbx((string) $value)
-				.'" placeholder="'.htmlspecialcharsbx($fieldType->getDescription()).'" value="'.htmlspecialcharsbx((string) $value).'"'
-				.($allowSelection ? ' data-role="inline-selector-target"' : '')
-				.'/>';
+			$selectorAttributes = '';
+			if ($allowSelection)
+			{
+				$selectorAttributes = sprintf(
+					'data-role="inline-selector-target" data-property="%s" ',
+					htmlspecialcharsbx(Main\Web\Json::encode($fieldType->getProperty()))
+				);
+			}
+
+			return sprintf(
+				'<input type="text" class="%s" name="%s" value="%s" placeholder="%s" %s/>',
+				htmlspecialcharsbx($className),
+				htmlspecialcharsbx($name),
+				htmlspecialcharsbx((string)$value),
+				htmlspecialcharsbx($fieldType->getDescription()),
+				$selectorAttributes
+			);
 		}
 
 		// example: control rendering
-		return '<input type="text" class="'.htmlspecialcharsbx($className).'" size="40" id="'.htmlspecialcharsbx($controlId).'" name="'
-			.htmlspecialcharsbx($name).'" value="'.htmlspecialcharsbx((string) $value).'"/>';
+		return sprintf(
+			'<input type="text" class="%s" size="40" id="%s" name="%s" value="%s"/>',
+			htmlspecialcharsbx($className),
+			htmlspecialcharsbx($controlId),
+			htmlspecialcharsbx($name),
+			htmlspecialcharsbx((string)$value)
+		);
 	}
 
 	/**

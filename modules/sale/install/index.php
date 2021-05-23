@@ -372,6 +372,7 @@ Class sale extends CModule
 
 		\CAgent::AddAgent('\Bitrix\Sale\PaySystem\Internals\Analytics\Agent::send();', 'sale', 'Y', 86400, '', 'Y');
 		\CAgent::AddAgent('\Bitrix\Sale\Cashbox\Internals\Analytics\Agent::send();', 'sale', 'Y', 86400, '', 'Y');
+		\CAgent::AddAgent('\Bitrix\Sale\Delivery\Internals\Analytics\Agent::send();', 'sale', 'Y', 86400, '', 'Y');
 
 		return true;
 	}
@@ -547,6 +548,7 @@ Class sale extends CModule
 		$statusMes[] = "SALE_ORDER_TRACKING_NUMBER";
 		$statusMes[] = "SALE_SUBSCRIBE_PRODUCT";
 		$statusMes[] = "SALE_CHECK_PRINT";
+		$statusMes[] = "SALE_CHECK_VALIDATION_ERROR";
 		$statusMes[] = "SALE_CHECK_PRINT_ERROR";
 		$statusMes[] = "SALE_ORDER_SHIPMENT_STATUS_CHANGED";
 

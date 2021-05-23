@@ -261,7 +261,7 @@ class OrderArchiveTable extends Main\Entity\DataManager
 
 			while ($packed = $packedData->fetch())
 			{
-				$orderData = unserialize($packed['ORDER_DATA']);
+				$orderData = unserialize($packed['ORDER_DATA'], ['allowed_classes' => false]);
 				if (is_array($orderData['ORDER']))
 				{
 					$preparedOrderData = array_intersect_key($orderData['ORDER'], array_flip(Sale\Archive\Manager::getOrderFieldNames()));

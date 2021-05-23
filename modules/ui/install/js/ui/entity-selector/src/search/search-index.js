@@ -9,6 +9,9 @@ import type SearchField from './search-field';
 import unicodeWordsRegExp from './unicode-words';
 const asciiWordRegExp = /[^\x00-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]+/g;
 const hasUnicodeWordRegExp = /[a-z][A-Z]|[A-Z]{2}[a-z]|[0-9][a-zA-Z]|[a-zA-Z][0-9]|[^a-zA-Z0-9 ]/;
+const nonWhitespaceRegExp = /[^\s]+/g;
+const specialChars = `!"#$%&'()*+,-.\/:;<=>?@[\\]^_\`{|}`;
+const specialCharsRegExp = new RegExp(`[${specialChars}]`);
 
 export default class SearchIndex
 {
@@ -43,7 +46,7 @@ export default class SearchIndex
 
 		const searchFields = entity.getSearchFields();
 		searchFields.forEach(field => {
-			if (!field.isSeachable())
+			if (!field.isSearchable())
 			{
 				return;
 			}
@@ -57,6 +60,10 @@ export default class SearchIndex
 				else if (field.getName() === 'subtitle')
 				{
 					index.addIndex(this.createIndex(field, item.getSubtitle()));
+				}
+				else if (field.getName() === 'supertitle')
+				{
+					index.addIndex(this.createIndex(field, item.getSupertitle()));
 				}
 			}
 			else
@@ -88,6 +95,8 @@ export default class SearchIndex
 				// "GoPro111 Leto15"
 				// [go, pro, 111, leto, 15] + [gopro111, leto15]
 				this.fillComplexWords(wordIndexes);
+				this.fillNonCharWords(wordIndexes, text);
+
 				index = new SearchFieldIndex(field, wordIndexes);
 			}
 		}
@@ -139,6 +148,7 @@ export default class SearchIndex
 		let match;
 		const result = [];
 
+		regExp.lastIndex = 0;
 		while ((match = regExp.exec(text)) !== null)
 		{
 			if (match.index === regExp.lastIndex)
@@ -197,5 +207,48 @@ export default class SearchIndex
 				startIndex = null;
 			}
 		});
+	}
+
+	/**
+	 *  @private
+	 */
+	static fillNonCharWords(indexes: WordIndex[], text: string): void
+	{
+		if (!specialCharsRegExp.test(text))
+		{
+			return;
+		}
+
+		let match;
+		while ((match = nonWhitespaceRegExp.exec(text)) !== null)
+		{
+			if (match.index === nonWhitespaceRegExp.lastIndex)
+			{
+				nonWhitespaceRegExp.lastIndex++;
+			}
+
+			const word = match[0];
+			if (specialCharsRegExp.test(word))
+			{
+				indexes.push(new WordIndex(word.toLowerCase(), match.index));
+
+				for (let i = 0; i < word.length; i++)
+				{
+					const char = word[i];
+					if (!specialChars.includes(char))
+					{
+						break;
+					}
+
+					const wordToIndex = word.substr(i + 1);
+					if (wordToIndex.length)
+					{
+						indexes.push(new WordIndex(wordToIndex.toLowerCase(), match.index + i + 1));
+					}
+				}
+			}
+		}
+
+		nonWhitespaceRegExp.lastIndex = 0;
 	}
 }

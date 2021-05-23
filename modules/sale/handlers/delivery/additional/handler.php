@@ -905,7 +905,7 @@ class AdditionalHandler extends Base
 			$price += $itemFieldValues["PRICE"] * $itemFieldValues["QUANTITY"];
 
 			if(!empty($itemFieldValues["DIMENSIONS"]) && is_string($itemFieldValues["DIMENSIONS"]))
-				$itemFieldValues["DIMENSIONS"] = unserialize($itemFieldValues["DIMENSIONS"]);
+				$itemFieldValues["DIMENSIONS"] = unserialize($itemFieldValues["DIMENSIONS"], ['allowed_classes' => false]);
 
 			$result["ITEMS"][] = $itemFieldValues;
 		}

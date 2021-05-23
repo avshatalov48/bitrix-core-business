@@ -1,18 +1,23 @@
-import { ajax as Ajax, Cache, Dom, Runtime, Tag, Type } from 'main.core';
+import { ajax as Ajax, Cache, Dom, Runtime, Tag, Type, Browser, Event } from 'main.core';
+import { OrderedArray } from 'main.core.collections';
 import { Loader } from 'main.loader';
 
-import ItemCollection from './item-collection';
 import ItemNodeComparator from './item-node-comparator';
 import Highlighter from '../search/highlighter';
 import ItemBadge from './item-badge';
 import MatchField from '../search/match-field';
+import TextNode from '../common/text-node';
+import Animation from '../common/animation';
+import Item from './item';
 
-import type Item from './item';
 import type Tab from '../dialog/tabs/tab';
 import type Dialog from '../dialog/dialog';
 import type { ItemOptions } from './item-options';
 import type { ItemNodeOptions } from './item-node-options';
 import type { ItemBadgeOptions } from './item-badge-options';
+import type { TextNodeOptions } from '../common/text-node-options';
+import type { CaptionOptions } from './caption-options';
+import type { BadgesOptions } from './badges-options';
 
 export class RenderMode
 {
@@ -27,7 +32,7 @@ export default class ItemNode
 	cache = new Cache.MemoryCache();
 	parentNode: ItemNode = null;
 
-	children: ItemCollection<ItemNode> = null;
+	children: OrderedArray<ItemNode> = null;
 	childItems: WeakMap<Item, ItemNode> = new WeakMap(); // for the fast access
 
 	loaded: boolean = false;
@@ -39,15 +44,17 @@ export default class ItemNode
 	focused: boolean = false;
 
 	renderMode: RenderMode = RenderMode.PARTIAL;
-	title: ?string = null;
-	subtitle: ?string = null;
-	caption: ?string = null;
-	supertitle: ?string = null;
+	title: ?TextNode = null;
+	subtitle: ?TextNode = null;
+	supertitle: ?TextNode = null;
+	caption: ?TextNode = null;
+	captionOptions: CaptionOptions = {};
 	avatar: ?string = null;
 	link: ?string = null;
-	linkTitle: ?string = null;
+	linkTitle: ?TextNode = null;
 	textColor: ?string = null;
 	badges: ItemBadgeOptions[] = null;
+	badgesOptions: BadgesOptions = {};
 
 	highlights: MatchField[] = [];
 
@@ -73,31 +80,42 @@ export default class ItemNode
 			comparator = ItemNodeComparator.makeMultipleComparator(options.itemOrder);
 		}
 
-		this.children = new ItemCollection(comparator);
+		this.children = new OrderedArray(comparator);
 
 		this.renderMode = options.renderMode === RenderMode.OVERRIDE ? RenderMode.OVERRIDE : RenderMode.PARTIAL;
 		if (this.renderMode === RenderMode.OVERRIDE)
 		{
-			this.title = '';
-			this.subtitle = '';
-			this.caption = '';
-			this.supertitle = '';
+			this.setTitle('');
+			this.setSubtitle('');
+			this.setSupertitle('');
+			this.setCaption('');
+			this.setLinkTitle('');
+
 			this.avatar = '';
 			this.textColor = '';
 			this.link = '';
-			this.linkTitle = '';
 			this.badges = [];
+			this.captionOptions = {
+				fitContent: null,
+				maxWidth: null,
+			};
+			this.badgesOptions = {
+				fitContent: null,
+				maxWidth: null,
+			};
 		}
 
 		this.setTitle(options.title);
 		this.setSubtitle(options.subtitle);
 		this.setSupertitle(options.supertitle);
 		this.setCaption(options.caption);
+		this.setCaptionOptions(options.captionOptions);
 		this.setAvatar(options.avatar);
 		this.setTextColor(options.textColor);
 		this.setLink(options.link);
 		this.setLinkTitle(options.linkTitle);
 		this.setBadges(options.badges);
+		this.setBadgesOptions(options.badgesOptions);
 
 		this.setDynamic(options.dynamic);
 		this.setOpen(options.open);
@@ -118,11 +136,9 @@ export default class ItemNode
 		return this.getTab().getDialog();
 	}
 
-	setTab(tab: Tab): this
+	setTab(tab: Tab): void
 	{
 		this.tab = tab;
-
-		return this;
 	}
 
 	getTab(): Tab
@@ -135,11 +151,9 @@ export default class ItemNode
 		return this.parentNode;
 	}
 
-	setParentNode(parentNode: ItemNode): this
+	setParentNode(parentNode: ItemNode): void
 	{
 		this.parentNode = parentNode;
-
-		return this;
 	}
 
 	getNextSibling(): ?ItemNode
@@ -168,7 +182,7 @@ export default class ItemNode
 		return siblings.getByIndex(index - 1);
 	}
 
-	addChildren(children: ItemOptions[])
+	addChildren(children: ItemOptions[]): void
 	{
 		if (!Type.isArray(children))
 		{
@@ -232,6 +246,28 @@ export default class ItemNode
 		return itemNode;
 	}
 
+	addItems(items: Item[]): void
+	{
+		if (Type.isArray(items))
+		{
+			this.disableRender();
+
+			items.forEach((item: Item) => {
+				if (item instanceof Item)
+				{
+					this.addItem(item);
+				}
+			});
+
+			this.enableRender();
+
+			if (this.isRendered())
+			{
+				this.renderWithDebounce();
+			}
+		}
+	}
+
 	hasItem(item: Item): boolean
 	{
 		return this.childItems.has(item);
@@ -244,10 +280,7 @@ export default class ItemNode
 			return false;
 		}
 
-		while (child.getFirstChild())
-		{
-			child.removeChild(child.getFirstChild());
-		}
+		child.removeChildren();
 
 		if (child.isFocused())
 		{
@@ -256,12 +289,13 @@ export default class ItemNode
 
 		child.setParentNode(null);
 		child.getItem().removeNode(child);
+
 		this.getChildren().delete(child);
 		this.childItems.delete(child.getItem());
 
 		if (this.isRendered())
 		{
-			this.render();
+			Dom.remove(child.getOuterContainer());
 		}
 
 		return true;
@@ -269,9 +303,37 @@ export default class ItemNode
 
 	removeChildren(): void
 	{
-		while (this.getFirstChild())
+		if (!this.hasChildren())
 		{
-			this.removeChild(this.getFirstChild());
+			return;
+		}
+
+		this.getChildren().forEach((node: ItemNode) => {
+
+			node.removeChildren();
+
+			if (node.isFocused())
+			{
+				node.unfocus();
+			}
+
+			node.setParentNode(null);
+			node.getItem().removeNode(node);
+		});
+
+		this.getChildren().clear();
+		this.childItems = new WeakMap();
+
+		if (this.isRendered())
+		{
+			if (Browser.isIE())
+			{
+				Dom.clean(this.getChildrenContainer());
+			}
+			else
+			{
+				this.getChildrenContainer().textContent = '';
+			}
 		}
 	}
 
@@ -306,7 +368,7 @@ export default class ItemNode
 		return this.children.getLast();
 	}
 
-	getChildren(): ItemCollection
+	getChildren(): OrderedArray<ItemNode>
 	{
 		return this.children;
 	}
@@ -316,7 +378,7 @@ export default class ItemNode
 		return this.children.count() > 0;
 	}
 
-	loadChildren()
+	loadChildren(): Promise
 	{
 		if (!this.isDynamic())
 		{
@@ -330,8 +392,8 @@ export default class ItemNode
 
 		this.dynamicPromise = Ajax.runAction('ui.entityselector.getChildren', {
 			json: {
-				parentItem: this.getItem(),
-				dialog: this.getDialog()
+				parentItem: this.getItem().getAjaxJson(),
+				dialog: this.getDialog().getAjaxJson()
 			},
 			getParameters: {
 				context: this.getDialog().getContext()
@@ -356,7 +418,7 @@ export default class ItemNode
 		return this.dynamicPromise;
 	}
 
-	setOpen(open: boolean): this
+	setOpen(open: boolean): void
 	{
 		if (Type.isBoolean(open))
 		{
@@ -369,8 +431,6 @@ export default class ItemNode
 				this.open = open;
 			}
 		}
-
-		return this;
 	}
 
 	isOpen(): boolean
@@ -383,24 +443,20 @@ export default class ItemNode
 		return this.autoOpen && this.isDynamic() && !this.isLoaded();
 	}
 
-	setAutoOpen(autoOpen: boolean): this
+	setAutoOpen(autoOpen: boolean): void
 	{
 		if (Type.isBoolean(autoOpen))
 		{
 			this.autoOpen = autoOpen;
 		}
-
-		return this;
 	}
 
-	setDynamic(dynamic: boolean): this
+	setDynamic(dynamic: boolean): void
 	{
 		if (Type.isBoolean(dynamic))
 		{
 			this.dynamic = dynamic;
 		}
-
-		return this;
 	}
 
 	isDynamic(): boolean
@@ -428,13 +484,13 @@ export default class ItemNode
 
 	showLoader(): void
 	{
-		this.getLoader().show();
+		void this.getLoader().show();
 		Dom.addClass(this.getIndicatorContainer(), 'ui-selector-item-indicator-hidden');
 	}
 
 	hideLoader(): void
 	{
-		this.getLoader().hide();
+		void this.getLoader().hide();
 		Dom.removeClass(this.getIndicatorContainer(), 'ui-selector-item-indicator-hidden');
 	}
 
@@ -464,9 +520,23 @@ export default class ItemNode
 			return;
 		}
 
-		Dom.style(this.getChildrenContainer(), 'height', `${this.getChildrenContainer().scrollHeight}px`);
 		Dom.addClass(this.getOuterContainer(), 'ui-selector-item-box-open');
-		this.setOpen(true);
+		Dom.style(this.getChildrenContainer(), 'height', '0px');
+		Dom.style(this.getChildrenContainer(), 'opacity', 0);
+
+		requestAnimationFrame(() => {
+			requestAnimationFrame(() => {
+				Dom.style(this.getChildrenContainer(), 'height', `${this.getChildrenContainer().scrollHeight}px`);
+				Dom.style(this.getChildrenContainer(), 'opacity', 1);
+
+				Animation.handleTransitionEnd(this.getChildrenContainer(), 'height').then(() => {
+					Dom.style(this.getChildrenContainer(), 'height', null);
+					Dom.style(this.getChildrenContainer(), 'opacity', null);
+					Dom.addClass(this.getOuterContainer(), 'ui-selector-item-box-open');
+					this.setOpen(true);
+				});
+			});
+		});
 	}
 
 	collapse(): void
@@ -479,42 +549,131 @@ export default class ItemNode
 		Dom.style(this.getChildrenContainer(), 'height', `${this.getChildrenContainer().offsetHeight}px`);
 
 		requestAnimationFrame(() => {
-			Dom.removeClass(this.getOuterContainer(), 'ui-selector-item-box-open');
-			Dom.style(this.getChildrenContainer(), 'height', null);
+			requestAnimationFrame(() => {
+				Dom.style(this.getChildrenContainer(), 'height', '0px');
+				Dom.style(this.getChildrenContainer(), 'opacity', 0);
 
-			this.setOpen(false);
+				Animation.handleTransitionEnd(this.getChildrenContainer(), 'height').then(() => {
+					Dom.style(this.getChildrenContainer(), 'height', null);
+					Dom.style(this.getChildrenContainer(), 'opacity', null);
+					Dom.removeClass(this.getOuterContainer(), 'ui-selector-item-box-open');
+					this.setOpen(false);
+				});
+			});
 		});
 	}
 
-	render(): void
+	render(appendChildren = false): void
 	{
 		if (this.isRoot())
 		{
-			this.renderRoot();
+			this.renderRoot(appendChildren);
 			return;
 		}
 
-		this.getTitleContainer().textContent = Type.isString(this.getTitle()) ? this.getTitle() : '';
-		this.getSubtitleContainer().textContent = Type.isString(this.getSubtitle()) ? this.getSubtitle() : '';
-		this.getSupertitleContainer().textContent = Type.isString(this.getSupertitle()) ? this.getSupertitle() : '';
-		this.getCaptionContainer().textContent = Type.isString(this.getCaption()) ? this.getCaption() : '';
-
-		if (Type.isStringFilled(this.getTextColor()))
+		const titleNode = this.getTitleNode();
+		if (titleNode)
 		{
-			Dom.style(this.getTitleContainer(), 'color', this.getTextColor());
+			titleNode.renderTo(this.getTitleContainer());
 		}
 		else
 		{
-			Dom.style(this.getTitleContainer(), 'color', null);
+			this.getTitleContainer().textContent = '';
+		}
+
+		const supertitleNode = this.getSupertitleNode();
+		if (supertitleNode)
+		{
+			supertitleNode.renderTo(this.getSupertitleContainer());
+		}
+		else
+		{
+			this.getSupertitleContainer().textContent = '';
+		}
+
+		const subtitleNode = this.getSubtitleNode();
+		if (subtitleNode)
+		{
+			subtitleNode.renderTo(this.getSubtitleContainer());
+		}
+		else
+		{
+			this.getSubtitleContainer().textContent = '';
+		}
+
+		const captionNode = this.getCaptionNode();
+		if (captionNode)
+		{
+			captionNode.renderTo(this.getCaptionContainer());
+		}
+		else
+		{
+			this.getCaptionContainer().textContent = '';
+		}
+
+		const captionFitContent = this.getCaptionOption('fitContent');
+		if (Type.isBoolean(captionFitContent))
+		{
+			Dom.style(this.getCaptionContainer(), 'flex-shrink', captionFitContent ? 0 : null);
+		}
+
+		const captionMaxWidth = this.getCaptionOption('maxWidth');
+		if (Type.isString(captionMaxWidth) || Type.isNumber(captionMaxWidth))
+		{
+			Dom.style(
+				this.getCaptionContainer(),
+				'max-width',
+				Type.isNumber(captionMaxWidth) ? `${captionMaxWidth}px` : captionMaxWidth
+			);
+		}
+
+		if (Type.isStringFilled(this.getTextColor()))
+		{
+			this.getTitleContainer().style.color = this.getTextColor();
+		}
+		else
+		{
+			this.getTitleContainer().style.removeProperty('color');
 		}
 
 		if (Type.isStringFilled(this.getAvatar()))
 		{
-			Dom.style(this.getAvatarContainer(), 'background-image', `url('${this.getAvatar()}')`);
+			this.getAvatarContainer().style.backgroundImage = `url('${this.getAvatar()}')`;
 		}
 		else
 		{
-			Dom.style(this.getAvatarContainer(), 'background-image', null);
+			this.getAvatarContainer().style.removeProperty('background-image');
+		}
+
+		Dom.clean(this.getBadgeContainer());
+		this.getBadges().forEach((badge: ItemBadge) => {
+			badge.renderTo(this.getBadgeContainer());
+		});
+
+		const badgesFitContent = this.getBadgesOption('fitContent');
+		if (Type.isBoolean(badgesFitContent))
+		{
+			Dom.style(this.getBadgeContainer(), 'flex-shrink', badgesFitContent ? 0 : null);
+		}
+
+		const badgesMaxWidth = this.getBadgesOption('maxWidth');
+		if (Type.isString(badgesMaxWidth) || Type.isNumber(badgesMaxWidth))
+		{
+			Dom.style(
+				this.getBadgeContainer(),
+				'max-width',
+				Type.isNumber(badgesMaxWidth) ? `${badgesMaxWidth}px` : badgesMaxWidth
+			);
+		}
+
+		const linkTitleNode = this.getLinkTitleNode();
+		if (linkTitleNode)
+		{
+			linkTitleNode.renderTo(this.getLinkTextContainer());
+		}
+		else
+		{
+			this.getLinkTextContainer().textContent = '';
 		}
 
 		if (this.hasChildren() || this.isDynamic())
@@ -525,7 +684,7 @@ export default class ItemNode
 				Dom.addClass(this.getOuterContainer(), 'ui-selector-item-box-max-depth');
 			}
 		}
-		else
+		else if (this.getOuterContainer().classList.contains('ui-selector-item-box-has-children'))
 		{
 			Dom.removeClass(
 				this.getOuterContainer(),
@@ -535,13 +694,18 @@ export default class ItemNode
 
 		this.highlight();
 
+		this.renderChildren(appendChildren);
+
 		if (this.isAutoOpen())
 		{
-			this.expand();
 			this.setAutoOpen(false);
-		}
 
-		this.renderChildren();
+			requestAnimationFrame(() => {
+				requestAnimationFrame(() => {
+					this.expand();
+				});
+			});
+		}
 
 		this.rendered = true;
 	}
@@ -549,9 +713,9 @@ export default class ItemNode
 	/**
 	 * @private
 	 */
-	renderRoot(): void
+	renderRoot(appendChildren = false): void
 	{
-		this.renderChildren();
+		this.renderChildren(appendChildren);
 		this.rendered = true;
 
 		const stub = this.getTab().getStub();
@@ -571,15 +735,44 @@ export default class ItemNode
 	/**
 	 * @private
 	 */
-	renderChildren(): void
+	renderChildren(appendChildren = false): void
 	{
-		Dom.clean(this.getChildrenContainer());
+		if (!appendChildren)
+		{
+			if (Browser.isIE())
+			{
+				Dom.clean(this.getChildrenContainer());
+			}
+			else
+			{
+				this.getChildrenContainer().textContent = '';
+			}
+		}
 
 		if (this.hasChildren())
 		{
+			let previousSibling: ItemNode = null;
 			this.getChildren().forEach((child: ItemNode) => {
-				child.render();
-				Dom.append(child.getOuterContainer(), this.getChildrenContainer());
+				child.render(appendChildren);
+				const container = child.getOuterContainer();
+
+				if (!appendChildren)
+				{
+					Dom.append(container, this.getChildrenContainer());
+				}
+				if (!container.parentNode)
+				{
+					if (previousSibling !== null)
+					{
+						Dom.insertAfter(container, previousSibling.getOuterContainer());
+					}
+					else
+					{
+						Dom.append(container, this.getChildrenContainer());
+					}
+				}
+
+				previousSibling = child;
 			});
 		}
 	}
@@ -606,47 +799,126 @@ export default class ItemNode
 
 	getTitle(): string
 	{
-		return this.title !== null ? this.title : this.getItem().getTitle();
+		const titleNode = this.getTitleNode();
+
+		return titleNode !== null ? titleNode.getText() : null;
 	}
 
-	setTitle(title: string): this
+	getTitleNode(): ?TextNode
 	{
-		if (Type.isString(title) || title === null)
+		return this.title !== null ? this.title: this.getItem().getTitleNode();
+	}
+
+	setTitle(title: string | TextNodeOptions): void
+	{
+		if (Type.isString(title) || Type.isPlainObject(title))
 		{
-			this.title = title;
+			this.title = new TextNode(title);
+		}
+		else if (title === null)
+		{
+			this.title = null;
+		}
+	}
+
+	getSubtitle(): ?string
+	{
+		const subtitleNode = this.getSubtitleNode();
+
+		return subtitleNode !== null ? subtitleNode.getText() : null;
+	}
+
+	getSubtitleNode(): ?TextNode
+	{
+		return this.subtitle !== null ? this.subtitle: this.getItem().getSubtitleNode();
+	}
+
+	setSubtitle(subtitle: string | TextNodeOptions): void
+	{
+		if (Type.isString(subtitle) || Type.isPlainObject(subtitle))
+		{
+			this.subtitle = new TextNode(subtitle);
+		}
+		else if (subtitle === null)
+		{
+			this.subtitle = null;
+		}
+	}
+
+	getSupertitle(): ?string
+	{
+		const supertitleNode = this.getSupertitleNode();
+
+		return supertitleNode !== null ? supertitleNode.getText() : null;
+	}
+
+	getSupertitleNode(): ?TextNode
+	{
+		return this.supertitle !== null ? this.supertitle: this.getItem().getSupertitleNode();
+	}
+
+	setSupertitle(supertitle: string | TextNodeOptions): void
+	{
+		if (Type.isString(supertitle) || Type.isPlainObject(supertitle))
+		{
+			this.supertitle = new TextNode(supertitle);
+		}
+		else if (supertitle === null)
+		{
+			this.supertitle = null;
+		}
+	}
+
+	getCaption(): ?string
+	{
+		const caption = this.getCaptionNode();
+
+		return caption !== null ? caption.getText() : null;
+	}
+
+	getCaptionNode(): ?TextNode
+	{
+		return this.caption !== null ? this.caption: this.getItem().getCaptionNode();
+	}
+
+	setCaption(caption: string | TextNodeOptions): void
+	{
+		if (Type.isString(caption) || Type.isPlainObject(caption))
+		{
+			this.caption = new TextNode(caption);
+		}
+		else if (caption === null)
+		{
+			this.caption = null;
+		}
+	}
+
+	getCaptionOption(option: string): string | boolean | number | null
+	{
+		if (!Type.isUndefined(this.captionOptions[option]))
+		{
+			return this.captionOptions[option];
 		}
 
-		return this;
+		return this.getItem().getCaptionOption(option);
 	}
 
-	getSubtitle(): string
+	setCaptionOption(option: string, value: string | boolean | number | null): void
 	{
-		return this.subtitle !== null ? this.subtitle : this.getItem().getSubtitle();
-	}
-
-	setSubtitle(subtitle: string): this
-	{
-		if (Type.isString(subtitle) || subtitle === null)
+		if (Type.isStringFilled(option) && !Type.isUndefined(value))
 		{
-			this.subtitle = subtitle;
+			this.captionOptions[option] = value;
 		}
-
-		return this;
 	}
 
-	getSupertitle(): string
+	setCaptionOptions(options: {[key: string]: any } | null): void
 	{
-		return this.supertitle !== null ? this.supertitle : this.getItem().getSupertitle();
-	}
-
-	setSupertitle(supertitle: string): this
-	{
-		if (Type.isString(supertitle) || supertitle === null)
+		if (Type.isPlainObject(options))
 		{
-			this.supertitle = supertitle;
+			Object.keys(options).forEach((option: string) => {
+				this.setCaptionOption(option, options[option]);
+			});
 		}
-
-		return this;
 	}
 
 	getAvatar(): ?string
@@ -654,14 +926,12 @@ export default class ItemNode
 		return this.avatar !== null ? this.avatar : this.getItem().getAvatar();
 	}
 
-	setAvatar(avatar: ?string): this
+	setAvatar(avatar: ?string): void
 	{
 		if (Type.isString(avatar) || avatar === null)
 		{
 			this.avatar = avatar;
 		}
-
-		return this;
 	}
 
 	getTextColor(): ?string
@@ -669,59 +939,49 @@ export default class ItemNode
 		return this.textColor !== null ? this.textColor : this.getItem().getTextColor();
 	}
 
-	setTextColor(textColor: ?string): this
+	setTextColor(textColor: ?string): void
 	{
 		if (Type.isString(textColor) || textColor === null)
 		{
 			this.textColor = textColor;
 		}
-
-		return this;
 	}
 
-	getCaption(): string
-	{
-		return this.caption !== null ? this.caption : this.getItem().getCaption();
-	}
-
-	setCaption(caption: string): this
-	{
-		if (Type.isString(caption) || caption === null)
-		{
-			this.caption = caption;
-		}
-
-		return this;
-	}
-
-	getLink(): string
+	getLink(): ?string
 	{
 		return this.link !== null ? this.getItem().replaceMacros(this.link) : this.getItem().getLink();
 	}
 
-	setLink(link: string): this
+	setLink(link: string): void
 	{
 		if (Type.isString(link) || link === null)
 		{
 			this.link = link;
 		}
-
-		return this;
 	}
 
-	getLinkTitle(): string
+	getLinkTitle(): ?string
 	{
-		return this.linkTitle !== null ? this.linkTitle : this.getItem().getLinkTitle();
+		const linkTitle = this.getLinkTitleNode();
+
+		return linkTitle !== null ? linkTitle.getText() : null;
 	}
 
-	setLinkTitle(title: string): this
+	getLinkTitleNode(): ?TextNode
 	{
-		if (Type.isString(title) || title === null)
+		return this.linkTitle !== null ? this.linkTitle: this.getItem().getLinkTitleNode();
+	}
+
+	setLinkTitle(title: string | TextNodeOptions): void
+	{
+		if (Type.isString(title) || Type.isPlainObject(title))
 		{
-			this.linkTitle = title;
+			this.linkTitle = new TextNode(title);
 		}
-
-		return this;
+		else if (title === null)
+		{
+			this.linkTitle = null;
+		}
 	}
 
 	getBadges(): ItemBadge[]
@@ -729,7 +989,7 @@ export default class ItemNode
 		return this.badges !== null ? this.badges : this.getItem().getBadges();
 	}
 
-	setBadges(badges: ?ItemBadgeOptions[]): this
+	setBadges(badges: ?ItemBadgeOptions[]): void
 	{
 		if (Type.isArray(badges))
 		{
@@ -742,8 +1002,34 @@ export default class ItemNode
 		{
 			this.badges = null;
 		}
+	}
 
-		return this;
+	getBadgesOption(option: string): string | boolean | number | null
+	{
+		if (!Type.isUndefined(this.badgesOptions[option]))
+		{
+			return this.badgesOptions[option];
+		}
+
+		return this.getItem().getBadgesOption(option);
+	}
+
+	setBadgesOption(option: string, value: string | boolean | number | null): void
+	{
+		if (Type.isStringFilled(option) && !Type.isUndefined(value))
+		{
+			this.badgesOptions[option] = value;
+		}
+	}
+
+	setBadgesOptions(options: {[key: string]: any } | null): void
+	{
+		if (Type.isPlainObject(options))
+		{
+			Object.keys(options).forEach((option: string) => {
+				this.setBadgesOption(option, options[option]);
+			});
+		}
 	}
 
 	getOuterContainer(): HTMLElement
@@ -770,12 +1056,12 @@ export default class ItemNode
 				className += ' ui-selector-item-box-open';
 			}
 
-			return Tag.render`
-				<div class="ui-selector-item-box${className}">
-					${this.getContainer()}
-					${this.getChildrenContainer()}
-				</div>
-			`;
+			const div = document.createElement('div');
+			div.className = `ui-selector-item-box${className}`;
+			div.appendChild(this.getContainer());
+			div.appendChild(this.getChildrenContainer());
+
+			return div;
 		});
 	}
 
@@ -787,135 +1073,162 @@ export default class ItemNode
 		}
 
 		return this.cache.remember('children-container', () => {
-			return Tag.render`
-				<div class="ui-selector-item-children" ontransitionend="${this.handleTransitionEnd.bind(this)}"></div>
-			`;
+
+			const div = document.createElement('div');
+			div.className = 'ui-selector-item-children';
+
+			return div;
 		});
 	}
 
 	getContainer(): HTMLElement
 	{
 		return this.cache.remember('container', () => {
+			const div = document.createElement('div');
+			div.className = 'ui-selector-item';
 
-			return Tag.render`
-				<div 
-					class="ui-selector-item" 
-					onclick="${this.handleClick.bind(this)}"
-					onmouseenter="${this.handleMouseEnter.bind(this)}"
-					onmouseleave="${this.handleMouseLeave.bind(this)}"
-				>
-					${this.getAvatarContainer()}
-					<div class="ui-selector-item-titles">
-						${this.getSupertitleContainer()}
-						<div class="ui-selector-item-title-box">
-							${this.getTitleContainer()}
-							${Type.isArrayFilled(this.getBadges()) ? this.getBadgeContainer() : ''}
-							${this.getCaptionContainer()}
-						</div>
-						${this.getSubtitleContainer()}
-					</div>
-					${Type.isStringFilled(this.getLink()) ? this.getLinkContainer() : ''}
-					${this.getIndicatorContainer()}
-				</div>
-			`;
+			Event.bind(div, 'click', this.handleClick.bind(this))
+			Event.bind(div, 'mouseenter', this.handleMouseEnter.bind(this))
+			Event.bind(div, 'mouseleave', this.handleMouseLeave.bind(this))
+
+			div.appendChild(this.getAvatarContainer());
+			div.appendChild(this.getTitlesContainer());
+			div.appendChild(this.getIndicatorContainer());
+
+			if (Type.isStringFilled(this.getLink()))
+			{
+				div.appendChild(this.getLinkContainer());
+			}
+
+			return div;
 		});
 	}
 
 	getAvatarContainer(): HTMLElement
 	{
 		return this.cache.remember('avatar', () => {
-			 return Tag.render`
-				<div class="ui-selector-item-avatar"></div>
-			`;
+			const div = document.createElement('div');
+			div.className = 'ui-selector-item-avatar';
+
+			return div;
+		});
+	}
+
+	getTitlesContainer(): HTMLElement
+	{
+		return this.cache.remember('titles', () => {
+			const div = document.createElement('div');
+			div.className = 'ui-selector-item-titles';
+
+			div.appendChild(this.getSupertitleContainer());
+			div.appendChild(this.getTitleBoxContainer());
+			div.appendChild(this.getSubtitleContainer());
+
+			return div;
+		});
+	}
+
+	getTitleBoxContainer(): HTMLElement
+	{
+		return this.cache.remember('title-box', () => {
+			const div = document.createElement('div');
+			div.className = 'ui-selector-item-title-box';
+
+			div.appendChild(this.getTitleContainer());
+			div.appendChild(this.getBadgeContainer());
+			div.appendChild(this.getCaptionContainer());
+
+			return div;
 		});
 	}
 
 	getTitleContainer(): HTMLElement
 	{
 		return this.cache.remember('title', () => {
-			return Tag.render`
-				<div class="ui-selector-item-title"></div>
-			`;
+			const div = document.createElement('div');
+			div.className = 'ui-selector-item-title';
+
+			return div;
 		});
 	}
 
-	getSubtitleContainer()
+	getSubtitleContainer(): HTMLElement
 	{
 		return this.cache.remember('subtitle', () => {
-			return Tag.render`
-				<div class="ui-selector-item-subtitle"></div>
-			`;
+			const div = document.createElement('div');
+			div.className = 'ui-selector-item-subtitle';
+
+			return div;
 		});
 	}
 
-	getSupertitleContainer()
+	getSupertitleContainer(): HTMLElement
 	{
 		return this.cache.remember('supertitle', () => {
-			return Tag.render`
-				<div class="ui-selector-item-supertitle"></div>
-			`;
+			const div = document.createElement('div');
+			div.className = 'ui-selector-item-supertitle';
+
+			return div;
 		});
 	}
 
-	getCaptionContainer()
+	getCaptionContainer(): HTMLElement
 	{
 		return this.cache.remember('caption', () => {
-			return Tag.render`
-				<div class="ui-selector-item-caption"></div>
-			`;
+			const div = document.createElement('div');
+			div.className = 'ui-selector-item-caption';
+
+			return div;
 		});
 	}
 
-	getIndicatorContainer()
+	getIndicatorContainer(): HTMLElement
 	{
 		return this.cache.remember('indicator', () => {
-			return Tag.render`
-				<div class="ui-selector-item-indicator"></div>
-			`;
+			const div = document.createElement('div');
+			div.className = 'ui-selector-item-indicator';
+
+			return div;
 		});
 	}
 
-	getBadgeContainer()
+	getBadgeContainer(): HTMLElement
 	{
 		return this.cache.remember('badge', () => {
+			const div = document.createElement('div');
+			div.className = 'ui-selector-item-badges';
 
-			const badges = [];
-
-			this.getBadges().forEach((badge: ItemBadge) => {
-				badge.render();
-				badges.push(badge.render());
-			});
-
-			return Tag.render`
-				<div class="ui-selector-item-badges">${badges}</div>
-			`;
+			return div;
 		});
 	}
 
-	getLinkContainer()
+	getLinkContainer(): HTMLElement
 	{
 		return this.cache.remember('link', () => {
-			return Tag.render`
-				<a 
-					class="ui-selector-item-link"
-					href="${this.getLink()}" 
-					target="_blank"
-					onclick="${this.handleLinkClick.bind(this)}"
-				>${this.getLinkTextContainer()}</a>
-			`;
+			const anchor: HTMLAnchorElement = document.createElement('a');
+			anchor.className = 'ui-selector-item-link';
+			anchor.href = this.getLink();
+			anchor.target = '_blank';
+			anchor.title = '';
+
+			Event.bind(anchor, 'click', this.handleLinkClick.bind(this));
+			anchor.appendChild(this.getLinkTextContainer());
+
+			return anchor;
 		});
 	}
 
-	getLinkTextContainer()
+	getLinkTextContainer(): HTMLElement
 	{
 		return this.cache.remember('link-text', () => {
-			return Tag.render`
-				<span class="ui-selector-item-link-text">${this.getLinkTitle()}</span>
-			`;
+			const span = document.createElement('span');
+			span.className = 'ui-selector-item-link-text';
+
+			return span;
 		});
 	}
 
-	showLink()
+	showLink(): void
 	{
 		if (Type.isStringFilled(this.getLink()))
 		{
@@ -929,7 +1242,7 @@ export default class ItemNode
 		}
 	}
 
-	hideLink()
+	hideLink(): void
 	{
 		if (Type.isStringFilled(this.getLink()))
 		{
@@ -939,7 +1252,7 @@ export default class ItemNode
 		}
 	}
 
-	setHighlights(highlights: MatchField[])
+	setHighlights(highlights: MatchField[]): void
 	{
 		this.highlights = highlights;
 	}
@@ -970,6 +1283,12 @@ export default class ItemNode
 			{
 				this.getSubtitleContainer().innerHTML =
 					Highlighter.mark(this.getItem().getSubtitle(), matchField.getMatches())
+				;
+			}
+			else if (field.getName() === 'supertitle')
+			{
+				this.getSupertitleContainer().innerHTML =
+					Highlighter.mark(this.getItem().getSupertitle(), matchField.getMatches())
 				;
 			}
 		});
@@ -1026,7 +1345,7 @@ export default class ItemNode
 		return this.focused;
 	}
 
-	click()
+	click(): void
 	{
 		if (this.hasChildren() || this.isDynamic())
 		{
@@ -1068,7 +1387,7 @@ export default class ItemNode
 		this.getDialog().focusSearch();
 	}
 
-	scrollIntoView()
+	scrollIntoView(): void
 	{
 		const tabContainer = this.getTab().getContainer();
 		const nodeContainer = this.getContainer();
@@ -1087,6 +1406,54 @@ export default class ItemNode
 		}
 	}
 
+	#makeEllipsisTitle(): void
+	{
+		if (this.constructor.#isEllipsisActive(this.getTitleContainer()))
+		{
+			Dom.attr(
+				this.getContainer(),
+				'title',
+				this.constructor.#sanitizeTitle(this.getTitleContainer().textContent)
+			);
+		}
+		else
+		{
+			Dom.attr(this.getContainer(), 'title', null);
+		}
+
+		const containers = [
+			this.getSupertitleContainer(),
+			this.getSubtitleContainer(),
+			this.getCaptionContainer(),
+			...this.getBadges().map((badge: ItemBadge) => badge.getContainer(this.getBadgeContainer()))
+		];
+
+		containers.forEach(container => {
+			if (this.constructor.#isEllipsisActive(container))
+			{
+				Dom.attr(
+					container,
+					'title',
+					this.constructor.#sanitizeTitle(container.textContent)
+				);
+			}
+			else
+			{
+				Dom.attr(container, 'title', null);
+			}
+		});
+	}
+
+	static #isEllipsisActive(element: HTMLElement): boolean
+	{
+		return element.offsetWidth < element.scrollWidth;
+	}
+
+	static #sanitizeTitle(text: string)
+	{
+		return text.replace(/[\t ]+/gm, ' ').replace(/\n+/gm, '\n').trim();
+	}
+
 	handleClick(): void
 	{
 		this.click();
@@ -1098,18 +1465,11 @@ export default class ItemNode
 		event.stopPropagation();
 	}
 
-	handleTransitionEnd(event: TransitionEvent): void
-	{
-		if (event.propertyName === 'height')
-		{
-			Dom.style(this.getChildrenContainer(), 'height', null);
-		}
-	}
-
 	handleMouseEnter(): void
 	{
 		this.focus();
 		this.showLink();
+		this.#makeEllipsisTitle();
 	}
 
 	handleMouseLeave(): void

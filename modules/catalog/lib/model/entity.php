@@ -11,7 +11,11 @@ abstract class Entity
 {
 	const PREFIX_OLD = 'OLD_';
 
-	const EVENT_ON_BUILD_CACHED_FIELD_LIST = 'OnBuildCachedFieldList';
+	public const EVENT_ON_BUILD_CACHED_FIELD_LIST = 'OnBuildCachedFieldList';
+
+	public const FIELDS_MAIN = 0x0001;
+	public const FIELDS_UF = 0x0002;
+	public const FIELDS_ALL = self::FIELDS_MAIN|self::FIELDS_UF;
 
 	private static $entity = [];
 
@@ -400,6 +404,37 @@ abstract class Entity
 	public static function getTabletClassName(): string
 	{
 		return '';
+	}
+
+	/**
+	 * Returns list of tablet field names, include user fields.
+	 *
+	 * @param int $fields
+	 * @return array
+	 */
+	public static function getTabletFieldNames(int $fields = self::FIELDS_MAIN): array
+	{
+		$result = [];
+		$entity = static::getEntity();
+		if ($fields & self::FIELDS_MAIN)
+		{
+			$result = array_keys($entity->tabletFields);
+		}
+		if ($fields & self::FIELDS_UF)
+		{
+			$list = array_keys($entity->tabletUserFields);
+			if (!empty($list))
+			{
+				$result = (empty($result)
+					? $list
+					: array_merge($result, $list)
+				);
+			}
+			unset($list);
+		}
+
+		unset($entity);
+		return $result;
 	}
 
 	/**

@@ -46,7 +46,7 @@ final class Sender
 			$postData = Json::encode($postData);
 
 			$httpClient = new HttpClient();
-			$response = $httpClient->post(static::URL, $postData);
+			$response = $httpClient->post(self::URL, $postData);
 			if (!$response || $httpClient->getStatus() !== 200)
 			{
 				return false;

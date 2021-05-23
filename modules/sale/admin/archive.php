@@ -284,7 +284,7 @@ else
 			$tabControl->BeginNextTab();
 			$filterValues = Option::get('sale', 'archive_params');
 
-			$filterValues = unserialize($filterValues);
+			$filterValues = unserialize($filterValues, ['allowed_classes' => false]);
 
 			$countExecutionOrders = Option::get('sale', 'archive_time_limit', false);
 			if(!$countExecutionOrders)

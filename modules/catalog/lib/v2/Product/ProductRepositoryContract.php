@@ -2,7 +2,7 @@
 
 namespace Bitrix\Catalog\v2\Product;
 
-use Bitrix\Catalog\v2\RepositoryContract;
+use Bitrix\Catalog\v2\IblockElementRepositoryContract;
 
 /**
  * Interface ProductRepositoryContract
@@ -12,6 +12,6 @@ use Bitrix\Catalog\v2\RepositoryContract;
  * !!! This API is in alpha stage and is not stable. This is subject to change at any time without notice.
  * @internal
  */
-interface ProductRepositoryContract extends RepositoryContract
+interface ProductRepositoryContract extends IblockElementRepositoryContract
 {
 }

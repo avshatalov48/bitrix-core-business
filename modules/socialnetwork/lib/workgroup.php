@@ -101,6 +101,9 @@ class WorkgroupTable extends Entity\DataManager
 			'NUMBER_OF_MEMBERS' => array(
 				'data_type' => 'integer',
 			),
+			'NUMBER_OF_MODERATORS' => array(
+				'data_type' => 'integer',
+			),
 			'PROJECT' => array(
 				'data_type' => 'boolean',
 				'values' => array('N','Y')

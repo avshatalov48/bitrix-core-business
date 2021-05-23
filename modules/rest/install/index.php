@@ -107,6 +107,20 @@ class rest extends CModule
 
 		$eventManager->registerEventHandler("rest", "onRestCheckAuth", "rest", "\\Bitrix\\Rest\\APAuth\\Auth", "onRestCheckAuth");
 		$eventManager->registerEventHandler("rest", "onRestCheckAuth", "rest", "\\Bitrix\\Rest\\SessionAuth\\Auth", "onRestCheckAuth");
+		$eventManager->registerEventHandler(
+			'main',
+			'OnAfterRegisterModule',
+			'rest',
+			'\Bitrix\Rest\Engine\ScopeManager',
+			'onChangeRegisterModule'
+		);
+		$eventManager->registerEventHandler(
+			'main',
+			'OnAfterUnRegisterModule',
+			'rest',
+			'\Bitrix\Rest\Engine\ScopeManager',
+			'onChangeRegisterModule'
+		);
 
 		\CAgent::AddAgent("Bitrix\\Rest\\Marketplace\\Client::getNumUpdates();", "rest", "N", 86400);
 		\CAgent::AddAgent("Bitrix\\Rest\\EventOfflineTable::cleanProcessAgent();", "rest", "N", 86400);
@@ -160,7 +174,20 @@ class rest extends CModule
 		$eventManager->unRegisterEventHandler('rest', 'OnRestApplicationConfigurationClear', 'rest', '\Bitrix\Rest\Configuration\AppConfiguration', 'onEventClearController');
 		$eventManager->unRegisterEventHandler('rest', 'OnRestApplicationConfigurationEntity', 'rest', '\Bitrix\Rest\Configuration\AppConfiguration', 'getEntityList');
 		$eventManager->unRegisterEventHandler('rest', 'OnRestApplicationConfigurationGetManifest', 'rest', '\Bitrix\Rest\Configuration\AppConfiguration', 'getManifestList');
-
+		$eventManager->unRegisterEventHandler(
+			'main',
+			'OnAfterRegisterModule',
+			'rest',
+			'\Bitrix\Rest\Engine\ScopeManager',
+			'onChangeRegisterModule'
+		);
+		$eventManager->unRegisterEventHandler(
+			'main',
+			'OnAfterUnRegisterModule',
+			'rest',
+			'\Bitrix\Rest\Engine\ScopeManager',
+			'onChangeRegisterModule'
+		);
 
 		CAgent::RemoveModuleAgents("rest");
 

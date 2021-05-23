@@ -1,5 +1,5 @@
 import Type from '../type';
-import OrderedArray from '../collection/ordered-array';
+import OrderedArray from '../collections/ordered-array';
 import ZIndexComponent from './z-index-component';
 import type { ZIndexComponentOptions } from './z-index-component-options';
 
@@ -33,6 +33,34 @@ export default class ZIndexStack
 		};
 
 		this.components = new OrderedArray(comparator);
+	}
+
+	getBaseIndex(): number
+	{
+		return this.baseIndex;
+	}
+
+	setBaseIndex(index: number): void
+	{
+		if (Type.isNumber(index) && index >= 0)
+		{
+			this.baseIndex = index;
+			this.sort();
+		}
+	}
+
+	setBaseStep(step: number): void
+	{
+		if (Type.isNumber(step) && step > 0)
+		{
+			this.baseStep = step;
+			this.sort();
+		}
+	}
+
+	getBaseStep(): number
+	{
+		return this.baseStep;
 	}
 
 	register(element: HTMLElement, options: ZIndexComponentOptions = {}): ZIndexComponent

@@ -375,8 +375,10 @@ Class mail extends CModule
 			if (CModule::IncludeModule('extranet') && CExtranet::IsExtranetSite($site['LID']))
 				return;
 
-			$mailServicesList = isset($mailServicesByLang[$site['LANGUAGE_ID']])
-				? $mailServicesByLang[$site['LANGUAGE_ID']]
+			$portalZone = \Bitrix\Main\Loader::includeModule('bitrix24') ? \CBitrix24::getPortalZone() : $site['LANGUAGE_ID'];
+
+			$mailServicesList = isset($mailServicesByLang[$portalZone])
+				? $mailServicesByLang[$portalZone]
 				: $mailServicesByLang['en'];
 			foreach ($mailServicesList as $serviceSort => $serviceName)
 			{

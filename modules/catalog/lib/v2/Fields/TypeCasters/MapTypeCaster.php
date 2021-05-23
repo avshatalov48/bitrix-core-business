@@ -60,7 +60,7 @@ class MapTypeCaster implements TypeCasterContract
 	{
 		if ($value !== null)
 		{
-			$value = (string)$value;
+			$value = $this->castToString($value);
 		}
 
 		return $value;
@@ -75,7 +75,7 @@ class MapTypeCaster implements TypeCasterContract
 	{
 		if ($value !== null)
 		{
-			$value = (int)$value;
+			$value = $this->castToInt($value);
 		}
 
 		return $value;
@@ -90,7 +90,7 @@ class MapTypeCaster implements TypeCasterContract
 	{
 		if ($value !== null)
 		{
-			$value = (float)$value;
+			$value = $this->castToFloat($value);
 		}
 
 		return $value;

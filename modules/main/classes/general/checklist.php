@@ -52,7 +52,7 @@ class CCheckList
 		$dbResult = CCheckListResult::GetList(array(), $arFilter);
 		if ($arCurrentResult = $dbResult->Fetch())
 		{
-			$this->current_result = unserialize($arCurrentResult["STATE"]);
+			$this->current_result = unserialize($arCurrentResult["STATE"], ['allowed_classes' => false]);
 			if (intval($ID)>0)
 			{
 				$this->report_id = intval($ID);
@@ -634,8 +634,7 @@ class CAutoCheck
 		$arCount = 0;
 		$arResult = array();
 		$arResult["STATUS"] = false;
-		$bMcrypt = function_exists('mcrypt_encrypt') || function_exists('openssl_encrypt');
-		$bBitrixCloud = $bMcrypt && CModule::IncludeModule('bitrixcloud') && CModule::IncludeModule('clouds');
+		$bBitrixCloud = function_exists('openssl_encrypt') && CModule::IncludeModule('bitrixcloud') && CModule::IncludeModule('clouds');
 
 		$site = CSite::GetSiteByFullPath(DOCUMENT_ROOT);
 		$path = BX_ROOT."/backup";
@@ -831,7 +830,7 @@ class CAutoCheck
 
 				$data = $http->get("http://".$sHost."/bitrix/updates/checksum.php?check_sum=Y&module_id=".$moduleId."&ver=".$ver."&dbtype=".$dbtype."&mode=2");
 
-				$NS["FILE_LIST"] = $result = unserialize(gzinflate($data));
+				$NS["FILE_LIST"] = $result = unserialize(gzinflate($data), ['allowed_classes' => false]);
 				$NS["MODULE_FILES_COUNT"] = count($NS["FILE_LIST"]);
 			}
 			else

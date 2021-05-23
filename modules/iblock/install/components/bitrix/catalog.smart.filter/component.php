@@ -979,7 +979,6 @@ if ($arParams["XML_EXPORT"] === "Y" && $_REQUEST["mode"] === "xml")
 elseif(isset($_REQUEST["ajax"]) && $_REQUEST["ajax"] === "y")
 {
 	$this->setFrameMode(false);
-	define("BX_COMPRESSION_DISABLED", true);
 	ob_start();
 	$this->IncludeComponentTemplate("ajax");
 	$json = ob_get_contents();

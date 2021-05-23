@@ -4,6 +4,7 @@ namespace Bitrix\Rest\Engine;
 
 use Bitrix\Main\Loader;
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Type\Date;
 use Bitrix\Main\Web\Json;
 use Bitrix\Rest\AppTable;
@@ -22,11 +23,19 @@ class Access
 	public const ENTITY_TYPE_INTEGRATION = 'integration';
 	public const ENTITY_TYPE_WEBHOOK = 'webhook';
 	public const ENTITY_COUNT = 'count';
-	private const MODULE_ID = 'rest';
+
+	public const ACTION_INSTALL = 'install';
+	public const ACTION_OPEN = 'open';
+
+	public const MODULE_ID = 'rest';
+	public const OPTION_ACCESS_ACTIVE = 'access_active';
+	public const OPTION_AVAILABLE_COUNT = 'app_available_count';
+	public const OPTION_SUBSCRIPTION_AVAILABLE = 'subscription_available';
 	private const OPTION_APP_USAGE_LIST = 'app_usage_list';
 	private const OPTION_REST_UNLIMITED_FINISH = 'rest_unlimited_finish';
-	private const OPTION_ACCESS_ACTIVE = 'access_active';
 	private const OPTION_HOLD_CHECK_COUNT_APP = '~hold_check_count_app';
+	private const DEFAULT_AVAILABLE_COUNT = -1;
+	private const DEFAULT_AVAILABLE_COUNT_DEMO = 10;
 
 	private static $availableApp = [];
 	private static $availableAppCount = [];
@@ -36,7 +45,13 @@ class Access
 	 */
 	public static function isFeatureEnabled()
 	{
-		return !Loader::includeModule('bitrix24') || \Bitrix\Bitrix24\Feature::isFeatureEnabled('rest_access');
+		return
+			!ModuleManager::isModuleInstalled('bitrix24')
+			|| (
+				Loader::includeModule('bitrix24')
+				&& \Bitrix\Bitrix24\Feature::isFeatureEnabled('rest_access')
+			)
+		;
 	}
 
 	/**
@@ -56,11 +71,7 @@ class Access
 		if (!array_key_exists($app, static::$availableApp))
 		{
 			static::$availableApp[$app] = false;
-			if (!Loader::includeModule('bitrix24'))
-			{
-				static::$availableApp[$app] = true;
-			}
-			elseif (Client::isSubscriptionAvailable())
+			if (Client::isSubscriptionAvailable())
 			{
 				static::$availableApp[$app] = true;
 			}
@@ -106,50 +117,46 @@ class Access
 		if (!array_key_exists($key, static::$availableAppCount))
 		{
 			static::$availableAppCount[$key] = true;
-			$maxCount = static::getAvailableCount();
-			if ($maxCount >= 0)
+			if ($entityType === static::ENTITY_TYPE_APP)
 			{
-				if ($entityType === static::ENTITY_TYPE_APP)
+				$maxCount = static::getAvailableCount();
+				if ($maxCount >= 0)
 				{
 					$appInfo = AppTable::getByClientId($entity);
-					if ($appInfo['CODE'])
+					if ($appInfo['STATUS'] !== AppTable::STATUS_LOCAL)
 					{
-						$entity = $appInfo['CODE'];
+						if ($appInfo['CODE'])
+						{
+							$entity = $appInfo['CODE'];
+						}
+
+						$entityList = static::getActiveEntity();
+						if ($entityList[static::ENTITY_COUNT] > $maxCount)
+						{
+							static::$availableAppCount[$key] = false;
+						}
+						elseif (
+							$entityList[static::ENTITY_COUNT] === $maxCount
+							&& !in_array($entity, $entityList[$entityType], true)
+						)
+						{
+							static::$availableAppCount[$key] = false;
+						}
+
+						if (
+							static::$availableAppCount[$key] === false
+							&& (
+								in_array($entity, Immune::getList(), true)
+								|| (
+									!static::needCheckCount()
+									&& in_array($entity, $entityList[$entityType], true)
+								)
+							)
+						)
+						{
+							static::$availableAppCount[$key] = true;
+						}
 					}
-				}
-				else
-				{
-					$entity = (int) $entity;
-				}
-
-				$entityList = static::getActiveEntity();
-				if ($entityList[static::ENTITY_COUNT] > $maxCount)
-				{
-					static::$availableAppCount[$key] = false;
-				}
-				elseif (
-					$entityList[static::ENTITY_COUNT] === $maxCount
-					&& !in_array($entity, $entityList[$entityType], true)
-				)
-				{
-					static::$availableAppCount[$key] = false;
-				}
-
-				if (
-					static::$availableAppCount[$key] === false
-					&& (
-						(
-							$entityType === static::ENTITY_TYPE_APP
-							&& in_array($entity, Immune::getList(), true)
-						)
-						|| (
-							 !static::needCheckCount()
-							 && in_array($entity, $entityList[$entityType], true)
-						)
-					)
-				)
-				{
-					static::$availableAppCount[$key] = true;
 				}
 			}
 		}
@@ -165,14 +172,26 @@ class Access
 	{
 		$result = -1;
 		$subscriptionActive = Client::isSubscriptionAvailable();
-		if (
-			!$subscriptionActive
-			&& Loader::includeModule('bitrix24')
-			&& \CBitrix24::getLicensePrefix() === 'ru'
-		)
+		if (!$subscriptionActive)
 		{
-			$restUnlimitedFinish = Option::get(static::MODULE_ID, static::OPTION_REST_UNLIMITED_FINISH, null);
-			$count = (int) \Bitrix\Bitrix24\Feature::getVariable('rest_no_subscribe_access_limit');
+			$restUnlimitedFinish = false;
+			$count = static::DEFAULT_AVAILABLE_COUNT;
+			if (Loader::includeModule('bitrix24'))
+			{
+				if (\CBitrix24::getLicensePrefix() === 'ru')
+				{
+					$restUnlimitedFinish = Option::get(static::MODULE_ID, static::OPTION_REST_UNLIMITED_FINISH, null);
+					$count = (int) \Bitrix\Bitrix24\Feature::getVariable('rest_no_subscribe_access_limit');
+				}
+			}
+			else
+			{
+				$count = (int) Option::get(
+					static::MODULE_ID,
+					static::OPTION_AVAILABLE_COUNT,
+					static::DEFAULT_AVAILABLE_COUNT
+				);
+			}
 			if (
 				(!$restUnlimitedFinish || $restUnlimitedFinish < time())
 				&& $count >= 0
@@ -216,8 +235,6 @@ class Access
 	{
 		$result = [
 			static::ENTITY_TYPE_APP => [],
-			static::ENTITY_TYPE_INTEGRATION => [],
-			static::ENTITY_TYPE_WEBHOOK => [],
 			static::ENTITY_TYPE_APP_STATUS => [],
 			static::ENTITY_COUNT => 0
 		];
@@ -257,87 +274,241 @@ class Access
 			}
 		}
 
-		$res = IntegrationTable::getList(
-			[
-				'select' => [
-					'ID',
-					'PASSWORD_ID',
-				],
-			]
-		);
-		while ($item = $res->fetch())
-		{
-			if ( (int) $item['PASSWORD_ID'] > 0)
-			{
-				$result[static::ENTITY_TYPE_WEBHOOK][] = (int) $item['PASSWORD_ID'];
-			}
-			$result[static::ENTITY_TYPE_INTEGRATION][] = (int) $item['ID'];
-			$result[static::ENTITY_COUNT]++;
-		}
-
 		return $result;
 	}
 
 	/**
+	 * @param $action string
+	 * @param $entityType string
+	 * @param $entityData mixed
 	 * @return string
 	 * @throws \Bitrix\Main\LoaderException
 	 */
-	public static function getHelperCode() : string
+	public static function getHelperCode($action = '', $entityType = '', $entityData = []) : string
 	{
-		if (!static::isActiveRules())
+
+		if ($entityType === static::ENTITY_TYPE_APP && !is_array($entityData))
 		{
-			return '';
+			$entityData = AppTable::getByClientId($entityData);
 		}
+
 		$code = '';
 		$dateFinish = Client::getSubscriptionFinalDate();
 		$entity = static::getActiveEntity();
 		$maxCount = static::getAvailableCount();
-		if (!static::isAvailable())
+		$isB24 = ModuleManager::isModuleInstalled('bitrix24') && Loader::includeModule('bitrix24');
+
+		$isSubscriptionFinished = $dateFinish && $dateFinish < (new Date());
+		$isSubscriptionAccess = Client::isSubscriptionAccess();
+		$isSubscriptionDemoAvailable = Client::isSubscriptionDemoAvailable();
+		$isSubscriptionAvailable = Client::isSubscriptionAvailable();
+		$canBuySubscription = Client::canBuySubscription();
+
+		$license = $isB24 ? \CBitrix24::getLicenseFamily() : '';
+		$isDemo = $license === "demo";
+		$isMaxLicense = $isB24 && mb_strpos($license, 'company') === 0;
+
+		$isMaxApplication = false;
+		if ($maxCount >= 0 && $entity[static::ENTITY_COUNT] >= $maxCount)
+		{
+			$isMaxApplication = true;
+		}
+
+		$isMaxApplicationDemo = false;
+		if ($entity[static::ENTITY_COUNT] >= static::DEFAULT_AVAILABLE_COUNT_DEMO)
+		{
+			$isMaxApplicationDemo = true;
+		}
+
+		$hasPaidApplication = false;
+		if (
+			$entity[static::ENTITY_TYPE_APP_STATUS][AppTable::STATUS_PAID] > 0
+			|| $entity[static::ENTITY_TYPE_APP_STATUS][AppTable::STATUS_SUBSCRIPTION] > 0
+		)
+		{
+			$hasPaidApplication = true;
+		}
+
+		$isFreeEntity = false;
+		if (
+			$entityType === static::ENTITY_TYPE_INTEGRATION
+			|| (
+				!empty($entityData)
+				&&
+				(
+					(
+						$entityData['ID'] > 0
+						&& (
+							$entityData['STATUS'] === AppTable::STATUS_FREE
+							|| $entityData['STATUS'] === AppTable::STATUS_LOCAL
+						)
+					)
+					|| !(
+						$entityData['BY_SUBSCRIPTION'] === 'Y'
+						|| ($entityData['FREE'] === 'N' && !empty($entityData['PRICE']))
+					)
+				)
+			)
+		)
+		{
+			$isFreeEntity = true;
+		}
+
+		$isUsedDemoLicense = false;
+		if ($isB24 && (int) Option::get('bitrix24', 'DEMO_START', 0) > 0)
+		{
+			$isUsedDemoLicense = true;
+		}
+
+		if (!static::isActiveRules())
 		{
 			if (
-				$maxCount >= 0
+				!empty($entityData)
 				&& (
-					$entity[static::ENTITY_COUNT] > $maxCount
-					|| $entity[static::ENTITY_TYPE_APP_STATUS][AppTable::STATUS_PAID] > 0
-					|| $entity[static::ENTITY_TYPE_APP_STATUS][AppTable::STATUS_SUBSCRIPTION] > 0
+					$entityData['BY_SUBSCRIPTION'] === 'Y'
+					|| ($entityData['ID'] > 0 && $entityData['STATUS'] === AppTable::STATUS_SUBSCRIPTION)
 				)
 			)
 			{
+				if ($isSubscriptionDemoAvailable)
+				{
+					// activate demo subscription
+					$code = 'limit_subscription_market_marketpaid';
+				}
+				elseif ($isB24 && $isDemo)
+				{
+					// choose license with subscription
+					$code = 'limit_subscription_market_tarifwithmarket';
+				}
+				else
+				{
+					// choose subscription
+					$code = 'limit_subscription_market_marketpaid';
+				}
+			}
+		}
+		elseif (!static::isAvailable())
+		{
+			if ($hasPaidApplication || !$isFreeEntity)
+			{
+				if ($isSubscriptionDemoAvailable)
+				{
+					// activate demo subscription
+					$code = 'limit_subscription_market_access';
+				}
+				elseif (!$isB24 && $isSubscriptionAccess)
+				{
+					// choose subscription
+					$code = 'limit_subscription_market_marketpaid_trialend';
+				}
+				elseif ($isB24 && $isSubscriptionAccess)
+				{
+					// choose license with subscription
+					$code = 'limit_subscription_market_tarifwithmarket';
+					if ($action === static::ACTION_OPEN)
+					{
+						$code = 'limit_free_apps_buy_license_with_plus';
+					}
+				}
+				else
+				{
+					// choose license
+					$code = 'limit_free_rest_hold_no_demo';
+				}
+			}
+			elseif ($isB24 && !$isUsedDemoLicense)
+			{
+				// activate demo license
+				$code = 'limit_free_rest_hold';
+			}
+			elseif ($isB24 && !$isMaxApplicationDemo)
+			{
+				// choose license
+				$code = 'limit_free_rest_hold_no_demo';
+			}
+			elseif ($isSubscriptionDemoAvailable)
+			{
+				// activate demo subscription
+				$code = 'limit_subscription_market_marketpaid';
+			}
+			elseif ($isB24 && $isSubscriptionAccess)
+			{
+				// choose license with subscription
+				$code = 'limit_subscription_market_tarifwithmarket';
+				if ($action === static::ACTION_OPEN)
+				{
+					$code = 'limit_free_apps_buy_license_with_plus';
+				}
+			}
+			elseif (!$isB24 && $isSubscriptionAccess)
+			{
+				// choose subscription
+				$code = 'limit_subscription_market_marketpaid_trialend';
+			}
+		}
+		elseif ($isB24 && !$isDemo && $isMaxApplication && $isFreeEntity && !$isMaxLicense)
+		{
+			if (!$isUsedDemoLicense)
+			{
+				// activate demo license
+				$code = 'limit_free_apps_need_demo';
+			}
+			else
+			{
+				// choose license
+				$code = 'limit_free_apps_buy_license';
+			}
+		}
+		elseif (
+			$isSubscriptionDemoAvailable
+			&& ($hasPaidApplication || $isMaxApplication || !$isFreeEntity)
+		)
+		{
+			if (!$isFreeEntity)
+			{
+				// activate demo subscription
+				$code = 'limit_subscription_market_access';
+			}
+			elseif ($isB24 && $isDemo)
+			{
+				// activate demo subscription
+				$code = 'limit_subscription_market_marketpaid';
+			}
+			else
+			{
+				// activate demo subscription
+				$code = 'limit_subscription_market_marketpaid';
+			}
+		}
+		elseif ($canBuySubscription)
+		{
+			if ($isSubscriptionFinished)
+			{
+				// choose subscription
+				$code = 'limit_subscription_market_marketpaid_trialend';
+			}
+			else
+			{
+				// choose new subscription
+				$code = 'limit_subscription_market_marketpaid_trialend';
+			}
+		}
+		elseif ($isB24 && $isDemo)
+		{
+			if (!$isSubscriptionDemoAvailable)
+			{
+				// choose license with subscription
 				$code = 'limit_subscription_market_tarifwithmarket';
 			}
 			else
 			{
-				if ($dateFinish && $dateFinish < (new Date()))
-				{
-					$code = 'limit_subscription_market_demomarket_end';
-				}
-				else
-				{
-					$code = 'limit_subscription_market_access';
-				}
+				// activate demo subscription
+				$code = 'limit_subscription_market_access';
 			}
 		}
-		elseif (Loader::includeModule('bitrix24'))
+		elseif (!$isSubscriptionAvailable)
 		{
-			if (\CBitrix24::getLicenseFamily() === "demo")
-			{
-				if ($maxCount >= 0 && $entity[static::ENTITY_COUNT] >= $maxCount)
-				{
-					$code = 'limit_subscription_market_tarifwithmarket';
-				}
-				elseif ($dateFinish && $dateFinish < (new Date()))
-				{
-					$code = 'limit_subscription_market_marketpaid_trialend';
-				}
-			}
-			elseif ($dateFinish && $dateFinish < (new Date()))
-			{
-				$code = 'limit_subscription_market_marketpaid_trialend';
-			}
-			elseif (!Client::isSubscriptionAvailable())
-			{
-				$code = 'limit_subscription_market_marketpaid';
-			}
+			$code = 'limit_free_rest_hold_no_demo';
 		}
 
 		return $code;
@@ -388,5 +559,18 @@ class Access
 	public static function isActiveRules()
 	{
 		return Option::get(static::MODULE_ID, static::OPTION_ACCESS_ACTIVE, 'N') === 'Y';
+	}
+
+	/**
+	 * Agent calculates usage entities
+	 *
+	 * @param bool $period
+	 *
+	 * @return string
+	 */
+	public static function calcUsageEntityAgent($period = false)
+	{
+		static::getActiveEntity(true);
+		return $period === true ? '\Bitrix\Rest\Engine\Access::calcUsageEntityAgent(true);' : '';
 	}
 }

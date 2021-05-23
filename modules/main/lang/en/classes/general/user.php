@@ -16,14 +16,14 @@ $MESS["MAIN_FUNCTION_REGISTER_NA_INADMIN"] = "You cannot use function CUser::Reg
 $MESS["MAIN_FUNCTION_REGISTER_PASSWORD_DIGITS"] = "The password must contain digits (0-9).";
 $MESS["MAIN_FUNCTION_REGISTER_PASSWORD_LENGTH"] = "The password must contain at least #LENGTH# characters.";
 $MESS["MAIN_FUNCTION_REGISTER_PASSWORD_LOWERCASE"] = "The password must contain Latin lowercase letters (a-z).";
-$MESS["MAIN_FUNCTION_REGISTER_PASSWORD_PUNCTUATION"] = "The password must contain punctuation marks (,.<>/?;:'\"[]{}\\|`~!@#\$%^&*()-_+=).";
+$MESS["MAIN_FUNCTION_REGISTER_PASSWORD_PUNCTUATION"] = "The password must contain punctuation marks (#SPECIAL_CHARS#).";
 $MESS["MAIN_FUNCTION_REGISTER_PASSWORD_UNIQUE"] = "Your password must not be the same as the recently used passwords.";
 $MESS["MAIN_FUNCTION_REGISTER_PASSWORD_UPPERCASE"] = "The password must contain Latin uppercase letters (A-Z).";
 $MESS["MAIN_FUNCTION_SIMPLEREGISTER_NA_INADMIN"] = "You cannot use function CUser::SimpleRegister in ADMIN_SECTION!";
 $MESS["MAIN_GP_PASSWORD_DIGITS"] = "contain digits (0-9)";
 $MESS["MAIN_GP_PASSWORD_LENGTH"] = "The password must contain at least #LENGTH# characters";
 $MESS["MAIN_GP_PASSWORD_LOWERCASE"] = "contain Latin lowercase letters (a-z)";
-$MESS["MAIN_GP_PASSWORD_PUNCTUATION"] = "contain punctuation marks (,.<>/?;:'\"[]{}\\|`~!@#\$%^&*()-_+=)";
+$MESS["MAIN_GP_PASSWORD_PUNCTUATION"] = "contain punctuation marks (#SPECIAL_CHARS#)";
 $MESS["MAIN_GP_PASSWORD_UPPERCASE"] = "contain Latin uppercase letters (A-Z)";
 $MESS["MAIN_LOGIN_CHANGE_PASSWORD"] = "Your password has expired, you have to change it.";
 $MESS["MAIN_LOGIN_EMAIL_CONFIRM"] = "You have not yet confirmed your registration (the confirmation message was sent to #EMAIL#). Please use the password retrieval form to send the confirmation message again if so required.";

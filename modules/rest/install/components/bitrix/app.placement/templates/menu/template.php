@@ -16,8 +16,10 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 $c = \Bitrix\Main\Text\Converter::getHtmlConverter();
 
 $applicationIdList = array();
+$applicationList = array();
 foreach($arResult['APPLICATION_LIST'] as $app):
 	$applicationIdList[] = $app['ID'];
+	$applicationList[] = array_change_key_case($app, CASE_LOWER);
 endforeach;
 ?>
 
@@ -27,6 +29,7 @@ endforeach;
 		layout: 'rest_menu_<?=\CUtil::JSEscape($arResult['PLACEMENT'])?>',
 		node: 'rest_menu_<?=\CUtil::JSEscape($arResult['PLACEMENT'])?>_#ID#',
 		list: <?=\CUtil::PhpToJSObject($applicationIdList)?>,
+		extendedList: <?=\CUtil::PhpToJSObject($applicationList)?>,
 		current: <?=intval($arResult['APPLICATION_CURRENT'])?>,
 		unload: false
 	}));

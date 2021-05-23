@@ -1,5 +1,5 @@
 import { Type, Loc, Cache } from 'main.core';
-import { PopupWindow } from 'main.popup';
+import { Popup } from 'main.popup';
 import MessageBoxButtons from './messageboxbuttons';
 import 'ui.buttons';
 
@@ -8,11 +8,11 @@ import 'ui.buttons';
  */
 export default class MessageBox
 {
-	/** @var {PopupWindow} */
+	/** @var {Popup} */
 	popupWindow = null;
 	title = null;
 	message = null;
-	modal = false;
+	modal = true;
 	popupOptions = {};
 	minWidth = 300;
 	minHeight = 150;
@@ -34,7 +34,7 @@ export default class MessageBox
 		this.cache = new Cache.MemoryCache();
 		this.handleButtonClick = this.handleButtonClick.bind(this);
 
-		this.modal = options.modal === true;
+		this.modal = options.modal !== false;
 		this.cacheable = options.cacheable === true;
 
 		this.setTitle(options.title);
@@ -188,7 +188,7 @@ export default class MessageBox
 	{
 		if (this.popupWindow === null)
 		{
-			this.popupWindow = new PopupWindow({
+			this.popupWindow = new Popup({
 				bindElement: null,
 				className: this.isMediumButtonSize() ? 'ui-message-box ui-message-box-medium-buttons' : 'ui-message-box',
 				content: this.getMessage(),
@@ -196,7 +196,7 @@ export default class MessageBox
 				minWidth: this.minWidth,
 				minHeight: this.minHeight,
 				maxWidth: this.maxWidth,
-				overlay: this.modal,
+				overlay: this.modal ? { opacity: 20 } : null,
 				cacheable: this.cacheable,
 				closeIcon: false,
 				contentBackground: 'transparent',

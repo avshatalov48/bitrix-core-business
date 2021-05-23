@@ -55,10 +55,15 @@ class RolePermissionService implements RolePermissionServiceInterface
 
 			foreach ($setting['accessRights'] as $permission)
 			{
+				if((int)$permission['id'] < 1)
+				{
+					continue;
+				}
+
 				$query[] = sprintf(
-					'(%d, %s, %d)',
+					'(%d, %d, %d)',
 					$roleId,
-					$permission['id'],
+					(int)$permission['id'],
 					$permission['value']
 				);
 			}

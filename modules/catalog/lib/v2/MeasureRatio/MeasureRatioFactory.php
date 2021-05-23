@@ -2,8 +2,6 @@
 
 namespace Bitrix\Catalog\v2\MeasureRatio;
 
-use Bitrix\Catalog\v2\BaseCollection;
-use Bitrix\Catalog\v2\BaseEntity;
 use Bitrix\Catalog\v2\IoC\ContainerContract;
 
 /**
@@ -34,25 +32,16 @@ class MeasureRatioFactory
 	/**
 	 * @return \Bitrix\Catalog\v2\MeasureRatio\BaseMeasureRatio
 	 */
-	public function createEntity(): BaseEntity
+	public function createEntity(): BaseMeasureRatio
 	{
 		return $this->container->make(self::SIMPLE_MEASURE_RATIO);
 	}
 
 	/**
-	 * @param \Bitrix\Catalog\v2\BaseEntity|null $parent
 	 * @return \Bitrix\Catalog\v2\MeasureRatio\MeasureRatioCollection
 	 */
-	public function createCollection(BaseEntity $parent = null): BaseCollection
+	public function createCollection(): MeasureRatioCollection
 	{
-		/** @var \Bitrix\Catalog\v2\MeasureRatio\MeasureRatioCollection $collection */
-		$collection = $this->container->make(self::MEASURE_RATIO_COLLECTION);
-
-		if ($parent)
-		{
-			$collection->setParent($parent);
-		}
-
-		return $collection;
+		return $this->container->make(self::MEASURE_RATIO_COLLECTION);
 	}
 }

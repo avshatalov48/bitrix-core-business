@@ -233,7 +233,7 @@ function GetPropertyInfo($strPrefix, $ID, $boolUnpack = true, $arHiddenPropField
 
 			if ($boolUnpack)
 			{
-				$arPropInfo = unserialize($strPropInfo);
+				$arPropInfo = unserialize($strPropInfo, ['allowed_classes' => false]);
 				foreach ($arHiddenPropFields as &$strFieldKey)
 				{
 					$arResult[$strFieldKey] = (isset($arPropInfo[$strFieldKey]) ? $arPropInfo[$strFieldKey] : $arDefPropInfo[$strFieldKey]);

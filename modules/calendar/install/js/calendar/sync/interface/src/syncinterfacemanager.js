@@ -18,6 +18,9 @@ import {CaldavConnection} from "./connectionproviders/caldavconnection";
 export default class SyncInterfaceManager extends EventEmitter
 {
 	status = 'not_connected';
+	STATUS_SUCCESS = 'success';
+	STATUS_FAILED = 'failed';
+	static MAIN_SYNC_SLIDER_NAME = 'calendar:sync-slider';
 
 	constructor(options)
 	{
@@ -35,12 +38,18 @@ export default class SyncInterfaceManager extends EventEmitter
 		this.isSetSyncCaldavSettings = options.isSetSyncCaldavSettings;
 
 		this.init();
+		this.subscribeOnEvent();
+	}
 
-		EventEmitter.subscribe('BX.Calendar.Sync.Interface.SyncStatusPopup:onRefresh', event => {
+	subscribeOnEvent()
+	{
+		EventEmitter.subscribe('BX.Calendar.Sync.Interface.SyncStatusPopup:onRefresh', event =>
+		{
 			this.refresh(event);
 		});
 
-		EventEmitter.subscribe('BX.Calendar.Sync.Interface.InterfaceTemplate:reDrawCalendarGrid', event => {
+		EventEmitter.subscribe('BX.Calendar.Sync.Interface.InterfaceTemplate:reDrawCalendarGrid', event =>
+		{
 			this.reDrawCalendarGrid();
 		});
 	}
@@ -87,17 +96,7 @@ export default class SyncInterfaceManager extends EventEmitter
 					break;
 			}
 
-			if (syncInfo[key].connected === true)
-			{
-				if (syncInfo[key].status === true && this.status !== 'failed')
-				{
-					this.status = 'success';
-				}
-				else if (syncInfo[key].status === false)
-				{
-					this.status = 'failed';
-				}
-			}
+			this.calculateStatus(syncInfo[key]);
 		}
 
 		this.connectionsProviders = {
@@ -150,6 +149,21 @@ export default class SyncInterfaceManager extends EventEmitter
 		}
 	}
 
+	calculateStatus(provider)
+	{
+		if (provider.connected === true)
+		{
+			if (provider.status === true && this.status !== this.STATUS_FAILED)
+			{
+				this.status = this.STATUS_SUCCESS;
+			}
+			else if (provider.status === false)
+			{
+				this.status = this.STATUS_FAILED;
+			}
+		}
+	}
+
 	sortSections()
 	{
 		const sections = this.sections;
@@ -199,8 +213,8 @@ export default class SyncInterfaceManager extends EventEmitter
 			}
 		}).then((response) => {
 			this.syncInfo = response.data;
+			this.status = this.STATUS_SUCCESS;
 			this.init();
-
 			this.refreshCalendarGrid();
 			this.refreshSyncButton();
 			this.refreshActivePopup(activePopup);
@@ -234,7 +248,7 @@ export default class SyncInterfaceManager extends EventEmitter
 			const syncPanel = this.syncButton.getSyncPanel();
 			openSliders.forEach(slider =>
 			{
-				if (slider.getUrl() === 'calendar:sync-slider')
+				if (slider.getUrl() === SyncInterfaceManager.MAIN_SYNC_SLIDER_NAME)
 				{
 					this.refreshMainSlider(syncPanel, slider);
 				}

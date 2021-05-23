@@ -1,7 +1,7 @@
 <?
 require_once(dirname(__FILE__)."/../bx_root.php");
 
-define("START_EXEC_PROLOG_BEFORE_1", microtime());
+define("START_EXEC_PROLOG_BEFORE_1", microtime(true));
 $GLOBALS["BX_STATE"] = "PB";
 unset($_REQUEST["BX_STATE"]);
 unset($_GET["BX_STATE"]);

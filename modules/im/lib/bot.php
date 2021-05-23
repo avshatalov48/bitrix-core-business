@@ -139,14 +139,7 @@ class Bot
 
 		$botFields['ACTIVE'] = 'Y';
 
-		if (IsModuleInstalled('intranet'))
-		{
-			$botFields['UF_DEPARTMENT'] = Array(\Bitrix\Im\Bot\Department::getId());
-		}
-		else
-		{
-			unset($botFields['UF_DEPARTMENT']);
-		}
+		unset($botFields['UF_DEPARTMENT']);
 
 		$botFields['WORK_POSITION'] = isset($botFields['WORK_POSITION'])? trim($botFields['WORK_POSITION']): '';
 		if (empty($botFields['WORK_POSITION']))
@@ -672,7 +665,11 @@ class Bot
 		{
 			call_user_func_array(array($bot["CLASS"], $bot["METHOD_WELCOME_MESSAGE"]), Array($dialogId, $joinFields));
 		}
-		else if ($bot["TEXT_PRIVATE_WELCOME_MESSAGE"] <> '' && $joinFields['CHAT_TYPE'] == IM_MESSAGE_PRIVATE && $joinFields['FROM_USER_ID'] != $joinFields['BOT_ID'])
+		else if (
+			$bot["TEXT_PRIVATE_WELCOME_MESSAGE"] <> ''
+			&& $joinFields['CHAT_TYPE'] == IM_MESSAGE_PRIVATE
+			&& $joinFields['FROM_USER_ID'] != $joinFields['BOT_ID']
+		)
 		{
 			if ($bot['TYPE'] == self::TYPE_HUMAN)
 			{
@@ -685,7 +682,14 @@ class Bot
 				'MESSAGE' => str_replace(Array('#USER_NAME#'), Array($userName), $bot["TEXT_PRIVATE_WELCOME_MESSAGE"]),
 			));
 		}
-		else if ($bot["TEXT_CHAT_WELCOME_MESSAGE"] <> '' && ($joinFields['CHAT_TYPE'] == IM_MESSAGE_CHAT || $joinFields['CHAT_TYPE'] == IM_MESSAGE_OPEN_LINE) && $joinFields['FROM_USER_ID'] != $joinFields['BOT_ID'])
+		else if (
+			$bot["TEXT_CHAT_WELCOME_MESSAGE"] <> ''
+			&& (
+				$joinFields['CHAT_TYPE'] == IM_MESSAGE_CHAT
+				|| $joinFields['CHAT_TYPE'] == IM_MESSAGE_OPEN_LINE
+			)
+			&& $joinFields['FROM_USER_ID'] != $joinFields['BOT_ID']
+		)
 		{
 			if ($bot['TYPE'] == self::TYPE_HUMAN)
 			{

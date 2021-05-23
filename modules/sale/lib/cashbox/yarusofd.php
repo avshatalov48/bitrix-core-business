@@ -60,7 +60,7 @@ class YarusOfd extends Ofd
 		$queryString = $this->getQueryString($data);
 		$result = $this->sendQuery($queryString);
 
-		if (isset($result['link']))
+		if (isset($result[0]['link']))
 		{
 			return $result['link'];
 		}

@@ -160,7 +160,9 @@ class CashboxAtolFarm extends Cashbox implements IPrintImmediately, ICheckable
 		$result = array();
 
 		if (!$data['uuid'])
+		{
 			return $result;
+		}
 
 		$checkInfo = CheckManager::getCheckInfoByExternalUuid($data['uuid']);
 
@@ -400,6 +402,8 @@ class CashboxAtolFarm extends Cashbox implements IPrintImmediately, ICheckable
 			$response = $result->getData();
 		}
 
+		$response['uuid'] = $uuid;
+
 		if ($response['status'] === 'wait')
 		{
 			$result->addError(new Main\Error(Localization\Loc::getMessage('SALE_CASHBOX_ATOL_REQUEST_STATUS_WAIT')));
@@ -469,7 +473,9 @@ class CashboxAtolFarm extends Cashbox implements IPrintImmediately, ICheckable
 			{
 				$response = $this->decode($response);
 				if (!is_array($response))
-					$response = array();
+				{
+					$response = [];
+				}
 
 				$response['http_code'] = $http->getStatus();
 				$result->addData($response);

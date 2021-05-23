@@ -185,6 +185,11 @@ class MailingChainTable extends Entity\DataManager
 				'data_type' => 'Bitrix\Main\UserTable',
 				'reference' => array('=this.CREATED_BY' => 'ref.ID'),
 			),
+			'WAITING_RECIPIENT' => array(
+				'data_type' => 'boolean',
+				'default_value' => 'N',
+				'values' => array('N', 'Y')
+			),
 		);
 	}
 
@@ -274,7 +279,7 @@ class MailingChainTable extends Entity\DataManager
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	public static function initPosting($mailingChainId, $prepareFields = true)
+	public static function initPosting($mailingChainId)
 	{
 		$postingId = null;
 		$chainPrimary = array('ID' => $mailingChainId);
@@ -320,7 +325,10 @@ class MailingChainTable extends Entity\DataManager
 
 		if($postingId && $mailingChain['IS_TRIGGER'] != 'Y')
 		{
-			PostingTable::initGroupRecipients($postingId, true, $prepareFields);
+			if(!PostingTable::initGroupRecipients($postingId, true))
+			{
+				Model\LetterTable::update($mailingChainId, ['WAITING_RECIPIENT' => 'Y']);
+			}
 		}
 
 		return $postingId;
@@ -387,7 +395,7 @@ class MailingChainTable extends Entity\DataManager
 		{
 			if(array_key_exists('STATUS', $data['fields']) && $data['fields']['STATUS'] == static::STATUS_NEW)
 			{
-				static::initPosting($data['primary']['ID'], false);
+				static::initPosting($data['primary']['ID']);
 			}
 
 			Runtime\Job::actualizeByLetterId($data['primary']['ID']);

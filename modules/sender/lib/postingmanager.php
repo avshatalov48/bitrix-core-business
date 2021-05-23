@@ -9,12 +9,13 @@
 namespace Bitrix\Sender;
 
 use Bitrix\Main\Config\Option;
-use Bitrix\Main\Context;
 use Bitrix\Main\Event;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type;
 use Bitrix\Sender\Entity;
-use Bitrix\Sender\Recipient;
+use Bitrix\Sender\Integration\Seo\Ads\MessageMarketingFb;
+use Bitrix\Sender\Posting\ThreadStrategy\IThreadStrategy;
+use Bitrix\Sender\Posting\ThreadStrategy\ThreadStrategyContext;
 
 Loc::loadMessages(__FILE__);
 
@@ -27,6 +28,8 @@ class PostingManager
 	const SEND_RESULT_ERROR    = false;
 	const SEND_RESULT_SENT     = true;
 	const SEND_RESULT_CONTINUE = 'CONTINUE';
+	const SEND_RESULT_WAIT     = 'WAIT';
+	const SEND_RESULT_WAITING_RECIPIENT     = 'WAITING_RECIPIENT';
 	public static $threadId;
 
 	/** @var int $checkStatusStep */
@@ -121,7 +124,6 @@ class PostingManager
 	 */
 	public static function click($recipientId, $url)
 	{
-
 		$postingContactPrimary = ['ID' => $recipientId];
 		$row = PostingRecipientTable::getRowById($postingContactPrimary);
 		if (!$row)
@@ -170,14 +172,19 @@ class PostingManager
 				$fixedUrl = $uri->deleteParams($deleteParameters, true)
 								->getUri();
 				$fixedUrl   = urldecode($fixedUrl);
-				$addClickDb = PostingClickTable::add(
-					[
-						'POSTING_ID'   => $row['POSTING_ID'],
-						'RECIPIENT_ID' => $row['ID'],
-						'URL'          => $fixedUrl
-					]
-				);
-				if ($addClickDb->isSuccess())
+
+				if(mb_strpos($fixedUrl, 'pub/mail/unsubscribe.php') === false)
+				{
+					$addClickDb = PostingClickTable::add(
+						[
+							'POSTING_ID'   => $row['POSTING_ID'],
+							'RECIPIENT_ID' => $row['ID'],
+							'URL'          => $fixedUrl
+						]
+					);
+				}
+
+				if ($addClickDb && $addClickDb->isSuccess())
 				{
 					// send event
 					$eventData = [
@@ -302,20 +309,24 @@ class PostingManager
 	 * @param int $timeout Timeout.
 	 * @param int $maxMailCount Max mail count.
 	 *
-	 * @param bool|int $threadId
-	 *
 	 * @return bool|string
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\DB\Exception
 	 */
-	public static function send($id, $timeout = 0, $maxMailCount = 0, $threadId = false)
+	public static function send($id, $timeout = 0, $maxMailCount = 0)
 	{
 		$letter = Entity\Letter::createInstanceByPostingId($id);
 		$sender = new Posting\Sender($letter);
-		$sender->setThreadStrategy(Runtime\Env::getThreadContext())
-			->setLimit($maxMailCount)
-			->setTimeout($timeout)
-			->send();
+
+		$sender->setThreadStrategy(
+			MessageMarketingFb::checkSelf($sender->getMessage()->getCode()) ?
+				ThreadStrategyContext::buildStrategy(
+					IThreadStrategy::SINGLE
+				): Runtime\Env::getThreadContext()
+		)
+		->setLimit($maxMailCount)
+		->setTimeout($timeout)
+		->send();
 
 		static::$threadId = $sender->getThreadStrategy()->getThreadId();
 
@@ -327,7 +338,12 @@ class PostingManager
 			case Posting\Sender::RESULT_ERROR:
 				$result = static::SEND_RESULT_ERROR;
 				break;
-
+			case Posting\Sender::RESULT_WAITING_RECIPIENT:
+				$result = static::SEND_RESULT_WAITING_RECIPIENT;
+				break;
+			case Posting\Sender::RESULT_WAIT:
+				$result = static::SEND_RESULT_WAIT;
+				break;
 			case Posting\Sender::RESULT_SENT:
 			default:
 				$result = static::SEND_RESULT_SENT;

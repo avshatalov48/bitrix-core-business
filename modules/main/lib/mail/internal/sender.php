@@ -91,7 +91,7 @@ class SenderTable extends Entity\DataManager
 					return array(
 						function ($value)
 						{
-							$value = unserialize($value);
+							$value = unserialize($value, ['allowed_classes' => false]);
 
 							if (!empty($value['smtp']['password']))
 							{

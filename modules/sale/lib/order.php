@@ -615,6 +615,19 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 	}
 
 	/**
+	 * Returns order price without discounts.
+	 *
+	 * @return float
+	 */
+	public function getBasePrice(): float
+	{
+		$price = parent::getBasePrice();
+		$shipmentCollection = $this->getShipmentCollection();
+
+		return $price + $shipmentCollection->getBasePriceDelivery();
+	}
+
+	/**
 	 * @param BasketBase $basket
 	 * @return Result
 	 * @throws Main\ArgumentException
@@ -1099,17 +1112,21 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 		}
 		elseif($name == "MARKED")
 		{
-			/** @var ShipmentCollection $shipmentCollection */
-			if (!$shipmentCollection = $this->getShipmentCollection())
+			global $USER;
+
+			if (is_object($USER))
 			{
-				throw new Main\ObjectNotFoundException('Entity "ShipmentCollection" not found');
+				$this->setField('EMP_MARKED_ID', $USER->GetID());
 			}
+
+			$this->setField('DATE_MARKED', new Main\Type\DateTime());
+
+			$shipmentCollection = $this->getShipmentCollection();
 
 			$r = $shipmentCollection->onOrderModify($name, $oldValue, $value);
 			if (!$r->isSuccess())
 			{
-				$result->addErrors($r->getErrors());
-				return $result;
+				return $result->addErrors($r->getErrors());
 			}
 		}
 
@@ -2251,7 +2268,6 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 		/** @var EntityMarker $entityMarker */
 		$entityMarker = $registry->getEntityMarkerClassName();
 
-		/** @var Result $result */
 		$result = Internals\Catalog\Provider::save($this);
 		if ($result->hasWarnings())
 		{
@@ -2263,28 +2279,6 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 		}
 
 		$entityMarker::refreshMarkers($this);
-
-		if (!$result->isSuccess())
-		{
-			$resultPool = $entityMarker::getPoolAsResult($this);
-			if (!$resultPool->isSuccess())
-			{
-				foreach ($resultPool->getErrors() as $errorPool)
-				{
-					foreach ($result->getErrors() as $error)
-					{
-						if ($errorPool->getCode() == $error->getCode() && $errorPool->getMessage() == $error->getMessage())
-						{
-							continue 2;
-						}
-					}
-
-					$result->addError($errorPool);
-				}
-			}
-
-			$entityMarker::saveMarkers($this);
-		}
 
 		return $result;
 	}
@@ -2316,7 +2310,7 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 			$CACHE_MANAGER->SetImmediate("sale_orders", true);
 		}
 
-		return new Result();
+		return $result;
 	}
 
 	/**
@@ -2341,7 +2335,13 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 		if ($entityMarker::hasErrors($this))
 		{
 			$entityMarker::saveMarkers($this);
-			static::updateInternal($this->getId(), array("MARKED" => "Y"));
+			static::updateInternal(
+				$this->getId(),
+				[
+					'MARKED' => 'Y',
+					'REASON_MARKED' => $this->getField('REASON_MARKED')
+				]
+			);
 		}
 
 		return $result;
@@ -2353,7 +2353,6 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 	 * @throws Main\ArgumentNullException
 	 * @throws Main\ArgumentOutOfRangeException
 	 * @throws Main\NotImplementedException
-	 * @throws Main\ObjectException
 	 * @throws Main\SystemException
 	 */
 	protected function add()

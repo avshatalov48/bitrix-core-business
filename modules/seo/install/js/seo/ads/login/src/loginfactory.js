@@ -13,6 +13,7 @@ export class LoginFactory
 			switch (provider.TYPE)
 			{
 				case "facebook":
+				case "instagram":
 					loginObject = FacebookLogin;
 					break;
 				default:

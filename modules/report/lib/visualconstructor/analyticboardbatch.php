@@ -7,6 +7,7 @@ class AnalyticBoardBatch
 	private $title;
 	private $key;
 	private $order = 100;
+	private $group;
 
 	/**
 	 * @return mixed
@@ -54,5 +55,21 @@ class AnalyticBoardBatch
 	public function setOrder($order): void
 	{
 		$this->order = $order;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getGroup()
+	{
+		return $this->group;
+	}
+
+	/**
+	 * @param mixed $group
+	 */
+	public function setGroup($group): void
+	{
+		$this->group = $group;
 	}
 }

@@ -273,11 +273,14 @@ HTML;
 		$className = static::generateControlClassName($fieldType, $field);
 		$className = str_replace('file', 'file-selectable', $className);
 
-		return '<input type="text" class="'.htmlspecialcharsbx($className)
-			.'" name="'.htmlspecialcharsbx($name).'" value="'.htmlspecialcharsbx((string) $value)
-			.'" placeholder="'.htmlspecialcharsbx($fieldType->getDescription()).'" value="'.htmlspecialcharsbx((string) $value).'"'
-			.' data-role="inline-selector-target" data-selector-type="file"'
-			.'/>';
+		return sprintf(
+			'<input type="text" class="%s" name="%s" value="%s" placeholder="%s" data-role="inline-selector-target" data-selector-type="file" data-property="%s"/>',
+			htmlspecialcharsbx($className),
+			htmlspecialcharsbx($name),
+			htmlspecialcharsbx((string)$value),
+			htmlspecialcharsbx($fieldType->getDescription()),
+			htmlspecialcharsbx(Main\Web\Json::encode($fieldType->getProperty()))
+		);
 	}
 
 	/**
@@ -383,7 +386,7 @@ HTML;
 				if (!array_key_exists('MODULE_ID', $value) || $value['MODULE_ID'] == '')
 					$value['MODULE_ID'] = 'bizproc';
 
-				$value = \CFile::saveFile($value, 'bizproc_wf', true);
+				$value = \CFile::saveFile($value, 'bizproc_wf');
 				if (!$value)
 				{
 					$value = null;
@@ -426,7 +429,7 @@ HTML;
 			if ($fileFields)
 			{
 				$fileFields['MODULE_ID'] = 'bizproc';
-				return (int) \CFile::saveFile($fileFields, 'bizproc_rest', true);
+				return (int) \CFile::saveFile($fileFields, 'bizproc_rest');
 			}
 		}
 

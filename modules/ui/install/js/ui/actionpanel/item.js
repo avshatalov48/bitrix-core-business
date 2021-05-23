@@ -9,6 +9,7 @@ BX.UI.ActionPanel.Item = function(options)
 	this.id = options.id;
 	this.type = options.type;
 	this.text = options.text;
+	this.html = options.text;
 	this.icon = options.icon;
 	this.submenuOptions = {};
 	if (options.submenuOptions && BX.type.isString(options.submenuOptions))

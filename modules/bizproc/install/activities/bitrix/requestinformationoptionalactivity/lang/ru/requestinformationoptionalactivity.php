@@ -13,3 +13,8 @@ $MESS ['BPRIOA_ACT_PROP_EMPTY2'] = "Не указано ни одного пол
 $MESS ['BPRIOA_ACT_BUTTON2'] = "Отклонить";
 $MESS ['BPRIOA_ACT_COMMENT_ERROR'] = "Не заполнено поле: #COMMENT_LABEL#";
 
+$MESS["BPAR_PD_TASK_BUTTON_CANCEL_MESSAGE"] = "Текст кнопки отклонения в задании";
+$MESS["BPSFA_PD_CANCEL"] = "Отмена";
+$MESS["BPRIA_PD_SAVE_VARIABLES"] = 'Сохранять значения в случае отказа';
+$MESS["BPSFA_PD_YES"] = "Да";
+$MESS["BPSFA_PD_NO"] = "Нет";

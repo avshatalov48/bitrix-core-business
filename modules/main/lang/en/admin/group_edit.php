@@ -15,7 +15,7 @@ $MESS["GP_PASSWORD_CHANGE_DAYS"] = "Require the user to change their password af
 $MESS["GP_PASSWORD_DIGITS"] = "Password must contain digits (0-9)";
 $MESS["GP_PASSWORD_LENGTH"] = "Min. Password Length";
 $MESS["GP_PASSWORD_LOWERCASE"] = "Password must contain Latin lowercase letters (a-z)";
-$MESS["GP_PASSWORD_PUNCTUATION"] = "Password must contain punctuation marks (,.<>/?;:'\"[]{}\\|`~!@#\$%^&*()-_+=)";
+$MESS["GP_PASSWORD_PUNCTUATION"] = "Password must contain punctuation marks (#SPECIAL_CHARS#)";
 $MESS["GP_PASSWORD_UNIQUE_COUNT"] = "Number of recent passwords to check for uniqueness";
 $MESS["GP_PASSWORD_UPPERCASE"] = "Password must contain Latin uppercase letters (A-Z)";
 $MESS["GP_SESSION_IP_MASK"] = "Network mask to bind session";

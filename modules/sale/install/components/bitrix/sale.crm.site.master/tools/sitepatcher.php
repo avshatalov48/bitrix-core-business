@@ -108,12 +108,6 @@ class SitePatcher
 			];
 
 			$arNewUrlRewrite[] = [
-				"CONDITION" => "#^".$this->getCrmSiteDir()."crm/invoicing/#",
-				"RULE" => "",
-				"PATH" => $this->getCrmSiteDir()."crm/invoicing/index.php",
-			];
-
-			$arNewUrlRewrite[] = [
 				"CONDITION" => "#^".$this->getCrmSiteDir()."stssync/contacts_crm/#",
 				"RULE" => "",
 				"ID" => "bitrix:stssync.server",
@@ -981,7 +975,7 @@ class SitePatcher
 			return;
 		}
 
-		$selectedGroups = @unserialize($selectedGroups);
+		$selectedGroups = @unserialize($selectedGroups, ['allowed_classes' => false]);
 		if (!is_array($selectedGroups))
 		{
 			return;
@@ -1358,7 +1352,7 @@ class SitePatcher
 	public static function retrieveConfig1C()
 	{
 		$config1C = Option::get("sale", self::CONFIG_1C);
-		$config1C = unserialize($config1C);
+		$config1C = unserialize($config1C, ['allowed_classes' => false]);
 
 		foreach ($config1C as $module => $options)
 		{

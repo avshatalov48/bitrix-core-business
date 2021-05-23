@@ -7,7 +7,7 @@
 }
 
 .catalog-entity-editor-content-block-field-iblock-section.ui-entity-editor-content-block-edit .ui-entity-editor-block-context-menu {
-	top: 10px;
+	top: 26px;
 }
 
 .catalog-entity-editor-content-block-field-iblock-section.ui-entity-editor-content-block .ui-tile-selector-item > span {
@@ -33,6 +33,17 @@
 	padding: 2px 38px 2px 3px;;
 	border: none;
 	background: none;
+}
+
+.ui-tile-selector-item-picture {
+    min-width: 21px;
+    width: 21px;
+    height: 21px;
+    margin-right: 6px;
+    background-size: cover;
+    border-radius: 50%;
+    float: left;
+    margin-top: 4px;
 }
 
 .ui-tile-selector-input,

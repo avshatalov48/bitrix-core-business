@@ -34,6 +34,7 @@ $im_default_option = array(
 	'chat_extend_show_history' => true,
 	'disk_storage_id' => 0,
 	'disk_folder_avatar_id' => 0,
+	'contact_list_birthday' => 'all',
 	'contact_list_load' => true,
 	'contact_list_show_all_bus' => false,
 	'path_to_user_profile' => (!IsModuleInstalled("intranet") ? '/club/user/#user_id#/' : ''),

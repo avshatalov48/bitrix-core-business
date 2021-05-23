@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["BUYERS_DETAIL_DESCR"] = "View order details";
 $MESS["BUYERS_FROM"] = "from ";
 $MESS["BUYERS_H_ACCOUNT_NUMBER"] = "Order #";
@@ -59,7 +59,6 @@ $MESS["BUYER_DONT_CAN_BUY"] = "out of stock";
 $MESS["BUYER_EDIT"] = "Edit customer";
 $MESS["BUYER_FILED_ADRES"] = "Address";
 $MESS["BUYER_FILED_FIO"] = "Full name";
-$MESS["BUYER_FILED_GROUP"] = "User groups";
 $MESS["BUYER_FILED_GROUP1"] = "User's active groups";
 $MESS["BUYER_FILED_LAST_LOGIN"] = "Last logged in";
 $MESS["BUYER_FILED_LOGIN"] = "Login";
@@ -195,4 +194,3 @@ $MESS["SOB_SHIPMENTS_DEDUCTED"] = "Shipped";
 $MESS["SOB_SHIPMENTS_MARKED"] = "Marked";
 $MESS["SOB_SHIPMENTS_NOT_ALLOW_DELIVERY"] = "Shipment not approved";
 $MESS["SOB_SHIPMENTS_STATUS"] = "Status";
-?>

@@ -527,7 +527,7 @@ class CSaleExport
 		$dbExport = $export->GetList();
 		while($arExport = $dbExport->Fetch())
 		{
-			$arAgent[$arExport["PERSON_TYPE_ID"]] = unserialize($arExport["VARS"]);
+			$arAgent[$arExport["PERSON_TYPE_ID"]] = unserialize($arExport["VARS"], ['allowed_classes' => false]);
 		}
 		return $arAgent;
 	}
@@ -3254,7 +3254,7 @@ class CSaleExport
 
 		while ($row = $result->fetch())
 		{
-			if (! (($map1C = unserialize($row['VARS'])) && is_array($map1C)))
+			if (! (($map1C = unserialize($row['VARS'], ['allowed_classes' => false])) && is_array($map1C)))
 				continue;
 
 			$personTypeId = $row['PERSON_TYPE_ID'];
@@ -3338,7 +3338,7 @@ class CSaleExport
 			}
 		}
 
-		if (($map1C = unserialize($arFields['VARS'])) && is_array($map1C))
+		if (($map1C = unserialize($arFields['VARS'], ['allowed_classes' => false])) && is_array($map1C))
 		{
 			self::setMap($arFields['PERSON_TYPE_ID'], $map1C, 'Add:'.$arFields['PERSON_TYPE_ID']);
 		}
@@ -3362,7 +3362,7 @@ class CSaleExport
 			}
 		}
 
-		if (($map1C = unserialize($arFields['VARS'])) && is_array($map1C))
+		if (($map1C = unserialize($arFields['VARS'], ['allowed_classes' => false])) && is_array($map1C))
 		{
 			self::setMap($arFields['PERSON_TYPE_ID'], $map1C, 'Update:'.$arFields['PERSON_TYPE_ID'].':'.$ID);
 		}

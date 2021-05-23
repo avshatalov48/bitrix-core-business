@@ -144,7 +144,7 @@
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-ya-dialogs.svg);}.ui-icon-service-ya-direct>i{--ui-icon-service-bg-color:#ffce00;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-ya-direct.svg); }
 
 .ui-icon-service-light-ya-direct > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-ya-direct.svg);}.ui-icon-service-ya-toloka>i{--ui-icon-service-bg-color:#ea8428;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-ya-toloka.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-ya-direct.svg);}.ui-icon-service-ya-toloka>i{--ui-icon-service-bg-color:#ea8428;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-ya-toloka.svg); background-size:30px;}
 
 .ui-icon-service-light-ya-toloka > i {
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-ya-toloka.svg);}.ui-icon-service-liveid>i{--ui-icon-service-bg-color:#fff;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-liveid.svg); }

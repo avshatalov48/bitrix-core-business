@@ -68,6 +68,8 @@ $pageConfig = array(
 	'LIST_ID' => $type.'.'.$IBLOCK_ID,
 	'SHOW_NAVCHAIN' => true,
 	'NAVCHAIN_ROOT' => false,
+
+	'ALLOW_USER_EDIT' => true
 );
 switch ($urlBuilder->getId())
 {
@@ -78,11 +80,13 @@ switch ($urlBuilder->getId())
 		$pageConfig['SHOW_NAVCHAIN'] = false;
 		$pageConfig['CONTEXT_PATH'] = '/shop/settings/cat_section_admin.php'; // TODO: temporary hack
 		$pageConfig['CATALOG'] = true;
+		$pageConfig['ALLOW_USER_EDIT'] = false;
 		break;
 	case 'CATALOG':
 		$pageConfig['LIST_ID_PREFIX'] = 'tbl_catalog_section_';
 		$pageConfig['CONTEXT_PATH'] = '/bitrix/admin/cat_section_admin.php'; // TODO: temporary hack
 		$pageConfig['CATALOG'] = true;
+		$pageConfig['ALLOW_USER_EDIT'] = false;
 		break;
 	case 'IBLOCK':
 		$pageConfig['IBLOCK_EDIT'] = true;
@@ -91,6 +95,19 @@ switch ($urlBuilder->getId())
 		$pageConfig['CONTEXT_PATH'] = '/bitrix/admin/iblock_section_admin.php'; // TODO: temporary hack
 		break;
 }
+
+$canViewUserList = (
+	$USER->CanDoOperation('view_subordinate_users')
+	|| $USER->CanDoOperation('view_all_users')
+);
+$canViewUser = (
+	(
+		$USER->CanDoOperation('edit_all_users')
+		|| $USER->CanDoOperation('edit_subordinate_users')
+		|| $canViewUserList
+	)
+	&& $pageConfig['ALLOW_USER_EDIT']
+);
 
 $sectionTranslit = $arIBlock["FIELDS"]["SECTION_CODE"]["DEFAULT_VALUE"];
 $useSectionTranslit = $sectionTranslit["TRANSLITERATION"] == "Y" && $sectionTranslit["USE_GOOGLE"] != "Y";
@@ -191,48 +208,54 @@ $filterFields = array(
 		"name" => GetMessage("IBSEC_A_TIMESTAMP"),
 		"type" => "date",
 		"filterable" => ""
-	),
-	array(
+	)
+);
+if ($canViewUserList)
+{
+	$filterFields[] = array(
 		"id" => "MODIFIED_BY",
 		"name" => GetMessage("IBSEC_A_MODIFIED_BY"),
 		"type" => "custom_entity",
 		"selector" => array("type" => "user"),
 		"filterable" => ""
-	),
-	array(
-		"id" => "DATE_CREATE",
-		"name" => GetMessage("IBSEC_A_DATE_CREATE"),
-		"type" => "date",
-		"filterable" => ""
-	),
-	array(
+	);
+}
+$filterFields[] = array(
+	"id" => "DATE_CREATE",
+	"name" => GetMessage("IBSEC_A_DATE_CREATE"),
+	"type" => "date",
+	"filterable" => ""
+);
+if ($canViewUserList)
+{
+	$filterFields[] = array(
 		"id" => "CREATED_BY",
 		"name" => GetMessage("IBSEC_A_CREATED_BY"),
 		"type" => "custom_entity",
 		"selector" => array("type" => "user"),
 		"filterable" => ""
+	);
+}
+$filterFields[] = array(
+	"id" => "ACTIVE",
+	"name" => GetMessage("IBSEC_A_ACTIVE"),
+	"type" => "list",
+	"items" => array(
+		"" => GetMessage("IBLOCK_ALL"),
+		"Y" => GetMessage("IBLOCK_YES"),
+		"N" => GetMessage("IBLOCK_NO")
 	),
-	array(
-		"id" => "ACTIVE",
-		"name" => GetMessage("IBSEC_A_ACTIVE"),
-		"type" => "list",
-		"items" => array(
-			"" => GetMessage("IBLOCK_ALL"),
-			"Y" => GetMessage("IBLOCK_YES"),
-			"N" => GetMessage("IBLOCK_NO")
-		),
-		"filterable" => ""
-	),
-	array(
-		"id" => "CODE",
-		"name" => GetMessage("IBSEC_A_CODE"),
-		"filterable" => ""
-	),
-	array(
-		"id" => "EXTERNAL_ID",
-		"name" => GetMessage("IBSEC_A_XML_ID"),
-		"filterable" => ""
-	),
+	"filterable" => ""
+);
+$filterFields[] = array(
+	"id" => "CODE",
+	"name" => GetMessage("IBSEC_A_CODE"),
+	"filterable" => ""
+);
+$filterFields[] = array(
+	"id" => "EXTERNAL_ID",
+	"name" => GetMessage("IBSEC_A_XML_ID"),
+	"filterable" => ""
 );
 
 global $USER_FIELD_MANAGER;

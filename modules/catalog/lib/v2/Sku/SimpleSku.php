@@ -2,9 +2,11 @@
 
 namespace Bitrix\Catalog\v2\Sku;
 
-use Bitrix\Catalog\v2\BaseCollection;
 use Bitrix\Catalog\v2\BaseEntity;
+use Bitrix\Catalog\v2\BaseIblockElementEntity;
 use Bitrix\Catalog\v2\Fields\FieldStorage;
+use Bitrix\Catalog\v2\Image\ImageCollection;
+use Bitrix\Catalog\v2\Property\PropertyCollection;
 use Bitrix\Main\NotSupportedException;
 use Bitrix\Main\Result;
 
@@ -42,9 +44,45 @@ class SimpleSku extends BaseSku
 	/**
 	 * @return \Bitrix\Catalog\v2\Property\PropertyCollection|\Bitrix\Catalog\v2\Property\Property[]
 	 */
-	protected function loadPropertyCollection(): BaseCollection
+	protected function loadPropertyCollection(): PropertyCollection
 	{
 		return $this->getParent()->getPropertyCollection();
+	}
+
+	protected function unsetPropertyCollection(): BaseIblockElementEntity
+	{
+		if ($parent = $this->getParent())
+		{
+			$parent->unsetPropertyCollection();
+		}
+
+		return parent::unsetPropertyCollection();
+	}
+
+	/**
+	 * @return \Bitrix\Catalog\v2\Image\ImageCollection|\Bitrix\Catalog\v2\Image\BaseImage[]
+	 */
+	protected function loadImageCollection(): ImageCollection
+	{
+		return $this->getParent()->getImageCollection();
+	}
+
+	protected function unsetImageCollection(): BaseIblockElementEntity
+	{
+		if ($parent = $this->getParent())
+		{
+			$parent->unsetImageCollection();
+		}
+
+		return parent::unsetImageCollection();
+	}
+
+	public function setPropertyCollection(PropertyCollection $propertyCollection): BaseIblockElementEntity
+	{
+		// avoiding reinitialize of property collection with our simple sku parent
+		$this->propertyCollection = $propertyCollection;
+
+		return $this;
 	}
 
 	public function deleteInternal(): Result

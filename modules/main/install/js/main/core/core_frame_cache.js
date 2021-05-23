@@ -50,6 +50,8 @@
 		};
 
 		this.frameDataReceived = false;
+		this.frameDataInserted = false;
+
 		if (BX.type.isString(window.frameDataString) && window.frameDataString.length > 0)
 		{
 			BX.frameCache.onFrameDataReceived(window.frameDataString);
@@ -471,7 +473,7 @@
 			onsuccess: BX.proxy(BX.frameCache.onFrameDataReceived, this),
 			onfailure: function()
 			{
-				var response = {
+				window.frameRequestFail = {
 					error: true,
 					reason: "bad_response",
 					url : requestURI,
@@ -479,7 +481,7 @@
 					status: this.xhr ? this.xhr.status : 0
 				};
 
-				BX.onCustomEvent("onFrameDataRequestFail", [response]);
+				BX.onCustomEvent("onFrameDataRequestFail", [window.frameRequestFail]);
 			}
 		});
 	};
@@ -493,13 +495,17 @@
 		}
 		catch (e)
 		{
+			var error = {
+				error: true,
+				reason: "bad_eval",
+				response: response
+			};
+
+			window.frameRequestFail = error;
+
 			BX.ready(function() {
 				setTimeout(function() {
-					BX.onCustomEvent("onFrameDataRequestFail", [{
-						error: true,
-						reason: "bad_eval",
-						response: response
-					}]);
+					BX.onCustomEvent("onFrameDataRequestFail", [error]);
 				}, 0);
 			});
 
@@ -516,6 +522,8 @@
 
 		if (result && result.error === true)
 		{
+			window.frameRequestFail = result;
+
 			BX.ready(BX.proxy(function() {
 				setTimeout(BX.proxy(function() {
 					BX.onCustomEvent("onFrameDataRequestFail", [result]);
@@ -568,16 +576,46 @@
 		}
 
 		var inserted = 0;
+
+		var finalize = function() {
+			if (window.performance)
+			{
+				var entries = performance.getEntries();
+				for (var i = 0; i < entries.length; i++)
+				{
+					var entry = entries[i];
+					if (entry.initiatorType === 'xmlhttprequest' && entry.name && entry.name.match(/bxrand=[0-9]+/))
+					{
+						this.requestTiming = entry;
+					}
+				}
+
+				if (window.performance.measure)
+				{
+					window.performance.measure('Composite:LCP');
+
+					var lcpEntries = performance.getEntriesByName('Composite:LCP');
+					if (lcpEntries.length > 0 && lcpEntries[0].duration)
+					{
+						this.lcp = Math.ceil(lcpEntries[0].duration);
+					}
+				}
+			}
+
+			BX.onCustomEvent("onFrameDataProcessed", [blocks, fromCache]);
+			this.frameDataInserted = true;
+		}.bind(this);
+
 		var handleBlockInsertion = function() {
 			if (++inserted === blocksToInsert.size)
 			{
-				BX.onCustomEvent("onFrameDataProcessed", [blocks, fromCache]);
+				finalize();
 			}
 		}.bind(this);
 
 		if (blocksToInsert.size === 0)
 		{
-			BX.onCustomEvent("onFrameDataProcessed", [blocks, fromCache]);
+			finalize();
 		}
 		else
 		{
@@ -634,7 +672,7 @@
 		{
 			if (typeof props == "object")
 			{
-				props = JSON.stringify(props)
+				props = JSON.stringify(props);
 			}
 
 			this.cacheDataBase.composite.put({
@@ -644,8 +682,6 @@
 				PROPS : props
 			});
 		}
-
-
 	};
 
 	BX.frameCache.readCacheWithID = function(id, callback)
@@ -655,14 +691,13 @@
 			this.cacheDataBase.composite
 				.where("ID").anyOf(id).toArray()
 				.then((function(items){
-					callback({items:items})
+					callback({items:items});
 				}).bind(this));
 		}
 		else if(typeof callback != "undefined")
 		{
 			callback({items:[]});
 		}
-
 	};
 
 	BX.frameCache.insertBanner = function()

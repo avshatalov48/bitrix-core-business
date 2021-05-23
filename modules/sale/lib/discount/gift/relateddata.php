@@ -175,7 +175,7 @@ final class RelatedDataTable extends DataManager
 			(empty($discount['ACTIONS_LIST']) || !is_array($discount['ACTIONS_LIST']))
 			&& checkSerializedData($discount['ACTIONS']))
 		{
-			$discount['ACTIONS_LIST'] = unserialize($discount['ACTIONS']);
+			$discount['ACTIONS_LIST'] = unserialize($discount['ACTIONS'], ['allowed_classes' => false]);
 		}
 
 		if(!isset($discount['ACTIONS_LIST']['CHILDREN']) && is_array($discount['ACTIONS_LIST']['CHILDREN']))
@@ -222,7 +222,7 @@ final class RelatedDataTable extends DataManager
 			(empty($discount['CONDITIONS_LIST']) || !is_array($discount['CONDITIONS_LIST']))
 			&& checkSerializedData($discount['CONDITIONS']))
 		{
-			$discount['CONDITIONS_LIST'] = unserialize($discount['CONDITIONS']);
+			$discount['CONDITIONS_LIST'] = unserialize($discount['CONDITIONS'], ['allowed_classes' => false]);
 		}
 
 		if(!isset($discount['CONDITIONS_LIST']['CLASS_ID']) || $discount['CONDITIONS_LIST']['CLASS_ID'] !== 'CondGroup')

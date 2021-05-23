@@ -2,9 +2,9 @@
 
 namespace Bitrix\Seo\Retargeting;
 
-use \Bitrix\Main\Error;
+use Bitrix\Main\Error;
 use Bitrix\Main\SystemException;
-use \Bitrix\Seo\Retargeting\Internals\ServiceLogTable;
+use Bitrix\Seo\Retargeting\Internals\ServiceLogTable;
 
 /**
  * Class Request
@@ -143,10 +143,10 @@ abstract class Request
 			throw new SystemException('AuthAdapter not applied.');
 		}
 
-		//if (!$this->client)
+		if (!$this->client)
 		{
 			$options = array(
-				'socketTimeout' => 5
+				'socketTimeout' => 5,
 			);
 			$this->client = new AdsHttpClient($options);
 		}

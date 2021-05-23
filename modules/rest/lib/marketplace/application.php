@@ -25,17 +25,7 @@ class Application
 	public static function install($code, $version = false, $checkHash = false, $installHash = false, $from = null) : array
 	{
 		$result = [];
-		if (
-			!Access::isAvailable($code)
-			|| !Access::isAvailableCount(Access::ENTITY_TYPE_APP, $code)
-		)
-		{
-			$result = [
-				'error' => Loc::getMessage('RMP_ERROR_ACCESS_DENIED'),
-				'helperCode' => Access::getHelperCode()
-			];
-		}
-		elseif (CRestUtil::canInstallApplication())
+		if (CRestUtil::canInstallApplication())
 		{
 			if (!OAuthService::getEngine()->isRegistered())
 			{
@@ -78,7 +68,20 @@ class Application
 					}
 				}
 
-				if ($appDetailInfo)
+				if (
+					$appDetailInfo
+					&& (
+						!Access::isAvailable($code)
+						|| !Access::isAvailableCount(Access::ENTITY_TYPE_APP, $code)
+					)
+				)
+				{
+					$result = [
+						'error' => Loc::getMessage('RMP_ERROR_ACCESS_DENIED'),
+						'helperCode' => Access::getHelperCode(Access::ACTION_INSTALL, Access::ENTITY_TYPE_APP, $appDetailInfo)
+					];
+				}
+				elseif ($appDetailInfo)
 				{
 					if (CRestUtil::canInstallApplication($appDetailInfo))
 					{
@@ -357,20 +360,20 @@ class Application
 	public static function reinstall($id) : array
 	{
 		$result = [];
-		if (
-			!Access::isAvailable($id)
-			|| !Access::isAvailableCount(Access::ENTITY_TYPE_APP, $id)
-		)
-		{
-			$result = [
-				'error' => Loc::getMessage('RMP_ERROR_ACCESS_DENIED'),
-				'helperCode' => Access::getHelperCode()
-			];
-		}
-		elseif (CRestUtil::isAdmin())
+		if (CRestUtil::isAdmin())
 		{
 			$appInfo = AppTable::getByClientId($id);
-			if ($appInfo && $appInfo['STATUS'] === AppTable::STATUS_LOCAL)
+			if (
+				!Access::isAvailable($id)
+				|| !Access::isAvailableCount(Access::ENTITY_TYPE_APP, $id)
+			)
+			{
+				$result = [
+					'error' => Loc::getMessage('RMP_ERROR_ACCESS_DENIED'),
+					'helperCode' => Access::getHelperCode(Access::ACTION_INSTALL, Access::ENTITY_TYPE_APP, $appInfo)
+				];
+			}
+			elseif ($appInfo && $appInfo['STATUS'] === AppTable::STATUS_LOCAL)
 			{
 				if (empty($appInfo['MENU_NAME']) && empty($appInfo['MENU_NAME_DEFAULT']))
 				{

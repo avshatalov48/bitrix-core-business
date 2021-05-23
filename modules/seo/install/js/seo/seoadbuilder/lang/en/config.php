@@ -1,0 +1,10 @@
+<?php
+$MESS["SEO_AD_BUILDER_AUDIENCE_MEN_WOMAN_25_45"] = "Anyone 25 to 45 y/o.";
+$MESS["SEO_AD_BUILDER_CRM_AUDIENCE"] = "CRM audience";
+$MESS["SEO_AD_BUILDER_GENDER"] = "Gender";
+$MESS["SEO_AD_BUILDER_INTERESTS"] = "Interests";
+$MESS["SEO_AD_BUILDER_REGION"] = "Region";
+$MESS["SEO_AD_BUILDER_YEARS_OLD"] = "y.o.";
+$MESS["UI_HELPER_BUTTON_CLOSE"] = "Close";
+$MESS["UI_HELPER_ERROR_MSG"] = "Start typing text";
+$MESS["UI_TAG_SELECTOR_START_INPUT"] = "Start typing text";

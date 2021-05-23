@@ -251,24 +251,13 @@ if (!$USER->IsAuthorized())
 				if($def_group!="")
 				{
 					$GROUP_ID = explode(",", $def_group);
-					$arPolicy = $USER->GetGroupPolicy($GROUP_ID);
 				}
 				else
 				{
-					$arPolicy = $USER->GetGroupPolicy(array());
+					$GROUP_ID = [];
 				}
 
-				$password_min_length = intval($arPolicy["PASSWORD_LENGTH"]);
-				if($password_min_length <= 0)
-					$password_min_length = 6;
-				$password_chars = array(
-					"abcdefghijklnmopqrstuvwxyz",
-					"ABCDEFGHIJKLNMOPQRSTUVWXYZ",
-					"0123456789",
-				);
-				if($arPolicy["PASSWORD_PUNCTUATION"] === "Y")
-					$password_chars[] = ",.<>/?;:'\"[]{}\|`~!@#\$%^&*()-_+=";
-				$arResult["POST"]["~NEW_PASSWORD"] = $arResult["POST"]["~NEW_PASSWORD_CONFIRM"] = randString($password_min_length, $password_chars);
+				$arResult["POST"]["~NEW_PASSWORD"] = $arResult["POST"]["~NEW_PASSWORD_CONFIRM"] = \CAllUser::GeneratePasswordByPolicy($GROUP_ID);
 			}
 			else
 			{

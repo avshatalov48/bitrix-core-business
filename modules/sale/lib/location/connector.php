@@ -1175,7 +1175,7 @@ abstract class Connector extends Entity\DataManager
 	private static function getLinkUsageOptionValue()
 	{
 		$usageFlagsOpt = Config\Option::get("sale", static::getLinkOptionName());
-		if(!mb_strlen($usageFlagsOpt) || !is_array($usageFlags = unserialize($usageFlagsOpt)))
+		if(!mb_strlen($usageFlagsOpt) || !is_array($usageFlags = unserialize($usageFlagsOpt, ['allowed_classes' => false])))
 			$usageFlags = array();
 
 		return $usageFlags;

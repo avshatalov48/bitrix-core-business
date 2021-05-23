@@ -80,9 +80,11 @@ class ProductForm extends BaseForm
 
 	protected function buildDescriptions(): array
 	{
-		$fieldDescriptions = parent::buildDescriptions();
-
-		return array_merge($fieldDescriptions, $this->getSectionDescriptions());
+		return array_merge(
+			parent::buildDescriptions(),
+			$this->getSectionDescriptions(),
+			$this->getNameCodeDescription()
+		);
 	}
 
 	protected function getPropertiesConfigElements(): array
@@ -160,11 +162,17 @@ class ProductForm extends BaseForm
 				[],
 				['ID' => $sections],
 				false,
-				['ID', 'NAME']
+				['ID', 'NAME', 'PICTURE']
 			);
 			while ($section = $sectionList->Fetch())
 			{
-				$sectionData[$section['ID']] = $section['NAME'];
+				$section['PICTURE'] = \CFile::resizeImageGet(
+					$section['PICTURE'],
+					['width' => 100, 'height' => 100],
+					BX_RESIZE_IMAGE_EXACT,
+					false
+				)['src'];
+				$sectionData[] = $section;
 			}
 		}
 

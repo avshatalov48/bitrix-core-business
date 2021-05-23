@@ -64,7 +64,7 @@ abstract class CIBlockPropertyMapInterface
 
 		if ($strMapKeys)
 		{
-			$arMapKeys = unserialize($strMapKeys);
+			$arMapKeys = unserialize($strMapKeys, ['allowed_classes' => false]);
 
 			if (array_key_exists($strDomain, $arMapKeys))
 				$MAP_KEY = $arMapKeys[$strDomain];
@@ -2614,7 +2614,9 @@ function ChangeOrLeaveFile<?= $id?>(bChange)
 	public static function BaseConvertFromDB($val = "")
 	{
 		if (!is_array($val) && $val <> '')
-			$val = unserialize($val);
+		{
+			$val = unserialize($val, ['allowed_classes' => false]);
+		}
 		return $val ? $val : array();
 	}
 
@@ -2733,7 +2735,7 @@ function ChangeOrLeaveFile<?= $id?>(bChange)
 	{
 		if(!is_array($val) && is_string($val))
 		{
-			$val = unserialize($val);
+			$val = unserialize($val, ['allowed_classes' => false]);
 		}
 
 		if(!is_array($val))

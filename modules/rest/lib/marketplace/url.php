@@ -1,6 +1,11 @@
 <?php
 namespace Bitrix\Rest\Marketplace\Urls
 {
+
+	use Bitrix\Main\Config\Option;
+	use Bitrix\Main\ModuleManager;
+	use Bitrix\Rest\Marketplace\Client;
+
 	class Templates
 	{
 		protected $directory = "marketplace/";
@@ -125,6 +130,26 @@ namespace Bitrix\Rest\Marketplace\Urls
 				return $this->getReplacedId($this->pages["index"]);
 			}
 			return $this->getReplacedId($this->pages["category"], $id);
+		}
+
+		public function getSubscriptionBuyUrl()
+		{
+			$result = '';
+			if (ModuleManager::isModuleInstalled('bitrix24'))
+			{
+				$result = '/settings/license_buy.php?product=subscr';
+			}
+			else
+			{
+				$region = Option::get('main', '~PARAM_CLIENT_LANG', LANGUAGE_ID);
+
+				if ($region === 'ru')
+				{
+					$result = 'https://www.1c-bitrix.ru/buy/products/b24.php?subscr=y';
+				}
+			}
+
+			return $result;
 		}
 
 		public function getPlacementUrl($placementId, $params)
@@ -496,6 +521,11 @@ namespace Bitrix\Rest\Marketplace
 		public static function getConfigurationExportElementUrl($manifestCode = null, $itemCode = null)
 		{
 			return Configuration::getInstance()->getExportElement($manifestCode, $itemCode);
+		}
+
+		public static function getSubscriptionBuyUrl() : string
+		{
+			return MarketplaceUrls::getInstance()->getSubscriptionBuyUrl();
 		}
 	}
 }

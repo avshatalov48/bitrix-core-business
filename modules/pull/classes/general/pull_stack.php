@@ -19,7 +19,7 @@ class CAllPullStack
 			if ($newLastId < $arRes['ID'])
 				$newLastId = $arRes['ID'];
 
-			$data = unserialize($arRes['MESSAGE']);
+			$data = unserialize($arRes['MESSAGE'], ["allowed_classes" => false]);
 			$data['id'] = $arRes['ID'];
 			$data['extra'] = Array(
 				'server_time' => date('c'),

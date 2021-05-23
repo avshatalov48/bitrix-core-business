@@ -157,7 +157,7 @@ if(typeof BX.UI.EditorAuxiliaryDialog === "undefined")
 					offsetLeft: 0,
 					offsetTop: 0,
 					zIndex: BX.prop.getInteger(this._settings, "zIndex", 0),
-					overlay: BX.prop.getBoolean(this._settings, "overlay", false),
+					overlay: BX.prop.getBoolean(this._settings, "overlay", {opacity: 20}),
 					bindOptions: { forceBindPosition: true },
 					titleBar: BX.prop.getString(this._settings, "title", "No title"),
 					content: BX.prop.getString(this._settings, "content", ""),

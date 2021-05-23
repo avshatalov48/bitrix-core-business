@@ -891,6 +891,7 @@ class Export extends Main\Engine\Controller
 			if ($downloadLink !== '')
 			{
 				$result['DOWNLOAD_LINK'] = $downloadLink;
+				$result['FILE_NAME'] = $this->fileName;
 				$result['DOWNLOAD_LINK_NAME'] = htmlspecialcharsbx(Loc::getMessage('MAIN_EXPORT_DOWNLOAD'));
 				$result['CLEAR_LINK_NAME'] = htmlspecialcharsbx(Loc::getMessage('MAIN_EXPORT_CLEAR'));
 			}

@@ -4,6 +4,8 @@ namespace Bitrix\Catalog\v2\Sku;
 
 use Bitrix\Catalog\v2\BaseIblockElementEntity;
 use Bitrix\Catalog\v2\Iblock\IblockInfo;
+use Bitrix\Catalog\v2\Image\ImageCollection;
+use Bitrix\Catalog\v2\Image\ImageRepositoryContract;
 use Bitrix\Catalog\v2\MeasureRatio\HasMeasureRatioCollection;
 use Bitrix\Catalog\v2\MeasureRatio\MeasureRatioCollection;
 use Bitrix\Catalog\v2\MeasureRatio\MeasureRatioRepositoryContract;
@@ -36,13 +38,32 @@ abstract class BaseSku extends BaseIblockElementEntity implements HasPriceCollec
 		IblockInfo $iblockInfo,
 		SkuRepositoryContract $skuRepository,
 		PropertyRepositoryContract $propertyRepository,
+		ImageRepositoryContract $imageRepository,
 		PriceRepositoryContract $priceRepository,
 		MeasureRatioRepositoryContract $measureRatioRepository
 	)
 	{
-		parent::__construct($iblockInfo, $skuRepository, $propertyRepository);
+		parent::__construct($iblockInfo, $skuRepository, $propertyRepository, $imageRepository);
 		$this->priceRepository = $priceRepository;
 		$this->measureRatioRepository = $measureRatioRepository;
+	}
+
+	/**
+	 * @return ImageCollection|\Bitrix\Catalog\v2\Image\BaseImage[]
+	 */
+	public function getFrontImageCollection(): ImageCollection
+	{
+		$collection = $this->getImageCollection();
+		if ($collection->isEmpty() && $this->getParent())
+		{
+			$parentCollection = $this->getParent()->getImageCollection();
+			if (!$parentCollection->isEmpty())
+			{
+				return $parentCollection;
+			}
+		}
+
+		return $collection;
 	}
 
 	/**
@@ -75,6 +96,8 @@ abstract class BaseSku extends BaseIblockElementEntity implements HasPriceCollec
 	 */
 	public function setPriceCollection(PriceCollection $priceCollection): self
 	{
+		$priceCollection->setParent($this);
+
 		$this->priceCollection = $priceCollection;
 
 		return $this;
@@ -109,6 +132,8 @@ abstract class BaseSku extends BaseIblockElementEntity implements HasPriceCollec
 	 */
 	public function setMeasureRatioCollection(MeasureRatioCollection $measureRatioCollection): self
 	{
+		$measureRatioCollection->setParent($this);
+
 		$this->measureRatioCollection = $measureRatioCollection;
 
 		return $this;

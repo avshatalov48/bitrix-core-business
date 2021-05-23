@@ -37,7 +37,7 @@ if($isAdmin && $_SERVER["REQUEST_METHOD"] == "POST" && $_POST["module"] <> '' &&
 			$cModules = COption::GetOptionString("main", "mp_modules_date", "");
 			if($cModules <> '')
 			{
-				$arModules = unserialize($cModules);
+				$arModules = unserialize($cModules, ['allowed_classes' => false]);
 
 				foreach($arModules as $id => $val)
 				{
@@ -73,7 +73,7 @@ if($isAdmin && $_SERVER["REQUEST_METHOD"] == "POST" && $_POST["module"] <> '' &&
 			$cMpModulesResult = COption::GetOptionString("main", "last_mp_modules_result", "");
 			if ($cMpModulesResult <> '')
 			{
-				$arModulesResult = unserialize($cMpModulesResult);
+				$arModulesResult = unserialize($cMpModulesResult, ['allowed_classes' => false]);
 				foreach ($arModulesResult[$arrayId] as $key => $arModule)
 				{
 					if (trim(mb_strtoupper($key)) == trim(mb_strtoupper($moduleId)))
@@ -99,7 +99,7 @@ function OnModuleInstalledEvent($id, $installed, $Module)
 	$cModules = COption::GetOptionString("main", "mp_modules_date", "");
 	$arModules = array();
 	if($cModules <> '')
-		$arModules = unserialize($cModules);
+		$arModules = unserialize($cModules, ['allowed_classes' => false]);
 
 	if($installed == "Y")
 	{

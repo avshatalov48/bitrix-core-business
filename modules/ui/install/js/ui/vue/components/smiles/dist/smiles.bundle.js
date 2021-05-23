@@ -3118,7 +3118,7 @@
 
 	    this.setSelected = 0;
 	    this.serverLoad = false;
-	    var restClient = this.$root.$bitrixRestClient || rest_client.rest;
+	    var restClient = this.$root.$bitrixRestClient || this.$Bitrix.RestClient.get();
 	    this.smilesController = new SmileManager(restClient);
 	    this.smilesController.loadFromCache().then(function (result) {
 	      if (_this.serverLoad) return true;

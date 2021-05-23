@@ -171,7 +171,11 @@ class Statistics
 			$list = $this->filter->getNames();
 			foreach ($list as $name)
 			{
-				if (!isset($userOptionFilters[$name]) || !$userOptionFilters[$name])
+				if (
+				    !isset($userOptionFilters[$name])
+                    || !$userOptionFilters[$name]
+                    || !$this->checkFilterValue($userOptionFilters[$name])
+                    )
 				{
 					continue;
 				}
@@ -193,6 +197,14 @@ class Statistics
 
 		return $this;
 	}
+
+	private function checkFilterValue($filter)
+    {
+        return $filter === null
+            || is_scalar($filter)
+            ;
+
+    }
 
 	protected function saveFilterToUserOption()
 	{

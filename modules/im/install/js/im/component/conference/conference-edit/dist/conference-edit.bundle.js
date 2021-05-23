@@ -867,6 +867,9 @@ this.BX = this.BX || {};
 	          json: {
 	            fields: fieldsToSubmit,
 	            aliasData: this.aliasData
+	          },
+	          analyticsLabel: {
+	            creationType: 'section'
 	          }
 	        }).then(function (response) {
 	          _this.onSuccessfulSubmit();
@@ -914,7 +917,10 @@ this.BX = this.BX || {};
 	      var _this2 = this;
 
 	      main_core.ajax.runAction('im.conference.prepare', {
-	        json: {}
+	        json: {},
+	        analyticsLabel: {
+	          creationType: 'section'
+	        }
 	      }).then(function (response) {
 	        _this2.aliasData = response.data['ALIAS_DATA'];
 	        _this2.title.defaultValue = response.data['DEFAULT_TITLE'];

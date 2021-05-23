@@ -72,10 +72,11 @@ final class Manager
 	 * Returns first prediction which has user by current basket.
 	 * @param Basket $basket Basket.
 	 * @param array  $product Target product.
-	 * @return mixed|null
+	 * @param array $options Config.
+	 * @return string|null
 	 * @throws SystemException
 	 */
-	public function getFirstPredictionTextByProduct(Basket $basket, array $product)
+	public function getFirstPredictionTextByProduct(Basket $basket, array $product, array $options = []): ?string
 	{
 		$this->errorCollection->clear();
 
@@ -92,16 +93,18 @@ final class Manager
 		if($predictionDiscount)
 		{
 			$text = $this->buildTextByPredictionDiscount($basketCopied, $predictionDiscount);
-			if($text)
+			if ($text)
 			{
 				return $text;
 			}
 		}
 
-		return $this->tryToFindPredictionConnectedProducts($basket->copy(), $product);
+		$templates = (!empty($options['PAGE_TEMPLATES']) && is_array($options['PAGE_TEMPLATES']) ? $options['PAGE_TEMPLATES'] : []);
+
+		return $this->tryToFindPredictionConnectedProducts($basket->copy(), $product, $templates);
 	}
 
-	private function tryToFindPredictionConnectedProducts(Basket $basket, array $product)
+	private function tryToFindPredictionConnectedProducts(Basket $basket, array $product, array $templates = []): ?string
 	{
 		if(!$this->checkProductInBasket($product, $basket))
 		{
@@ -127,7 +130,6 @@ final class Manager
 
 		$isAct = $isCond = false;
 
-		$actProductIds = $condProductIds = array();
 		if($typeConditionProduct === $preset::TYPE_PRODUCT)
 		{
 			$condProductIds = $this->extendProductIds($dataCondition);
@@ -187,30 +189,46 @@ final class Manager
 			'#DISCOUNT_VALUE#' => $discountValue,
 		);
 
-		if($isCond)
+		if ($isCond)
 		{
-			if($typeActionProduct === $preset::TYPE_SECTION)
+			if ($typeActionProduct === $preset::TYPE_SECTION)
 			{
-				$placeholders['#NAME#'] = $this->getSectionName($dataAction);
-				$placeholders['#LINK#'] = $this->getSectionUrl($dataAction);
+				$itemData = $this->getSectionData($dataAction, $templates);
+				if (!empty($itemData))
+				{
+					$placeholders = $placeholders + $itemData;
+				}
+				unset($itemData);
 			}
-			if($typeActionProduct === $preset::TYPE_PRODUCT)
+			if ($typeActionProduct === $preset::TYPE_PRODUCT)
 			{
-				$placeholders['#NAME#'] = $this->getProductName($dataAction);
-				$placeholders['#LINK#'] = $this->getProductUrl($dataAction);
+				$itemData = $this->getProductData($dataAction, $templates);
+				if (!empty($itemData))
+				{
+					$placeholders = $placeholders + $itemData;
+				}
+				unset($itemData);
 			}
 		}
-		elseif($isAct)
+		elseif ($isAct)
 		{
-			if($typeConditionProduct === $preset::TYPE_SECTION)
+			if ($typeConditionProduct === $preset::TYPE_SECTION)
 			{
-				$placeholders['#NAME#'] = $this->getSectionName($dataCondition);
-				$placeholders['#LINK#'] = $this->getSectionUrl($dataCondition);
+				$itemData = $this->getSectionData($dataCondition, $templates);
+				if (!empty($itemData))
+				{
+					$placeholders = $placeholders + $itemData;
+				}
+				unset($itemData);
 			}
 			if($typeConditionProduct === $preset::TYPE_PRODUCT)
 			{
-				$placeholders['#NAME#'] = $this->getProductName($dataCondition);
-				$placeholders['#LINK#'] = $this->getProductUrl($dataCondition);
+				$itemData = $this->getProductData($dataCondition, $templates);
+				if (!empty($itemData))
+				{
+					$placeholders = $placeholders + $itemData;
+				}
+				unset($itemData);
 			}
 		}
 
@@ -226,60 +244,74 @@ final class Manager
 		);
 	}
 
-	private function getProductUrl($productId)
+	private function getProductData($productId, array $templates = []): ?array
 	{
-		if(is_array($productId))
+		if (is_array($productId))
 		{
 			$productId = array_pop($productId);
 		}
+		$productId = (int)$productId;
+		if ($productId <= 0)
+		{
+			return null;
+		}
 
-		$arElement = \CIBlockElement::GetList(array(), array("=ID" => $productId), false, array("nTopCount" => 1))->fetch();
-		$url = \CIBlock::ReplaceDetailUrl($arElement['DETAIL_PAGE_URL'], $arElement, false, "E");
-		
-		return $url;
+		$iterator = \CIBlockElement::GetList(
+			[],
+			['=ID' => $productId, 'CHECK_PERMISSIONS' => 'N'],
+			false,
+			false,
+			['ID', 'IBLOCK_ID', 'NAME', 'DETAIL_PAGE_URL', 'CODE', 'IBLOCK_SECTION_ID']
+		);
+		if (!empty($templates['PRODUCT_URL']))
+		{
+			$iterator->SetUrlTemplates($templates['PRODUCT_URL']);
+		}
+		$row = $iterator->GetNext();
+		unset($iterator);
+		if (empty($row))
+		{
+			return null;
+		}
+		return [
+			'#NAME#' => $row['~NAME'],
+			'#LINK#' => $row['~DETAIL_PAGE_URL']
+		];
 	}
 
-	private function getSectionUrl($sectionId)
+	private function getSectionData($sectionId, array $templates = []): ?array
 	{
-		if(is_array($sectionId))
+		if (is_array($sectionId))
 		{
 			$sectionId = array_pop($sectionId);
 		}
-
-		$arSection = \CIBlockSection::GetList(array(), array("=ID" => $sectionId), false, array("nTopCount" => 1))->fetch();
-		$url = \CIBlock::ReplaceDetailUrl($arSection['SECTION_PAGE_URL'], $arSection, false, "S");
-
-		return $url;
-	}
-
-	private function getProductName($productId)
-	{
-		if(is_array($productId))
+		$sectionId = (int)$sectionId;
+		if ($sectionId <= 0)
 		{
-			$productId = array_pop($productId);
+			return null;
 		}
 
-		$product = ElementTable::getList(array(
-			'select' => array('NAME'),
-			'filter' => array('ID' => $productId)
-		))->fetch();
-
-		return $product['NAME'];
-	}
-
-	private function getSectionName($sectionId)
-	{
-		if(is_array($sectionId))
+		$iterator = \CIBlockSection::GetList(
+			[],
+			['=ID' => $sectionId, 'CHECK_PERMISSIONS' => 'N'],
+			false,
+			false,
+			['ID', 'IBLOCK_ID', 'NAME', 'SECTION_PAGE_URL', 'CODE', 'IBLOCK_SECTION_ID']
+		);
+		if (!empty($templates['SECTION_URL']))
 		{
-			$sectionId = array_pop($sectionId);
+			$iterator->SetUrlTemplates('', $templates['SECTION_URL']);
 		}
-
-		$section = SectionTable::getList(array(
-			'select' => array('NAME'),
-			'filter' => array('ID' => $sectionId)
-		))->fetch();
-
-		return $section['NAME'];
+		$row = $iterator->GetNext();
+		unset($iterator);
+		if (empty($row))
+		{
+			return null;
+		}
+		return [
+			'#NAME#' => $row['~NAME'],
+			'#LINK#' => $row['~SECTION_PAGE_URL']
+		];
 	}
 
 	private function getSectionIdsByProduct(array $product)
@@ -374,8 +406,12 @@ final class Manager
 		return false;
 	}
 
-	private function buildTextByPredictionDiscount(Basket $basket, array $discount)
+	private function buildTextByPredictionDiscount(Basket $basket, array $discount): ?string
 	{
+		if (empty($discount['PREDICTION_TEXT']))
+		{
+			return null;
+		}
 		$manager = Discount\Preset\Manager::getInstance();
 		$preset = $manager->getPresetById($discount['PRESET_ID']);
 		$state = $preset->generateState($discount);
@@ -399,11 +435,11 @@ final class Manager
 			$shortage = $state['discount_order_amount'] - $basket->getPrice();
 			if($shortage <= 0)
 			{
-				return '';
+				return null;
 			}
 
-			$shortage = PriceMaths::roundByFormatCurrency($shortage, $discount['CURRENCY']);
-			
+			$shortage = PriceMaths::roundPrecision($shortage);
+
 			$placeholders = array(
 				'#SHORTAGE#' => str_replace('#', $shortage, $currencyFormat),
 				'#DISCOUNT_VALUE#' => $discountValue,
@@ -411,8 +447,8 @@ final class Manager
 		}
 
 		return str_replace(
-			array_keys($placeholders), 
-			array_values($placeholders), 
+			array_keys($placeholders),
+			array_values($placeholders),
 			(string)$discount['PREDICTION_TEXT']
 		);
 	}

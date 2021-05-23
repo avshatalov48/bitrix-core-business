@@ -566,8 +566,6 @@ $arParams['UF'] = $UF;
 												<label type="text" class="calendar-field-checkbox-label">
 													<input name="meeting_notify" type="checkbox" class="calendar-field-checkbox" value="Y">
 													<?= Loc::getMessage('EC_EDIT_SLIDER_NOTIFY_STATUS_LABEL')?>
-
-
 												</label>
 											</div>
 										</div>
@@ -577,12 +575,19 @@ $arParams['UF'] = $UF;
 												<label type="text" class="calendar-field-checkbox-label">
 													<input name="meeting_reinvite" id="<?=$id?>_allow_invite" type="checkbox" class="calendar-field-checkbox" value="Y">
 													<?= Loc::getMessage('EC_EDIT_SLIDER_REINVITE_LABEL')?>
-
-
 												</label>
 											</div>
 										</div>
 										<?endif;?>
+										<div class="calendar-field-container calendar-field-container-checkbox calendar-hide-members-wrap" style="display: none">
+											<div class="calendar-field-block">
+												<label type="text" class="calendar-field-checkbox-label">
+													<input name="hide_guests" type="checkbox" class="calendar-field-checkbox" value="Y">
+													<?= Loc::getMessage('EC_EDIT_SLIDER_HIDE_GUEST_NAMES')?>
+													<span class="calendar-hide-members-helper" data-hint="<?= Loc::getMessage('EC_EDIT_SLIDER_HIDE_GUEST_NAMES_HINT')?>"></span>
+												</label>
+											</div>
+										</div>
 									</div>
 								</div>
 							</div>

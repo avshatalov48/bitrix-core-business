@@ -52,7 +52,7 @@ class CheckService extends RestService
 	public static function applyCheck($params)
 	{
 		Helpers\Rest\AccessChecker::checkAccessPermission();
-		$params = self::prepareParams($params);
+		$params = self::prepareIncomingParams($params);
 		self::checkParamsBeforeApplyCheck($params);
 
 		$result = Cashbox\CashboxRest::applyCheckResult($params);

@@ -2,29 +2,55 @@
 /**
  * @var $component \CatalogProductCardIblockSectionField
  * @var $this \CBitrixComponentTemplate
+ * @var $arParams array
+ * @var $arResult array
  */
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UI\Extension;
+use Bitrix\Main\Web\Json;
+use Bitrix\UI\EntitySelector\Dialog;
+
+Extension::load(['ui.entity-selector']);
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
-$GLOBALS['APPLICATION']->includeComponent(
-	'bitrix:ui.tile.selector',
-	'',
-	[
-		'ID' => "catalog-iblocksectionfield-{$arParams['IBLOCK_ID']}-{$arParams['PRODUCT_ID']}",
-		'INPUT_NAME' => 'IBLOCK_SECTION',
-		'MULTIPLE' => true,
-		'LIST' => $arResult['LIST'],
-		'CAN_REMOVE_TILES' => true,
-		'SHOW_BUTTON_SELECT' => true,
-		'SHOW_BUTTON_ADD' => true,
-		'MANUAL_INPUT_END' => true,
-		// 'MANUAL_INPUT_END' => true,
-		'BUTTON_SELECT_CAPTION' => Loc::getMessage('CATALOG_IBLOCKSECTIONFIELD_SELECT'),
-		'BUTTON_SELECT_CAPTION_MORE' => Loc::getMessage('CATALOG_IBLOCKSECTIONFIELD_SELECT'),
-	]
-);
+$selectorId = 'section-selector-' . $this->randString();
+$selectorHiddenId = 'section-selector-' . $this->randString() . '-hidden';
+?>
+<div id="<?=$selectorId?>"></div>
+<div id="<?=$selectorHiddenId?>">
+	<?php
+	$preselectedItems = [];
+	foreach ($arResult['LIST'] as $section)
+	{
+		echo '<input type="hidden" name="IBLOCK_SECTION[]" value="' . $section['id'] . '" />';
+		$preselectedItems[] = ['section', $section['id']];
+	}
+	$options = [
+		[
+			'id' => 'section',
+			'options' => [
+				'iblockId' => $arParams['IBLOCK_ID'],
+			],
+		],
+	];
+	$selectedItems = Dialog::getSelectedItems($preselectedItems, $options)->toJsObject();
+	?>
+</div>
+<script>
+	BX.ready(function(){
+		BX.message(<?=Json::encode(Loc::loadLanguageFile(__FILE__))?>);
+		BX.Catalog.SectionSelector.Instance = new BX.Catalog.SectionSelector(
+			{
+				selectorId: '<?=CUtil::JSEscape($selectorId)?>',
+				selectorHiddenId: '<?=CUtil::JSEscape($selectorHiddenId)?>',
+				selectedItems: <?=$selectedItems?>,
+				iblockId: '<?=CUtil::JSEscape($arParams['IBLOCK_ID'])?>'
+			}
+		);
+	});
+</script>

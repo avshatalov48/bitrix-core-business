@@ -161,9 +161,4 @@ catch (Exception $e)
 	$response->setStatus('500 Internal Server Error');
 }
 
-if (\Bitrix\Main\Loader::includeModule('compression'))
-{
-	\CCompress::disableCompression();
-}
-
 require $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_after.php';

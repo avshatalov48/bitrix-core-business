@@ -3,12 +3,10 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2020 Bitrix
  */
 
-require_once(mb_substr(__FILE__, 0, mb_strlen(__FILE__) - mb_strlen("/classes/mysql/main.php"))."/bx_root.php");
-
-require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/main.php");
+require_once(__DIR__."/../general/main.php");
 
 class CMain extends CAllMain
 {
@@ -25,7 +23,7 @@ class CMain extends CAllMain
 
 	public function GetLang($cur_dir=false, $cur_host=false)
 	{
-		global $DB, $lang, $MAIN_LANGS_CACHE, $MAIN_LANGS_ADMIN_CACHE;
+		global $DB, $lang;
 
 		if($cur_dir === false)
 			$cur_dir = $this->GetCurDir();
@@ -48,15 +46,17 @@ class CMain extends CAllMain
 			$R = CLanguage::GetList($o, $b, array("LID"=>$lang, "ACTIVE"=>"Y"));
 			if($res = $R->Fetch())
 			{
-				$MAIN_LANGS_ADMIN_CACHE[$res["LID"]]=$res;
+				CSite::$MAIN_LANGS_ADMIN_CACHE[$res["LID"]]=$res;
 				return $res;
 			}
 
 			//no lang param - get default
-			$R = CLanguage::GetList($by = "def", $order = "desc", array("ACTIVE"=>"Y"));
+			$by = "def";
+			$order = "desc";
+			$R = CLanguage::GetList($by, $order, array("ACTIVE"=>"Y"));
 			if($res = $R->Fetch())
 			{
-				$MAIN_LANGS_ADMIN_CACHE[$res["LID"]]=$res;
+				CSite::$MAIN_LANGS_ADMIN_CACHE[$res["LID"]]=$res;
 				return $res;
 			}
 		}
@@ -220,7 +220,7 @@ class CMain extends CAllMain
 
 			if($res)
 			{
-				$MAIN_LANGS_CACHE[$res["LID"]] = $res;
+				CSite::$MAIN_LANGS_CACHE[$res["LID"]] = $res;
 				return $res;
 			}
 
@@ -235,7 +235,7 @@ class CMain extends CAllMain
 			$R = $DB->Query($strSql);
 			if($res = $R->Fetch())
 			{
-				$MAIN_LANGS_CACHE[$res["LID"]]=$res;
+				CSite::$MAIN_LANGS_CACHE[$res["LID"]]=$res;
 				return $res;
 			}
 		}
@@ -255,51 +255,6 @@ class CMain extends CAllMain
 
 class CSite extends CAllSite
 {
-}
-
-class CFilterQuery extends CAllFilterQuery
-{
-	public function BuildWhereClause($word)
-	{
-		$this->cnt++;
-		//if($this->cnt>10) return "1=1";
-
-		global $DB;
-		if (isset($this->m_kav[$word]))
-			$word = $this->m_kav[$word];
-
-		$this->m_words[] = $word;
-
-		$n = count($this->m_fields);
-		$ret = "";
-		if ($n>1) $ret = "(";
-		for ($i=0; $i<$n; $i++)
-		{
-			$field = $this->m_fields[$i];
-			if ($this->procent=="Y")
-			{
-				$ret.= "
-					(upper($field) like upper('%".$DB->ForSqlLike($word, 2000)."%') and $field is not null)
-					";
-			}
-			elseif (mb_strpos($word, "%") !== false || mb_strpos($word, "_") !== false)
-			{
-				$ret.= "
-					(upper($field) like upper('".$DB->ForSqlLike($word, 2000)."') and $field is not null)
-					";
-			}
-			else
-			{
-				$ret.= "
-					($field='".$DB->ForSql($word, 2000)."' and $field is not null)
-					";
-
-			}
-			if ($i<>$n-1) $ret.= " OR ";
-		}
-		if ($n>1) $ret.= ")";
-		return $ret;
-	}
 }
 
 class CLang extends CSite

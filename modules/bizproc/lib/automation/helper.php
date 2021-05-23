@@ -230,6 +230,10 @@ class Helper
 			{
 				return '{{~*:'.$matches['field']. ($mods? ' > '.implode(',', $mods) : '').'}}';
 			}
+			elseif ($useTilda && $matches['object'] === 'Constant')
+			{
+				return '{{~&:'.$matches['field']. ($mods? ' > '.implode(',', $mods) : '').'}}';
+			}
 			elseif ($useTilda && preg_match('/^A[_0-9]+$/', $matches['object']))
 			{
 				return '{{~'.$matches['object'].':'.$matches['field']. ($mods? ' > '.implode(',', $mods) : '').'}}';
@@ -268,6 +272,12 @@ class Helper
 				{
 					$expression = ltrim($expression,'*');
 					$expression = 'Template'.$expression;
+				}
+
+				if (mb_strpos($expression, '&:') === 0)
+				{
+					$expression = ltrim($expression,'&');
+					$expression = 'Constant'.$expression;
 				}
 
 				return '{='.trim($expression).'}';

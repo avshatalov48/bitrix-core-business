@@ -189,7 +189,7 @@ class UserTagTable extends Entity\DataManager
 				return $result;
 			}
 
-			$res = $connection->query("SELECT
+			$res = $connection->query("SELECT /*+ NO_DERIVED_CONDITION_PUSHDOWN() */
 				@user_rank := IF(
 					@current_name = tmp.NAME,
 					@user_rank + 1,
@@ -200,7 +200,7 @@ class UserTagTable extends Entity\DataManager
 				tmp.NAME as NAME,
 				tmp.WEIGHT as WEIGHT
 			FROM (
-				SELECT
+				SELECT /*+ NO_DERIVED_CONDITION_PUSHDOWN() */
 					@rownum := @rownum + 1 as ROWNUM,
 					RS1.ENTITY_ID as USER_ID,
 					UT1.NAME as NAME,
@@ -223,7 +223,7 @@ class UserTagTable extends Entity\DataManager
 		}
 		else
 		{
-			$res = $connection->query("SELECT
+			$res = $connection->query("SELECT /*+ NO_DERIVED_CONDITION_PUSHDOWN() */
 				@user_rank := IF(
 					@current_name = tmp.NAME,
 					@user_rank + 1,
@@ -233,7 +233,7 @@ class UserTagTable extends Entity\DataManager
 				tmp.NAME as NAME,
 				1 as WEIGHT
 			FROM (
-				SELECT
+				SELECT /*+ NO_DERIVED_CONDITION_PUSHDOWN() */
 					@rownum := @rownum + 1 as ROWNUM,
 					UT1.USER_ID as USER_ID,
 					UT1.NAME as NAME

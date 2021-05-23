@@ -21,7 +21,8 @@
 
 		var tiles = [
 			'sender-start-mailings',
-			'sender-start-ad',
+			'sender-start-ads',
+			'sender-start-marketing',
 			'sender-start-rc',
 			'sender-start-toloka'
 		];
@@ -44,7 +45,14 @@
 			return;
 		}
 
-		Page.open(tile.data.url);
+		var width = null;
+
+		if(tile.id === 'instagram' || tile.id === 'facebook')
+		{
+			width = 1045;
+		}
+
+		Page.open(tile.data.url, false,{"width" : width});
 	};
 
 	BX.Sender.Start = new Manager();

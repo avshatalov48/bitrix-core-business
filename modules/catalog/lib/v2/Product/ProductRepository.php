@@ -52,7 +52,7 @@ class ProductRepository extends BaseIblockElementRepository implements ProductRe
 		return $filter;
 	}
 
-	protected function makeEntity(array $fields): BaseIblockElementEntity
+	protected function makeEntity(array $fields = []): BaseIblockElementEntity
 	{
 		return $this->factory->createEntity();
 	}

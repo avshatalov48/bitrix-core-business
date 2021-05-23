@@ -63,11 +63,6 @@ class SiteSpeed
 	 */
 	public static function isRussianSiteManager()
 	{
-		if (ModuleManager::isModuleInstalled("bitrix24"))
-		{
-			return false;
-		}
-
 		return (
 			Directory::isDirectoryExists(Application::getDocumentRoot()."/bitrix/modules/main/lang/ru")
 			|| Directory::isDirectoryExists(Application::getDocumentRoot()."/bitrix/modules/main/lang/ua")
@@ -98,6 +93,10 @@ class SiteSpeed
 		foreach ($siteList as $site)
 		{
 			if (Option::get("main", "wizard_firstportal_".$site["LID"], false, $site["LID"]) !== false)
+			{
+				$portalSiteList[] = $site["LID"];
+			}
+			else if (Option::get("main", "wizard_firstbitrix24_".$site["LID"], false, $site["LID"]) !== false)
 			{
 				$portalSiteList[] = $site["LID"];
 			}

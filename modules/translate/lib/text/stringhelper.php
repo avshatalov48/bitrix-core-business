@@ -180,4 +180,63 @@ class StringHelper
 
 		return ($isUtf > 0);
 	}
+
+	/**
+	 * Escapes symbols of "'$ in given string.
+	 *
+	 * @param string $str String to escape.
+	 * @param string $enclosure Enclosure symbol " or ' and <<< for heredoc syntax.
+	 * @param string $additional Additional symbols to escape.
+	 *
+	 * @return string
+	 */
+	public static function escapePhp($str, $enclosure = '"', $additional = '')
+	{
+		//Lookaround negative lookbehind (?<!ASD)
+		if ($enclosure === "'")
+		{
+			$str = preg_replace("/((?<![\\\\])['{$additional}]{1})/", "\\\\$1", $str);
+		}
+		elseif ($enclosure === '"')
+		{
+			// " -> \"
+			$str = preg_replace("/((?<![\\\\])[\"{$additional}]{1})/", "\\\\$1", $str);
+			// $x -> \$x
+			$str = preg_replace("/((?<![\\\\])[\$]{1}\w)/", "\\\\$1", $str);
+		}
+		elseif ($enclosure === '<<<')
+		{
+			// $x -> \$x
+			$str = preg_replace("/((?<![\\\\])[\$]{1}\w)/", "\\\\$1", $str);
+		}
+
+		return $str;
+	}
+
+	/**
+	 * Removes escape symbols in given string.
+	 *
+	 * @param string $str String to unescape.
+	 * @param string $enclosure Enclosure symbol " or '.
+	 *
+	 * @return string
+	 */
+	public static function unescapePhp($str, $enclosure = '"')
+	{
+		//Lookaround positive lookbehind (?<=ASD)
+		// (?<=[\\]+)['\"\\\$]{1}
+
+		if ($enclosure == "'")
+		{
+			$from = ["\\'"];
+			$to = ["'"];
+		}
+		else
+		{
+			$from = ["\\\$", "\\\""];
+			$to = ["\$", "\""];
+		}
+
+		return str_replace($from, $to, $str);
+	}
 }

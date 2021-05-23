@@ -248,4 +248,9 @@ export class Desktop
 
 		return this.clientVersion[3];
 	}
+
+	isReady()
+	{
+		return typeof(BXDesktopSystem) != "undefined";
+	}
 }

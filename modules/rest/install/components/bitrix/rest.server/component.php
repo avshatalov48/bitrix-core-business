@@ -59,27 +59,41 @@ else
 }
 
 $transport = 'json';
-$method = ToLower($arVariables['method']);
-$point = mb_strrpos($method, '.');
+$methods = [ToLower($arVariables['method']), $arVariables['method']];
 
-if($point > 0)
+// try lowercase first, then original
+foreach ($methods as $method)
 {
-	$check = mb_substr($method, $point + 1);
-	if(CRestServer::transportSupported($check))
+	$point = mb_strrpos($method, '.');
+
+	if($point > 0)
 	{
-		$transport = $check;
-		$method = mb_substr($method, 0, $point);
+		$check = mb_substr($method, $point + 1);
+		if(CRestServer::transportSupported($check))
+		{
+			$transport = $check;
+			$method = mb_substr($method, 0, $point);
+		}
 	}
+
+	$server = new CRestServer(array(
+		"CLASS" => $arParams["CLASS"],
+		"METHOD" => $method,
+		"TRANSPORT" => $transport,
+		"QUERY" => $query,
+	), false);
+
+	$result = $server->process();
+
+	// try original controller name if lower is not found
+	if (is_array($result) && !empty($result['error']) && $result['error'] === 'ERROR_METHOD_NOT_FOUND')
+	{
+		continue;
+	}
+
+	// output result
+	break;
 }
-
-$server = new CRestServer(array(
-	"CLASS" => $arParams["CLASS"],
-	"METHOD" => $method,
-	"TRANSPORT" => $transport,
-	"QUERY" => $query,
-));
-
-$result = $server->process();
 
 $APPLICATION->RestartBuffer();
 

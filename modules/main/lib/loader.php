@@ -25,7 +25,7 @@ class Loader
 
 	/**
 	 * Custom autoload paths.
-	 * @var array [namespace => path]
+	 * @var array [namespace => [ [path1, depth1], [path2, depth2] ]
 	 */
 	protected static $namespaces = [];
 
@@ -302,7 +302,7 @@ class Loader
 		$path = rtrim($path, "/\\");
 		$depth = substr_count(rtrim($namespace, "\\"), "\\");
 
-		self::$namespaces[$namespace] = [
+		self::$namespaces[$namespace][] = [
 			"path" => $path,
 			"depth" => $depth,
 		];
@@ -356,7 +356,14 @@ class Loader
 			{
 				$module = $pathInfo["module"];
 				$holder = (isset(self::$modulesHolders[$module])? self::$modulesHolders[$module] : self::BITRIX_HOLDER);
-				require_once($documentRoot."/".$holder."/modules/".$module."/".$pathInfo["file"]);
+
+				$filePath = (defined('REPOSITORY_ROOT'))
+					? REPOSITORY_ROOT
+					: "{$documentRoot}/{$holder}/modules";
+
+				$filePath .= '/'.$module."/".$pathInfo["file"];
+
+				require_once($filePath);
 			}
 			else
 			{
@@ -399,36 +406,39 @@ class Loader
 				if(isset(self::$namespaces[$namespace]))
 				{
 					//found
-					$depth = self::$namespaces[$namespace]["depth"];
-					$path = self::$namespaces[$namespace]["path"];
-
-					$fileParts = explode("\\", $classInfo["real"]);
-
-					for ($i=0; $i <= $depth; $i++)
+					foreach (self::$namespaces[$namespace] as $namespaceLocation)
 					{
-						array_shift($fileParts);
-					}
+						$depth = $namespaceLocation["depth"];
+						$path = $namespaceLocation["path"];
 
-					$classPath = implode("/", $fileParts);
+						$fileParts = explode("\\", $classInfo["real"]);
 
-					$classPathLower = strtolower($classPath);
+						for ($i=0; $i <= $depth; $i++)
+						{
+							array_shift($fileParts);
+						}
 
-					// final path lower case
-					$filePath = $path.'/'.$classPathLower.".php";
+						$classPath = implode("/", $fileParts);
 
-					if (file_exists($filePath))
-					{
-						require_once($filePath);
-						break 2;
-					}
+						$classPathLower = strtolower($classPath);
 
-					// final path original case
-					$filePath = $path.'/'.$classPath.".php";
+						// final path lower case
+						$filePath = $path.'/'.$classPathLower.".php";
 
-					if (file_exists($filePath))
-					{
-						require_once($filePath);
-						break 2;
+						if (file_exists($filePath))
+						{
+							require_once($filePath);
+							break 3;
+						}
+
+						// final path original case
+						$filePath = $path.'/'.$classPath.".php";
+
+						if (file_exists($filePath))
+						{
+							require_once($filePath);
+							break 3;
+						}
 					}
 				}
 
@@ -569,10 +579,3 @@ class LoaderException extends \Exception
 		parent::__construct($message, $code, $previous);
 	}
 }
-
-//main usually is included directly
-Loader::registerNamespace("Bitrix\\Main", Loader::getDocumentRoot()."/bitrix/modules/main/lib");
-Loader::registerNamespace("Bitrix\\UI", Loader::getDocumentRoot()."/bitrix/modules/ui/lib");
-Loader::registerNamespace("Psr\\Container", Loader::getDocumentRoot()."/bitrix/modules/main/vendor/psr/container/src");
-
-\spl_autoload_register([Loader::class, 'autoLoad']);

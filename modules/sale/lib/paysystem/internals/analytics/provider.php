@@ -35,7 +35,7 @@ final class Provider extends Analytics\Provider
 		$result = [];
 		foreach ($this->getPaySystemHandlers() as $paySystemHandler)
 		{
-			$transactions = array_column($this->getPayment($paySystemHandler, $dateFrom, $dateTo), 'PS_INVOICE_ID');
+			$transactions = $this->getPayments($paySystemHandler, $dateFrom, $dateTo);
 			if ($transactions)
 			{
 				$result[] = [
@@ -68,7 +68,7 @@ final class Provider extends Analytics\Provider
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\LoaderException
 	 */
-	private function getPayment(string $paySystemHandler, DateTime $dateFrom, DateTime $dateTo): array
+	private function getPayments(string $paySystemHandler, DateTime $dateFrom, DateTime $dateTo): array
 	{
 		$paySystemIdList = $this->getPaySystemIdList($paySystemHandler);
 		if (!$paySystemIdList)
@@ -81,7 +81,6 @@ final class Provider extends Analytics\Provider
 		$filter = [
 			'PAY_SYSTEM_ID' => $paySystemIdList,
 			'PAID' => 'Y',
-			'!=PS_INVOICE_ID' => null,
 			'>=PS_RESPONSE_DATE' => $dateFrom,
 			'<=PS_RESPONSE_DATE' => $dateTo,
 		];
@@ -96,12 +95,19 @@ final class Provider extends Analytics\Provider
 		{
 			$paymentClassName = $registry->getPaymentClassName();
 			$paymentResult = $paymentClassName::getList([
-				'select' => ['PS_INVOICE_ID'],
+				'select' => [
+					'PS_INVOICE_ID',
+					'PS_RESPONSE_DATE',
+					'XML_ID',
+				],
 				'filter' => $filter,
 			]);
 			while ($paymentData = $paymentResult->fetch())
 			{
-				$result[] = $paymentData;
+				$result[] = [
+					'id' => (!empty($paymentData['PS_INVOICE_ID']) ? $paymentData['PS_INVOICE_ID'] : $paymentData['XML_ID']),
+					'date_time' => $paymentData['PS_RESPONSE_DATE']->format('Y-m-d H:i:s'),
+				];
 			}
 		}
 
@@ -131,14 +137,5 @@ final class Provider extends Analytics\Provider
 		}
 
 		return $result;
-	}
-
-	/**
-	 * @param array $data
-	 * @return string
-	 */
-	protected function getHash(array $data): string
-	{
-		return md5(serialize($data));
 	}
 }

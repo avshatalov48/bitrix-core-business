@@ -25,4 +25,6 @@ $MESS["SENDER_SEGMENT_EDIT_TMPL_VIEW"] = "просмотреть";
 $MESS["SENDER_SEGMENT_EDIT_TMPL_SET_FILTER"] = "Настроить фильтр";
 $MESS ["SENDER_SEGMENT_EDIT_BUTTON_SELECT_CONTACT"] = "выбрать набор";
 $MESS ["SENDER_SEGMENT_EDIT_CONTACT_SEARCHER_TITLE"] = "Статические наборы адресов";
-?>
+$MESS ["SENDER_SEGMENT_SEARCH_INFORMATION"] = "Информация загружается. Данные о количестве будут доступны после формирования.";
+$MESS ["SENDER_SEGMENT_NOT_PREPARED"] = "<strong>Внимание!</strong> Сегмент формируется на данный момент. Информация о получателях будет обновляться";
+$MESS ["SENDER_SEGMENT_CREATED"] = "Сегмент успешно создан. Кнопку «Сохранить» можно нажимать сразу после выбора условий (динамический сегмент) или старта загрузки (статический сегмент). При этом формирование сегмента будет продолжаться.";

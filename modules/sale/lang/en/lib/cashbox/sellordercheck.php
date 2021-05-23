@@ -1,4 +1,0 @@
-<?
-$MESS["SALE_CASHBOX_PREPAYMENT_DELIVERY"] = "Delivery";
-$MESS["SALE_CASHBOX_SELL_ORDER_NAME"] = "Full payment";
-?>

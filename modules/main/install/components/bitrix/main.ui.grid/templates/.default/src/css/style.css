@@ -1722,8 +1722,19 @@ label.main-grid-checkbox {
 	display: flex;
 	align-items: center;
 	width: 100%;
+	max-width: 180px;
 	box-sizing: border-box;
-	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+	min-height: 39px;
+	color: #333;
+	white-space: nowrap;
+	background: #fff;
+	font: 400 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	border: 1px solid #c6cdd3;
+	border-radius: 3px;
+	padding: 0 8px;
+	min-width: 50px;
+	overflow: hidden;
+	justify-content: flex-end;
 }
 
 .main-grid-editor-money-currency {
@@ -1735,11 +1746,16 @@ label.main-grid-checkbox {
 	-moz-appearance: textfield;
 	text-align: right;
 	width: 100%;
-	border: 1px solid #c6cdd3;
-	border-radius: 2px;
-	padding: 0 40px 0 8px;
 	background: #fff;
 	box-sizing: border-box;
+	position: relative;
+	padding: 3px 8px 2px;
+	height: 39px;
+	border: none;
+	border-radius: 3px;
+	font: 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #333;
+	min-width: 50px;
 }
 
 .main-grid-editor-money-price::-webkit-outer-spin-button,
@@ -1748,24 +1764,30 @@ label.main-grid-checkbox {
 	margin: 0;
 }
 
+.main-grid-editor-money-price::-ms-input-placeholder {
+	color: #121212;
+}
+
+.main-grid-editor-money-price::-webkit-input-placeholder {
+	color: #121212;
+}
+
+.main-grid-editor-money-price::-moz-placeholder {
+	color: #121212;
+	opacity: 1;
+}
+
 .main-grid-editor.main-grid-editor-money-currency {
 	cursor: pointer;
-	width: 36px;
+	max-width: 36px;
+	width: auto;
 	height: 100%;
 	color: #80868E;
 	font-size: 13px;
 	display: flex;
 	align-items: center;
-	position: absolute;
-	right: 11px;
 	background: none;
 	padding: 0;
-}
-
-.main-grid-editor-money-price {
-	color: #535C69;
-	font-size: 14px;
-	line-height: 20px;
 }
 
 .main-grid-editor-money-currency .main-dropdown-inner {
@@ -2934,4 +2956,15 @@ label.main-grid-checkbox {
 	bottom: 0;
 	padding-left: 20px;
 	padding-top: 9px;
+}
+
+.main-grid-head-title .ui-hint {
+	height: 13px;
+	width: 13px;
+	line-height: 13px;
+}
+
+.main-grid-head-title .ui-hint-icon {
+	margin: 0;
+	vertical-align: bottom;
 }

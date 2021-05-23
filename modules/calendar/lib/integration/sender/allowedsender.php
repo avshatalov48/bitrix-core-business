@@ -1,5 +1,6 @@
 <?
 namespace Bitrix\Calendar\Integration\Sender;
+use Bitrix\Main\Loader;
 
 class AllowedSender
 {
@@ -26,7 +27,8 @@ class AllowedSender
 			}
 		}
 
-		if (!\Bitrix\Sender\Integration\Bitrix24\Service::isCloud())
+		if (Loader::includeModule("sender")
+			&& !\Bitrix\Sender\Integration\Bitrix24\Service::isCloud())
 		{
 			$addressFromList = \Bitrix\Sender\MailingChainTable::getEmailFromList();
 			$address = new \Bitrix\Main\Mail\Address();

@@ -1,6 +1,7 @@
 import { Tag, Type, Dom, Cache } from 'main.core';
 import Dialog from '../dialog';
 import type Tab from '../tabs/tab';
+import type { FooterOptions } from './footer-content';
 
 export default class BaseFooter
 {
@@ -9,7 +10,7 @@ export default class BaseFooter
 	container: ?HTMLElement = null;
 	cache = new Cache.MemoryCache();
 
-	constructor(context: Dialog | Tab, options: { [option: string]: any })
+	constructor(context: Dialog | Tab, options: FooterOptions)
 	{
 		this.options = Type.isPlainObject(options) ? options : {};
 
@@ -44,7 +45,7 @@ export default class BaseFooter
 		Dom.removeClass(this.getContainer(), 'ui-selector-footer--show');
 	}
 
-	getOptions(): { [option: string]: any }
+	getOptions(): FooterOptions
 	{
 		return this.options;
 	}

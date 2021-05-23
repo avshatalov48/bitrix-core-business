@@ -98,6 +98,8 @@ $arFilterFields = array(
 	"filter_product_xml_id",
 	"filter_catalog_xml_id",
 	"filter_affiliate_id",
+	"filter_order_use_discounts",
+	"filter_order_use_coupons",
 	"filter_discount_coupon",
 	"filter_person_type",
 	"filter_user_id",
@@ -345,7 +347,31 @@ if(is_array($filter_group_id) && count($filter_group_id) > 0)
 }
 
 if(intval($filter_affiliate_id)>0) $arFilter["AFFILIATE_ID"] = intval($filter_affiliate_id);
-if($filter_discount_coupon <> '') $arFilter["=ORDER_COUPONS.COUPON"] = trim($filter_discount_coupon);
+if(isset($filter_discount_coupon) && $filter_discount_coupon <> '') $arFilter["=ORDER_COUPONS.COUPON"] = trim($filter_discount_coupon);
+if (isset($filter_order_use_discounts))
+{
+	switch ($filter_order_use_discounts)
+	{
+		case 'Y':
+			$arFilter['>ORDER_DISCOUNT_RULES.ID'] = 0;
+			break;
+		case 'N':
+			$arFilter['=ORDER_DISCOUNT_RULES.ID'] = null;
+			break;
+	}
+}
+if (isset($filter_order_use_coupons))
+{
+	switch ($filter_order_use_coupons)
+	{
+		case 'Y':
+			$arFilter['>ORDER_COUPONS.ID'] = 0;
+			break;
+		case 'N':
+			$arFilter['=ORDER_COUPONS.ID'] = null;
+			break;
+	}
+}
 if(floatval($filter_price_from)>0) $arFilter[">=PRICE"] = floatval($filter_price_from);
 if(floatval($filter_price_to)>0) $arFilter["<=PRICE"] = floatval($filter_price_to);
 if($filter_xml_id <> '') $arFilter["%XML_ID"] = trim($filter_xml_id);
@@ -3667,6 +3693,8 @@ else
 			"filter_product_xml_id" => Loc::getMessage("SO_PRODUCT_XML_ID"),
 			"filter_catalog_xml_id" => Loc::getMessage("SOA_BASKET_CATALOG_XML_ID"),
 			"filter_affiliate_id" => Loc::getMessage("SO_AFFILIATE_ID"),
+			"filter_order_use_discounts" => Loc::getMessage("SALE_ORDER_LIST_FILTER_NAME_ORDER_USE_DISCOUNTS"),
+			"filter_order_use_coupons" => Loc::getMessage("SALE_ORDER_LIST_FILTER_NAME_ORDER_USE_COUPONS"),
 			"filter_coupon" => Loc::getMessage("SALE_ORDER_LIST_HEADER_NAME_COUPONS"),
 			"filter_sum_paid" => Loc::getMessage("SO_SUM_PAID"),
 			"filter_xml_id" => Loc::getMessage("SO_XML_ID"),
@@ -4203,6 +4231,26 @@ else
 					}
 					ChangeAffiliateName();
 				</script>
+			</td>
+		</tr>
+		<tr>
+			<td><?echo Loc::getMessage("SALE_ORDER_LIST_FILTER_NAME_ORDER_USE_DISCOUNTS")?>:</td>
+			<td>
+				<select name="filter_order_use_discounts">
+					<option value=""><?echo Loc::getMessage("SALE_F_ALL")?></option>
+					<option value="Y"<?if($filter_order_use_discounts=="Y") echo " selected"?>><?echo Loc::getMessage("SALE_YES")?></option>
+					<option value="N"<?if($filter_order_use_discounts=="N") echo " selected"?>><?echo Loc::getMessage("SALE_NO")?></option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td><?echo Loc::getMessage("SALE_ORDER_LIST_FILTER_NAME_ORDER_USE_COUPONS")?>:</td>
+			<td>
+				<select name="filter_order_use_coupons">
+					<option value=""><?echo Loc::getMessage("SALE_F_ALL")?></option>
+					<option value="Y"<?if($filter_order_use_coupons=="Y") echo " selected"?>><?echo Loc::getMessage("SALE_YES")?></option>
+					<option value="N"<?if($filter_order_use_coupons=="N") echo " selected"?>><?echo Loc::getMessage("SALE_NO")?></option>
+				</select>
 			</td>
 		</tr>
 		<tr>

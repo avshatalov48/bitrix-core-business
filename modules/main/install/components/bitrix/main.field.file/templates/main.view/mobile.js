@@ -23,18 +23,19 @@ this.BX.Mobile.Field = this.BX.Mobile.Field || {};
 	    },
 	    show: function show() {
 	      var url = this.node.getAttribute('data-url');
+	      var description = this.node.textContent.trim();
 
 	      if (this.isImage) {
-	        var description = this.node.textContent.trim();
 	        BXMobileApp.UI.Photo.show({
-	          'photos': [{
-	            'url': url,
-	            'description': description
+	          photos: [{
+	            url: url,
+	            description: description
 	          }]
 	        });
 	      } else {
 	        BXMobileApp.UI.Document.open({
-	          'url': url
+	          url: url,
+	          filename: description
 	        });
 	      }
 	    }

@@ -1,0 +1,136 @@
+/* Dialog process */
+
+.bx-stepprocessing-dialog-process .bx-stepprocessing-dialog-process-popup
+{
+	overflow: hidden;
+	font-size: 14px;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	--ui-stepprocessing-dialog-vert-padding: 12px;
+	--ui-stepprocessing-dialog-horizon-slitter: 1px solid #dee2e6;
+}
+
+#bx-admin-prefix .bx-stepprocessing-dialog-process .bx-stepprocessing-dialog-process-popup
+{
+	--ui-stepprocessing-dialog-vert-padding: 6px;
+}
+
+.bx-stepprocessing-dialog-process .bx-stepprocessing-dialog-process-popup .bx-stepprocessing-dialog-process-summary
+{
+	color: #525c69;
+	padding-bottom: var(--ui-stepprocessing-dialog-vert-padding);
+}
+
+.bx-stepprocessing-dialog-process-popup > .ui-alert
+{
+	margin-top: 10px;
+}
+
+
+.bx-stepprocessing-dialog-process-options {
+	border-top: var(--ui-stepprocessing-dialog-horizon-slitter);
+	margin-top: 15px;
+	padding-top: 15px;
+}
+.bx-stepprocessing-dialog-process-options .bx-stepprocessing-dialog-process-option-container
+{
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: center;
+	margin-bottom: var(--ui-stepprocessing-dialog-vert-padding);
+	padding: 0 15px;
+}
+
+.bx-stepprocessing-dialog-process-options .bx-stepprocessing-dialog-process-options-title
+{
+	color: #333;
+	vertical-align: top;
+	line-height: 16px;
+	display: inline-block;
+	width: 40%;
+	text-align: right;
+	padding-right: 10px;
+	font-size: 13px;
+}
+.bx-stepprocessing-dialog-process-options .bx-stepprocessing-dialog-process-options-input
+{
+	line-height: 16px;
+	display: inline-block;
+	width: 50%;
+}
+
+.bx-stepprocessing-dialog-process-options .bx-stepprocessing-dialog-process-option-container.bx-stepprocessing-dialog-process-option-checkbox
+{
+	flex-direction: row-reverse;
+	justify-content: flex-end;
+}
+.bx-stepprocessing-dialog-process-options .bx-stepprocessing-dialog-process-option-container.bx-stepprocessing-dialog-process-option-checkbox .bx-stepprocessing-dialog-process-options-title
+{
+	width: unset;
+	text-align: left;
+}
+.bx-stepprocessing-dialog-process-options .bx-stepprocessing-dialog-process-option-container.bx-stepprocessing-dialog-process-option-checkbox .bx-stepprocessing-dialog-process-options-input
+{
+	width: unset;
+	padding-right: 15px;
+}
+#bx-admin-prefix .bx-stepprocessing-dialog-process-options .bx-stepprocessing-dialog-process-option-container.bx-stepprocessing-dialog-process-option-checkbox
+{
+	flex-direction: row;
+	justify-content: center;
+}
+#bx-admin-prefix .bx-stepprocessing-dialog-process-options .bx-stepprocessing-dialog-process-option-container.bx-stepprocessing-dialog-process-option-checkbox .bx-stepprocessing-dialog-process-options-title
+{
+	width: 40%;
+	text-align: right;
+}
+#bx-admin-prefix .bx-stepprocessing-dialog-process-options .bx-stepprocessing-dialog-process-option-container.bx-stepprocessing-dialog-process-option-checkbox .bx-stepprocessing-dialog-process-options-input
+{
+	width: 50%;
+	padding-right: 0;
+}
+
+.bx-stepprocessing-dialog-process-options .bx-stepprocessing-dialog-process-options-input label
+{
+	display: block;
+	padding-bottom: 5px;
+}
+.bx-stepprocessing-dialog-process-options .bx-stepprocessing-dialog-process-options-input input
+{
+	vertical-align: inherit;
+}
+.bx-stepprocessing-dialog-process-options .bx-stepprocessing-dialog-process-options-input textarea
+{
+	width: 100%;
+	white-space: pre;
+}
+.bx-stepprocessing-dialog-process-options .bx-stepprocessing-dialog-process-options-title label
+{
+	cursor: pointer;
+	vertical-align: middle;
+	margin-top: 5px;
+}
+.bx-stepprocessing-dialog-process-options .bx-stepprocessing-dialog-process-option-container.bx-stepprocessing-dialog-process-option-text
+{
+	display: block;
+	padding: 0;
+}
+.bx-stepprocessing-dialog-process-options .bx-stepprocessing-dialog-process-option-text .bx-stepprocessing-dialog-process-options-title,
+.bx-stepprocessing-dialog-process-options .bx-stepprocessing-dialog-process-option-text .bx-stepprocessing-dialog-process-options-input
+{
+	text-align: left;
+	width: 97%;
+}
+
+.bx-stepprocessing-dialog-process-options input[type="checkbox"]
+{
+	margin: 0 4px 0 0;
+}
+
+.bx-stepprocessing-dialog-process-progressbar {
+	margin: 15px 0 10px 0;
+	padding: 15px 0 10px 0;
+	border-top: var(--ui-stepprocessing-dialog-horizon-slitter);
+}
+
+//# sourceMappingURL=process.bundle.css.map

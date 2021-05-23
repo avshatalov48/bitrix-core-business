@@ -8,7 +8,7 @@ if(!CModule::IncludeModule('sale'))
 $dbSite = CSite::GetByID(WIZARD_SITE_ID);
 if($arSite = $dbSite -> Fetch())
 	$lang = $arSite["LANGUAGE_ID"];
-if(strlen($lang) <= 0)
+if($lang == '')
 	$lang = "ru";
 $bRus = false;
 if($lang == "ru")
@@ -23,7 +23,7 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 	if($GLOBALS['DB']->Query("select DISPLAY_SORT from b_sale_loc_type WHERE 1=0", true))
 		$typeTableFreshEnough = true;
 
-	if(strlen($loc_file) > 0)
+	if($loc_file <> '')
 	{
 		define('LOC_STEP_LENGTH', 20);
 
@@ -109,7 +109,7 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 				$csvFile->SetDelimiter(",");
 
 				$arRes = $csvFile->Fetch();
-				if (is_array($arRes) && count($arRes) > 0 && strlen($arRes[0]) == 2)
+				if (is_array($arRes) && count($arRes) > 0 && mb_strlen($arRes[0]) == 2)
 				{
 					$DefLang = $arRes[0];
 					if (in_array($DefLang, $arSysLangs))
@@ -139,7 +139,7 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 						$tt = 0;
 						while ($arRes = $csvFile->Fetch())
 						{
-							$type = strtoupper($arRes[0]);
+							$type = mb_strtoupper($arRes[0]);
 							$tt++;
 							$arArrayTmp = array();
 							foreach($arRes as $ind => $value)
@@ -159,7 +159,7 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 							}
 
 							//country
-							if (is_array($arArrayTmp) && strlen($arArrayTmp["NAME"])>0)
+							if (is_array($arArrayTmp) && $arArrayTmp["NAME"] <> '')
 							{
 								if ($type == "S")
 								{
@@ -179,22 +179,22 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 										);
 										if ($arContList = $db_contList->Fetch())
 										{
-											$LLL = IntVal($arContList["ID"]);
-											$CurCountryID = IntVal($arContList["COUNTRY_ID"]);
+											$LLL = intval($arContList["ID"]);
+											$CurCountryID = intval($arContList["COUNTRY_ID"]);
 										}
 									}
 
-									if (IntVal($CurCountryID) <= 0)
+									if (intval($CurCountryID) <= 0)
 									{
 										$CurCountryID = CSaleLocation::AddCountry($arArrayTmp);
-										$CurCountryID = IntVal($CurCountryID);
+										$CurCountryID = intval($CurCountryID);
 										if ($CurCountryID>0)
 										{
 											$numCountries++;
-											if(IntVal($LLL) <= 0)
+											if(intval($LLL) <= 0)
 											{
 												$LLL = CSaleLocation::AddLocation(array("COUNTRY_ID" => $CurCountryID));
-												if (IntVal($LLL)>0) $numLocations++;
+												if (intval($LLL)>0) $numLocations++;
 											}
 										}
 									}
@@ -217,26 +217,26 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 										if ($arRegionList = $db_rengList->Fetch())
 										{
 											$LLL = $arRegionList["ID"];
-											$CurRegionID = IntVal($arRegionList["REGION_ID"]);
+											$CurRegionID = intval($arRegionList["REGION_ID"]);
 										}
 									}
 
-									if (IntVal($CurRegionID) <= 0)
+									if (intval($CurRegionID) <= 0)
 									{
 										$CurRegionID = CSaleLocation::AddRegion($arArrayTmp);
-										$CurRegionID = IntVal($CurRegionID);
+										$CurRegionID = intval($CurRegionID);
 										if ($CurRegionID > 0)
 										{
 											$numRegiones++;
-											if (IntVal($LLL) <= 0)
+											if (intval($LLL) <= 0)
 											{
 												$LLL = CSaleLocation::AddLocation(array("COUNTRY_ID" => $CurCountryID, "REGION_ID" => $CurRegionID));
-												if (IntVal($LLL)>0) $numLocations++;
+												if (intval($LLL)>0) $numLocations++;
 											}
 										}
 									}
 								}
-								elseif ($type == "T" && IntVal($CurCountryID)>0) //city
+								elseif ($type == "T" && intval($CurCountryID)>0) //city
 								{
 									$city_id = 0;
 									$LLL = 0;
@@ -249,7 +249,7 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 												"CITY_NAME" => $arArrayTmp["NAME"],
 												"LID" => $DefLang
 											);
-										if(IntVal($CurRegionID) > 0)
+										if(intval($CurRegionID) > 0)
 											$arFilter["REGION_ID"] = $CurRegionID;
 
 										$db_cityList = CSaleLocation::GetList(
@@ -259,21 +259,21 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 										if ($arCityList = $db_cityList->Fetch())
 										{
 											$LLL = $arCityList["ID"];
-											$city_id = IntVal($arCityList["CITY_ID"]);
+											$city_id = intval($arCityList["CITY_ID"]);
 										}
 									}
 
 									if ($city_id <= 0)
 									{
 										$city_id = CSaleLocation::AddCity($arArrayTmp);
-										$city_id = IntVal($city_id);
+										$city_id = intval($city_id);
 										if ($city_id > 0)
 											$numCities++;
 									}
 
 									if ($city_id > 0)
 									{
-										if (IntVal($LLL) <= 0)
+										if (intval($LLL) <= 0)
 										{
 											$LLL = CSaleLocation::AddLocation(
 												array(
@@ -332,9 +332,9 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 					$arLocationMap = array();
 					while ($arLocation = $rsLocations->Fetch())
 					{
-						if(strlen($arLocation["CITY_NAME_LANG"]) > 0)
+						if($arLocation["CITY_NAME_LANG"] <> '')
 						{
-							if(strlen($arLocation["REGION_NAME_LANG"]) > 0)
+							if($arLocation["REGION_NAME_LANG"] <> '')
 								$arLocationMap[$arLocation["CITY_NAME_LANG"]][$arLocation["REGION_NAME_LANG"]] = $arLocation["ID"];
 							else
 								$arLocationMap[$arLocation["CITY_NAME_LANG"]] = $arLocation["ID"];
@@ -372,12 +372,12 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 					{
 						$tt++;
 						$CITY = $arRes[1];
-						if(strlen($arRes[3]) > 0)
+						if($arRes[3] <> '')
 							$REGION = $arRes[3];
 
 						if (array_key_exists($CITY, $arLocationMap))
 						{
-							if(strlen($REGION) > 0)
+							if($REGION <> '')
 								$ID = $arLocationMap[$CITY][$REGION];
 							else
 								$ID = $arLocationMap[$CITY];

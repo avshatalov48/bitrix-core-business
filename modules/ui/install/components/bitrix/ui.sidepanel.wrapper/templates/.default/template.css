@@ -125,7 +125,10 @@ div.ui-side-panel-wrap-title-container.ui-side-panel-wrap-title-align-right-cont
 	box-sizing: border-box;
 }
 
-.ui-page-slider-wrapper .ui-side-panel-wrap-title-box {}
+.ui-page-slider-wrapper .ui-side-panel-wrap-title-box {
+    display: flex;
+    overflow: hidden;
+}
 
 .ui-side-panel-wrap-title {
 	font: 24px/26px "OpenSans-Light", Helvetica, Arial, sans-serif;
@@ -137,6 +140,7 @@ div.ui-side-panel-wrap-title-container.ui-side-panel-wrap-title-align-right-cont
 }
 
 .ui-page-slider-wrapper .ui-side-panel-wrap-title-item {
+    position: relative;
 	display: inline-block;
 	padding: 0 10px 0 0;
 	min-width: 0;
@@ -150,6 +154,18 @@ div.ui-side-panel-wrap-title-container.ui-side-panel-wrap-title-align-right-cont
 
 .bitrix24-light-theme .ui-side-panel-wrap-title-item {
 	color: #fff;
+}
+
+.ui-page-slider-wrapper .ui-side-panel-wrap-title-name {
+    padding-right: 10px;
+    width: -webkit-calc(100% - 25px);
+    width: calc(100% - 25px);
+}
+
+.ui-page-slider-wrapper .ui-side-panel-wrap-title-edit-button {
+    position: absolute;
+    top: 5px;
+    right: -3px;
 }
 
 .ui-side-panel-wrap-title {

@@ -47,6 +47,7 @@ Extension::load([
 	'catalog.entity-card',
 	'admin_interface',
 	'sidepanel',
+	'ui.hint',
 ]);
 
 $tabs = [

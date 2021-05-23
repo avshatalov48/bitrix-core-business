@@ -110,7 +110,7 @@ abstract class UserImportBase extends ImportBase
 				$r = \CSaleExport::GetList(array(), array("PERSON_TYPE_ID" => $personTypes));
 				while($ar = $r->Fetch())
 				{
-					$config[$ar["PERSON_TYPE_ID"]] = unserialize($ar["VARS"]);
+					$config[$ar["PERSON_TYPE_ID"]] = unserialize($ar["VARS"], ['allowed_classes' => false]);
 				}
 			}
 		}

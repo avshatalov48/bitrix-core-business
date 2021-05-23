@@ -553,7 +553,7 @@ abstract class BasketBase extends BasketItemCollection
 		$itemValues['ENTITY_REGISTRY_TYPE'] = static::getRegistryType();
 
 		/** @var Main\Event $event */
-		$event = new Main\Event('sale', "OnBeforeSaleBasketDeleted", array('VALUES' => $itemValues));
+		$event = new Main\Event('sale', "OnBeforeSaleBasketItemDeleted", array('VALUES' => $itemValues));
 		$event->send();
 	}
 
@@ -566,7 +566,7 @@ abstract class BasketBase extends BasketItemCollection
 		$itemValues['ENTITY_REGISTRY_TYPE'] = static::getRegistryType();
 
 		/** @var Main\Event $event */
-		$event = new Main\Event('sale', "OnSaleBasketDeleted", array('VALUES' => $itemValues));
+		$event = new Main\Event('sale', "OnSaleBasketItemDeleted", array('VALUES' => $itemValues));
 		$event->send();
 	}
 

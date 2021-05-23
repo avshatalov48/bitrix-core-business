@@ -99,6 +99,12 @@ class Notification
 					$url = 'https://www.bitrix24.es/promo/sales/holiday-sale/';
 				}
 			}
+
+			if (static::$codeToNotification[$option] === 'SUBSCRIPTION_MARKET_TRIAL_END')
+			{
+				$url = \Bitrix\Rest\Marketplace\Url::getSubscriptionBuyUrl();
+			}
+
 			$result = [
 				'PANEL_MESSAGE' => Loc::getMessage(
 					'REST_MARKETPLACE_NOTIFICATION_'.static::$codeToNotification[$option].'_MESS',

@@ -5,6 +5,7 @@ use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ModuleManager;
 use Bitrix\Rest\AppTable;
 use Bitrix\Rest\Engine\Access;
 
@@ -420,7 +421,7 @@ class Client
 		{
 			$updateList = static::getUpdates($appCodes);
 
-			if($updateList)
+			if (is_array($updateList))
 			{
 				self::setAvailableUpdate($updateList['ITEMS']);
 			}
@@ -475,8 +476,45 @@ class Client
 	 */
 	public static function isSubscriptionAvailable()
 	{
-		$status = \Bitrix\Main\Config\Option::get('bitrix24', '~mp24_paid', 'N');
-		return ($status === 'Y' || $status === 'T');
+		if (ModuleManager::isModuleInstalled('bitrix24'))
+		{
+			$status = Option::get('bitrix24', '~mp24_paid', 'N');
+		}
+		else
+		{
+			$status = Option::get('main', '~mp24_paid', 'N');
+			if ($status === 'T' && Option::get('main', '~mp24_used_trial', 'N') !== 'Y')
+			{
+				Option::set('main', '~mp24_used_trial', 'Y');
+			}
+		}
+
+		$result = ($status === 'Y' || $status === 'T');
+
+		if (
+			$status === 'Y'
+			&& ModuleManager::isModuleInstalled('bitrix24')
+			&& Loader::includeModule('bitrix24')
+			&& \CBitrix24::getLicenseFamily() === 'project'
+			&& Option::get('rest', 'can_use_subscription_project', 'N') === 'N'
+		)
+		{
+			$result = false;
+		}
+		elseif($result)
+		{
+			$date = static::getSubscriptionFinalDate();
+			if ($date)
+			{
+				$now = new \Bitrix\Main\Type\Date();
+				if ($date < $now)
+				{
+					$result = false;
+				}
+			}
+		}
+
+		return $result;
 	}
 
 	/**
@@ -485,7 +523,15 @@ class Client
 	public static function getSubscriptionFinalDate()
 	{
 		$result = false;
-		$timestamp = \Bitrix\Main\Config\Option::get("bitrix24", "~mp24_paid_date");
+		if (ModuleManager::isModuleInstalled('bitrix24'))
+		{
+			$timestamp = Option::get('bitrix24', '~mp24_paid_date');
+		}
+		else
+		{
+			$timestamp = Option::get('main', '~mp24_paid_date');
+		}
+
 		if ($timestamp > 0)
 		{
 			$result = \Bitrix\Main\Type\Date::createFromTimestamp($timestamp);
@@ -496,11 +542,52 @@ class Client
 
 	public static function isSubscriptionAccess()
 	{
-		return Loader::includeModule('bitrix24') && \CBitrix24::getLicensePrefix() === 'ru';
+		$result = false;
+		if (ModuleManager::isModuleInstalled('bitrix24'))
+		{
+			if (Loader::includeModule('bitrix24') && \CBitrix24::getLicensePrefix() === 'ru')
+			{
+				$result = true;
+			}
+		}
+		else
+		{
+			$result = Option::get(Access::MODULE_ID, Access::OPTION_SUBSCRIPTION_AVAILABLE, 'N') === 'Y';
+		}
+
+		return $result;
 	}
 
 	public static function canBuySubscription()
 	{
-		return static::isSubscriptionAccess() && Access::isFeatureEnabled() && \CBitrix24::getLicenseFamily() !== "demo";
+		$result = false;
+		if (
+			static::isSubscriptionAccess()
+			&& Access::isFeatureEnabled()
+			&& !(
+				ModuleManager::isModuleInstalled('bitrix24')
+				&& Loader::includeModule('bitrix24')
+				&& \CBitrix24::getLicenseFamily() === "demo"
+			)
+		)
+		{
+			$result = true;
+		}
+
+		return $result;
+	}
+
+	public static function isSubscriptionDemoAvailable()
+	{
+		if (ModuleManager::isModuleInstalled('bitrix24'))
+		{
+			$used = Option::get('bitrix24', '~mp24_used_trial', 'N') === 'Y';
+		}
+		else
+		{
+			$used = Option::get('main', '~mp24_used_trial', 'N') === 'Y';
+		}
+
+		return !$used;
 	}
 }

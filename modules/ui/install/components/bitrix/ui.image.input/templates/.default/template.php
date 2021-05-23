@@ -1,6 +1,7 @@
 <?php
 
 use Bitrix\Main\UI\Extension;
+use Bitrix\Main\Web\Json;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
@@ -26,7 +27,8 @@ $loaderContainerId = $instanceId.'_loader_container';
 			instanceId: '<?=CUtil::JSEscape($instanceId)?>',
 			containerId: '<?=CUtil::JSEscape($containerId)?>',
 			loaderContainerId: '<?=CUtil::JSEscape($loaderContainerId)?>',
-			settings: <?=CUtil::PhpToJSObject($arParams['FILE_SETTINGS'])?>
+			settings: <?=CUtil::PhpToJSObject($arParams['FILE_SETTINGS'])?>,
+			disabled: <?=Json::encode($arParams['DISABLED'])?>
 		});
 	});
 </script>
@@ -37,8 +39,10 @@ if (!empty($arParams['LOADER_PREVIEW']))
 	<div class="ui-image-input-loader-container" id="<?=$loaderContainerId?>"><?=$arParams['~LOADER_PREVIEW']?></div>
 	<?php
 }
+
+$disabledClass = $arParams['DISABLED'] ? ' ui-image-input-img--disabled' : '';
 ?>
-<div class="ui-image-input-container" id="<?=$containerId?>" style="display: none;">
+<div class="ui-image-input-container<?=$disabledClass?>" id="<?=$containerId?>" style="display: none;">
 	<?=$arResult['FILE']->show($arParams['FILE_VALUES'])?>
 	<span class="ui-image-input-img-add"
 			data-role="image-add-button"

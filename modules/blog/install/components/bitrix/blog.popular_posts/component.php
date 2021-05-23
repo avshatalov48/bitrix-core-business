@@ -188,6 +188,9 @@ else
 		while ($arPost = $dbPosts->Fetch())
 		{
 			$arTmp = $arPost;
+			$arPost["TITLE"] = \Bitrix\Main\Text\Emoji::decode($arPost["TITLE"]);
+			$arPost["DETAIL_TEXT"] = \Bitrix\Main\Text\Emoji::decode($arPost["DETAIL_TEXT"]);
+
 			$arTmp["~BLOG_USER_ALIAS"] = $arPost["BLOG_USER_ALIAS"];
 			$arTmp["BLOG_USER_ALIAS"] = htmlspecialcharsbx($arPost["BLOG_USER_ALIAS"]);
 			$arTmp["~TITLE"] = $arPost["TITLE"];

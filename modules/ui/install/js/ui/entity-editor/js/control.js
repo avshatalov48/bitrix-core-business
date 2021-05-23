@@ -904,6 +904,9 @@ if(typeof BX.UI.EntityEditorControl === "undefined")
 		onContextMenuClose: function()
 		{
 			BX.PopupMenu.destroy(this._id);
+		},
+		onPopupDestroy: function()
+		{
 			this._isContextMenuOpened = false;
 		},
 		createContextMenuButton: function()
@@ -954,7 +957,8 @@ if(typeof BX.UI.EntityEditorControl === "undefined")
 						events:
 							{
 								onPopupShow: BX.delegate(this.onContextMenuShow, this),
-								onPopupClose: BX.delegate(this.onContextMenuClose, this)
+								onPopupClose: BX.delegate(this.onContextMenuClose, this),
+								onPopupDestroy: BX.delegate(this.onPopupDestroy, this)
 							}
 					}
 				);
@@ -1414,9 +1418,13 @@ if(typeof BX.UI.EntityEditorField === "undefined")
 	};
 	BX.UI.EntityEditorField.prototype.isNeedToDisplay = function(options)
 	{
-		if(this._mode === BX.UI.EntityEditorMode.edit
-			|| this.checkOptionFlag(BX.UI.EntityEditorControlOptions.showAlways)
-			|| this._schemeElement.isShownAlways()
+		if (
+			!(this._editor && this._editor.isExternalLayoutResolversEnabled()) &&
+			(
+				this._mode === BX.UI.EntityEditorMode.edit
+				|| this.checkOptionFlag(BX.UI.EntityEditorControlOptions.showAlways)
+				|| this._schemeElement.isShownAlways()
+			)
 		)
 		{
 			return true;
@@ -1815,7 +1823,7 @@ if(typeof BX.UI.EntityEditorField === "undefined")
 		results.push(
 			{
 				value: "showAlways",
-				text: '<label class="ui-entity-card-context-menu-item-hide-empty-wrap">' +
+				html: '<label class="ui-entity-card-context-menu-item-hide-empty-wrap">' +
 				'<input type="checkbox"' +
 				(this.checkOptionFlag(BX.UI.EntityEditorControlOptions.showAlways) ? ' checked = "true"' : '') +
 				' class="ui-entity-card-context-menu-item-hide-empty-input">' +
@@ -2943,19 +2951,10 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 	};
 	BX.UI.EntityEditorSection.prototype.initializeFromModel =  function()
 	{
-		var i, length;
-		if(this._fields)
-		{
-			for(i = 0, length = this._fields.length; i < length; i++)
-			{
-				this._fields[i].release();
-			}
-		}
-
-		this._fields = [];
+		this.release();
 
 		var elements = this._schemeElement.getElements();
-		for(i = 0, length = elements.length; i < length; i++)
+		for(var i = 0, length = elements.length; i < length; i++)
 		{
 			var element = elements[i];
 			var field = this._editor.createControl(
@@ -3295,6 +3294,19 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 			callback();
 		}
 	};
+	BX.UI.EntityEditorSection.prototype.release = function()
+	{
+		var i, length;
+		if(this._fields)
+		{
+			for(i = 0, length = this._fields.length; i < length; i++)
+			{
+				this._fields[i].release();
+			}
+		}
+
+		this._fields = [];
+	};
 	BX.UI.EntityEditorSection.prototype.onStubClick = function(e)
 	{
 		this.toggle();
@@ -3521,6 +3533,7 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 	};
 	BX.UI.EntityEditorSection.prototype.doSetMode = function(mode)
 	{
+		this.removeFieldConfigurator();
 		if(this._titleMode === BX.UI.EntityEditorMode.edit)
 		{
 			this.toggleTitleMode();
@@ -7129,13 +7142,22 @@ if(typeof BX.UI.EntityEditorList === "undefined")
 
 			var value = BX.prop.getString(item, "VALUE", i);
 			var name = BX.prop.getString(item, "NAME", value);
-			menu.push(
-				{
-					text: this.getDataBooleanParam('isHtml', false) ? name : BX.util.htmlspecialchars(name),
-					value: value,
-					onclick: BX.delegate( this.onItemSelect, this)
-				}
-			);
+
+			var itemParams = {
+				value: value,
+				onclick: BX.delegate( this.onItemSelect, this)
+			};
+
+			if (this.getDataBooleanParam('isHtml', false))
+			{
+				itemParams['html'] = name;
+			}
+			else
+			{
+				itemParams['text'] = name;
+			}
+
+			menu.push(itemParams);
 		}
 
 		BX.PopupMenu.show(
@@ -8683,6 +8705,14 @@ if(typeof BX.UI.EntityEditorCustom === "undefined")
 	};
 
 	BX.extend(BX.UI.EntityEditorCustom, BX.UI.EntityEditorField);
+	BX.UI.EntityEditorCustom.prototype.initialize = function(id, settings)
+	{
+		BX.UI.EntityEditorCustom.superclass.initialize.call(this, id, settings);
+		if (this._schemeElement && this._schemeElement.getDataParam('type') === 'LOCATION' &&  this._model && this._model.getField(id))
+		{
+			this.setRuntimeValue(this._model.getField(id));
+		}
+	}
 	BX.UI.EntityEditorCustom.prototype.hasContentToDisplay = function()
 	{
 		return this.getHtmlContent() !== "";
@@ -9207,8 +9237,8 @@ if(typeof BX.UI.EntityEditorMoney === "undefined")
 		{
 			menu.push(
 				{
-					text: currencyList[key]["NAME"],
-					value: currencyList[key]["VALUE"],
+					text: BX.util.htmlspecialchars(currencyList[key]["NAME"]),
+					value: BX.util.htmlspecialchars(currencyList[key]["VALUE"]),
 					onclick: BX.delegate( this.onCurrencySelect, this)
 				}
 			);

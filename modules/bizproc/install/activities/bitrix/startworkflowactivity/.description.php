@@ -21,12 +21,12 @@ $arActivityDescription = array(
 	)
 );
 
-if(
+if (
 	isset($documentType)
 	&& $documentType[0] === 'crm'
+	&& CModule::IncludeModule('crm')
 	&& \Bitrix\Crm\Automation\Factory::canUseBizprocDesigner()
 )
 {
 	$arActivityDescription['TYPE'][] = 'robot_activity';
 }
-?>

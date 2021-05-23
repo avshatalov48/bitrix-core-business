@@ -118,11 +118,11 @@ if ($_POST['IM_AVATAR_UPDATE'] == 'Y')
 	}
 	else
 	{
-		$CFileUploader = new CFileUploader(array(
+		$uploader = new \Bitrix\Main\UI\Uploader\Uploader(array(
 			"allowUpload" => "I",
 			"events" => array("onFileIsUploaded" => array("CIMDisk", "UploadAvatar"))
 		));
-		if (!$CFileUploader->checkPost())
+		if (!$uploader->checkPost())
 		{
 			echo \Bitrix\Im\Common::objectEncode(Array(
 				'ERROR' => 'UPLOAD_ERROR'
@@ -133,13 +133,13 @@ if ($_POST['IM_AVATAR_UPDATE'] == 'Y')
 else if ($_POST['IM_FILE_UPLOAD'] == 'Y')
 {
 	CUtil::decodeURIComponent($_POST);
-	$CFileUploader = new CFileUploader(array(
+	$uploader = new \Bitrix\Main\UI\Uploader\Uploader(array(
 		"allowUpload" => "A",
 		"events" => array(
 			"onFileIsUploaded" => array("CIMDisk", "UploadFile")
 		)
 	));
-	if (!$CFileUploader->checkPost())
+	if (!$uploader->checkPost())
 	{
 		echo \Bitrix\Im\Common::objectEncode(Array(
 			'ERROR' => 'UPLOAD_ERROR'
@@ -260,44 +260,16 @@ else if ($_POST['IM_HISTORY_FILES_SEARCH'] == 'Y')
 		'ERROR' => ''
 	));
 }
-elseif ($_POST['IM_UPDATE_STATE'] == 'Y')
+elseif (
+	$_POST['IM_UPDATE_STATE'] == 'Y'
+	|| $_POST['IM_UPDATE_STATE_LIGHT'] == 'Y'
+)
 {
 	$arResult["REVISION"] = \Bitrix\Im\Revision::getWeb();
 	$arResult["MOBILE_REVISION"] = \Bitrix\Im\Revision::getMobile();
 	$arResult["DISK_REVISION"] = COption::GetOptionString("disk", "disk_revision_api", -1);
 
 	$arResult['SERVER_TIME'] = time();
-
-	$notifyFlash = \Bitrix\Im\NotifyFlash::getInstance();
-
-	if (isset($_POST['FN']))
-	{
-		$_POST['FN'] = CUtil::JsObjectToPhp($_POST['FN']);
-		if (is_array($_POST['FN']))
-		{
-			foreach ($_POST['FN'] as $id => $value)
-			{
-				$notifyFlash->set(\Bitrix\Im\NotifyFlash::TYPE_NOTIFY, $id);
-			}
-		}
-	}
-
-	if (isset($_POST['FM']))
-	{
-		$_POST['FM'] = CUtil::JsObjectToPhp($_POST['FM']);
-		if (is_array($_POST['FM']))
-		{
-			foreach ($_POST['FM'] as $userId => $data)
-			{
-				foreach ($data as $id => $value)
-				{
-					$notifyFlash->set(\Bitrix\Im\NotifyFlash::TYPE_MESSAGE, $id);
-				}
-			}
-		}
-	}
-
-	$notifyFlash->commit();
 
 	$bOpenMessenger = isset($_POST['OPEN_MESSENGER']) && intval($_POST['OPEN_MESSENGER']) == 1? true: false;
 
@@ -316,180 +288,26 @@ elseif ($_POST['IM_UPDATE_STATE'] == 'Y')
 		// Exchange
 		$ar = CDavExchangeMail::GetTicker($GLOBALS["USER"]);
 		if ($ar !== null)
+		{
 			$arResult["MAIL_COUNTER"] = intval($ar["numberOfUnreadMessages"]);
+		}
 	}
 
-	$arSend = Array(
+	$arSend = [
 		'REVISION' => $arResult["REVISION"],
 		'MOBILE_REVISION' => $arResult["MOBILE_REVISION"],
 		'DISK_REVISION' => $arResult["DISK_REVISION"],
-		'USER_ID' => $USER->GetId(),
+		'RECENT' => \Bitrix\Im\Recent::get(null, ['JSON' => 'Y']),
 		'ONLINE' => !empty($arOnline)? $arOnline['users']: array(),
 		'COUNTERS' => $arResult["COUNTERS"],
-		'MAIL_COUNTER' => $arResult["MAIL_COUNTER"],
+		'NOTIFY_COUNTER' => (int)\Bitrix\Im\Counter::getNotifyCounter(),
+		'MAIL_COUNTER' => (int)$arResult["MAIL_COUNTER"],
 		'SERVER_TIME' => time(),
+		'XMPP_STATUS' => CIMMessenger::CheckXmppStatusOnline()? 'Y':'N',
+		'DESKTOP_STATUS' => CIMMessenger::CheckDesktopStatusOnline()? 'Y':'N',
 		'ERROR' => ""
-	);
-
-	$arSend['PULL_CONFIG'] = false;
-
-	$CIMMessage = new CIMMessage();
-	$arMessage = $CIMMessage->GetUnreadMessage(Array(
-		'USE_TIME_ZONE' => 'N',
-		'ORDER' => 'ASC'
-	));
-	if ($arMessage['result'])
-	{
-		CIMMessage::GetFlashMessage($arMessage['unreadMessage']);
-
-		$arSend['MESSAGE'] = $arMessage['message'];
-		$arSend['UNREAD_MESSAGE'] = CIMMessenger::CheckXmppStatusOnline()? array(): $arMessage['unreadMessage'];
-		$arSend['USERS_MESSAGE'] = $arMessage['usersMessage'];
-		$arSend['FILES'] = $arMessage['files'];
-		$arSend['USERS'] = $arMessage['users'];
-		$arSend['USER_IN_GROUP'] = $arMessage['userInGroup'];
-		$arSend['ERROR'] = '';
-	}
-
-	$CIMChat = new CIMChat();
-	$arMessage = $CIMChat->GetUnreadMessage(Array(
-		'USE_TIME_ZONE' => 'N',
-		'ORDER' => 'ASC'
-	));
-	if ($arMessage['result'])
-	{
-		CIMMessage::GetFlashMessage($arMessage['unreadMessage']);
-
-		foreach ($arMessage['message'] as $id => $ar)
-		{
-			$ar['recipientId'] = 'chat'.$ar['recipientId'];
-			$arSend['MESSAGE'][$id] = $ar;
-		}
-
-		foreach ($arMessage['usersMessage'] as $chatId => $ar)
-			$arSend['USERS_MESSAGE']['chat'.$chatId] = $ar;
-
-		if (!CIMMessenger::CheckXmppStatusOnline())
-		{
-			foreach ($arMessage['unreadMessage'] as $chatId => $ar)
-				$arSend['UNREAD_MESSAGE']['chat'.$chatId] = $ar;
-		}
-
-		foreach ($arMessage['files'] as $key => $value)
-			$arSend['FILES'][$key] = $value;
-
-		foreach ($arMessage['users'] as $key => $value)
-			$arSend['USERS'][$key] = $value;
-
-		foreach ($arMessage['userInGroup'] as $key => $value)
-			$arSend['USER_IN_GROUP'][$key] = $value;
-
-		$arSend['CHAT'] = $arMessage['chat'];
-		$arSend['USER_BLOCK_CHAT'] = $arMessage['userChatBlockStatus'];
-		$arSend['USER_IN_CHAT'] = $arMessage['userInChat'];
-
-		$arSend['ERROR'] = '';
-	}
-
-	// Notify
-	$CIMNotify = new CIMNotify();
-	$arNotify = $CIMNotify->GetUnreadNotify(Array('USE_TIME_ZONE' => 'N'));
-	if ($arNotify['result'])
-	{
-		$arSend['NOTIFY'] = $arNotify['notify'];
-		$arSend['UNREAD_NOTIFY'] = $arNotify['unreadNotify'];
-		$arSend['FLASH_NOTIFY'] = CIMNotify::GetFlashNotify($arNotify['unreadNotify']);
-		$arSend['ERROR'] = '';
-	}
-	$arSend['XMPP_STATUS'] = CIMMessenger::CheckXmppStatusOnline()? 'Y':'N';
-	$arSend['DESKTOP_STATUS'] = CIMMessenger::CheckDesktopStatusOnline()? 'Y':'N';
-
-	$arSend['TEXTAREA_ICON'] = \Bitrix\Im\App::getListForJs();
-	$arSend['COMMAND'] = \Bitrix\Im\Command::getListForJs();
-
-	echo \Bitrix\Im\Common::objectEncode($arSend);
-}
-else if ($_POST['IM_UPDATE_STATE_LIGHT'] == 'Y')
-{
-	$errorMessage = "";
-
-	$arResult["REVISION"] = \Bitrix\Im\Revision::getWeb();
-	$arResult["MOBILE_REVISION"] = \Bitrix\Im\Revision::getMobile();
-	$arResult["DISK_REVISION"] = COption::GetOptionString("disk", "disk_revision_api", -1);
-
-	$arResult['SERVER_TIME'] = time();
-	if (isset($_POST['NOTIFY']))
-	{
-		$CIMNotify = new CIMNotify();
-		$arNotify = $CIMNotify->GetUnreadNotify(Array('SPEED_CHECK' => 'Y', 'USE_TIME_ZONE' => 'N'));
-
-		$arResult['COUNTER_NOTIFICATIONS'] = $arNotify['countNotify'];
-		$arResult['NOTIFY_LAST_ID'] = $arNotify['maxNotify'];
-	}
-
-	if (isset($_POST['MESSAGE']))
-	{
-		$CIMMessage = new CIMMessage();
-		$arMessage = $CIMMessage->GetUnreadMessage(Array(
-			'SPEED_CHECK' => 'N',
-			'LOAD_DEPARTMENT' => 'N',
-			'ORDER' => 'ASC',
-			'FILE_LOAD' => 'N',
-			'GROUP_BY_CHAT' => 'Y',
-		));
-		$arResult['COUNTER_MESSAGES'] = $arMessage['countMessage'];
-
-		$arUnread = Array();
-		foreach ($arMessage['message'] as $data)
-		{
-			$arUnread[$data['senderId']]['MESSAGE'] = $data;
-			$arUnread[$data['senderId']]['USER'] = $arMessage['users'][$data['senderId']];
-		}
-
-		$CIMChat = new CIMChat();
-		$arMessage = $CIMChat->GetUnreadMessage(Array(
-			'SPEED_CHECK' => 'Y',
-			'LOAD_DEPARTMENT' => 'N',
-			'ORDER' => 'ASC',
-			'GROUP_BY_CHAT' => 'Y',
-			'FILE_LOAD' => 'N',
-			'USER_LOAD' => 'N',
-		));
-
-		$arResult['COUNTER_MESSAGES'] += count($arMessage['message']);
-
-		foreach ($arMessage['message'] as $data)
-		{
-			$arUnread['chat'.$data['recipientId']]['MESSAGE'] = $data;
-			$arUnread['chat'.$data['recipientId']]['CHAT'] = $arMessage['chat'][$data['recipientId']];
-		}
-
-		uasort($arUnread, create_function('$a, $b', 'if($a["MESSAGE"]["date"] < $b["MESSAGE"]["date"] ) return 1; elseif($a["MESSAGE"]["date"]  > $b["MESSAGE"]["date"] ) return -1; else return 0;'));
-		$arResult['COUNTER_UNREAD_MESSAGES'] = $arUnread;
-	}
-
-	if (!isset($_POST['DISABLE_ONLINE']))
-	{
-		$arOnline = CIMStatus::GetList();
-		$arResult['ONLINE'] = !empty($arOnline)? $arOnline['users']: Array();
-		$arResult['PULL_CONFIG'] = false;
-	}
-
-	// Counters
-	$arLastDate = array();
-	$arResult["COUNTERS"] = CUserCounter::GetValues($USER->GetID(), $_POST['SITE_ID'], $arLastDate);
-	$arResult["COUNTERS_ZERO_DATE"] = (isset($arLastDate[$USER->GetID()]) && isset($arLastDate[$USER->GetID()][$_POST['SITE_ID']]) ? $arLastDate[$USER->GetID()][$_POST['SITE_ID']] : array());
-	$arResult["ERROR"] = $errorMessage;
-
-
-	if (isset($_POST['JSON']))
-	{
-		echo \Bitrix\Main\Web\Json::encode($arResult);
-	}
-	else
-	{
-		echo \Bitrix\Im\Common::objectEncode($arResult);
-	}
+	];
+	echo \Bitrix\Im\Common::objectEncode($arSend, true);
 }
 else if ($_POST['IM_NOTIFY_LOAD'] == 'Y')
 {
@@ -499,13 +317,18 @@ else if ($_POST['IM_NOTIFY_LOAD'] == 'Y')
 	{
 		$arSend['NOTIFY'] = $arNotify['notify'];
 		$arSend['UNREAD_NOTIFY'] = $arNotify['unreadNotify'];
-		$arSend['FLASH_NOTIFY'] = CIMNotify::GetFlashNotify($arNotify['unreadNotify']);
 		$arSend['ERROR'] = '';
 
-		$minNotify = min(array_keys($arNotify['notify']));
-		if ($minNotify > 0 && (!isset($_POST['IM_AUTO_READ']) || $_POST['IM_AUTO_READ'] == 'Y'))
+		if (count($arNotify['notify']))
 		{
-			$CIMNotify->MarkNotifyRead($minNotify, true);
+			$minNotify = min(array_keys($arNotify['notify']));
+			if (
+				$minNotify > 0
+				&& (!isset($_POST['IM_AUTO_READ']) || $_POST['IM_AUTO_READ'] == 'Y')
+			)
+			{
+				$CIMNotify->MarkNotifyRead($minNotify, true);
+			}
 		}
 	}
 	echo \Bitrix\Im\Common::objectEncode($arSend);
@@ -544,8 +367,6 @@ else if ($_POST['IM_SEND_MESSAGE'] == 'Y')
 
 	CUtil::decodeURIComponent($_POST);
 
-	$tmpID = $_POST['ID'];
-
 	$insertID = 0;
 	$errorMessage = "";
 	if ($_POST['CHAT'] == 'Y' && mb_substr($_POST['RECIPIENT_ID'], 0, 4) == 'chat')
@@ -562,7 +383,8 @@ else if ($_POST['IM_SEND_MESSAGE'] == 'Y')
 				"FROM_USER_ID" => $userId,
 				"TO_CHAT_ID" => $chatId,
 				"MESSAGE" 	 => $_POST['MESSAGE'],
-				"SILENT_CONNECTOR" => $_POST['OL_SILENT'] == 'Y'?'Y':'N'
+				"SILENT_CONNECTOR" => $_POST['OL_SILENT'] == 'Y'?'Y':'N',
+				"TEMPLATE_ID" => $_POST['ID'],
 			);
 			$insertID = CIMChat::AddMessage($ar);
 		}
@@ -573,6 +395,7 @@ else if ($_POST['IM_SEND_MESSAGE'] == 'Y')
 			"FROM_USER_ID" => intval($USER->GetID()),
 			"TO_USER_ID" => intval($_POST['RECIPIENT_ID']),
 			"MESSAGE" 	 => $_POST['MESSAGE'],
+			"TEMPLATE_ID" => $_POST['ID'],
 		);
 		$insertID = CIMMessage::Add($ar);
 	}
@@ -604,7 +427,7 @@ else if ($_POST['IM_SEND_MESSAGE'] == 'Y')
 
 	$userTzOffset = isset($_POST['USER_TZ_OFFSET'])? intval($_POST['USER_TZ_OFFSET']): CTimeZone::GetOffset();
 	$arResult = Array(
-		'TMP_ID' => $tmpID,
+		'TMP_ID' => $_POST['ID'],
 		'ID' => $insertID,
 		'CHAT_ID' => $message['CHAT_ID'],
 		'SEND_DATE' => new \Bitrix\Main\Type\DateTime(),
@@ -624,6 +447,7 @@ else if ($_POST['IM_SEND_MESSAGE'] == 'Y')
 		);
 		$arResult['SEND_DATE_FORMAT'] = FormatDate($arFormat, time()+$userTzOffset);
 	}
+
 	echo \Bitrix\Im\Common::objectEncode($arResult);
 }
 else if ($_POST['IM_BOT_COMMAND'] == 'Y')
@@ -1280,7 +1104,9 @@ else if ($_POST['IM_CONTACT_LIST_SEARCH'] == 'Y')
 else if ($_POST['IM_CONTACT_LIST'] == 'Y')
 {
 	$CIMContactList = new CIMContactList();
-	$arContactList = $CIMContactList->GetList();
+	$arContactList = $CIMContactList->GetList([
+		'LOAD_USERS' => COption::GetOptionString("im", 'contact_list_load')? 'Y': 'N'
+	]);
 
 	echo \Bitrix\Im\Common::objectEncode(Array(
 		'USER_ID' => $USER->GetId(),

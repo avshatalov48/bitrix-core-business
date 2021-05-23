@@ -521,7 +521,7 @@ for (var i in emailLinks)
 	}
 }
 
-document.getElementById('mail_msg_<?=$message['ID'] ?>_body').innerHTML = '<?=CUtil::jsEscape($messageHtml) ?>';
+document.getElementById('mail_msg_<?=$message['ID'] ?>_body').innerHTML = '<div id="mail-message-wrapper">'+'<?=CUtil::jsEscape($messageHtml) ?>'+'</div>';
 
 try
 {

@@ -53,12 +53,12 @@ class Entity implements \JsonSerializable
 		return null;
 	}
 
-	public function getId()
+	public function getId(): string
 	{
 		return $this->id;
 	}
 
-	public function getOptions()
+	public function getOptions(): array
 	{
 		return $this->options;
 	}
@@ -68,48 +68,50 @@ class Entity implements \JsonSerializable
 		return $this->provider;
 	}
 
-	public function setProvider(BaseProvider $provider)
+	public function setProvider(BaseProvider $provider): self
 	{
 		$this->provider = $provider;
+
+		return $this;
 	}
 
-	public function isSearchable()
+	public function isSearchable(): bool
 	{
 		return $this->searchable;
 	}
 
-	public function setSearchable(bool $flag = true)
+	public function setSearchable(bool $flag = true): self
 	{
 		$this->searchable = $flag;
 
 		return $this;
 	}
 
-	public function hasDynamicSearch()
+	public function hasDynamicSearch(): bool
 	{
 		return $this->dynamicSearch;
 	}
 
-	public function setDynamicSearch(bool $flag = true)
+	public function setDynamicSearch(bool $flag = true): self
 	{
 		$this->dynamicSearch = $flag;
 
 		return $this;
 	}
 
-	public function hasDynamicLoad()
+	public function hasDynamicLoad(): bool
 	{
 		return $this->dynamicLoad;
 	}
 
-	public function setDynamicLoad(bool $flag = true)
+	public function setDynamicLoad(bool $flag = true): self
 	{
 		$this->dynamicLoad = $flag;
 
 		return $this;
 	}
 
-	public function jsonSerialize()
+	public function jsonSerialize(): array
 	{
 		return [
 			'id' => $this->getId(),

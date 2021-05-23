@@ -8,4 +8,3 @@ $MESS["SALE_HPS_ROBOXCHANGE_ALFABANK_MODE"] = "Альфа-Клик";
 $MESS["SALE_HPS_ROBOXCHANGE_APPLEPAY_MODE"] = "Apple Pay";
 $MESS["SALE_HPS_ROBOXCHANGE_SAMSUNGPAY_MODE"] = "Samsung Pay";
 $MESS["SALE_HPS_ROBOXCHANGE_INCORRECT_HASH"] = "Контрольная сумма не совпадает";
-$MESS["SALE_HPS_ROBOXCHANGE_ERROR_SUM"] = "Сумма платежа не совпадает с суммой оплаты";

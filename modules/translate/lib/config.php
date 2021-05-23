@@ -363,8 +363,11 @@ final class Config
 			$folders = explode(',', trim($folders));
 			foreach ($folders as $oneFolder)
 			{
-				$oneFolder = Translate\IO\Path::normalize($oneFolder);
-				$initFolders[] = '/'. ltrim($oneFolder, '/');
+				if (!empty($oneFolder))
+				{
+					$oneFolder = Translate\IO\Path::normalize($oneFolder);
+					$initFolders[] = '/'.ltrim($oneFolder, '/');
+				}
 			}
 		}
 

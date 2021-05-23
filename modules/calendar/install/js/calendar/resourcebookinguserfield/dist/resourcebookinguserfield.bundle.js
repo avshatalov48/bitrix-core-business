@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,ui_entitySelector,main_core_events,helper,socnetlogdest,main_core,calendar_resourcebookinguserfield,calendar_resourcebooking) {
+(function (exports,ui_entitySelector,main_core_events,helper,main_core,calendar_resourcebookinguserfield,calendar_resourcebooking) {
 	'use strict';
 
 	var FormFieldTunnerAbstract = /*#__PURE__*/function () {
@@ -6349,5 +6349,5 @@ this.BX = this.BX || {};
 	exports.AdminSettingsViewer = AdminSettingsViewer;
 	exports.ResourcebookingUserfield = ResourcebookingUserfield;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX.UI.EntitySelector,BX.Event,BX,BX,BX,BX.Calendar,BX.Calendar));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX.UI.EntitySelector,BX.Event,BX,BX,BX.Calendar,BX.Calendar));
 //# sourceMappingURL=resourcebookinguserfield.bundle.js.map

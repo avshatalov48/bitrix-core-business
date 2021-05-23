@@ -76,22 +76,32 @@ class Random
 	{
 		$alphabet = self::ALPHABET_NUM | self::ALPHABET_ALPHALOWER;
 		if ($caseSensitive)
+		{
 			$alphabet |= self::ALPHABET_ALPHAUPPER;
+		}
 
 		return static::getStringByAlphabet($length, $alphabet);
 	}
 
 	/**
 	 * Returns random (if possible) ASCII string for a given alphabet mask (@see self::ALPHABET_ALL)
-	 *
 	 * @param int $length Result string length.
-	 * @param int $alphabet Alpabet masks (e.g. Random::ALPHABET_NUM|Random::ALPHABET_ALPHALOWER).
+	 * @param int $alphabet Alphabet masks (e.g. Random::ALPHABET_NUM|Random::ALPHABET_ALPHALOWER).
+	 * @param bool $requireAll Required chars from all the alphabet masks.
 	 * @return string
 	 */
-	public static function getStringByAlphabet($length, $alphabet)
+	public static function getStringByAlphabet($length, $alphabet, $requireAll = false)
 	{
 		$charsetList = static::getCharsetsforAlphabet($alphabet);
-		return static::getStringByCharsets($length, $charsetList);
+
+		if($requireAll && count($charsetList) > 1)
+		{
+			return static::getStringByArray($length, $charsetList);
+		}
+		else
+		{
+			return static::getStringByCharsets($length, implode("", $charsetList));
+		}
 	}
 
 	/**
@@ -116,6 +126,48 @@ class Random
 	}
 
 	/**
+	 * This function places chars from every charset into the result string randomly.
+	 * @param int $length Result string length.
+	 * @param array $charsetList Array of charsets.
+	 * @return string
+	 */
+	public static function getStringByArray(int $length, array $charsetList): string
+	{
+		$count = count($charsetList);
+
+		// take strlen() out of the cycle
+		$charsets = [];
+		foreach ($charsetList as $charset)
+		{
+			$charsets[] = [$charset, strlen($charset)];
+		}
+
+		$randomSequence = static::getBytes($length);
+
+		$result = '';
+		for ($i = 0; $i < $length; $i += $count)
+		{
+			shuffle($charsets);
+
+			for ($j = 0; $j < $count; $j++)
+			{
+				$randomNumber = ord($randomSequence[$i + $j]);
+
+				$charset = $charsets[$j][0];
+				$charsetVariants = $charsets[$j][1];
+				$result .= $charset[$randomNumber % $charsetVariants];
+
+				if (($i + $j + 1) == $length)
+				{
+					break 2;
+				}
+			}
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Returns random (if possible) byte string
 	 *
 	 * @param int $length Result byte string length.
@@ -134,15 +186,6 @@ class Random
 					return substr($bytes, 0, $length);
 				else
 					$backup = $bytes;
-			}
-		}
-
-		if (function_exists('mcrypt_create_iv'))
-		{
-			$bytes = mcrypt_create_iv($length, MCRYPT_DEV_URANDOM);
-			if ($bytes && strlen($bytes) >= $length)
-			{
-				return substr($bytes, 0, $length);
 			}
 		}
 
@@ -211,11 +254,7 @@ class Random
 		{
 			$result = (
 				function_exists('openssl_random_pseudo_bytes')
-				&& (
-					// PHP have strange behavior for "openssl_random_pseudo_bytes" on older PHP versions
-					!(mb_strtolower(mb_substr(PHP_OS, 0, 3)) === "win")
-					|| version_compare(phpversion(),"5.4.0",">=")
-				)
+				&& strtolower(substr(PHP_OS, 0, 3)) !== "win"
 			);
 		}
 
@@ -225,7 +264,7 @@ class Random
 	/**
 	 * Returns strings with charsets based on alpabet mask (see $this->alphabet)
 	 *
-	 * Simple example:
+	 * Simple example (now arrays!):
 	 * <code>
 	 * echo $this->getCharsetsforAlphabet(static::ALPHABET_NUM|static::ALPHABET_ALPHALOWER);
 	 * //output: 0123456789abcdefghijklmnopqrstuvwxyz
@@ -238,17 +277,17 @@ class Random
 	 * </code>
 	 *
 	 * @param string $alphabet Alpabet masks (e.g. static::ALPHABET_NUM|static::ALPHABET_ALPHALOWER).
-	 * @return string
+	 * @return array
 	 */
 	protected static function getCharsetsForAlphabet($alphabet)
 	{
-		$result = '';
+		$result = [];
 		foreach (static::$alphabet as $mask => $value)
 		{
-			if (!($alphabet & $mask))
-				continue;
-
-			$result .= $value;
+			if ($alphabet & $mask)
+			{
+				$result[] = $value;
+			}
 		}
 
 		return $result;

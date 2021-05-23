@@ -85,7 +85,7 @@ else
 $dbSite = CSite::GetByID(WIZARD_SITE_ID);
 if($arSite = $dbSite -> Fetch())
 	$lang = $arSite["LANGUAGE_ID"];
-if(strlen($lang) <= 0)
+if($lang == '')
 	$lang = "ru";
 	
 WizardServices::IncludeServiceLang("news.php", $lang);

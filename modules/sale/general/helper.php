@@ -265,7 +265,7 @@ class CSaleHelper
 		if(trim($optName) !== '')
 		{
 			$optValue = COption::GetOptionString('sale', $optName, '', $siteId);
-			$arOptValue = unserialize($optValue);
+			$arOptValue = unserialize($optValue, ['allowed_classes' => false]);
 
 			if(empty($arOptValue))
 			{

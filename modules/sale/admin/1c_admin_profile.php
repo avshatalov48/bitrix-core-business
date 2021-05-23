@@ -309,7 +309,7 @@ function AddRekvMore(ind)
 			$dbExport = CSaleExport::GetList();
 			while($arExport = $dbExport->Fetch())
 			{
-				$arExpParams = unserialize($arExport["VARS"]);
+				$arExpParams = unserialize($arExport["VARS"], ['allowed_classes' => false]);
 				$i = 0;
 				foreach($arExpParams as $k => $v)
 				{

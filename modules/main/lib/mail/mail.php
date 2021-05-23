@@ -482,9 +482,7 @@ class Mail
 						'This is not the original file. The size of the original file `%name%` exceeded the limit of %limit% MB.'
 					);
 				}
-
-
-
+				
 				if(isset($attachment['METHOD']))
 				{
 					$name = $this->encodeSubject($attachment["NAME"], $attachment['CHARSET']);
@@ -541,7 +539,7 @@ class Mail
 
 	private function isFileLimitExceeded($fileSize, &$summarySize)
 	{
-		// magic for length after base64
+		// for length after base64
 		$summarySize += 4 * ceil($fileSize / 3);
 
 		return $this->settingMaxFileSize > 0
@@ -722,11 +720,11 @@ class Mail
 	 */
 	public function getTo()
 	{
-		$resultTo = $this->to;
+		$resultTo = static::toPunycode($this->to);
 
 		if($this->settingMailConvertMailHeader)
 		{
-			$resultTo = $this->encodeHeaderFrom($resultTo, $this->charset);
+			$resultTo = static::encodeHeaderFrom($resultTo, $this->charset);
 		}
 
 		if($this->settingServerMsSmtp)
@@ -857,14 +855,22 @@ class Mail
 	{
 		static $eol = false;
 		if($eol !== false)
+		{
 			return $eol;
+		}
 
-		if(mb_strtoupper(mb_substr(PHP_OS, 0, 3)) == 'WIN')
-			$eol="\r\n";
-		elseif(mb_strtoupper(mb_substr(PHP_OS, 0, 3)) <> 'MAC')
-			$eol="\n"; 	 //unix
+		if(strtoupper(substr(PHP_OS, 0, 3)) == 'WIN')
+		{
+			$eol = "\r\n";
+		}
+		elseif(strtoupper(substr(PHP_OS, 0, 3)) <> 'MAC')
+		{
+			$eol = "\n"; 	 //unix
+		}
 		else
-			$eol="\r";
+		{
+			$eol = "\r";
+		}
 
 		return $eol;
 	}
@@ -1184,16 +1190,16 @@ class Mail
 
 		// modify links to text version
 		$body = preg_replace_callback(
-			"/<a\\s[^>]*?href=['|\\\"](.*?)['|\\\"][^>]*?>([^>]*?)<\\/a>/i",
+			"%<a[^>]*?href=(['\"])(?<href>[^\1]*?)(?1)[^>]*?>(?<text>.*?)<\/a>%ims",
 			function ($matches)
 			{
-				$href = $matches[1];
-				$text = trim($matches[2]);
+				$href = $matches['href'];
+				$text = trim($matches['text']);
 				if (!$href)
 				{
 					return $matches[0];
 				}
-
+				$text = strip_tags($text);
 				return ($text ? "$text:" : '') ."\n$href\n";
 			},
 			$body
@@ -1324,5 +1330,42 @@ class Mail
 				$headers[$name] = $emails;
 			}
 		}
+	}
+
+	/**
+	 * Converts an international domain in the email to Punycode.
+	 * @param string $to Email address, possibly with a comment
+	 * @return string
+	 */
+	public static function toPunycode($to)
+	{
+		$email = $to;
+		$withComment = false;
+
+		if (preg_match("#.*?[<\\[(](.*?)[>\\])].*#i", $to, $matches) && $matches[1] <> '')
+		{
+			$email = $matches[1];
+			$withComment = true;
+		}
+
+		$parts = explode("@", $email);
+		$domain = $parts[1];
+
+		$errors = [];
+		$domain = \CBXPunycode::ToASCII($domain, $errors);
+
+		if (empty($errors))
+		{
+			$email = "{$parts[0]}@{$domain}";
+
+			if ($withComment)
+			{
+				$email = preg_replace("#(.*?)[<\\[(](.*?)[>\\])](.*)#i", '$1<'.$email.'>$3', $to);
+			}
+
+			return $email;
+		}
+
+		return $to;
 	}
 }

@@ -125,8 +125,7 @@ abstract class BaseAccessController
 		return $namespace.'\\'.static::RULE_SUFFIX.'\\';
 	}
 
-	protected function sendEvent(string $eventName, string $action, AccessibleItem $item = null, $params = null, bool
-	$isAccess = null)
+	protected function sendEvent(string $eventName, string $action, AccessibleItem $item = null, $params = null, bool $isAccess = null)
 	{
 		$event = new Event(
 			static::class,

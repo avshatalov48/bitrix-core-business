@@ -69,7 +69,6 @@ class SenderJob extends Job
 			'filter' => $filter
 		));
 
-		$strategy = Env::getThreadContext();
 		$data = [];
 
 		foreach ($list as $row)

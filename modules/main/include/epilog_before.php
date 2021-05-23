@@ -14,7 +14,7 @@
 
 global $USER, $APPLICATION;
 
-define("START_EXEC_EPILOG_BEFORE_1", microtime());
+define("START_EXEC_EPILOG_BEFORE_1", microtime(true));
 $GLOBALS["BX_STATE"] = "EB";
 
 /* Draw edit menu for whole content */

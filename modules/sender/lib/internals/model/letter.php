@@ -10,9 +10,8 @@ namespace Bitrix\Sender\Internals\Model;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type;
-
-use Bitrix\Sender\Message\iBase;
 use Bitrix\Sender\MailingChainTable;
+use Bitrix\Sender\Message\iBase;
 
 Loc::loadMessages(__FILE__);
 
@@ -171,6 +170,11 @@ class LetterTable extends Entity\DataManager
 				'data_type' => 'Bitrix\Main\UserTable',
 				'reference' => array('=this.CREATED_BY' => 'ref.ID'),
 			),
+			'WAITING_RECIPIENT' => array(
+				'data_type' => 'boolean',
+				'default_value' => 'N',
+				'values' => array('N', 'Y')
+			),
 		);
 	}
 
@@ -220,6 +224,24 @@ class LetterTable extends Entity\DataManager
 		$fields = static::getRowById($data['primary']['ID']);
 		if ($fields)
 		{
+			$fileQuery = MessageFieldTable::getById([
+				'MESSAGE_ID' => $fields['MESSAGE_ID'],
+				'CODE' => 'ATTACHMENT',
+			]);
+
+			if($row = $fileQuery->fetch())
+			{
+				$files = explode(",", $row['VALUE']);
+
+				foreach ($files as $file)
+				{
+					if((int)$file)
+					{
+						\CFile::Delete((int)$file);
+					}
+				}
+			}
+
 			MessageTable::delete($fields['MESSAGE_ID']);
 		}
 

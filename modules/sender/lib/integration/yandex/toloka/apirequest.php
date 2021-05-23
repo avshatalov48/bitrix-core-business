@@ -28,6 +28,7 @@ class ApiRequest extends BaseApiObject
 		if (!Service::isRegistered())
 		{
 			Service::register();
+			$this->registerOnCloudAdv();
 		}
 		$authorizeData = Service::getAuthorizeData(\Bitrix\Seo\Engine\Bitrix::ENGINE_ID, 'M');
 

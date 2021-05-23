@@ -125,7 +125,7 @@ $showPersonalTitle = $showGeneralSettings && $isPersonal;
 				</div>
 
 				<?$APPLICATION->IncludeComponent('bitrix:main.mail.confirm', '', []);?>
-				<div class="calendar-settings-control">
+				<div class="calendar-settings-control calendar-settings-email-wrap">
 					<div class="calendar-settings-control-name"><label for="<?=$id?>_send_from_email"><?=Loc::getMessage('EC_SEND_FROM_EMAIL')?></label>
 					<div class="ui-icon ui-icon-common-question calendar-settings-question"  data-hint="<?=Loc::getMessage('EC_SEND_FROM_EMAIL_HELP_TITLE')?>">
 						<i></i>
@@ -134,6 +134,7 @@ $showPersonalTitle = $showGeneralSettings && $isPersonal;
 					<div class="calendar-field-container calendar-field-container-select">
 						<div class="calendar-field-block">
 							<select id="<?=$id?>_send_from_email" class="calendar-field calendar-field-select"></select>
+							<span class="tariff-lock"></span>
 						</div>
 					</div>
 				</div>

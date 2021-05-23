@@ -86,15 +86,16 @@ class SectionType extends ElementType
 			self::$iblockIncluded = Loader::includeModule('iblock');
 		}
 
-		$elementEnumList = false;
+		$section = false;
 
 		if(self::$iblockIncluded && (int)$userField['SETTINGS']['IBLOCK_ID'])
 		{
 			$sectionEnum = new CIBlockSectionEnum();
-			$section = $sectionEnum::getTreeList(
+			$section = $sectionEnum->getTreeList(
 				(int)$userField['SETTINGS']['IBLOCK_ID'],
 				$userField['SETTINGS']['ACTIVE_FILTER']
 			);
+			unset($sectionEnum);
 		}
 		return $section;
 	}

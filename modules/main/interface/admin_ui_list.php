@@ -596,7 +596,7 @@ class CAdminUiList extends CAdminList
 					?>
 				</div>
 			<?
-			$APPLICATION->AddViewContent("inside_pagetitle", ob_get_clean());
+			$APPLICATION->AddViewContent("inside_pagetitle", ob_get_clean(), 600);
 		}
 		else
 		{
@@ -1884,35 +1884,37 @@ class CAdminUiContextMenu extends CAdminContextMenu
 
 		\Bitrix\Main\UI\Extension::load(["ui.buttons", "ui.buttons.icons"]);
 
-		if ($this->isPublicMode): ob_start(); ?>
-		<div class="pagetitle-container pagetitle-align-right-container">
-		<? else: ?>
-		<? if (!$this->isShownFilterContext): ?>
-			<div class="adm-toolbar-panel-container">
-				<div class="adm-toolbar-panel-flexible-space">
-					<? $this->showBaseButton(); ?>
-				</div>
-		<? endif ?>
-		<div class="adm-toolbar-panel-align-right">
-		<? endif;
-
-		$this->showActionButton();
-
-		if ($this->isShownFilterContext || $this->isPublicMode)
-		{
-			$this->showBaseButton();
-		}
-
-		?>
-		</div>
-		<? if (!$this->isShownFilterContext && !$this->isPublicMode): ?>
-		</div>
-		<? endif;
-
 		if ($this->isPublicMode)
 		{
 			global $APPLICATION;
+			ob_start();
+			?><div
+				class="pagetitle-container pagetitle-align-right-container"
+				style="margin-right: 12px"
+			><?php
+				$this->showBaseButton();
+			?></div><?php
 			$APPLICATION->AddViewContent("inside_pagetitle", ob_get_clean());
+
+			ob_start();
+			?><div class="pagetitle-container pagetitle-align-right-container"><?php
+				$this->showActionButton();
+			?></div><?php
+			$APPLICATION->AddViewContent("inside_pagetitle", ob_get_clean(), 700);
+		}
+		elseif ($this->isShownFilterContext)
+		{
+			?><div class="adm-toolbar-panel-align-right"><?php
+				$this->showActionButton();
+				$this->showBaseButton();
+			?></div><?php
+		}
+		else
+		{
+			?><div class="adm-toolbar-panel-container">
+				<div class="adm-toolbar-panel-flexible-space"><?php $this->showBaseButton(); ?></div>
+				<div class="adm-toolbar-panel-align-right"><?php $this->showActionButton(); ?></div>
+			</div><?php
 		}
 	}
 
@@ -1958,10 +1960,11 @@ class CAdminUiContextMenu extends CAdminContextMenu
 				$menuUrl = "BX.adminList.ShowMenu(this, ".HtmlFilter::encode(
 					CAdminPopup::PhpToJavaScript($items)).");";
 			}
+			$buttonId = !empty($firstItem["ID"]) ? "id=\"" . $firstItem["ID"] . "\"" : "";
 			if (!empty($items)):?>
 				<? if (!empty($firstItem["ONCLICK"])): ?>
 					<div class="ui-btn-split ui-btn-primary">
-						<button onclick="<?=HtmlFilter::encode($firstItem["ONCLICK"])?>" class="ui-btn-main">
+						<button <?=$buttonId?> onclick="<?=HtmlFilter::encode($firstItem["ONCLICK"])?>" class="ui-btn-main">
 							<?=HtmlFilter::encode($firstItem["TEXT"])?>
 						</button>
 						<button onclick="<?=$menuUrl?>" class="ui-btn-extra"></button>
@@ -1969,14 +1972,14 @@ class CAdminUiContextMenu extends CAdminContextMenu
 				<? else: ?>
 					<? if (isset($firstItem["DISABLE"])): ?>
 						<div class="ui-btn-split ui-btn-primary">
-							<button onclick="<?=$menuUrl?>" class="ui-btn-main">
+							<button <?=$buttonId?> onclick="<?=$menuUrl?>" class="ui-btn-main">
 								<?=HtmlFilter::encode($firstItem["TEXT"])?>
 							</button>
 							<button onclick="<?=$menuUrl?>" class="ui-btn-extra"></button>
 						</div>
 					<? else: ?>
 						<div class="ui-btn-split ui-btn-primary">
-							<a href="<?=HtmlFilter::encode($firstItem["LINK"])?>" class="ui-btn-main">
+							<a <?=$buttonId?> href="<?=HtmlFilter::encode($firstItem["LINK"])?>" class="ui-btn-main">
 								<?=HtmlFilter::encode($firstItem["TEXT"])?>
 							</a>
 							<button onclick="<?=$menuUrl?>" class="ui-btn-extra"></button>
@@ -1985,11 +1988,11 @@ class CAdminUiContextMenu extends CAdminContextMenu
 				<? endif; ?>
 			<? else:?>
 				<? if (!empty($firstItem["ONCLICK"])): ?>
-					<button class="ui-btn ui-btn-primary" onclick="<?=HtmlFilter::encode($firstItem["ONCLICK"])?>">
+					<button <?=$buttonId?> class="ui-btn ui-btn-primary" onclick="<?=HtmlFilter::encode($firstItem["ONCLICK"])?>">
 						<?=HtmlFilter::encode($firstItem["TEXT"])?>
 					</button>
 				<? else: ?>
-					<a class="ui-btn ui-btn-primary" href="<?=HtmlFilter::encode($firstItem["LINK"])?>">
+					<a <?=$buttonId?> class="ui-btn ui-btn-primary" href="<?=HtmlFilter::encode($firstItem["LINK"])?>">
 						<?=HtmlFilter::encode($firstItem["TEXT"])?>
 					</a>
 				<? endif; ?>

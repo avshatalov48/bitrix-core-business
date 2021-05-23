@@ -2262,18 +2262,18 @@ class CSaleCondCtrlOrderFields extends CSaleCondCtrlComplex
 		}
 		unset($arPersonType, $rsPersonTypes);
 
-		$arSalePaySystemList = array();
-		$arFilter = array();
-		$rsPaySystems = CSalePaySystem::GetList(
-			array('SORT' => 'ASC', 'NAME' => 'ASC'),
-			$arFilter,
-			false,
-			false,
-			array('ID', 'NAME', 'SORT')
-		);
-		while ($arPaySystem = $rsPaySystems->Fetch())
-			$arSalePaySystemList[$arPaySystem['ID']] = $arPaySystem['NAME'];
-		unset($arPaySystem, $rsPaySystems);
+		$salePaySystemList = [];
+		$filter = [];
+		$iterator = Sale\PaySystem\Manager::getList([
+			'select' => ['ID', 'NAME', 'SORT'],
+			'filter' => $filter,
+			'order' => ['SORT' => 'ASC', 'NAME' => 'ASC']
+		]);
+		while ($row = $iterator->fetch())
+		{
+			$salePaySystemList[$row['ID']] = $row['NAME'];
+		}
+		unset($row, $iterator);
 
 		$linearDeliveryList = array();
 		$deliveryList = array();
@@ -2382,6 +2382,7 @@ class CSaleCondCtrlOrderFields extends CSaleCondCtrlComplex
 					'type' => 'select',
 					'multiple' => 'Y',
 					'values' => $arSalePersonTypes,
+					'size' => self::getSelectSize($arSalePersonTypes),
 					'show_value' => 'Y'
 				),
 				'PHP_VALUE' => array(
@@ -2398,7 +2399,8 @@ class CSaleCondCtrlOrderFields extends CSaleCondCtrlComplex
 				'JS_VALUE' => array(
 					'type' => 'select',
 					'multiple' => 'Y',
-					'values' => $arSalePaySystemList,
+					'values' => $salePaySystemList,
+					'size' => self::getSelectSize($salePaySystemList),
 					'show_value' => 'Y'
 				),
 				'PHP_VALUE' => array(
@@ -2417,6 +2419,7 @@ class CSaleCondCtrlOrderFields extends CSaleCondCtrlComplex
 					'type' => 'select',
 					'multiple' => 'Y',
 					'values' => $linearDeliveryList,
+					'size' => self::getSelectSize($linearDeliveryList),
 					'show_value' => 'Y'
 				),
 				'PHP_VALUE' => array(
@@ -2458,6 +2461,21 @@ class CSaleCondCtrlOrderFields extends CSaleCondCtrlComplex
 	public static function GetJSControl($arControl, $arParams = array())
 	{
 		return array();
+	}
+
+	private static function getSelectSize(array $rows): int
+	{
+		$result = 3;
+		$rowCount = count($rows);
+		if ($rowCount > 10)
+		{
+			$result = 10;
+		}
+		elseif ($rowCount > 3)
+		{
+			$result = $rowCount;
+		}
+		return $result;
 	}
 }
 
@@ -2843,6 +2861,11 @@ class CSaleCondTree extends CGlobalCondTree
 			$arParams['ROW_NUM'] = $intRowNum;
 			if (!empty($arLevel['CLASS_ID']))
 			{
+				$defaultBlock = $this->GetDefaultConditions();
+				if ($arLevel['CLASS_ID'] !== $defaultBlock['CLASS_ID'])
+				{
+					return false;
+				}
 				if (isset($this->arControlList[$arLevel['CLASS_ID']]))
 				{
 					$arOneControl = $this->arControlList[$arLevel['CLASS_ID']];

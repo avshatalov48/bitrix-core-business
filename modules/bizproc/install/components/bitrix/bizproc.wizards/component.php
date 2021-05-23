@@ -143,7 +143,7 @@ if (isset($arResult["VARIABLES"]["block_id"]))
 		{
 			if ($arIBlock["DESCRIPTION"] <> '' && mb_substr($arIBlock["DESCRIPTION"], 0, mb_strlen("v2:")) == "v2:")
 			{
-				$v1 = @unserialize(mb_substr($arIBlock["DESCRIPTION"], 3));
+				$v1 = @unserialize(mb_substr($arIBlock["DESCRIPTION"], 3), ['allowed_classes' => false]);
 				if (is_array($v1))
 					$arComponentTemplates[$arIBlock["ID"]] = $v1["COMPONENT_TEMPLATES"];
 			}

@@ -112,7 +112,7 @@ abstract class CommonSenderComponent extends CBitrixComponent
 	{
 		foreach ($this->errors as $error)
 		{
-			ShowError($error);
+			ShowError($error->getMessage());
 		}
 	}
 

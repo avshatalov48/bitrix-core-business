@@ -279,7 +279,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 <div class="rest-app-container rest-app-warning">
 	<h1 class="rest-app-title rest-app-title-dark-text"><?=htmlspecialchars($_REQUEST['title'])?></h1>
 	<div class="rest-app-description">
-		<?=urldecode(htmlspecialchars($_REQUEST['message']))?>
+		<?=htmlspecialchars(urldecode($_REQUEST['message']))?>
 	</div>
 	<div class="rest-app-icon">
 		<div class="rest-app-icon-cloud rest-app-icon-cloud-blue rest-app-icon-cloud-left-top"></div>

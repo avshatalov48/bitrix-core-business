@@ -75,15 +75,18 @@ class ServiceValuePopup extends FormFieldTunnerMultipleChecknoxPopupAbstract
 			params.config.services.forEach(function(service)
 			{
 				service.id = BookingUtil.translit(service.name);
-				this.values.push({
-					id: service.id,
-					title: service.name + ' - ' + BookingUtil.getDurationLabel(service.duration),
-					dataset: service
-				});
-
-				if (selectAll || selectedIndex[BookingUtil.translit(service.name)])
+				if (service.id !== '')
 				{
-					this.selectedValues.push(service.id);
+					this.values.push({
+						id: service.id,
+						title: service.name + ' - ' + BookingUtil.getDurationLabel(service.duration),
+						dataset: service
+					});
+
+					if (selectAll || selectedIndex[BookingUtil.translit(service.name)])
+					{
+						this.selectedValues.push(service.id);
+					}
 				}
 			}, this);
 		}

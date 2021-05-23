@@ -35,12 +35,12 @@ $MESS["MAIN_FUNCTION_REGISTER_PASSWORD_LENGTH"] = "Пароль должен  б
 $MESS["MAIN_FUNCTION_REGISTER_PASSWORD_UPPERCASE"] = "Пароль должен содержать латинские символы верхнего регистра (A-Z).";
 $MESS["MAIN_FUNCTION_REGISTER_PASSWORD_LOWERCASE"] = "Пароль должен содержать латинские символы нижнего регистра (a-z).";
 $MESS["MAIN_FUNCTION_REGISTER_PASSWORD_DIGITS"] = "Пароль должен содержать цифры (0-9).";
-$MESS["MAIN_FUNCTION_REGISTER_PASSWORD_PUNCTUATION"] = "Пароль должен содержать знаки пунктуации (,.<>/?;:'\"[]{}\\|`~!@#\$%^&*()-_+=).";
+$MESS["MAIN_FUNCTION_REGISTER_PASSWORD_PUNCTUATION"] = "Пароль должен содержать знаки пунктуации (#SPECIAL_CHARS#).";
 $MESS["MAIN_GP_PASSWORD_LENGTH"] = "Пароль должен быть не менее #LENGTH# символов длиной";
 $MESS["MAIN_GP_PASSWORD_UPPERCASE"] = "содержать латинские символы верхнего регистра (A-Z)";
 $MESS["MAIN_GP_PASSWORD_LOWERCASE"] = "содержать латинские символы нижнего регистра (a-z)";
 $MESS["MAIN_GP_PASSWORD_DIGITS"] = "содержать цифры (0-9)";
-$MESS["MAIN_GP_PASSWORD_PUNCTUATION"] = "содержать знаки пунктуации (,.<>/?;:'\"[]{}\\|`~!@#\$%^&*()-_+=)";
+$MESS["MAIN_GP_PASSWORD_PUNCTUATION"] = "содержать знаки пунктуации (#SPECIAL_CHARS#)";
 $MESS["USER_WITH_EMAIL_EXIST"] = "Пользователь с таким email (#EMAIL#) уже существует.";
 $MESS["LIMIT_USERS_COUNT"] = "Внимание! Превышено количество лицензированных пользователей! Вам необходимо приобрести дополнительные лицензии. В случае возникновения вопросов обратитесь в службу технической поддержки.";
 $MESS["FORMATNAME_NONAME"] = "<Без имени>";

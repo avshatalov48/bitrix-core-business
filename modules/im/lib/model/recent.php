@@ -82,6 +82,11 @@ class RecentTable extends Main\Entity\DataManager
 				'values' => array('N', 'Y'),
 				'default_value' => 'N',
 			),
+			'DATE_MESSAGE' => array(
+				'data_type' => 'datetime',
+				'required' => true,
+				'default_value' => array(__CLASS__, 'getCurrentDate'),
+			),
 			'DATE_UPDATE' => array(
 				'data_type' => 'datetime',
 				'required' => true,

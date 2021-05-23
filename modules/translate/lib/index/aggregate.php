@@ -6,12 +6,10 @@ use Bitrix\Main;
 use Bitrix\Translate;
 use Bitrix\Translate\Index;
 
-
 class Aggregate
 {
 	/** @var Main\ORM\Entity[] */
 	private static $entities = [];
-
 
 	/**
 	 * @param array $params Array of parameters:
@@ -24,7 +22,6 @@ class Aggregate
 	 *
 	 * @return Main\ORM\Query\Query
 	 * @throws Main\ArgumentException
-	 * @throws Main\SystemException
 	 */
 	public static function buildAggregateQuery(array $params)
 	{
@@ -38,6 +35,12 @@ class Aggregate
 		$query->addSelect($params['GROUP_BY']);
 		$query->addGroup($params['GROUP_BY']);
 
+		if (empty($params['CURRENT_LANG']))
+		{
+			throw new Main\ArgumentException('Parameter CURRENT_LANG has not defined');
+		}
+		$currentLanguage = $params['CURRENT_LANG'];
+
 		if (empty($params['LANGUAGES']))
 		{
 			$languages = Translate\Config::getEnabledLanguages();
@@ -46,7 +49,9 @@ class Aggregate
 		{
 			$languages = $params['LANGUAGES'];
 		}
-
+		usort($languages, function ($langId) use ($currentLanguage) {
+			return $langId === $currentLanguage ? 0 : 1;
+		});
 		$languageUpperKeys = array_combine($languages, array_map('mb_strtoupper', $languages));
 
 		foreach ($languageUpperKeys as $langId => $alias)
@@ -61,7 +66,7 @@ class Aggregate
 			// phrase excess
 			$query->addSelect(new Main\ORM\Fields\ExpressionField("{$alias}_EXCESS", "SUM({$alias}_EXCESS)"));
 
-			if ($langId != $params['CURRENT_LANG'])
+			if ($langId != $currentLanguage)
 			{
 				// file deficiency
 				$query->addSelect(new Main\ORM\Fields\ExpressionField("{$alias}_FILE_DEFICIENCY", "SUM({$alias}_FILE_DEFICIENCY)"));
@@ -85,7 +90,6 @@ class Aggregate
 	 * @return Main\ORM\Query\Query
 	 *
 	 * @throws Main\ArgumentException
-	 * @throws Main\SystemException
 	 */
 	public static function buildQuery(array $params)
 	{
@@ -111,6 +115,10 @@ class Aggregate
 		{
 			$languages = $params['LANGUAGES'];
 		}
+		usort($languages, function ($langId) use ($currentLanguage) {
+			return $langId === $currentLanguage ? 0 : 1;
+		});
+
 		$className .= "_". implode('', $languages);
 
 		if (!empty($params['PATH_LIST']))

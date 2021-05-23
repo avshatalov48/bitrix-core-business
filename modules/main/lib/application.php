@@ -11,7 +11,6 @@ use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\Data;
 use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Diag;
-use Bitrix\Main\IO;
 use Bitrix\Main\Routing\Route;
 use Bitrix\Main\Routing\Router;
 use Bitrix\Main\Session\CompositeSessionManager;

@@ -26,6 +26,7 @@ final class CheckManager
 	const EVENT_ON_CHECK_PRINT_SEND = 'OnPrintableCheckSend';
 	const EVENT_ON_BEFORE_CHECK_ADD_VERIFY = 'OnBeforeCheckAddVerify';
 	const EVENT_ON_CHECK_PRINT_ERROR = 'OnCheckPrintError';
+	const EVENT_ON_CHECK_VALIDATION_ERROR = 'OnCheckValidationError';
 	const MIN_TIME_FOR_SWITCH_CASHBOX = 240;
 
 	/** This is time re-sending a check print in minutes */
@@ -87,10 +88,25 @@ final class CheckManager
 		$check->setRelatedEntities($relatedEntities);
 		$check->setAvailableCashbox($cashboxList);
 
+		$registry = Sale\Registry::getInstance($check->getField("ENTITY_REGISTRY_TYPE"));
+
 		$validateResult = $check->validate();
 		if (!$validateResult->isSuccess())
 		{
+			if (class_exists('\Bitrix\Crm\Order\Order') && $order instanceof \Bitrix\Crm\Order\Order)
+			{
+				$order->addTimelineCheckEntryOnFailure([
+					'ERROR_TEXT' => Loc::getMessage('SALE_CASHBOX_ERROR_CHECK_NOT_CREATED'),
+				]);
+			}
+
+			$notifyClassName = $registry->getNotifyClassName();
+			$notifyClassName::callNotify($order, Sale\EventActions::EVENT_ON_CHECK_VALIDATION_ERROR);
 			$result->addErrors($validateResult->getErrors());
+
+			$event = new Main\Event('sale', static::EVENT_ON_CHECK_VALIDATION_ERROR, $check->getDataForCheck());
+			$event->send();
+
 			return $result;
 		}
 
@@ -360,21 +376,18 @@ final class CheckManager
 
 			if ($data['ERROR']['TYPE'] === Errors\Error::TYPE)
 			{
-				$updatedFields = array('STATUS' => 'E', 'DATE_PRINT_END' => new Main\Type\DateTime());
+				$updatedFields = [
+					'STATUS' => 'E',
+					'DATE_PRINT_END' => new Main\Type\DateTime(),
+					'ERROR_MESSAGE' => $data['ERROR']['MESSAGE']
+				];
 				if ((int)$check['CNT_FAIL_PRINT'] === 0)
 					$updatedFields['CNT_FAIL_PRINT'] = 1;
 
 				CashboxCheckTable::update($checkId, $updatedFields);
 
 				/** @ToDO Will be removed after OrderCheckCollection is realized */
-				if (
-					class_exists('\Bitrix\Crm\Order\Order')
-					&& $order instanceof \Bitrix\Crm\Order\Order
-					&& $order->getDealBinding()
-				)
-				{
-					$order->addTimelineCheckEntryOnCreate($checkId, ['PRINTED' => 'N']);
-				}
+				self::addTimelineCheckEntryOnCreateToOrder($order, $checkId, ['PRINTED' => 'N']);
 
 				if ($order !== null
 					&& (
@@ -442,14 +455,7 @@ final class CheckManager
 				self::addStatisticOnSuccessCheckPrint($checkId);
 
 				/** @ToDO Will be removed after OrderCheckCollection is realized */
-				if (
-					class_exists('\Bitrix\Crm\Order\Order')
-					&& $order instanceof \Bitrix\Crm\Order\Order
-					&& $order->getDealBinding()
-				)
-				{
-					$order->addTimelineCheckEntryOnCreate($checkId, ['PRINTED' => 'Y']);
-				}
+				self::addTimelineCheckEntryOnCreateToOrder($order, $checkId, ['PRINTED' => 'Y']);
 
 				$isSend = false;
 				$event = new Main\Event(
@@ -500,6 +506,14 @@ final class CheckManager
 		if ($cashbox)
 		{
 			AddEventToStatFile('sale', 'checkPrint', $checkId, $cashbox::getCode());
+		}
+	}
+
+	private static function addTimelineCheckEntryOnCreateToOrder($order, $checkId, $params)
+	{
+		if (class_exists('\Bitrix\Crm\Order\Order') && $order instanceof \Bitrix\Crm\Order\Order)
+		{
+			$order->addTimelineCheckEntryOnCreate($checkId, $params);
 		}
 	}
 

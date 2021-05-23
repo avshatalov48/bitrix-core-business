@@ -66,7 +66,7 @@ if($this->StartResultCache(false, array(($arParams["CACHE_GROUPS"]==="N"? false:
 {
 	$arResult['ITEMS'] = Array();
 	$arItems = CIBlockElement::GetList($arOrder, $arFilter, false, false, $arSelect);
-	while($arResItems = $arItems->Fetch())
+	while($arResItems = $arItems->GetNext())
 	{
 
 		$arButtons = CIBlock::GetPanelButtons(
@@ -123,4 +123,3 @@ if($USER->IsAuthorized())
 		}
 	}
 }
-?>

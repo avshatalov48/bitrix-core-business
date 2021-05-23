@@ -63,17 +63,17 @@
 								<?=$arResult["ORGANIZER"]?>
 							</td>
 						</tr>
-<!--						<tr>-->
-<!--							<td style="padding-top: 15px; line-height: 18px; font-weight: bold; color: --><?//= in_array('ATTENDEES', $arResult['CHANGE_FIELDS']) ? ' #84AD00' : '#4a4a4a'?><!--">-->
-<!--								--><?//= GetMessage("EC_CALENDAR_ICAL_MAIL_TEMPLATE_TITLE_ATTENDEES")
-//								. (empty(in_array('ATTENDEES', $arResult['CHANGE_FIELDS'])) ? '' : $updatedTitle)?><!--:-->
-<!--							</td>-->
-<!--						</tr>-->
-<!--						<tr>-->
-<!--							<td style="color: #525C69;">-->
-<!--								--><?//=$arResult["ATTENDEES_LIST"]?>
-<!--							</td>-->
-<!--						</tr>-->
+						<tr>
+							<td style="padding-top: 15px; line-height: 18px; font-weight: bold; color: <?= in_array('ATTENDEES', $arResult['CHANGE_FIELDS']) ? ' #84AD00' : '#4a4a4a'?>">
+								<?= GetMessage("EC_CALENDAR_ICAL_MAIL_TEMPLATE_TITLE_ATTENDEES")
+								. (empty(in_array('ATTENDEES', $arResult['CHANGE_FIELDS'])) ? '' : $updatedTitle)?>:
+							</td>
+						</tr>
+						<tr>
+							<td style="color: #525C69;">
+								<?=$arResult["ATTENDEES_LIST"]?>
+							</td>
+						</tr>
 						<? if($arResult['DESCRIPTION'] !== ''):?>
 						<tr>
 							<td style="padding-top: 15px; line-height: 18px; font-weight: bold; color: <?= in_array('DESCRIPTION', $arResult['CHANGE_FIELDS']) ? ' #84AD00' : '#4a4a4a'?>">

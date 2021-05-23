@@ -129,7 +129,7 @@ class Element implements Child
 	protected function addToQueue(int $copiedSectionId, $queueName)
 	{
 		$option = Option::get($this->moduleId, $queueName, "");
-		$option = ($option !== "" ? unserialize($option) : []);
+		$option = ($option !== "" ? unserialize($option, ['allowed_classes' => false]) : []);
 		$option = (is_array($option) ? $option : []);
 
 		$option[] = $copiedSectionId;

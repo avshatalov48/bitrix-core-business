@@ -2,8 +2,6 @@
 
 namespace Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity;
 
-use Bitrix\Main\PhoneNumber;
-
 /**
  * Class Contact
  * @package Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity
@@ -34,9 +32,7 @@ final class Contact extends RequestEntity
 	 */
 	public function setPhone(string $phone): Contact
 	{
-		$this->phone = PhoneNumber\Formatter::format(
-			PhoneNumber\Parser::getInstance()->parse($phone), PhoneNumber\Format::E164
-		);
+		$this->phone = $phone;
 
 		return $this;
 	}

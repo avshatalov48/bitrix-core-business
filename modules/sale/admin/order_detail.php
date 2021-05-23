@@ -125,7 +125,7 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 	$allowIds = \Bitrix\Main\Config\Option::get("sale", "p2p_status_list", "");
 	if($allowIds <> '')
 	{
-		$allowIds = unserialize($allowIds);
+		$allowIds = unserialize($allowIds, ['allowed_classes' => false]);
 	}
 	else
 	{
@@ -1394,7 +1394,7 @@ else
 		while ($arBasketTmp = $dbBasketTmp->GetNext())
 		{
 			$arBasketId[] = $arBasketTmp["ID"];
-			$arBasketTmp["DIMENSIONS"] = unserialize($arBasketTmp["~DIMENSIONS"]);
+			$arBasketTmp["DIMENSIONS"] = unserialize($arBasketTmp["~DIMENSIONS"], ['allowed_classes' => false]);
 
 			$arBasketItems[] = $arBasketTmp;
 
@@ -2021,9 +2021,9 @@ else
 							}
 							elseif ($arOrderProps["TYPE"] == "FILE")
 							{
-								if (mb_strpos($arOrderProps["VALUE"], ",") !== false)
+								$arValues = unserialize($arOrderProps["VALUE"], ['allowed_classes' => false]);
+								if (is_array($arValues))
 								{
-									$arValues = explode(",", $arOrderProps["VALUE"]);
 									foreach ($arValues as $fileId)
 									{
 										echo showImageOrDownloadLink(trim($fileId), $ID);
@@ -2092,7 +2092,7 @@ else
 					));
 					if($dep = $depList->fetch())
 					{
-						$depParams = unserialize($dep["PARAMS"]);
+						$depParams = unserialize($dep["PARAMS"], ['allowed_classes' => false]);
 
 						foreach($arDeliveryExtraParams as $paramId => $paramOptions)
 						{
@@ -2607,7 +2607,7 @@ else
 
 					if($dep = $depList->fetch())
 					{
-						$arDeliveryOrder["EXTRA_PARAMS"] = unserialize($dep["PARAMS"]);
+						$arDeliveryOrder["EXTRA_PARAMS"] = unserialize($dep["PARAMS"], ['allowed_classes' => false]);
 					}
 
 					$arPacks = CSaleDeliveryHelper::getBoxesFromConfig($profileId, $arDeliveryData["CONFIG"]["CONFIG"]);
@@ -2800,6 +2800,7 @@ else
 										)
 									);
 									$arUserAccount = $dbUserAccount->GetNext();
+									if ($arUserAccount && is_array($arUserAccount)):
 									?>
 									<tr id="user_budget" style="display:<?=($arOrder["PAYED"] == "N" && floatval($arUserAccount["CURRENT_BUDGET"]) >= $arOrder["PRICE"]) ? 'table-row' : 'none'?>">
 										<td class="head" nowrap><?=GetMessage('SOD_ORDER_USER_BUDGET')?>:</td>
@@ -2811,6 +2812,7 @@ else
 											<input type="checkbox" value="Y" name="FORM_PAY_FROM_ACCOUNT" id="FORM_PAY_FROM_ACCOUNT" />
 										</td>
 									</tr>
+									<?php endif; ?>
 									<tr id="cancel_allow_pay" style="display:<?=($arOrder["PAYED"] == "Y") ? 'table-row' : 'none'?>">
 										<td class="head"><label for="FORM_ALLOW_PAY_CANCEL"><?=GetMessage('SOD_POPUP_PAY_CANCEL')?>:</label></td>
 										<td>

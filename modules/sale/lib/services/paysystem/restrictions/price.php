@@ -22,21 +22,24 @@ class Price extends Base\Restriction
 	 */
 	public static function check($params, array $restrictionParams, $serviceId = 0)
 	{
-		if ($params['PRICE_PAYMENT'] === null)
-			return true;
-
 		$maxValue = static::getPrice($params, $restrictionParams['MAX_VALUE']);
 		$minValue = static::getPrice($params, $restrictionParams['MIN_VALUE']);
 		$price = (float)$params['PRICE_PAYMENT'];
 
 		if ($maxValue > 0 && $minValue > 0)
+		{
 			return ($maxValue >= $price) && ($minValue <= $price);
+		}
 
 		if ($maxValue > 0)
+		{
 			return $maxValue >= $price;
+		}
 
-		if ($minValue > 0)
+		if ($minValue >= 0)
+		{
 			return $minValue <= $price;
+		}
 
 		return false;
 	}

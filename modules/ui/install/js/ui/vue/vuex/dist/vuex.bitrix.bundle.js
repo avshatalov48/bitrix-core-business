@@ -8,7 +8,7 @@
    */
   var VuexVendorV3;
 
-  if (typeof exports !== 'undefined' && 'VuexVendor' in exports) {
+  if (typeof exports !== 'undefined' && typeof exports.VuexVendor !== 'undefined') {
     var currentVersion = '3.5.1';
 
     if (exports.VuexVendor.version != currentVersion) {
@@ -2645,7 +2645,7 @@
 
 
 
-  if (typeof exports !== 'undefined' && 'Vuex' in exports) {
+  if (typeof exports !== 'undefined' && typeof exports.Vuex !== 'undefined') {
     exports.Vuex = exports.Vuex;
     exports.VuexVendor = exports.VuexVendor;
   } else {

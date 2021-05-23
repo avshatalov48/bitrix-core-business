@@ -4,6 +4,7 @@ namespace Sale\Handlers\Delivery;
 
 use Bitrix\Crm\Timeline\DeliveryCategoryType;
 use Bitrix\Main\Error;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Result;
@@ -21,6 +22,7 @@ use Bitrix\Sale\Delivery\Services\Taxi\Taxi;
 use Bitrix\Sale\Shipment;
 use Sale\Handlers\Delivery\YandexTaxi\Api\Api;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\Claim;
+use Sale\Handlers\Delivery\YandexTaxi\Api\Tariffs\Repository;
 use Sale\Handlers\Delivery\YandexTaxi\ClaimBuilder\ClaimBuilder;
 use Sale\Handlers\Delivery\YandexTaxi\Common\ShipmentDataExtractor;
 use Sale\Handlers\Delivery\YandexTaxi\Common\StatusMapper;
@@ -28,8 +30,14 @@ use Sale\Handlers\Delivery\YandexTaxi\ContextDependent\Crm;
 use Sale\Handlers\Delivery\YandexTaxi\EventJournal\JournalProcessor;
 use Sale\Handlers\Delivery\YandexTaxi\Installator\Installator;
 use Sale\Handlers\Delivery\YandexTaxi\Internals\ClaimsTable;
-use Sale\Handlers\Delivery\YandexTaxi\RateCalculator;
 use Sale\Handlers\Delivery\YandexTaxi\ServiceContainer;
+
+Loader::registerAutoLoadClasses(
+	'sale',
+	[
+		__NAMESPACE__.'\YandextaxiProfile' => 'handlers/delivery/yandextaxi/profile.php',
+	]
+);
 
 Loc::loadMessages(__FILE__);
 
@@ -41,8 +49,8 @@ final class YandextaxiHandler extends Taxi implements ICrmActivityProvider, ICrm
 {
 	public const SERVICE_CODE = 'YANDEX_TAXI';
 
-	/** @var RateCalculator */
-	private $rateCalculator;
+	/** @var bool */
+	protected static $canHasProfiles = true;
 
 	/** @var Api */
 	private $api;
@@ -65,8 +73,8 @@ final class YandextaxiHandler extends Taxi implements ICrmActivityProvider, ICrm
 	/** @var Crm\BindingsMaker */
 	private $crmBindingsMaker;
 
-	/** @var bool */
-	protected static $whetherAdminExtraServicesShow = true;
+	/** @var Repository */
+	private $tariffsRepository;
 
 	/**
 	 * @inheritdoc
@@ -86,7 +94,6 @@ final class YandextaxiHandler extends Taxi implements ICrmActivityProvider, ICrm
 			->registerOnClaimUpdated($this)
 			->registerOnNeedContactTo($this);
 
-		$this->rateCalculator = ServiceContainer::getRateCalculator();
 		$this->api = ServiceContainer::getApi();
 		$this->claimBuilder = ServiceContainer::getClaimBuilder();
 		$this->statusMapper = ServiceContainer::getStatusMapper();
@@ -94,6 +101,7 @@ final class YandextaxiHandler extends Taxi implements ICrmActivityProvider, ICrm
 		$this->installator = ServiceContainer::getInstallator();
 		$this->extractor = ServiceContainer::getShipmentDataExtractor();
 		$this->crmBindingsMaker = ServiceContainer::getCrmBindingsMaker();
+		$this->tariffsRepository = ServiceContainer::getTariffsRepository();
 	}
 
 	/**
@@ -110,14 +118,6 @@ final class YandextaxiHandler extends Taxi implements ICrmActivityProvider, ICrm
 	public static function getClassDescription()
 	{
 		return Loc::getMessage('SALE_YANDEX_TAXI_TITLE');
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	protected function calculateConcrete(Shipment $shipment)
-	{
-		return $this->rateCalculator->calculateRate($shipment);
 	}
 
 	/**
@@ -160,6 +160,7 @@ final class YandextaxiHandler extends Taxi implements ICrmActivityProvider, ICrm
 				'EXTERNAL_CREATED_TS' => $createdClaim->getCreatedTs(),
 				'EXTERNAL_UPDATED_TS' => $createdClaim->getUpdatedTs(),
 				'INITIAL_CLAIM' => Json::encode($createdClaim),
+				'IS_SANDBOX_ORDER' => $this->api->getTransport()->isTestEnvironment() ? 'Y' : 'N',
 			]
 		);
 		if (!$addResult->isSuccess())
@@ -168,7 +169,7 @@ final class YandextaxiHandler extends Taxi implements ICrmActivityProvider, ICrm
 		}
 
 		\CAgent::AddAgent(
-			$this->journalProcessor->getAgentName($shipment->getDeliveryId()),
+			$this->journalProcessor->getAgentName($this->id),
 			'sale',
 			'N',
 			30,
@@ -409,8 +410,40 @@ final class YandextaxiHandler extends Taxi implements ICrmActivityProvider, ICrm
 	/**
 	 * @inheritDoc
 	 */
-	public static function whetherAdminExtraServicesShow()
+	public static function canHasProfiles()
 	{
-		return self::$whetherAdminExtraServicesShow;
+		return self::$canHasProfiles;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function getChildrenClassNames(): array
+	{
+		return [
+			'\Sale\Handlers\Delivery\YandextaxiProfile'
+		];
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getProfilesList(): array
+	{
+		$result = [];
+
+		$tariffs = $this->tariffsRepository->getTariffs();
+
+		foreach ($tariffs as $tariff)
+		{
+			$result[$tariff['name']] = Loc::getMessage(
+				sprintf(
+					'SALE_YANDEX_TAXI_TARIFF_%s',
+					mb_strtoupper($tariff['name'])
+				)
+			);
+		}
+
+		return $result;
 	}
 }

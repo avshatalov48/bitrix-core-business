@@ -2,8 +2,6 @@
 
 namespace Bitrix\Catalog\v2\Price;
 
-use Bitrix\Catalog\v2\BaseCollection;
-use Bitrix\Catalog\v2\BaseEntity;
 use Bitrix\Catalog\v2\IoC\ContainerContract;
 
 /**
@@ -35,26 +33,17 @@ class PriceFactory
 	/**
 	 * @return \Bitrix\Catalog\v2\Price\BasePrice
 	 */
-	public function createEntity(): BaseEntity
+	public function createEntity(): BasePrice
 	{
 		// $price = $this->container->make(self::QUANTITY_DEPENDENT_PRICE);
 		return $this->container->make(self::SIMPLE_PRICE);
 	}
 
 	/**
-	 * @param \Bitrix\Catalog\v2\BaseEntity|null $parent
 	 * @return \Bitrix\Catalog\v2\Price\PriceCollection
 	 */
-	public function createCollection(BaseEntity $parent = null): BaseCollection
+	public function createCollection(): PriceCollection
 	{
-		/** @var \Bitrix\Catalog\v2\Price\PriceCollection $collection */
-		$collection = $this->container->make(self::PRICE_COLLECTION);
-
-		if ($parent)
-		{
-			$collection->setParent($parent);
-		}
-
-		return $collection;
+		return $this->container->make(self::PRICE_COLLECTION);
 	}
 }

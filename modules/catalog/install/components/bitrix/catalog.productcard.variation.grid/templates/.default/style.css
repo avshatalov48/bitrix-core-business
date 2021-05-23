@@ -29,6 +29,14 @@
 	font-size: 14px;
 }
 
+.catalog-product-variation-grid .main-grid-editor-money-price {
+	height: 38px;
+}
+
+.catalog-product-variation-grid .main-grid-editor.main-grid-editor-money-currency {
+	height: 38px;
+}
+
 .brandblock-block-wrapper {
 	display: flex;
 	align-items: flex-start;
@@ -449,4 +457,8 @@
 	margin-top: 19px;
 	margin-bottom: 21px;
 	font-size: 14px;
+}
+
+.main-grid-cell-overlay {
+	z-index: -1;
 }

@@ -1576,7 +1576,7 @@ class CBPHelper
 							if (!array_key_exists("MODULE_ID", $value) || $value["MODULE_ID"] == '')
 								$value["MODULE_ID"] = "bizproc";
 
-							$value = CFile::SaveFile($value, "bizproc_wf", true);
+							$value = CFile::SaveFile($value, "bizproc_wf");
 							if (!$value)
 							{
 								$value = null;
@@ -2383,7 +2383,9 @@ class CBPHelper
 	{
 		CUtil::DecodeUriComponent($data);
 
-		foreach (['arWorkflowTemplate', 'arWorkflowParameters', 'arWorkflowVariables', 'arWorkflowGlobalConstants', 'arWorkflowConstants', 'USER_PARAMS'] as $k)
+		$jsonParams = ['arWorkflowTemplate', 'arWorkflowParameters', 'arWorkflowVariables', 'arWorkflowGlobalConstants', 'arWorkflowConstants', 'USER_PARAMS'];
+
+		foreach ($jsonParams as $k)
 		{
 			if (!isset($data[$k]) || !is_array($data[$k]))
 			{
@@ -2393,10 +2395,22 @@ class CBPHelper
 
 		if (mb_strtolower(LANG_CHARSET) != 'utf-8')
 		{
-			$data = static::decodeArrayKeys($data);
+			foreach ($data as $key => $value)
+			{
+				if (!in_array($key, $jsonParams))
+				{
+					$data[$key] = static::decodeArrayKeys($data[$key]);
+				}
+			}
 		}
 	}
 
+	/**
+	 * @deprecated
+	 * @param $item
+	 * @param false $reverse
+	 * @return array
+	 */
 	public static function decodeArrayKeys($item, $reverse = false)
 	{
 		$from = !$reverse ? 'UTF-8' : LANG_CHARSET;

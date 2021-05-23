@@ -143,7 +143,7 @@ if (
 				$CONDITIONS = base64_decode($_POST['CONDITIONS']);
 				if (CheckSerializedData($CONDITIONS))
 				{
-					$CONDITIONS = unserialize($CONDITIONS);
+					$CONDITIONS = unserialize($CONDITIONS, ['allowed_classes' => false]);
 					$boolCond = true;
 				}
 				else
@@ -188,7 +188,7 @@ if (
 				$ACTIONS = base64_decode($_POST['ACTIONS']);
 				if (CheckSerializedData($ACTIONS))
 				{
-					$ACTIONS = unserialize($ACTIONS);
+					$ACTIONS = unserialize($ACTIONS, ['allowed_classes' => false]);
 					$boolAct = true;
 				}
 				else
@@ -652,7 +652,7 @@ $control->BeginNextFormTab();
 			if (!is_array($arDiscount['ACTIONS']))
 			{
 				if (CheckSerializedData($arDiscount['ACTIONS']))
-					$arDiscount['ACTIONS'] = unserialize($arDiscount['ACTIONS']);
+					$arDiscount['ACTIONS'] = unserialize($arDiscount['ACTIONS'], ['allowed_classes' => false]);
 				else
 					$arDiscount['ACTIONS'] = '';
 			}
@@ -692,7 +692,7 @@ $control->BeginNextFormTab();
 			if (!is_array($arDiscount['CONDITIONS']))
 			{
 				if (CheckSerializedData($arDiscount['CONDITIONS']))
-					$arDiscount['CONDITIONS'] = unserialize($arDiscount['CONDITIONS']);
+					$arDiscount['CONDITIONS'] = unserialize($arDiscount['CONDITIONS'], ['allowed_classes' => false]);
 				else
 					$arDiscount['CONDITIONS'] = '';
 			}

@@ -5,8 +5,8 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 }
 
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Web\Json;
 use Bitrix\Main\UI\Extension;
+use Bitrix\Main\Web\Json;
 
 /** @var CAllMain $APPLICATION */
 /** @var array $arParams */
@@ -202,7 +202,9 @@ $containerId = htmlspecialcharsbx($containerId);
 							</span>
 						</div>
 						<div class="bx-sender-graph-scale">
-							<div data-bx-point="counters/CLICK/PERCENT_VALUE:width" class="bx-sender-graph-scale-inner" style="width: <?=intval($arResult['DATA']['counters']['CLICK']['PERCENT_VALUE'] * 100)?>%;"></div>
+							<div data-bx-point="counters/CLICK/PERCENT_VALUE:width"
+								class="bx-sender-graph-scale-inner" style="width: <?=intval(
+									($arResult['DATA']['counters']['CLICK']['PERCENT_VALUE']) * 100)?>%;"></div>
 						</div>
 					</div>
 					<!--

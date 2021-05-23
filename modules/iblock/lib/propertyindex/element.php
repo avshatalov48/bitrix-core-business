@@ -80,11 +80,8 @@ class Element
 		$this->elementPrices = array();
 		if (self::$catalog)
 		{
-			$elements = $this->elementPropertyValues["IBLOCK_ELEMENT_ID"];
-			if ($elements)
-			{
-				$this->loadElementPrices($elements);
-			}
+			$elements = $this->elementPropertyValues["IBLOCK_ELEMENT_ID"] ?? [$this->elementId];
+			$this->loadElementPrices($elements);
 		}
 
 		$this->elementSections = array();
@@ -94,12 +91,12 @@ class Element
 	/**
 	 * Fills member elementPropertyValues member with property values.
 	 *
-	 * @param integer $iblockId Information block identifier.
+	 * @param int $iblockId Information block identifier.
 	 * @param array[string]string $elementFilter Element property values criteria.
 	 *
 	 * @return void
 	 */
-	protected function loadElementProperties($iblockId, array $elementFilter)
+	protected function loadElementProperties(int $iblockId, array $elementFilter)
 	{
 		if (!isset(self::$filterPropertyID[$iblockId]))
 		{

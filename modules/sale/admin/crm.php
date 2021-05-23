@@ -18,7 +18,7 @@ IncludeModuleLangFile(__FILE__);
 ClearVars();
 
 $crmIntegrationData = COption::GetOptionString("sale", "~crm_integration", "");
-$arCrmIntegration = unserialize($crmIntegrationData);
+$arCrmIntegration = unserialize($crmIntegrationData, ['allowed_classes' => false]);
 if (!is_array($arCrmIntegration))
 	$arCrmIntegration = array();
 
@@ -124,25 +124,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $do_create_link == "Y" && $saleModul
 			if ($defaultGroup != "")
 			{
 				$arDefaultGroup = explode(",", $defaultGroup);
-				$arPolicy = CUser::GetGroupPolicy($arDefaultGroup);
 			}
 			else
 			{
-				$arPolicy = CUser::GetGroupPolicy(array());
+				$arDefaultGroup = [];
 			}
 
-			$passwordMinLength = intval($arPolicy["PASSWORD_LENGTH"]);
-			if ($passwordMinLength <= 10)
-				$passwordMinLength = 10;
-			$passwordChars = array(
-				"abcdefghijklnmopqrstuvwxyz",
-				"ABCDEFGHIJKLNMOPQRSTUVWXYZ",
-				"0123456789",
-			);
-			if ($arPolicy["PASSWORD_PUNCTUATION"] === "Y")
-				$passwordChars[] = ",.<>/?;:'\"[]{}\|`~!@#\$%^&*()-_+=";
-
-			$salePassword = randString($passwordMinLength + 2, $passwordChars);
+			$salePassword = \CUser::GeneratePasswordByPolicy($arDefaultGroup);
 
 			$saleEMail = $saleLogin.'@'.$_SERVER["SERVER_NAME"];
 			if (!check_email($saleEMail))

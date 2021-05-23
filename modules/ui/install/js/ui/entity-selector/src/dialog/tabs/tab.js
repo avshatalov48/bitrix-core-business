@@ -1,21 +1,22 @@
-import { Type, Tag, Dom, Text, Cache, Reflection } from 'main.core';
-import { EventEmitter } from 'main.core.events';
+import { Type, Tag, Dom, Cache, Reflection } from 'main.core';
 import ItemNode from '../../item/item-node';
 import Dialog from '../dialog';
 import BaseStub from './base-stub';
 import DefaultStub from './default-stub';
 import BaseFooter from '../footer/base-footer';
+import TextNode from '../../common/text-node';
 
 import type { TabLabelState, TabLabelStates, TabOptions } from './tab-options';
 import type { FooterContent, FooterOptions } from '../footer/footer-content';
+import type { TextNodeOptions } from '../../common/text-node-options';
 
 /**
  * @memberof BX.UI.EntitySelector
  */
-export default class Tab extends EventEmitter
+export default class Tab
 {
 	id: string = null;
-	title: string = null;
+	title: ?TextNode = null;
 	rootNode: ItemNode = null;
 
 	dialog: Dialog = null;
@@ -31,17 +32,15 @@ export default class Tab extends EventEmitter
 	textColor: TabLabelStates = {};
 	bgColor: TabLabelStates = {};
 
-	itemMaxDepth: number = 3;
+	itemMaxDepth: number = 5;
 
 	footer: BaseFooter = null;
 	showDefaultFooter = true;
+	showAvatars: ?boolean = null;
 	cache = new Cache.MemoryCache();
 
 	constructor(dialog: Dialog, tabOptions: TabOptions)
 	{
-		super();
-		this.setEventNamespace('BX.UI.EntitySelector.Tab');
-
 		const options: TabOptions = Type.isPlainObject(tabOptions) ? tabOptions : {};
 
 		if (!Type.isStringFilled(options.id))
@@ -64,6 +63,7 @@ export default class Tab extends EventEmitter
 		this.setBgColor(options.bgColor);
 		this.setStub(options.stub, options.stubOptions);
 		this.setFooter(options.footer, options.footerOptions);
+		this.setShowAvatars(options.showAvatars);
 	}
 
 	getId(): string
@@ -89,14 +89,14 @@ export default class Tab extends EventEmitter
 		return this.stub;
 	}
 
-	setStub(stub?: boolean | string, stubOptions?: { [option: string]: any }): void
+	setStub(stub?: boolean | string | Function, stubOptions?: { [option: string]: any }): void
 	{
 		let instance = null;
 		const options = Type.isPlainObject(stubOptions) ? stubOptions : {};
 
-		if (Type.isString(stub))
+		if (Type.isString(stub) || Type.isFunction(stub))
 		{
-			const className = Reflection.getClass(stub);
+			const className = Type.isString(stub) ? Reflection.getClass(stub) : stub;
 			if (Type.isFunction(className))
 			{
 				instance = new className(this, options);
@@ -166,25 +166,50 @@ export default class Tab extends EventEmitter
 		this.getDialog().adjustFooter();
 	}
 
+	setShowAvatars(flag: ?boolean): void
+	{
+		if (Type.isBoolean(flag) || flag === null)
+		{
+			this.showAvatars = flag;
+
+			if (this.isRendered())
+			{
+				this.renderContainer();
+			}
+		}
+	}
+
+	shouldShowAvatars(): boolean
+	{
+		return this.showAvatars ?? this.getDialog().shouldShowAvatars();
+	}
+
 	getRootNode(): ItemNode
 	{
 		return this.rootNode;
 	}
 
-	setTitle(title: string): void
+	setTitle(title: ?string | TextNodeOptions): void
 	{
-		if (Type.isStringFilled(title))
+		if (Type.isStringFilled(title) || Type.isPlainObject(title) || title === null)
 		{
-			this.title = title;
+			this.title = title === null ? null : new TextNode(title);
 
 			if (this.isRendered())
 			{
-				this.getTitleContainer().textContent = title;
+				this.renderLabel();
 			}
 		}
 	}
 
-	getTitle(): ?string
+	getTitle(): string
+	{
+		const titleNode = this.getTitleNode();
+
+		return titleNode !== null && !titleNode.isNullable() ? titleNode.getText() : '';
+	}
+
+	getTitleNode(): ?TextNode
 	{
 		return this.title;
 	}
@@ -219,6 +244,9 @@ export default class Tab extends EventEmitter
 		return this.getPropertyByState('textColor', state);
 	}
 
+	/**
+	 * @private
+	 */
 	setProperty(name: string, states: TabLabelStates | string): void
 	{
 		const property = this[name];
@@ -258,6 +286,9 @@ export default class Tab extends EventEmitter
 		return null;
 	}
 
+	/**
+	 * @private
+	 */
 	getPropertyByCurrentState(name: string): ?string
 	{
 		const property = this[name];
@@ -334,7 +365,7 @@ export default class Tab extends EventEmitter
 	{
 		return this.cache.remember('title', () => {
 			return Tag.render`
-				<div class="ui-selector-tab-title">${Text.encode(this.getTitle())}</div>
+				<div class="ui-selector-tab-title"></div>
 			`;
 		});
 	}
@@ -354,6 +385,7 @@ export default class Tab extends EventEmitter
 		this.rendered = true;
 	}
 
+	/** @internal **/
 	renderLabel(): void
 	{
 		Dom.style(this.getTitleContainer(), 'color', this.getPropertyByCurrentState('textColor'));
@@ -361,6 +393,30 @@ export default class Tab extends EventEmitter
 
 		const icon = this.getPropertyByCurrentState('icon');
 		Dom.style(this.getIconContainer(), 'background-image', icon ? `url('${icon}')` : null);
+
+		const titleNode = this.getTitleNode();
+		if (titleNode)
+		{
+			this.getTitleNode().renderTo(this.getTitleContainer());
+		}
+		else
+		{
+			this.getTitleContainer().textContent = '';
+		}
+	}
+
+	/** @internal **/
+	renderContainer(): void
+	{
+		const className = 'ui-selector-tab-content--hide-avatars';
+		if (this.shouldShowAvatars())
+		{
+			Dom.removeClass(this.getContainer(), className);
+		}
+		else
+		{
+			Dom.addClass(this.getContainer(), className);
+		}
 	}
 
 	isVisible(): boolean
@@ -393,6 +449,9 @@ export default class Tab extends EventEmitter
 		return this.rendered && this.getDialog() && this.getDialog().isRendered();
 	}
 
+	/**
+	 * @internal
+	 */
 	select(): void
 	{
 		if (this.isSelected())
@@ -407,7 +466,6 @@ export default class Tab extends EventEmitter
 			this.renderLabel();
 		}
 
-		this.getDialog().emit('Tab:onSelect', { tab: this });
 		this.selected = true;
 
 		if (this.isVisible())
@@ -419,8 +477,13 @@ export default class Tab extends EventEmitter
 		{
 			this.getFooter().show();
 		}
+
+		this.getDialog().emit('Tab:onSelect', { tab: this });
 	}
 
+	/**
+	 * @internal
+	 */
 	deselect(): void
 	{
 		if (!this.isSelected())
@@ -434,7 +497,6 @@ export default class Tab extends EventEmitter
 			Dom.removeClass(this.getLabelContainer(), 'ui-selector-tab-label-active');
 		}
 
-		this.getDialog().emit('Tab:onDeselect', { tab: this	 });
 		this.selected = false;
 
 		if (this.isVisible())
@@ -446,6 +508,8 @@ export default class Tab extends EventEmitter
 		{
 			this.getFooter().hide();
 		}
+
+		this.getDialog().emit('Tab:onDeselect', { tab: this	});
 	}
 
 	hover(): void

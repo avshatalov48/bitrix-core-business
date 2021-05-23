@@ -10,6 +10,7 @@ use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
 USE Bitrix\Rest\Marketplace\Client;
 use Bitrix\Rest\AppTable;
+use Bitrix\Rest\Engine\ScopeManager;
 
 Loc::loadMessages(__FILE__);
 
@@ -110,7 +111,7 @@ class RestMarketplaceInstallComponent extends CBitrixComponent
 			return false;
 		}
 
-		$scopeList = CRestUtil::getScopeList();
+		$scopeList = ScopeManager::getInstance()->listScope();
 		Loc::loadMessages($_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/modules/rest/scope.php');
 		$result['SCOPE_DENIED'] = [];
 		if (is_array($result['APP']['RIGHTS']))

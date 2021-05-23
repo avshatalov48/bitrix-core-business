@@ -57,7 +57,7 @@ class CSaleMobileOrderUtils
 
 		while ($arReport = $dbRepList->fetch())
 		{
-			$settings = unserialize($arReport['SETTINGS']);
+			$settings = unserialize($arReport['SETTINGS'], ['allowed_classes' => false]);
 
 			if(isset($settings['mobile'])
 				&& is_array($settings['mobile'])
@@ -926,7 +926,7 @@ class CSaleMobileOrderPush
 	private static function &getData()
 	{
 		if(empty(self::$arSubscriptions))
-			self::$arSubscriptions = unserialize(COption::GetOptionString("sale", "pushEventsSubscriptions", ""));
+			self::$arSubscriptions = unserialize(COption::GetOptionString("sale", "pushEventsSubscriptions", ""), ['allowed_classes' => false]);
 
 		return self::$arSubscriptions;
 	}

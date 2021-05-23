@@ -89,7 +89,6 @@ export class Item
 			}
 		}
 		this.layout = {};
-		this.offset = 0;
 		this.timeFormat = 'H:M';
 		this.nameFormat = '';
 		this.users = new Map();
@@ -139,16 +138,6 @@ export class Item
 		return this;
 	}
 
-	setDateTimeOffset(offset: number): Item
-	{
-		if(Type.isInteger(offset))
-		{
-			this.offset = offset;
-		}
-
-		return this;
-	}
-
 	setTimeFormat(timeFormat: string): Item
 	{
 		if(Type.isString(timeFormat))
@@ -184,7 +173,7 @@ export class Item
 		if(this.createdTimestamp > 0)
 		{
 			this.createdTimestamp = Text.toInteger(this.createdTimestamp);
-			return new Date(this.createdTimestamp + (1000 * this.offset));
+			return new Date(this.createdTimestamp);
 		}
 
 		return null;

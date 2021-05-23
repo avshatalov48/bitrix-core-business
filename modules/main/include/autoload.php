@@ -2,6 +2,13 @@
 
 use Bitrix\Main\Loader;
 
+//main usually is included directly
+Loader::registerNamespace("Bitrix\\Main", Loader::getDocumentRoot()."/bitrix/modules/main/lib");
+Loader::registerNamespace("Bitrix\\UI", Loader::getDocumentRoot()."/bitrix/modules/ui/lib");
+Loader::registerNamespace("Psr\\Container", Loader::getDocumentRoot()."/bitrix/modules/main/vendor/psr/container/src");
+
+\spl_autoload_register([Loader::class, 'autoLoad']);
+
 Loader::registerAutoLoadClasses(
 	"main",
 	array(
@@ -120,6 +127,24 @@ Loader::registerAutoLoadClasses(
 		"bitrix\\main\\composite\\memcachedresponse" => "lib/composite/responder.php",
 		"bitrix\\main\\security\\otpexception" => "lib/security/securityexception.php",
 		"CTimeZone" => "classes/general/time.php",
+		"CBXPunycode" => "classes/general/punycode.php",
+		"IBXVirtualIO" => "classes/general/virtual_io.php",
+		"IBXGetErrors" => "classes/general/virtual_io.php",
+		"CBXVirtualIo" => "classes/general/virtual_io.php",
+		"CBXVirtualFileBase" => "classes/general/virtual_file.php",
+		"CBXVirtualFile" => "classes/general/virtual_file.php",
+		"CBXVirtualDirectory" => "classes/general/virtual_file.php",
+		"CAllOption" => "classes/general/option.php",
+		"COption" => "classes/general/option.php",
+		"CAllPageOption" => "classes/general/pageoption.php",
+		"CPageOption" => "classes/general/pageoption.php",
+		"CAllSQLWhere" => "classes/general/sqlwhere.php",
+		"CSQLWhereExpression" => "classes/general/sqlwhere.php",
+		"CSQLWhere" => "classes/mysql/sqlwhere.php",
+		"CAllLanguage" => "classes/general/language.php",
+		"CLanguage" => "classes/general/language.php",
+		"CLangAdmin" => "classes/general/language.php",
+		"_CLangDBResult" => "classes/general/langdbresult.php",
 	)
 );
 

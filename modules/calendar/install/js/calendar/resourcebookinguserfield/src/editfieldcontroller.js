@@ -63,9 +63,6 @@ export class EditFieldController
 					return new Promise((resolve) => {
 						resolve();
 					});
-					// let _validationPromise = new BX.Promise();
-					// _validationPromise.fulfill();
-					// return _validationPromise;
 				}.bind(this)
 			]);
 		}.bind(this), 100);
@@ -217,13 +214,23 @@ export class EditFieldController
 				input: this.DOM.timeFromInput,
 				values: BookingUtil.getSimpleTimeList(),
 				onChangeCallback: this.triggerUpdatePlanner.bind(this),
-				onAfterMenuOpen: function(ind, popupMenu)
-				{
+				onAfterMenuOpen: (ind, popupMenu) => {
 					if (!ind && popupMenu)
 					{
-						let
-							i, menuItem,
-							nearestTimeValue = BookingUtil.adaptTimeValue({h: dateFrom.getHours(), m: dateFrom.getMinutes()});
+						const formatDatetime = BX.isAmPmMode()
+							? Loc.getMessage("FORMAT_DATETIME").replace(':SS', '')
+							: Loc.getMessage("FORMAT_DATETIME");
+						const dateFrom = BookingUtil.parseDate(
+							this.DOM.fromInput.value + ' ' + this.DOM.timeFromInput.value,
+							false,
+							false,
+							formatDatetime
+						);
+						let i, menuItem;
+						const nearestTimeValue = BookingUtil.adaptTimeValue({
+							h: dateFrom.getHours(),
+							m: dateFrom.getMinutes()
+						});
 
 						if (nearestTimeValue && nearestTimeValue.label)
 						{
@@ -239,7 +246,7 @@ export class EditFieldController
 							}
 						}
 					}
-				}.bind(this)
+				}
 			});
 		}
 	}

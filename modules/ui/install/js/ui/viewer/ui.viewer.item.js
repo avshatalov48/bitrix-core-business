@@ -626,10 +626,12 @@
 			ajaxPromise.then(function (response) {
 				if (!response || !response.data)
 				{
+					var errors = response? response.errors : [];
+
 					promise.reject({
 						item: this,
 						type: 'error',
-						errors: response.errors || []
+						errors: errors || []
 					});
 
 					return;
@@ -938,10 +940,12 @@
 			ajaxPromise.then(function (response) {
 				if (!response || !response.data)
 				{
+					var errors = response? response.errors : [];
+
 					promise.reject({
 						item: this,
 						type: 'error',
-						errors: response.errors || []
+						errors: errors || []
 					});
 
 					return;

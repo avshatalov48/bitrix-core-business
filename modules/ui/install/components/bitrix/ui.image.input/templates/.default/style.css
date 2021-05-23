@@ -13,8 +13,8 @@
 }
 
 .ui-image-input-img-block, .ui-image-input-container {
-	 display: flex;
-	 align-items: center;
+	display: flex;
+	align-items: center;
 }
 
 .ui-image-input-img-item {
@@ -58,7 +58,7 @@
 	border: 1px solid #e2e2e4;
 	cursor: pointer;
 	box-sizing: border-box;
- }
+}
 
 .ui-image-input-img-block-double .ui-image-input-img-item:before {
 	content: '';
@@ -82,7 +82,7 @@
 .adm-fileinput-drag-area,
 .adm-fileinput-wrapper-single .adm-fileinput-drag-area {
 	border-radius: 2px;
-	border: 1px dashed rgba(47, 198, 246, .6);
+	border: 2px dashed rgba(47, 198, 246, .6);
 	transition: border-color .2s linear;
 	width: 90px;
 	height: 110px;
@@ -92,7 +92,7 @@
 	justify-content: center;
 	cursor: pointer;
 	padding: 0;
-	background: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2223%22%20height%3D%2223%22%3E%3Cpath%20fill%3D%22%23A8ADB4%22%20fill-rule%3D%22evenodd%22%20d%3D%22M2.706%200h17.588A2.706%202.706%200%200123%202.706v17.588A2.706%202.706%200%200120.294%2023H2.706A2.706%202.706%200%20010%2020.294V2.706A2.706%202.706%200%20012.706%200zm0%2020.294h17.588v-1.353l-4.69-5.412-2.345%202.707L7.396%209.47l-4.69%205.411v5.412zM16.912%208.118a2.03%202.03%200%20100-4.06%202.03%202.03%200%20000%204.06z%22%20opacity%3D%22.761%22/%3E%3C/svg%3E) no-repeat center;
+	background: #fff url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2223%22%20height%3D%2223%22%3E%3Cpath%20fill%3D%22%23A8ADB4%22%20fill-rule%3D%22evenodd%22%20d%3D%22M2.706%200h17.588A2.706%202.706%200%200123%202.706v17.588A2.706%202.706%200%200120.294%2023H2.706A2.706%202.706%200%20010%2020.294V2.706A2.706%202.706%200%20012.706%200zm0%2020.294h17.588v-1.353l-4.69-5.412-2.345%202.707L7.396%209.47l-4.69%205.411v5.412zM16.912%208.118a2.03%202.03%200%20100-4.06%202.03%202.03%200%20000%204.06z%22%20opacity%3D%22.761%22/%3E%3C/svg%3E) no-repeat center;
 }
 
 .adm-fileinput-drag-area-hint,
@@ -109,7 +109,13 @@ div.adm-fileinput-item div.adm-fileinput-item-preview:before {
 }
 
 .adm-fileinput-drag-area:hover {
-	border: 1px dashed rgba(47, 198, 246, 1);
+	border-color: rgba(47, 198, 246, 1);
+}
+
+.ui-image-input-img--disabled .adm-fileinput-drag-area,
+.ui-image-input-img--disabled .adm-fileinput-wrapper-single .adm-fileinput-drag-area {
+	border-color: #c6cdd3;
+	cursor: default;
 }
 
 .ui-image-input-wrapper .adm-fileinput-drag-area,
@@ -141,6 +147,10 @@ input.adm-fileinput-drag-area-input {
 	height: 100%;
 	bottom: 0 !important;
 	top: 0 !important;
+}
+
+.ui-image-input-img--disabled input.adm-fileinput-drag-area-input {
+	cursor: default !important;
 }
 
 .ui-image-input-wrapper {

@@ -31,7 +31,7 @@ if(typeof BX.UI.EntityUserFieldManager === "undefined")
 		this._enableSelection = true;
 		this._enableCreation = false;
 		this._creationSignature = "";
-		this._creationUrl = "";
+		this._creationPageUrl = "";
 		this._activeFields = {};
 		this._validationEnabled = true;
 		this._validationResult = null;
@@ -1083,14 +1083,22 @@ if(typeof BX.UI.EntityEditorUserField === "undefined")
 
 		this.addExternalEventsHandlers();
 	};
+	BX.UI.EntityEditorUserField.prototype.doClearLayout = function(options)
+	{
+		this._innerWrapper = null;
+		this.removeExternalEventsHandlers();
+	};
 	BX.UI.EntityEditorUserField.prototype.addExternalEventsHandlers = function()
 	{
+		this.removeExternalEventsHandlers();
 		// Handler could be called by UF to trigger _changeHandler in complicated cases
-		BX.removeCustomEvent(window, "onUIEntityEditorUserFieldExternalChanged", BX.proxy(this.userFieldExternalChangedHandler, this));
 		BX.addCustomEvent(window, "onUIEntityEditorUserFieldExternalChanged", BX.proxy(this.userFieldExternalChangedHandler, this));
-
-		BX.removeCustomEvent(window, "onUIEntityEditorUserFieldSetValidator", BX.proxy(this.userFieldSetValidatorHandler, this));
 		BX.addCustomEvent(window, "onUIEntityEditorUserFieldSetValidator", BX.proxy(this.userFieldSetValidatorHandler, this));
+	};
+	BX.UI.EntityEditorUserField.prototype.removeExternalEventsHandlers = function()
+	{
+		BX.removeCustomEvent(window, "onUIEntityEditorUserFieldExternalChanged", BX.proxy(this.userFieldExternalChangedHandler, this));
+		BX.removeCustomEvent(window, "onUIEntityEditorUserFieldSetValidator", BX.proxy(this.userFieldSetValidatorHandler, this));
 	};
 	BX.UI.EntityEditorUserField.prototype.userFieldExternalChangedHandler = function(fieldId)
 	{
@@ -1098,6 +1106,10 @@ if(typeof BX.UI.EntityEditorUserField === "undefined")
 		{
 			this._changeHandler();
 		}
+	};
+	BX.UI.EntityEditorUserField.prototype.release = function()
+	{
+		this.removeExternalEventsHandlers();
 	};
 	BX.UI.EntityEditorUserField.prototype.userFieldSetValidatorHandler = function(fieldId, callback)
 	{

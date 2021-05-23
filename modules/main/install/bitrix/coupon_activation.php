@@ -3,12 +3,16 @@ define("UPDATE_SYSTEM_VERSION", "9.0.2");
 error_reporting(E_ALL & ~E_NOTICE);
 
 include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/lib/loader.php");
+include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/autoload.php");
+
 $application = \Bitrix\Main\HttpApplication::getInstance();
 $application->initializeBasicKernel();
 
 require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/php_interface/dbconn.php");
-require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/classes/".$DBType."/database.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/tools.php");
+require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/classes/".$DBType."/database.php");
+require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/classes/general/cache.php");	//various cache classes
+require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/classes/general/module.php");
 
 if ($_REQUEST['lang'] == 'ru')
 	define("LANGUAGE_ID", 'ru');
@@ -58,20 +62,6 @@ $DB->Connect($DBHost, $DBName, $DBLogin, $DBPassword);
 $errorMessage = "";
 $successMessage = "";
 
-/**************************************************************************************************************************/
-/*************************   FUNCTIONS   **********************************************************************************/
-/**************************************************************************************************************************/
-if (!function_exists("file_get_contents"))
-{
-	function file_get_contents($filename)
-	{
-		$fd = fopen("$filename", "rb");
-		$content = fread($fd, filesize($filename));
-		fclose($fd);
-		return $content;
-	}
-}
-
 function UpdateGetOption($name, $default = "")
 {
 	global $DB;
@@ -90,7 +80,7 @@ function UpdateSetOption($name, $value)
 {
 	global $DB, $DBType;
 
-	$fn = $_SERVER['DOCUMENT_ROOT']."/bitrix/managed_cache/".mb_strtoupper($DBType)."/e5/".md5("b_option").".php";
+	$fn = $_SERVER['DOCUMENT_ROOT']."/bitrix/managed_cache/".strtoupper($DBType)."/e5/".md5("b_option").".php";
 	@chmod($fn, BX_FILE_PERMISSIONS);
 	@unlink($fn);
 
@@ -192,7 +182,7 @@ function UpdateGetHTTPPage($requestDataAdd, &$errorMessage)
 		$requestString .= "Host: ".$serverIP."\r\n";
 		$requestString .= "Accept-Language: en\r\n";
 		$requestString .= "Content-type: application/x-www-form-urlencoded\r\n";
-		$requestString .= "Content-length: ".mb_strlen($requestData)."\r\n\r\n";
+		$requestString .= "Content-length: ".strlen($requestData)."\r\n\r\n";
 		$requestString .= "$requestData";
 		$requestString .= "\r\n";
 
@@ -238,10 +228,10 @@ function UpdateParseServerData($content, &$errorMessage)
 
 	$arContent = array();
 
-	if (mb_substr($content, 0, mb_strlen("<DATA>")) != "<DATA>" && function_exists("gzcompress"))
+	if (substr($content, 0, strlen("<DATA>")) != "<DATA>" && function_exists("gzcompress"))
 		$content = @gzuncompress($content);
 
-	if (mb_substr($content, 0, mb_strlen("<DATA>")) != "<DATA>")
+	if (substr($content, 0, strlen("<DATA>")) != "<DATA>")
 		return false;
 
 	if (preg_match_all('#<ERROR[^>]*>(.+?)</ERROR>#is', $content, $arMatches))
@@ -287,15 +277,24 @@ function UpdateActivateCoupon($coupon, &$errorMessage)
 		return false;
 	}
 
+	$v1Value = $arContent["V1"];
+	$v2Value = $arContent["V2"];
+	if (preg_match("#[^A-Za-z0-9+/=]#i", $v1Value)
+		|| preg_match("#[^A-Za-z0-9+/=]#i", $v2Value))
+	{
+		$errorMessage .= $MESS['ERROR_INVALID_CONTENT'].". ";
+		return false;
+	}
+
 	UpdateSetOption('~SAAS_MODE', "Y");
 
-	UpdateSetOption('admin_passwordh', $arContent["V1"]);
+	UpdateSetOption('admin_passwordh', $v1Value);
 
 	if (is_writable($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/admin"))
 	{
 		if ($fp = fopen($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/admin/define.php", 'w'))
 		{
-			fwrite($fp, "<"."?Define(\"TEMPORARY_CACHE\", \"".$arContent["V2"]."\");?".">");
+			fwrite($fp, "<"."?Define(\"TEMPORARY_CACHE\", \"".$v2Value."\");?".">");
 			fclose($fp);
 		}
 		else
@@ -363,23 +362,7 @@ function UpdateIsAdmin($login, $password)
 	{
 		if(intval($arUser["LOGIN_ATTEMPTS"]) <= 5)
 		{
-			if (mb_strlen($arUser["PASSWORD"]) > 32)
-			{
-				$salt = mb_substr($arUser["PASSWORD"], 0, mb_strlen($arUser["PASSWORD"]) - 32);
-				$db_password = mb_substr($arUser["PASSWORD"], -32);
-			}
-			else
-			{
-				$salt = "";
-				$db_password = $arUser["PASSWORD"];
-			}
-
-			$user_password =  md5($salt.$password);
-
-			if($db_password === $user_password)
-			{
-				return true;
-			}
+			return \Bitrix\Main\Security\Password::equals($arUser["PASSWORD"], $password);
 		}
 		$DB->Query("UPDATE b_user SET LOGIN_ATTEMPTS = LOGIN_ATTEMPTS+1, TIMESTAMP_X = TIMESTAMP_X WHERE ID = ".intval($arUser["ID"]));
 	}
@@ -509,7 +492,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 											</tr>
 											<tr>
 												<td width="40%" align="right"><?= $MESS['PASSWORD_PROMT'] ?>:</td>
-												<td><input type="password" name="password" value="" size="40"></td>
+												<td><input type="password" name="password" value="<?= htmlspecialcharsbx(strval($_POST["password"])) ?>" size="40"></td>
 											</tr>
 											<tr>
 												<td width="40%" align="right"><?= $MESS['COUPON_PROMT'] ?>:</td>

@@ -4,6 +4,7 @@ import VariationGridController from './variation-grid/controller';
 import GoogleMapController from './google-map/controller';
 import EmployeeController from './employee/controller';
 import BindingToCrmElementController from './binding-to-crm-element/controller';
+import FieldConfiguratorController from './field-configurator/controller';
 
 export default class ControllersFactory
 {
@@ -17,6 +18,11 @@ export default class ControllersFactory
 
 	factory(type, controlId, settings)
 	{
+		if (type === 'field_configurator')
+		{
+			return new FieldConfiguratorController(controlId, settings);
+		}
+
 		if (type === 'iblock_section')
 		{
 			return new IblockSectionController(controlId, settings);

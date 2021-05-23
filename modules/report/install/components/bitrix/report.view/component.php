@@ -213,6 +213,23 @@ try
 	// action
 	$settings = unserialize($report['SETTINGS'], ['allowed_classes' => false]);
 
+	if (!is_array($settings))
+	{
+		$settings = [];
+	}
+	if (!is_array($settings['select']))
+	{
+		$settings['select'] = [];
+	}
+	if (!is_array($settings['filter']))
+	{
+		$settings['filter'] = [];
+	}
+	if (!is_array($settings['period']))
+	{
+		$settings['period'] = ['type' => 'days', 'value' => 1, 'hidden' => 'N'];
+	}
+
 	// prevent percent from percent
 	$prcntSelect = [];
 	foreach ($settings['select'] as $id => $elem)
@@ -997,17 +1014,27 @@ try
 				$dataType = call_user_func(array($arParams['REPORT_HELPER_CLASS'], 'getFieldDataType'), $field);
 
 				// rewrite date <=> {today, yesterday, tomorrow, etc}
-				if ($dataType === 'datetime'
-					&& !CheckDateTime($fElem['value'], CSite::GetDateFormat('SHORT'))
-				)
+				if ($dataType === 'datetime')
 				{
-					$fElem['value'] = ConvertTimeStamp(strtotime($fElem['value']), 'SHORT');
-
-					// ignore datetime filter with incorrect value
-					if (!CheckDateTime($fElem['value'], CSite::GetDateFormat('SHORT')))
+					$dateFormat = CSite::GetDateFormat('SHORT');
+					if (CheckDateTime($fElem['value'], $dateFormat))
 					{
-						unset($fInfo[$k]);
-						continue;
+						$dateArray = ParseDateTime($fElem['value'], $dateFormat);
+						$fElem['value'] = ConvertTimeStamp(
+							mktime(0, 0, 0, $dateArray["MM"], $dateArray["DD"], $dateArray["YYYY"]),
+							'SHORT'
+						);
+					}
+					else
+					{
+						$fElem['value'] = ConvertTimeStamp(strtotime($fElem['value']), 'SHORT');
+
+						// ignore datetime filter with incorrect value
+						if (!CheckDateTime($fElem['value'], CSite::GetDateFormat('SHORT')))
+						{
+							unset($fInfo[$k]);
+							continue;
+						}
 					}
 				}
 

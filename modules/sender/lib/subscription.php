@@ -84,23 +84,27 @@ class Subscription
 
 			return $resultMailingList;
 		}
-
-		if(!$data['RECIPIENT_ID'])
+		$contactData = $contactId = null;
+		if($data['RECIPIENT_ID'] && $recipient = PostingRecipientTable::getRowById(array('ID' => $data['RECIPIENT_ID'])))
 		{
-			return array();
+			if(isset($data['CONTACT_ID']) && $recipient['CONTACT_ID'] != $data['CONTACT_ID'])
+			{
+				return [];
+			}
+			$contactData = ContactTable::getRowById($contactId = $recipient['CONTACT_ID']);
+		}
+		elseif($data['CONTACT_ID'] && $contactData = ContactTable::getRowById($data['CONTACT_ID']))
+		{
+			$contactId = $contactData['ID'];
+		}
+		else
+		{
+			return [];
 		}
 
-		$recipient = PostingRecipientTable::getRowById(array('ID' => $data['RECIPIENT_ID']));
-		if (!$recipient || !$recipient['CONTACT_ID'])
-		{
-			return array();
-		}
-		$contactId = $recipient['CONTACT_ID'];
-
-		$contactData = ContactTable::getRowById($contactId);
 		if ($contactData && $contactData['BLACKLISTED'] === 'Y')
 		{
-			return array();
+			return [];
 		}
 
 		$mailingUnsub = array();
@@ -215,22 +219,30 @@ class Subscription
 
 		$data['ABUSE'] = isset($data['ABUSE']) ? (bool) $data['ABUSE'] : false;
 		$data['ABUSE_TEXT'] = isset($data['ABUSE_TEXT']) ? $data['ABUSE_TEXT'] : null;
-
 		$result = false;
-		$recipient = PostingRecipientTable::getList(array(
-			'select' => array(
+		$recipient = PostingRecipientTable::getRow([
+			'select' => [
 				'ID', 'CONTACT_ID', 'CONTACT_CODE' => 'CONTACT.CODE', 'CONTACT_TYPE_ID' => 'CONTACT.TYPE_ID',
 				'POSTING_ID', 'POSTING_MAILING_ID' => 'POSTING.MAILING_ID'
-			),
-			'filter' => array('=ID' => $data['RECIPIENT_ID']),
-			'limit' => 1
-		))->fetch();
-		if(!$recipient || !$recipient['CONTACT_ID'])
+			],
+			'filter' => ['=ID' => $data['RECIPIENT_ID']]
+		]);
+		$recipient = ((!$recipient && $data['CONTACT_ID'])? ContactTable::getRow([
+			'select' => [
+				'CONTACT_ID' => 'ID', 'CONTACT_TYPE_ID' => 'TYPE_ID', 'CONTACT_CODE' => 'CODE'
+			],
+			'filter' => ['=CONTACT_ID' => $data['CONTACT_ID']]
+		]) : $recipient);
+		if
+		(
+			!$recipient ||
+			!$recipient['CONTACT_ID'] ||
+			($data['CONTACT_ID']? $data['CONTACT_ID'] != $recipient['CONTACT_ID'] : false)
+		)
 		{
 			return true;
 		}
 		$contactId = $recipient['CONTACT_ID'];
-
 		$mailingDb = MailingTable::getList(array(
 			'select' => array('ID'),
 			'filter' => array(
@@ -240,7 +252,10 @@ class Subscription
 		while($mailing = $mailingDb->fetch())
 		{
 			$primary = null;
-			if($recipient['POSTING_MAILING_ID'] == $mailing['ID'])
+			if(
+				isset($recipient['POSTING_MAILING_ID'],$recipient['POSTING_ID'],$recipient['ID']) &&
+				$recipient['POSTING_MAILING_ID'] == $mailing['ID']
+			)
 			{
 				$primary = array(
 					'POSTING_ID' => $recipient['POSTING_ID'],

@@ -1,12 +1,19 @@
 <?
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
-use Bitrix\Main\Web\Json;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Sender\Recipient;
 
 /** @var CAllMain $APPLICATION */
 /** @var array $arParams */
 /** @var array $arResult */
+
+Bitrix\Main\UI\Extension::load([
+		'ui.notification',
+		'ui',
+]);
+
+Loc::loadMessages(__FILE__);
 
 foreach ($arResult['ERRORS'] as $error)
 {
@@ -117,4 +124,17 @@ $containerId = 'bx-sender-connector-result-list';
 		)
 	);?>
 </div>
-<?
+
+<?php if (!$arResult['BUILDING_COMPLETED']): ?>
+<script>
+	BX.ready(function() {
+		setTimeout(function(){
+			BX.UI.Notification.Center.notify({
+				content: '<?=Loc::getMessage('SENDER_CONNECTOR_RESULT_LOADING_IN_PROGRESS')?>',
+				position: 'top-right',
+				autoHideDelay: 10000,
+			});
+		})
+	}, 1000);
+</script>
+<?php endif; ?>

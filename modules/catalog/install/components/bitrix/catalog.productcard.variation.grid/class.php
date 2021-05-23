@@ -254,6 +254,11 @@ class CatalogProductVariationGridComponent
 	private function processGridDelete(array $ids, bool $allRows = false): void
 	{
 		$product = $this->getProduct();
+		if ($product->isSimple() || $product->isNew())
+		{
+			return;
+		}
+
 		/** @var \Bitrix\Catalog\v2\Sku\SkuCollection $skuCollection */
 		$skuCollection = $product->getSkuCollection();
 
@@ -606,7 +611,7 @@ class CatalogProductVariationGridComponent
 			'SHOW_SELECTED_COUNTER' => true,
 			'SHOW_TOTAL_COUNTER' => true,
 			'SHOW_PAGESIZE' => true,
-			'SHOW_ACTION_PANEL' => true,
+			'SHOW_ACTION_PANEL' => !$this->getProduct()->isSimple(),
 		];
 	}
 

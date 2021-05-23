@@ -87,7 +87,7 @@ if (
 				$CONDITIONS = base64_decode($_POST['CONDITIONS']);
 				if (CheckSerializedData($CONDITIONS))
 				{
-					$CONDITIONS = unserialize($CONDITIONS);
+					$CONDITIONS = unserialize($CONDITIONS, ['allowed_classes' => false]);
 					$boolCond = true;
 				}
 				else
@@ -561,7 +561,7 @@ $tabControl->BeginNextFormTab();
 			{
 				if (CheckSerializedData($arDiscount['CONDITIONS']))
 				{
-					$arDiscount['CONDITIONS'] = unserialize($arDiscount['CONDITIONS']);
+					$arDiscount['CONDITIONS'] = unserialize($arDiscount['CONDITIONS'], ['allowed_classes' => false]);
 				}
 				else
 				{

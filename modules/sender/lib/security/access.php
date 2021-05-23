@@ -96,6 +96,8 @@ class Access
 			$this->canViewRc()
 			||
 			$this->canViewSegments()
+			||
+			$this->canViewTemplates()
 		);
 	}
 

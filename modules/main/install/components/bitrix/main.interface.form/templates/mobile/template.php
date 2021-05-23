@@ -252,6 +252,7 @@ array_unshift($tab["fields"], array(
 								'mediaType' => \Bitrix\Main\Component\BaseUfComponent::MEDIA_TYPE_MOBILE,
 								'formId' => $arParams['FORM_ID'] ?? false,
 								'gridId' => $arParams['THEME_GRID_ID'] ?? false,
+								'componentName' => $arParams['COMPONENT_NAME'] ?? ''
 							];
 
 							$html = (new \Bitrix\Main\UserField\Renderer($userField, $additionalParameters))->render();

@@ -118,7 +118,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && check_bitrix_sessid() && $isAdmin &
 {
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
 	CUtil::JSPostUnescape();
-	echo var_export(unserialize($_POST["data"]), true);
+	echo var_export(unserialize($_POST["data"], array('allowed_classes' => false)), true);
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_js.php");
 	die();
 }
@@ -129,6 +129,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && check_bitrix_sessid() && $isAdmin &
 	CUtil::JSPostUnescape();
 
 	echo serialize(var_import($_POST["data"]));
+	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_js.php");
+	die();
+}
+
+if ($_SERVER["REQUEST_METHOD"] === "POST" && check_bitrix_sessid() && $isAdmin && $_REQUEST["action"] === "base64decode")
+{
+	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
+	CUtil::JSPostUnescape();
+	echo base64_decode($_POST["data"]);
+	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_js.php");
+	die();
+}
+
+if ($_SERVER["REQUEST_METHOD"] === "POST" && check_bitrix_sessid() && $isAdmin && $_REQUEST["action"] === "base64encode")
+{
+	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
+	CUtil::JSPostUnescape();
+	echo base64_encode($_POST["data"]);
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_js.php");
 	die();
 }
@@ -456,6 +474,40 @@ if ($strError)
 				);
 			}
 		}
+		function editAsBase64(button, Field, mark)
+		{
+			var textArea = BX(Field);
+			var markHidden = BX(mark);
+			if (textArea && markHidden)
+			{
+				var action = (button.value == 'base64decode' ? 'base64decode' : 'base64encode');
+				var url = 'perfmon_row_edit.php?lang=<?echo LANGUAGE_ID?>&<?echo bitrix_sessid_get()?>&action=' + action;
+				BX.showWait();
+				BX.ajax.post(
+					url,
+					{data: textArea.value},
+					function (result)
+					{
+						BX.closeWait();
+						if (result.length > 0)
+						{
+							textArea.value = result;
+							if (action == 'base64decode')
+							{
+								markHidden.value = 'Y';
+								button.value = 'base64encode';
+							}
+							else
+							{
+								markHidden.value = '';
+								button.value = 'base64decode';
+							}
+							AdjustHeight();
+						}
+					}
+				);
+			}
+		}
 		BX.ready(function ()
 		{
 			AdjustHeight();
@@ -506,7 +558,7 @@ if ($strError)
 	{
 		$trClass = $arField["nullable"]? "": "adm-detail-required-field";
 		?><tr class="<?echo $trClass?>"><?
-	
+
 		if (in_array($Field, $arIndexColumns))
 		{
 			$value = $bVarsFromForm? $_REQUEST[$Field]: $arRecord[$Field];
@@ -613,6 +665,10 @@ if ($strError)
 						type="button"
 						value="unserialize"
 						onclick="<? echo htmlspecialcharsbx("editAsSerialize(this, '".CUtil::JSEscape($Field)."', 'mark_".CUtil::JSEscape($Field)."_');") ?>"/>
+					<input
+						type="button"
+						value="base64decode"
+						onclick="<? echo htmlspecialcharsbx("editAsBase64(this, '".CUtil::JSEscape($Field)."', 'mark_".CUtil::JSEscape($Field)."_');") ?>"/>
 					<?endif;?>
 				</td>
 		<?

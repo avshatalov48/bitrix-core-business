@@ -7,7 +7,7 @@ use Bitrix\Main\Data\Cache;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Rest\Engine\RestManager;
 use CRestProvider;
-use CRestUtil;
+use Bitrix\Rest\Engine\ScopeManager;
 
 /**
  * Class Rest
@@ -134,13 +134,6 @@ class Rest
 	 */
 	public static function getScope() : array
 	{
-		$result = [];
-		$data = static::getAllBasicDescription();
-		if (!empty($data[static::SCOPE]))
-		{
-			$result = array_diff($data[static::SCOPE], [CRestUtil::GLOBAL_SCOPE]);
-		}
-
-		return $result;
+		return ScopeManager::getInstance()->listScope();
 	}
 }

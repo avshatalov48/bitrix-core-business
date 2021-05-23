@@ -165,8 +165,24 @@
 			)
 		)
 		{
-			BX.PULL.tryConnectSet(null, false);
+			document.body.classList.remove('bx-messenger-dark');
+			document.documentElement.style = "background: #fff";
 			BX.desktop.notSupported();
+			BX.desktop.apiReady = false;
+			BX.desktop.disableLogin = true;
+
+			return false;
+		}
+
+		if (
+			BX.desktop
+			&& BX.desktop.apiReady
+			&& !this.BXIM.ppServerStatus
+		)
+		{
+			document.body.classList.remove('bx-messenger-dark');
+			document.documentElement.style = "background: #fff";
+			BX.desktop.withoutPushServer();
 			BX.desktop.apiReady = false;
 			BX.desktop.disableLogin = true;
 
@@ -714,10 +730,12 @@
 
 		if (params)
 		{
+			params = BX.clone(params);
+
 			if (!params.gender)
 				params.gender = 'M';
 
-			if (!params.avatar || !params.profile)
+			if (!params.avatar)
 				params.avatar = '';
 
 			this.userInfo = params;

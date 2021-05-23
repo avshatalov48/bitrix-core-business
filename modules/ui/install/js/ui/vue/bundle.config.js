@@ -1,5 +1,5 @@
 module.exports = {
-	input: './src/vue.bitrix.js',
-	output: './dist/vue.bitrix.bundle.js',
+	input: './vue2/dev/src/vue-dev.js',
 	namespace: 'BX',
+	protected: true,
 };

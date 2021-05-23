@@ -1423,6 +1423,15 @@ EOS;
 	{
 		[$moduleId, $entity, $documentId] = CBPHelper::ParseDocumentId($parameterDocumentId);
 
+		if (
+			$rootActivity
+			&& $rootActivity->workflow->isNew()
+			&& $status === CBPWorkflowStatus::Running
+		)
+		{
+			$this->clearCache();
+		}
+
 		if ($moduleId)
 		{
 			CModule::IncludeModule($moduleId);

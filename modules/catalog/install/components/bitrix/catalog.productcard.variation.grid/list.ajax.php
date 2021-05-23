@@ -68,4 +68,3 @@ if ($component->initComponent($componentName))
 }
 
 CMain::FinalActions();
-die();

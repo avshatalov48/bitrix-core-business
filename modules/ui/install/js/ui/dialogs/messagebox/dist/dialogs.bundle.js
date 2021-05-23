@@ -25,14 +25,14 @@ this.BX.UI = this.BX.UI || {};
 	 */
 
 	var MessageBox = /*#__PURE__*/function () {
-	  /** @var {PopupWindow} */
+	  /** @var {Popup} */
 	  function MessageBox() {
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, MessageBox);
 	    babelHelpers.defineProperty(this, "popupWindow", null);
 	    babelHelpers.defineProperty(this, "title", null);
 	    babelHelpers.defineProperty(this, "message", null);
-	    babelHelpers.defineProperty(this, "modal", false);
+	    babelHelpers.defineProperty(this, "modal", true);
 	    babelHelpers.defineProperty(this, "popupOptions", {});
 	    babelHelpers.defineProperty(this, "minWidth", 300);
 	    babelHelpers.defineProperty(this, "minHeight", 150);
@@ -46,7 +46,7 @@ this.BX.UI = this.BX.UI || {};
 	    this.popupOptions = main_core.Type.isPlainObject(options.popupOptions) ? options.popupOptions : {};
 	    this.cache = new main_core.Cache.MemoryCache();
 	    this.handleButtonClick = this.handleButtonClick.bind(this);
-	    this.modal = options.modal === true;
+	    this.modal = options.modal !== false;
 	    this.cacheable = options.cacheable === true;
 	    this.setTitle(options.title);
 	    this.setMessage(options.message);
@@ -112,7 +112,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getPopupWindow",
 	    value: function getPopupWindow() {
 	      if (this.popupWindow === null) {
-	        this.popupWindow = new main_popup.PopupWindow(babelHelpers.objectSpread({
+	        this.popupWindow = new main_popup.Popup(babelHelpers.objectSpread({
 	          bindElement: null,
 	          className: this.isMediumButtonSize() ? 'ui-message-box ui-message-box-medium-buttons' : 'ui-message-box',
 	          content: this.getMessage(),
@@ -120,7 +120,9 @@ this.BX.UI = this.BX.UI || {};
 	          minWidth: this.minWidth,
 	          minHeight: this.minHeight,
 	          maxWidth: this.maxWidth,
-	          overlay: this.modal,
+	          overlay: this.modal ? {
+	            opacity: 20
+	          } : null,
 	          cacheable: this.cacheable,
 	          closeIcon: false,
 	          contentBackground: 'transparent',

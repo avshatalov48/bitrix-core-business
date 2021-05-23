@@ -1,20 +1,22 @@
 import type { FooterContent, FooterOptions } from '../footer/footer-content';
+import type { ItemNodeOrder } from '../../item/item-node-options';
+import type { TextNodeOptions } from '../../common/text-node-options';
 
 export type TabOptions = {
 	id: string,
-	title?: string,
+	title?: string | TextNodeOptions,
 	visible?: boolean,
-	comparator?: Function,
 	itemMaxDepth?: number,
-	itemOrder?: {[key: string]: 'asc' | 'desc'},
+	itemOrder?: ItemNodeOrder,
 	icon?: TabLabelStates | string,
 	textColor?: TabLabelStates | string,
 	bgColor?: TabLabelStates | string,
-	stub?: boolean | string,
+	stub?: boolean | string | Function,
 	stubOptions?: { [option: string]: any },
 	footer?: FooterContent,
 	footerOptions?: FooterOptions,
-	showDefaultFooter?: boolean
+	showDefaultFooter?: boolean,
+	showAvatars?: boolean
 };
 
 export type TabLabelState = 'default' | 'selected' | 'hovered' | 'selectedHovered';

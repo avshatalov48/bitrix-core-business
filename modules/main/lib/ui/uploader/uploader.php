@@ -212,7 +212,7 @@ class Uploader
 	const SESSION_LIST = "MFI_SESSIONS";
 	const SESSION_TTL = 86400;
 
-	function __construct($params = array())
+	public function __construct($params = array())
 	{
 		global $APPLICATION;
 
@@ -248,8 +248,6 @@ class Uploader
 			)
 		);
 		$this->request = Context::getCurrent()->getRequest();
-
-		return $this;
 	}
 
 	public function setControlId($controlId)

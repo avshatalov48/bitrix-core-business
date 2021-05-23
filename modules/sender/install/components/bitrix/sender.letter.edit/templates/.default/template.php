@@ -21,6 +21,12 @@ Extension::load("ui.buttons");
 Extension::load("ui.buttons.icons");
 Extension::load("ui.notification");
 CJSCore::Init(array('admin_interface'));
+
+if($arParams['IFRAME'] === 'Y')
+{
+	\Bitrix\UI\Toolbar\Facade\Toolbar::deleteFavoriteStar();
+}
+
 ?>
 <script type="text/javascript">
 	BX.ready(function () {
@@ -28,7 +34,7 @@ CJSCore::Init(array('admin_interface'));
 		BX.Sender.Letter.init(<?=Json::encode(array(
 			'containerId' => $containerId,
 			'actionUrl' => $arResult['ACTION_URL'],
-			'isFrame' => $arParams['IFRAME'] == 'Y',
+			'isFrame' => $arParams['IFRAME'] === 'Y',
 			'isSaved' => $arResult['IS_SAVED'],
 			'isOutside' => $arParams['IS_OUTSIDE'],
 			'isTemplateShowed' => $arResult['SHOW_TEMPLATE_SELECTOR'],
@@ -186,7 +192,8 @@ CJSCore::Init(array('admin_interface'));
 			?>
 		</div>
 
-		<div data-role="letter-buttons" style="<?=($arResult['SHOW_TEMPLATE_SELECTOR'] ? 'display: none;' : '')?>">
+		<div data-role="letter-buttons"
+			style="<?=($arResult['SHOW_TEMPLATE_SELECTOR'] || !$arResult['SHOW_BUTTONS'] ? 'display: none;' : '')?>">
 			<?
 			$buttons = [];
 			if ($arParams['CAN_EDIT'])

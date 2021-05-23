@@ -12,7 +12,7 @@ class CRsaOpensslProvider extends CRsaProvider
 
 	public function LoadKeys()
 	{
-		$arKeys = unserialize(COption::GetOptionString("main", "~rsa_keys_openssl", ""));
+		$arKeys = unserialize(COption::GetOptionString("main", "~rsa_keys_openssl", ""), ['allowed_classes' => false]);
 		if(!is_array($arKeys))
 			return false;
 		$arKeys["PRIV"] = COption::GetOptionString("main", "~rsa_key_pem", "");

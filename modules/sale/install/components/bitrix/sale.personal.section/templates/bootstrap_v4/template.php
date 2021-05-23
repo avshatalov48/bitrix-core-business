@@ -8,6 +8,7 @@ if ($arParams["MAIN_CHAIN_NAME"] <> '')
 	$APPLICATION->AddChainItem(htmlspecialcharsbx($arParams["MAIN_CHAIN_NAME"]), $arResult['SEF_FOLDER']);
 }
 
+$this->addExternalCss("/bitrix/css/main/font-awesome.css");
 $theme = Bitrix\Main\Config\Option::get("main", "wizard_eshop_bootstrap_theme_id", "blue", SITE_ID);
 
 $availablePages = array();

@@ -57,16 +57,16 @@ class TranslateListComponent extends Translate\ComponentBase
 	private $topIndexPath;
 
 	/** @var string[] */
-	private $viewMode = array();
+	private $viewMode = [];
 
 	/** @var array */
-	private $fileData  = array();
+	private $fileData  = [];
 
 	/** @var array */
-	private $dirData = array();
+	private $dirData = [];
 
 	/** @var array */
-	private $indexData = array();
+	private $indexData = [];
 
 	/** @var int */
 	private $totalItemsFound = 0;
@@ -139,10 +139,7 @@ class TranslateListComponent extends Translate\ComponentBase
 					$gridLangs[] = $langId;
 				}
 			}
-			if (!in_array($paramsIn['CURRENT_LANG'], $gridLangs, true))
-			{
-				array_unshift($gridLangs, $paramsIn['CURRENT_LANG']);
-			}
+			$gridLangs = $this->rearrangeLanguages($gridLangs, $paramsIn['CURRENT_LANG']);
 		}
 		$this->arResult['GRID_LANGUAGES'] = $gridLangs;
 
@@ -189,7 +186,7 @@ class TranslateListComponent extends Translate\ComponentBase
 		if (!$this->arResult['IS_AJAX_REQUEST'])
 		{
 			$presetId = \Bitrix\Main\UI\Filter\Options::TMP_FILTER;
-			$filterFieldsValue = array();
+			$filterFieldsValue = [];
 			foreach ($this->filter as $key => $val)
 			{
 				if (in_array($key, ['tabId', 'FILTER_APPLIED', 'FILTER_ID', 'FIND'], true))
@@ -221,8 +218,8 @@ class TranslateListComponent extends Translate\ComponentBase
 		}
 
 
-		$this->arResult['GRID_DATA'] = array();
-		$this->arResult['HEADERS'] = array();
+		$this->arResult['GRID_DATA'] = [];
+		$this->arResult['HEADERS'] = [];
 
 		switch ($this->action)
 		{
@@ -301,8 +298,8 @@ class TranslateListComponent extends Translate\ComponentBase
 				sticked_default
 			*/
 
-			$result = array();
-			$customNames = array();
+			$result = [];
+			$customNames = [];
 
 			$customNames[] = 'TITLE';
 			$result[] = array(
@@ -380,8 +377,7 @@ class TranslateListComponent extends Translate\ComponentBase
 			$languagesList = $this->getLanguages();
 
 			// move current language to the first position
-			unset($languagesList[array_search($paramsIn['CURRENT_LANG'], $languagesList)]);
-			array_unshift($languagesList, $paramsIn['CURRENT_LANG']);
+			$this->rearrangeLanguages($languagesList, $paramsIn['CURRENT_LANG']);
 
 			$titles = $this->getLanguagesTitle($languagesList);
 
@@ -434,7 +430,7 @@ class TranslateListComponent extends Translate\ComponentBase
 		static $result;
 		if (empty($result))
 		{
-			$result = array();
+			$result = [];
 			/*
 			 	\Bitrix\Main\UI\Filter\FieldAdapter::adapt
 
@@ -566,7 +562,7 @@ class TranslateListComponent extends Translate\ComponentBase
 			/*
 			todo: Revert type assigment
 
-			$items = array();
+			$items = [];
 			foreach (\Bitrix\Translate\ASSIGNMENT_TYPES as $assignmentId)
 			{
 				$items[$assignmentId] = $this->getAssignmentTitle($assignmentId);
@@ -585,7 +581,7 @@ class TranslateListComponent extends Translate\ComponentBase
 			/*
 			todo: Revert module assigment
 
-			$items = array();
+			$items = [];
 			foreach ($this->getModuleList() as $moduleId)
 			{
 				$items[$moduleId] = $this->getModuleTitle($moduleId);
@@ -619,7 +615,7 @@ class TranslateListComponent extends Translate\ComponentBase
 
 		if (empty($result))
 		{
-			$result = array();
+			$result = [];
 			/*
 				fields
 				name
@@ -634,7 +630,7 @@ class TranslateListComponent extends Translate\ComponentBase
 	/**
 	 * @return array
 	 */
-	private function getOrder($defaultSort = array('TITLE' => 'asc'), $aliases = array())
+	private function getOrder($defaultSort = array('TITLE' => 'asc'), $aliases = [])
 	{
 		if ($this->gridOptions instanceof Main\Grid\Options)
 		{
@@ -647,7 +643,7 @@ class TranslateListComponent extends Translate\ComponentBase
 			}
 			$order = mb_strtolower(current($sorting['sort'])) === 'asc' ? 'asc' : 'desc';
 
-			$list = array();
+			$list = [];
 			foreach ($this->getHeaderDefinition() as $column)
 			{
 				if (!isset($column['sort']) || !$column['sort'])
@@ -752,6 +748,7 @@ class TranslateListComponent extends Translate\ComponentBase
 		}
 
 		$enabledLanguages = !empty($this->arResult['GRID_LANGUAGES']) ? $this->arResult['GRID_LANGUAGES'] : $this->arResult['LANGUAGES'];
+		$this->rearrangeLanguages($enabledLanguages, $paramsIn['CURRENT_LANG']);
 		$languageUpperKeys = array_combine($enabledLanguages, array_map('mb_strtoupper', $enabledLanguages));
 
 		// go up
@@ -818,7 +815,7 @@ class TranslateListComponent extends Translate\ComponentBase
 		}
 
 		// folders data
-		$folderPathList = array();
+		$folderPathList = [];
 		if (count($this->dirData) > 0)
 		{
 			foreach ($this->dirData as $pathId => &$row)
@@ -855,16 +852,16 @@ class TranslateListComponent extends Translate\ComponentBase
 					continue;
 				}
 
-				$settings = !empty($row['settings']) ? $row['settings'] : array();
-				$indexData = !empty($row['index']) ? $row['index'] : array();
+				$settings = !empty($row['settings']) ? $row['settings'] : [];
+				$indexData = !empty($row['index']) ? $row['index'] : [];
 				$ethalon = !empty($indexData[$paramsIn['CURRENT_LANG']]) ? $indexData[$paramsIn['CURRENT_LANG']] : 0;
 
 				foreach ($languageUpperKeys as $langId => $langUpper)
 				{
 					$isObligatory = true;
-					if (!empty($settings['languages']))
+					if (!empty($settings[Translate\Settings::OPTION_LANGUAGES]))
 					{
-						$isObligatory = in_array($langId, $settings['languages'], true);
+						$isObligatory = in_array($langId, $settings[Translate\Settings::OPTION_LANGUAGES], true);
 					}
 
 					$columnId = "{$langUpper}_LANG";
@@ -922,7 +919,7 @@ class TranslateListComponent extends Translate\ComponentBase
 
 				foreach ($languageUpperKeys as $langId => $langUpper)
 				{
-					$indexData = !empty($index[$langId]) ? $index[$langId] : array();
+					$indexData = !empty($index[$langId]) ? $index[$langId] : [];
 
 					$columnId = "{$langUpper}_LANG";
 					$columnExcess = "{$langUpper}_EXCESS";
@@ -970,6 +967,8 @@ class TranslateListComponent extends Translate\ComponentBase
 		$select = array('PATH_ID', 'PATH', 'IS_LANG', 'IS_DIR', 'TITLE');
 
 		$enabledLanguages = !empty($this->arResult['GRID_LANGUAGES']) ? $this->arResult['GRID_LANGUAGES'] : $this->arResult['LANGUAGES'];
+		$this->rearrangeLanguages($enabledLanguages, $paramsIn['CURRENT_LANG']);
+
 		$languageUpperKeys = array_combine($enabledLanguages, array_map('mb_strtoupper', $enabledLanguages));
 		foreach ($languageUpperKeys as $langId => $langUpper)
 		{
@@ -1000,7 +999,7 @@ class TranslateListComponent extends Translate\ComponentBase
 					$pathId = $row['PATH'];
 
 					$entry = array(
-						'index' => array(),
+						'index' => [],
 						'depth' => 0,
 						'editable' => true,
 						'draggable' => false,
@@ -1046,7 +1045,7 @@ class TranslateListComponent extends Translate\ComponentBase
 
 				foreach ($this->fileData as $pathId => $row)
 				{
-					$indexData = !empty($row['index']) ? $row['index'] : array();
+					$indexData = !empty($row['index']) ? $row['index'] : [];
 
 					foreach ($languageUpperKeys as $langId => $langUpper)
 					{
@@ -1108,6 +1107,8 @@ class TranslateListComponent extends Translate\ComponentBase
 		}
 
 		$enabledLanguages = !empty($this->arResult['GRID_LANGUAGES']) ? $this->arResult['GRID_LANGUAGES'] : $this->arResult['LANGUAGES'];
+		$this->rearrangeLanguages($enabledLanguages, $paramsIn['CURRENT_LANG']);
+
 		$languageUpperKeys = array_combine($enabledLanguages, array_map('mb_strtoupper', $enabledLanguages));
 		foreach ($languageUpperKeys as $langId => $langUpper)
 		{
@@ -1401,14 +1402,14 @@ class TranslateListComponent extends Translate\ComponentBase
 		{
 			if ($langSettings = Translate\Settings::instantiateByPath($topFolder->getPath()))
 			{
-				if (!$langSettings->isExists() || !$langSettings->load())
+				if (!$langSettings->load())
 				{
 					unset($langSettings);
 				}
 			}
 		}
 
-		$nonexistentList = array();
+		$nonexistentList = [];
 		$mergeChildrenList = function(&$childrenList1, $childrenList2, $langId) use (&$nonexistentList, $translationLanguages)
 		{
 			$collectNonexistentList = in_array($langId, $translationLanguages, true);
@@ -1467,7 +1468,7 @@ class TranslateListComponent extends Translate\ComponentBase
 					}
 				}
 
-				$childrenList = array();
+				$childrenList = [];
 				$prevFullPath = '';
 				foreach ($languageList as $langId)
 				{
@@ -1537,7 +1538,7 @@ class TranslateListComponent extends Translate\ComponentBase
 
 				if ($isTopLang === true)
 				{
-					$childrenList = array();
+					$childrenList = [];
 					$prevFullPath = '';
 					foreach ($languageList as $langId)
 					{
@@ -1626,7 +1627,7 @@ class TranslateListComponent extends Translate\ComponentBase
 				}
 			};
 
-		$this->fileData = $this->dirData = array();
+		$this->fileData = $this->dirData = [];
 
 		$totalItemsFound = 0;
 		foreach ($iterateDirectory($topFolder->getPath(), $this->path, $isTopLang) as $entry)
@@ -1665,14 +1666,16 @@ class TranslateListComponent extends Translate\ComponentBase
 		{
 			try
 			{
+				$currentLanguage = $paramsIn['CURRENT_LANG'];
 				$languages = !empty($this->arResult['GRID_LANGUAGES']) ? $this->arResult['GRID_LANGUAGES'] : $this->arResult['LANGUAGES'];
+				$this->rearrangeLanguages($languages, $paramsIn['CURRENT_LANG']);
 				$languageUpperKeys = array_combine($languages, array_map('mb_strtoupper', $languages));
 
 				if ($loadPathsDiff)
 				{
 					$query = Index\Aggregate::buildQuery([
 						'PARENT_ID' => $topIndexPath->getId(),
-						'CURRENT_LANG' => $paramsIn['CURRENT_LANG'],
+						'CURRENT_LANG' => $currentLanguage,
 						'LANGUAGES' => $languages,
 						'PATH_LIST' => $pathList,
 					]);
@@ -1689,7 +1692,7 @@ class TranslateListComponent extends Translate\ComponentBase
 						// phrase excess
 						$query->addSelect("{$alias}_EXCESS");
 
-						if ($langId != $paramsIn['CURRENT_LANG'])
+						if ($langId != $currentLanguage)
 						{
 							// file deficiency
 							$query->addSelect("{$alias}_FILE_DEFICIENCY");
@@ -1702,7 +1705,7 @@ class TranslateListComponent extends Translate\ComponentBase
 				{
 					$query = Index\Aggregate::buildAggregateQuery([
 						'PARENT_ID' => $topIndexPath->getId(),
-						'CURRENT_LANG' => $paramsIn['CURRENT_LANG'],
+						'CURRENT_LANG' => $currentLanguage,
 						'LANGUAGES' => $languages,
 						'GROUP_BY' => 'PARENT_PATH',
 						'PATH_LIST' => $pathList,
@@ -1711,14 +1714,14 @@ class TranslateListComponent extends Translate\ComponentBase
 
 				$cursor = $query->exec();
 
-				$this->indexData = array();
+				$this->indexData = [];
 				foreach ($cursor as $row)
 				{
 					$parentPath = $row['PARENT_PATH'];
 
 					if (!isset($this->indexData[$parentPath]))
 					{
-						$this->indexData[$parentPath] = array();
+						$this->indexData[$parentPath] = [];
 					}
 
 					foreach ($languageUpperKeys as $langId => $langUpper)
@@ -1736,8 +1739,8 @@ class TranslateListComponent extends Translate\ComponentBase
 							);
 							if ($loadPathsDiff)
 							{
-								$this->indexData[$parentPath][$langId]['deficiency_links'] = array();
-								$this->indexData[$parentPath][$langId]['excess_links'] = array();
+								$this->indexData[$parentPath][$langId]['deficiency_links'] = [];
+								$this->indexData[$parentPath][$langId]['excess_links'] = [];
 							}
 						}
 
@@ -1748,7 +1751,7 @@ class TranslateListComponent extends Translate\ComponentBase
 						$excess = (int)$row["{$langUpper}_EXCESS"];
 						$this->indexData[$parentPath][$langId]['phrase_excess'] += $excess;
 
-						if ($langId != $paramsIn['CURRENT_LANG'])
+						if ($langId != $currentLanguage)
 						{
 							$this->indexData[$parentPath][$langId]['file_deficiency'] += (int)$row["{$langUpper}_FILE_DEFICIENCY"];
 							$deficiency = (int)$row["{$langUpper}_DEFICIENCY"];
@@ -1810,7 +1813,7 @@ class TranslateListComponent extends Translate\ComponentBase
 
 		if (empty($modulesList))
 		{
-			$modulesList = array();
+			$modulesList = [];
 
 			$pathModulesRes = Index\Internals\PathIndexTable::getList([
 				'filter' => [
@@ -1846,7 +1849,7 @@ class TranslateListComponent extends Translate\ComponentBase
 	 */
 	private function getModuleTitle($moduleId)
 	{
-		static $title = array();
+		static $title = [];
 		if (!isset($title[$moduleId]))
 		{
 			if ($info = \CModule::CreateModuleObject($moduleId))
@@ -1866,7 +1869,7 @@ class TranslateListComponent extends Translate\ComponentBase
 	 */
 	private function getAssignmentTitle($assignmentId)
 	{
-		static $title = array();
+		static $title = [];
 		if (!isset($title[$assignmentId]))
 		{
 			$title[$assignmentId] = Loc::getMessage("TR_ASSIGNMENT_TYPE_".mb_strtoupper($assignmentId));

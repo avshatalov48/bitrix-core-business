@@ -1328,8 +1328,6 @@ class Entity
 
 	/**
 	 * Cleans all cache entries for the entity.
-	 *
-	 * @throws Main\SystemException
 	 */
 	public function cleanCache()
 	{

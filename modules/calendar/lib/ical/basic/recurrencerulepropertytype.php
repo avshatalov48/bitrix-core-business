@@ -8,7 +8,7 @@ class RecurrenceRulePropertyType extends PropertyType
 {
 	private $rrule;
 
-	public static function getInstance($names, RecurrenceRuleProperty $rrule): RecurrenceRulePropertyType
+	public static function createInstance($names, RecurrenceRuleProperty $rrule): RecurrenceRulePropertyType
 	{
 		return new self($names, $rrule);
 	}

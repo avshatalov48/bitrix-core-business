@@ -64,7 +64,7 @@ abstract class Stepper
 				{
 					if (($option = Option::get("main.stepper.".$moduleId, $classId, "")) !== "")
 					{
-						$option = unserialize($option);
+						$option = unserialize($option, ['allowed_classes' => false]);
 						if (is_array($option))
 						{
 							$return[] = array(
@@ -85,7 +85,7 @@ abstract class Stepper
 				$options = Option::getForModule("main.stepper.".$moduleId);
 				foreach($options as $classId => $option)
 				{
-					$option = unserialize($option);
+					$option = unserialize($option, ['allowed_classes' => false]);
 					if (is_array($option))
 					{
 						$return[] = array(
@@ -146,7 +146,7 @@ HTML;
 
 		$option = Option::get("main.stepper.".$updater->getModuleId(), $className, "");
 		if ($option !== "" )
-			$option = unserialize($option);
+			$option = unserialize($option, ['allowed_classes' => false]);
 		$option = is_array($option) ? $option : array();
 		$updater->setOuterParams(func_get_args());
 		if ($updater->execute($option) === self::CONTINUE_EXECUTION)
@@ -294,6 +294,7 @@ HTML;
 			$addAgent = true;
 			$withArguments = is_array($withArguments) ? $withArguments : [];
 
+			$delay = (int)$delay;
 			if ($delay <= 0)
 			{
 				/** @var Stepper $className */
@@ -304,6 +305,7 @@ HTML;
 			{
 				if (Option::get("main.stepper.".$moduleId, $className, "") === "")
 					Option::set("main.stepper.".$moduleId, $className, serialize([]));
+				\CTimeZone::Disable();
 				\CAgent::AddAgent(
 					$className.'::execAgent('.(empty($withArguments) ? '' : call_user_func_array([$className, "makeArguments"], [$withArguments])).');',
 					$moduleId,
@@ -311,11 +313,12 @@ HTML;
 					1,
 					"",
 					"Y",
-					\ConvertTimeStamp(time()+\CTimeZone::GetOffset() + (int) $delay, "FULL"),
+					\ConvertTimeStamp(time() + $delay, "FULL"),
 					100,
 					false,
 					false
 				);
+				\CTimeZone::Enable();
 			}
 		}
 		else
@@ -326,7 +329,7 @@ HTML;
 			$moduleId = $DB->ForSql($moduleId);
 			if (!(($agent = $DB->Query("SELECT ID FROM b_agent WHERE MODULE_ID='".$moduleId."' AND NAME = '".$name."' AND USER_ID IS NULL")->Fetch()) && $agent))
 			{
-				$DB->Query("INSERT INTO b_agent (MODULE_ID, SORT, NAME, ACTIVE, AGENT_INTERVAL, IS_PERIOD, NEXT_EXEC) VALUES ('".$moduleId."', 100, '".$name."', 'Y', 1, 'Y', ".($delay > 0 ? "DATE_ADD(now(), INTERVAL ". ((int) $delay)." SECOND)" : $DB->GetNowFunction()).")");
+				$DB->Query("INSERT INTO b_agent (MODULE_ID, SORT, NAME, ACTIVE, AGENT_INTERVAL, IS_PERIOD, NEXT_EXEC) VALUES ('".$moduleId."', 100, '".$name."', 'Y', 1, 'Y', ".($delay > 0 ? "DATE_ADD(now(), INTERVAL ".$delay." SECOND)" : $DB->GetNowFunction()).")");
 				$DB->Query("INSERT INTO b_option (`MODULE_ID`, `NAME`, `VALUE`)".
 					"VALUES ('main.stepper.{$moduleId}', '".$className."', 'a:0:{}')".
 					"ON DUPLICATE KEY UPDATE `VALUE` = 'a:0:{}'"
@@ -347,7 +350,7 @@ HTML;
 			foreach ($data as $stepper)
 			{
 				if (($option = Option::get("main.stepper.".$stepper["moduleId"], $stepper["class"], "")) !== "" &&
-					($res = unserialize($option)) && is_array($res))
+					($res = unserialize($option, ['allowed_classes' => false])) && is_array($res))
 				{
 					$r = array(
 						"moduleId" => $stepper["moduleId"],
@@ -385,4 +388,3 @@ HTML;
 		$exceptionHandler->writeToLog($exception);
 	}
 }
-?>

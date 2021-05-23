@@ -2,8 +2,6 @@
 
 namespace Bitrix\Catalog\v2\Section;
 
-use Bitrix\Catalog\v2\BaseCollection;
-use Bitrix\Catalog\v2\BaseEntity;
 use Bitrix\Catalog\v2\IoC\ContainerContract;
 
 /**
@@ -34,25 +32,17 @@ class SectionFactory
 	/**
 	 * @return \Bitrix\Catalog\v2\Section\Section
 	 */
-	public function createEntity(): BaseEntity
+	public function createEntity(): Section
 	{
 		return $this->container->make(self::SECTION);
 	}
 
 	/**
-	 * @param \Bitrix\Catalog\v2\BaseEntity|null $parent
 	 * @return \Bitrix\Catalog\v2\Section\SectionCollection
 	 */
-	public function createCollection(BaseEntity $parent = null): BaseCollection
+	public function createCollection(): SectionCollection
 	{
 		/** @var \Bitrix\Catalog\v2\Section\SectionCollection $collection */
-		$collection = $this->container->make(self::SECTION_COLLECTION);
-
-		if ($parent)
-		{
-			$collection->setParent($parent);
-		}
-
-		return $collection;
+		return $this->container->make(self::SECTION_COLLECTION);
 	}
 }

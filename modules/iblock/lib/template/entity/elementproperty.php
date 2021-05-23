@@ -82,7 +82,12 @@ class ElementProperty extends Base
 			while ($row = $propertyList->fetch())
 			{
 				if ($row["USER_TYPE_SETTINGS"])
-					$row["USER_TYPE_SETTINGS"] = unserialize($row["USER_TYPE_SETTINGS"]);
+				{
+					$row["USER_TYPE_SETTINGS"] = unserialize(
+						$row["USER_TYPE_SETTINGS"],
+						array('allowed_classes' => false)
+					);
+				}
 
 				$properties[$row["ID"]] = $row;
 				if ($row["CODE"] != "")
@@ -270,7 +275,7 @@ class ElementProperty extends Base
 				$this->fieldMap[$property["ID"]] = $property["ID"];
 				if ($property["CODE"] != "")
 					$this->fieldMap[mb_strtolower($property["CODE"])] = $property["ID"];
-				
+
 				if ($property["MULTIPLE"] == "Y")
 					$this->fields[$property["ID"]][] = $value;
 				else

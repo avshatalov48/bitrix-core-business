@@ -79,7 +79,7 @@ class CStatEvent extends CAllStatEvent
 			}
 			$TIME_ENTER_SQL = "FROM_UNIXTIME('".$TIME_ENTER_TMSTMP."')";
 			$DAY_ENTER_TMSTMP = MakeTimeStamp($DATE_ENTER);
-			$DAY_ENTER_SQL = "FROM_UNIXTIME('".$DAY_ENTER_TMSTMP."')";
+			$DAY_ENTER_SQL = "DATE(FROM_UNIXTIME('".$DAY_ENTER_TMSTMP."'))";
 
 			$DB->StartTransaction();
 

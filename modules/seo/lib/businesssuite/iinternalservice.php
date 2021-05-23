@@ -2,7 +2,9 @@
 
 namespace Bitrix\Seo\BusinessSuite;
 
-interface IInternalService
+use Bitrix\Seo\Retargeting\IService;
+
+interface IInternalService extends IService
 {
 	/**
 	 * get type by engineCode

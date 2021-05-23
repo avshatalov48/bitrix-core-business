@@ -85,7 +85,9 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Controlle
 	protected function processResultData()
 	{
 		global $USER;
-		$result = [];
+		$result = [
+			'ERROR_MESSAGE' => [],
+		];
 		$isAdmin = CRestUtil::isAdmin();
 		$userId = $USER->GetID();
 		$params = $this->arParams;
@@ -137,6 +139,15 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Controlle
 			if ($presetData['OPTIONS']['QUERY_NEEDED'] !== 'D')
 			{
 				$result['QUERY_NEEDED'] = $presetData['OPTIONS']['QUERY_NEEDED'];
+				$result['ERROR_MESSAGE'][] = Loc::getMessage(
+					'REST_INTEGRATION_EDIT_ATTENTION_USES_WEBHOOK',
+					[
+						'#URL#' =>
+							'<a href="'.\Bitrix\UI\Util::getArticleUrlByCode('12337906').'" >'
+							. Loc::getMessage('REST_INTEGRATION_EDIT_ATTENTION_USES_WEBHOOK_URL_MESSAGE')
+							. '</a>'
+					]
+				);
 			}
 			else
 			{
@@ -254,7 +265,7 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Controlle
 		$result['IS_HTTPS'] = $context->getRequest()->isHttps();
 		if (!$result['IS_HTTPS'])
 		{
-			$result['ERROR_MESSAGE'] = Loc::getMessage('REST_INTEGRATION_EDIT_ERROR_NO_HTTPS');
+			$result['ERROR_MESSAGE'][] = Loc::getMessage('REST_INTEGRATION_EDIT_ERROR_NO_HTTPS');
 		}
 		$result['IS_NEW_OPEN'] = $this->request->getPost('NEW_OPEN') === 'Y';
 
@@ -394,7 +405,7 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Controlle
 		)
 		{
 			return [
-				'helperCode' => Access::getHelperCode()
+				'helperCode' => Access::getHelperCode(Access::ACTION_INSTALL, Access::ENTITY_TYPE_INTEGRATION, $requestData['ID'])
 			];
 		}
 
@@ -411,7 +422,7 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Controlle
 			|| !Access::isAvailableCount(Access::ENTITY_TYPE_INTEGRATION)
 		)
 		{
-			$result['helperCode'] = Access::getHelperCode();
+			$result['helperCode'] = Access::getHelperCode(Access::ACTION_INSTALL, Access::ENTITY_TYPE_INTEGRATION);
 			return $result;
 		}
 

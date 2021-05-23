@@ -91,7 +91,7 @@ if (!$isAjax)
 			<button id="bx-translate-mode-menu-view-anchor" class="ui-btn ui-btn-dropdown ui-btn-default">
 				<?= $dataTitle ?>
 			</button>
-			<button onclick="BX.Translate.ProcessManager.getInstance('index').showDialog()" class="ui-btn ui-btn-primary ui-btn-icon-task">
+			<button onclick="BX.UI.StepProcessing.ProcessManager.get('index').showDialog()" class="ui-btn ui-btn-primary ui-btn-icon-task">
 				<?= Loc::getMessage('TR_LIST_REFRESH_INDEX') ?>
 			</button>
 			<button id="bx-translate-extra-menu-anchor" class="ui-btn ui-btn-default ui-btn-icon-download"></button>
@@ -241,7 +241,7 @@ if (!$isAjax)
 					[
 						'id' => 'translate-import-csv',
 						'text' => Loc::getMessage("TR_LIST_IMPORT_CSV"),
-						'onclick' => "BX.Translate.ProcessManager.getInstance('import').showDialog();",
+						'onclick' => "BX.UI.StepProcessing.ProcessManager.get('import').showDialog();",
 					],
 				],
 			))?>);
@@ -251,15 +251,15 @@ if (!$isAjax)
 				switch (BX.Translate.PathList.getActionMode())
 				{
 					case '<?= \TranslateListComponent::ACTION_SEARCH_FILE ?>':
-						BX.Translate.ProcessManager.getInstance('exportSearch').showDialog();
+						BX.UI.StepProcessing.ProcessManager.get('exportSearch').showDialog();
 						break;
 
 					case '<?= \TranslateListComponent::ACTION_SEARCH_PHRASE ?>':
-						BX.Translate.ProcessManager.getInstance('exportSearch').showDialog();
+						BX.UI.StepProcessing.ProcessManager.get('exportSearch').showDialog();
 						break;
 
 					default:
-						BX.Translate.ProcessManager.getInstance('export').showDialog();
+						BX.UI.StepProcessing.ProcessManager.get('export').showDialog();
 				}
 			};
 
@@ -274,7 +274,7 @@ if (!$isAjax)
 			}
 
 			// clearEthalon
-			BX.Translate.ProcessManager.create(<?=Json::encode([
+			BX.UI.StepProcessing.ProcessManager.create(<?=Json::encode([
 				'id' => 'clearEthalon',
 				'controller' => 'bitrix:translate.controller.editor.file',
 				'messages' => [
@@ -283,8 +283,6 @@ if (!$isAjax)
 					'DialogStartButton' => Loc::getMessage('TR_DLG_BTN_START'),
 					'DialogStopButton' => Loc::getMessage('TR_DLG_BTN_STOP'),
 					'DialogCloseButton' => Loc::getMessage('TR_DLG_BTN_CLOSE'),
-					'AuthError' => Loc::getMessage('main_include_decode_pass_sess'),
-					'RequestError' => Loc::getMessage('TR_DLG_REQUEST_ERR'),
 					'RequestCanceling' => Loc::getMessage('TR_DLG_REQUEST_CANCEL'),
 					'RequestCanceled' => Loc::getMessage('TR_CLEAR_DLG_CANCELED'),
 					'RequestCompleted' => Loc::getMessage('TR_CLEAR_DLG_COMPLETED'),
@@ -313,14 +311,13 @@ if (!$isAjax)
 				'params' => [
 					'path' => $arResult['PATH'],
 				],
-				'sToken' => 's'. time(),
 			])?>)
 				.setHandler(
-					'StateChanged',
+					BX.UI.StepProcessing.ProcessCallback.StateChanged,
 					function (state, result)
 					{
-						/** @type {BX.Translate.Process} this */
-						if (state === this.STATUSES.completed)
+						/** @type {BX.UI.StepProcessing.Process} this */
+						if (state === BX.UI.StepProcessing.ProcessResultStatus.completed)
 						{
 							BX.Translate.PathList.reloadGrid();
 							this.closeDialog();
@@ -335,7 +332,7 @@ if (!$isAjax)
 					pathList = pathList.filter(function (p){
 						return p !== null && p !== "";
 					});
-					var process = BX.Translate.ProcessManager.getInstance('clearEthalon');
+					var process = BX.UI.StepProcessing.ProcessManager.get('clearEthalon');
 					process
 						.setParam('pathList', pathList.join("\r\n"))
 						.showDialog();
@@ -343,7 +340,7 @@ if (!$isAjax)
 			);
 
 			// index
-			BX.Translate.ProcessManager.create(<?=Json::encode([
+			BX.UI.StepProcessing.ProcessManager.create(<?=Json::encode([
 				'id' => 'index',
 				'controller' => 'bitrix:translate.controller.index.collector',
 				'messages' => [
@@ -352,8 +349,6 @@ if (!$isAjax)
 					'DialogStartButton' => Loc::getMessage('TR_DLG_BTN_START'),
 					'DialogStopButton' => Loc::getMessage('TR_DLG_BTN_STOP'),
 					'DialogCloseButton' => Loc::getMessage('TR_DLG_BTN_CLOSE'),
-					'AuthError' => Loc::getMessage('main_include_decode_pass_sess'),
-					'RequestError' => Loc::getMessage('TR_DLG_REQUEST_ERR'),
 					'RequestCanceling' => Loc::getMessage('TR_DLG_REQUEST_CANCEL'),
 					'RequestCanceled' => Loc::getMessage('TR_INDEX_DLG_CANCELED'),
 					'RequestCompleted' => Loc::getMessage('TR_INDEX_DLG_COMPLETED'),
@@ -383,12 +378,11 @@ if (!$isAjax)
 				'params' => [
 					'path' => $arResult['PATH'],
 				],
-				'sToken' => 's'. time(),
 				'optionsFields' => [
 					'languages' => [
 						'name' => 'languages',
 						'type' => 'select',
-						'multiple' => 'Y',
+						'multiple' => true,
 						'size' => (count($arResult['LANGUAGES_TITLE']) >= 10 ? '10' : count($arResult['LANGUAGES_TITLE']) + 1),
 						'title' => Loc::getMessage('TR_INDEX_DLG_PARAM_LANGUAGES'),
 						'list' => array_merge(['all' => Loc::getMessage('TR_EXPORT_CSV_PARAM_LANGUAGES_ALL')], $arResult['LANGUAGES_TITLE']),
@@ -397,11 +391,11 @@ if (!$isAjax)
 				]
 			])?>)
 				.setHandler(
-					'StateChanged',
+					BX.UI.StepProcessing.ProcessCallback.StateChanged,
 					function (state, result)
 					{
-						/** @type {BX.Translate.Process} this */
-						if (state === this.STATUSES.completed)
+						/** @type {BX.UI.StepProcessing.Process} this */
+						if (state === BX.UI.StepProcessing.ProcessResultStatus.completed)
 						{
 							BX.Translate.PathList.reloadGrid();
 							this.closeDialog();
@@ -410,7 +404,7 @@ if (!$isAjax)
 				);
 
 			//export
-			BX.Translate.ProcessManager.create(<?=Json::encode([
+			BX.UI.StepProcessing.ProcessManager.create(<?=Json::encode([
 				'id' => 'export',
 				'controller' => 'bitrix:translate.controller.export.csv',
 				'messages' => [
@@ -419,8 +413,6 @@ if (!$isAjax)
 					'DialogStartButton' => Loc::getMessage('TR_EXPORT_CSV_DLG_BTN_START'),
 					'DialogStopButton' => Loc::getMessage('TR_DLG_BTN_STOP'),
 					'DialogCloseButton' => Loc::getMessage('TR_DLG_BTN_CLOSE'),
-					'AuthError' => Loc::getMessage('main_include_decode_pass_sess'),
-					'RequestError' => Loc::getMessage('TR_DLG_REQUEST_ERR'),
 					'RequestCanceling' => Loc::getMessage('TR_DLG_REQUEST_CANCEL'),
 					'RequestCanceled' => Loc::getMessage('TR_EXPORT_CSV_DLG_CANCELED'),
 					'RequestCompleted' => Loc::getMessage('TR_EXPORT_CSV_DLG_COMPLETED'),
@@ -445,7 +437,6 @@ if (!$isAjax)
 				'params' => [
 					'path' => $arResult['PATH'],
 				],
-				'sToken' => 's'. time(),
 				'optionsFields' => [
 					'collectUntranslated' => [
 						'name' => 'collectUntranslated',
@@ -462,7 +453,7 @@ if (!$isAjax)
 					'languages' => [
 						'name' => 'languages',
 						'type' => 'select',
-						'multiple' => 'Y',
+						'multiple' => true,
 						'size' => (count($arResult['LANGUAGES_TITLE']) >= 10 ? '10' : count($arResult['LANGUAGES_TITLE']) + 1),
 						'title' => Loc::getMessage('TR_EXPORT_CSV_PARAM_LANGUAGES'),
 						'list' => array_merge(['all' => Loc::getMessage('TR_EXPORT_CSV_PARAM_LANGUAGES_ALL')], $arResult['LANGUAGES_TITLE']),
@@ -487,17 +478,25 @@ if (!$isAjax)
 					codeList = codeList.filter(function (c){
 						return c !== null && c !== "";
 					});
-					var process = BX.Translate.ProcessManager.getInstance('export');
-					process
-						.setParam('codeList', codeList.join("\r\n"))
-						.setOptionFieldValue('pathList', pathList.join("\r\n"))
-						.showDialog()
-						.setOptionFieldValue('pathList', null);
+
+					var process = BX.UI.StepProcessing.ProcessManager.get('export');
+					if (process)
+					{
+						process
+							.setParam('codeList', codeList.join("\r\n"))
+							.showDialog();
+
+						var field = process.getDialog().getOptionField('pathList');
+						if (field)
+						{
+							field.setValue(pathList.join("\r\n"));
+						}
+					}
 				}
 			);
 
 			//export search
-			BX.Translate.ProcessManager.create(<?=Json::encode([
+			BX.UI.StepProcessing.ProcessManager.create(<?=Json::encode([
 				'id' => 'exportSearch',
 				'controller' => 'bitrix:translate.controller.export.csv',
 				'messages' => [
@@ -506,8 +505,6 @@ if (!$isAjax)
 					'DialogStartButton' => Loc::getMessage('TR_EXPORT_CSV_DLG_BTN_START'),
 					'DialogStopButton' => Loc::getMessage('TR_DLG_BTN_STOP'),
 					'DialogCloseButton' => Loc::getMessage('TR_DLG_BTN_CLOSE'),
-					'AuthError' => Loc::getMessage('main_include_decode_pass_sess'),
-					'RequestError' => Loc::getMessage('TR_DLG_REQUEST_ERR'),
 					'RequestCanceling' => Loc::getMessage('TR_DLG_REQUEST_CANCEL'),
 					'RequestCanceled' => Loc::getMessage('TR_EXPORT_CSV_DLG_CANCELED'),
 					'RequestCompleted' => Loc::getMessage('TR_EXPORT_CSV_DLG_COMPLETED'),
@@ -525,7 +522,6 @@ if (!$isAjax)
 				'params' => [
 					'path' => $arResult['PATH'],
 				],
-				'sToken' => 's'. time(),
 				'optionsFields' => [
 					'collectUntranslated' => [
 						'name' => 'collectUntranslated',
@@ -542,7 +538,7 @@ if (!$isAjax)
 					'languages' => [
 						'name' => 'languages',
 						'type' => 'select',
-						'multiple' => 'Y',
+						'multiple' => true,
 						'size' => (count($arResult['LANGUAGES_TITLE']) >= 10 ? '10' : count($arResult['LANGUAGES_TITLE']) + 1),
 						'title' => Loc::getMessage('TR_EXPORT_CSV_PARAM_LANGUAGES'),
 						'list' => array_merge(['all' => Loc::getMessage('TR_EXPORT_CSV_PARAM_LANGUAGES_ALL')], $arResult['LANGUAGES_TITLE']),
@@ -564,7 +560,7 @@ if (!$isAjax)
 				$encodings[$enc] = Translate\Config::getEncodingName($enc);
 			}
 			?>
-			BX.Translate.ProcessManager.create(<?=Json::encode([
+			BX.UI.StepProcessing.ProcessManager.create(<?=Json::encode([
 				'id' => 'import',
 				'controller' => 'bitrix:translate.controller.import.csv',
 				'messages' => [
@@ -573,8 +569,6 @@ if (!$isAjax)
 					'DialogStartButton' => Loc::getMessage('TR_IMPORT_CSV_DLG_BTN_START'),
 					'DialogStopButton' => Loc::getMessage('TR_DLG_BTN_STOP'),
 					'DialogCloseButton' => Loc::getMessage('TR_DLG_BTN_CLOSE'),
-					'AuthError' => Loc::getMessage('main_include_decode_pass_sess'),
-					'RequestError' => Loc::getMessage('TR_DLG_REQUEST_ERR'),
 					'RequestCanceling' => Loc::getMessage('TR_DLG_REQUEST_CANCEL'),
 					'RequestCanceled' => Loc::getMessage('TR_IMPORT_CSV_DLG_CANCELED'),
 					'RequestCompleted' => Loc::getMessage('TR_IMPORT_CSV_DLG_COMPLETED'),
@@ -603,7 +597,6 @@ if (!$isAjax)
 				'params' => [
 					'path' => $arResult['PATH'],
 				],
-				'sToken' => 's'. time(),
 				'optionsFields' => [
 					'csvFile' => [
 						'name' => 'csvFile',
@@ -651,43 +644,40 @@ if (!$isAjax)
 				]
 			])?>)
 				.setHandler(
-					'StateChanged',
+					BX.UI.StepProcessing.ProcessCallback.StateChanged,
 					function (state, result)
 					{
-						/** @type {BX.Translate.Process} this */
-						if (state === this.STATUSES.completed)
+						/** @type {BX.UI.StepProcessing.Process} this */
+						if (state === BX.UI.StepProcessing.ProcessResultStatus.completed)
 						{
-							var dialog = this.getDialog(), buttonsContainer = dialog.popupWindow.buttonsContainer;
-
-							BX.clean(buttonsContainer);
-
-							buttonsContainer.appendChild(BX.create(
-								"span",
-								{
+							var dialog = this.getDialog();
+							if (dialog)
+							{
+								var buttons = [];
+								buttons.push(new BX.UI.Button({
 									text: "<?= Loc::getMessage('TR_IMPORT_CSV_DLG_BTN_MORE') ?>",
-									attrs: {className: "popup-window-button popup-window-button-accept"},
+									color: BX.UI.Button.Color.SUCCESS,
+									icon: BX.UI.Button.Icon.BACK,
 									events: {
-										click: BX.proxy(function(){
+										click: BX.proxy(function () {
 											this.closeDialog();
 											this.showDialog();
 										}, this)
 									}
-								}
-							));
-
-							buttonsContainer.appendChild(BX.create(
-								"span",
-								{
+								}));
+								buttons.push(new BX.UI.CancelButton({
 									text: "<?= Loc::getMessage('TR_DLG_BTN_CLOSE') ?>",
-									attrs: {className: "popup-window-button popup-window-button-link popup-window-button-link-cancel"},
+									color: BX.UI.Button.Color.LINK,
+									tag: BX.UI.Button.Tag.SPAN,
 									events: {
-										click: BX.proxy(function(){
+										click: BX.proxy(function () {
 											this.closeDialog();
 											BX.Translate.PathList.reloadGrid();
 										}, this)
 									}
-								}
-							));
+								}));
+								dialog.popupWindow.setButtons(buttons);
+							}
 						}
 					}
 				);
@@ -703,13 +693,17 @@ if (!$isAjax)
 				dropContainer.ondrop = function (evt) {
 					try
 					{
-						var process = BX.Translate.ProcessManager.getInstance('import');
-						process.showDialog();
-
-						var fileInput = process.dialog.getOption('csvFile');
-						if (fileInput)
+						var process = BX.UI.StepProcessing.ProcessManager.get('import');
+						if (process)
 						{
-							fileInput.files = evt.dataTransfer.files;
+							process.showDialog();
+
+							var fileInput = process.getDialog().getOptionField('csvFile');
+							if (fileInput)
+							{
+								//fileInput.files = evt.dataTransfer.files;
+								fileInput.setValue(evt.dataTransfer.files);
+							}
 						}
 
 						evt.preventDefault();

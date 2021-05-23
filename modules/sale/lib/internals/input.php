@@ -1321,7 +1321,7 @@ class File extends Base
 		if (\is_array($value))
 		{
 			$file = current($value);
-			if (\is_array($file) || \is_int($file))
+			if (\is_array($file) || ((int)$file > 0))
 			{
 				$isMultiple = true;
 			}

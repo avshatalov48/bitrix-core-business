@@ -199,6 +199,7 @@ class CBPSocNetMessageActivity
 			),
 			'MessageText' => array(
 				'Name' => GetMessage('BPSNMA_MESSAGE'),
+				'Description' => GetMessage('BPSNMA_MESSAGE'),
 				'FieldName' => 'message_text',
 				'Type' => 'text',
 				'Required' => true

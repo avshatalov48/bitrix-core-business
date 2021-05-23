@@ -364,7 +364,7 @@
 
 			if (!BX.findChild(items, { attr : { 'data-id' : item.id }}, false, false))
 			{
-				if (me.selectOne && me.inited)
+				if (me.selectOne)
 				{
 					var toRemove = [];
 					for (var i = 0; i < items.childNodes.length; ++i)
@@ -449,6 +449,10 @@
 		openDialog: function(params)
 		{
 			var me = this;
+			if (me.handleOpenDialog && BX.Type.isFunction(me.handleOpenDialog) && me.handleOpenDialog(me) === false)
+			{
+				return;
+			}
 			this.initDialog(function()
 			{
 				BX.SocNetLogDestination.openDialog(me.dialogId, params);
@@ -589,6 +593,10 @@
 		cleanValue: function()
 		{
 			this.valueNode.value = '';
+		},
+		getValue: function()
+		{
+			return this.valueNode.value;
 		},
 		parseValue: function(value)
 		{

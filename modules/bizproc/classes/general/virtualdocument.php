@@ -660,7 +660,7 @@ class CBPVirtualDocument
 							if (!array_key_exists("MODULE_ID", $value))
 								$value["MODULE_ID"] = "bizproc";
 
-							$value = CFile::SaveFile($value, "bizproc_wf", true);
+							$value = CFile::SaveFile($value, "bizproc_wf");
 							if (!$value)
 							{
 								$value = null;

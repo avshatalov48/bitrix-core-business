@@ -143,6 +143,7 @@ export class ImBasePullHandler
 		this.store.dispatch('recent/update', {
 			id: params.dialogId,
 			fields: {
+				lines: params.lines || {id: 0},
 				message: {
 					id: params.message.id,
 					text: params.message.text,

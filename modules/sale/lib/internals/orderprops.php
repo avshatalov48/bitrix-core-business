@@ -7,10 +7,11 @@
  */
 namespace Bitrix\Sale\Internals;
 
-use Bitrix\Main;
 use	Bitrix\Main\Entity\DataManager,
 	Bitrix\Main\Entity\Validator,
 	Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Fields\Validators\EnumValidator;
+use Bitrix\Sale\Registry;
 
 Loc::loadMessages(__FILE__);
 
@@ -163,7 +164,29 @@ class OrderPropsTable extends DataManager
 			'XML_ID' => array(
 				'data_type' => 'string',
 			),
+			'ENTITY_TYPE' => array(
+				'data_type' => 'enum',
+				'default_value' => Registry::ENTITY_ORDER,
+				'required' => true,
+				'validation' => array(__CLASS__, 'validateEntityType'),
+				'values' => static::getEntityTypes()
+			),
 		);
+	}
+
+	public static function getEntityTypes()
+	{
+		return [
+			Registry::ENTITY_ORDER,
+			Registry::ENTITY_SHIPMENT,
+		];
+	}
+
+	public function validateEntityType()
+	{
+		return [
+			new EnumValidator(),
+		];
 	}
 
 	// value
@@ -199,7 +222,7 @@ class OrderPropsTable extends DataManager
 		if($value <> '')
 		{
 			if(CheckSerializedData($value)
-				&& ($v = @unserialize($value)) !== false)
+				&& ($v = @unserialize($value, ['allowed_classes' => false])) !== false)
 				//&& is_array($v)) TODO uncomment after a while)
 			{
 				$value = $v;
@@ -262,7 +285,7 @@ class OrderPropsTable extends DataManager
 	}
 	public static function modifySettingsForFetch($value)
 	{
-		$v = @unserialize($value);
+		$v = @unserialize($value, ['allowed_classes' => false]);
 		return is_array($v) ? $v : array();
 	}
 

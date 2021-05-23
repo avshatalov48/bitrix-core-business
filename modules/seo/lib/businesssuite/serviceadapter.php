@@ -10,20 +10,23 @@ class ServiceAdapter
 {
 	private const CLASS_PREFIX = 'generatedWrapper';
 	private const CLASS_KEY_LENGTH = 16;
-	/**
-	 * @var ServiceWrapper
-	 */
+
+	/** @var ServiceWrapper $wrapper*/
 	protected $wrapper;
 
-
+	/**
+	 * generate container name
+	 * @return string
+	 */
 	private static function generateServiceWrapperContainerName() : string
 	{
-		return static::CLASS_PREFIX . Random::getStringByAlphabet(
-				static::CLASS_KEY_LENGTH,
-				Random::ALPHABET_ALPHALOWER
-			);
+		return static::CLASS_PREFIX . Random::getStringByAlphabet(static::CLASS_KEY_LENGTH, Random::ALPHABET_ALPHALOWER);
 	}
 
+	/**
+	 * Init instance
+	 * @return ServiceWrapper
+	 */
 	public final static function createServiceWrapperContainer() : ServiceWrapper
 	{
 		while ($serviceWrapperClassName = static::generateServiceWrapperContainerName())
@@ -43,28 +46,44 @@ class ServiceAdapter
 		}
 	}
 
-
-
-	public static function load($type)
+	/**
+	 * Create Adapter from [instagram, facebook] service types
+	 * @return ServiceAdapter|null
+	 */
+	public static function loadFacebookService()
 	{
-		if($serviceWrapper = Utils\ServicePool::getInstance($type)->getService())
+		if($serviceWrapper = Utils\ServicePool::getService([Service::INSTAGRAM_TYPE,Service::FACEBOOK_TYPE]))
 		{
-			$result = new static();
-			return $result->setWrapper($serviceWrapper);
+			return (new static())->setWrapper($serviceWrapper);
 		}
 		return null;
 	}
+
 	/**
-	 * has auth
+	 * Create Adapte
 	 * @param $type
 	 *
+	 * @return ServiceAdapter|null
+	 */
+	public static function load($type)
+	{
+		if($serviceWrapper = Utils\ServicePool::getService($type))
+		{
+			return (new static())->setWrapper($serviceWrapper);
+		}
+		return null;
+	}
+
+	/**
+	 * has auth
 	 * @return bool
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	public function canUse() : bool
 	{
-		if(isset($this->type,$this->wrapper))
+		if(isset($this->wrapper))
 		{
-			return $this->getWrapper()::getAuthAdapter(Service::FACEBOOK_TYPE)->hasAuth();
+			return $this->getWrapper()::getAuthAdapter($this->wrapper->getMetaData()->getType())->hasAuth();
 		}
 		return false;
 	}
@@ -93,22 +112,31 @@ class ServiceAdapter
 
 	/**
 	 * get config base api
-	 * @param $type
 	 *
-	 * @return Config
+	 * @return Config|null
+	 * @throws \Bitrix\Main\SystemException
 	 */
-	public function getConfig() : Config
+	public function getConfig() : ?Config
 	{
-		return Config::create(Service::FACEBOOK_TYPE)->setService($this->wrapper);
+		if ($this->canUse())
+		{
+			return Config::create($this->wrapper->getMetaData()->getType())->setService($this->wrapper);
+		}
+		return null;
 	}
 
 	/**
 	 * get extension base api
-	 * @return Extension
+	 * @return Extension|null
+	 * @throws \Bitrix\Main\SystemException
 	 */
-	public function getExtension() : Extension
+	public function getExtension() : ?Extension
 	{
-		return Extension::create(Service::FACEBOOK_TYPE)->setService($this->wrapper);
+		if ($this->canUse())
+		{
+			return Extension::create($this->wrapper->getMetaData()->getType())->setService($this->wrapper);
+		}
+		return null;
 	}
 
 }

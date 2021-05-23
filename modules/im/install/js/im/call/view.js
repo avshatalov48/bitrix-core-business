@@ -200,6 +200,7 @@
 		this._onFullScreenChangeHandler = this._onFullScreenChange.bind(this);
 		//this._onResizeHandler = BX.throttle(this._onResize.bind(this), 500);
 		this._onResizeHandler = this._onResize.bind(this);
+		this._onOrientationChangeHandler = BX.debounce(this._onOrientationChange.bind(this), 500);
 
 		this.resizeObserver = new BX.ResizeObserver(this._onResizeHandler);
 
@@ -242,6 +243,7 @@
 		if (BX.browser.IsMobile())
 		{
 			document.documentElement.style.setProperty('--view-height', window.innerHeight + 'px');
+			window.addEventListener("orientationchange", this._onOrientationChangeHandler);
 		}
 
 		this.elements.audioContainer = BX.create("div", {
@@ -1921,6 +1923,11 @@
 				props: {className: "bx-messenger-videocall-local-user-mobile"}
 			});
 
+			if (window.innerHeight < window.innerWidth)
+			{
+				this.elements.root.classList.add("orientation-landscape");
+			}
+
 			this.elements.wrap.appendChild(this.elements.ear.left);
 			this.elements.wrap.appendChild(this.elements.ear.right);
 			this.elements.wrap.appendChild(this.elements.localUserMobile);
@@ -2771,7 +2778,12 @@
 
 		// safari workaround
 		setTimeout(function()
-		{	if (this.isFullScreen)
+		{
+			if (!this.elements.root)
+			{
+				return;
+			}
+			if (this.isFullScreen)
 			{
 				this.elements.root.classList.add("bx-messenger-videocall-fullscreen");
 			}
@@ -2808,6 +2820,22 @@
 		{
 			this.updateCentralUserAvatarSize();
 			this.toggleEars();
+		}
+	};
+
+	BX.Call.View.prototype._onOrientationChange = function()
+	{
+		if (!this.elements.root)
+		{
+			return;
+		}
+		if (window.innerHeight > window.innerWidth)
+		{
+			this.elements.root.classList.remove("orientation-landscape");
+		}
+		else
+		{
+			this.elements.root.classList.add("orientation-landscape");
 		}
 	};
 
@@ -3277,6 +3305,7 @@
 
 		window.removeEventListener("webkitfullscreenchange", this._onFullScreenChangeHandler);
 		window.removeEventListener("mozfullscreenchange", this._onFullScreenChangeHandler);
+		window.removeEventListener("orientationchange", this._onOrientationChangeHandler);
 		this.resizeObserver.disconnect();
 		for(var userId in this.users)
 		{
@@ -5611,7 +5640,7 @@
 	 */
 	var DeviceSelector = function(config)
 	{
-		this.viewElement = config.viewElement || document.body;
+		this.viewElement = config.viewElement || null;
 		this.parentElement = config.parentElement;
 
 		this.cameraEnabled = BX.prop.getBoolean(config, "cameraEnabled", false);
@@ -6515,6 +6544,12 @@
 		Resumed: 'resumed',
 		Paused: 'paused',
 		Stopped: 'stopped'
+	};
+
+	BX.Call.View.RecordType = {
+		None: 'none',
+		Video: 'video',
+		Audio: 'audio',
 	};
 
 	BX.Call.View.RecordSource = {

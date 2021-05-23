@@ -1026,7 +1026,7 @@ class CAllCatalogProduct
 				return false;
 
 			$iterator = Catalog\PriceTable::getList(array(
-				'select' => array('ID', 'CATALOG_GROUP_ID', 'PRICE', 'CURRENCY'),
+				'select' => array('ID', 'CATALOG_GROUP_ID', 'PRICE', 'CURRENCY', 'PRICE_SCALE'),
 				'filter' => array(
 					'=PRODUCT_ID' => $intProductID,
 					'@CATALOG_GROUP_ID' => $priceTypeList,
@@ -1205,6 +1205,13 @@ class CAllCatalogProduct
 			{
 				$minimalPrice = $result;
 			}
+			elseif (
+				$minimalPrice['COMPARE_PRICE'] == $result['COMPARE_PRICE']
+				&& $minimalPrice['RAW_PRICE']['PRICE_SCALE'] > $result['RAW_PRICE']['PRICE_SCALE']
+			)
+			{
+				$minimalPrice = $result;
+			}
 
 			unset($currentPrice, $result);
 		}
@@ -1213,6 +1220,7 @@ class CAllCatalogProduct
 
 		$discountValue = ($minimalPrice['BASE_PRICE'] - $minimalPrice['PRICE']);
 
+		unset($minimalPrice['RAW_PRICE']['PRICE_SCALE']);
 		$arResult = array(
 			'PRICE' => $minimalPrice['RAW_PRICE'],
 			'RESULT_PRICE' => array(
@@ -1390,7 +1398,10 @@ class CAllCatalogProduct
 			}
 
 			$iterator = Catalog\PriceTable::getList(array(
-				'select' => array('ID', 'CATALOG_GROUP_ID', 'PRICE', 'CURRENCY', 'QUANTITY_FROM', 'QUANTITY_TO', 'PRODUCT_ID'),
+				'select' => array(
+					'ID', 'PRODUCT_ID', 'CATALOG_GROUP_ID',
+					'PRICE', 'CURRENCY', 'QUANTITY_FROM', 'QUANTITY_TO', 'PRICE_SCALE'
+				),
 				'filter' => array(
 					'=PRODUCT_ID' => array_keys($products),
 					'@CATALOG_GROUP_ID' => $priceTypeList
@@ -1682,11 +1693,19 @@ class CAllCatalogProduct
 			{
 				$minimalPrice[$basketCode] = $result;
 			}
+			elseif (
+				$minimalPrice[$basketCode]['COMPARE_PRICE'] == $result['COMPARE_PRICE']
+				&& $minimalPrice[$basketCode]['RAW_PRICE']['PRICE_SCALE'] > $result['RAW_PRICE']['PRICE_SCALE']
+			)
+			{
+				$minimalPrice[$basketCode] = $result;
+			}
 
 			unset($currentPrice, $result);
 
 			$discountValue = ($minimalPrice[$basketCode]['BASE_PRICE'] - $minimalPrice[$basketCode]['PRICE']);
 
+			unset($minimalPrice[$basketCode]['RAW_PRICE']['PRICE_SCALE']);
 			$productResult = array(
 				'PRICE' => $minimalPrice[$basketCode]['RAW_PRICE'],
 				'RESULT_PRICE' => array(

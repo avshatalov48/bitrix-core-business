@@ -1,7 +1,15 @@
 <?php
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /**
  * @var $component \CatalogProductVariationGridComponent
  * @var $this \CBitrixComponentTemplate
+ * @var \CMain $APPLICATION
+ * @var array $arParams
+ * @var array $arResult
  */
 
 use Bitrix\Main\Localization\Loc;
@@ -15,11 +23,6 @@ Extension::load([
 	'ui.dialogs.messagebox',
 	'ui.hint',
 ]);
-
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
-{
-	die();
-}
 
 $containerId = 'catalog_variation_grid';
 $createPropertyId = $containerId.'_create_property';

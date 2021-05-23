@@ -69,14 +69,14 @@ class BasketBuilderExist implements IBasketBuilderDelegate
 
 		if(!empty($productData["PROVIDER_DATA"]) && !$this->builder->isNeedUpdateNewProductPrice() && CheckSerializedData($productData["PROVIDER_DATA"]))
 		{
-			$providerData = unserialize($productData["PROVIDER_DATA"]);
+			$providerData = unserialize($productData["PROVIDER_DATA"], ['allowed_classes' => false]);
 		}
 
 		if(is_array($providerData) && !empty($providerData))
 			$this->builder->sendProductCachedDataToProvider($item, $this->builder->getOrder(), $providerData);
 
 		if(!empty($productData["SET_ITEMS_DATA"]) && CheckSerializedData($productData["SET_ITEMS_DATA"]))
-			$productData["SET_ITEMS"] = unserialize($productData["SET_ITEMS_DATA"]);
+			$productData["SET_ITEMS"] = unserialize($productData["SET_ITEMS_DATA"], ['allowed_classes' => false]);
 
 		$this->builder->setBasketItemFields($item, $itemFields);
 	}

@@ -184,10 +184,7 @@ if($arResult["ERROR"] === '' && $saleModulePermissions >= "W" && check_bitrix_se
 					$arResult['OFD'] = '\\'.Cashbox\TaxcomOfd::class;
 				}
 
-				if ($handler === '\Bitrix\Sale\Cashbox\CashboxCheckbox')
-				{
-					$arResult['SHOW_UA_HINT'] = 'Y';
-				}
+				$arResult['HANDLER_CODE'] = $handler::getCode();
 
 				ob_start();
 				require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/sale/admin/cashbox_settings.php");

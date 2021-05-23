@@ -365,6 +365,11 @@ abstract class Element extends Base
 		$this->loadOfferTreePropertyCodes($this->arParams['IBLOCK_ID']);
 	}
 
+	protected function checkProductIblock(array $product): bool
+	{
+		return ($product['PRODUCT_IBLOCK_ID'] == $this->arParams['IBLOCK_ID']);
+	}
+
 	/**
 	 * @param int $iblockId
 	 * @return void

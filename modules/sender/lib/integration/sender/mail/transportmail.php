@@ -229,7 +229,7 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 
 		$mailParams = array(
 			'TO' => $mailMessage->getMailTo(),
-			'SUBJECT' => $this->replaceTemplate($mailMessage->getMailSubject()),
+			'SUBJECT' => static::replaceTemplate($mailMessage->getMailSubject()),
 			'BODY' => $mailMessage->getMailBody(),
 			'HEADER' => $mailMessage->getMailHeaders() + $headers,
 			'CHARSET' => $mailMessage->getMailCharset(),
@@ -350,7 +350,7 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 		return $this->mailAddress->set($address)->get();
 	}
 
-	private function replaceTemplate($str)
+	public static function replaceTemplate($str)
 	{
 		preg_match_all("/#([0-9a-zA-Z_.|]+?)#/", $str, $matchesFindPlaceHolders);
 		if(!empty($matchesFindPlaceHolders) && isset($matchesFindPlaceHolders[1]))

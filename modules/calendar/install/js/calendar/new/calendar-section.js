@@ -622,7 +622,8 @@
 		{
 			return (this.data.CAL_DAV_CAL && this.data.CAL_DAV_CAL.indexOf('@virtual/events/') !== -1)
 				|| (this.data.GAPI_CALENDAR_ID && this.data.GAPI_CALENDAR_ID.indexOf('@group.v.calendar.google.com') !== -1)
-				|| (this.data.GAPI_CALENDAR_ID && this.data.GAPI_CALENDAR_ID.indexOf('@group.calendar.google.com') !== -1)
+				|| (this.data.EXTERNAL_TYPE === 'google_readonly')
+				|| (this.data.EXTERNAL_TYPE === 'google_freebusy')
 		},
 
 		isGoogle: function()

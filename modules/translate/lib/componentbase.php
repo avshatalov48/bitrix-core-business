@@ -188,7 +188,22 @@ abstract class ComponentBase
 		$this->arResult['ALLOW_EDIT_SOURCE'] = $this->hasUserPermissionEditSource($this->getUser());
 	}
 
+	/**
+	 * Moves current language to the first position.
+	 * @return string[]
+	 */
+	protected function rearrangeLanguages($langList, $currentLangId)
+	{
+		$inx = array_search($currentLangId, $langList, true);
+		if ($inx !== false)
+		{
+			unset($langList[$inx]);
+		}
 
+		array_unshift($langList, $currentLangId);
+
+		return $langList;
+	}
 
 	/**
 	 * @return string[]

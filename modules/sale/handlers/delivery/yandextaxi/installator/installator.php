@@ -2,6 +2,7 @@
 
 namespace Sale\Handlers\Delivery\YandexTaxi\Installator;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
@@ -9,6 +10,7 @@ use Bitrix\Sale\Delivery\ExtraServices\Checkbox;
 use Bitrix\Sale\Delivery\ExtraServices\Enum;
 use Bitrix\Sale\Delivery\ExtraServices\Table;
 use Bitrix\Sale\Delivery\Restrictions\ByPublicMode;
+use Bitrix\Sale\Delivery\Services\Manager;
 use Bitrix\Sale\Delivery\Services\OrderPropsDictionary;
 use Bitrix\Sale\Internals\OrderPropsGroupTable;
 use Bitrix\Sale\Internals\OrderPropsRelationTable;
@@ -16,6 +18,7 @@ use Bitrix\Sale\Internals\OrderPropsTable;
 use Bitrix\Sale\Internals\ServiceRestrictionTable;
 use Bitrix\Sale\PersonTypeTable;
 use Bitrix\Sale\Registry;
+use Sale\Handlers\Delivery\YandexTaxi\Api\Tariffs\Repository;
 use Sale\Handlers\Delivery\YandexTaxi\Common\OrderEntitiesCodeDictionary;
 
 /**
@@ -25,6 +28,18 @@ use Sale\Handlers\Delivery\YandexTaxi\Common\OrderEntitiesCodeDictionary;
  */
 final class Installator
 {
+	/** @var Repository */
+	private $tariffsRepository;
+
+	/**
+	 * Installator constructor.
+	 * @param Repository $tariffsRepository
+	 */
+	public function __construct(Repository $tariffsRepository)
+	{
+		$this->tariffsRepository = $tariffsRepository;
+	}
+
 	/**
 	 * @param int $serviceId
 	 * @return Result
@@ -36,18 +51,37 @@ final class Installator
 	{
 		$result = new Result();
 
-		$this->installClaimsDbTable();
-
-		$orderPropsResult = $this->installOrderProperties($serviceId);
+		$orderPropsResult = $this->installOrderProperties();
 		if (!$orderPropsResult->isSuccess())
 		{
 			return $result->addErrors($orderPropsResult->getErrors());
 		}
+		$propertyIds = $orderPropsResult->getData()['PROPERTY_IDS'];
 
-		$extraServicesResult = $this->installExtraServices($serviceId);
-		if (!$extraServicesResult->isSuccess())
+		$tariffs = $this->tariffsRepository->getTariffs();
+		$profileSort = 100;
+		foreach ($tariffs as $tariff)
 		{
-			return $result->addErrors($extraServicesResult->getErrors());
+			$installProfileResult = $this->installProfile($serviceId, $tariff, $profileSort);
+			if (!$installProfileResult->isSuccess())
+			{
+				return $result->addErrors($installProfileResult->getErrors());
+			}
+			$profileSort += 100;
+
+			$profileId = $installProfileResult->getData()['ID'];
+
+			$attachPropertiesResult = $this->attachOrderProperties($profileId, $propertyIds);
+			if (!$attachPropertiesResult->isSuccess())
+			{
+				return $result->addErrors($attachPropertiesResult->getErrors());
+			}
+
+			$extraServicesResult = $this->installExtraServices($profileId, $tariff);
+			if (!$extraServicesResult->isSuccess())
+			{
+				return $result->addErrors($extraServicesResult->getErrors());
+			}
 		}
 
 		$this->installRestriction($serviceId);
@@ -57,12 +91,80 @@ final class Installator
 
 	/**
 	 * @param int $serviceId
+	 * @param array $tariff
+	 * @param int $sort
+	 * @return Result
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	protected function installProfile(int $serviceId, array $tariff, int $sort = 100): Result
+	{
+		$result = new Result();
+
+		$parentServiceFields = Manager::getById($serviceId);
+		if (!$parentServiceFields)
+		{
+			return $result->addError(new Error('Parent service not found'));
+		}
+
+		$addResult = Manager::add(
+			[
+				'CODE' => sprintf(
+					'YANDEX_TAXI_%s',
+					mb_strtoupper($tariff['name'])
+				),
+				'NAME' => Loc::getMessage(
+					sprintf(
+						'SALE_YANDEX_TAXI_TARIFF_%s',
+						mb_strtoupper($tariff['name'])
+					)
+				),
+				'DESCRIPTION' => Loc::getMessage(
+					sprintf(
+						'SALE_YANDEX_TAXI_TARIFF_%s_DESCRIPTION',
+						mb_strtoupper($tariff['name'])
+					)
+				),
+				'LOGOTIP' => \CFile::SaveFile(
+					\CFile::MakeFileArray(
+						sprintf(
+							'%s/bitrix/modules/sale/handlers/delivery/yandextaxi/logos/%s.png',
+							Application::getDocumentRoot(),
+							mb_strtolower($tariff['name'])
+						)
+					),
+					'sale/delivery/logotip'
+				),
+				'PARENT_ID' => $serviceId,
+				'CLASS_NAME' => '\Sale\Handlers\Delivery\YandextaxiProfile',
+				'SORT' => $sort,
+				'ACTIVE' => 'Y',
+				'CONFIG' => [
+					'MAIN' => [
+						'PROFILE_TYPE' => $tariff['name'],
+					]
+				],
+				'XML_ID' => Manager::generateXmlId(),
+				'CURRENCY' => $parentServiceFields['CURRENCY'],
+				'ALLOW_EDIT_SHIPMENT' => $parentServiceFields['ALLOW_EDIT_SHIPMENT'],
+				'VAT_ID' => $parentServiceFields['VAT_ID'],
+			]
+		);
+
+		if (!$addResult->isSuccess())
+		{
+			return $result->addErrors($addResult->getErrors());
+		}
+
+		return $result->setData(['ID' => $addResult->getId()]);
+	}
+
+	/**
 	 * @return Result
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	protected function installOrderProperties(int $serviceId): Result
+	protected function installOrderProperties(): Result
 	{
 		$result = new Result();
 
@@ -170,6 +272,8 @@ final class Installator
 					'MULTIPLE' => $property['MULTIPLE'],
 					'SETTINGS' => $property['SETTINGS'],
 					'ENTITY_REGISTRY_TYPE' => Registry::REGISTRY_TYPE_ORDER,
+					'DEFAULT_VALUE' => '',
+					'DESCRIPTION' => '',
 				];
 
 				if ($existingProperty)
@@ -195,6 +299,8 @@ final class Installator
 								'PROPS_GROUP_ID' => $propertyGroupId,
 								'CODE' => $property['CODE'],
 								'TYPE' => $property['TYPE'],
+
+
 							]
 						)
 					);
@@ -208,9 +314,25 @@ final class Installator
 			}
 		}
 
-		/**
-		 * Attach properties to delivery services
-		 */
+		return $result->setData(
+			[
+				'PROPERTY_IDS' => $propertyIds
+			]
+		);
+	}
+
+	/**
+	 * @param int $serviceId
+	 * @param array $propertyIds
+	 * @return Result
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	protected function attachOrderProperties(int $serviceId, array $propertyIds): Result
+	{
+		$result = new Result();
+
 		foreach ($propertyIds as $propertyId)
 		{
 			$fields = [
@@ -244,10 +366,11 @@ final class Installator
 
 	/**
 	 * @param int $serviceId
+	 * @param array $tariff
 	 * @return Result
 	 * @throws \Exception
 	 */
-	protected function installExtraServices(int $serviceId): Result
+	protected function installExtraServices(int $serviceId, array $tariff): Result
 	{
 		$result = new Result();
 
@@ -271,60 +394,92 @@ final class Installator
 			return $result->addErrors($addResult->getErrors());
 		}
 
-		/**
-		 * Vehicle Type
-		 */
-		$expressValue = 'express';
-		$addResult = Table::add(
-			[
-				'ACTIVE' => 'Y',
-				'RIGHTS' => 'YYY',
-				'DELIVERY_ID' => $serviceId,
-				'CODE' => OrderEntitiesCodeDictionary::VEHICLE_TYPE_EXTRA_SERVICE_CODE,
-				'NAME' => Loc::getMessage('SALE_YANDEX_TAXI_VEHICLE_TYPE'),
-				'CLASS_NAME' => '\\' . Enum::class,
-				'INIT_VALUE' => $expressValue,
-				'PARAMS' => [
-					'PRICES' => [
-						'express' => [
-							'TITLE' => Loc::getMessage('SALE_YANDEX_TAXI_VEHICLE_TYPE_CAR'),
-							'PRICE' => 0.00,
-							'CODE' => $expressValue,
-						],
-					],
-				],
-			]
-		);
-		if (!$addResult->isSuccess())
+		$listNullValue = 'null';
+		foreach ($tariff['supported_requirements'] as $supportedRequirement)
 		{
-			return $result->addErrors($addResult->getErrors());
+			if ($supportedRequirement['type'] === 'multi_select')
+			{
+				foreach ($supportedRequirement['options'] as $option)
+				{
+					$addResult = Table::add(
+						[
+							'ACTIVE' => 'Y',
+							'RIGHTS' => 'YYY',
+							'DELIVERY_ID' => $serviceId,
+							'CODE' => $option['value'],
+							'NAME' => Loc::getMessage(
+								sprintf(
+									'SALE_YANDEX_TAXI_EXTRA_SERVICE_%s',
+									mb_strtoupper($option['value'])
+								)
+							),
+							'CLASS_NAME' => '\\' . Checkbox::class,
+							'INIT_VALUE' => 'N',
+							'PARAMS' => ['PRICE' => 0.00],
+						]
+					);
+					if (!$addResult->isSuccess())
+					{
+						return $result->addErrors($addResult->getErrors());
+					}
+				}
+			}
+			elseif ($supportedRequirement['type'] === 'select')
+			{
+				$params = [
+					$listNullValue => [
+						'TITLE' => Loc::getMessage('SALE_YANDEX_TAXI_EXTRA_SERVICE_LIST_NOT_SELECTED'),
+						'PRICE' => 0.00,
+						'CODE' => $listNullValue,
+					]
+				];
+
+				foreach ($supportedRequirement['options'] as $option)
+				{
+					$value = (string)$option['value'];
+
+					$titleLang = Loc::getMessage(
+						sprintf(
+							'SALE_YANDEX_TAXI_EXTRA_SERVICE_%s_OPTION_%s',
+							mb_strtoupper($supportedRequirement['name']),
+							mb_strtoupper($value)
+						)
+					);
+
+					$params[$value] = [
+						'TITLE' => $titleLang ?: $value,
+						'PRICE' => 0.00,
+						'CODE' => $value,
+					];
+				}
+
+				$addResult = Table::add(
+					[
+						'ACTIVE' => 'Y',
+						'RIGHTS' => 'YYY',
+						'DELIVERY_ID' => $serviceId,
+						'CODE' => $supportedRequirement['name'],
+						'NAME' => Loc::getMessage(
+							sprintf(
+								'SALE_YANDEX_TAXI_EXTRA_SERVICE_%s',
+								mb_strtoupper($supportedRequirement['name'])
+							)
+						),
+						'CLASS_NAME' => '\\' . Enum::class,
+						'INIT_VALUE' => $listNullValue,
+						'PARAMS' => [
+							'PRICES' => $params,
+						],
+					]
+				);
+				if (!$addResult->isSuccess())
+				{
+					return $result->addErrors($addResult->getErrors());
+				}
+			}
 		}
 
 		return $result;
-	}
-
-	protected function installClaimsDbTable()
-	{
-		$GLOBALS['DB']->Query("
-			create table if not exists b_sale_delivery_yandex_taxi_claims(
-				ID INT NOT NULL AUTO_INCREMENT,
-				CREATED_AT DATETIME NOT NULL,
-				UPDATED_AT DATETIME NOT NULL,
-				FURTHER_CHANGES_EXPECTED char(1) NOT NULL DEFAULT 'Y',
-				SHIPMENT_ID INT NOT NULL,
-				INITIAL_CLAIM TEXT NOT NULL,
-				EXTERNAL_ID VARCHAR(255) NOT NULL,
-				EXTERNAL_STATUS VARCHAR(255) NOT NULL,
-				EXTERNAL_RESOLUTION VARCHAR(20) DEFAULT NULL,
-				EXTERNAL_CREATED_TS VARCHAR(255) NOT NULL,
-				EXTERNAL_UPDATED_TS VARCHAR(255) NOT NULL,
-				EXTERNAL_CURRENCY char(3) DEFAULT NULL,
-				EXTERNAL_FINAL_PRICE decimal(19,4) DEFAULT NULL,
-				UNIQUE IX_UNIQUE_EXTERNAL_ID (EXTERNAL_ID),
-				KEY IX_FURTHER_CHANGES_EXPECTED (FURTHER_CHANGES_EXPECTED),
-				PRIMARY KEY (ID)
-			);
-		");
 	}
 
 	protected function installRestriction(int $serviceId)

@@ -378,7 +378,7 @@ class Chat
 		if (isset($options['LIMIT']))
 		{
 			$options['LIMIT'] = intval($options['LIMIT']);
-			$limit = $options['LIMIT'] >= 50? 50: $options['LIMIT'];
+			$limit = $options['LIMIT'] >= 100? 100: $options['LIMIT'];
 		}
 		else
 		{
@@ -434,15 +434,21 @@ class Chat
 		}
 
 		$orm = \Bitrix\Im\Model\MessageTable::getList(array(
+			'select' => [
+				'ID', 'AUTHOR_ID', 'DATE_CREATE', 'NOTIFY_EVENT', 'MESSAGE',
+				'USER_LAST_ACTIVITY_DATE' => 'AUTHOR.LAST_ACTIVITY_DATE',
+				'USER_IDLE' => 'STATUS.IDLE',
+				'USER_MOBILE_LAST_DATE' => 'STATUS.MOBILE_LAST_DATE',
+				'USER_DESKTOP_LAST_DATE' => 'STATUS.DESKTOP_LAST_DATE',
+			],
 			'filter' => $filter,
-			'select' => Array('ID', 'AUTHOR_ID', 'DATE_CREATE', 'NOTIFY_EVENT', 'MESSAGE'),
 			'order' => $order,
 			'limit' => $limit
 		));
 
 		$users = Array();
 
-		$userOptions = Array();
+		$userOptions = ['SKIP_ONLINE' => 'Y'];
 		if ($options['JSON'] == 'Y')
 		{
 			$userOptions['JSON'] = 'Y';
@@ -462,6 +468,11 @@ class Chat
 				$message['AUTHOR_ID'] = 0;
 			}
 
+			if ($options['USER_TAG_SPREAD'] === 'Y')
+			{
+				$message['MESSAGE'] = preg_replace_callback("/\[USER=([0-9]{1,})\]\[\/USER\]/i", Array('\Bitrix\Im\Text', 'modifyShortUserTag'), $message['MESSAGE']);
+			}
+
 			$messages[$message['ID']] = Array(
 				'ID' => (int)$message['ID'],
 				'CHAT_ID' => (int)$chatId,
@@ -472,7 +483,13 @@ class Chat
 			);
 			if ($message['AUTHOR_ID'] && !isset($users[$message['AUTHOR_ID']]))
 			{
-				$users[$message['AUTHOR_ID']] = User::getInstance($message['AUTHOR_ID'])->getArray($userOptions);
+				$user = User::getInstance($message['AUTHOR_ID'])->getArray($userOptions);
+				$user['last_activity_date'] = $message['USER_LAST_ACTIVITY_DATE']? date('c', $message['USER_LAST_ACTIVITY_DATE']->getTimestamp()): false;
+				$user['desktop_last_date'] = $message['USER_DESKTOP_LAST_DATE']? date('c', $message['USER_DESKTOP_LAST_DATE']->getTimestamp()): false;
+				$user['mobile_last_date'] = $message['USER_MOBILE_LAST_DATE']? date('c', $message['USER_MOBILE_LAST_DATE']->getTimestamp()): false;
+				$user['idle'] = $message['USER_IDLE']?: false;
+
+				$users[$message['AUTHOR_ID']] = $user;
 			}
 			if ($options['CONVERT_TEXT'] == 'Y')
 			{
@@ -627,7 +644,7 @@ class Chat
 
 		if (isset($params['LOAD_READED']) && $params['LOAD_READED'])
 		{
-			$userOptions = [];
+			$userOptions = ['SKIP_ONLINE' => 'Y'];
 			if ($chat['ENTITY_TYPE'] == 'LIVECHAT')
 			{
 				[$lineId] = explode('|', $chat['CHAT_ENTITY_ID']);
@@ -913,116 +930,6 @@ class Chat
 			'filter' => $filter,
 			'runtime' => $runtime
 		];
-	}
-
-	/**
-	 * Makes user dialog relation visible in left bar and return this new relation
-	 *
-	 * @param $dialogId
-	 * @param $userId
-	 *
-	 * @return array|mixed
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\LoaderException
-	 * @throws \Bitrix\Main\ObjectException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
-	 */
-	public static function makeRelationShow($dialogId, $userId)
-	{
-		$relationList = self::getRelation($dialogId);
-		$currentRelation = $relationList[$userId];
-		unset($relationList[$userId]);
-		$chat = \Bitrix\Im\Model\ChatTable::getById($dialogId)->fetch();
-		//for compatibility with CIMChat::AddUser logic we make this checks
-		if (intval($currentRelation['UNREAD_ID']) <= 0 || empty($currentRelation))
-		{
-			$relation = [
-				'CHAT_ID' => $dialogId,
-				'MESSAGE_TYPE' => $chat['TYPE'],
-				'USER_ID' => $userId,
-				'LAST_ID' => $chat['LAST_MESSAGE_ID'],
-				'LAST_SEND_ID' => $chat['LAST_MESSAGE_ID'],
-				'STATUS' => IM_CALL_STATUS_WAIT,
-				'MESSAGE_STATUS' => IM_MESSAGE_STATUS_RECEIVED,
-				'UNREAD_ID' => $chat['LAST_MESSAGE_ID'],
-				'COUNTER' => 1
-			];
-
-			foreach ($relationList as $relationItem)
-			{
-				if ($relationItem['LAST_ID'] < $relation['LAST_ID'] && intval($relationItem['LAST_ID']) > 0)
-				{
-					$relation['LAST_ID'] = $relationItem['LAST_ID'];
-					$relation['UNREAD_ID'] = $relation['LAST_ID'];
-					break;
-				}
-			}
-
-			//Condition for case when empty relation last id
-			if ($relation['LAST_ID'] == $chat['LAST_MESSAGE_ID'])
-			{
-				$message = \Bitrix\Im\Model\MessageTable::getList(
-					array(
-						'select' => array('ID'),
-						'order' => array('ID' => 'DESC'),
-						'filter' => array('CHAT_ID' => $relation['CHAT_ID'], '<ID' => $relation['LAST_ID']),
-						'limit' => 1
-					)
-				)->fetch();
-
-				if (intval($message['ID']) > 0)
-				{
-					$relation['LAST_ID'] = $message['ID'];
-					$relation['UNREAD_ID'] = $message['ID'];
-				}
-			}
-
-			if (empty($currentRelation['ID']))
-			{
-				$orm = RelationTable::add($relation);
-				$relationId = intval($orm->getId());
-				if ($relationId > 0)
-				{
-					$relation['ID'] = $relationId;
-				}
-			}
-			else
-			{
-				$orm = RelationTable::update($currentRelation['ID'], $relation);
-				if ($orm->isSuccess())
-				{
-					$relation['ID'] = $currentRelation['ID'];
-				}
-			}
-		}
-		else
-		{
-			$relation = $currentRelation;
-		}
-
-		if (!empty($relation['ID']) &&
-			$relation['MESSAGE_TYPE'] == self::TYPE_OPEN_LINE &&
-			$chat['ENTITY_TYPE'] == 'LINES' &&
-			Loader::includeModule('imopenlines')
-		)
-		{
-			$session = new \Bitrix\ImOpenLines\Session();
-			$resultLoad =$session->load(
-				array(
-					'USER_CODE' => $chat['ENTITY_ID'],
-					'SKIP_CREATE' => 'Y'
-				)
-			);
-
-			if ($resultLoad)
-			{
-				$relation['PARAMS']['SESSION_ID'] = $session->getData('ID');
-				//$relation['LAST_ID'] = $session->getData('START_ID');
-			}
-		}
-
-		return $relation;
 	}
 
 	public static function toJson($array)

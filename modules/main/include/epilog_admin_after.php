@@ -13,7 +13,7 @@
  * @global CDatabase $DB
  */
 
-define("START_EXEC_EPILOG_AFTER_1", microtime());
+define("START_EXEC_EPILOG_AFTER_1", microtime(true));
 $GLOBALS["BX_STATE"] = "EA";
 
 global $USER, $APPLICATION, $DB;

@@ -5,9 +5,7 @@ CJSCore::Init(array("popup"));
 ?>
 
 <div class="visual-constructor-contols">
-	<div id="visualconstrctor_board_configuration_button" class="webform-small-button webform-small-button-transparent webform-cogwheel">
-		<span class="webform-button-icon"></span>
-	</div>
+	<button id="visualconstrctor_board_configuration_button" type="button" class="ui-btn ui-btn-themes ui-btn-light-border ui-btn-icon-setting"></button>
 	<?if(!$arResult['IS_FRAME_MODE']):?>
 		<div id="add_report_popup_button" class="ui-btn ui-btn-primary">
 			<?= \Bitrix\Main\Localization\Loc::getMessage('VISUALCONSTUCTOR_ADD_WIDGET_TO_BOARD') ?>

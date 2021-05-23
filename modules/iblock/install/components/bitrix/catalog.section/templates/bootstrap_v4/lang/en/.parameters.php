@@ -48,8 +48,6 @@ $MESS["MESS_BTN_DETAIL_TIP"] = "Text to display on button";
 $MESS["MESS_BTN_SUBSCRIBE_TIP"] = "Text to display on button";
 $MESS["MESS_NOT_AVAILABLE_TIP"] = "Item not available message";
 $MESS["MESS_BTN_COMPARE_TIP"] = "Text to display on button";
-$MESS["CP_BCS_TPL_CUSTOM_FILTER"] = "Product filter";
-$MESS["CP_BCS_TPL_SETTINGS_INVALID_CONDITION"] = "Condition is incorrect";
 $MESS["CP_BCS_TPL_PRODUCT_BLOCKS_ORDER"] = "Product block display order";
 $MESS["PRODUCT_BLOCKS_ORDER_TIP"] = "Some blocks may not respect the order due to template logic. A block may be invisible if it is disabled or unavailable.";
 $MESS["CP_BCS_TPL_PRODUCT_BLOCK_PRICE"] = "Price";
@@ -107,4 +105,3 @@ $MESS["CP_BCS_TPL_USE_ENHANCED_ECOMMERCE"] = "Submit e-commerce data to Google";
 $MESS["USE_ENHANCED_ECOMMERCE_TIP"] = "This requires Google Analytics Enhanced Ecommerce options to be configured";
 $MESS["CP_BCS_TPL_DATA_LAYER_NAME"] = "Data container name";
 $MESS["CP_BCS_TPL_BRAND_PROPERTY"] = "Brand property";
-?>

@@ -3,46 +3,35 @@
 namespace Bitrix\Sale;
 
 use Bitrix\Main;
+use Bitrix\Sale\Internals\OrderPropsRelationTable;
 use Bitrix\Sale\Internals\OrderPropsTable;
 
 /**
- * Class PropertyValueBase
+ * Class Property
  * @package Bitrix\Sale
  */
 class Property extends PropertyBase
 {
 	/**
-	 * @return string
-	 */
-	public static function getRegistryType()
-	{
-		return Registry::REGISTRY_TYPE_ORDER;
-	}
-
-	/**
-	 * @param array $parameters
-	 * @return Main\ORM\Query\Result
+	 * @return array
 	 * @throws Main\ArgumentException
 	 * @throws Main\ObjectPropertyException
 	 * @throws Main\SystemException
 	 */
-	public static function getList(array $parameters = array())
+	protected function loadRelations()
 	{
-		if (!isset($parameters['filter']))
+		$relations = [];
+
+		$dbRes = OrderPropsRelationTable::getList([
+			'select' => ['ENTITY_ID', 'ENTITY_TYPE'],
+			'filter' => ['=PROPERTY_ID' => $this->getId()]
+		]);
+
+		while ($data = $dbRes->fetch())
 		{
-			$parameters['filter'] = [
-				'=ENTITY_REGISTRY_TYPE' => static::getRegistryType()
-			];
-		}
-		else
-		{
-			$parameters['filter'] = [
-				'=ENTITY_REGISTRY_TYPE' => static::getRegistryType(),
-				$parameters['filter']
-			];
+			$relations[] = $data;
 		}
 
-		return OrderPropsTable::getList($parameters);
+		return $relations;
 	}
-
 }

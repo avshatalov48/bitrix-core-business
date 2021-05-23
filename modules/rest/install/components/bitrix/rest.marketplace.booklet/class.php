@@ -15,6 +15,7 @@ use Bitrix\Rest\Marketplace\Url;
 
 class RestMarketplaceBookletComponent extends CBitrixComponent
 {
+	private const MESSAGE_VERSION = 1;
 	/** @var ErrorCollection $errors */
 	protected $errors;
 	protected $countApp = 8;
@@ -87,7 +88,7 @@ class RestMarketplaceBookletComponent extends CBitrixComponent
 			$booklet = $this->get($this->arParams['CODE']);
 			$analyticFrom .= '_' . $this->arParams['CODE'];
 		}
-		if (empty($booklet))
+		if (empty($booklet) || (!empty($booklet['OPTION']['VERSION']) && (int)$booklet['OPTION']['VERSION'] > static::MESSAGE_VERSION))
 		{
 			$this->errors->setError(new Error(Loc::getMessage('REST_MARKETPLACE_BOOKLET_ERROR_NOT_FOUND')));
 			return false;
@@ -98,7 +99,24 @@ class RestMarketplaceBookletComponent extends CBitrixComponent
 
 		if ($this->arParams['SET_TITLE'])
 		{
+			if (!empty($booklet['OPTION']['TITLE_MESSAGE_CODE']))
+			{
+				$title = Loc::getMessage($booklet['OPTION']['TITLE_MESSAGE_CODE']);
+				if ($title)
+				{
+					$booklet['OPTION']['TITLE'] = $title;
+				}
+			}
 			$result['TITLE'] = !empty($booklet['OPTION']['TITLE']) ? $booklet['OPTION']['TITLE'] : Loc::getMessage('REST_MARKETPLACE_BOOKLET_DEFAULT_TITLE_2');
+		}
+
+		if (!empty($booklet['OPTION']['ACTION_TITLE_MESSAGE_CODE']))
+		{
+			$title = Loc::getMessage($booklet['OPTION']['ACTION_TITLE_MESSAGE_CODE']);
+			if ($title)
+			{
+				$booklet['OPTION']['ACTION_TITLE'] = $title;
+			}
 		}
 
 		if (!empty($booklet['OPTION']['ACTION_TITLE']))
@@ -116,6 +134,15 @@ class RestMarketplaceBookletComponent extends CBitrixComponent
 			$actionList = [];
 			foreach ($booklet['OPTION']['ACTION'] as $action)
 			{
+				if (!empty($action['title_message_code']))
+				{
+					$title = Loc::getMessage($action['title_message_code']);
+					if ($title)
+					{
+						$action['title'] = $title;
+					}
+				}
+
 				$actionList[] = [
 					'title' => $action['title'],
 					'url' => $action['url'],
@@ -152,6 +179,23 @@ class RestMarketplaceBookletComponent extends CBitrixComponent
 				$uri = new Uri(Url::getMarketplaceUrl($analyticFrom));
 				$uri->addParams(['tag' => $result['APP_TAG']]);
 				$result['MP_TAG_PATH'] = $uri->getUri();
+			}
+		}
+
+		if (!empty($booklet['OPTION']['DESCRIPTION_TITLE_MESSAGE_CODE']))
+		{
+			$title = Loc::getMessage($booklet['OPTION']['DESCRIPTION_TITLE_MESSAGE_CODE']);
+			if ($title)
+			{
+				$booklet['OPTION']['DESCRIPTION_TITLE'] = $title;
+			}
+		}
+		if ($booklet['OPTION']['DESCRIPTION_MESSAGE_CODE'])
+		{
+			$description = Loc::getMessage($booklet['OPTION']['DESCRIPTION_MESSAGE_CODE']);
+			if ($description)
+			{
+				$booklet['OPTION']['DESCRIPTION'] = $description;
 			}
 		}
 

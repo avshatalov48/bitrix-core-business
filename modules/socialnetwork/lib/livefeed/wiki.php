@@ -21,7 +21,7 @@ final class Wiki extends Provider
 
 	public function getEventId()
 	{
-		return [ 'wiki' ];
+		return [ 'wiki', 'wiki_del' ];
 	}
 
 	public function getType()
@@ -54,37 +54,36 @@ final class Wiki extends Provider
 		}
 		elseif (Loader::includeModule('wiki'))
 		{
-			$element = self::$wikiClass::getElementById($elementId, [
-				'CHECK_PERMISSIONS' => 'N',
-				'ACTIVE' => 'Y'
+			$res = self::$logTableClass::getList([
+				'filter' => [
+					'SOURCE_ID' => $elementId,
+					'@EVENT_ID' => $this->getEventId(),
+				],
+				'select' => [ 'ID', 'URL', 'TITLE' ]
 			]);
-
-			if ($element)
+			if ($logEntryFields = $res->fetch())
 			{
-				$sourceFields = $element;
+				$sourceFields = [
+					'LOG_ID' => $logEntryFields['ID'],
+					'URL' => $logEntryFields['URL']
+				];
 
-				$res = self::$logTableClass::getList([
-					'filter' => [
-						'SOURCE_ID' => $elementId,
-						'@EVENT_ID' => $this->getEventId(),
-					],
-					'select' => [ 'ID', 'URL' ]
+				$element = self::$wikiClass::getElementById($elementId, [
+					'CHECK_PERMISSIONS' => 'N',
+					'ACTIVE' => 'Y'
 				]);
-				if ($logEntryFields = $res->fetch())
+
+				if ($element)
 				{
-					$sourceFields = array_merge($element, [
-						'LOG_ID' => $logEntryFields['ID'],
-						'URL' => $logEntryFields['URL']
-					]);
+					$sourceFields = array_merge($element, $sourceFields);
 				}
-
-				$cache[$elementId] = $sourceFields;
+				else
+				{
+					$sourceFields['~NAME'] = htmlspecialcharsback($logEntryFields['TITLE']);
+				}
 			}
-		}
 
-		if (empty($sourceFields))
-		{
-			return;
+			$cache[$elementId] = $sourceFields;
 		}
 
 		$this->setLogId($sourceFields['LOG_ID']);
@@ -100,24 +99,22 @@ final class Wiki extends Provider
 
 	public function getPinnedTitle(): string
 	{
-		$result = '';
-
 		if (empty($this->sourceFields))
 		{
 			$this->initSourceFields();
 		}
 
 		$sourceFields = $this->getSourceFields();
-		if (empty($sourceFields))
-		{
-			return $result;
-		}
 
-		$result = Loc::getMessage('SONET_LIVEFEED_WIKI_PINNED_TITLE', [
-			'#TITLE#' => $sourceFields['NAME']
-		]);
-
-		return $result;
+		return (
+			!empty($sourceFields['ID'])
+				? Loc::getMessage('SONET_LIVEFEED_WIKI_PINNED_TITLE', [
+					'#TITLE#' => $sourceFields['~NAME']
+				])
+				: Loc::getMessage('SONET_LIVEFEED_WIKI_DELETED_PINNED_TITLE', [
+				'#TITLE#' => $sourceFields['~NAME']
+				])
+		);
 	}
 
 	public static function canRead($params): bool

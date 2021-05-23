@@ -1184,7 +1184,7 @@ class CHotKeys
 
 		$arInput = null;
 		if(CheckSerializedData($fileContent))
-			$arInput = unserialize($fileContent);
+			$arInput = unserialize($fileContent, ['allowed_classes' => false]);
 
 		if(!is_array($arInput) || empty($arInput))
 			return false;

@@ -135,7 +135,7 @@ HTML
 				<span class="container-doc-title" id="#id#Name">#name#</span>
 			</div>
 			<div class="adm-fileinput-item-preview-img" id="#id#Canvas"></div>
-			<input style="display: none;" type="hidden" id="#id#Value" readonly="readonly" name="#input_name#" value="#id#" />
+			<input style="display: none;" type="hidden" id="#id#Value" readonly="readonly" name="#input_name#" value="#input_value#" />
 		</div>
 		#description#
 		<div class="adm-fileinput-item-panel">
@@ -469,7 +469,7 @@ HTML;
 			$name = ($ar['ORIGINAL_NAME'] <> ''?$ar['ORIGINAL_NAME']:$ar['FILE_NAME']);
 			$result = array(
 				'fileId' => $fileId,
-				'id' => $fileId,
+				'id' => $this->id.'_'.$fileId,
 				'name' => $name,
 				'description_name' => self::getInputName($inputName, "_descr"),
 				'description' => str_replace('"', "&quot;", $ar['DESCRIPTION']),

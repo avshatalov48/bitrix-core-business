@@ -22,7 +22,7 @@ if ($_REQUEST['MAP_DATA'])
 
 	if (CheckSerializedData($_REQUEST['MAP_DATA']))
 	{
-		$arData = unserialize($_REQUEST['MAP_DATA']);
+		$arData = unserialize($_REQUEST['MAP_DATA'], ['allowed_classes' => false]);
 
 		if (is_array($arData) && is_array($arData['PLACEMARKS']) && ($cnt = count($arData['PLACEMARKS'])))
 		{

@@ -23,8 +23,15 @@ class CallUserTable extends Entity\DataManager
 				'primary' => true
 			]),
 			new Entity\StringField('STATE'),
+			new Entity\DatetimeField('FIRST_JOINED'),
 			new Entity\DatetimeField('LAST_SEEN'),
 			new Entity\BooleanField('IS_MOBILE', [
+				'values' => ['N', 'Y']
+			]),
+			new Entity\BooleanField('SHARED_SCREEN', [
+				'values' => ['N', 'Y']
+			]),
+			new Entity\BooleanField('RECORDED', [
 				'values' => ['N', 'Y']
 			]),
 		];

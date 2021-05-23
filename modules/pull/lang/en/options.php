@@ -1,5 +1,6 @@
-<?
+<?php
 $MESS["PULL_BATCH_MAX_COUNT_MESSAGES"] = "Maximum number of push notifications to send simultaneously";
+$MESS["PULL_NOTIFY_OUTDATED"] = "Versions listed below are deprecated and won't be supported for much longer. Please use Bitrix Push server 2.0 or enable a cloud based server. <a href=\"https://training.bitrix24.com/support/training/course/index.php?COURSE_ID=26&LESSON_ID=21641\" target=\"_blank\">Learn more</a>";
 $MESS["PULL_OPTIONS_CLOUD_ACTIVE_KEY_REQUIRED"] = "Note: a valid license is required to use cloud servers.";
 $MESS["PULL_OPTIONS_CLOUD_REGISTRATION_ACTIVE"] = "Active";
 $MESS["PULL_OPTIONS_CLOUD_REGISTRATION_ERROR"] = "Error";
@@ -63,4 +64,3 @@ $MESS["PULL_OPTIONS_WEBSOCKET_DESC"] = "This configuration is for all modern bro
 $MESS["PULL_OPTIONS_WS_CONFIRM"] = "Attention: you have to ensure that nginx-push-stream-module is configured to support WebSocket before using this option.";
 $MESS["PULL_TAB_SETTINGS"] = "Settings";
 $MESS["PULL_TAB_TITLE_SETTINGS"] = "Module Settings";
-?>

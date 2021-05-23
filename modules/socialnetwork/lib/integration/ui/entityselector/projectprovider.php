@@ -54,6 +54,29 @@ class ProjectProvider extends BaseProvider
 		{
 			$this->options['fillRecentTab'] = $options['fillRecentTab'];
 		}
+
+		if (isset($options['projectId']))
+		{
+			if (is_array($options['projectId']))
+			{
+				$this->options['projectId'] = $options['projectId'];
+			}
+			elseif (is_string($options['projectId']) || is_int($options['projectId']))
+			{
+				$this->options['projectId'] = (int)$options['projectId'];
+			}
+		}
+		elseif (isset($options['!projectId']))
+		{
+			if (is_array($options['!projectId']))
+			{
+				$this->options['!projectId'] = $options['!projectId'];
+			}
+			elseif (is_string($options['!projectId']) || is_int($options['!projectId']))
+			{
+				$this->options['!projectId'] = (int)$options['!projectId'];
+			}
+		}
 	}
 
 	public function isAvailable(): bool
@@ -402,9 +425,13 @@ class ProjectProvider extends BaseProvider
 			$query->setOrder(['NAME' => 'asc']);
 		}
 
-		if ($projectFilter === null || empty($projectIds))
+		if (isset($options['limit']) && is_int($options['limit']))
 		{
-			$query->setLimit(isset($options['limit']) && is_int($options['limit']) ? $options['limit'] : 100);
+			$query->setLimit($options['limit']);
+		}
+		elseif ($projectFilter !== 'projectId' || empty($projectIds))
+		{
+			$query->setLimit(100);
 		}
 
 		//echo '<pre>'.$query->getQuery().'</pre>';

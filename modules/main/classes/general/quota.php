@@ -66,7 +66,7 @@ class CAllDiskQuota
 		if (!empty($record["size"]) && !$recount)
 		{
 			$record = array_merge(
-				unserialize(COption::GetOptionString("main_size", "~".$name."_params")),
+				unserialize(COption::GetOptionString("main_size", "~".$name."_params"), ['allowed_classes' => false]),
 				$record);
 
 			$record["path_to_last_file"] = str_replace("//", "/", $abs_path.$record["file"]);
@@ -239,9 +239,9 @@ class CAllDiskQuota
 				\Bitrix\Main\Application::getInstance()->getSession()["SESS_RECOUNT_DB"] = "Y";
 			$result = array("size" => COption::GetOptionString("main_size", "~db"));
 			$result["params"] = COption::GetOptionString("main_size", "~db_params");
-			if (!empty($result["params"]) && is_array(unserialize($result["params"])))
+			if (!empty($result["params"]) && is_array(unserialize($result["params"], ['allowed_classes' => false])))
 			{
-				$result = array_merge(unserialize($result["params"]), $result);
+				$result = array_merge(unserialize($result["params"], ['allowed_classes' => false]), $result);
 			}
 		}
 		elseif ($id == "files")

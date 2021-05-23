@@ -30,6 +30,7 @@
 		this.featureRecord = BX.Call.Controller.FeatureState.Enabled;
 
 		this.callRecordState = BX.Call.View.RecordState.Stopped;
+		this.callRecordType = BX.Call.View.RecordType.None;
 
 		this.autoCloseCallView = true;
 
@@ -50,6 +51,7 @@
 		this._onCallUserRecordStateHandler = this._onCallUserRecordState.bind(this);
 		this.onCallUserFloorRequestHandler = this._onCallUserFloorRequest.bind(this);
 		this._onCallFailureHandler = this._onCallFailure.bind(this);
+		this._onNetworkProblemHandler = this._onNetworkProblem.bind(this);
 		this._onCallLeaveHandler = this._onCallLeave.bind(this);
 		this._onCallJoinHandler = this._onCallJoin.bind(this);
 
@@ -339,6 +341,7 @@
 			this.currentCall.addEventListener(BX.Call.Event.onUserVoiceStarted, this._onCallUserVoiceStartedHandler);
 			this.currentCall.addEventListener(BX.Call.Event.onUserVoiceStopped, this._onCallUserVoiceStoppedHandler);
 			this.currentCall.addEventListener(BX.Call.Event.onCallFailure, this._onCallFailureHandler);
+			this.currentCall.addEventListener(BX.Call.Event.onNetworkProblem, this._onNetworkProblemHandler);
 			this.currentCall.addEventListener(BX.Call.Event.onJoin, this._onCallJoinHandler);
 			this.currentCall.addEventListener(BX.Call.Event.onLeave, this._onCallLeaveHandler);
 		},
@@ -359,6 +362,7 @@
 			this.currentCall.removeEventListener(BX.Call.Event.onUserVoiceStarted, this._onCallUserVoiceStartedHandler);
 			this.currentCall.removeEventListener(BX.Call.Event.onUserVoiceStopped, this._onCallUserVoiceStoppedHandler);
 			this.currentCall.removeEventListener(BX.Call.Event.onCallFailure, this._onCallFailureHandler);
+			this.currentCall.removeEventListener(BX.Call.Event.onNetworkProblem, this._onNetworkProblemHandler);
 			this.currentCall.removeEventListener(BX.Call.Event.onJoin, this._onCallJoinHandler);
 			this.currentCall.removeEventListener(BX.Call.Event.onLeave, this._onCallLeaveHandler);
 		},
@@ -464,13 +468,18 @@
 		{
 			this.log("Finishing one-to-one call, switching to group call");
 
+			var previousRecordType = BX.Call.View.RecordType.None;
 			if (this.isRecording())
 			{
+				previousRecordType = this.callRecordType;
+
 				BXDesktopSystem.CallRecordStop();
+				this.callRecordState = BX.Call.View.RecordState.Stopped;
+				this.callRecordType = BX.Call.View.RecordType.None;
+				this.callView.setRecordState(this.callView.getDefaultRecordState());
+				this.callView.setButtonActive('record', false);
 			}
-			this.callRecordState = BX.Call.View.RecordState.Stopped;
-			this.callView.setRecordState(this.callView.getDefaultRecordState());
-			this.callView.setButtonActive('record', false);
+
 			this.callView.showButton('floorRequest');
 
 			this.callView.setStream(e.userId, e.stream);
@@ -495,6 +504,11 @@
 
 			this.bindCallEvents();
 			this.createVideoStrategy();
+
+			if (previousRecordType !== BX.Call.View.RecordType.None)
+			{
+				this._startRecordCall(previousRecordType);
+			}
 		},
 
 		checkDesktop: function ()
@@ -596,6 +610,25 @@
 				position: "top-right",
 				autoHideDelay: 5000,
 				closeButton: true
+			});
+		},
+
+		showNetworkProblemNotification: function(notificationText)
+		{
+			BX.UI.Notification.Center.notify({
+				content: BX.util.htmlspecialchars(notificationText),
+				position: "top-right",
+				autoHideDelay: 5000,
+				closeButton: true,
+				actions: [{
+					title: BX.message("IM_M_CALL_HELP"),
+					events: {
+						click: function(event, balloon, action) {
+							top.BX.Helper.show('redirect=detail&code=12723718');
+							balloon.close();
+						}
+					}
+				}]
 			});
 		},
 
@@ -1135,6 +1168,19 @@
 			}.bind(this))
 		},
 
+		_startRecordCall: function (type)
+		{
+			this.callView.setButtonActive('record', true);
+			this.callRecordType = type;
+
+			this.currentCall.sendRecordState({
+				action: BX.Call.View.RecordState.Started,
+				date: new Date()
+			});
+
+			this.callRecordState = BX.Call.View.RecordState.Started;
+		},
+
 		// event handlers
 
 		_onCallNotificationClose: function (e)
@@ -1462,6 +1508,48 @@
 
 				if (this.canRecord())
 				{
+					if (BX.desktop && BX.desktop.enableInVersion(55))
+					{
+						if (!this.callRecordMenu)
+						{
+							this.callRecordMenu = new BX.PopupMenuWindow({
+								bindElement: event.node,
+								targetContainer: this.callView.container,
+								items: [
+									{
+										text: BX.message('IM_M_CALL_MENU_RECORD_VIDEO'),
+										onclick: function(event, item) {
+											this._startRecordCall(BX.Call.View.RecordType.Video);
+											item.getMenuWindow().close();
+										}.bind(this)
+									},
+									{
+										text: BX.message('IM_M_CALL_MENU_RECORD_AUDIO'),
+										onclick: function(event, item) {
+											this._startRecordCall(BX.Call.View.RecordType.Audio);
+											item.getMenuWindow().close();
+										}.bind(this)
+									}
+								],
+								autoHide : true,
+								angle: {position: "top", offset: 80},
+								offsetTop: 0,
+								offsetLeft: -25,
+								events : {
+									onPopupClose : function () {
+										this.callRecordMenu.destroy();
+									}.bind(this),
+									onPopupDestroy : function () {
+										this.callRecordMenu = null;
+									}.bind(this),
+								}
+							});
+						}
+						this.callRecordMenu.toggle();
+
+						return;
+					}
+
 					this.callView.setButtonActive('record', true);
 				}
 				else
@@ -1530,6 +1618,7 @@
 			else
 			{
 				this.currentCall.startScreenSharing();
+				BX.CallEngine.getRestClient().callMethod("im.call.onShareScreen", {callId: this.currentCall.id});
 			}
 		},
 
@@ -1645,6 +1734,18 @@
 			{
 				this.invitePopup.close();
 			}
+
+			if (this.isRecording())
+			{
+				BXDesktopSystem.CallRecordStop();
+			}
+			this.callRecordState = BX.Call.View.RecordState.Stopped;
+			this.callRecordType = BX.Call.View.RecordType.None;
+			if (this.callRecordMenu)
+			{
+				this.callRecordMenu.close();
+			}
+
 			if (this.callView && this.autoCloseCallView)
 			{
 				this.callView.close();
@@ -1657,11 +1758,6 @@
 			{
 				this.floatingScreenShareWindow.close();
 			}
-			if (this.isRecording())
-			{
-				BXDesktopSystem.CallRecordStop();
-			}
-			this.callRecordState = BX.Call.View.RecordState.Stopped;
 
 			window.BXIM.messenger.dialogStatusRedraw();
 			window.BXIM.stopRepeatSound('dialtone');
@@ -1721,13 +1817,20 @@
 			}
 			else if (e.state == BX.Call.UserState.Failed)
 			{
-				BX.Call.Util.getUser(this.currentCall.id, e.userId).then(function (userData)
+				if (e.networkProblem)
 				{
-					this.showNotification(BX.Call.Util.getCustomMessage("IM_M_CALL_USER_FAILED", {
-						gender: userData.gender,
-						name: userData.name
-					}));
-				}.bind(this));
+					this.showNetworkProblemNotification(BX.message("IM_M_CALL_TURN_UNAVAILABLE"));
+				}
+				else
+				{
+					BX.Call.Util.getUser(this.currentCall.id, e.userId).then(function (userData)
+					{
+						this.showNotification(BX.Call.Util.getCustomMessage("IM_M_CALL_USER_FAILED", {
+							gender: userData.gender,
+							name: userData.name
+						}));
+					}.bind(this));
+				}
 			}
 			else if (e.state == BX.Call.UserState.Declined)
 			{
@@ -1898,6 +2001,8 @@
 					fileName = "call_record_" + this.currentCall.id;
 				}
 
+				BX.CallEngine.getRestClient().callMethod("im.call.onStartRecord", {callId: this.currentCall.id});
+
 				BXDesktopSystem.CallRecordStart({
 					windowId: windowId,
 					fileName: fileName,
@@ -1905,6 +2010,7 @@
 					callDate: callDate,
 					dialogId: dialogId,
 					dialogName: dialogName,
+					video: this.callRecordType !== BX.Call.View.RecordType.Audio,
 					muted: this.currentCall.isMuted(),
 					cropTop: 72,
 					cropBottom: 73,
@@ -1996,6 +2102,11 @@
 			}
 		},
 
+		_onNetworkProblem: function(e)
+		{
+			this.showNetworkProblemNotification(BX.message("IM_M_CALL_TURN_UNAVAILABLE"));
+		},
+
 		_onCallJoin: function (e)
 		{
 			if (e.local)
@@ -2047,6 +2158,7 @@
 				BXDesktopSystem.CallRecordStop();
 			}
 			this.callRecordState = BX.Call.View.RecordState.Stopped;
+			this.callRecordType = BX.Call.View.RecordType.None;
 
 			if (this.currentCall)
 			{
@@ -2238,7 +2350,7 @@
 				return;
 			}
 
-			var newCount = BX.MessengerCommon.getDialogCounter(this.currentCall.associatedEntity.id);
+			var newCount = BX.MessengerCommon.getCounter(this.currentCall.associatedEntity.id);
 			this.callView.setButtonCounter("chat", newCount);
 		},
 

@@ -103,7 +103,6 @@ $MESS["MAIN_OPTION_AUTH_OPENID"] = "Использовать авторизац�
 $MESS["MAIN_OPTION_AUTH_LIVEID"] = "Использовать авторизацию Live ID:";
 $MESS["MAIN_OPTION_AUTH_LIVEID_APPLID"] = "Live ID Application ID:";
 $MESS["MAIN_OPTION_AUTH_LIVEID_SECRET"] = "Live ID Secret Key:";
-$MESS["MAIN_OPTION_COMMENT1"] = "Для использования авторизации через Live ID в PHP должны быть установлены расширения mhash и mcrypt.";
 $MESS["MAIN_REGISTRATION_OPTIONS"] = "Регистрация новых пользователей";
 $MESS["MAIN_REGISTER_EMAIL_CONFIRMATION"] = "Запрашивать подтверждение регистрации по email (<a href=\"#EMAIL_TEMPLATES_URL#\">почтовые шаблоны</a>):";
 $MESS["MAIN_REGISTER_URL"] = "Страница с компонентом подтверждения регистрации:";

@@ -7,6 +7,7 @@
  */
 namespace Bitrix\Sender;
 
+use Bitrix\Main;
 use Bitrix\Main\DB\Exception;
 use Bitrix\Main\Type;
 use Bitrix\Sender\Dispatch\MethodSchedule;
@@ -61,6 +62,25 @@ class MailingManager
 		(new Runtime\ReiteratedJob())->actualize();
 	}
 
+	protected static function checkOnBeforeChainSend($letterId)
+	{
+		$event = new Main\Event('sender', 'onBeforeChainSend', ['LETTER_ID' => $letterId]);
+		$event->send();
+		foreach ($event->getResults() as $eventResult)
+		{
+			if (
+				$eventResult->getType() === Main\EventResult::ERROR
+				|| $eventResult->getParameters()
+				&& isset($eventResult->getParameters()['ALLOW_SEND'])
+				&& $eventResult->getParameters()['ALLOW_SEND'] === false
+			)
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
 	/**
 	 * Send letter.
 	 *
@@ -84,9 +104,16 @@ class MailingManager
 				$letter = Model\LetterTable::getRowById($letterId);
 			}
 		}
-		if(!$letter || $letter['STATUS'] !== Model\LetterTable::STATUS_SEND)
+		if(!$letter || !in_array($letter['STATUS'], [
+			Model\LetterTable::STATUS_SEND
+			]))
 		{
 			return "";
+		}
+
+		if(!static::checkOnBeforeChainSend($letterId))
+		{
+			return Runtime\SenderJob::getAgentName($letterId);
 		}
 
 		$postingSendStatus = '';
@@ -108,6 +135,19 @@ class MailingManager
 		}
 
 		if(!empty(static::$error) || $postingSendStatus === PostingManager::SEND_RESULT_CONTINUE)
+		{
+			return Runtime\SenderJob::getAgentName($letterId);
+		}
+
+
+		if ($postingSendStatus === PostingManager::SEND_RESULT_WAIT)
+		{
+			Model\LetterTable::update($letterId, array('STATUS' => Model\LetterTable::STATUS_WAIT));
+			return "";
+		}
+
+
+		if ($postingSendStatus === PostingManager::SEND_RESULT_WAITING_RECIPIENT)
 		{
 			return Runtime\SenderJob::getAgentName($letterId);
 		}
@@ -174,7 +214,10 @@ class MailingManager
 		$mailingChainDb = MailingChainTable::getList(array(
 			'select' => array('ID'),
 			'filter' => array(
-				'=STATUS' => array(MailingChainTable::STATUS_SEND, MailingChainTable::STATUS_PLAN),
+				'=STATUS' => array(
+					MailingChainTable::STATUS_SEND,
+					MailingChainTable::STATUS_PLAN,
+					),
 				'=MAILING.ACTIVE' => 'Y',
 				'<=AUTO_SEND_TIME' => new Type\DateTime(),
 			)

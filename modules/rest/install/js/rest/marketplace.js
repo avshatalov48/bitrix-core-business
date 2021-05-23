@@ -3,7 +3,6 @@ BX.namespace('BX.rest.Marketplace');
 BX.rest.Marketplace = (function(){
 
 	var ajaxPath = "/bitrix/tools/rest.php";
-	var buySubscriptionPath = "/settings/license_buy.php?product=subscr";
 
 	var query = function(action, data, callback)
 	{
@@ -379,6 +378,8 @@ BX.rest.Marketplace = (function(){
 		{
 			var btn = [];
 			var canBuySubscription = BX.message("CAN_BUY_SUBSCRIPTION");
+			var canActivateDemoSubscription = BX.message("CAN_ACTIVATE_DEMO_SUBSCRIPTION");
+
 			if (!!canBuySubscription && canBuySubscription === 'Y')
 			{
 				btn.push(
@@ -391,18 +392,23 @@ BX.rest.Marketplace = (function(){
 					})
 				);
 			}
-			btn.push(
-				new BX.PopupWindowButtonLink({
-					text: BX.message("REST_MP_SUBSCRIPTION_BUTTON_TITLE2"),
-					className: "popup-window-button-link-cancel",
-					events: {
-						click: function()
-						{
-							this.openDemoSubscription();
-						}.bind(this)
-					}
-				})
-			);
+
+			if (!!canActivateDemoSubscription && canActivateDemoSubscription === "Y")
+			{
+				btn.push(
+					new BX.PopupWindowButtonLink({
+						text: BX.message("REST_MP_SUBSCRIPTION_BUTTON_TITLE2"),
+						className: "popup-window-button-link-cancel",
+						events: {
+							click: function()
+							{
+								this.openDemoSubscription();
+							}.bind(this)
+						}
+					})
+				);
+			}
+
 			var oPopup = BX.PopupWindowManager.create('marketplace_buy_subscription', null, {
 				content: BX.create(
 					'div',
@@ -541,7 +547,19 @@ BX.rest.Marketplace = (function(){
 
 		openBuySubscription: function()
 		{
-			top.window.location.href = buySubscriptionPath;
+			var url = BX.message('REST_BUY_SUBSCRIPTION_URL');
+			if (url !== '')
+			{
+				top.window.open(url, '_blank');
+			}
+			else
+			{
+				BX.UI.Notification.Center.notify(
+					{
+						content: BX.message('REST_MP_SUBSCRIPTION_ERROR_OPEN_BUY_URL')
+					}
+				);
+			}
 		},
 
 		openDemoSubscription: function(callback)

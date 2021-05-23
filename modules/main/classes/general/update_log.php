@@ -90,7 +90,13 @@ if (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/updater.log")
 		$ord = 1;
 	else
 		$ord = -1;
-	usort($arLogRecs, create_function('$a, $b', 'return strcmp($a['.$sort.'], $b['.$sort.'])*('.$ord.');'));
+
+	usort(
+		$arLogRecs,
+		function ($a, $b) use ($sort, $ord) {
+			return (strcmp($a[$sort], $b[$sort]) * $ord);
+		}
+	);
 }
 
 $rsData = new CAdminResult(null, $sTableID);

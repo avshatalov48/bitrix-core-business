@@ -2,7 +2,7 @@
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 $arDescription = array(
-	"DISABLED" => !\Bitrix\Main\Analytics\SiteSpeed::isRussianSiteManager(),
+	"DISABLED" => !\Bitrix\Main\Analytics\SiteSpeed::isOn(),
 	"NAME" => GetMessage("GD_PERFMON_NAME"),
 	"DESCRIPTION" => GetMessage("GD_PERFMON_DESC"),
 	"ICON" => "",

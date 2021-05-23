@@ -96,6 +96,14 @@ final class QueueRemoveEventHandler
 		}
 		return $this;
 	}
+
+	/**
+	 * handle event
+	 * @param $clientId
+	 * @param $engineCode
+	 *
+	 * @return QueueRemoveEventHandler
+	 */
 	public static function handleEvent($clientId,$engineCode)
 	{
 		return

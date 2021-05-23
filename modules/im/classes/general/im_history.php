@@ -333,7 +333,7 @@ class CIMHistory
 			$res_cnt = $res_cnt->Fetch();
 			$cnt = $res_cnt["CNT"];
 
-			if ($cnt > 0 && ceil($cnt/20) >= $iNumPage)
+			if ($cnt > 0 && ceil($cnt/30) >= $iNumPage)
 			{
 				if (!$bTimeZone)
 					CTimeZone::Disable();
@@ -356,7 +356,7 @@ class CIMHistory
 				if (!$bTimeZone)
 					CTimeZone::Enable();
 				$dbRes = new CDBResult();
-				$dbRes->NavQuery($strSql, $cnt, Array('iNumPage' => $iNumPage, 'nPageSize' => 20));
+				$dbRes->NavQuery($strSql, $cnt, Array('iNumPage' => $iNumPage, 'nPageSize' => 30));
 
 				while ($arRes = $dbRes->Fetch())
 				{
@@ -843,10 +843,10 @@ class CIMHistory
 		$arMessageFiles = Array();
 		$arMessageId = Array();
 		$usersMessage = Array();
-		if ($cnt > 0 && ceil($cnt/20) >= $iNumPage)
+		if ($cnt > 0 && ceil($cnt/30) >= $iNumPage)
 		{
 			$dbRes = new CDBResult();
-			$dbRes->NavQuery($strResultSql, $cnt, Array('iNumPage' => $iNumPage, 'nPageSize' => 20));
+			$dbRes->NavQuery($strResultSql, $cnt, Array('iNumPage' => $iNumPage, 'nPageSize' => 30));
 
 			while ($arRes = $dbRes->Fetch())
 			{
@@ -1072,19 +1072,48 @@ class CIMHistory
 	public function GetRelatedMessages($messageId, $previous = 10, $next = 10, $timezone = true, $textParser = true)
 	{
 		$message = \Bitrix\Im\Model\MessageTable::getList(Array(
-															  'select' => Array('ID','DATE_CREATE', 'CHAT_ID', 'CHAT_TYPE' => 'CHAT.TYPE', 'AUTHOR_ID', 'ENTITY_TYPE' => 'CHAT.ENTITY_TYPE'),
-															  'filter' => Array(
-																  '=ID' => $messageId,
-																  '=RELATION.USER_ID' => $this->user_id
-															  ))
+			'select' => Array(
+				'ID','DATE_CREATE', 'CHAT_ID', 'AUTHOR_ID',
+				'CHAT_TYPE' => 'CHAT.TYPE',
+				'CHAT_ENTITY_TYPE' => 'CHAT.ENTITY_TYPE',
+				'CHAT_ENTITY_DATA_1' => 'CHAT.ENTITY_DATA_1',
+			),
+			'filter' => Array(
+				'=ID' => $messageId
+			))
 		)->fetch();
 		if (!$message)
+		{
 			return false;
+		}
+
+		$relations = CIMChat::GetRelationById($message['CHAT_ID']);
+		if (!isset($relations[$this->user_id]))
+		{
+			if (
+				$message['CHAT_ENTITY_TYPE'] == 'LINES'
+				&& \Bitrix\Main\Loader::includeModule('imopenlines')
+			)
+			{
+				$explodeData = explode('|', $message['CHAT_ENTITY_DATA_1']);
+				$crmEntityType = ($explodeData[0] == 'Y') ? $explodeData[1] : null;
+				$crmEntityId = ($explodeData[0] == 'Y') ? intval($explodeData[2]) : null;
+
+				if (!\Bitrix\ImOpenLines\Config::canJoin($message['CHAT_ID'], $crmEntityType, $crmEntityId))
+				{
+					return false;
+				}
+			}
+			else
+			{
+				return false;
+			}
+		}
 
 		$dialogId = 0;
 		if ($message['CHAT_TYPE'] == IM_MESSAGE_PRIVATE)
 		{
-			if($message['ENTITY_TYPE'] == IM_CHAT_TYPE_PERSONAL)
+			if($message['CHAT_ENTITY_TYPE'] == IM_CHAT_TYPE_PERSONAL)
 			{
 				$dialogId = $this->user_id;
 			}
@@ -1094,7 +1123,6 @@ class CIMHistory
 			}
 			else
 			{
-				$relations = CIMChat::GetRelationById($message['CHAT_ID']);
 				foreach ($relations as $userId => $data)
 				{
 					if ($userId != $this->user_id)

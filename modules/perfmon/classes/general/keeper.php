@@ -276,15 +276,12 @@ class CPerfomanceKeeper
 
 		if (defined("START_EXEC_PROLOG_BEFORE_1"))
 		{
-			list($usec, $sec) = explode(" ", START_EXEC_PROLOG_BEFORE_1);
-			$PROLOG_BEFORE_1 = (float)$sec + (float)$usec;
+			$PROLOG_BEFORE_1 = (float)START_EXEC_PROLOG_BEFORE_1;
 
 			if (defined("START_EXEC_AGENTS_1") && defined("START_EXEC_AGENTS_2"))
 			{
-				list($usec, $sec) = explode(" ", START_EXEC_AGENTS_2);
-				$AGENTS_2 = (float)$sec + (float)$usec;
-				list($usec, $sec) = explode(" ", START_EXEC_AGENTS_1);
-				$AGENTS_1 = (float)$sec + (float)$usec;
+				$AGENTS_2 = (float)START_EXEC_AGENTS_2;
+				$AGENTS_1 = (float)START_EXEC_AGENTS_1;
 				$arFields["~AGENTS_TIME"] = $AGENTS_2 - $AGENTS_1;
 			}
 			else
@@ -307,10 +304,8 @@ class CPerfomanceKeeper
 
 			if (defined("START_EXEC_PROLOG_AFTER_1") && defined("START_EXEC_PROLOG_AFTER_2"))
 			{
-				list($usec, $sec) = explode(" ", START_EXEC_PROLOG_AFTER_1);
-				$PROLOG_AFTER_1 = (float)$sec + (float)$usec;
-				list($usec, $sec) = explode(" ", START_EXEC_PROLOG_AFTER_2);
-				$PROLOG_AFTER_2 = (float)$sec + (float)$usec;
+				$PROLOG_AFTER_1 = (float)START_EXEC_PROLOG_AFTER_1;
+				$PROLOG_AFTER_2 = (float)START_EXEC_PROLOG_AFTER_2;
 				$arFields["~PROLOG_AFTER_TIME"] = $PROLOG_AFTER_2 - $PROLOG_AFTER_1;
 
 				$arFields["~PROLOG_BEFORE_TIME"] = $PROLOG_AFTER_1 - $PROLOG_BEFORE_1;
@@ -319,15 +314,13 @@ class CPerfomanceKeeper
 
 				if (defined("START_EXEC_EPILOG_BEFORE_1"))
 				{
-					list($usec, $sec) = explode(" ", START_EXEC_EPILOG_BEFORE_1);
-					$EPILOG_BEFORE_1 = (float)$sec + (float)$usec;
+					$EPILOG_BEFORE_1 = (float)START_EXEC_EPILOG_BEFORE_1;
 
 					$arFields["~WORK_AREA_TIME"] = $EPILOG_BEFORE_1 - $PROLOG_AFTER_2;
 
 					if (defined("START_EXEC_EPILOG_AFTER_1"))
 					{
-						list($usec, $sec) = explode(" ", START_EXEC_EPILOG_AFTER_1);
-						$EPILOG_AFTER_1 = (float)$sec + (float)$usec;
+						$EPILOG_AFTER_1 = (float)START_EXEC_EPILOG_AFTER_1;
 						$arFields["~EPILOG_BEFORE_TIME"] = $EPILOG_AFTER_1 - $EPILOG_BEFORE_1;
 						$arFields["~EPILOG_AFTER_TIME"] = $CURRENT_TIME - $EPILOG_AFTER_1 - $arFields["~EVENTS_TIME"];
 					}

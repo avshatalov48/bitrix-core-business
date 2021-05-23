@@ -395,7 +395,7 @@ class CBitrixLocationSelectorStepsComponent extends CBitrixLocationSelectorSearc
 	 */
 	public static function processSearchRequest()
 	{
-		static::checkRequiredModules();
+		static::includeRequiredModules();
 
 		$parameters = static::processSearchGetParameters();
 		$parameters['order'] = array('NAME.NAME' => 'asc');

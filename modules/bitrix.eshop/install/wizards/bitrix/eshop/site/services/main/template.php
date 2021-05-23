@@ -41,7 +41,7 @@ if ($arSite = $obSite->Fetch())
 	$obTemplate = CSite::GetTemplateList($arSite["LID"]);
 	while($arTemplate = $obTemplate->Fetch())
 	{
-		if(!$found && strlen(trim($arTemplate["CONDITION"]))<=0)
+		if(!$found && trim($arTemplate["CONDITION"]) == '')
 		{
 			$arTemplate["TEMPLATE"] = WIZARD_TEMPLATE_ID;
 			$found = true;

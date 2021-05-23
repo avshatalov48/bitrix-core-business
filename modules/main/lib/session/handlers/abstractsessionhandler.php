@@ -172,7 +172,7 @@ abstract class AbstractSessionHandler implements \SessionHandlerInterface, \Sess
 		return $this->lastCreatedId;
 	}
 
-	protected function validateSessionId(string $sessionId): bool
+	protected function validateSessionId($sessionId): bool
 	{
 		return
 			$sessionId &&

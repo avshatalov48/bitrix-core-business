@@ -74,8 +74,11 @@ class Call extends Engine\Controller
 				return null;
 			}
 			$initiator = $call->getUser($currentUserId);
-			$initiator->updateState(CallUser::STATE_READY);
-			$initiator->updateLastSeen(new DateTime());
+			$initiator->update([
+				'STATE' => CallUser::STATE_READY,
+				'LAST_SEEN' => new DateTime(),
+				'FIRST_JOINED' => new DateTime()
+			]);
 		}
 
 		$users = $call->getUsers();
@@ -293,7 +296,8 @@ class Call extends Engine\Controller
 			$callUser->update([
 				'STATE' => CallUser::STATE_READY,
 				'LAST_SEEN' => new DateTime(),
-				'IS_MOBILE' => $legacyMobile ? 'Y' : 'N'
+				'FIRST_JOINED' => $callUser->getFirstJoined() ? $callUser->getFirstJoined() : new DateTime(),
+				'IS_MOBILE' => $legacyMobile ? 'Y' : 'N',
 			]);
 		}
 
@@ -369,6 +373,50 @@ class Call extends Engine\Controller
 		}
 
 		return true;
+	}
+
+	public function onShareScreenAction($callId)
+	{
+		$currentUserId = $this->getCurrentUser()->getId();
+		$call = Registry::getCallWithId($callId);
+		if (!$call)
+		{
+			$this->addError(new Error(Loc::getMessage("IM_REST_CALL_ERROR_CALL_NOT_FOUND"), "call_not_found"));
+			return null;
+		}
+
+		if(!$this->checkCallAccess($call, $currentUserId))
+			return null;
+
+		$callUser = $call->getUser($currentUserId);
+		if($callUser)
+		{
+			$callUser->update([
+				'SHARED_SCREEN' => 'Y'
+			]);
+		}
+	}
+
+	public function onStartRecordAction($callId)
+	{
+		$currentUserId = $this->getCurrentUser()->getId();
+		$call = Registry::getCallWithId($callId);
+		if (!$call)
+		{
+			$this->addError(new Error(Loc::getMessage("IM_REST_CALL_ERROR_CALL_NOT_FOUND"), "call_not_found"));
+			return null;
+		}
+
+		if(!$this->checkCallAccess($call, $currentUserId))
+			return null;
+
+		$callUser = $call->getUser($currentUserId);
+		if($callUser)
+		{
+			$callUser->update([
+				'RECORDED' => 'Y'
+			]);
+		}
 	}
 
 	public function negotiationNeededAction($callId, $userId, $restart = false)

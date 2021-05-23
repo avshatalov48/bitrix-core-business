@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2020 Bitrix
  */
 
 use Bitrix\Main;
@@ -15,28 +15,30 @@ use Bitrix\Main\Security\Password;
 
 IncludeModuleLangFile(__FILE__);
 
-global $BX_GROUP_POLICY;
-$BX_GROUP_POLICY = array(
-	"SESSION_TIMEOUT"	=>	0, //minutes
-	"SESSION_IP_MASK"	=>	"0.0.0.0",
-	"MAX_STORE_NUM"		=>	10,
-	"STORE_IP_MASK"		=>	"0.0.0.0",
-	"STORE_TIMEOUT"		=>	60*24*365, //minutes
-	"CHECKWORD_TIMEOUT"	=>	60*24*365,  //minutes
-	"PASSWORD_LENGTH"	=>	false,
-	"PASSWORD_UPPERCASE"	=>	"N",
-	"PASSWORD_LOWERCASE"	=>	"N",
-	"PASSWORD_DIGITS"	=>	"N",
-	"PASSWORD_PUNCTUATION"	=>	"N",
-	"PASSWORD_CHANGE_DAYS" => 0,
-	"PASSWORD_UNIQUE_COUNT" => 0,
-	"LOGIN_ATTEMPTS"	=>	0,
-	"BLOCK_LOGIN_ATTEMPTS" => 0,
-	"BLOCK_TIME" => 0,
-);
-
+/**
+ * @deprecated
+ */
 class CAllUser extends CDBResult
 {
+	public static $GROUP_POLICY = [
+		"SESSION_TIMEOUT"	=>	0, //minutes
+		"SESSION_IP_MASK"	=>	"0.0.0.0",
+		"MAX_STORE_NUM"		=>	10,
+		"STORE_IP_MASK"		=>	"0.0.0.0",
+		"STORE_TIMEOUT"		=>	60*24*365, //minutes
+		"CHECKWORD_TIMEOUT"	=>	60*24*365,  //minutes
+		"PASSWORD_LENGTH"	=>	false,
+		"PASSWORD_UPPERCASE"	=>	"N",
+		"PASSWORD_LOWERCASE"	=>	"N",
+		"PASSWORD_DIGITS"	=>	"N",
+		"PASSWORD_PUNCTUATION"	=>	"N",
+		"PASSWORD_CHANGE_DAYS" => 0,
+		"PASSWORD_UNIQUE_COUNT" => 0,
+		"LOGIN_ATTEMPTS"	=>	0,
+		"BLOCK_LOGIN_ATTEMPTS" => 0,
+		"BLOCK_TIME" => 0,
+	];
+
 	var $LAST_ERROR = "";
 	var $bLoginByHash = false;
 	protected $admin = null;
@@ -52,6 +54,8 @@ class CAllUser extends CDBResult
 	//in seconds
 	const PHONE_CODE_OTP_INTERVAL = 30;
 	const PHONE_CODE_RESEND_INTERVAL = 60;
+
+	public const PASSWORD_SPECIAL_CHARS = ',.<>/?;:\'"[]{}\|`~!@#$%^&*()_+=-';
 
 	/**
 	 * CUser constructor.
@@ -1875,47 +1879,53 @@ class CAllUser extends CDBResult
 		$limitUsersCount = intval(COption::GetOptionInt("main", "PARAM_MAX_USERS", 0));
 		if ($limitUsersCount > 0)
 		{
-			$by = "ID";
-			$order = "ASC";
-			$arFilter = array("LAST_LOGIN_1" => ConvertTimeStamp());
+			// users logged in today
+			$today = new Main\Type\Date();
+			$count = Main\UserTable::getActiveUsersCount($today);
 
-			//Intranet users only
-			$intranet = IsModuleInstalled("intranet");
-			if ($intranet)
+			if ($count >= $limitUsersCount)
 			{
-				$arFilter["!=UF_DEPARTMENT"] = false;
-			}
+				// additional check for the current user
 
-			$rsUsers = static::GetList($by, $order, $arFilter, array("FIELDS" => array("ID")));
+				$by = "id";
+				$order = "asc";
+				$select = ["LAST_LOGIN"];
 
-			while ($user = $rsUsers->fetch())
-			{
-				if ($user["ID"] == $user_id)
+				$intranet = Main\ModuleManager::isModuleInstalled("intranet");
+				if ($intranet)
 				{
-					$limitUsersCount = 1;
-					break;
+					$select[] = "UF_DEPARTMENT";
 				}
-				$limitUsersCount--;
-			}
 
-			if ($limitUsersCount <= 0)
-			{
-				if($intranet)
+				// last_login in server time
+				CTimeZone::Disable();
+
+				$query = static::GetList($by, $order,
+					["ID_EQUAL_EXACT" => intval($user_id)],
+					["SELECT" => $select]
+				);
+
+				CTimeZone::Enable();
+
+				if($currentUser = $query->Fetch())
 				{
-					//only intranet users are NOT allowed
-					$currUserRs = static::GetByID($user_id);
-					if($currUser = $currUserRs->Fetch())
+					if($currentUser["LAST_LOGIN"] != '')
 					{
-						if(!empty($currUser["UF_DEPARTMENT"]))
+						$loginDate = new Main\Type\DateTime($currentUser["LAST_LOGIN"]);
+						if($loginDate->getTimestamp() > $today->getTimestamp())
 						{
-							return false;
+							// if the user already logged in today, he is allowed
+							return true;
 						}
 					}
+
+					if($intranet && empty($currentUser["UF_DEPARTMENT"]))
+					{
+						// only intranet users are countable
+						return true;
+					}
 				}
-				else
-				{
-					return false;
-				}
+				return false;
 			}
 		}
 		return true;
@@ -2177,18 +2187,21 @@ class CAllUser extends CDBResult
 
 	public static function GeneratePasswordByPolicy(array $groups)
 	{
-		$arPolicy = self::GetGroupPolicy($groups);
+		$policy = self::GetGroupPolicy($groups);
 
-		$password_min_length = intval($arPolicy["PASSWORD_LENGTH"]);
-		if($password_min_length <= 0)
-			$password_min_length = 6;
+		$passwordLength = intval($policy["PASSWORD_LENGTH"]);
+		if($passwordLength <= 0)
+		{
+			$passwordLength = 6;
+		}
 
-		$password_chars = Random::ALPHABET_NUM | Random::ALPHABET_ALPHALOWER | Random::ALPHABET_ALPHAUPPER;
+		$passwordChars = Random::ALPHABET_NUM | Random::ALPHABET_ALPHALOWER | Random::ALPHABET_ALPHAUPPER;
+		if($policy["PASSWORD_PUNCTUATION"] === "Y")
+		{
+			$passwordChars |= Random::ALPHABET_SPECIAL;
+		}
 
-		if($arPolicy["PASSWORD_PUNCTUATION"] === "Y")
-			$password_chars |= Random::ALPHABET_SPECIAL;
-
-		return Random::getStringByAlphabet($password_min_length, $password_chars);
+		return Random::getStringByAlphabet($passwordLength, $passwordChars, true);
 	}
 
 	public static function CheckPasswordAgainstPolicy($password, $arPolicy, $userId = null)
@@ -2210,8 +2223,8 @@ class CAllUser extends CDBResult
 		if(($arPolicy["PASSWORD_DIGITS"] === "Y") && !preg_match("/[0-9]/", $password))
 			$errors[] = GetMessage("MAIN_FUNCTION_REGISTER_PASSWORD_DIGITS");
 
-		if(($arPolicy["PASSWORD_PUNCTUATION"] === "Y") && !preg_match("/[,.<>\\/?;:'\"[\\]\\{\\}\\\\|`~!@#\$%^&*()_+=-]/", $password))
-			$errors[] = GetMessage("MAIN_FUNCTION_REGISTER_PASSWORD_PUNCTUATION");
+		if(($arPolicy["PASSWORD_PUNCTUATION"] === "Y") && !preg_match("/[".preg_quote(static::PASSWORD_SPECIAL_CHARS, "/")."]/", $password))
+			$errors[] = GetMessage("MAIN_FUNCTION_REGISTER_PASSWORD_PUNCTUATION", ["#SPECIAL_CHARS#" => static::PASSWORD_SPECIAL_CHARS]);
 
 		if($userId !== null && $arPolicy["PASSWORD_UNIQUE_COUNT"] > 0)
 		{
@@ -3242,38 +3255,46 @@ class CAllUser extends CDBResult
 
 		if(is_set($arFields, "PASSWORD"))
 		{
-			if(array_key_exists("GROUP_ID", $arFields))
+			if(is_set($arFields, "CONFIRM_PASSWORD") && $arFields["PASSWORD"] !== $arFields["CONFIRM_PASSWORD"])
 			{
-				$arGroups = array();
-				if(is_array($arFields["GROUP_ID"]))
-				{
-					foreach($arFields["GROUP_ID"] as $arGroup)
-					{
-						if(is_array($arGroup))
-						{
-							$arGroups[] = $arGroup["GROUP_ID"];
-						}
-						else
-						{
-							$arGroups[] = $arGroup;
-						}
-					}
-				}
-				$arPolicy = self::GetGroupPolicy($arGroups);
-			}
-			elseif($ID !== false)
-			{
-				$arPolicy = self::GetGroupPolicy($ID);
+				//we shouldn't show that password is correct
+				$resultError .= GetMessage("WRONG_CONFIRMATION")."<br>";
 			}
 			else
 			{
-				$arPolicy = self::GetGroupPolicy(array());
-			}
+				if(array_key_exists("GROUP_ID", $arFields))
+				{
+					$arGroups = array();
+					if(is_array($arFields["GROUP_ID"]))
+					{
+						foreach($arFields["GROUP_ID"] as $arGroup)
+						{
+							if(is_array($arGroup))
+							{
+								$arGroups[] = $arGroup["GROUP_ID"];
+							}
+							else
+							{
+								$arGroups[] = $arGroup;
+							}
+						}
+					}
+					$arPolicy = self::GetGroupPolicy($arGroups);
+				}
+				elseif($ID !== false)
+				{
+					$arPolicy = self::GetGroupPolicy($ID);
+				}
+				else
+				{
+					$arPolicy = self::GetGroupPolicy(array());
+				}
 
-			$passwordErrors = self::CheckPasswordAgainstPolicy($arFields["PASSWORD"], $arPolicy, ($ID !== false? $ID : null));
-			if(!empty($passwordErrors))
-			{
-				$resultError .= implode("<br>", $passwordErrors)."<br>";
+				$passwordErrors = self::CheckPasswordAgainstPolicy($arFields["PASSWORD"], $arPolicy, ($ID !== false? $ID : null));
+				if(!empty($passwordErrors))
+				{
+					$resultError .= implode("<br>", $passwordErrors)."<br>";
+				}
 			}
 		}
 
@@ -3320,11 +3341,6 @@ class CAllUser extends CDBResult
 					}
 				}
 			}
-		}
-
-		if(is_set($arFields, "PASSWORD") && is_set($arFields, "CONFIRM_PASSWORD") && $arFields["PASSWORD"] !== $arFields["CONFIRM_PASSWORD"])
-		{
-			$resultError .= GetMessage("WRONG_CONFIRMATION")."<br>";
 		}
 
 		if(isset($arFields["PHONE_NUMBER"]))
@@ -3983,7 +3999,7 @@ class CAllUser extends CDBResult
 
 	public static function GetGroupPolicy($iUserId)
 	{
-		global $DB, $CACHE_MANAGER, $BX_GROUP_POLICY;
+		global $DB, $CACHE_MANAGER;
 		static $arPOLICY_CACHE = array();
 
 		$CACHE_ID = md5(serialize($iUserId));
@@ -4055,14 +4071,14 @@ class CAllUser extends CDBResult
 			}
 		}
 
-		$arPolicy = $BX_GROUP_POLICY;
+		$arPolicy = static::$GROUP_POLICY;
 		if($arPolicy["SESSION_TIMEOUT"]<=0)
 			$arPolicy["SESSION_TIMEOUT"] = ini_get("session.gc_maxlifetime")/60;
 
 		foreach($arPolicies as $ar)
 		{
 			if($ar["SECURITY_POLICY"])
-				$arGroupPolicy = unserialize($ar["SECURITY_POLICY"]);
+				$arGroupPolicy = unserialize($ar["SECURITY_POLICY"], ['allowed_classes' => false]);
 			else
 				continue;
 
@@ -4121,7 +4137,7 @@ class CAllUser extends CDBResult
 		if($arPolicy["PASSWORD_DIGITS"] === "Y")
 			$ar[] = GetMessage("MAIN_GP_PASSWORD_DIGITS");
 		if($arPolicy["PASSWORD_PUNCTUATION"] === "Y")
-			$ar[] = GetMessage("MAIN_GP_PASSWORD_PUNCTUATION");
+			$ar[] = GetMessage("MAIN_GP_PASSWORD_PUNCTUATION", ["#SPECIAL_CHARS#" => static::PASSWORD_SPECIAL_CHARS]);
 		$arPolicy["PASSWORD_REQUIREMENTS"] = implode(", ", $ar).".";
 
 		if(count($arPOLICY_CACHE)<=10)
@@ -4452,17 +4468,7 @@ class CAllUser extends CDBResult
 
 	public static function GetActiveUsersCount()
 	{
-		global $DB;
-
-		$q = "SELECT COUNT(ID) as C FROM b_user WHERE ACTIVE = 'Y' AND LAST_LOGIN IS NOT NULL";
-		if (IsModuleInstalled("intranet"))
-			$q = "SELECT COUNT(U.ID) as C FROM b_user U WHERE U.ACTIVE = 'Y' AND U.LAST_LOGIN IS NOT NULL AND EXISTS(SELECT 'x' FROM b_utm_user UF, b_user_field F WHERE F.ENTITY_ID = 'USER' AND F.FIELD_NAME = 'UF_DEPARTMENT' AND UF.FIELD_ID = F.ID AND UF.VALUE_ID = U.ID AND UF.VALUE_INT IS NOT NULL AND UF.VALUE_INT <> 0)";
-
-		$dbRes = $DB->Query($q, true);
-		if ($dbRes && ($arRes = $dbRes->Fetch()))
-			return $arRes["C"];
-		else
-			return 0;
+		return Main\UserTable::getActiveUsersCount();
 	}
 
 	public static function SetLastActivityDate($userId = null, $cache = false)
@@ -5307,25 +5313,6 @@ class CAllUser extends CDBResult
 	}
 }
 
-//compatibility
 class CUser extends CAllUser
-{
-}
-/**
- * @deprecated Use CGroup
- */
-class CAllGroup extends CGroup
-{
-}
-/**
- * @deprecated Use CTask
- */
-class CAllTask extends CTask
-{
-}
-/**
- * @deprecated Use COperation
- */
-class CAllOperation extends COperation
 {
 }

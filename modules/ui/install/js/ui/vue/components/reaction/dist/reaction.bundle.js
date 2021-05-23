@@ -58,10 +58,10 @@
 	        values: this.localValues
 	      });
 	    },
-	    likeIt: function likeIt() {
+	    likeIt: function likeIt(event) {
 	      var _this = this;
 
-	      var emotion = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : ReactionType.like;
+	      var emotion = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ReactionType.like;
 
 	      if (this.userReaction === ReactionType.none) {
 	        emotion = ReactionType.like;
@@ -91,6 +91,11 @@
 	          type: this.userReaction
 	        });
 	      }
+
+	      event.preventDefault();
+	    },
+	    preventDefault: function preventDefault(event) {
+	      event.preventDefault();
 	    }
 	  },
 	  computed: {

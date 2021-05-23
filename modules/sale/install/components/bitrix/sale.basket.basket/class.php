@@ -2193,7 +2193,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 
 			if (CheckSerializedData($property['USER_TYPE_SETTINGS']))
 			{
-				$property['USER_TYPE_SETTINGS'] = unserialize($property['USER_TYPE_SETTINGS']);
+				$property['USER_TYPE_SETTINGS'] = unserialize($property['USER_TYPE_SETTINGS'], ['allowed_classes' => false]);
 			}
 
 			$formattedProperty = CIBlockFormatProperties::GetDisplayValue($item, $property, 'sale_out');
@@ -3057,7 +3057,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 						if ($arProp['USER_TYPE'] == 'directory' && $arProp['USER_TYPE_SETTINGS'] !== null)
 						{
 							if (!is_array($arProp['USER_TYPE_SETTINGS']))
-								$arProp['USER_TYPE_SETTINGS'] = unserialize($arProp['USER_TYPE_SETTINGS']);
+								$arProp['USER_TYPE_SETTINGS'] = unserialize($arProp['USER_TYPE_SETTINGS'], ['allowed_classes' => false]);
 							if (self::$highLoadInclude === null)
 								self::$highLoadInclude = Loader::includeModule('highloadblock');
 							if (self::$highLoadInclude)

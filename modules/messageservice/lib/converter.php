@@ -44,7 +44,7 @@ class Converter
 			if (!$optionString)
 				continue;
 
-			$options = unserialize($optionString);
+			$options = unserialize($optionString, ['allowed_classes' => false]);
 			if (!is_array($options))
 				continue;
 

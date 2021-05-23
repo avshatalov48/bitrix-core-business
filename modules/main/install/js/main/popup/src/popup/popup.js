@@ -176,7 +176,7 @@ export default class Popup extends EventEmitter
 		this.background = null;
 		this.contentBackground = null;
 
-		this.appendContainer = document.body;
+		this.targetContainer = Type.isElementNode(params.targetContainer) ? params.targetContainer : document.body;
 
 		this.dragOptions = {
 			cursor: '',
@@ -264,7 +264,7 @@ export default class Popup extends EventEmitter
 			>${[this.titleBar, this.contentContainer, this.closeIcon]}</div>`
 		;
 
-		this.appendContainer.appendChild(this.popupContainer);
+		this.targetContainer.appendChild(this.popupContainer);
 
 		this.zIndexComponent = ZIndexManager.register(this.popupContainer, params.zIndexOptions);
 
@@ -440,11 +440,18 @@ export default class Popup extends EventEmitter
 	/**
 	 * @private
 	 */
-	getBindElementPos(bindElement: Element | any): TargetPosition
+	getBindElementPos(bindElement: HTMLElement | any): TargetPosition | DOMRect
 	{
 		if (Type.isDomNode(bindElement))
 		{
-			return Dom.getPosition(bindElement);
+			if (this.isTargetDocumentBody())
+			{
+				return Dom.getPosition(bindElement);
+			}
+			else
+			{
+				return this.getPositionRelativeToTarget(bindElement);
+			}
 		}
 		else if (bindElement && typeof (bindElement) === 'object')
 		{
@@ -457,8 +464,8 @@ export default class Popup extends EventEmitter
 		}
 		else
 		{
-			const windowSize = { innerWidth: window.innerWidth, innerHeight: window.innerHeight };
-			const windowScroll = { scrollLeft: window.pageXOffset, scrollTop: window.pageYOffset };
+			const windowSize = this.getWindowSize();
+			const windowScroll = this.getWindowScroll();
 
 			const popupWidth = this.getPopupContainer().offsetWidth;
 			const popupHeight = this.getPopupContainer().offsetHeight;
@@ -475,6 +482,70 @@ export default class Popup extends EventEmitter
 				windowScroll: windowScroll,
 				popupWidth: popupWidth,
 				popupHeight: popupHeight
+			};
+		}
+	}
+
+	/**
+	 * @internal
+	 */
+	getPositionRelativeToTarget(element: HTMLElement): DOMRect
+	{
+		let offsetLeft = element.offsetLeft;
+		let offsetTop = element.offsetTop;
+		let offsetElement = element.offsetParent;
+
+		while (offsetElement && offsetElement !== this.getTargetContainer())
+		{
+			offsetLeft += offsetElement.offsetLeft;
+			offsetTop += offsetElement.offsetTop;
+			offsetElement = offsetElement.offsetParent;
+		}
+
+		const elementRect = element.getBoundingClientRect();
+
+		return new DOMRect(
+			offsetLeft,
+			offsetTop,
+			elementRect.width,
+			elementRect.height
+		);
+	}
+
+	// private
+	getWindowSize(): { innerWidth: number, innerHeight: number }
+	{
+		if (this.isTargetDocumentBody())
+		{
+			return {
+				innerWidth: window.innerWidth,
+				innerHeight: window.innerHeight
+			};
+		}
+		else
+		{
+			return {
+				innerWidth: this.getTargetContainer().offsetWidth,
+				innerHeight: this.getTargetContainer().offsetHeight
+			};
+		}
+	}
+
+	// private
+	getWindowScroll()
+	{
+		if (this.isTargetDocumentBody())
+		{
+			return {
+				scrollLeft: window.pageXOffset,
+				scrollTop: window.pageYOffset
+			};
+		}
+		else
+		{
+			return {
+				scrollLeft: this.getTargetContainer().scrollLeft,
+				scrollTop: this.getTargetContainer().scrollTop
 			};
 		}
 	}
@@ -840,6 +911,16 @@ export default class Popup extends EventEmitter
 		}
 	}
 
+	getTargetContainer(): HTMLElement
+	{
+		return this.targetContainer;
+	}
+
+	isTargetDocumentBody(): boolean
+	{
+		return this.getTargetContainer() === document.body;
+	}
+
 	getPopupContainer(): Element
 	{
 		return this.popupContainer;
@@ -889,8 +970,21 @@ export default class Popup extends EventEmitter
 			}
 		);
 
-		this.resizeContentPos = Dom.getPosition(this.getResizableContainer());
-		this.resizeContentOffset = this.resizeContentPos.left - Dom.getPosition(this.getPopupContainer()).left;
+		if (this.isTargetDocumentBody())
+		{
+			this.resizeContentPos = Dom.getPosition(this.getResizableContainer());
+			this.resizeContentOffset =
+				this.resizeContentPos.left - Dom.getPosition(this.getPopupContainer()).left;
+		}
+		else
+		{
+			this.resizeContentPos = this.getPositionRelativeToTarget(this.getResizableContainer());
+			this.resizeContentOffset =
+				this.resizeContentPos.left - this.getPositionRelativeToTarget(this.getPopupContainer()).left;
+		}
+
+		this.resizeContentPos.offsetX = 0;
+		this.resizeContentPos.offsetY = 0;
 	}
 
 	/**
@@ -898,10 +992,16 @@ export default class Popup extends EventEmitter
 	 */
 	handleResize(offsetX, offsetY, pageX, pageY): void
 	{
-		let width = pageX - this.resizeContentPos.left;
-		let height = pageY - this.resizeContentPos.top;
+		this.resizeContentPos.offsetX += offsetX;
+		this.resizeContentPos.offsetY += offsetY;
 
-		const scrollWidth = document.documentElement.scrollWidth;
+		let width = this.resizeContentPos.width + this.resizeContentPos.offsetX;
+		let height = this.resizeContentPos.height + this.resizeContentPos.offsetY;
+
+		const scrollWidth =
+			this.isTargetDocumentBody() ? document.documentElement.scrollWidth : this.getTargetContainer().scrollWidth
+		;
+
 		if (this.resizeContentPos.left + width + this.resizeContentOffset >= scrollWidth)
 		{
 			width = scrollWidth - this.resizeContentPos.left - this.resizeContentOffset;
@@ -1187,7 +1287,7 @@ export default class Popup extends EventEmitter
 
 			this.resizeOverlay();
 
-			this.appendContainer.appendChild(this.overlay.element);
+			this.targetContainer.appendChild(this.overlay.element);
 			this.getZIndexComponent().setOverlay(this.overlay.element);
 		}
 
@@ -1254,13 +1354,24 @@ export default class Popup extends EventEmitter
 	{
 		if (this.overlay !== null && this.overlay.element !== null)
 		{
-			const scrollHeight = Math.max(
-				document.body.scrollHeight, document.documentElement.scrollHeight,
-				document.body.offsetHeight, document.documentElement.offsetHeight,
-				document.body.clientHeight, document.documentElement.clientHeight
-			);
+			let scrollWidth;
+			let scrollHeight;
+			if (this.isTargetDocumentBody())
+			{
+				scrollWidth = document.documentElement.scrollWidth;
+				scrollHeight = Math.max(
+					document.body.scrollHeight, document.documentElement.scrollHeight,
+					document.body.offsetHeight, document.documentElement.offsetHeight,
+					document.body.clientHeight, document.documentElement.clientHeight
+				);
+			}
+			else
+			{
+				scrollWidth = this.getTargetContainer().scrollWidth;
+				scrollHeight = this.getTargetContainer().scrollHeight;
+			}
 
-			this.overlay.element.style.width = document.documentElement.scrollWidth + 'px';
+			this.overlay.element.style.width = scrollWidth + 'px';
 			this.overlay.element.style.height = scrollHeight + 'px';
 		}
 	}
@@ -1567,18 +1678,12 @@ export default class Popup extends EventEmitter
 
 		this.bindElementPos = bindElementPos;
 
-		const windowSize =
-			bindElementPos.windowSize
-				? bindElementPos.windowSize
-				: { innerWidth: window.innerWidth, innerHeight: window.innerHeight }
-		;
-		const windowScroll =
-			bindElementPos.windowScroll
-				? bindElementPos.windowScroll
-				: { scrollLeft: window.pageXOffset, scrollTop: window.pageYOffset }
-		;
+		const windowSize = bindElementPos.windowSize ? bindElementPos.windowSize : this.getWindowSize();
+		const windowScroll = bindElementPos.windowScroll ? bindElementPos.windowScroll : this.getWindowScroll();
+
 		const popupWidth = bindElementPos.popupWidth ? bindElementPos.popupWidth : this.popupContainer.offsetWidth;
 		const popupHeight = bindElementPos.popupHeight ? bindElementPos.popupHeight : this.popupContainer.offsetHeight;
+
 		const angleTopOffset = Popup.getOption('angleTopOffset');
 
 		let left =
@@ -1635,7 +1740,6 @@ export default class Popup extends EventEmitter
 		}
 		else
 		{
-
 			top = this.bindElementPos.bottom + this.offsetTop + this.getAngleHeight();
 
 			if (
@@ -1810,10 +1914,20 @@ export default class Popup extends EventEmitter
 				left = 0;
 			}
 
-			//Right side
-			const scrollWidth = document.documentElement.scrollWidth;
-			const scrollHeight = document.documentElement.scrollHeight;
+			let scrollWidth;
+			let scrollHeight;
+			if (this.isTargetDocumentBody())
+			{
+				scrollWidth = document.documentElement.scrollWidth;
+				scrollHeight = document.documentElement.scrollHeight;
+			}
+			else
+			{
+				scrollWidth = this.getTargetContainer().scrollWidth;
+				scrollHeight = this.getTargetContainer().scrollHeight;
+			}
 
+			//Right side
 			const floatWidth = this.popupContainer.offsetWidth;
 			const floatHeight = this.popupContainer.offsetHeight;
 

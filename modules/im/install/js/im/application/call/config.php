@@ -34,6 +34,7 @@ return [
 		'main.core',
 		'promise',
 		'main.date',
+		'main.popup',
 		'pull.client',
 		'im.provider.pull',
 		'rest.client',

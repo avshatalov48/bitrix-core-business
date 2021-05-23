@@ -5061,32 +5061,18 @@ $tabControl->BeginCustomField("BASKET_CONTAINER", GetMessage("NEWO_BASKET_CONTAI
 
 		this.Show = function(div, left, top)
 		{
-			var zIndex = parseInt(div.style.zIndex);
-			if(zIndex <= 0 || isNaN(zIndex))
-				zIndex = 600;
-			div.style.zIndex = zIndex;
+			var component = BX.ZIndexManager.getComponent(div);
+			if (!component)
+			{
+				BX.ZIndexManager.register(div);
+			}
+
+			BX.ZIndexManager.bringToFront(div);
+
 			div.style.left = left + "px";
 			div.style.top = top + "px";
+		};
 
-			if(jsUtils.IsIE())
-			{
-				var frame = document.getElementById(div.id+"_frame");
-				if(!frame)
-				{
-					frame = document.createElement("IFRAME");
-					frame.src = "javascript:''";
-					frame.id = div.id+"_frame";
-					frame.style.position = 'absolute';
-					frame.style.zIndex = zIndex-1;
-					document.body.appendChild(frame);
-				}
-				frame.style.width = div.offsetWidth + "px";
-				frame.style.height = div.offsetHeight + "px";
-				frame.style.left = div.style.left;
-				frame.style.top = div.style.top;
-				frame.style.visibility = 'visible';
-			}
-		}
 		this.Close = function(div)
 		{
 			if(!div)

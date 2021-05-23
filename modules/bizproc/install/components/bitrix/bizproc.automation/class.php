@@ -104,20 +104,40 @@ class BizprocAutomationComponent extends \CBitrixComponent
 
 		if ($template)
 		{
-			$tpl = \Bitrix\Bizproc\WorkflowTemplateTable::getById($template['ID'])->fetchObject();
-			$documentType = $tpl->getDocumentComplexType();
-			$template = \Bitrix\Bizproc\Automation\Engine\Template::createByTpl($tpl);
-
-			if ($template->getId() > 0)
+			$tplRow = $template['ID'] > 0 ? \Bitrix\Bizproc\WorkflowTemplateTable::getById($template['ID']) : null;
+			$tpl = $tplRow ? $tplRow->fetchObject() : null;
+			if (!$tpl)
 			{
-				$templateArray = $template->toArray();
-				foreach ($templateArray['ROBOTS'] as $i => $robot)
-				{
-					$templateArray['ROBOTS'][$i]['viewData'] = static::getRobotViewData($robot, $documentType);
-				}
-
-				return $templateArray;
+				$documentType = $this->getDocumentType();
+				$template = new \Bitrix\Bizproc\Automation\Engine\Template($documentType);
+				$template->setDocumentStatus('SCRIPT');
 			}
+			else
+			{
+				$documentType = $tpl->getDocumentComplexType();
+				$template = \Bitrix\Bizproc\Automation\Engine\Template::createByTpl($tpl);
+			}
+
+			$templateArray = $template->toArray();
+			foreach ($templateArray['ROBOTS'] as $i => $robot)
+			{
+				$templateArray['ROBOTS'][$i]['viewData'] = static::getRobotViewData($robot, $documentType);
+			}
+
+			foreach (['PARAMETERS', 'CONSTANTS'] as $key)
+			{
+				foreach ($templateArray[$key] as $id => $property)
+				{
+					if ($property['Type'] === 'user')
+					{
+						$templateArray[$key][$id]['Default'] = CBPHelper::UsersArrayToString(
+							$templateArray[$key][$id]['Default'], [], $documentType
+						);
+					}
+				}
+			}
+
+			return $templateArray;
 		}
 
 		return null;
@@ -130,10 +150,10 @@ class BizprocAutomationComponent extends \CBitrixComponent
 
 		if ($template)
 		{
-			$status = $template['DOCUMENT_STATUS'];
+			$status = 'SCRIPT';
 			$list[$status] = [
 				'STATUS_ID' => $status,
-				'NAME' => $template['NAME'],
+				'NAME' => 'script'
 			];
 		}
 
@@ -349,41 +369,38 @@ class BizprocAutomationComponent extends \CBitrixComponent
 			'CAN_EDIT' => $canEdit,
 			'TITLE_VIEW' => $this->getTitleView(),
 			'TITLE_EDIT' => $this->getTitleEdit(),
-
 			'DOCUMENT_STATUS' => $target ? $target->getDocumentStatus() : null,
 			'DOCUMENT_TYPE' => $documentType,
 			'DOCUMENT_ID' => $documentId,
 			'DOCUMENT_CATEGORY_ID' => $documentCategoryId,
 			'DOCUMENT_SIGNED' => static::signDocument($documentType, $documentCategoryId, $documentId),
-
 			'ENTITY_NAME' => $documentService->getEntityName($documentType[0], $documentType[1]),
-
 			'STATUSES' => $statusList,
-
 			'TEMPLATES' => $target ? $this->getTemplates(array_keys($statusList)) : [$this->prepareTemplateForView()],
 			'TRIGGERS' => $triggers,
 			'AVAILABLE_TRIGGERS' => $target ? $target->getAvailableTriggers() : [],
 			'AVAILABLE_ROBOTS' => array_values($availableRobots),
 			'GLOBAL_CONSTANTS' => \Bitrix\Bizproc\Workflow\Type\GlobalConst::getAll(),
-
 			'DOCUMENT_FIELDS' => $this->getDocumentFields(),
 			'LOG' => $log,
-
 			'WORKFLOW_EDIT_URL' => $this->getWorkflowEditUrl(),
 			'CONSTANTS_EDIT_URL' => $this->getConstantsEditUrl(),
 			'PARAMETERS_EDIT_URL' => $this->getParametersEditUrl(),
 			'STATUSES_EDIT_URL' => $this->getStatusesEditUrl(),
-
-			'USER_OPTIONS' => array(
-				'defaults' => \CUserOptions::GetOption('bizproc.automation', 'defaults', array()),
-				'save_state_checkboxes' => \CUserOptions::GetOption('bizproc.automation', 'save_state_checkboxes', array())
-			),
+			'USER_OPTIONS' => [
+				'defaults' => \CUserOptions::GetOption('bizproc.automation', 'defaults', []),
+				'save_state_checkboxes' => \CUserOptions::GetOption('bizproc.automation', 'save_state_checkboxes', [])
+			],
 			'FRAME_MODE' => $this->request->get('IFRAME') === 'Y' && $this->request->get('IFRAME_TYPE') === 'SIDE_SLIDER',
 			'USE_DISK' => Main\Loader::includeModule('disk'),
+			'IS_EMBEDDED' => $this->isOneTemplateMode(),
+			'SHOW_TEMPLATE_PROPERTIES_MENU_ON_SELECTING' => (
+				isset($this->arParams['SHOW_TEMPLATE_PROPERTIES_MENU_ON_SELECTING'])
+				&& $this->arParams['SHOW_TEMPLATE_PROPERTIES_MENU_ON_SELECTING'] === 'Y'
+			)
 		);
 
 		$this->prepareDelayMinLimitResult();
-
 		$this->includeComponentTemplate();
 	}
 

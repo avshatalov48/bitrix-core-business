@@ -23,7 +23,7 @@ class Common
 		return $schema."://".$domain;
 	}
 
-	public static function objectEncode($params)
+	public static function objectEncode($params, $pureJson = false)
 	{
 		if (is_array($params))
 		{
@@ -40,7 +40,7 @@ class Common
 			});
 		}
 
-		return \CUtil::PhpToJSObject($params);
+		return $pureJson? \Bitrix\Main\Web\Json::encode($params): \CUtil::PhpToJSObject($params);
 	}
 
 	public static function getCacheUserPostfix($id)

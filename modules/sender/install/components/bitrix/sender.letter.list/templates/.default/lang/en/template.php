@@ -1,4 +1,5 @@
-<?
+<?php
+$MESS["SENDER_DISPATCH_STATE_M"] = "Preparing segment";
 $MESS["SENDER_LETTER_LIST_BTN_ADD"] = "Create campaign";
 $MESS["SENDER_LETTER_LIST_BTN_COPY"] = "Copy";
 $MESS["SENDER_LETTER_LIST_BTN_COPY_TITLE"] = "Copy";
@@ -35,4 +36,3 @@ $MESS["SENDER_LETTER_LIST_STATE_SEND_TITLE"] = "Start sending email campaign mes
 $MESS["SENDER_LETTER_LIST_STATE_STOP"] = "Cancel";
 $MESS["SENDER_LETTER_LIST_STATE_STOP_TITLE"] = "Stop and finish campaign.";
 $MESS["SENDER_LETTER_LIST_STATE_WILL_SEND"] = "Will be launched";
-?>

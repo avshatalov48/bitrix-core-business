@@ -17,13 +17,14 @@ $langAdditional = [
 ];
 
 return [
+	'css' => './dist/livefeed.bundle.css',
 	'js' => './dist/livefeed.bundle.js',
-//	'css' => '/bitrix/js/socialnetwork/livefeed/livefeed.css',
 	'lang_additional' => $langAdditional,
 	'rel' => [
-		'main.core',
 		'main.core.events',
 		'main.popup',
+		'main.core',
+		'ui.buttons',
 	],
 	'skip_core' => false,
 ];

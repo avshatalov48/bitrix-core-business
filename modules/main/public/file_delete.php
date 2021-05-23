@@ -143,7 +143,7 @@ function BXDeleteFromMenuFile($menuFile, $documentRoot, $site, $path)
 		{
 			$res_log = array();
 			$mt = COption::GetOptionString("fileman", "menutypes", $default_value, $site);
-			$mt = unserialize(str_replace("\\", "", $mt));
+			$mt = unserialize(str_replace("\\", "", $mt), ['allowed_classes' => false]);
 			$res_log['menu_name'] = $mt[$menuType];
 			$res_log['path'] = mb_substr($dirName, 1);
 			CEventLog::Log(

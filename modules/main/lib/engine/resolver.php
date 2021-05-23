@@ -26,6 +26,11 @@ final class Resolver
 		$actionName = array_pop($parts);
 
 		$controllerClass = self::buildControllerClassName($vendor, $module, $parts);
+		if (!$controllerClass)
+		{
+			return null;
+		}
+
 		try
 		{
 			$controller = ControllerBuilder::build($controllerClass, [
@@ -82,7 +87,17 @@ final class Resolver
 			return null;
 		}
 
-		$defaultPath = mb_strtolower(strtr($defaultNamespaceByModule, ['\\' => '.']));
+		$defaultPath = strtr($defaultNamespaceByModule, ['\\' => '.']);
+
+		// do not lower if probably psr4
+		$firstLetter = mb_substr($controllerName, 0, 1);
+
+		if ($firstLetter === mb_strtolower($firstLetter))
+		{
+			$defaultPath = mb_strtolower($defaultPath);
+		}
+
+
 		array_unshift($actionParts, ...explode('.', $defaultPath));
 		array_push($actionParts, $controllerName);
 

@@ -82,7 +82,7 @@ class CPullOptions
 	public static function GetExcludeSites()
 	{
 		$result = COption::GetOptionString("pull", "exclude_sites", "a:0:{}", self::GetDefaultOption("exclude_sites"));
-		return unserialize($result);
+		return unserialize($result, ["allowed_classes" => false]);
 	}
 
 	public static function SetExcludeSites($sites)
@@ -138,12 +138,10 @@ class CPullOptions
 		if ($flag=='Y')
 		{
 			CAgent::AddAgent("CPullChannel::CheckOnlineChannel();", "pull", "N", 240, "", "Y", ConvertTimeStamp(time()+CTimeZone::GetOffset()+240, "FULL"));
-			CAgent::RemoveAgent("CPullStack::CheckExpireAgent();", "pull");
 		}
 		else
 		{
 			CAgent::RemoveAgent("CPullChannel::CheckOnlineChannel();", "pull");
-			CAgent::AddAgent("CPullStack::CheckExpireAgent();", "pull", "N");
 		}
 
 		return true;
@@ -563,17 +561,20 @@ class CPullOptions
 		{
 			CAgent::AddAgent("CPullChannel::CheckOnlineChannel();", "pull", "N", 240, "", "Y", ConvertTimeStamp(time()+CTimeZone::GetOffset()+100, "FULL"));
 			CAgent::AddAgent("CPullChannel::CheckExpireAgent();", "pull", "N", 43200, "", "Y", ConvertTimeStamp(time()+CTimeZone::GetOffset() + 43200, "FULL"));
-			CAgent::AddAgent("CPullStack::CheckExpireAgent();", "pull", "N", 86400, "", "Y", ConvertTimeStamp(time()+CTimeZone::GetOffset() + 86400, "FULL"));
 			CAgent::AddAgent("CPullWatch::CheckExpireAgent();", "pull", "N", 600, "", "Y", ConvertTimeStamp(time()+CTimeZone::GetOffset() + 600, "FULL"));
 		}
 		else
 		{
 			CAgent::RemoveAgent("CPullChannel::CheckOnlineChannel();", "pull");
 			CAgent::RemoveAgent("CPullChannel::CheckExpireAgent();", "pull");
-			CAgent::RemoveAgent("CPullStack::CheckExpireAgent();", "pull");
 			CAgent::RemoveAgent("CPullWatch::CheckExpireAgent();", "pull");
 			CAgent::RemoveAgent("CPushManager::SendAgent();", "pull");
 		}
+	}
+
+	public static function OnProlog()
+	{
+		\Bitrix\Main\UI\Extension::load('pull');
 	}
 
 	public static function OnEpilog()
@@ -598,8 +599,6 @@ class CPullOptions
 
 			if (CPullOptions::CheckNeedRun())
 			{
-				CJSCore::Init(array('pull'));
-
 				Asset::getInstance()->addString('<script type="text/javascript">BX.bind(window, "load", function(){BX.PULL.start();});</script>');
 			}
 		}

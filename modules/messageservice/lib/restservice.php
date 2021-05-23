@@ -3,6 +3,7 @@ namespace Bitrix\MessageService;
 
 use \Bitrix\Main\Loader;
 use \Bitrix\Rest\AppTable;
+use Bitrix\Rest\HandlerHelper;
 use \Bitrix\Rest\RestException;
 use \Bitrix\Rest\AccessException;
 
@@ -323,56 +324,7 @@ class RestService extends \IRestService
 
 	private static function validateSenderHandler($handler, $server)
 	{
-		$handlerData = parse_url($handler);
-
-		if (is_array($handlerData)
-			&& $handlerData['host'] <> ''
-			&& mb_strpos($handlerData['host'], '.') > 0
-		)
-		{
-			if ($handlerData['scheme'] == 'http' || $handlerData['scheme'] == 'https')
-			{
-				$host = $handlerData['host'];
-				$app = self::getApp($server);
-				if ($app['URL'] <> '')
-				{
-					$urls = array($app['URL']);
-
-					if ($app['URL_DEMO'] <> '')
-					{
-						$urls[] = $app['URL_DEMO'];
-					}
-					if ($app['URL_INSTALL'] <> '')
-					{
-						$urls[] = $app['URL_INSTALL'];
-					}
-
-					$found = false;
-					foreach($urls as $url)
-					{
-						$a = parse_url($url);
-						if ($host == $a['host'] || $a['host'] == 'localhost')
-						{
-							$found = true;
-							break;
-						}
-					}
-
-					if(!$found)
-					{
-						throw new RestException('Handler URL host doesn\'t match application url', self::ERROR_HANDLER_URL_MATCH);
-					}
-				}
-			}
-			else
-			{
-				throw new RestException('Unsupported event handler protocol', self::ERROR_UNSUPPORTED_PROTOCOL);
-			}
-		}
-		else
-		{
-			throw new RestException('Wrong handler URL', self::ERROR_WRONG_HANDLER_URL);
-		}
+		HandlerHelper::checkCallback($handler);
 	}
 
 	/**

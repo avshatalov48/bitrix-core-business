@@ -311,6 +311,7 @@ final class Engine
 
 		$params["AUTO_UPDATE"] = self::getAutoUpdate();
 		$params["AUTO_UPDATE_TTL"] = self::getAutoUpdateTTL();
+		$params["version"] = 2;
 
 		Asset::getInstance()->addString(
 			self::getInjectedJs($params),
@@ -990,7 +991,7 @@ final class Engine
 				if (a != x || !((r.status >= 200 && r.status < 300) || r.status === 304 || r.status === 1223 || r.status === 0))
 				{
 					var f = {error:true, reason:a!=x?"bad_rand":"bad_status", url:u, xhr:r, status:r.status};
-					if (w.BX && w.BX.ready)
+					if (w.BX && w.BX.ready && b)
 					{
 						BX.ready(function() {
 							setTimeout(function(){
@@ -998,10 +999,9 @@ final class Engine
 							}, 0);
 						});
 					}
-					else
-					{
-						w.frameRequestFail = f;
-					}
+
+					w.frameRequestFail = f;
+
 					return;
 				}
 
@@ -1021,6 +1021,23 @@ final class Engine
 			};
 
 			r.send();
+
+			var p = w.performance;
+			if (p && p.addEventListener && p.getEntries && p.setResourceTimingBufferSize)
+			{
+				var e = 'resourcetimingbufferfull';
+				var h = function() {
+					if (w.BX && w.BX.frameCache && w.BX.frameCache.frameDataInserted)
+					{
+						p.removeEventListener(e, h);
+					}
+					else 
+					{
+						p.setResourceTimingBufferSize(p.getEntries().length + 50);
+					}
+				};
+				p.addEventListener(e, h);
+			}
 
 			})(window, document);
 JS;

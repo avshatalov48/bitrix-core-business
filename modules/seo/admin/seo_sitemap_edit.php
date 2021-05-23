@@ -57,7 +57,7 @@ if($mapId > 0)
 			LocalRedirect(BX_ROOT."/admin/seo_sitemap.php?lang=".LANGUAGE_ID);
 		}
 
-		$arSitemap['SETTINGS'] = unserialize($arSitemap['SETTINGS']);
+		$arSitemap['SETTINGS'] = unserialize($arSitemap['SETTINGS'], ['allowed_classes' => false]);
 
 		$arSitemap['SETTINGS']['IBLOCK_AUTO'] = array();
 		$dbRes = SitemapIblockTable::getList(array(

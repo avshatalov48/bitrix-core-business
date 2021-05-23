@@ -265,7 +265,8 @@
 
 	      this.textChangeEvent();
 	    },
-	    sendMessage: function sendMessage() {
+	    sendMessage: function sendMessage(event) {
+	      event.preventDefault();
 	      this.$emit('send', {
 	        text: this.currentMessage.trim()
 	      });
@@ -377,16 +378,13 @@
 	          } else if (text.length <= 0) {
 	            event.preventDefault();
 	          } else {
-	            this.sendMessage();
-	            event.preventDefault();
+	            this.sendMessage(event);
 	          }
 	        } else {
 	          if (event.ctrlKey == true) {
-	            this.sendMessage();
-	            event.preventDefault();
+	            this.sendMessage(event);
 	          } else if (isMac && (event.metaKey == true || event.altKey == true)) {
-	            this.sendMessage();
-	            event.preventDefault();
+	            this.sendMessage(event);
 	          }
 	        }
 	      } else if ((event.ctrlKey || event.metaKey) && event.key == 'z') {
@@ -454,9 +452,19 @@
 	        fileChangeEvent: event,
 	        fileInput: event.target
 	      });
+	    },
+	    log: function log(text, skip, event) {
+	      console.warn(text);
+
+	      if (skip == 1) {
+	        event.preventDefault();
+	      }
+	    },
+	    preventDefault: function preventDefault(event) {
+	      event.preventDefault();
 	    }
 	  },
-	  template: "\n\t\t<div :class=\"textareaClassName\">\n\t\t\t<div class=\"bx-im-textarea-box\">\n\t\t\t\t<textarea ref=\"textarea\" class=\"bx-im-textarea-input\" @keydown=\"onKeyDown\" @keyup=\"onKeyUp\" @paste=\"onPaste\" @input=\"onInput\" @focus=\"onFocus\" @blur=\"onBlur\" v-bx-im-focus=\"autoFocus\" :placeholder=\"localize.BX_MESSENGER_TEXTAREA_PLACEHOLDER\">{{placeholderMessage}}</textarea>\n\t\t\t\t<transition enter-active-class=\"bx-im-textarea-send-button-show\" leave-active-class=\"bx-im-textarea-send-button-hide\">\n\t\t\t\t\t<button v-if=\"currentMessage\" :class=\"buttonStyle.button.className\" :style=\"buttonStyle.button.style\" @click=\"sendMessage\" :title=\"localize.BX_MESSENGER_TEXTAREA_BUTTON_SEND\"></button>\n\t\t\t\t</transition>\n\t\t\t</div>\n\t\t\t<div class=\"bx-im-textarea-app-box\">\n\t\t\t\t<label v-if=\"enableFile && !isIE11\" class=\"bx-im-textarea-app-button bx-im-textarea-app-file\" :title=\"localize.BX_MESSENGER_TEXTAREA_FILE\">\n\t\t\t\t\t<input type=\"file\" @click=\"onFileClick($event)\" @change=\"onFileSelect($event)\">\n\t\t\t\t</label>\n\t\t\t\t<button class=\"bx-im-textarea-app-button bx-im-textarea-app-smile\" :title=\"localize.BX_MESSENGER_TEXTAREA_SMILE\" @click=\"onAppButtonClick('smile', $event)\"></button>\n\t\t\t\t<button v-if=\"false\" class=\"bx-im-textarea-app-button bx-im-textarea-app-gif\" :title=\"localize.BX_MESSENGER_TEXTAREA_GIPHY\" @click=\"onAppButtonClick('giphy', $event)\"></button>\n\t\t\t</div>\n\t\t</div>\n\t"
+	  template: "\n\t\t<div :class=\"textareaClassName\">\n\t\t\t<div class=\"bx-im-textarea-box\">\n\t\t\t\t<textarea ref=\"textarea\" class=\"bx-im-textarea-input\" @keydown=\"onKeyDown\" @keyup=\"onKeyUp\" @paste=\"onPaste\" @input=\"onInput\" @focus=\"onFocus\" @blur=\"onBlur\" v-bx-im-focus=\"autoFocus\" :placeholder=\"localize.BX_MESSENGER_TEXTAREA_PLACEHOLDER\">{{placeholderMessage}}</textarea>\n\t\t\t\t<transition enter-active-class=\"bx-im-textarea-send-button-show\" leave-active-class=\"bx-im-textarea-send-button-hide\">\n\t\t\t\t\t<button \n\t\t\t\t\t\tv-if=\"currentMessage\" \n\t\t\t\t\t\t:class=\"buttonStyle.button.className\" \n\t\t\t\t\t\t:style=\"buttonStyle.button.style\" \n\t\t\t\t\t\t:title=\"localize.BX_MESSENGER_TEXTAREA_BUTTON_SEND\"\n\t\t\t\t\t\t@click=\"sendMessage\" \n\t\t\t\t\t\t@touchend=\"sendMessage\" \n\t\t\t\t\t\t@mousedown=\"preventDefault\" \n\t\t\t\t\t\t@touchstart=\"preventDefault\" \n\t\t\t\t\t/>\n\t\t\t\t</transition>\n\t\t\t</div>\n\t\t\t<div class=\"bx-im-textarea-app-box\">\n\t\t\t\t<label v-if=\"enableFile && !isIE11\" class=\"bx-im-textarea-app-button bx-im-textarea-app-file\" :title=\"localize.BX_MESSENGER_TEXTAREA_FILE\">\n\t\t\t\t\t<input type=\"file\" @click=\"onFileClick($event)\" @change=\"onFileSelect($event)\" multiple>\n\t\t\t\t</label>\n\t\t\t\t<button class=\"bx-im-textarea-app-button bx-im-textarea-app-smile\" :title=\"localize.BX_MESSENGER_TEXTAREA_SMILE\" @click=\"onAppButtonClick('smile', $event)\"></button>\n\t\t\t\t<button v-if=\"false\" class=\"bx-im-textarea-app-button bx-im-textarea-app-gif\" :title=\"localize.BX_MESSENGER_TEXTAREA_GIPHY\" @click=\"onAppButtonClick('giphy', $event)\"></button>\n\t\t\t</div>\n\t\t</div>\n\t"
 	});
 
 }((this.window = this.window || {}),BX,BX.Messenger.Lib,BX.Messenger.Lib,BX));

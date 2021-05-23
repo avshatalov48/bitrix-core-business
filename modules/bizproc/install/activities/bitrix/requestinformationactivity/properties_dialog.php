@@ -4,7 +4,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 <?= $javascriptFunctions ?>
 <script language="JavaScript">
-var BPRIAParams = <?=(is_array($arCurrentValues["requested_information"])?CUtil::PhpToJSObject($arCurrentValues["requested_information"]):'{}')?>;
+var BPRIAParams = <?=(is_array($requestedInformation)?CUtil::PhpToJSObject($requestedInformation):'{}')?>;
 
 function BPRIAEditForm(b)
 {
@@ -412,104 +412,53 @@ function BPRIAStart()
 setTimeout(BPRIAStart, 0);
 </script>
 
+<?php
+/** @var \Bitrix\Bizproc\Activity\PropertiesDialog $dialog */
+
+$renderName = function ($field)
+{
+	return $field['Required']
+		? sprintf('<span class="adm-required-field">%s:</span>', htmlspecialcharsbx($field['Name']))
+		: htmlspecialcharsbx($field['Name']) . ':';
+};
+
+$renderField = function(array $field, bool $allowSelection) use($dialog)
+{
+	$fieldType = $dialog->getFieldTypeObject($field);
+	return $fieldType->renderControl([
+		'Form' => $dialog->getFormName(),
+		'Field' => $field['FieldName']
+	], $dialog->getCurrentValue($field['FieldName']), $allowSelection, 0);
+};
+?>
+
 <tr id="ria_pd_list_form">
 	<td colspan="2">
 		<table width="100%" class="adm-detail-content-table edit-table">
-			<tr>
-				<td align="right" width="40%" class="adm-detail-content-cell-l"><span class="adm-required-field"><?= GetMessage("BPRIA_PD_APPROVERS") ?>:</span></td>
-				<td width="60%" class="adm-detail-content-cell-r"><?=CBPDocument::ShowParameterField("user", 'requested_users', $arCurrentValues['requested_users'], Array('rows'=>'2'))?>
-				</td>
-			</tr>
-			<tr>
-				<td align="right" width="40%" class="adm-detail-content-cell-l"><span class="adm-required-field"><?= GetMessage("BPRIA_PD_NAME") ?>:</span></td>
-				<td width="60%" class="adm-detail-content-cell-r">
-					<?=CBPDocument::ShowParameterField("string", 'requested_name', $arCurrentValues['requested_name'], Array('size'=>'50'))?>
-				</td>
-			</tr>
-			<tr>
-				<td align="right" width="40%" class="adm-detail-content-cell-l" valign="top"><?= GetMessage("BPRIA_PD_DESCR") ?>:</td>
-				<td width="60%" valign="top" class="adm-detail-content-cell-r">
-					<?=CBPDocument::ShowParameterField("text", 'requested_description', $arCurrentValues['requested_description'], array('rows' => 7))?>
-				</td>
-			</tr>
-			<tr>
-				<td align="right" class="adm-detail-content-cell-l"><?= GetMessage("BPAR_PD_TASK_BUTTON_MESSAGE") ?>:</td>
-				<td class="adm-detail-content-cell-r"><?=CBPDocument::ShowParameterField("string", 'task_button_message', $arCurrentValues['task_button_message'], Array('size'=>'50'))?></td>
-			</tr>
-			<tr>
-				<td align="right" class="adm-detail-content-cell-l"><?= GetMessage("BPAR_PD_SHOW_COMMENT") ?>:</td>
-				<td class="adm-detail-content-cell-r">
-					<select name="show_comment">
-						<option value="Y"<?= $arCurrentValues["show_comment"] != "N" ? " selected" : "" ?>><?= GetMessage("BPSFA_PD_YES") ?></option>
-						<option value="N"<?= $arCurrentValues["show_comment"] == "N" ? " selected" : "" ?>><?= GetMessage("BPSFA_PD_NO") ?></option>
-					</select>
-				</td>
-			</tr>
-			<tr>
-				<td align="right" class="adm-detail-content-cell-l"><?= GetMessage("BPAR_PD_COMMENT_REQUIRED") ?>:</td>
-				<td class="adm-detail-content-cell-r">
-					<select name="comment_required">
-						<option value="N"><?= GetMessage("BPSFA_PD_NO") ?></option>
-						<option value="Y"<?= $arCurrentValues["comment_required"] == "Y" ? " selected" : "" ?>><?= GetMessage("BPSFA_PD_YES") ?></option>
-					</select>
-				</td>
-			</tr>
-			<tr>
-				<td align="right" class="adm-detail-content-cell-l"><?= GetMessage("BPAR_PD_COMMENT_LABEL_MESSAGE") ?>:</td>
-				<td class="adm-detail-content-cell-r"><?=CBPDocument::ShowParameterField("string", 'comment_label_message', $arCurrentValues['comment_label_message'], Array('size'=>'50'))?></td>
-			</tr>
-			<tr>
-				<td align="right" class="adm-detail-content-cell-l"><?= GetMessage("BPSFA_PD_SET_STATUS_MESSAGE") ?>:</td>
-				<td class="adm-detail-content-cell-r">
-					<select name="set_status_message">
-						<option value="Y"<?= $arCurrentValues["set_status_message"] == "Y" ? " selected" : "" ?>><?= GetMessage("BPSFA_PD_YES") ?></option>
-						<option value="N"<?= $arCurrentValues["set_status_message"] == "N" ? " selected" : "" ?>><?= GetMessage("BPSFA_PD_NO") ?></option>
-					</select>
-				</td>
-			</tr>
-			<tr>
-				<td align="right" class="adm-detail-content-cell-l"><?= GetMessage("BPSFA_PD_STATUS_MESSAGE") ?>:</td>
-				<td class="adm-detail-content-cell-r"><?=CBPDocument::ShowParameterField("string", 'status_message', $arCurrentValues['status_message'], Array('size'=>'50'))?></td>
-			</tr>
-			<tr>
-				<td align="right"><?= GetMessage("BPSFA_PD_TIMEOUT_DURATION") ?>:<br/><?= GetMessage("BPSFA_PD_TIMEOUT_DURATION_HINT") ?></td>
-				<td>
-					<?=CBPDocument::ShowParameterField('int', 'timeout_duration', $arCurrentValues["timeout_duration"], array('size' => 20))?>
-					<select name="timeout_duration_type">
-						<option value="s"<?= ($arCurrentValues["timeout_duration_type"] == "s") ? " selected" : "" ?>><?= GetMessage("BPSFA_PD_TIME_S") ?></option>
-						<option value="m"<?= ($arCurrentValues["timeout_duration_type"] == "m") ? " selected" : "" ?>><?= GetMessage("BPSFA_PD_TIME_M") ?></option>
-						<option value="h"<?= ($arCurrentValues["timeout_duration_type"] == "h") ? " selected" : "" ?>><?= GetMessage("BPSFA_PD_TIME_H") ?></option>
-						<option value="d"<?= ($arCurrentValues["timeout_duration_type"] == "d") ? " selected" : "" ?>><?= GetMessage("BPSFA_PD_TIME_D") ?></option>
-					</select>
-					<?
-					$delayMinLimit = CBPSchedulerService::getDelayMinLimit();
-					if ($delayMinLimit):
-						?>
-						<p style="color: red;">* <?= GetMessage("BPSFA_PD_TIMEOUT_LIMIT") ?>: <?=CBPHelper::FormatTimePeriod($delayMinLimit)?></p>
-						<?
-					endif;
-					?>
-				</td>
-			</tr>
-			<tr>
-				<td align="right" class="adm-detail-content-cell-l"><?= GetMessage("BPRIA_PD_ACCESS_CONTROL") ?>:</td>
-				<td class="adm-detail-content-cell-r">
-					<select name="access_control">
-						<option value="Y"<?= $arCurrentValues["access_control"] == "Y" ? " selected" : "" ?>><?= GetMessage("BPSFA_PD_YES") ?></option>
-						<option value="N"<?= $arCurrentValues["access_control"] != "Y" ? " selected" : "" ?>><?= GetMessage("BPSFA_PD_NO") ?></option>
-					</select>
-				</td>
-			</tr>
-			<tr>
-				<td align="right" class="adm-detail-content-cell-l"><?= GetMessage("BPSFA_PD_DELEGATION_TYPE") ?>:</td>
-				<td>
-					<select name="delegation_type">
-						<?foreach (CBPTaskDelegationType::getSelectList() as $key => $label):?>
-							<option value="<?=htmlspecialcharsbx($key)?>>"<?= $arCurrentValues["delegation_type"] == $key ? " selected" : "" ?>><?=htmlspecialcharsbx($label)?></option>
-						<?endforeach;?>
-					</select>
-				</td>
-			</tr>
+			<?php foreach ($dialog->getMap() as $fieldId => $field):?>
+				<?php if($fieldId !== 'TimeoutDurationType' && !is_array($field['Settings']) && $field['Settings']['Hidden'] !== true): ?>
+					<tr>
+						<td align="right" width="40%" class="adm-detail-content-cell-l"><?= $renderName($field) ?></td>
+						<td width="60%" class="adm-detail-content-cell-r">
+							<?php
+							echo $renderField($field, true);
+
+							if($fieldId === 'TimeoutDuration')
+							{
+								echo $renderField($dialog->getMap()['TimeoutDurationType'], false);
+								$delayMinLimit = CBPSchedulerService::getDelayMinLimit();
+								if ($delayMinLimit)
+								{
+									printf('<p style="color: red;">* %s: %s</p>',
+										GetMessage("BPSFA_PD_TIMEOUT_LIMIT"), CBPHelper::FormatTimePeriod($delayMinLimit)
+									);
+								}
+							}
+							?>
+						</td>
+					</tr>
+				<?php endif; ?>
+			<?php endforeach; ?>
 			<tr>
 				<td colspan="2"><br><b><?= GetMessage("BPSFA_PD_FIELDS") ?></b><br><br></td>
 			</tr>
@@ -529,6 +478,7 @@ setTimeout(BPRIAStart, 0);
 		<span style="padding: 10px;" ><a href="javascript:void(0);" onclick="BPRIANewParam()"><?= GetMessage("BPSFA_PD_F_ADD") ?></a></span>
 	</td>
 </tr>
+
 
 <tr id="ria_pd_edit_form">
 	<td colspan="2">
@@ -575,13 +525,13 @@ setTimeout(BPRIAStart, 0);
 		<tr id="id_tr_pbria_options" style="display:none">
 			<td align="right" class="adm-detail-content-cell-l" width="40%" valign="top" id="id_td_fri_options_promt"><?= GetMessage("BPSFA_PD_F_VLIST") ?>:</td>
 			<td width="60%" id="id_td_fri_options" class="adm-detail-content-cell-r">
-				
+
 			</td>
 		</tr>
 		<tr>
 			<td align="right" width="40%" class="adm-detail-content-cell-l"><?= GetMessage("BPSFA_PD_F_DEF") ?>:</td>
 			<td width="60%" id="id_td_document_value" class="adm-detail-content-cell-r">
-				
+
 			</td>
 		</tr>
 		<tr>

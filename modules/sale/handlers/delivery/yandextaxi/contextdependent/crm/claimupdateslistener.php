@@ -8,7 +8,6 @@ use Bitrix\Crm\Order\Contact;
 use Bitrix\Crm\Order\ContactCompanyEntity;
 use Bitrix\Crm\Order\Order;
 use Bitrix\Crm\Timeline\DeliveryController;
-use Bitrix\Main\Engine\UrlManager;
 use Bitrix\Main\Event;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
@@ -102,10 +101,21 @@ final class ClaimUpdatesListener
 		/**
 		 * @TODO LocalDeliveryRequestTable usage should be moved to lib
 		 */
+		$deliveryServiceIds = array_column(
+			\Bitrix\Sale\Delivery\Services\Manager::getList(
+				[
+					'select' => ['ID'],
+					'filter' => ['PARENT_ID' => $this->deliveryService->getId()]
+				]
+			)->fetchAll(),
+			'ID'
+		);
+		$deliveryServiceIds[] = $this->deliveryService->getId();
+
 		$request = LocalDeliveryRequestTable::getList(
 			[
 				'filter' => [
-					'DELIVERY_SERVICE_ID' => $this->deliveryService->getId(),
+					'DELIVERY_SERVICE_ID' => $deliveryServiceIds,
 					'SHIPMENT_ID' => $claim['SHIPMENT_ID'],
 					'EXTERNAL_ID' => $claim['EXTERNAL_ID'],
 				],
@@ -376,6 +386,7 @@ final class ClaimUpdatesListener
 		if ($getPhoneResult->isSuccess())
 		{
 			$result['PERFORMER_PHONE'] = $getPhoneResult->getPhone();
+			$result['PERFORMER_PHONE_EXT'] = $getPhoneResult->getExt();
 		}
 
 		return $result;
@@ -389,12 +400,7 @@ final class ClaimUpdatesListener
 	{
 		$this->activityManager->updateActivity(
 			$request['SHIPMENT_ID'],
-			array_merge(
-				$performer,
-				[
-					'TRACKING_LINK' => $this->getTrackingLink($request['EXTERNAL_ID']),
-				]
-			),
+			$performer,
 			$request['ID']
 		);
 	}
@@ -431,14 +437,7 @@ final class ClaimUpdatesListener
 	 */
 	private function getSmsBody(array $claim): string
 	{
-		return sprintf(
-			'%s %s: %s',
-			Loc::getMessage('SALE_YANDEX_TAXI_PARCEL_ON_ITS_WAY_SMS'),
-			Loc::getMessage('SALE_YANDEX_TAXI_TRACKING_URL'),
-			UrlManager::getInstance()->getHostUrl() . \CBXShortUri::GetShortUri(
-				$this->getTrackingLink($claim['EXTERNAL_ID'])
-			)
-		);
+		return Loc::getMessage('SALE_YANDEX_TAXI_PARCEL_ON_ITS_WAY_SMS');
 	}
 
 	/**

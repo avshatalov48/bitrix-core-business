@@ -19,7 +19,7 @@ class PriceMaths
 		if (!isset(self::$valuePrecision))
 		{
 			self::$valuePrecision = (int)Main\Config\Option::get('sale', 'value_precision');
-			if (self::$valuePrecision <= 0)
+			if (self::$valuePrecision < 0)
 			{
 				self::$valuePrecision = 2;
 			}

@@ -340,7 +340,7 @@ namespace Bitrix\Vote\Component
 
 			if ($this->file->IsExists())
 			{
-				$data = unserialize($this->file->GetContents());
+				$data = unserialize($this->file->GetContents(), ["allowed_classes" => false]);
 				foreach($data as $key => $val)
 				{
 					if (array_key_exists($key , $this->data) && is_array($this->data[$key]) && is_array($val))
@@ -627,7 +627,8 @@ namespace Bitrix\Vote\Component
 				}
 				else if ($request->getPost("action_button_" . $this->getGridId()) === 'edit')
 				{
-					\CAllFile::ConvertFilesToPost(($request->getFile("FIELDS") ?: []), $rawFiles);
+					$rawFiles = [];
+					\CFile::ConvertFilesToPost(($request->getFile("FIELDS") ?: []), $rawFiles);
 
 					foreach ($request->getPost("FIELDS") as $id => $fields)
 						$this->update($id, $fields, $rawFiles[$id]);

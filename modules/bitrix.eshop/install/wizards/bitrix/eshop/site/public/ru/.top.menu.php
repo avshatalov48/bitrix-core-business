@@ -40,7 +40,7 @@ $aMenuLinks = Array(
 		"personal/",
 		Array(),
 		Array(),
-		"CUser::IsAuthorized()"
+		"\$USER->IsAuthorized()"
 	),
 );
 ?>

@@ -11,7 +11,7 @@ use Bitrix\Sale\Delivery\Services\EmptyDeliveryService;
 use Bitrix\Sale\Internals\Input\File;
 use Bitrix\Sale;
 use Bitrix\Sale\PaySystem\Manager;
-use Bitrix\Sale\PropertyValueBase;
+use Bitrix\Sale\EntityPropertyValue;
 use Bitrix\Sale\Result;
 use Bitrix\Sale\Shipment;
 use Bitrix\Sale\ShipmentItem;
@@ -343,7 +343,7 @@ class OrderBuilderRest extends OrderBuilder
 		if($this->getSettingsContainer()->getItemValue('deletePropertyValuesIfNotExists'))
 		{
 			$propCollection = $this->order->getPropertyCollection();
-			/** @var PropertyValueBase $propertyValue */
+			/** @var EntityPropertyValue $propertyValue */
 			foreach($propCollection as $propertyValue)
 			{
 				if(is_set($this->formData["PROPERTIES"],$propertyValue->getPropertyId()) == false)

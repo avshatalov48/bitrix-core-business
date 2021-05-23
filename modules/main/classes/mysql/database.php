@@ -70,12 +70,18 @@ abstract class CDatabaseMysql extends CAllDatabase
 		$this->bConnected = false;
 
 		if (!defined("DBPersistent"))
-			define("DBPersistent",true);
+		{
+			define("DBPersistent", true);
+		}
 
-		if(defined("DELAY_DB_CONNECT") && DELAY_DB_CONNECT===true)
+		if(defined("DELAY_DB_CONNECT") && DELAY_DB_CONNECT === true)
+		{
 			return true;
+		}
 		else
+		{
 			return $this->DoConnect($connectionName);
+		}
 	}
 
 	abstract protected function QueryInternal($sql);

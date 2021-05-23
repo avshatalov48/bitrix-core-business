@@ -12,8 +12,8 @@
 /** @var string $componentPath */
 /** @var CBitrixComponent $component */
 
-use Bitrix\Main\Web\Json;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Json;
 
 $getMessageLocal = function($messageCode, $replace = []) use ($arParams)
 {
@@ -107,7 +107,7 @@ $containerId = 'sender-segment-selector';
 
 	<script type="text/javascript">
 		BX.ready(function () {
-			new BX.Sender.Segment.SelectorManager(<?=Json::encode(array(
+			window.senderSegmentSelector = new BX.Sender.Segment.SelectorManager(<?=Json::encode(array(
 				'containerId' => $containerId,
 				'pathToAdd' => $arParams['PATH_TO_ADD'],
 				'pathToEdit' => $arParams['PATH_TO_EDIT'],

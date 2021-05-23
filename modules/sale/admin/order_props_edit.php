@@ -201,6 +201,16 @@ $commonSettings += Input\Manager::getCommonSettings($property, $reload);
 $commonSettings['MULTIPLE']['DESCRIPTION'] = Loc::getMessage('MULTIPLE_DESCRIPTION');
 unset($commonSettings['VALUE']);
 
+if (isset($commonSettings['TYPE']['OPTIONS']['ADDRESS'])
+	&& (
+		!$existentProperty
+		|| $existentProperty['TYPE'] !== 'ADDRESS'
+	)
+)
+{
+	unset($commonSettings['TYPE']['OPTIONS']['ADDRESS']);
+}
+
 $commonSettings['DEFAULT_VALUE'] = array(
 		'REQUIRED' => 'N',
 		'DESCRIPTION' => null,

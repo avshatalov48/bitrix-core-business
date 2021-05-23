@@ -118,7 +118,7 @@ class OrderTable extends Main\Entity\DataManager
 					'default_value' => 'N'
 				)
 			),
-			
+
 			new Main\Entity\BooleanField(
 				'IS_SYNC_B24',
 				array(
@@ -500,6 +500,15 @@ class OrderTable extends Main\Entity\DataManager
 				array(
 					'=ref.ORDER_ID' => 'this.ID',
 					'=ref.ENTITY_TYPE' => new Main\DB\SqlExpression('?', OrderDiscountDataTable::ENTITY_TYPE_ORDER)
+				),
+				array('join_type' => 'LEFT')
+			),
+
+			new Main\Entity\ReferenceField(
+				'ORDER_DISCOUNT_RULES',
+				'Bitrix\Sale\Internals\OrderRules',
+				array(
+					'=ref.ORDER_ID' => 'this.ID',
 				),
 				array('join_type' => 'LEFT')
 			),

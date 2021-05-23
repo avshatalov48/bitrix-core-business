@@ -18,6 +18,7 @@
 
 use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Entity;
+use Bitrix\Main\UserField\Types\BaseType;
 use Bitrix\Main\UserField\Types\DateTimeType;
 
 CModule::AddAutoloadClasses(
@@ -890,7 +891,7 @@ class CAllUserTypeEntity extends CDBResult
 		$res = parent::Fetch();
 		if($res && $res["SETTINGS"] <> '')
 		{
-			$res["SETTINGS"] = unserialize($res["SETTINGS"]);
+			$res["SETTINGS"] = unserialize($res["SETTINGS"], ['allowed_classes' => false]);
 		}
 		return $res;
 	}
@@ -1127,7 +1128,7 @@ class CUserTypeManager
 							}
 							else
 							{
-								$value = unserialize($value);
+								$value = unserialize($value, ['allowed_classes' => false]);
 							}
 							$result[$key]["VALUE"] = $this->OnAfterFetch($result[$key], $value);
 						}
@@ -1201,7 +1202,7 @@ class CUserTypeManager
 			{
 				if($result[$key]["MULTIPLE"] == "Y" && !is_array($value))
 				{
-					$value = unserialize($value);
+					$value = unserialize($value, ['allowed_classes' => false]);
 				}
 
 				$result[$key]["VALUE"] = $this->OnAfterFetch($result[$key], $value);
@@ -1261,7 +1262,7 @@ class CUserTypeManager
 				if($ar = $rs->Fetch())
 				{
 					if($arUserField["MULTIPLE"] == "Y")
-						$result = $this->OnAfterFetch($arUserField, unserialize($ar["VALUE"]));
+						$result = $this->OnAfterFetch($arUserField, unserialize($ar["VALUE"], ['allowed_classes' => false]));
 					else
 						$result = $this->OnAfterFetch($arUserField, $ar["VALUE"]);
 				}
@@ -2008,7 +2009,7 @@ class CUserTypeManager
 					if(is_array($value))
 						$form_value = $value;
 					else
-						$form_value = unserialize($value);
+						$form_value = unserialize($value, ['allowed_classes' => false]);
 
 					if(!is_array($form_value))
 						$form_value = array();
@@ -2037,7 +2038,7 @@ class CUserTypeManager
 					if(is_array($value))
 						$form_value = $value;
 					else
-						$form_value = $value <> '' ? unserialize($value) : false;
+						$form_value = $value <> '' ? unserialize($value, ['allowed_classes' => false]) : false;
 
 					if(!is_array($form_value))
 						$form_value = array();
@@ -2090,7 +2091,7 @@ class CUserTypeManager
 					if(is_array($value))
 						$form_value = $value;
 					else
-						$form_value = $value <> '' ? unserialize($value) : false;
+						$form_value = $value <> '' ? unserialize($value, ['allowed_classes' => false]) : false;
 
 					if(!is_array($form_value))
 						$form_value = array();
@@ -2118,7 +2119,7 @@ class CUserTypeManager
 					if(is_array($value))
 						$form_value = $value;
 					else
-						$form_value = unserialize($value);
+						$form_value = unserialize($value, ['allowed_classes' => false]);
 
 					if(!is_array($form_value))
 						$form_value = array();
@@ -2175,7 +2176,7 @@ class CUserTypeManager
 			}
 			elseif(is_callable(array($userfield["USER_TYPE"]["CLASS_NAME"], "getadminlistviewhtmlmulty")))
 			{
-				$form_value = is_array($value) ? $value : unserialize($value);
+				$form_value = is_array($value) ? $value : unserialize($value, ['allowed_classes' => false]);
 
 				if(!is_array($form_value))
 					$form_value = array();
@@ -2198,7 +2199,7 @@ class CUserTypeManager
 				if(is_array($value))
 					$form_value = $value;
 				else
-					$form_value = $value <> '' ? unserialize($value) : false;
+					$form_value = $value <> '' ? unserialize($value, ['allowed_classes' => false]) : false;
 
 				if(!is_array($form_value))
 					$form_value = array();
@@ -3094,31 +3095,49 @@ class CUserTypeManager
 
 		if(is_callable(array($arUserField['USER_TYPE']['CLASS_NAME'], 'getEntityField')))
 		{
-			return call_user_func(array($arUserField['USER_TYPE']['CLASS_NAME'], 'getEntityField'), $fieldName, $fieldParameters);
+			$field = call_user_func(array($arUserField['USER_TYPE']['CLASS_NAME'], 'getEntityField'), $fieldName, $fieldParameters);
+		}
+		elseif($arUserField['USER_TYPE']['USER_TYPE_ID'] == 'date')
+		{
+			$field = new Entity\DateField($fieldName, $fieldParameters);
+		}
+		else
+		{
+			switch($arUserField['USER_TYPE']['BASE_TYPE'])
+			{
+				case 'int':
+				case 'enum':
+				case 'file':
+					$field = new Entity\IntegerField($fieldName, $fieldParameters);
+					break;
+				case 'double':
+					$field = new Entity\FloatField($fieldName, $fieldParameters);
+					break;
+				case 'string':
+					$field = new Entity\StringField($fieldName, $fieldParameters);
+					break;
+				case 'datetime':
+					$field = new Entity\DatetimeField($fieldName, $fieldParameters);
+					break;
+				default:
+					throw new \Bitrix\Main\ArgumentException(sprintf(
+						'Unknown userfield base type `%s`', $arUserField["USER_TYPE"]['BASE_TYPE']
+					));
+			}
 		}
 
-		if($arUserField['USER_TYPE']['USER_TYPE_ID'] == 'date')
+		if (isset($arUserField['SETTINGS']['DEFAULT_VALUE']))
 		{
-			return new Entity\DateField($fieldName, $fieldParameters);
+			$ufHandlerClass = $arUserField['USER_TYPE']['CLASS_NAME'];
+
+			if (is_subclass_of($ufHandlerClass, BaseType::class))
+			{
+				$defaultValue = $ufHandlerClass::getDefaultValue($arUserField);
+				$field->configureDefaultValue($defaultValue);
+			}
 		}
 
-		switch($arUserField['USER_TYPE']['BASE_TYPE'])
-		{
-			case 'int':
-			case 'enum':
-			case 'file':
-				return new Entity\IntegerField($fieldName, $fieldParameters);
-			case 'double':
-				return new Entity\FloatField($fieldName, $fieldParameters);
-			case 'string':
-				return new Entity\StringField($fieldName, $fieldParameters);
-			case 'datetime':
-				return new Entity\DatetimeField($fieldName, $fieldParameters);
-			default:
-				throw new \Bitrix\Main\ArgumentException(sprintf(
-					'Unknown userfield base type `%s`', $arUserField["USER_TYPE"]['BASE_TYPE']
-				));
-		}
+		return $field;
 	}
 
 	/**

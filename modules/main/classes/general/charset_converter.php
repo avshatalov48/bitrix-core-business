@@ -27,7 +27,7 @@ class CharsetConverter
 	{
 		$string = strval($string);
 
-		return \Bitrix\Main\Text\Encoding::convertEncoding($string, $charset_in, $charset_out, $errorMessage);
+		return \Bitrix\Main\Text\Encoding::convertEncoding($string, $charset_in, $charset_out);
 	}
 
 	/**

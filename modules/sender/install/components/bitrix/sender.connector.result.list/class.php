@@ -6,6 +6,7 @@ use Bitrix\Main\Grid\Options as GridOptions;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Filter\Options as FilterOptions;
 use Bitrix\Sender\Connector;
+use Bitrix\Sender\Posting\SegmentDataBuilder;
 use Bitrix\Sender\Recipient;
 use Bitrix\Sender\Security;
 use Bitrix\Sender\UI\PageNavigation;
@@ -42,6 +43,7 @@ class SenderConnectorResultListComponent extends CBitrixComponent
 		$this->arParams['GRID_ID'] = isset($this->arParams['GRID_ID']) ? $this->arParams['GRID_ID'] : 'SENDER_CONTACT_LIST_GRID';
 		$this->arParams['FILTER_ID'] = isset($this->arParams['FILTER_ID']) ? $this->arParams['FILTER_ID'] : $this->arParams['GRID_ID'] . '_FILTER';
 		$this->arParams['SET_TITLE'] = isset($this->arParams['SET_TITLE']) ? $this->arParams['SET_TITLE'] === 'Y' : true;
+
 		$this->arParams['CAN_VIEW'] = isset($this->arParams['CAN_VIEW'])
 			?
 			$this->arParams['CAN_VIEW']
@@ -135,8 +137,28 @@ class SenderConnectorResultListComponent extends CBitrixComponent
 		{
 			$connector->setFieldValues($endpoint['FIELDS'] + $this->getDataFilter());
 			$connector->setDataTypeId($this->getDataTypeId());
-			$result = $connector->getResult();
 
+			$segmentBuilder = null;
+			$groupId = $this->request->get('groupId');
+			$filterId = $this->request->get('filterId');
+			$isIncrementally = $connector instanceof Connector\IncrementallyConnector && $groupId && $filterId;
+
+			if ($isIncrementally)
+			{
+				$segmentBuilder = new SegmentDataBuilder(
+					$this->request->get('groupId'),
+					$this->request->get('filterId'),
+					$endpoint
+				);
+				$this->arResult['BUILDING_COMPLETED'] = $segmentBuilder->isBuildingCompleted();
+			}
+
+			$result = !$segmentBuilder
+				? $connector->getResult()
+				: new Connector\Result($segmentBuilder->getData($nav))
+			;
+
+			$result->setDataTypeId($connector->getDataTypeId());
 			$fetchedCount = 0;
 			while ($item = $result->fetchPlain())
 			{
@@ -149,7 +171,9 @@ class SenderConnectorResultListComponent extends CBitrixComponent
 				}
 			}
 			$connector->getResultView()->setNav(null);
-			$this->arResult['TOTAL_ROWS_COUNT'] = $connector->getDataCount();
+			$this->arResult['TOTAL_ROWS_COUNT'] = !$segmentBuilder
+				? $connector->getDataCount()
+				: $segmentBuilder->getDataCount();
 		}
 		else
 		{

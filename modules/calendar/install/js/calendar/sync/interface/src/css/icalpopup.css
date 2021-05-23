@@ -1,0 +1,20 @@
+.calendar-ical-popup-wrapper {
+	padding: 0 7px;
+	border-bottom: 1px solid #EDEEF0;
+}
+
+.calendar-ical-popup-wrapper h3 {
+	margin: 7px 0 12px;
+}
+
+.calendar-ical-popup-label-text {
+	font: 13px/17px"Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #828B95;
+	margin-bottom: 12px;
+}
+
+.calendar-ical-popup-link-block {
+	word-wrap: break-word;
+	margin-bottom: 28px;
+	font: 14px/17px"Helvetica Neue", Helvetica, Arial, sans-serif;
+}

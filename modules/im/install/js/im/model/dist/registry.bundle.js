@@ -4126,6 +4126,10 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        avatar: '',
 	        color: '#048bd0',
 	        title: '',
+	        lines: {
+	          id: 0,
+	          status: 0
+	        },
 	        message: {
 	          id: 0,
 	          text: '',

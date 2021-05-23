@@ -1,3 +1,4 @@
+
 ;(function(window) {
 	function SettingsSlider(params)
 	{
@@ -151,7 +152,23 @@
 					BX.Event.bind(this.DOM.emailHelpIcon, 'click', function(){BX.Helper.show("redirect=detail&code=12070142")});
 					BX.UI.Hint.initNode(this.DOM.emailHelpIcon);
 				}
+
 				this.emailSelectorControl.setValue(this.calendar.util.getUserOption('sendFromEmail'));
+
+				var emailWrap = this.DOM.content.querySelector('.calendar-settings-email-wrap')
+				if (BX.Calendar.Util.isEventWithEmailGuestAllowed())
+				{
+					BX.Dom.removeClass(emailWrap, 'lock');
+					this.DOM.sendFromEmailSelect.disabled = false;
+				}
+				else
+				{
+					BX.Dom.addClass(emailWrap, 'lock');
+					this.DOM.sendFromEmailSelect.disabled = true;
+					BX.Event.bind(this.DOM.sendFromEmailSelect.parentNode, 'click', function(){
+						BX.UI.InfoHelper.show('limit_calendar_invitation_by_mail');
+					});
+				}
 			}
 
 			// General settings

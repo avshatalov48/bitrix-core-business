@@ -147,7 +147,11 @@
 			},
 			onStateChanged: this.__onPeerStateChanged.bind(this),
 			onInviteTimeout: this.__onPeerInviteTimeout.bind(this),
-			onRTCStatsReceived: this.__onPeerRTCStatsReceived.bind(this)
+			onRTCStatsReceived: this.__onPeerRTCStatsReceived.bind(this),
+			onNetworkProblem: function(e)
+			{
+				self.runCallback(BX.Call.Event.onNetworkProblem, e)
+			}
 		});
 	};
 
@@ -1630,6 +1634,7 @@
 			onStreamReceived: BX.type.isFunction(params.onStreamReceived) ? params.onStreamReceived : BX.DoNothing,
 			onStreamRemoved: BX.type.isFunction(params.onStreamRemoved) ? params.onStreamRemoved : BX.DoNothing,
 			onRTCStatsReceived: BX.type.isFunction(params.onRTCStatsReceived) ? params.onRTCStatsReceived : BX.DoNothing,
+			onNetworkProblem: BX.type.isFunction(params.onNetworkProblem) ? params.onNetworkProblem : BX.DoNothing,
 		};
 
 		// intervals and timeouts
@@ -1646,6 +1651,8 @@
 		this.reconnectAfterDisconnectTimeout = null;
 
 		this.connectionAttempt = 0;
+		this.hasStun = false;
+		this.hasTurn = false;
 
 		// event handlers
 		this._onPeerConnectionIceCandidateHandler = this._onPeerConnectionIceCandidate.bind(this);
@@ -1657,6 +1664,8 @@
 		this._onPeerConnectionRemoveStreamHandler = this._onPeerConnectionRemoveStream.bind(this);
 
 		this._sendStreamDebounced = BX.debounce(this._sendStream.bind(this), 50);
+
+		this._waitTurnCandidatesTimeout = null;
 	};
 
 	BX.Call.PlainCall.Peer.prototype.sendMedia = function(skipOffer)
@@ -1929,7 +1938,8 @@
 				userId: this.userId,
 				state: calculatedState,
 				previousState: this.calculatedState,
-				isLegacyMobile: this.isLegacyMobile
+				isLegacyMobile: this.isLegacyMobile,
+				networkProblem: !this.hasStun || !this.hasTurn
 			});
 			this.calculatedState = calculatedState;
 		}
@@ -2062,6 +2072,8 @@
 		this.peerConnection.addEventListener("removestream", this._onPeerConnectionRemoveStreamHandler);
 
 		this.failureReason = '';
+		this.hasStun = false;
+		this.hasTurn = false;
 		this.updateCalculatedState();
 
 		this.startStatisticsGathering();
@@ -2114,6 +2126,20 @@
 				this.localIceCandidates.push(candidate.toJSON());
 				this.updateCandidatesTimeout();
 			}
+
+			var match = candidate.candidate.match(/typ\s(\w+)?/);
+			if(match)
+			{
+				var type = match[1];
+				if(type == "srflx")
+				{
+					this.hasStun = true;
+				}
+				else if (type == "relay")
+				{
+					this.hasTurn = true;
+				}
+			}
 		}
 	};
 
@@ -2153,6 +2179,26 @@
 		if(connection.iceGatheringState === 'complete')
 		{
 			this.log("User " + this.userId +  ": ICE gathering complete");
+			if (!this.hasStun || !this.hasTurn)
+			{
+				var s = [];
+				if (!this.hasTurn)
+				{
+					s.push("TURN");
+				}
+				if (!this.hasStun)
+				{
+					s.push("STUN");
+				}
+				this.log("Connectivity problem detected: no ICE candidates from " + s.join(" and ") + " servers");
+				console.error("Connectivity problem detected: no ICE candidates from " + s.join(" and ") + " servers");
+				this.callbacks.onNetworkProblem();
+			}
+
+			if (!this.hasTurn && !this.hasStun)
+			{
+
+			}
 
 			if(!this.getSignaling().isIceTricklingAllowed())
 			{

@@ -472,7 +472,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]) && $strWarn
 			if(COption::GetOptionString($module_id, "log_page", "Y")=="Y")
 			{
 				$mt = COption::GetOptionString("fileman", "menutypes", $default_value, $site);
-				$mt = unserialize(str_replace("\\", "", $mt));
+				$mt = unserialize(str_replace("\\", "", $mt), ['allowed_classes' => false]);
 				$res_log['menu_name'] = $mt[$menuType];
 				$res_log['path'] = mb_substr(dirname($arUndoParams['arContent']['path']), 1);
 				CEventLog::Log(

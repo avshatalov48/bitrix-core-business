@@ -10,7 +10,6 @@ namespace Bitrix\Sender\Integration\Seo\Ads;
 
 use Bitrix\Main\Loader;
 use Bitrix\Sender\Integration;
-
 use Bitrix\Seo\Retargeting;
 
 /**

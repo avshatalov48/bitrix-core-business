@@ -246,7 +246,11 @@ class CleanEthalon
 				->setLangId($currentLang)
 				->setOperatingEncoding(Main\Localization\Translation::getSourceEncoding($currentLang));
 
-			$isEthalonExists = ($ethalonFile->isExists() && $ethalonFile->load());
+			$isEthalonExists = false;
+			if ($ethalonFile->isExists())
+			{
+				$isEthalonExists = $ethalonFile->loadTokens() || $ethalonFile->load();
+			}
 			if (!$isEthalonExists)
 			{
 				$this->deletePhraseIndex($ethalonFile);
@@ -279,7 +283,7 @@ class CleanEthalon
 
 					if ($langFile->isExists())
 					{
-						if ($isEthalonExists && $langFile->load())
+						if ($isEthalonExists && ($langFile->loadTokens() || $langFile->load()))
 						{
 							$affected = false;
 							foreach ($langFile as $code => $phrase)

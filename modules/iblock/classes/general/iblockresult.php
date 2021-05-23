@@ -143,7 +143,7 @@ class CIBlockResult extends CDBResult
 						}
 						else
 						{
-							$tmp = unserialize($res[$field_name]);
+							$tmp = unserialize($res[$field_name], ['allowed_classes' => false]);
 							if (!isset($tmp['ID']))
 								$update = true;
 						}

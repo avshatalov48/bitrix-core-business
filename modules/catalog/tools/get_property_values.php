@@ -32,12 +32,12 @@ if (check_bitrix_sessid() && $request->isPost() && Loader::includeModule('iblock
 				{
 					$property['USER_TYPE_SETTINGS'] = (string)$property['USER_TYPE_SETTINGS'];
 					if (CheckSerializedData($property['USER_TYPE_SETTINGS']))
-						$property['USER_TYPE_SETTINGS'] = unserialize($property['USER_TYPE_SETTINGS']);
+						$property['USER_TYPE_SETTINGS'] = unserialize($property['USER_TYPE_SETTINGS'], ['allowed_classes' => false]);
 					if (!is_array($property['USER_TYPE_SETTINGS']))
 						$property['USER_TYPE_SETTINGS'] = array();
 				}
 			}
-			
+
 			if ($property['PROPERTY_TYPE'] === Iblock\PropertyTable::TYPE_STRING && $property['USER_TYPE'] === 'directory')
 			{
 				if (Loader::includeModule('highloadblock') && !empty($property['USER_TYPE_SETTINGS']['TABLE_NAME']))

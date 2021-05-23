@@ -332,6 +332,13 @@ export class Entry
 		return this.data.MEETING.NOTIFY;
 	}
 
+	getHideGuests()
+	{
+		return this.data.MEETING && BX.Type.isBoolean(this.data.MEETING.HIDE_GUESTS)
+			? this.data.MEETING.HIDE_GUESTS
+			: true;
+	}
+
 	getRrule()
 	{
 		return this.data.RRULE;

@@ -59,6 +59,7 @@ BX.SidePanel.Slider = function(url, options)
 
 	this.handleFrameKeyDown = this.handleFrameKeyDown.bind(this);
 	this.handleFrameFocus = this.handleFrameFocus.bind(this);
+	this.handlePopupInit = this.handlePopupInit.bind(this);
 
 	/**
 	 *
@@ -776,6 +777,7 @@ BX.SidePanel.Slider.prototype =
 			frameWindow.removeEventListener("focus", this.handleFrameFocus);
 		}
 
+		BX.Event.EventEmitter.unsubscribe('BX.Main.Popup:onInit', this.handlePopupInit);
 		BX.ZIndexManager.unregister(this.layout.overlay);
 
 		BX.remove(this.layout.overlay);
@@ -884,6 +886,8 @@ BX.SidePanel.Slider.prototype =
 			this.getContentContainer().style.overflow = "auto";
 			document.body.appendChild(this.getOverlay());
 			this.setContent();
+
+			BX.Event.EventEmitter.subscribe('BX.Main.Popup:onInit', this.handlePopupInit);
 		}
 		else
 		{
@@ -1738,6 +1742,25 @@ BX.SidePanel.Slider.prototype =
 
 		this.firePageEvent("onEscapePress");
 		this.fireFrameEvent("onEscapePress");
+	},
+
+	/**
+	 * @private
+	 * @param {BaseEvent} event
+	 */
+	handlePopupInit: function(event)
+	{
+		var data = event.getCompatData();
+		var bindElement = data[1];
+		var params = data[2];
+
+		if (!BX.Type.isElementNode(params.targetContainer) && BX.Type.isElementNode(bindElement))
+		{
+			if (this.getContentContainer().contains(bindElement))
+			{
+				params.targetContainer = this.getContentContainer();
+			}
+		}
 	},
 
 	/**

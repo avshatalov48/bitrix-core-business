@@ -5,7 +5,7 @@ __IncludeLang($_SERVER["DOCUMENT_ROOT"].$templateFolder."/lang/".LANGUAGE_ID."/t
 $notifyOption = COption::GetOptionString("sale", "subscribe_prod", "");
 $arNotify = array();
 if ($notifyOption <> '')
-	$arNotify = unserialize($notifyOption);
+	$arNotify = unserialize($notifyOption, ['allowed_classes' => false]);
 
 if (is_array($arNotify[SITE_ID]) &&
 		$arNotify[SITE_ID]['use'] == 'Y' &&

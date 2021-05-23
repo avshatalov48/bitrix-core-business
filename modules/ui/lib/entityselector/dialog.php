@@ -100,14 +100,6 @@ class Dialog implements \JsonSerializable
 		return is_object($GLOBALS['USER']) ? $GLOBALS['USER']->getId() : 0;
 	}
 
-	public function addEntity(Entity $entity)
-	{
-		if (!empty($entity->getId()))
-		{
-			$this->entities[$entity->getId()] = $entity;
-		}
-	}
-
 	public function addItem(Item $item)
 	{
 		$success = $this->getItemCollection()->add($item);
@@ -171,7 +163,7 @@ class Dialog implements \JsonSerializable
 		return $this->footerOptions;
 	}
 
-	public function handleItemAdd(Item $item)
+	public function handleItemAdd(Item $item): void
 	{
 		$item->setDialog($this);
 
@@ -212,15 +204,39 @@ class Dialog implements \JsonSerializable
 		return $this->globalRecentItems;
 	}
 
-	public function addTab(Tab $tab)
+	public function addTab(Tab $tab): void
 	{
-		$this->tabs[] = $tab;
+		if (!empty($tab->getId()))
+		{
+			$this->tabs[$tab->getId()] = $tab;
+		}
+	}
+
+	/**
+	 * @return Tab[]
+	 */
+	public function getTabs(): array
+	{
+		return $this->tabs;
+	}
+
+	public function getTab(string $tabId): ?Tab
+	{
+		return $this->tabs[$tabId] ?? null;
+	}
+
+	public function addEntity(Entity $entity)
+	{
+		if (!empty($entity->getId()))
+		{
+			$this->entities[$entity->getId()] = $entity;
+		}
 	}
 
 	/**
 	 * @return Entity[]
 	 */
-	public function getEntities()
+	public function getEntities(): array
 	{
 		return $this->entities;
 	}
@@ -236,13 +252,8 @@ class Dialog implements \JsonSerializable
 	}
 
 	/**
-	 * @return Tab[]
+	 * @internal
 	 */
-	public function getTabs()
-	{
-		return $this->tabs;
-	}
-
 	public function load(): void
 	{
 		$entities = [];
@@ -274,6 +285,10 @@ class Dialog implements \JsonSerializable
 		$this->loadPreselectedItems();
 	}
 
+	/**
+	 * @internal
+	 * @param SearchQuery $searchQuery
+	 */
 	public function doSearch(SearchQuery $searchQuery)
 	{
 		if (empty($searchQuery->getQueryWords()))
@@ -302,6 +317,10 @@ class Dialog implements \JsonSerializable
 		}
 	}
 
+	/**
+	 * @internal
+	 * @param Item $parentItem
+	 */
 	public function getChildren(Item $parentItem)
 	{
 		$entities = [];
@@ -331,6 +350,9 @@ class Dialog implements \JsonSerializable
 		return $this->preselectedItems;
 	}
 
+	/**
+	 * @internal
+	 */
 	public function loadPreselectedItems()
 	{
 		if ($this->getPreselectedItems()->count() < 1)
@@ -417,7 +439,7 @@ class Dialog implements \JsonSerializable
 		return $items;
 	}
 
-	public static function getItems(array $ids, array $options = [])
+	public static function getItems(array $ids, array $options = []): ItemCollection
 	{
 		$preselectedItems = new PreselectedCollection();
 		$preselectedItems->load($ids);
@@ -662,7 +684,7 @@ class Dialog implements \JsonSerializable
 		$json = [
 			'id' => $this->getId(),
 			'items' => $this->getItemCollection(),
-			'tabs' => $this->getTabs(),
+			'tabs' => array_values($this->getTabs()),
 			'entities' => array_values($this->getEntities()),
 		];
 

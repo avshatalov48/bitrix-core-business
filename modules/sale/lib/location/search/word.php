@@ -35,7 +35,7 @@ final class WordTable extends Entity\DataManager implements \Serializable
 	}
 	public function unserialize($data)
 	{
-		$this->procData = unserialize($data);
+		$this->procData = unserialize($data, ['allowed_classes' => false]);
 		$this->initInsertHandles();
 	}
 

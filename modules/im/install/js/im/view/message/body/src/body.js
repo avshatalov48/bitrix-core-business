@@ -20,6 +20,8 @@ import {DialoguesModel, FilesModel, MessagesModel, UsersModel} from 'im.model';
 import {DialogType, MessageType} from "im.const";
 import {Utils} from "im.lib.utils";
 
+import {Text} from 'main.core';
+
 const BX = window.BX;
 
 const ContentType = Object.freeze({
@@ -345,7 +347,7 @@ Vue.component('bx-im-view-message-body',
 		{
 			if (this.message.params.NAME)
 			{
-				return this.message.params.NAME;
+				return Text.decode(this.message.params.NAME);
 			}
 
 			if (!this.showAvatar)

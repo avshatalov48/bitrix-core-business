@@ -11,7 +11,7 @@ class ItemCollection implements \IteratorAggregate, \JsonSerializable
 	{
 	}
 
-	public function add(Item $item)
+	public function add(Item $item): bool
 	{
 		if ($this->has($item))
 		{
@@ -39,7 +39,7 @@ class ItemCollection implements \IteratorAggregate, \JsonSerializable
 		return isset($this->itemsByEntity[$item->getEntityId()][$item->getId()]);
 	}
 
-	public function getAll()
+	public function getAll(): array
 	{
 		return $this->items;
 	}
@@ -54,13 +54,18 @@ class ItemCollection implements \IteratorAggregate, \JsonSerializable
 		return $this->itemsByEntity[$entityId] ?? [];
 	}
 
-	public function toJsObject()
+	public function toJsObject(): string
 	{
-		$items = array_map(function(Item $item) {
-			return $item->jsonSerialize();
-		}, $this->getAll());
+		$items = $this->toArray();
 
-		return \CUtil::phpToJSObject($items);
+		return \CUtil::phpToJSObject($items, false, false, true);
+	}
+
+	public function toArray(): array
+	{
+		return array_map(function(Item $item) {
+			return $item->toArray();
+		}, $this->getAll());
 	}
 
 	public function jsonSerialize()
@@ -68,7 +73,7 @@ class ItemCollection implements \IteratorAggregate, \JsonSerializable
 		return $this->items;
 	}
 
-	public function getIterator()
+	public function getIterator(): \ArrayIterator
 	{
 		return new \ArrayIterator($this->items);
 	}

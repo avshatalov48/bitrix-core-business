@@ -2,6 +2,8 @@ import {Dom, Event, Reflection, Tag, Type} from 'main.core';
 import {type BaseEvent, EventEmitter} from 'main.core.events';
 import {Loader} from 'main.loader';
 
+const instances = new Map();
+
 class ImageInput
 {
 	container = null;
@@ -11,6 +13,14 @@ class ImageInput
 	timeout = null;
 	uploading = false;
 
+	onUploaderIsInitedHandler = this.handleOnUploaderIsInited.bind(this);
+	recalculateWrapperHandler = this.recalculateWrapper.bind(this);
+
+	static getById(id: string): ?ImageInput
+	{
+		return instances.get(id) || null;
+	}
+
 	constructor(params = {})
 	{
 		this.instanceId = params.instanceId;
@@ -18,13 +28,24 @@ class ImageInput
 		this.loaderContainerId = params.loaderContainerId;
 		this.settings = params.settings || {};
 
+		this.disabled = params.disabled || false;
+		if (this.disabled)
+		{
+			Event.bind(this.getContainer(), 'click', (event) => {
+				event.stopPropagation();
+				event.preventDefault();
+			});
+		}
+
 		this.addImageHandler = this.addImage.bind(this);
 		this.editImageHandler = this.editImage.bind(this);
 
-		EventEmitter.subscribe('onUploaderIsInited', this.onUploaderIsInitedHandler.bind(this));
+		EventEmitter.subscribe('onUploaderIsInited', this.onUploaderIsInitedHandler);
+
+		instances.set(this.instanceId, this);
 	}
 
-	onUploaderIsInitedHandler(event: BaseEvent)
+	handleOnUploaderIsInited(event: BaseEvent)
 	{
 		const [id, uploader] = event.getCompatData();
 
@@ -44,7 +65,16 @@ class ImageInput
 			EventEmitter.subscribe(uploader, 'onStart', this.onUploadStartHandler.bind(this));
 			EventEmitter.subscribe(uploader, 'onDone', this.onUploadDoneHandler.bind(this));
 			EventEmitter.subscribe(uploader, 'onFileCanvasIsLoaded', this.onFileCanvasIsLoadedHandler.bind(this));
+
+			EventEmitter.unsubscribe('onDemandRecalculateWrapper', this.recalculateWrapperHandler);
+			EventEmitter.subscribe('onDemandRecalculateWrapper', this.recalculateWrapperHandler);
 		}
+	}
+
+	unsubscribeEvents()
+	{
+		EventEmitter.unsubscribe('onDemandRecalculateWrapper', this.recalculateWrapperHandler);
+		EventEmitter.unsubscribe('onUploaderIsInited', this.onUploaderIsInitedHandler);
 	}
 
 	getInputInstance()
@@ -154,7 +184,7 @@ class ImageInput
 
 		return this.loader;
 	}
-	
+
 	showLoader()
 	{
 		this.getLoader().setOptions({
@@ -162,7 +192,7 @@ class ImageInput
 		});
 		this.getLoader().show();
 	}
-	
+
 	hideLoader()
 	{
 		this.getLoader().hide();
@@ -230,6 +260,11 @@ class ImageInput
 
 	buildShadowElement(wrapper)
 	{
+		if (wrapper.offsetParent === null)
+		{
+			return;
+		}
+
 		let shadowElement = wrapper.querySelector('div.ui-image-item-shadow');
 		if (!shadowElement)
 		{

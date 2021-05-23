@@ -9,3 +9,4 @@ $MESS["EC_CALENDAR_ICAL_MAIL_CHANGE_FIELD_TITLE_LOCATION"] = "Изменено �
 $MESS["EC_CALENDAR_ICAL_MAIL_CHANGE_FIELD_TITLE_ATTENDEES"] = "Изменен состав участников";
 $MESS["EC_CALENDAR_ICAL_MAIL_CHANGE_FIELD_TITLE_RRULE"] = "Изменены параметры повторения встречи";
 $MESS["EC_CALENDAR_ICAL_MAIL_CHANGE_FIELD_TITLE_NAME"] = "Изменена тема встречи";
+$MESS["EC_CALENDAR_ICAL_MAIL_HIDE_GUESTS_INFORMATION"] = "Организатор события скрыл список участников";

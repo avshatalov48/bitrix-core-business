@@ -1,8 +1,8 @@
 <?
 if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
-use \Bitrix\Main\Localization\Loc;
-use \Bitrix\Main\UI\Extension;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UI\Extension;
 
 /** @var array $arParams */
 
@@ -115,7 +115,7 @@ $multiClients = array_key_exists('CLIENTS', $arParams['PROVIDER']);
 				<div class="crm-ads-rtg-popup-settings">
 					<label for="crm_ads_checker_email" class="crm-ads-rtg-popup-chk-label">
 						<?=Loc::getMessage('CRM_ADS_RTG_CREATE_LOOKALIKE_SIZE')?>:
-						<span data-hint="<?=htmlspecialcharsbx(Loc::getMessage('CRM_ADS_RTG_CREATE_LOOKALIKE_SIZE_HINT'))?>"></span>
+						<span data-hint="<?=htmlspecialcharsbx(Loc::getMessage('CRM_ADS_RTG_CREATE_LOOKALIKE_SIZE_HINT'))?>" data-hint-html=""></span>
 					</label>
 					<br>
 
@@ -159,7 +159,7 @@ $multiClients = array_key_exists('CLIENTS', $arParams['PROVIDER']);
 						<span data-hint="<?=htmlspecialcharsbx(
 							Loc::getMessage('CRM_ADS_RTG_AUDIENCE_TYPE_HINT_' . $typeUpped)
 							. ' ' . Loc::getMessage('CRM_ADS_RTG_AUDIENCE_ADD_HINT_' . $typeUpped, ['#BR#' => '<br>'])
-						)?>"></span>
+						)?>" data-hint-html=""></span>
 					</div>
 
 					<table class="crm-ads-rtg-table">
@@ -198,7 +198,7 @@ $multiClients = array_key_exists('CLIENTS', $arParams['PROVIDER']);
 						<span data-hint="<?=htmlspecialcharsbx(
 							Loc::getMessage('CRM_ADS_RTG_AUDIENCE_TYPE_HINT_' . $typeUpped)
 							. ' ' . Loc::getMessage('CRM_ADS_RTG_AUDIENCE_ADD_HINT_' . $typeUpped, ['#BR#' => '<br>'])
-						)?>"></span>
+						)?>" data-hint-html=""></span>
 					</div>
 					<table class="crm-ads-rtg-table">
 						<tr>

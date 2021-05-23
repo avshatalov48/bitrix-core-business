@@ -416,7 +416,7 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 			$userParamsStr = $defUserParamsStr;
 		}
 
-		$userParams = unserialize($userParamsStr);
+		$userParams = unserialize($userParamsStr, ['allowed_classes' => false]);
 		if (empty($userParams) || !is_array($userParams))
 		{
 			$userParams = ['SNIPPETS' => []];

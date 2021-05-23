@@ -594,6 +594,23 @@ try
 		{
 			$settings = unserialize($arResult['report']['SETTINGS'], ['allowed_classes' => false]);
 
+			if (!is_array($settings))
+			{
+				$settings = [];
+			}
+			if (!is_array($settings['select']))
+			{
+				$settings['select'] = [];
+			}
+			if (!is_array($settings['filter']))
+			{
+				$settings['filter'] = [];
+			}
+			if (!is_array($settings['period']))
+			{
+				$settings['period'] = ['type' => 'days', 'value' => 1, 'hidden' => 'N'];
+			}
+
 			call_user_func_array(
 				array($arParams['REPORT_HELPER_CLASS'], 'fillFilterUFColumns'),
 				array(&$settings['filter'], &$fieldList)

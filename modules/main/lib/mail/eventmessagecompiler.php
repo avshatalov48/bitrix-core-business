@@ -446,13 +446,6 @@ class EventMessageCompiler
 	 */
 	protected function getSiteFieldsArray($sites)
 	{
-		/*
-		global $BX_EVENT_SITE_PARAMS;
-		if($site_id !== false && isset($BX_EVENT_SITE_PARAMS[$site_id]))
-			return $BX_EVENT_SITE_PARAMS[$site_id];
-		*/
-
-
 		$site_id = $sites[0];
 
 		if(!empty($this->eventMessageId))
@@ -480,7 +473,7 @@ class EventMessageCompiler
 				$this->siteId = $arSite['LID'];
 				$this->languageId = $arSite['LANGUAGE_ID'];
 
-				$BX_EVENT_SITE_PARAMS[$site_id] = array(
+				\CEvent::$EVENT_SITE_PARAMS[$site_id] = array(
 					"SITE_NAME" => ($arSite["SITE_NAME"]<>''? $arSite["SITE_NAME"] : $SITE_NAME),
 					"SERVER_NAME" => ($arSite["SERVER_NAME"]<>''? $arSite["SERVER_NAME"] : $SERVER_NAME),
 					"DEFAULT_EMAIL_FROM" => ($arSite["EMAIL"]<>''? $arSite["EMAIL"] : $DEFAULT_EMAIL_FROM),
@@ -488,7 +481,7 @@ class EventMessageCompiler
 					"SITE_ID" => $arSite['LID'],
 					"SITE_DIR" => $arSite['DIR'],
 				);
-				return $BX_EVENT_SITE_PARAMS[$site_id];
+				return \CEvent::$EVENT_SITE_PARAMS[$site_id];
 			}
 		}
 

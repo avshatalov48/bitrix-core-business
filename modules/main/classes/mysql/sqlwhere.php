@@ -1,5 +1,4 @@
-<?
-require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/sqlwhere.php");
+<?php
 
 class CSQLWhere extends CAllSQLWhere
 {

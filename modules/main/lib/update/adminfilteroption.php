@@ -38,7 +38,7 @@ class AdminFilterOption extends Stepper
 	{
 		$listFilter = Option::get(self::$moduleId, "listFilterToConvert", "");
 		if ($listFilter !== "" )
-			$listFilter = unserialize($listFilter);
+			$listFilter = unserialize($listFilter, ['allowed_classes' => false]);
 		$listFilter = is_array($listFilter) ? $listFilter : array();
 		if (!array_key_exists($filterId, $listFilter))
 		{
@@ -55,7 +55,7 @@ class AdminFilterOption extends Stepper
 	{
 		$listFilter = Option::get(self::$moduleId, "listFilterToConvert", "");
 		if ($listFilter !== "" )
-			$listFilter = unserialize($listFilter);
+			$listFilter = unserialize($listFilter, ['allowed_classes' => false]);
 		$listFilter = is_array($listFilter) ? $listFilter : array();
 		if (empty($listFilter))
 		{
@@ -76,7 +76,7 @@ class AdminFilterOption extends Stepper
 			{
 				$filters = array();
 				$listNewPresetName = [];
-				$oldFields = unserialize($oldFilter["FIELDS"]);
+				$oldFields = unserialize($oldFilter["FIELDS"], ['allowed_classes' => false]);
 				if (is_array($oldFields))
 				{
 					list($newFields, $newRows) = $this->convertOldFieldsToNewFields(
@@ -103,7 +103,7 @@ class AdminFilterOption extends Stepper
 				);
 				if ($optionCurrentFilter = $queryOptionCurrentFilter->fetch())
 				{
-					$optionCurrentFilterValue = unserialize($optionCurrentFilter["VALUE"]);
+					$optionCurrentFilterValue = unserialize($optionCurrentFilter["VALUE"], ['allowed_classes' => false]);
 					if (is_array($optionCurrentFilterValue))
 					{
 						if (!empty($optionCurrentFilterValue["filters"]))

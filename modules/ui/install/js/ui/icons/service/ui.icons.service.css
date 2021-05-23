@@ -440,6 +440,7 @@
 .ui-icon-service-ya-toloka > i {
 	--ui-icon-service-bg-color: rgb(234, 132, 40);
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-ya-toloka.svg);
+	background-size: 30px;
 }
 
 .ui-icon-service-light-ya-toloka > i {

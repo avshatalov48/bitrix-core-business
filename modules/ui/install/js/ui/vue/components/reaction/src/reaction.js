@@ -66,7 +66,7 @@ Vue.component('bx-reaction',
 			this.$emit('list', {values: this.localValues});
 		},
 
-		likeIt(emotion = ReactionType.like)
+		likeIt(event, emotion = ReactionType.like)
 		{
 			if (this.userReaction === ReactionType.none)
 			{
@@ -93,6 +93,12 @@ Vue.component('bx-reaction',
 
 				this.$emit('set', {action: 'remove', type: this.userReaction});
 			}
+
+			event.preventDefault();
+		},
+		preventDefault(event)
+		{
+			event.preventDefault();
 		}
 	},
 	computed:

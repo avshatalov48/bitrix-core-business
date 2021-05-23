@@ -133,6 +133,11 @@
 	margin-top: 10px;
 }
 
+.ui-form .ui-button-panel .ui-btn + .ui-btn {
+	margin-left: 12px;
+	margin-top: 0;
+}
+
 .ui-form-line > .ui-form-row .ui-btn + .ui-btn,
 .ui-form-row-line .ui-btn + .ui-btn {
 	margin-left: 12px;

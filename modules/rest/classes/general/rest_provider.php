@@ -318,7 +318,7 @@ class CRestProvider
 
 		if($arQuery['FULL'] == true)
 		{
-			$arScope = \CRestUtil::getScopeList($server->getServiceDescription());
+			$arScope = \Bitrix\Rest\Engine\ScopeManager::getInstance()->listScope();
 		}
 		else
 		{

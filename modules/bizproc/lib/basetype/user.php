@@ -194,6 +194,7 @@ class User extends Base
 			$controlIdHtml = htmlspecialcharsbx($controlId);
 			$configHtml = htmlspecialcharsbx(Main\Web\Json::encode($config));
 			$className = htmlspecialcharsbx(static::generateControlClassName($fieldType, $field));
+			$propertyHtml = htmlspecialcharsbx(Main\Web\Json::encode($fieldType->getProperty()));
 
 			return <<<HTML
 				<script>
@@ -205,7 +206,7 @@ class User extends Base
 						}
 					});
 				</script>
-				<div id="{$controlIdHtml}" data-role="user-selector" data-config="{$configHtml}" class="{$className}"></div>
+				<div id="{$controlIdHtml}" data-role="user-selector" data-property="{$propertyHtml}" data-config="{$configHtml}" class="{$className}"></div>
 HTML;
 		}
 

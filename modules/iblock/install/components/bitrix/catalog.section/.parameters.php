@@ -21,7 +21,6 @@ if (!Loader::includeModule('iblock'))
 	return;
 
 $catalogIncluded = Loader::includeModule('catalog');
-$bitrix24Mode = ModuleManager::isModuleInstalled('bitrix24');
 CBitrixComponent::includeComponentClass($componentName);
 
 $usePropertyFeatures = Iblock\Model\PropertyFeature::isEnabledFeatures();
@@ -630,7 +629,10 @@ $arComponentParameters = array(
 	),
 );
 
-if ($bitrix24Mode)
+if (
+	ModuleManager::isModuleInstalled('bitrix24')
+	|| (isset($arCurrentValues['LANDING_MODE']) && $arCurrentValues['LANDING_MODE'] === 'Y')
+)
 {
 	unset($arComponentParameters['PARAMETERS']['SET_TITLE']);
 	unset($arComponentParameters['PARAMETERS']['SET_BROWSER_TITLE']);
@@ -695,12 +697,12 @@ if ($catalogIncluded)
 	{
 		$arComponentParameters['PARAMETERS']['CUSTOM_FILTER'] = array(
 			'PARENT' => 'DATA_SOURCE',
-			'NAME' => GetMessage('CP_BCS_TPL_CUSTOM_FILTER'),
+			'NAME' => GetMessage('CP_BCS_CUSTOM_FILTER'),
 			'TYPE' => 'CUSTOM',
 			'JS_FILE' => CatalogSectionComponent::getSettingsScript($componentPath, 'filter_conditions'),
 			'JS_EVENT' => 'initFilterConditionsControl',
 			'JS_MESSAGES' => Json::encode(array(
-				'invalid' => GetMessage('CP_BCS_TPL_SETTINGS_INVALID_CONDITION')
+				'invalid' => GetMessage('CP_BCS_SETTINGS_INVALID_CONDITION')
 			)),
 			'JS_DATA' => Json::encode($filterDataValues),
 			'DEFAULT' => ''

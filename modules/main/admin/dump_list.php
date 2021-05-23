@@ -15,11 +15,7 @@ IncludeModuleLangFile(dirname(__FILE__).'/dump.php');
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/backup.php");
 $strBXError = '';
-$bMcrypt = function_exists('mcrypt_encrypt') || function_exists('openssl_encrypt');
-$bBitrixCloud = $bMcrypt && CModule::IncludeModule('bitrixcloud') && CModule::IncludeModule('clouds');
-
-if (function_exists('mb_internal_encoding'))
-	mb_internal_encoding('ISO-8859-1');
+$bBitrixCloud = function_exists('openssl_encrypt') && CModule::IncludeModule('bitrixcloud') && CModule::IncludeModule('clouds');
 
 define('DOCUMENT_ROOT', rtrim(str_replace('\\','/',$_SERVER['DOCUMENT_ROOT']),'/'));
 
@@ -417,7 +413,7 @@ while($f = $rsDirContent->NavNext(true, "f_"))
 			"ICON" => "archive",
 			"TEXT" => 'DEBUG - '.GetMessage("INTEGRITY_CHECK"),
 			"ACTION" =>
-				mb_strpos($f['NAME'], '.enc.')?
+				strpos($f['NAME'], '.enc.')?
 					"if(k=prompt('".CUtil::JSEscape(GetMessage("INTEGRITY_CHECK"))."?')) document.location=\"/bitrix/admin/dump.php?f_id=".urlencode($f['NAME'])."&action=check_archive&".bitrix_sessid_get().'&dump_encrypt_key="+k;'
 					:
 					"if(confirm('".CUtil::JSEscape(GetMessage("INTEGRITY_CHECK"))."?')) document.location=\"/bitrix/admin/dump.php?f_id=".urlencode($f['NAME'])."&action=check_archive&".bitrix_sessid_get().'";'

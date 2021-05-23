@@ -446,7 +446,7 @@
 
 				case 'style':
 					$attrValue = str_replace('&quot;', '',  $attrValue);
-					$valid = !preg_match("#(behavior|expression|position|javascript)#i".BX_UTF_PCRE_MODIFIER, $attrValue) && !preg_match("#[^\\/\\w\\s)(!%,:\\.;\\-\\#\\']#i".BX_UTF_PCRE_MODIFIER, $attrValue)
+					$valid = !preg_match("#(behavior|expression|javascript)#i".BX_UTF_PCRE_MODIFIER, $attrValue) && !preg_match("#[^\\/\\w\\s)(!%,:\\.;\\-\\#\\']#i".BX_UTF_PCRE_MODIFIER, $attrValue)
 							? true : false;
 					break;
 
@@ -865,7 +865,7 @@
 			$result = [];
 
 			preg_match_all(
-				'#([a-z0-9_-]+)\s*=\s*([\'\"]?)(.*?)\2(\s|$|/)+#is'.BX_UTF_PCRE_MODIFIER,
+				'#([a-z0-9_-]+)\s*=\s*([\'\"]?)(?:\s*)(.*?)(?:\s*)\2(\s|$|(?:\/\s*$))+#is'.BX_UTF_PCRE_MODIFIER,
 				$attrData,
 				$result,
 				PREG_SET_ORDER

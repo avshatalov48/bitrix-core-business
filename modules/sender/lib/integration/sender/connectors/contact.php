@@ -71,7 +71,36 @@ class Contact extends Connector\BaseFilter
 	 */
 	public function getData()
 	{
-		return $this->getDataWithCustomSelect();
+		$listId = $this->getFieldValue('LIST_ID', null);
+		if (!$listId)
+		{
+			return array();
+		}
+
+		$resultDb = ContactTable::getList(
+			[
+				'select' => ['NAME', 'TYPE_ID', 'CODE', 'USER_ID'],
+				'filter' => [
+					'=CONTACT_LIST.LIST_ID' => $listId
+				]
+			]
+		);
+		$resultDb->addFetchDataModifier(
+			function ($data)
+			{
+				$row = array(
+					'NAME' => $data['NAME'],
+					'USER_ID' => $data['USER_ID'],
+				);
+
+				$key = RecipientType::getCode($data['TYPE_ID']);
+				$row[$key] = $data['CODE'];
+
+				return $row;
+			}
+		);
+
+		return $resultDb;
 	}
 
 	/**
@@ -93,42 +122,4 @@ class Contact extends Connector\BaseFilter
 
 		return $list;
 	}
-
-	/**
-	 * @param array $selectList
-	 *
-	 * @return array|\Bitrix\Main\DB\Result|\CAllDBResult
-	 */
-	public function getDataWithCustomSelect($selectList = [])
-	{
-		$listId = $this->getFieldValue('LIST_ID', null);
-		if (!$listId)
-		{
-			return array();
-		}
-
-		$resultDb = ContactTable::getList(
-			[
-				'select' => array_merge($selectList, ['NAME', 'TYPE_ID', 'CODE', 'USER_ID']),
-				'filter' => [
-					'=CONTACT_LIST.LIST_ID' => $listId
-				]
-			]
-		);
-		$resultDb->addFetchDataModifier(
-			function ($data)
-			{
-				$row = array(
-					'NAME' => $data['NAME'],
-					'USER_ID' => $data['USER_ID'],
-				);
-
-				$key = RecipientType::getCode($data['TYPE_ID']);
-				$row[$key] = $data['CODE'];
-
-				return $row;
-			}
-		);
-
-		return $resultDb;	}
 }

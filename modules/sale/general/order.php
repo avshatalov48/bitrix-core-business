@@ -2508,7 +2508,7 @@ class CAllSaleOrder
 	function RemindPayment()
 	{
 		$reminder = COption::GetOptionString("sale", "pay_reminder", "");
-		$arReminder = unserialize($reminder);
+		$arReminder = unserialize($reminder, ['allowed_classes' => false]);
 
 		if(!empty($arReminder))
 		{

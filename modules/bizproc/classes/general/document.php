@@ -1,8 +1,7 @@
 <?php
-IncludeModuleLangFile(__FILE__);
 
-use Bitrix\Bizproc\Workflow\Entity\WorkflowInstanceTable;
 use Bitrix\Main;
+use Bitrix\Bizproc;
 
 /**
  * Bizproc API Helper for external usage.
@@ -30,7 +29,7 @@ class CBPDocument
 		{
 			CBPHistoryService::MigrateDocumentType($oldType, $newType, $templateIds);
 			CBPStateService::MigrateDocumentType($oldType, $newType, $templateIds);
-			WorkflowInstanceTable::migrateDocumentType($oldType, $newType, $templateIds);
+			Bizproc\Workflow\Entity\WorkflowInstanceTable::migrateDocumentType($oldType, $newType, $templateIds);
 		}
 	}
 
@@ -118,7 +117,7 @@ class CBPDocument
 	public static function getActiveStates(array $documentId, $limit = 0)
 	{
 		$documentId = CBPHelper::ParseDocumentId($documentId);
-		$workflowIds = WorkflowInstanceTable::getIdsByDocument($documentId);
+		$workflowIds = Bizproc\Workflow\Entity\WorkflowInstanceTable::getIdsByDocument($documentId);
 
 		if (!$workflowIds)
 		{
@@ -149,7 +148,7 @@ class CBPDocument
 	public static function MergeDocuments($firstDocumentId, $secondDocumentId)
 	{
 		CBPStateService::MergeStates($firstDocumentId, $secondDocumentId);
-		WorkflowInstanceTable::mergeByDocument($firstDocumentId, $secondDocumentId);
+		Bizproc\Workflow\Entity\WorkflowInstanceTable::mergeByDocument($firstDocumentId, $secondDocumentId);
 		CBPHistoryService::MergeHistory($firstDocumentId, $secondDocumentId);
 	}
 
@@ -487,7 +486,7 @@ class CBPDocument
 
 		if (!$errors)
 		{
-			WorkflowInstanceTable::delete($workflowId);
+			Bizproc\Workflow\Entity\WorkflowInstanceTable::delete($workflowId);
 			CBPTaskService::DeleteByWorkflow($workflowId);
 			CBPTrackingService::DeleteByWorkflow($workflowId);
 			CBPStateService::DeleteWorkflow($workflowId);
@@ -505,21 +504,14 @@ class CBPDocument
 	{
 		$errors = [];
 
-		$instanceIds = WorkflowInstanceTable::getIdsByDocument($documentId);
+		$instanceIds = Bizproc\Workflow\Entity\WorkflowInstanceTable::getIdsByDocument($documentId);
 		foreach ($instanceIds as $instanceId)
 		{
 			static::TerminateWorkflow($instanceId, $documentId, $errors);
 		}
 
-		$statesIds = \CBPStateService::getIdsByDocument($documentId);
-		foreach ($statesIds as $stateId)
-		{
-			\CBPTaskService::DeleteByWorkflow($stateId);
-			\CBPTrackingService::DeleteByWorkflow($stateId);
-		}
-
-		\CBPStateService::deleteCompletedStates($documentId);
-		CBPHistoryService::DeleteByDocument($documentId);
+		//Deferred deletion
+		Bizproc\Worker\Document\DeleteStepper::bindDocument($documentId);
 	}
 
 	public static function PostTaskForm($arTask, $userId, $arRequest, &$arErrors, $userName = "")
@@ -1481,15 +1473,17 @@ class CBPDocument
 
 		$userId = (int) $data['USER_ID'];
 
-		$iterator = WorkflowInstanceTable::getList(
-			array(
-				'select' => array(new \Bitrix\Main\Entity\ExpressionField('CNT', 'COUNT(\'x\')')),
-				'filter' => array(
+		$iterator = Bizproc\Workflow\Entity\WorkflowInstanceTable::getList(
+			[
+				'select' => [new \Bitrix\Main\Entity\ExpressionField('CNT', 'COUNT(\'x\')')],
+				'filter' => [
 					'=STARTED_BY' => $userId,
-					'<OWNED_UNTIL' => date($DB->DateFormatToPHP(FORMAT_DATETIME),
-						time() - WorkflowInstanceTable::LOCKED_TIME_INTERVAL)
-				),
-			)
+					'<OWNED_UNTIL' => date(
+							$DB->DateFormatToPHP(FORMAT_DATETIME),
+							time() - Bizproc\Workflow\Entity\WorkflowInstanceTable::LOCKED_TIME_INTERVAL
+					),
+				],
+			]
 		);
 		$row = $iterator->fetch();
 		if (!empty($row['CNT']))

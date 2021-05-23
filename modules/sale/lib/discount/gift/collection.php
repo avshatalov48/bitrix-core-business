@@ -7,8 +7,8 @@ use Bitrix\Main\Type\Dictionary;
 
 class Collection extends Dictionary
 {
-	const TYPE_GRANT_ALL = 'all';
-	const TYPE_GRANT_ONE = 'one';
+	public const TYPE_GRANT_ALL = 'all';
+	public const TYPE_GRANT_ONE = 'one';
 
 	protected $type = self::TYPE_GRANT_ONE;
 
@@ -32,5 +32,10 @@ class Collection extends Dictionary
 	public function offsetSet($offset, $value)
 	{
 		$this->setGift($value, $offset);
+	}
+
+	public function getGrantType(): string
+	{
+		return $this->type;
 	}
 }

@@ -355,7 +355,7 @@ this.BX = this.BX || {};
 	    _this.contentPadding = null;
 	    _this.background = null;
 	    _this.contentBackground = null;
-	    _this.appendContainer = document.body;
+	    _this.targetContainer = main_core.Type.isElementNode(params.targetContainer) ? params.targetContainer : document.body;
 	    _this.dragOptions = {
 	      cursor: '',
 	      callback: function callback() {},
@@ -420,7 +420,7 @@ this.BX = this.BX || {};
 
 	    _this.popupContainer = main_core.Tag.render(_templateObject4(), popupClassName, popupId, [_this.titleBar, _this.contentContainer, _this.closeIcon]);
 
-	    _this.appendContainer.appendChild(_this.popupContainer);
+	    _this.targetContainer.appendChild(_this.popupContainer);
 
 	    _this.zIndexComponent = main_core_zIndexManager.ZIndexManager.register(_this.popupContainer, params.zIndexOptions);
 	    _this.buttonsContainer = null;
@@ -605,7 +605,11 @@ this.BX = this.BX || {};
 	    key: "getBindElementPos",
 	    value: function getBindElementPos(bindElement) {
 	      if (main_core.Type.isDomNode(bindElement)) {
-	        return main_core.Dom.getPosition(bindElement);
+	        if (this.isTargetDocumentBody()) {
+	          return main_core.Dom.getPosition(bindElement);
+	        } else {
+	          return this.getPositionRelativeToTarget(bindElement);
+	        }
 	      } else if (bindElement && babelHelpers.typeof(bindElement) === 'object') {
 	        if (!main_core.Type.isNumber(bindElement.bottom)) {
 	          bindElement.bottom = bindElement.top;
@@ -613,14 +617,8 @@ this.BX = this.BX || {};
 
 	        return bindElement;
 	      } else {
-	        var windowSize = {
-	          innerWidth: window.innerWidth,
-	          innerHeight: window.innerHeight
-	        };
-	        var windowScroll = {
-	          scrollLeft: window.pageXOffset,
-	          scrollTop: window.pageYOffset
-	        };
+	        var windowSize = this.getWindowSize();
+	        var windowScroll = this.getWindowScroll();
 	        var popupWidth = this.getPopupContainer().offsetWidth;
 	        var popupHeight = this.getPopupContainer().offsetHeight;
 	        this.bindOptions.forceTop = true;
@@ -633,6 +631,58 @@ this.BX = this.BX || {};
 	          windowScroll: windowScroll,
 	          popupWidth: popupWidth,
 	          popupHeight: popupHeight
+	        };
+	      }
+	    }
+	    /**
+	     * @internal
+	     */
+
+	  }, {
+	    key: "getPositionRelativeToTarget",
+	    value: function getPositionRelativeToTarget(element) {
+	      var offsetLeft = element.offsetLeft;
+	      var offsetTop = element.offsetTop;
+	      var offsetElement = element.offsetParent;
+
+	      while (offsetElement && offsetElement !== this.getTargetContainer()) {
+	        offsetLeft += offsetElement.offsetLeft;
+	        offsetTop += offsetElement.offsetTop;
+	        offsetElement = offsetElement.offsetParent;
+	      }
+
+	      var elementRect = element.getBoundingClientRect();
+	      return new DOMRect(offsetLeft, offsetTop, elementRect.width, elementRect.height);
+	    } // private
+
+	  }, {
+	    key: "getWindowSize",
+	    value: function getWindowSize() {
+	      if (this.isTargetDocumentBody()) {
+	        return {
+	          innerWidth: window.innerWidth,
+	          innerHeight: window.innerHeight
+	        };
+	      } else {
+	        return {
+	          innerWidth: this.getTargetContainer().offsetWidth,
+	          innerHeight: this.getTargetContainer().offsetHeight
+	        };
+	      }
+	    } // private
+
+	  }, {
+	    key: "getWindowScroll",
+	    value: function getWindowScroll() {
+	      if (this.isTargetDocumentBody()) {
+	        return {
+	          scrollLeft: window.pageXOffset,
+	          scrollTop: window.pageYOffset
+	        };
+	      } else {
+	        return {
+	          scrollLeft: this.getTargetContainer().scrollLeft,
+	          scrollTop: this.getTargetContainer().scrollTop
 	        };
 	      }
 	    }
@@ -952,6 +1002,16 @@ this.BX = this.BX || {};
 	      }
 	    }
 	  }, {
+	    key: "getTargetContainer",
+	    value: function getTargetContainer() {
+	      return this.targetContainer;
+	    }
+	  }, {
+	    key: "isTargetDocumentBody",
+	    value: function isTargetDocumentBody() {
+	      return this.getTargetContainer() === document.body;
+	    }
+	  }, {
 	    key: "getPopupContainer",
 	    value: function getPopupContainer() {
 	      return this.popupContainer;
@@ -997,8 +1057,16 @@ this.BX = this.BX || {};
 	        callback: this.handleResize
 	      });
 
-	      this.resizeContentPos = main_core.Dom.getPosition(this.getResizableContainer());
-	      this.resizeContentOffset = this.resizeContentPos.left - main_core.Dom.getPosition(this.getPopupContainer()).left;
+	      if (this.isTargetDocumentBody()) {
+	        this.resizeContentPos = main_core.Dom.getPosition(this.getResizableContainer());
+	        this.resizeContentOffset = this.resizeContentPos.left - main_core.Dom.getPosition(this.getPopupContainer()).left;
+	      } else {
+	        this.resizeContentPos = this.getPositionRelativeToTarget(this.getResizableContainer());
+	        this.resizeContentOffset = this.resizeContentPos.left - this.getPositionRelativeToTarget(this.getPopupContainer()).left;
+	      }
+
+	      this.resizeContentPos.offsetX = 0;
+	      this.resizeContentPos.offsetY = 0;
 	    }
 	    /**
 	     * @private
@@ -1007,9 +1075,11 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "handleResize",
 	    value: function handleResize(offsetX, offsetY, pageX, pageY) {
-	      var width = pageX - this.resizeContentPos.left;
-	      var height = pageY - this.resizeContentPos.top;
-	      var scrollWidth = document.documentElement.scrollWidth;
+	      this.resizeContentPos.offsetX += offsetX;
+	      this.resizeContentPos.offsetY += offsetY;
+	      var width = this.resizeContentPos.width + this.resizeContentPos.offsetX;
+	      var height = this.resizeContentPos.height + this.resizeContentPos.offsetY;
+	      var scrollWidth = this.isTargetDocumentBody() ? document.documentElement.scrollWidth : this.getTargetContainer().scrollWidth;
 
 	      if (this.resizeContentPos.left + width + this.resizeContentOffset >= scrollWidth) {
 	        width = scrollWidth - this.resizeContentPos.left - this.resizeContentOffset;
@@ -1258,7 +1328,7 @@ this.BX = this.BX || {};
 	          element: main_core.Tag.render(_templateObject8(), this.getId())
 	        };
 	        this.resizeOverlay();
-	        this.appendContainer.appendChild(this.overlay.element);
+	        this.targetContainer.appendChild(this.overlay.element);
 	        this.getZIndexComponent().setOverlay(this.overlay.element);
 	      }
 
@@ -1318,8 +1388,18 @@ this.BX = this.BX || {};
 	    key: "resizeOverlay",
 	    value: function resizeOverlay() {
 	      if (this.overlay !== null && this.overlay.element !== null) {
-	        var scrollHeight = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, document.body.offsetHeight, document.documentElement.offsetHeight, document.body.clientHeight, document.documentElement.clientHeight);
-	        this.overlay.element.style.width = document.documentElement.scrollWidth + 'px';
+	        var scrollWidth;
+	        var scrollHeight;
+
+	        if (this.isTargetDocumentBody()) {
+	          scrollWidth = document.documentElement.scrollWidth;
+	          scrollHeight = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, document.body.offsetHeight, document.documentElement.offsetHeight, document.body.clientHeight, document.documentElement.clientHeight);
+	        } else {
+	          scrollWidth = this.getTargetContainer().scrollWidth;
+	          scrollHeight = this.getTargetContainer().scrollHeight;
+	        }
+
+	        this.overlay.element.style.width = scrollWidth + 'px';
 	        this.overlay.element.style.height = scrollHeight + 'px';
 	      }
 	    }
@@ -1577,14 +1657,8 @@ this.BX = this.BX || {};
 	      }
 
 	      this.bindElementPos = bindElementPos;
-	      var windowSize = bindElementPos.windowSize ? bindElementPos.windowSize : {
-	        innerWidth: window.innerWidth,
-	        innerHeight: window.innerHeight
-	      };
-	      var windowScroll = bindElementPos.windowScroll ? bindElementPos.windowScroll : {
-	        scrollLeft: window.pageXOffset,
-	        scrollTop: window.pageYOffset
-	      };
+	      var windowSize = bindElementPos.windowSize ? bindElementPos.windowSize : this.getWindowSize();
+	      var windowScroll = bindElementPos.windowScroll ? bindElementPos.windowScroll : this.getWindowScroll();
 	      var popupWidth = bindElementPos.popupWidth ? bindElementPos.popupWidth : this.popupContainer.offsetWidth;
 	      var popupHeight = bindElementPos.popupHeight ? bindElementPos.popupHeight : this.popupContainer.offsetHeight;
 	      var angleTopOffset = Popup.getOption('angleTopOffset');
@@ -1783,11 +1857,20 @@ this.BX = this.BX || {};
 	        //Left side
 	        if (left < 0) {
 	          left = 0;
+	        }
+
+	        var scrollWidth;
+	        var scrollHeight;
+
+	        if (this.isTargetDocumentBody()) {
+	          scrollWidth = document.documentElement.scrollWidth;
+	          scrollHeight = document.documentElement.scrollHeight;
+	        } else {
+	          scrollWidth = this.getTargetContainer().scrollWidth;
+	          scrollHeight = this.getTargetContainer().scrollHeight;
 	        } //Right side
 
 
-	        var scrollWidth = document.documentElement.scrollWidth;
-	        var scrollHeight = document.documentElement.scrollHeight;
 	        var floatWidth = this.popupContainer.offsetWidth;
 	        var floatHeight = this.popupContainer.offsetHeight;
 
@@ -2129,7 +2212,6 @@ this.BX = this.BX || {};
 	};
 	var reEscape = /[<>'"]/g;
 	var escapeEntities = {
-	  '&': '&amp;',
 	  '<': '&lt;',
 	  '>': '&gt;',
 	  "'": '&#39;',
@@ -2163,10 +2245,11 @@ this.BX = this.BX || {};
 	    _this.options = options;
 	    _this.id = options.id || main_core.Text.getRandom();
 	    _this.text = '';
-	    _this.allowHtml = true;
+	    _this.allowHtml = false;
 
 	    if (main_core.Type.isStringFilled(options.html)) {
 	      _this.text = options.html;
+	      _this.allowHtml = true;
 	    } else if (main_core.Type.isStringFilled(options.text)) {
 	      _this.text = options.text;
 
@@ -2209,7 +2292,7 @@ this.BX = this.BX || {};
 	    _this.subMenuWindow = null;
 	    /**
 	     *
-	     * @type {{item: Element, text: Element}}
+	     * @type {{item: HTMLElement, text: HTMLElement}}
 	     */
 
 	    _this.layout = {
@@ -2358,6 +2441,7 @@ this.BX = this.BX || {};
 	      options.autoHide = false;
 	      options.menuShowDelay = this.menuShowDelay;
 	      options.cacheable = this.isCacheable();
+	      options.targetContainer = this.getMenuWindow().getPopupWindow().getTargetContainer();
 	      options.bindOptions = {
 	        forceTop: true,
 	        forceLeft: true,
@@ -2442,7 +2526,7 @@ this.BX = this.BX || {};
 	      }
 
 	      var popupWindow = this.subMenuWindow.getPopupWindow();
-	      var itemRect = this.layout.item.getBoundingClientRect();
+	      var itemRect = this.getBoundingClientRect();
 	      var offsetLeft = itemRect.width + this.subMenuOffsetX;
 	      var offsetTop = itemRect.height + this.getPopupPadding();
 	      var angleOffset = itemRect.height / 2 - this.getPopupPadding();
@@ -2450,8 +2534,10 @@ this.BX = this.BX || {};
 	      var popupWidth = popupWindow.getPopupContainer().offsetWidth;
 	      var popupHeight = popupWindow.getPopupContainer().offsetHeight;
 	      var popupBottom = itemRect.top + popupHeight;
-	      var clientWidth = document.documentElement.clientWidth;
-	      var clientHeight = document.documentElement.clientHeight; // let's try to fit a submenu to the browser viewport
+	      var targetContainer = this.getMenuWindow().getPopupWindow().getTargetContainer();
+	      var isGlobalContext = this.getMenuWindow().getPopupWindow().isTargetDocumentBody();
+	      var clientWidth = isGlobalContext ? document.documentElement.clientWidth : targetContainer.offsetWidth;
+	      var clientHeight = isGlobalContext ? document.documentElement.clientHeight : targetContainer.offsetHeight; // let's try to fit a submenu to the browser viewport
 
 	      var exceeded = popupBottom - clientHeight;
 
@@ -2491,6 +2577,19 @@ this.BX = this.BX || {};
 	        offset: angleOffset
 	      });
 	      popupWindow.adjustPosition();
+	    }
+	  }, {
+	    key: "getBoundingClientRect",
+	    value: function getBoundingClientRect() {
+	      var popup = this.getMenuWindow().getPopupWindow();
+
+	      if (popup.isTargetDocumentBody()) {
+	        return this.layout.item.getBoundingClientRect();
+	      } else {
+	        var rect = popup.getPositionRelativeToTarget(this.layout.item);
+	        var targetContainer = this.getMenuWindow().getPopupWindow().getTargetContainer();
+	        return new DOMRect(rect.left - targetContainer.scrollLeft, rect.top - targetContainer.scrollTop, rect.width, rect.height);
+	      }
 	    }
 	  }, {
 	    key: "getPopupPadding",

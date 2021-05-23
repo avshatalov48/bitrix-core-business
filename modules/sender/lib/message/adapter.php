@@ -8,11 +8,10 @@
 
 namespace Bitrix\Sender\Message;
 
-use Bitrix\Main\SiteTable;
 use Bitrix\Main\ArgumentException;
-
-use Bitrix\Sender\Transport;
+use Bitrix\Main\SiteTable;
 use Bitrix\Sender\Integration;
+use Bitrix\Sender\Transport;
 
 /**
  * Class Adapter
@@ -334,9 +333,8 @@ class Adapter implements iBase
 			$to[] = (string) $value;
 		}
 
-		return str_replace($from, $to, $content);
+		return Integration\Sender\Mail\TransportMail::replaceTemplate(str_replace($from, $to, $content));
 	}
-
 	/**
 	 * Get to.
 	 *
@@ -584,6 +582,16 @@ class Adapter implements iBase
 	public function isAds()
 	{
 		return $this->message instanceof iAds;
+	}
+
+	/**
+	 * Is ads.
+	 *
+	 * @return bool
+	 */
+	public function isMarketing()
+	{
+		return $this->message instanceof iMarketing;
 	}
 
 	/**

@@ -172,6 +172,7 @@ else
 	$blogUser->setBlogId($arPost["BLOG_ID"]);
 	$blogUsers = $blogUser->getUsers(\Bitrix\Blog\BlogUser::getPostAuthorsIdsByDbFilter($arFilter));
 
+	$arResult["POSTS"] = [];
 	while ($arPost = $dbPosts->GetNext())
 	{
 		$arResult["IDS"][] = $arPost["ID"];

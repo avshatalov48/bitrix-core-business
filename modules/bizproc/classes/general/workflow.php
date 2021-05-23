@@ -227,10 +227,9 @@ class CBPWorkflow
 		if ($this->GetWorkflowStatus() != CBPWorkflowStatus::Suspended)
 			throw new Exception("CanNotResumeInstance");
 
-		$this->SetWorkflowStatus(CBPWorkflowStatus::Running);
-
 		try
 		{
+			$this->SetWorkflowStatus(CBPWorkflowStatus::Running);
 			$this->RunQueue();
 		}
 		catch (Exception $e)
@@ -570,7 +569,15 @@ class CBPWorkflow
 		if ($e != null)
 		{
 			$trackingService = $this->GetService("TrackingService");
-			$trackingService->Write($this->instanceId, CBPTrackingType::FaultActivity, "none", CBPActivityExecutionStatus::Faulting, CBPActivityExecutionResult::Faulted, "Exception", ($e->getCode()? "[".$e->getCode()."] " : '').$e->getMessage());
+			$trackingService->Write(
+				$this->instanceId,
+				CBPTrackingType::FaultActivity,
+				"none",
+				CBPActivityExecutionStatus::Faulting,
+				CBPActivityExecutionResult::Faulted,
+				GetMessage('BPCGWF_EXCEPTION_TITLE'),
+				($e->getCode()? "[".$e->getCode()."] " : '').$e->getMessage()
+			);
 		}
 	}
 

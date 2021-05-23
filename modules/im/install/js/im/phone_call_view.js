@@ -5163,7 +5163,8 @@
 		{}
 		else if (e.keyCode >= 48 && e.keyCode <= 57 && !e.shiftKey) // 0-9
 		{
-			this.elements.input.value = this.elements.input.value + e.key;
+			insertAtCursor(this.elements.input, e.key);
+
 			e.preventDefault();
 			this.callbacks.onButtonClick({
 				key: e.key
@@ -5171,7 +5172,8 @@
 		}
 		else if (e.keyCode >= 96 && e.keyCode <= 105 && !e.shiftKey) // extra 0-9
 		{
-			this.elements.input.value = this.elements.input.value + e.key;
+			insertAtCursor(this.elements.input, e.key);
+
 			e.preventDefault();
 			this.callbacks.onButtonClick({
 				key: e.key
@@ -5209,7 +5211,6 @@
 
 	Keypad.prototype._onInterceptButtonClick = function()
 	{
-		var self = this;
 		if(!defaults.callInterceptAllowed)
 		{
 			this.close();
@@ -5224,13 +5225,13 @@
 		{
 			if(!response.FOUND || response.FOUND == 'Y')
 			{
-				self.close();
+				this.close();
 			}
 			else
 			{
 				if(response.ERROR)
 				{
-					self.interceptErrorPopup = new BX.PopupWindow('intercept-call-error', this.elements.interceptButton, {
+					this.interceptErrorPopup = new BX.PopupWindow('intercept-call-error', this.elements.interceptButton, {
 						targetContainer: document.body,
 						content: BX.util.htmlspecialchars(response.ERROR),
 						autoHide: true,
@@ -5242,16 +5243,18 @@
 							offset: 40
 						},
 						zIndex: this.zIndex + 100,
-						onPopupClose: function(e)
-						{
-							self.interceptErrorPopup.destroy()
-						},
-						onPopupDestroy: function(e)
-						{
-							self.interceptErrorPopup = null;
+						events: {
+							onPopupClose: function(e)
+							{
+								this.interceptErrorPopup.destroy();
+							}.bind(this),
+							onPopupDestroy: function(e)
+							{
+								this.interceptErrorPopup = null;
+							}.bind(this)
 						}
 					});
-					self.interceptErrorPopup.show();
+					this.interceptErrorPopup.show();
 				}
 			}
 		}.bind(this));
@@ -5264,9 +5267,14 @@
 		var self = this;
 		if (key == 0)
 		{
-			this.plusKeyTimeout = setTimeout(function() {
-				self.plusEntered = true;
-				self.elements.input.value = self.elements.input.value + '+';
+			self.plusEntered = false;
+			this.plusKeyTimeout = setTimeout(function()
+			{
+				if (!self.elements.input.value.startsWith('+'))
+				{
+					self.plusEntered = true;
+					self.elements.input.value = '+' + self.elements.input.value;
+				}
 			}, 500);
 		}
 	};
@@ -5279,13 +5287,15 @@
 		{
 			clearTimeout(this.plusKeyTimeout);
 			if (!this.plusEntered)
-				this.elements.input.value = this.elements.input.value + '0';
+			{
+				insertAtCursor(this.elements.input, '0');
+			}
 
 			this.plusEntered = false;
 		}
 		else
 		{
-			this.elements.input.value = this.elements.input.value + key;
+			insertAtCursor(this.elements.input, key);
 		}
 		this._onAfterNumberChanged();
 		this.callbacks.onButtonClick({
@@ -5523,4 +5533,22 @@
 	{
 		this.callbacks.onFormSend(form);
 	};
+
+	function insertAtCursor(inputElement, value)
+	{
+		if (inputElement.selectionStart || inputElement.selectionStart == '0')
+		{
+			var startPos = inputElement.selectionStart;
+			var endPos = inputElement.selectionEnd;
+			inputElement.value = inputElement.value.substring(0, startPos)
+				+ value
+				+ inputElement.value.substring(endPos, inputElement.value.length);
+			inputElement.selectionStart = startPos + value.length;
+			inputElement.selectionEnd = startPos + value.length;
+		}
+		else
+		{
+			inputElement.value += value;
+		}
+	}
 })();

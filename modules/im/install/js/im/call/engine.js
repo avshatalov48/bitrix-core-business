@@ -69,6 +69,7 @@
 		onCallFailure: 'onCallFailure',
 		onStreamReceived: 'onStreamReceived',
 		onStreamRemoved: 'onStreamRemoved',
+		onNetworkProblem: 'onNetworkProblem',
 		onJoin: 'onJoin',
 		onLeave: 'onLeave',
 		onDestroy: 'onDestroy',

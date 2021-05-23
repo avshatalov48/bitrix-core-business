@@ -104,6 +104,8 @@ class sender extends CModule
 			// voximplant
 			RegisterModuleDependences("voximplant", "OnInfoCallResult", "sender", "Bitrix\\Sender\\Integration\\VoxImplant\\Service", "onInfoCallResult");
 
+			RegisterModuleDependences("pull", "OnGetDependentModule", "sender", "Bitrix\\Sender\\SenderPullSchema", "OnGetDependentModule" );
+
 			CTimeZone::Disable();
 
 			\Bitrix\Sender\Runtime\Job::actualizeAll();
@@ -165,6 +167,8 @@ class sender extends CModule
 
 		// voximplant
 		UnRegisterModuleDependences("voximplant", "OnInfoCallResult", "sender", "Bitrix\\Sender\\Integration\\VoxImplant\\Service", "onInfoCallResult");
+
+		UnRegisterModuleDependences("pull", "OnGetDependentModule", "sender", "Bitrix\\Sender\\SenderPullSchema", "OnGetDependentModule" );
 
 		UnRegisterModule("sender");
 

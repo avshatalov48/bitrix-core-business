@@ -1,49 +1,89 @@
-import OrderedArray from '../../src/lib/collection/ordered-array';
+import OrderedArray from '../../src/lib/collections/ordered-array';
 import Type from '../../src/lib/type';
 
-const makeComparator = (orderProperty: string, orderDirection: 'asc' | 'desc') => {
-	const sortOrder = orderDirection === 'desc' ? -1 : 1;
+const compareItems = (
+	itemA,
+	itemB,
+	orderProperty: string,
+	ascOrdering: boolean,
+	nullsOrdering: boolean
+) => {
 
-	return function(itemA, itemB) {
+	const valueA = itemA[orderProperty];
+	const valueB = itemB[orderProperty];
 
-		const valueA = itemA[orderProperty];
-		const valueB = itemB[orderProperty];
+	let result = 0;
 
-		let result = 0;
+	if (valueA !== null && valueB === null)
+	{
+		result = nullsOrdering ? -1 : 1;
+	}
+	else if (valueA === null && valueB !== null)
+	{
+		result = nullsOrdering ? 1 : -1;
+	}
+	else if (valueA === null && valueB === null)
+	{
+		result = ascOrdering ? -1 : 1;
+	}
+	else
+	{
 		if (Type.isString(valueA))
 		{
 			result = valueA.localeCompare(valueB);
 		}
 		else
 		{
-			if (Type.isNull(valueA) || Type.isNull(valueB))
-			{
-				result = valueA === valueB ? 0 : (Type.isNull(valueA) ? 1 : -1);
-			}
-			else
-			{
-				result = (valueA < valueB) ? -1 : (valueA > valueB ? 1 : 0);
-			}
+			result = valueA - valueB;
 		}
+	}
 
-		return result * sortOrder;
-	};
+	const sortOrder = ascOrdering ? 1 : -1;
+
+	return result * sortOrder;
 };
 
-const makeMultipleComparator = (order: {[key: string]: 'asc' | 'desc'}) => {
-	const props = Object.keys(order);
+const makeMultipleComparator = (order: {[key: string]: 'asc' | 'desc' }) => {
 
-	return (a, b) => {
+	const props = Object.keys(order);
+	const directions: Array<{ ascOrdering: boolean, nullsOrdering: boolean }> = [];
+	Object.values(order).forEach((element) => {
+
+		const direction = element.toLowerCase().trim();
+
+		// Default sorting: 'asc' || 'asc nulls last'
+		let ascOrdering = true;
+		let nullsOrdering = true;
+
+		if (direction === 'desc' || direction === 'desc nulls first')
+		{
+			ascOrdering = false;
+		}
+		else if (direction === 'asc nulls first')
+		{
+			nullsOrdering = false;
+		}
+		else if (direction === 'desc nulls last')
+		{
+			ascOrdering = false;
+			nullsOrdering = false;
+		}
+
+		directions.push({ ascOrdering, nullsOrdering });
+	});
+
+	const numberOfProperties = props.length;
+
+	return (itemA, itemB) => {
 		let i = 0;
 		let result = 0;
-		const numberOfProperties = props.length;
 
 		while (result === 0 && i < numberOfProperties)
 		{
-			const orderProperty = props[i];
-			const orderDirection = order[props[i]];
+			const property = props[i];
+			const direction = directions[i];
 
-			result = makeComparator(orderProperty, orderDirection)(a, b);
+			result = compareItems(itemA, itemB, property, direction.ascOrdering, direction.nullsOrdering);
 			i += 1;
 		}
 
@@ -112,6 +152,17 @@ describe('OrderedArray', () => {
 		{ name: 'Grey', sort: 7, id: 13 },
 		{ name: 'Grey', sort: 7, id: 14 },
 		{ name: 'Grey', sort: 7, id: 15 },
+	];
+
+	const products = [
+		{ id: 1, name: 'Bread', sort: 3, nullProperty: null },
+		{ id: 2, name: 'Sausage', sort: 4, nullProperty: null },
+		{ id: 3, name: 'Bacon', sort: 1, nullProperty: null },
+		{ id: 4, name: 'Cheese', sort: null, nullProperty: null },
+		{ id: 5, name: 'Milk', sort: 2, nullProperty: null },
+		{ id: 6, name: 'Butter', sort: null, nullProperty: null },
+		{ id: 7, name: 'Eggs', sort: 5, nullProperty: null },
+		{ id: 8, name: 'Cucumber', sort: null, nullProperty: null },
 	];
 
 	it('Should behave like a simple array with a comparator', () => {
@@ -266,4 +317,73 @@ describe('OrderedArray', () => {
 		);
 	});
 
+	it('Should sort elements with nulls', () => {
+
+		const orderByAsc = new OrderedArray(makeMultipleComparator({ sort: 'asc' }));
+		const orderByAsc2 = new OrderedArray(makeMultipleComparator({ sort: 'asc nulls last' }));
+		const orderByAsc3 = new OrderedArray(makeMultipleComparator({ sort: 'asc nulls first' }));
+
+		products.forEach(element => {
+			orderByAsc.add(element);
+			orderByAsc2.add(element);
+			orderByAsc3.add(element);
+		});
+
+		assert.equal(
+			orderByAsc.getAll().map(element => element.name).join('|'),
+			'Bacon|Milk|Bread|Sausage|Eggs|Cheese|Butter|Cucumber'
+		);
+
+		assert.equal(
+			orderByAsc2.getAll().map(element => element.name).join('|'),
+			'Bacon|Milk|Bread|Sausage|Eggs|Cheese|Butter|Cucumber'
+		);
+
+		assert.equal(
+			orderByAsc3.getAll().map(element => element.name).join('|'),
+			'Cheese|Butter|Cucumber|Bacon|Milk|Bread|Sausage|Eggs'
+		);
+
+		const orderByDesc = new OrderedArray(makeMultipleComparator({ sort: 'desc' }));
+		const orderByDesc2 = new OrderedArray(makeMultipleComparator({ sort: 'desc nulls first' }));
+		const orderByDesc3 = new OrderedArray(makeMultipleComparator({ sort: 'desc nulls last' }));
+
+		products.forEach(element => {
+			orderByDesc.add(element);
+			orderByDesc2.add(element);
+			orderByDesc3.add(element);
+		});
+
+		assert.equal(
+			orderByDesc.getAll().map(element => element.name).join('|'),
+			'Cheese|Butter|Cucumber|Eggs|Sausage|Bread|Milk|Bacon'
+		);
+
+		assert.equal(
+			orderByDesc2.getAll().map(element => element.name).join('|'),
+			'Cheese|Butter|Cucumber|Eggs|Sausage|Bread|Milk|Bacon'
+		);
+
+		assert.equal(
+			orderByDesc3.getAll().map(element => element.name).join('|'),
+			'Eggs|Sausage|Bread|Milk|Bacon|Cheese|Butter|Cucumber'
+		);
+
+		const orderByAscNullable = new OrderedArray(makeMultipleComparator({ nullProperty: 'asc' }));
+		const orderByDescNullable = new OrderedArray(makeMultipleComparator({ nullProperty: 'desc' }));
+
+		products.forEach(element => {
+			orderByAscNullable.add(element);
+			orderByDescNullable.add(element);
+		});
+
+		assert.equal(
+			orderByAscNullable.getAll().map(element => element.id).join(''),
+			'12345678'
+		);
+		assert.equal(
+			orderByDescNullable.getAll().map(element => element.id).join(''),
+			'12345678'
+		);
+	});
 });

@@ -6,6 +6,7 @@ import {ServiceSelectorFieldTunner} from "./controls/serviceselectorfieldtunner"
 import {DurationSelectorFieldTunner} from "./controls/durationselectorfieldtunner";
 import {DateSelectorFieldTunner} from "./controls/dateselectorfieldtunner";
 import {TimeSelectorFieldTunner} from "./controls/timeselectorfieldtunner";
+import 'helper';
 
 export class AdjustFieldController extends EventEmitter
 {

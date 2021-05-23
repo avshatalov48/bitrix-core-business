@@ -7,11 +7,12 @@
  * @copyright 2001-2019 Bitrix
  */
 
+import {BitrixVue} from "ui.vue";
+import {Vuex} from "../vuex.js";
+import {VuexBuilder} from "./builder.js";
 import {VuexBuilderDatabaseIndexedDB} from "./database/indexeddb.js";
 import {VuexBuilderDatabaseLocalStorage} from "./database/localstorage.js";
 import {VuexBuilderDatabaseJnSharedStorage} from "./database/jnsharedstorage.js";
-import {VuexBuilder} from "./builder.js";
-import {VuexVendor} from "ui.vue.vuex";
 
 export class VuexBuilderModel
 {
@@ -235,6 +236,12 @@ export class VuexBuilderModel
 			this.databaseConfig.timeout = config.timeout;
 		}
 
+		if (!this.databaseConfig.active && this.db !== null)
+		{
+			this.databaseConfig.type = null;
+			updateDriver = true;
+		}
+
 		if (updateDriver)
 		{
 			if (this.databaseConfig.type === VuexBuilder.DatabaseType.indexedDb)
@@ -259,47 +266,86 @@ export class VuexBuilderModel
 	}
 
 	/**
-	 * Enable namespace option for model.
-	 *
-	 * @param active {boolean}
 	 * @returns {VuexBuilder}
+	 * @deprecated
 	 */
 	useNamespace(active)
 	{
-		this.withNamespace = !!active;
+		if (BitrixVue.developerMode)
+		{
+			if (active)
+			{
+				console.warn('VuexBuilderModel: Method `useNamespace` is deprecated, please remove this call.');
+			}
+			else
+			{
+				console.error('VuexBuilderModel: Method `useNamespace` is deprecated, using VuexBuilder without namespaces is no longer supported.');
+			}
+		}
 
 		return this;
 	}
 
 	/**
-	 * Get store config for Vuex.
-	 *
 	 * @returns {Promise}
+	 * @deprecated use getModule instead.
 	 */
 	getStore()
 	{
+		return this.getModule();
+	}
+
+	/**
+	 * Get Vuex module.
+	 *
+	 * @returns {Promise}
+	 */
+	getModule()
+	{
 		return new Promise((resolve, reject) => {
 
-			let namespace = '';
-			if (this.withNamespace)
+			let namespace = this.namespace? this.namespace: this.getName();
+			if (!namespace)
 			{
-				namespace = this.namespace? this.namespace: this.getName();
-				if (!namespace && this.withNamespace)
-				{
-					this.logger('error', 'VuexModel.getStore: current model can not be run in Vuex modules mode', this.getState());
-					reject();
-				}
+				this.logger('error', 'VuexBuilderModel.getStore: current model can not be run in Vuex modules mode', this.getState());
+				reject();
 			}
 
 			if (this.db)
 			{
-				this._getStoreFromDatabase().then(state => resolve(this._createStore(state, namespace)));
+				this._getStoreFromDatabase().then(state => resolve({
+					namespace,
+					module: this._createStore(state)
+				}));
 			}
 			else
 			{
-				resolve(this._createStore(this.getState(), namespace));
+				resolve({
+					namespace,
+					module: this._createStore(this.getState())
+				});
 			}
 		});
+	}
+
+	/**
+	 * Get default state of Vuex module.
+	 *
+	 * @returns {Object}
+	 */
+	getModuleWithDefaultState()
+	{
+		let namespace = this.namespace? this.namespace: this.getName();
+		if (!namespace)
+		{
+			this.logger('error', 'VuexBuilderModel.getStore: current model can not be run in Vuex modules mode', this.getState());
+			return null;
+		}
+
+		return {
+			namespace,
+			module: this._createStore(this.getState())
+		};
 	}
 
 	/**
@@ -312,6 +358,18 @@ export class VuexBuilderModel
 	getSaveTimeout()
 	{
 		return 150;
+	}
+
+	/**
+	 * Get timeout for load from database
+	 *
+	 * @override
+	 *
+	 * @returns {number|boolean}
+	 */
+	getLoadTimeout()
+	{
+		return 1000;
 	}
 
 	/**
@@ -391,10 +449,7 @@ export class VuexBuilderModel
 	{
 		if (this.store)
 		{
-			let command = 'vuexBuilderModelClearState';
-			command = this.withNamespace? this.getNamespace()+'/'+command: command;
-
-			this.store.commit(command);
+			this.store.commit(this.getNamespace()+'/'+'vuexBuilderModelClearState');
 
 			return true;
 		}
@@ -488,13 +543,11 @@ export class VuexBuilderModel
 		this.namespace = null;
 
 		this.variables = {};
-
-		this.withNamespace = false;
 	}
 
 	setStore(store)
 	{
-		if (!(store instanceof VuexVendor.Store))
+		if (!(store instanceof Vuex.Store))
 		{
 			this.logger('error', 'VuexBuilderModel.setStore: passed store is not a Vuex.Store', store);
 			return this;
@@ -509,10 +562,19 @@ export class VuexBuilderModel
 		clearTimeout(this.cacheTimeout);
 		return new Promise((resolve) =>
 		{
-			this.cacheTimeout = setTimeout(() => {
-				this.logger('warn', 'VuexModel.getStoreFromDatabase: Cache loading timeout', this.getName());
-				resolve(this.getState());
-			}, 1000);
+			const loadTimeout = this.getLoadTimeout();
+
+			if ((loadTimeout !== false) && (typeof loadTimeout === 'number'))
+			{
+				this.cacheTimeout = setTimeout(() => {
+					this.logger('warn', 'VuexModel.getStoreFromDatabase: Cache loading timeout', this.getName());
+					resolve(this.getState());
+				}, loadTimeout);
+			}
+			else
+			{
+				this.cacheTimeout = null;
+			}
 
 			this.db.get().then(cache =>
 			{
@@ -560,9 +622,10 @@ export class VuexBuilderModel
 		return newState;
 	}
 
-	_createStore(state, namespace = '')
+	_createStore(state)
 	{
 		let result = {
+			namespaced: true,
 			state,
 			getters: this.getGetters(),
 			actions: this.getActions(),
@@ -573,12 +636,6 @@ export class VuexBuilderModel
 			state = Object.assign(state, this.getState());
 			this.saveState(state);
 		};
-
-		if (namespace)
-		{
-			result.namespaced = true;
-			result = {[namespace]: result};
-		}
 
 		return result;
 	}

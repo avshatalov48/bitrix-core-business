@@ -1,6 +1,5 @@
 <?
 $MESS["SALE_HPS_BILL_LA_TITLE"] = "Factura (Español)";
-$MESS["SALE_HPS_BILL_LA_DDESCR"] = "Versión impresa de la factura. Se abrirá en una nueva ventana.";
 $MESS["SALE_HPS_BILL_LA_DATE"] = "Fecha de la orden";
 $MESS["SALE_HPS_BILL_LA_DATE_DESC"] = "Fecha en que se creó la orden ";
 $MESS["SALE_HPS_BILL_LA_PAY_BEFORE"] = "Paga por ";
@@ -87,23 +86,9 @@ $MESS["SALE_HPS_BILL_LA_LOGO_DPI_300"] = "32% (300 dpi)";
 $MESS["SALE_HPS_BILL_LA_LOGO_DPI_600"] = "16% (600 dpi)";
 
 $MESS["SALE_HPS_BILL_LA_TOTAL_SHOW"] = "Mostrar resumen";
-$MESS["SALE_HPS_BILL_LA_COLUMN_NUMBER_SHOW"] = "Mostrar el número de la columna";
-$MESS["SALE_HPS_BILL_LA_COLUMN_NUMBER_TITLE"] = "El título de la columna";
-$MESS["SALE_HPS_BILL_LA_COLUMN_NAME_SHOW"] = "Mostrar el elemento de la columna";
-$MESS["SALE_HPS_BILL_LA_COLUMN_NAME_TITLE"] = "Título de la columna del artículo";
-$MESS["SALE_HPS_BILL_LA_COLUMN_QUANTITY_SHOW"] = "Mostrar la columna de cantidad";
-$MESS["SALE_HPS_BILL_LA_COLUMN_QUANTITY_TITLE"] = "Título de la columna de cantidad";
-$MESS["SALE_HPS_BILL_LA_COLUMN_MEASURE_SHOW"] = "Mostrar unidad de columna de medición";
-$MESS["SALE_HPS_BILL_LA_COLUMN_MEASURE_TITLE"] = "Titulo de la columna de medición";
-$MESS["SALE_HPS_BILL_LA_COLUMN_PRICE_SHOW"] = "Mostrar columna de precio unitario";
-$MESS["SALE_HPS_BILL_LA_COLUMN_PRICE_TITLE"] = "Título de columna de precio unitario";
-$MESS["SALE_HPS_BILL_LA_COLUMN_SUM_SHOW"] = "Mostrar la columna del total";
-$MESS["SALE_HPS_BILL_LA_COLUMN_SUM_TITLE"] = "Título de la columna del total";
-$MESS["SALE_HPS_BILL_LA_COLUMN_VAT_RATE_SHOW"] = "Mostrar columna de impuestos";
-$MESS["SALE_HPS_BILL_LA_COLUMN_VAT_RATE_TITLE"] = "Título de columna de impuestos";
 $MESS["SALE_HPS_BILL_LA_HEADER"] = "Título de la factura";
 $MESS["SALE_HPS_BILL_LA_PAYER_SHOW"] = "Mostrar información del ordenante";
-$MESS["SALE_HPS_BILL_LA_COLUMN_TITLE"] = "Título de la columna";
+$MESS["SALE_HPS_BILL_LA_COLUMN_TITLE"] = "Título de la columna ";
 $MESS["SALE_HPS_BILL_LA_COLUMN_SORT"] = "Ordenar";
 $MESS["SALE_HPS_BILL_LA_COLUMN_SHOW"] = "Activo";
 

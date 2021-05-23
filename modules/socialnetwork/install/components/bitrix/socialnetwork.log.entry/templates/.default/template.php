@@ -108,6 +108,12 @@ else
 		$ind = $arParams["IND"];
 		$is_unread = $arParams["EVENT"]["IS_UNREAD"];
 
+		$important = (
+			array_key_exists("EVENT_FORMATTED", $arEvent)
+			&& array_key_exists("IS_IMPORTANT", $arEvent["EVENT_FORMATTED"])
+			&& $arEvent["EVENT_FORMATTED"]["IS_IMPORTANT"]
+		);
+
 		if (
 			$arParams["PUBLIC_MODE"] != "Y"
 			&& isset($arEvent["EVENT_FORMATTED"]["URL"])
@@ -207,13 +213,7 @@ else
 			$classNameList[] = 'feed-post-block-short';
 		}
 
-		if (
-			(
-				array_key_exists("EVENT_FORMATTED", $arEvent)
-				&& array_key_exists("IS_IMPORTANT", $arEvent["EVENT_FORMATTED"])
-				&& $arEvent["EVENT_FORMATTED"]["IS_IMPORTANT"]
-			)
-		)
+		if ($important)
 		{
 			$classNameList[] = 'feed-post-block-separator';
 		}
@@ -528,22 +528,6 @@ else
 							}
 						}
 					}
-					elseif (
-						$arEvent["EVENT"]["EVENT_ID"] === "system"
-						&& array_key_exists("ENTITY", $arEvent)
-						&& array_key_exists("FORMATTED", $arEvent["ENTITY"])
-						&& array_key_exists("NAME", $arEvent["ENTITY"]["FORMATTED"])
-					)
-					{
-						if (array_key_exists("URL", $arEvent["ENTITY"]["FORMATTED"]) && $arEvent["ENTITY"]["FORMATTED"]["URL"] <> '')
-						{
-							$strCreatedBy .= '<a href="'.$arEvent["ENTITY"]["FORMATTED"]["URL"].'" class="feed-post-user-name'.(isset($arEvent["CREATED_BY"]["IS_EXTRANET"]) && $arEvent["CREATED_BY"]["IS_EXTRANET"] == "Y" ? " feed-post-user-name-extranet" : "").'">'.$arEvent["ENTITY"]["FORMATTED"]["NAME"].'</a>';
-						}
-						else
-						{
-							$strCreatedBy .= '<span class="feed-post-user-name'.(isset($arEvent["CREATED_BY"]["IS_EXTRANET"]) && $arEvent["CREATED_BY"]["IS_EXTRANET"] == "Y" ? " feed-post-user-name-extranet" : "").'">'.$arEvent["ENTITY"]["FORMATTED"]["NAME"].'</span>';
-						}
-					}
 
 					?><?=($strCreatedBy != "" ? $strCreatedBy : "")?><?
 					?><span><?=$strDestination?></span><?
@@ -579,6 +563,8 @@ else
 
 					?></div><?
 
+					$title24_2 = '';
+
 					if (
 						array_key_exists("EVENT_FORMATTED", $arEvent)
 						&& ( $hasTitle24 || $hasTitle24_2 )
@@ -601,10 +587,6 @@ else
 							case "tasks":
 								?><div class="feed-add-post-destination-title"><?=$arEvent["EVENT_FORMATTED"]["TITLE_24"]?><span class="feed-work-time"><?=GetMessage("SONET_C30_MENU_ENTRY_TASKS")?><span class="feed-work-time-icon"></span></span></div><?
 								break;
-							case "system":
-							case "system_groups":
-							case "system_friends":
-								break;
 							default:
 								?><div class="feed-add-post-destination-title"><?=$arEvent["EVENT_FORMATTED"]["TITLE_24"]?></div><?
 								break;
@@ -613,13 +595,12 @@ else
 						}
 
 						if (
-							(
-								!array_key_exists("IS_IMPORTANT", $arEvent["EVENT_FORMATTED"])
-								|| !$arEvent["EVENT_FORMATTED"]["IS_IMPORTANT"]
-							)
+							!$important
 							&& $hasTitle24_2
 						)
 						{
+							ob_start();
+
 							if ($url !== "")
 							{
 								?><div class="feed-post-title<?=(isset($arEvent["EVENT_FORMATTED"]["TITLE_24_2_STYLE"]) ? " ".$arEvent["EVENT_FORMATTED"]["TITLE_24_2_STYLE"] : "")?>"><a href="<?=$url?>"><?=$arEvent["EVENT_FORMATTED"]["TITLE_24_2"]?></a></div><?
@@ -628,6 +609,8 @@ else
 							{
 								?><div class="feed-post-title<?=(isset($arEvent["EVENT_FORMATTED"]["TITLE_24_2_STYLE"]) ? " ".$arEvent["EVENT_FORMATTED"]["TITLE_24_2_STYLE"] : "")?>"><?=$arEvent["EVENT_FORMATTED"]["TITLE_24_2"]?></div><?
 							}
+
+							$title24_2 = ob_get_clean();
 						}
 					}
 
@@ -655,47 +638,53 @@ else
 						)
 					);?><?
 				}
-				elseif (
-					array_key_exists("EVENT_FORMATTED", $arEvent)
-					&& array_key_exists("IS_IMPORTANT", $arEvent["EVENT_FORMATTED"])
-					&& $arEvent["EVENT_FORMATTED"]["IS_IMPORTANT"]
-				)
+				elseif ($important)
 				{
 					$APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/rating.vote/templates/like/popup.css');
 
-					?><div class="feed-post-text-block feed-info-block"><?
+					$classNameList = [
+						'feed-post-text-block',
+						'feed-info-block',
+						'feed-post-block-background',
+						'feed-post-block-important'
+					];
+
+					?><div class="<?=implode(' ', $classNameList)?>"><?
 
 						$classNameList = [ 'feed-post-contentview' ];
-						if ($arParams["FROM_LOG"] == "Y")
+						if ($arParams["FROM_LOG"] === "Y")
 						{
 							$classNameList[] = 'feed-post-text-block-inner';
 						}
 
-						?><div class="<?=implode(' ', $classNameList)?>" id="<?=(!empty($arResult["CONTENT_ID"]) ? "feed-post-contentview-".htmlspecialcharsBx($arResult["CONTENT_ID"]) : "")?>" bx-content-view-xml-id="<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>"><?
+						?><div
+						 class="<?=implode(' ', $classNameList)?>"
+						 id="<?=(!empty($arResult["CONTENT_ID"]) ? "feed-post-contentview-".htmlspecialcharsBx($arResult["CONTENT_ID"]) : "")?>"
+						 bx-content-view-xml-id="<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>"><?
 							?><div class="feed-post-text-block-inner-inner" id="log_entry_body_<?=$arEvent["EVENT"]["ID"]?>"><?
 
-							if (
-								array_key_exists("IS_IMPORTANT", $arEvent["EVENT_FORMATTED"])
-								&& $arEvent["EVENT_FORMATTED"]["IS_IMPORTANT"]
-								&& $hasTitle24_2
-							)
-							{
-								if ($url !== "")
+								?><div class="feed-important-icon"></div><?
+
+								?><?=$title24_2?><?
+
+								if ($hasTitle24_2)
 								{
-									?><a href="<?=$url?>" class="feed-post-title" target="_top"><?=$arEvent["EVENT_FORMATTED"]["TITLE_24_2"]?></a><?
+									if ($url !== "")
+									{
+										?><a href="<?=$url?>" class="feed-post-title" target="_top"><?=$arEvent["EVENT_FORMATTED"]["TITLE_24_2"]?></a><?
+									}
+									else
+									{
+										?><div class="feed-post-title"><?=$arEvent["EVENT_FORMATTED"]["TITLE_24_2"]?></div><?
+									}
+									?><br /><?
 								}
-								else
-								{
-									?><div class="feed-post-title"><?=$arEvent["EVENT_FORMATTED"]["TITLE_24_2"]?></div><?
-								}
-								?><br /><?
-							}
-							?><?=$arEvent["EVENT_FORMATTED"]["MESSAGE"]?>
+								?><?=$arEvent["EVENT_FORMATTED"]["MESSAGE"]?>
 
 							</div><?
 						?></div><?
 
-						if($arParams["FROM_LOG"] == 'Y')
+						if($arParams["FROM_LOG"] === 'Y')
 						{
 							?><div class="feed-post-text-more" onclick="BX.UI.Animations.expand({
 								moreButtonNode: this,
@@ -728,42 +717,17 @@ else
 					?></div><?
 				}
 				elseif (
-					$EVENT_ID === "files"
-					|| $EVENT_ID === "commondocs"
-				)
-				{
-					?><div class="feed-post-item feed-post-add-files">
-						<div class="feed-add-post-files-title feed-add-post-f"><?=$arEvent["EVENT_FORMATTED"]["MESSAGE_TITLE_24"]?></div><?
-						$file_ext = GetFileExtension($arEvent["EVENT"]["TITLE"]);
-						?><div class="feed-files-cont">
-							<span class="feed-com-file-wrap">
-								<span class="feed-com-file-icon feed-file-icon-<?=$file_ext?>"></span><?
-								if (
-									array_key_exists("URL", $arEvent["EVENT"])
-									&& $arEvent["EVENT"]["URL"] <> ''
-								)
-								{
-									?><span class="feed-com-file-name"><a href="<?=$arEvent["EVENT"]["URL"]?>"><?=$arEvent["EVENT"]["TITLE"]?></a></span><?
-								}
-								else
-								{
-									?><span class="feed-com-file-name"><?=$arEvent["EVENT"]["TITLE"]?></span><?
-								}
-								?><span class="feed-com-size"></span>
-							</span>
-						</div>
-					</div><?
-				}
-				elseif (
 					$EVENT_ID === "photo"
 					|| $EVENT_ID === "photo_photo"
 				)
 				{
 					?><div class="feed-post-item feed-post-contentview" id="<?=(!empty($arResult["CONTENT_ID"]) ? "feed-post-contentview-".htmlspecialcharsBx($arResult["CONTENT_ID"]) : "")?>" bx-content-view-xml-id="<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>"><?
 
+						?><?=$title24_2?><?
+
 						$arPhotoItems = array();
 						$photo_section_id = false;
-						if ($EVENT_ID == "photo")
+						if ($EVENT_ID === "photo")
 						{
 							$photo_section_id = $arEvent["EVENT"]["SOURCE_ID"];
 							if ($arEvent["EVENT"]["PARAMS"] <> '')
@@ -779,9 +743,9 @@ else
 								}
 							}
 						}
-						elseif ($EVENT_ID == "photo_photo")
+						elseif ($EVENT_ID === "photo_photo")
 						{
-							if (intval($arEvent["EVENT"]["SOURCE_ID"]) > 0)
+							if ((int)$arEvent["EVENT"]["SOURCE_ID"] > 0)
 							{
 								$arPhotoItems = array($arEvent["EVENT"]["SOURCE_ID"]);
 							}
@@ -792,7 +756,7 @@ else
 								if (
 									$arEventParams
 									&& isset($arEventParams["SECTION_ID"])
-									&& intval($arEventParams["SECTION_ID"]) > 0
+									&& (int)$arEventParams["SECTION_ID"] > 0
 								)
 								{
 									$photo_section_id = $arEventParams["SECTION_ID"];
@@ -808,7 +772,7 @@ else
 							$photo_iblock_id = $arEventParams["IBLOCK_ID"];
 							$alias = (isset($arEventParams["ALIAS"]) ? $arEventParams["ALIAS"] : false);
 
-							if ($EVENT_ID == "photo")
+							if ($EVENT_ID === "photo")
 							{
 								$photo_detail_url = $arEventParams["DETAIL_URL"];
 								if (
@@ -823,7 +787,7 @@ else
 									$photo_detail_url = str_replace("#GROUPS_PATH#", $arResult["WORKGROUPS_PAGE"], $photo_detail_url);
 								}
 							}
-							elseif ($EVENT_ID == "photo_photo")
+							elseif ($EVENT_ID === "photo_photo")
 							{
 								$photo_detail_url = $arEvent["EVENT"]["URL"];
 							}
@@ -960,22 +924,29 @@ else
 				}
 				elseif ($EVENT_ID === "tasks")
 				{
-					?><div class="feed-post-info-block-wrap feed-post-contentview" id="feed-post-contentview-<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>" bx-content-view-xml-id="<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>"><?=$arEvent["EVENT_FORMATTED"]["MESSAGE"]?></div><?
+					?><div class="feed-post-info-block-wrap feed-post-contentview" id="feed-post-contentview-<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>" bx-content-view-xml-id="<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>"><?
+
+						?><?=$title24_2?><?
+						?><?=$arEvent["EVENT_FORMATTED"]["MESSAGE"]?><?
+
+					?></div><?
 				}
 				elseif (in_array($EVENT_ID, array("timeman_entry", "report")))
 				{
 					CJSCore::Init(array('timeman'));
-					?><div class="feed-post-text-block feed-post-contentview" id="feed-post-contentview-<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>" bx-content-view-xml-id="<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>"><?=$arEvent["EVENT_FORMATTED"]["MESSAGE"]?></div><?
+					?><div class="feed-post-text-block feed-post-contentview" id="feed-post-contentview-<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>" bx-content-view-xml-id="<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>"><?
+
+						?><?=$title24_2?><?
+						?><?=$arEvent["EVENT_FORMATTED"]["MESSAGE"]?><?
+
+					?></div><?
 				}
-				elseif (
-					!in_array($EVENT_ID, array("system", "system_groups", "system_friends"))
-					&& $arEvent["EVENT_FORMATTED"]["MESSAGE"] <> ''
-				) // all other events
+				elseif ($arEvent["EVENT_FORMATTED"]["MESSAGE"] <> '') // all other events
 				{
 					?><div class="feed-post-text-block"><?
 
 						$classNameList = [ 'feed-post-contentview' ];
-						if ($arParams["FROM_LOG"] == "Y")
+						if ($arParams["FROM_LOG"] === "Y")
 						{
 							$classNameList[] = 'feed-post-text-block-inner';
 						}
@@ -983,17 +954,27 @@ else
 						if ($arResult["CONTENT_ID"])
 						{
 							?><div class="<?=implode(' ', $classNameList)?>" id="feed-post-text-contentview-<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>" bx-content-view-xml-id="<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>"><?
-								?><div class="feed-post-text-block-inner-inner" id="log_entry_body_<?=$arEvent["EVENT"]["ID"]?>"><?=$arEvent["EVENT_FORMATTED"]["MESSAGE"]?></div><?
+								?><div class="feed-post-text-block-inner-inner" id="log_entry_body_<?=$arEvent["EVENT"]["ID"]?>"><?
+
+									?><?=$title24_2?><?
+									?><?=$arEvent["EVENT_FORMATTED"]["MESSAGE"]?><?
+
+							?></div><?
 							?></div><?
 						}
 						else
 						{
 							?><div class="<?=implode(' ', $classNameList)?>"><?
-								?><div class="feed-post-text-block-inner-inner" id="log_entry_body_<?=$arEvent["EVENT"]["ID"]?>"><?=$arEvent["EVENT_FORMATTED"]["MESSAGE"]?></div><?
+								?><div class="feed-post-text-block-inner-inner" id="log_entry_body_<?=$arEvent["EVENT"]["ID"]?>"><?
+
+									?><?=$title24_2?><?
+									?><?=$arEvent["EVENT_FORMATTED"]["MESSAGE"]?><?
+
+								?></div><?
 							?></div><?
 						}
 
-						if($arParams["FROM_LOG"] == 'Y')
+						if($arParams["FROM_LOG"] === 'Y')
 						{
 							?><div class="feed-post-text-more" id="log_entry_more_<?=$arEvent["EVENT"]["ID"]?>" onclick="BX.UI.Animations.expand({
 								moreButtonNode: this,
@@ -1031,7 +1012,6 @@ else
 					&& count($arEvent["EVENT_FORMATTED"]["UF"]) > 0
 				)
 				{
-					$eventHandlerID = false;
 					$eventHandlerID = AddEventHandler("main", "system.field.view.file", Array("CSocNetLogTools", "logUFfileShow"));
 					foreach ($arEvent["EVENT_FORMATTED"]["UF"] as $FIELD_NAME => $arUserField)
 					{
@@ -1190,10 +1170,7 @@ else
 						?><span class="feed-inform-item feed-inform-follow" data-follow="<?=($arEvent["EVENT"]["FOLLOW"] == "Y" ? "Y" : "N")?>" id="log_entry_follow_<?=intval($arEvent["EVENT"]["ID"])?>" onclick="__logSetFollow(<?=$arEvent["EVENT"]["ID"]?>)"><a href="javascript:void(0);"><?=GetMessage("SONET_LOG_T_FOLLOW_".($arEvent["EVENT"]["FOLLOW"] == "Y" ? "Y" : "N"))?></a></span><?
 					}
 
-					if (
-						$USER->IsAuthorized()
-						&& !in_array($arEvent["EVENT"]["EVENT_ID"], array("system", "system_groups", "system_friends"))
-					)
+					if ($USER->IsAuthorized())
 					{
 						if (
 							is_set($arEvent)

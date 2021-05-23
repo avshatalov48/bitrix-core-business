@@ -46,19 +46,42 @@ class RestService extends \IRestService
 	 * @param array $data
 	 * @return array
 	 */
-	protected static function prepareParams(array $data)
+	protected static function prepareIncomingParams(array $data)
 	{
-		$preparedParams = $data;
-		foreach ($preparedParams as $key => $value)
+		return self::arrayChangeKeyCaseRecursive($data);
+	}
+
+	/**
+	 * @param $array
+	 * @param int $case
+	 * @return array
+	 */
+	private static function arrayChangeKeyCaseRecursive($array, $case = CASE_UPPER)
+	{
+		$result = $array;
+		foreach ($result as $key => $value)
 		{
-			if (is_array($preparedParams[$key]))
+			if (is_array($result[$key]))
 			{
-				$preparedParams[$key] = self::prepareParams($preparedParams[$key]);
+				$result[$key] = self::arrayChangeKeyCaseRecursive($result[$key], $case);
 			}
 		}
 
-		$preparedParams = array_change_key_case($preparedParams, CASE_UPPER);
+		$result = array_change_key_case($result, $case);
 
-		return $preparedParams;
+		return $result;
+	}
+
+	/**
+	 * @param $data
+	 * @param $server
+	 * @return array
+	 */
+	protected static function prepareHandlerParams($data, \CRestServer $server)
+	{
+		$data = self::prepareIncomingParams($data);
+		$data['APP_ID'] = $server->getClientId();
+
+		return $data;
 	}
 }

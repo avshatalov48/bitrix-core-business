@@ -1542,7 +1542,7 @@ class CAllSaleDeliveryHandler
 			}
 
 			if($delivery["PROFILES"] <> '') //get from base
-				$delivery["PROFILES"] = unserialize($delivery["PROFILES"]);
+				$delivery["PROFILES"] = unserialize($delivery["PROFILES"], ['allowed_classes' => false]);
 			else //or default.
 				$delivery["PROFILES"] = $handlers[$delivery["HID"]]["PROFILES"];
 

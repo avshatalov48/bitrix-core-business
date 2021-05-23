@@ -70,6 +70,9 @@ class PlacementTable extends Main\Entity\DataManager
 			'GROUP_NAME' => array(
 				'data_type' => 'string',
 			),
+			'ICON_ID' => array(
+				'data_type' => 'integer',
+			),
 			'TITLE' => array(
 				'data_type' => 'string',
 			),
@@ -104,7 +107,8 @@ class PlacementTable extends Main\Entity\DataManager
 				'=REST_APP.ACTIVE' => AppTable::ACTIVE,
 			),
 			'select' => array(
-				'ID', 'TITLE', 'GROUP_NAME', 'COMMENT', 'APP_ID', 'ADDITIONAL',
+				'ID', 'ICON_ID', 'TITLE', 'GROUP_NAME',
+				'COMMENT', 'APP_ID', 'ADDITIONAL',
 				'INSTALLED' => 'REST_APP.INSTALLED',
 				'APP_NAME' => 'REST_APP.APP_NAME',
 				'APP_ACCESS' => 'REST_APP.ACCESS',
@@ -147,7 +151,7 @@ class PlacementTable extends Main\Entity\DataManager
 			static::$handlersListCache[$placement] = array();
 
 			$cache = Main\Application::getInstance()->getManagedCache();
-			if($cache->read(static::CACHE_TTL, static::getCacheId($placement), static::CACHE_DIR))
+			if(false && $cache->read(static::CACHE_TTL, static::getCacheId($placement), static::CACHE_DIR))
 			{
 				static::$handlersListCache = $cache->get(static::getCacheId($placement));
 			}
@@ -156,6 +160,10 @@ class PlacementTable extends Main\Entity\DataManager
 				$dbRes = static::getHandlers($placement);
 				while($handler = $dbRes->fetch())
 				{
+					if ($handler['ICON_ID'] > 0 && ($file = \CFile::GetFileArray($handler['ICON_ID'])))
+					{
+						$handler['ICON'] = array_change_key_case($file, CASE_LOWER);
+					}
 					static::$handlersListCache[$placement][] = $handler;
 				}
 
@@ -202,7 +210,22 @@ class PlacementTable extends Main\Entity\DataManager
 
 	public static function onBeforeAdd(Main\Entity\Event $event)
 	{
-		return static::checkUniq($event, true);
+		$result = static::checkUniq($event, true);
+		static::modifyFields($event, $result);
+		return $result;
+	}
+
+	public static function onBeforeDelete(Main\Entity\Event $event)
+	{
+		$result = new Main\ORM\EventResult();
+		$id = $event->getParameter('id');
+		$id = $id['ID'];
+		if (($placement = PlacementTable::getById($id)->fetchObject())
+			&& ($placement->getIconId() > 0))
+		{
+			\CFile::Delete($placement->getIconId());
+		}
+		return $result;
 	}
 
 	public static function onAfterAdd(Main\Entity\Event $event)
@@ -228,7 +251,7 @@ class PlacementTable extends Main\Entity\DataManager
 	protected static function checkUniq(Main\Entity\Event $event, $add = false)
 	{
 		$result = new Main\Entity\EventResult();
-		$data = $event->getParameter("fields");
+		$data = $event->getParameter('fields');
 
 		$filter = array(
 			'=APP_ID' => $data['APP_ID'],
@@ -265,4 +288,42 @@ class PlacementTable extends Main\Entity\DataManager
 
 		return $result;
 	}
+
+	private static function modifyFields(Main\ORM\Event $event, Main\ORM\EventResult $result)
+	{
+		if ($result->getType() !== Main\Entity\EventResult::ERROR)
+		{
+			$data = array_merge($event->getParameter('fields'), $result->getModified());
+			if (array_key_exists('ICON', $data))
+			{
+				if ($str = \CFile::CheckImageFile($data['ICON']))
+				{
+					$result->addError(new Main\ORM\Fields\FieldError(static::getEntity()->getField('ICON_ID'), $str));
+				}
+				else
+				{
+					\CFile::ResizeImage($data['ICON'], [
+						'width' => Main\Config\Option::get('rest', 'icon_size', 100),
+						'height' => Main\Config\Option::get('rest', 'icon_size', 100)]);
+					$data['ICON']['MODULE_ID'] = 'rest';
+					if ($id = $event->getParameter('id'))
+					{
+						$id = is_integer($id) ? $id : $id['ID'];
+						if ($id > 0 && ($icon = PlacementTable::getById($id)->fetchObject()))
+						{
+							$data['ICON']['old_file'] = $icon->getIconId();
+						}
+					}
+					if (\CFile::SaveForDB($data, 'ICON', 'rest/placementicon'))
+					{
+						$result->modifyFields(array_merge($result->getModified(), ['ICON_ID' => $data['ICON']]));
+					}
+				}
+				$result->unsetField('ICON');
+			}
+		}
+
+		return $result;
+	}
+
 }

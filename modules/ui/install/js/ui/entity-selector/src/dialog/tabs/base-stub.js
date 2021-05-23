@@ -15,6 +15,14 @@ export default class BaseStub
 		this.autoShow = this.getOption('autoShow', true);
 	}
 
+	/**
+	 * @abstract
+	 */
+	render(): HTMLElement
+	{
+		throw new Error('You must implement render() method.');
+	}
+
 	getTab(): Tab
 	{
 		return this.tab;
@@ -65,10 +73,5 @@ export default class BaseStub
 		}
 
 		return null;
-	}
-
-	render(): HTMLElement
-	{
-		throw new Error('You must implement render() method.');
 	}
 }

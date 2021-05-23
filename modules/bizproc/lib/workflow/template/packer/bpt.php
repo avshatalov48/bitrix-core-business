@@ -78,12 +78,12 @@ class Bpt extends BasePacker
 	{
 		$result = new Result\Unpack();
 
-		$datumTmp = \CheckSerializedData($data) ? @unserialize($data) : null;
+		$datumTmp = \CheckSerializedData($data) ? @unserialize($data, ['allowed_classes' => false]) : null;
 
 		if (!is_array($datumTmp) || is_array($datumTmp) && !array_key_exists("TEMPLATE", $datumTmp))
 		{
 			$datumTmp = $this->uncompress($data);
-			$datumTmp = \CheckSerializedData($datumTmp) ? @unserialize($datumTmp) : null;
+			$datumTmp = \CheckSerializedData($datumTmp) ? @unserialize($datumTmp, ['allowed_classes' => false]) : null;
 		}
 
 		if (!is_array($datumTmp) || is_array($datumTmp) && !array_key_exists("TEMPLATE", $datumTmp))

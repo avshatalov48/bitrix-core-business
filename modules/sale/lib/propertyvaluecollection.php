@@ -12,7 +12,7 @@ use Bitrix\Main;
 use Bitrix\Sale\Internals\Input;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Sale\Internals\OrderPropsValueTable;
+
 
 Loc::loadMessages(__FILE__);
 
@@ -23,11 +23,11 @@ Loc::loadMessages(__FILE__);
 class PropertyValueCollection extends PropertyValueCollectionBase
 {
 	/**
-	 * @return string
+	 * @return string \Bitrix\Sale\Registry::ENTITY_ORDER
 	 */
-	public static function getRegistryType()
+	protected static function getEntityType(): string
 	{
-		return Registry::REGISTRY_TYPE_ORDER;
+		return \Bitrix\Sale\Registry::ENTITY_ORDER;
 	}
 
 	/**
@@ -48,7 +48,7 @@ class PropertyValueCollection extends PropertyValueCollectionBase
 
 		$result = parent::save();
 
-		if ($order->getId() > 0 && $isChanged)
+		if ($isChanged && $order->getId() > 0)
 		{
 			$registry = Registry::getInstance(static::getRegistryType());
 			/** @var OrderHistory $orderHistory */
@@ -59,10 +59,10 @@ class PropertyValueCollection extends PropertyValueCollectionBase
 				$orderHistory::addAction(
 					'PROPERTY',
 					$order->getId(),
-					"PROPERTY_SAVED",
+					'PROPERTY_SAVED',
 					null,
 					null,
-					array(),
+					[],
 					OrderHistory::SALE_ORDER_HISTORY_ACTION_LOG_LEVEL_1
 				);
 			}
@@ -99,44 +99,24 @@ class PropertyValueCollection extends PropertyValueCollectionBase
 				'PROPERTY_REMOVE',
 				$values['ID'],
 				null,
-				array(
-					"NAME" => $values['NAME'],
-					"CODE" => $values['CODE'],
-					"VALUE" => $values['VALUE'],
-				)
+				[
+					'NAME' => $values['NAME'],
+					'CODE' => $values['CODE'],
+					'VALUE' => $values['VALUE'],
+				]
 			);
 		}
 	}
 
-	/**
-	 * @param $primary
-	 * @return Entity\DeleteResult
-	 */
-	protected static function deleteInternal($primary)
-	{
-		return Internals\OrderPropsValueTable::delete($primary);
-	}
-
-	/**
-	 * @param array $parameters
-	 * @return Main\DB\Result
-	 */
-	public static function getList(array $parameters = array())
-	{
-		return OrderPropsValueTable::getList($parameters);
-	}
-	/**
-	 * @return void
-	 */
-	public static function initJs()
+	public static function initJs(): void
 	{
 		Input\Manager::initJs();
-		\CJSCore::RegisterExt('SaleOrderProperties', array(
+		\CJSCore::RegisterExt('SaleOrderProperties', [
 			'js'   => '/bitrix/js/sale/orderproperties.js',
 			'lang' => '/bitrix/modules/sale/lang/'.LANGUAGE_ID.'/lib/propertyvaluecollection.php',
-			'rel'  => array('input'),
-		));
-		\CJSCore::Init(array('SaleOrderProperties'));
+			'rel'  => ['input'],
+		]
+		);
+		\CJSCore::Init(['SaleOrderProperties']);
 	}
-
 }

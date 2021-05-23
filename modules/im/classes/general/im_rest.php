@@ -753,9 +753,6 @@ class CIMRestService extends IRestService
 			catch (Exception $e){}
 		}
 
-		$config['IS_RECENT_GET'] = 'Y';
-		$config['SKIP_NOTIFICATION'] = 'Y';
-
 		return \Bitrix\Im\Recent::get(null, $config);
 	}
 
@@ -800,38 +797,27 @@ class CIMRestService extends IRestService
 		global $USER;
 		$userId = $USER->GetId();
 
-		$ormParams = [];
-		$ormParams['select'] = ["CNT" => new \Bitrix\Main\Entity\ExpressionField('CNT', 'COUNT(1)')];
-		$ormParams['filter'] = ['@USER_ID' => [$userId, 0]];
+		$counter = \Bitrix\Im\Model\RecentTable::getList([
+			'select' => ["CNT" => new \Bitrix\Main\Entity\ExpressionField('CNT', 'COUNT(1)')],
+			'filter' => ['@USER_ID' => [$userId, 0]]
+		])->fetch();
 
-		$counter = \Bitrix\Im\Model\RecentTable::getList($ormParams)->fetch();
-
-		$result = [
-			'items' => [],
-			'pinned' => []
-		];
-		if ($counter && $counter['CNT'] > 0)
+		if (!$counter || $counter['CNT'] <= 0)
 		{
-			$config['GET_PINNED'] = 'Y';
-			$result['pinned'] = \Bitrix\Im\Recent::get(null, $config);
-
-			$config['GET_PINNED'] = 'N';
-			$config['OFFSET'] = isset($arParams['OFFSET']) && (int)$arParams['OFFSET'] > 0? (int)$arParams['OFFSET']: 0;
-			$config['LIMIT'] = isset($arParams['LIMIT'])? ((int)$arParams['LIMIT'] > 50? 50: (int)$arParams['LIMIT']): 50;
-			$config['ORDER'] = ['PINNED' => 'DESC', 'DATE_UPDATE' => 'DESC'];
-
-			$result['items'] = \Bitrix\Im\Recent::get(null, $config);
-
-			return self::setNavData(
-				$result,
-				[
-					"count" => $counter['CNT'],
-					"offset" => $config['OFFSET']
-				]
-			);
+			return [
+				'items' => [],
+				'hasMorePages' => false
+			];
 		}
+		$config['OFFSET'] = isset($arParams['OFFSET']) && (int)$arParams['OFFSET'] > 0? (int)$arParams['OFFSET']: 0;
+		$config['LIMIT'] = isset($arParams['LIMIT'])? ((int)$arParams['LIMIT'] > 50? 50: (int)$arParams['LIMIT']): 50;
 
-		return $result;
+		$result = \Bitrix\Im\Recent::getList(null, $config);
+
+		return self::setNavData($result, [
+			"count" => $counter['CNT'],
+			"offset" => $config['OFFSET']
+		]);
 	}
 
 	public static function recentPin($arParams, $n, CRestServer $server)
@@ -2417,7 +2403,7 @@ class CIMRestService extends IRestService
 		{
 			throw new Bitrix\Rest\RestException("Incorrect params", "PARAMS_ERROR", CRestServer::STATUS_WRONG_REQUEST);
 		}
-		
+
 		return $result;
 	}
 

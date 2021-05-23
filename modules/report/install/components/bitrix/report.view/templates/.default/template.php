@@ -51,25 +51,25 @@ function reportViewShowTopButtons(&$component, &$arParams, &$arResult)
 						[
 							isStExport ?
 							{
-								text: '<?=GetMessage('REPORT_EXCEL_EXPORT')?>',
+								text: "<?=CUtil::JSEscape(GetMessage('REPORT_EXCEL_EXPORT'))?>",
 								onclick: "BX.Report.StExportManager.items['<?= CUtil::JSEscape($stExportManagerId) ?>'].startExport('excel')",
-								className: 'reports-title-excel-icon'
+								className: "reports-title-excel-icon"
 							} :
 							{
-								text: '<?=GetMessage('REPORT_EXCEL_EXPORT')?>',
-								href: '<?=CUtil::JSEscape($APPLICATION->GetCurPageParam("EXCEL=Y&ncc=1"));?>',
-								className: 'reports-title-excel-icon'
+								text: "<?=CUtil::JSEscape(GetMessage('REPORT_EXCEL_EXPORT'))?>",
+								href: "<?=CUtil::JSEscape($APPLICATION->GetCurPageParam("EXCEL=Y&ncc=1"));?>",
+								className: "reports-title-excel-icon"
 							},
 							{
-								text: '<?=GetMessage('REPORT_COPY')?>',
-								href: '<?=CUtil::JSEscape(CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_REPORT_CONSTRUCT"], array("report_id" => $arParams['REPORT_ID'], 'action' => 'copy')));?>',
-								className: 'reports-title-copy-icon'
+								text: "<?=CUtil::JSEscape(GetMessage('REPORT_COPY'))?>",
+								href: "<?=CUtil::JSEscape(CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_REPORT_CONSTRUCT"], array("report_id" => $arParams['REPORT_ID'], 'action' => 'copy')));?>",
+								className: "reports-title-copy-icon"
 							}
 							<? if ($arResult['MARK_DEFAULT'] <= 0 && $arResult['AUTHOR']) : ?>
 							,{
-								text: '<?=GetMessage('REPORT_EDIT')?>',
-								href: '<?=CUtil::JSEscape(CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_REPORT_CONSTRUCT"], array("report_id" => $arParams['REPORT_ID'], 'action' => 'edit')));?>',
-								className: 'reports-title-edit-icon'
+								text: "<?=CUtil::JSEscape(GetMessage('REPORT_EDIT'))?>",
+								href: "<?=CUtil::JSEscape(CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_REPORT_CONSTRUCT"], array("report_id" => $arParams['REPORT_ID'], 'action' => 'edit')));?>",
+								className: "reports-title-edit-icon"
 							}
 							<? endif; ?>
 						],
@@ -88,7 +88,7 @@ function reportViewShowTopButtons(&$component, &$arParams, &$arResult)
 </script>
 
 <button class="ui-btn ui-btn-light-border ui-btn-icon-setting ui-btn-themes" data-role="action-report"></button>
-<a class="ui-btn ui-btn-primary ui-btn-icon-back" href="<?=CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_REPORT_LIST"], array());?>"><?=GetMessage('REPORT_RETURN_TO_LIST')?></a>
+<a class="ui-btn ui-btn-primary ui-btn-icon-back" href="<?=CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_REPORT_LIST"], array());?>"><?= htmlspecialcharsbx(GetMessage('REPORT_RETURN_TO_LIST')) ?></a>
 
 <?php
 	$component->EndViewTarget();
@@ -437,11 +437,13 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 		// check meta
 		$columnYValueTypes = array();
 		$nColumns = 0;
-		if (is_array($chartInfo)
-			&& is_array($chartInfo['requestData']))
+		if (is_array($chartInfo) && is_array($chartInfo['requestData']))
 		{
 			$chartTypeIds = array();
-			foreach ($chartTypes as &$chartTypeInfo) $chartTypeIds[] = $chartTypeInfo['id'];
+			foreach ($chartTypes as $chartTypeInfo)
+            {
+                $chartTypeIds[] = $chartTypeInfo['id'];
+            }
 			$chartTypesIndexes = array_flip($chartTypeIds);
 			$columnYValueTypes = $chartTypes[$chartTypesIndexes[$chartInfo['requestData']['type']]]['value_types'];
 			if (isset($chartInfo['requestData']['type']) && in_array($chartInfo['requestData']['type'], $chartTypeIds))
@@ -825,7 +827,7 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 		$chartErrorMessage = GetMessage('REPORT_CHART_ERR_'.sprintf('%02d', $chartErrorCode));
 	}
 	?>
-	<div style="margin-bottom: 14px;"><a id="report-chart-showhide" class="report-chart-show"><?= GetMessage('REPORT_CHART_HIDE') ?></a></div>
+	<div style="margin-bottom: 14px;"><a id="report-chart-showhide" class="report-chart-show"><?= htmlspecialcharsbx(GetMessage('REPORT_CHART_HIDE')) ?></a></div>
 	<div id="report-chart-container" class="graph"<?php echo ($chartErrorCode > 0) ? '' : ' style="height: 540px;"'; ?>><?= htmlspecialcharsbx($chartErrorMessage) ?></div>
 	<script type="text/javascript">
 		function reportChartShowHide()
@@ -902,7 +904,7 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 				decimalSeparator: '.',
 				thousandsSeparator:' '
 			};
-			chart.zoomOutText = "<?=GetMessage('REPORT_CHART_SHOW_ALL_TEXT')?>";
+			chart.zoomOutText = "<?=CUtil::JSEscape(GetMessage('REPORT_CHART_SHOW_ALL_TEXT'))?>";
 
 			if (chart.dataProvider !== null && BX.type.isArray(chart.dataProvider) && chart.dataProvider.length > 0)
 			{
@@ -926,7 +928,7 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 				chart.balloonText = "<div>[[__BN__TITLE__]]: [[percents]]%</div>" + BX.util.htmlspecialchars(valueFields[0]) +
 					": <b>[[value]]</b>";
 				chart.colors = valueColors;
-				chart.groupedTitle = "<?=GetMessage('REPORT_CHART_TRIFLE_LABEL_TEXT')?>";
+				chart.groupedTitle = "<?=CUtil::JSEscape(GetMessage('REPORT_CHART_TRIFLE_LABEL_TEXT'))?>";
 			}
 			else
 			{
@@ -1212,7 +1214,7 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 				<td colspan="<?=count($arResult['viewColumns'])?>" class="reports-pretotal-column">
 					<?php echo $arResult["NAV_STRING"]?>
 					<br /><br />
-					<span style="font-size: 14px;"><?=GetMessage('REPORT_TOTAL')?></span>
+					<span style="font-size: 14px;"><?=htmlspecialcharsbx(GetMessage('REPORT_TOTAL'))?></span>
 				</td>
 			</tr>
 
@@ -1367,7 +1369,7 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 
 	<div class="filter-field chfilter-field-datetime">
 		<label for="" class="filter-field-title">%TITLE% "%COMPARE%"</label>
-		<input type="text" value="%VALUE%" name="%NAME%" value="" class="filter-field-calendar" id="" /><a class="filter-date-interval-calendar" href="" title="<?=GetMessage('TASKS_PICK_DATE')?>"><img border="0" src="/bitrix/js/main/core/images/calendar-icon.gif" alt="<?=GetMessage('TASKS_PICK_DATE')?>"></a>
+		<input type="text" value="%VALUE%" name="%NAME%" value="" class="filter-field-calendar" id="" /><a class="filter-date-interval-calendar" href="" title="<?=htmlspecialcharsbx(GetMessage('TASKS_PICK_DATE'))?>"><img border="0" src="/bitrix/js/main/core/images/calendar-icon.gif" alt="<?=htmlspecialcharsbx(GetMessage('TASKS_PICK_DATE'))?>"></a>
 	</div>
 
 	<div class="filter-field chfilter-field-string">
@@ -1393,9 +1395,9 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 	<div class="filter-field chfilter-field-boolean" callback="RTFilter_chooseBoolean">
 		<label for="" class="filter-field-title">%TITLE% "%COMPARE%"</label>
 		<select name="%NAME%" class="filter-dropdown" id="%ID%" caller="true">
-			<option value=""><?=GetMessage('REPORT_IGNORE_FILTER_VALUE')?></option>
-			<option value="true"><?=GetMessage('REPORT_BOOLEAN_VALUE_TRUE')?></option>
-			<option value="false"><?=GetMessage('REPORT_BOOLEAN_VALUE_FALSE')?></option>
+			<option value=""><?=htmlspecialcharsbx(GetMessage('REPORT_IGNORE_FILTER_VALUE'))?></option>
+			<option value="true"><?=htmlspecialcharsbx(GetMessage('REPORT_BOOLEAN_VALUE_TRUE'))?></option>
+			<option value="false"><?=htmlspecialcharsbx(GetMessage('REPORT_BOOLEAN_VALUE_FALSE'))?></option>
 		</select>
 		<script type="text/javascript">
 			function RTFilter_chooseBooleanCatch(value)
@@ -1410,7 +1412,7 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 <div class="sidebar-block">
 	<b class="r2"></b><b class="r1"></b><b class="r0"></b>
 	<div class="sidebar-block-inner">
-		<div class="filter-block-title report-filter-block-title"><?=GetMessage('REPORT_FILTER')?><!--<a class="filter-settings" href=""></a>--></div>
+		<div class="filter-block-title report-filter-block-title"><?=htmlspecialcharsbx(GetMessage('REPORT_FILTER'))?><!--<a class="filter-settings" href=""></a>--></div>
 		<div class="filter-block filter-field-date-combobox filter-field-date-combobox-interval">
 
 			<form id="report-rewrite-filter" action="<?=CComponentEngine::MakePathFromTemplate(
@@ -1426,10 +1428,10 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 
 			<!-- period -->
 			<div class="filter-field<? echo $isPeriodHidden ? ' filter-field-hidden' : ''; ?>">
-				<label for="task-interval-filter" class="filter-field-title"><?=GetMessage('REPORT_PERIOD')?></label>
+				<label for="task-interval-filter" class="filter-field-title"><?=htmlspecialcharsbx(GetMessage('REPORT_PERIOD'))?></label>
 				<select class="filter-dropdown" style="margin-bottom: 0;" onchange="OnTaskIntervalChange(this)" id="task-interval-filter" name="F_DATE_TYPE">
 					<?php foreach ($arPeriodTypes as $key => $type): ?>
-					<option value="<?php echo $key?>"<?=($key == $arResult['period']['type']) ? " selected" : ""?>><?php echo $type?></option>
+					<option value="<?php echo $key?>"<?=($key == $arResult['period']['type']) ? " selected" : ""?>><?= htmlspecialcharsbx($type) ?></option>
 					<?php endforeach;?>
 				</select>
 				<span class="filter-date-interval<?php
@@ -1450,16 +1452,16 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 							}
 							?>"><span class="filter-date-interval-from"><input type="text" class="filter-date-interval-from" name="F_DATE_FROM" id="REPORT_INTERVAL_F_DATE_FROM"
 																			value="<?=$arResult['form_date']['from']?>"/><a
-									class="filter-date-interval-calendar" href="" title="<?php echo GetMessage("TASKS_PICK_DATE")?>" id="filter-date-interval-calendar-from"><img border="0"
+									class="filter-date-interval-calendar" href="" title="<?= htmlspecialcharsbx(GetMessage("TASKS_PICK_DATE"))?>" id="filter-date-interval-calendar-from"><img border="0"
 																src="/bitrix/js/main/core/images/calendar-icon.gif"
-																alt="<?php echo GetMessage("TASKS_PICK_DATE")?>"></a></span><span
+																alt="<?= htmlspecialcharsbx(GetMessage("TASKS_PICK_DATE"))?>"></a></span><span
 									class="filter-date-interval-hellip">&hellip;</span><span class="filter-date-interval-to"><input type="text" class="filter-date-interval-to" name="F_DATE_TO"
 													id ="REPORT_INTERVAL_F_DATE_TO" value="<?=$arResult['form_date']['to']?>"/><a href=""
 																					class="filter-date-interval-calendar"
-																					title="<?php echo GetMessage("TASKS_PICK_DATE")?>"
+																					title="<?= htmlspecialcharsbx(GetMessage("TASKS_PICK_DATE"))?>"
 																					id="filter-date-interval-calendar-to"><img
 									border="0" src="/bitrix/js/main/core/images/calendar-icon.gif"
-									alt="<?php echo GetMessage("TASKS_PICK_DATE")?>"></a></span>
+									alt="<?= htmlspecialcharsbx(GetMessage("TASKS_PICK_DATE"))?>"></a></span>
 				</span>
 				<span class="filter-day-interval<?php
 				if ($arResult["FILTER"]["F_DATE_TYPE"] == "days"):
@@ -1467,7 +1469,7 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 				endif;
 				?>"><input type="text" size="5" class="filter-date-days"
 						value="<?= htmlspecialcharsbx($arResult['form_date']['days']) ?>"
-						name="F_DATE_DAYS"/> <?php echo GetMessage("TASKS_REPORT_DAYS"); ?></span>
+						name="F_DATE_DAYS"/> <?= htmlspecialcharsbx(GetMessage("TASKS_REPORT_DAYS")); ?></span>
 				<script type="text/javascript">
 
 					function OnTaskIntervalChange(select)
@@ -1707,7 +1709,7 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 
 
 			<div class="filter-field-buttons">
-				<input id="report-rewrite-filter-button" type="submit" value="<?=GetMessage('REPORT_FILTER_APPLY')?>" class="filter-submit">&nbsp;&nbsp;<input id="report-reset-filter-button" type="submit" name="del_filter_company_search" value="<?=GetMessage('REPORT_FILTER_CANCEL')?>" class="filter-submit">
+				<input id="report-rewrite-filter-button" type="submit" value="<?=htmlspecialcharsbx(GetMessage('REPORT_FILTER_APPLY'))?>" class="filter-submit">&nbsp;&nbsp;<input id="report-reset-filter-button" type="submit" name="del_filter_company_search" value="<?=GetMessage('REPORT_FILTER_CANCEL')?>" class="filter-submit">
 			</div>
 
 			<script type="text/javascript">
@@ -1979,7 +1981,7 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 	<div class="sidebar-block">
 		<b class="r2"></b><b class="r1"></b><b class="r0"></b>
 		<div class="sidebar-block-inner">
-			<div class="filter-block-title report-filter-block-title"><?= GetMessage('REPORT_DESCRIPTION') ?></div>
+			<div class="filter-block-title report-filter-block-title"><?= htmlspecialcharsbx(GetMessage('REPORT_DESCRIPTION')) ?></div>
 			<div class="reports-description-text">
 				<?= htmlspecialcharsbx($arResult['report']['DESCRIPTION']) ?>
 			</div>
@@ -2302,11 +2304,11 @@ if (is_array($arResult['STEXPORT_PARAMS']))
 			{
 				BX.Report.LongRunningProcessDialog.messages =
 					{
-						startButton: "<?=GetMessageJS('CRM_REPORT_LRP_DLG_BTN_START')?>",
-						stopButton: "<?=GetMessageJS('CRM_REPORT_LRP_DLG_BTN_STOP')?>",
-						closeButton: "<?=GetMessageJS('CRM_REPORT_LRP_DLG_BTN_CLOSE')?>",
-						wait: "<?=GetMessageJS('CRM_REPORT_LRP_DLG_WAIT')?>",
-						requestError: "<?=GetMessageJS('CRM_REPORT_LRP_DLG_REQUEST_ERR')?>"
+						startButton: "<?=CUtil::JSEscape(GetMessageJS('CRM_REPORT_LRP_DLG_BTN_START'))?>",
+						stopButton: "<?=CUtil::JSEscape(GetMessageJS('CRM_REPORT_LRP_DLG_BTN_STOP'))?>",
+						closeButton: "<?=CUtil::JSEscape(GetMessageJS('CRM_REPORT_LRP_DLG_BTN_CLOSE'))?>",
+						wait: "<?=CUtil::JSEscape(GetMessageJS('CRM_REPORT_LRP_DLG_WAIT'))?>",
+						requestError: "<?=CUtil::JSEscape(GetMessageJS('CRM_REPORT_LRP_DLG_REQUEST_ERR'))?>"
 					};
 
 				BX.Report.StExportManager.create(

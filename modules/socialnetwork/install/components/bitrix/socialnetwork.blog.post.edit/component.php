@@ -1039,6 +1039,7 @@ if (
 						"PUBLISH_STATUS" => $PUBLISH_STATUS,
 						"PATH" => CComponentEngine::MakePathFromTemplate(htmlspecialcharsBack($arParams["PATH_TO_POST"]), array("post_id" => "#post_id#", "user_id" => $arBlog["OWNER_ID"])),
 						"URL" => $arBlog["URL"],
+						"BACKGROUND_CODE" => false
 					);
 
 					if(\Bitrix\Main\Config\Configuration::getValue("utf_mode") === true)
@@ -1705,6 +1706,7 @@ if (
 							if (
 								$bNeedAddGrat
 								&& !empty($arUsersFromPOST)
+								&& is_array($arUsersFromPOST)
 								&& Loader::includeModule("iblock")
 							)
 							{
@@ -1721,39 +1723,13 @@ if (
 
 								if ($arGratFromPOST)
 								{
-									$el = new CIBlockElement;
-									$new_grat_element_id = $el->Add(
-										array(
-											"IBLOCK_ID" => $honour_iblock_id,
-											"DATE_ACTIVE_FROM" => ConvertTimeStamp(false, "FULL"),
-											"NAME" => str_replace("#GRAT_NAME#", $arGratFromPOST["VALUE"], GetMessage("BLOG_GRAT_IBLOCKELEMENT_NAME"))
-										),
-										false,
-										false
-									);
+									$new_grat_element_id = \Bitrix\Socialnetwork\Helper\Gratitude::create([
+										'medal' => $arGratFromPOST['XML_ID'],
+										'employees' => $arUsersFromPOST
+									]);
+
 									if ($new_grat_element_id > 0)
 									{
-										CIBlockElement::SetPropertyValuesEx(
-											$new_grat_element_id,
-											$honour_iblock_id,
-											array(
-												"USERS" => $arUsersFromPOST,
-												"GRATITUDE" => array("VALUE" => $arGratFromPOST["ID"])
-											)
-										);
-
-										if (
-											defined("BX_COMP_MANAGED_CACHE")
-											&& !empty($arUsersFromPOST)
-											&& is_array($arUsersFromPOST)
-										)
-										{
-											foreach($arUsersFromPOST as $gratUserId)
-											{
-												$CACHE_MANAGER->clearByTag("BLOG_POST_GRATITUDE_TO_USER_".$gratUserId);
-											}
-										}
-
 										CBlogPost::Update($newID, array(
 											"DETAIL_TEXT_TYPE" => "text",
 											"UF_GRATITUDE" => $new_grat_element_id
@@ -1890,34 +1866,6 @@ if (
 						&& $arResult["ERROR_MESSAGE"] == ''
 					) // Record saved successfully
 					{
-						$eventId = \Bitrix\Blog\Integration\Socialnetwork\Log::EVENT_ID_POST;
-						$arPostFields = $USER_FIELD_MANAGER->GetUserFields("BLOG_POST", $newID, LANGUAGE_ID);
-
-						if (
-							isset($arPostFields["UF_BLOG_POST_IMPRTNT"])
-							&& isset($arPostFields["UF_BLOG_POST_IMPRTNT"]["VALUE"])
-							&& intval($arPostFields["UF_BLOG_POST_IMPRTNT"]["VALUE"]) > 0
-						)
-						{
-							$eventId = \Bitrix\Blog\Integration\Socialnetwork\Log::EVENT_ID_POST_IMPORTANT;
-						}
-						elseif (
-							isset($arPostFields["UF_BLOG_POST_VOTE"])
-							&& isset($arPostFields["UF_BLOG_POST_VOTE"]["VALUE"])
-							&& intval($arPostFields["UF_BLOG_POST_VOTE"]["VALUE"]) > 0
-						)
-						{
-							$eventId = \Bitrix\Blog\Integration\Socialnetwork\Log::EVENT_ID_POST_VOTE;
-						}
-						elseif (
-							isset($arPostFields["UF_GRATITUDE"])
-							&& isset($arPostFields["UF_GRATITUDE"]["VALUE"])
-							&& intval($arPostFields["UF_GRATITUDE"]["VALUE"]) > 0
-						)
-						{
-							$eventId = \Bitrix\Blog\Integration\Socialnetwork\Log::EVENT_ID_POST_GRAT;
-						}
-
 						if (
 							!isset($logId)
 							|| intval($logId) <= 0
@@ -1944,7 +1892,9 @@ if (
 						)
 						{
 							$logFields = array(
-								"EVENT_ID" => $eventId
+								"EVENT_ID" => \Bitrix\Socialnetwork\Item\Helper::getBlogPostEventId([
+									'postId' => $newID
+								])
 							);
 							if ($post = \Bitrix\Blog\Item\Post::getById($newID))
 							{

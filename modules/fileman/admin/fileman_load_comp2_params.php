@@ -6,9 +6,6 @@ if (!$USER->CanDoOperation('fileman_view_file_structure') && !$USER->CanDoOperat
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/include.php");
 
-if(CModule::IncludeModule("compression"))
-	CCompress::Disable2048Spaces();
-
 function GetProperties($componentName, $curTemplate = '')
 {
 	$stid = (isset($_GET['stid'])) ? $_GET['stid'] : '';

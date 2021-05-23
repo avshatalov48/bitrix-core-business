@@ -1727,7 +1727,9 @@
 	      this.stopScroll();
 	    },
 	    _onHeaderUpdated: function _onHeaderUpdated() {
-	      this.fixedTable = this.parent.getPinHeader().getFixedTable();
+	      if (this.parent.getParam('ALLOW_PIN_HEADER')) {
+	        this.fixedTable = this.parent.getPinHeader().getFixedTable();
+	      }
 	    },
 	    _onMouseoverLeft: function _onMouseoverLeft(event) {
 	      this.parent.isTouch() && event.preventDefault();
@@ -2346,12 +2348,15 @@
 	      var fieldChildren = [];
 	      var priceObject = value.PRICE || {};
 	      fieldChildren.push(this.createMoneyPrice(priceObject));
-	      var currencyObject = value.CURRENCY || {};
-	      currencyObject.DATA = {
-	        ITEMS: editObject.CURRENCY_LIST
-	      };
-	      currencyObject.HTML_ENTITY = editObject.HTML_ENTITY || false;
-	      fieldChildren.push(this.createMoneyCurrency(currencyObject));
+
+	      if (BX.type.isArray(editObject.CURRENCY_LIST) && editObject.CURRENCY_LIST.length > 0) {
+	        var currencyObject = value.CURRENCY || {};
+	        currencyObject.DATA = {
+	          ITEMS: editObject.CURRENCY_LIST
+	        };
+	        currencyObject.HTML_ENTITY = editObject.HTML_ENTITY || false;
+	        fieldChildren.push(this.createMoneyCurrency(currencyObject));
+	      }
 
 	      if (BX.type.isNotEmptyObject(value.HIDDEN)) {
 	        for (var fieldName in value.HIDDEN) {
@@ -2640,7 +2645,6 @@
 	    },
 	    _onControlKeydown: function _onControlKeydown(event) {
 	      if (event.code === 'Enter') {
-	        event.stopPropagation();
 	        event.preventDefault();
 	        var saveButton = BX.Grid.Utils.getBySelector(this.parent.getContainer(), '#grid_save_button > button', true);
 
@@ -4341,6 +4345,12 @@
 	    getCellNameByCellIndex: function getCellNameByCellIndex(index) {
 	      return BX.data(this.getCellByIndex(index), 'name');
 	    },
+	    resetEditData: function resetEditData() {
+	      this.editData = null;
+	    },
+	    setEditData: function setEditData(editData) {
+	      this.editData = editData;
+	    },
 	    getEditData: function getEditData() {
 	      if (this.editData === null) {
 	        var editableData = this.parent.getParam('EDITABLE_DATA');
@@ -4591,6 +4601,9 @@
 	    },
 	    prependTo: function prependTo(target) {
 	      BX.Dom.prepend(this.getNode(), target);
+	    },
+	    appendTo: function appendTo(target) {
+	      BX.Dom.append(this.getNode(), target);
 	    },
 	    setId: function setId(id) {
 	      BX.Dom.attr(this.getNode(), 'data-id', id);
@@ -5149,16 +5162,23 @@
 	      if (!this.inited) {
 	        this.inited = true;
 	        this.onscrollDebounceHandler = BX.debounce(this._onWindowScroll, 300, this);
-	        BX.addCustomEvent('Grid::thereEditedRows', BX.proxy(this.disable, this));
-	        BX.addCustomEvent('Grid::noEditedRows', BX.proxy(this.enable, this));
+
+	        if (!this.parent.getParam('ALLOW_ROWS_SORT_IN_EDIT_MODE', false)) {
+	          BX.addCustomEvent('Grid::thereEditedRows', BX.proxy(this.disable, this));
+	          BX.addCustomEvent('Grid::noEditedRows', BX.proxy(this.enable, this));
+	        }
+
 	        document.addEventListener('scroll', this.onscrollDebounceHandler, BX.Grid.Utils.listenerParams({
 	          passive: true
 	        }));
 	      }
 	    },
 	    destroy: function destroy() {
-	      BX.removeCustomEvent('Grid::thereEditedRows', BX.proxy(this.disable, this));
-	      BX.removeCustomEvent('Grid::noEditedRows', BX.proxy(this.enable, this));
+	      if (!this.parent.getParam('ALLOW_ROWS_SORT_IN_EDIT_MODE', false)) {
+	        BX.removeCustomEvent('Grid::thereEditedRows', BX.proxy(this.disable, this));
+	        BX.removeCustomEvent('Grid::noEditedRows', BX.proxy(this.enable, this));
+	      }
+
 	      document.removeEventListener('scroll', this.onscrollDebounceHandler, BX.Grid.Utils.listenerParams({
 	        passive: true
 	      }));
@@ -5452,7 +5472,7 @@
 	        if (!result && currentIndex > index) {
 	          var row = Rows.get(item);
 
-	          if (row.isShown()) {
+	          if (row && row.isShown()) {
 	            result = item;
 	          }
 	        }
@@ -5509,7 +5529,11 @@
 	        var ids = this.parent.getRows().getBodyChild().map(function (row) {
 	          return row.getId();
 	        });
-	        this.saveRowsSort(ids);
+
+	        if (this.parent.getParam('ALLOW_ROWS_SORT_INSTANT_SAVE', true)) {
+	          this.saveRowsSort(ids);
+	        }
+
 	        BX.onCustomEvent(window, 'Grid::rowMoved', [ids, dragItem, this.parent]);
 	      } else {
 	        this.resetDragProperties();
@@ -6171,7 +6195,7 @@
 	      if (gridsCount === 1) {
 	        var tmpDiv = BX.create('div');
 	        var pageTitleNode = BX('pagetitle');
-	        var pageTitle = !!pageTitleNode ? '&laquo;' + BX.Text.encode(pageTitleNode.innerText) + '&raquo;' : '';
+	        var pageTitle = BX.Type.isDomNode(pageTitleNode) && BX.Type.isStringFilled(pageTitleNode.innerText) ? '&laquo;' + BX.Text.encode(pageTitleNode.innerText) + '&raquo;' : '';
 	        tmpDiv.innerHTML = '<span>' + this.parent.getParam('SETTINGS_TITLE') + ' ' + pageTitle + '</span>';
 	        return tmpDiv.firstChild.innerText;
 	      }
@@ -8816,13 +8840,44 @@
 	     * @return {BX.Grid.Row}
 	     */
 	    prependRowEditor: function prependRowEditor() {
+	      return this.addRowEditor('prepend');
+	    },
+
+	    /**
+	     * @return {BX.Grid.Row}
+	     */
+	    appendRowEditor: function appendRowEditor() {
+	      return this.addRowEditor('append');
+	    },
+
+	    /**
+	     * @return {BX.Grid.Row}
+	     */
+	    addRowEditor: function addRowEditor() {
+	      var direction = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'prepend';
 	      BX.Dom.style(this.getTable(), 'min-height', null);
 	      var templateRow = this.getTemplateRow();
 	      this.editableRows.push(templateRow);
-	      templateRow.prependTo(this.getBody());
+
+	      if (direction === 'prepend') {
+	        templateRow.prependTo(this.getBody());
+	      } else {
+	        templateRow.appendTo(this.getBody());
+	      }
+
 	      templateRow.show();
 	      templateRow.select();
 	      templateRow.edit();
+	      this.getRows().reset();
+
+	      if (this.getParam('ALLOW_ROWS_SORT')) {
+	        this.rowsSortable.reinit();
+	      }
+
+	      if (this.getParam('ALLOW_COLUMNS_SORT')) {
+	        this.colsSortable.reinit();
+	      }
+
 	      this.hideEmptyStub();
 	      return templateRow;
 	    },

@@ -1320,7 +1320,7 @@ this.BX = this.BX || {};
 	    value: function closeAllPopups() {
 	      if (main_popup.PopupManager.isAnyPopupShown()) {
 	        for (var i = 0, length = main_popup.PopupManager._popups.length; i < length; i++) {
-	          if (main_popup.PopupManager._popups[i].isShown()) {
+	          if (main_popup.PopupManager._popups[i] && main_popup.PopupManager._popups[i].isShown()) {
 	            main_popup.PopupManager._popups[i].close();
 	          }
 	        }

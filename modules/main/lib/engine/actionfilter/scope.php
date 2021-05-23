@@ -2,22 +2,22 @@
 
 namespace Bitrix\Main\Engine\ActionFilter;
 
+use Bitrix\Main\ArgumentOutOfRangeException;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Error;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventResult;
-use http\Exception\InvalidArgumentException;
 
 class Scope extends Base
 {
-	const AJAX = 0b00000001;
-	const REST = 0b00000010;
-	const CLI  = 0b00000100;
-	const ALL  = 0b00000111;
+	public const AJAX = 0b00000001;
+	public const REST = 0b00000010;
+	public const CLI  = 0b00000100;
+	public const ALL  = 0b00000111;
 
-	const NOT_AJAX = self::ALL & ~self::AJAX;
-	const NOT_REST = self::ALL & ~self::REST;
-	const NOT_CLI  = self::ALL & ~self::CLI;
+	public const NOT_AJAX = self::ALL & ~self::AJAX;
+	public const NOT_REST = self::ALL & ~self::REST;
+	public const NOT_CLI  = self::ALL & ~self::CLI;
 
 	private $scopes;
 
@@ -52,6 +52,6 @@ class Scope extends Base
 				return static::CLI;
 		}
 
-		throw new InvalidArgumentException('Scope is invalid');
+		throw new ArgumentOutOfRangeException('Scope is invalid');
 	}
 }

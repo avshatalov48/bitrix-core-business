@@ -95,7 +95,7 @@ if ($arResult["FatalErrorMessage"] == '')
 
 		if ($ar["~DESCRIPTION"] <> '' && mb_substr($ar["~DESCRIPTION"], 0, mb_strlen("v2:")) == "v2:")
 		{
-			$v1 = @unserialize(mb_substr($ar["~DESCRIPTION"], 3));
+			$v1 = @unserialize(mb_substr($ar["~DESCRIPTION"], 3), ['allowed_classes' => false]);
 			if (is_array($v1))
 			{
 				$arResult["Block"]["DESCRIPTION"] = htmlspecialcharsbx($v1["DESCRIPTION"]);

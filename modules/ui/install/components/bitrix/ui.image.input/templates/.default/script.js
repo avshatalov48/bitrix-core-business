@@ -10,8 +10,16 @@
 
 	  return data;
 	}
+	var instances = new Map();
 
 	var ImageInput = /*#__PURE__*/function () {
+	  babelHelpers.createClass(ImageInput, null, [{
+	    key: "getById",
+	    value: function getById(id) {
+	      return instances.get(id) || null;
+	    }
+	  }]);
+
 	  function ImageInput() {
 	    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, ImageInput);
@@ -21,18 +29,30 @@
 	    babelHelpers.defineProperty(this, "loader", null);
 	    babelHelpers.defineProperty(this, "timeout", null);
 	    babelHelpers.defineProperty(this, "uploading", false);
+	    babelHelpers.defineProperty(this, "onUploaderIsInitedHandler", this.handleOnUploaderIsInited.bind(this));
+	    babelHelpers.defineProperty(this, "recalculateWrapperHandler", this.recalculateWrapper.bind(this));
 	    this.instanceId = params.instanceId;
 	    this.containerId = params.containerId;
 	    this.loaderContainerId = params.loaderContainerId;
 	    this.settings = params.settings || {};
+	    this.disabled = params.disabled || false;
+
+	    if (this.disabled) {
+	      main_core.Event.bind(this.getContainer(), 'click', function (event) {
+	        event.stopPropagation();
+	        event.preventDefault();
+	      });
+	    }
+
 	    this.addImageHandler = this.addImage.bind(this);
 	    this.editImageHandler = this.editImage.bind(this);
-	    main_core_events.EventEmitter.subscribe('onUploaderIsInited', this.onUploaderIsInitedHandler.bind(this));
+	    main_core_events.EventEmitter.subscribe('onUploaderIsInited', this.onUploaderIsInitedHandler);
+	    instances.set(this.instanceId, this);
 	  }
 
 	  babelHelpers.createClass(ImageInput, [{
-	    key: "onUploaderIsInitedHandler",
-	    value: function onUploaderIsInitedHandler(event) {
+	    key: "handleOnUploaderIsInited",
+	    value: function handleOnUploaderIsInited(event) {
 	      var _this = this;
 
 	      var _event$getCompatData = event.getCompatData(),
@@ -53,7 +73,15 @@
 	        main_core_events.EventEmitter.subscribe(uploader, 'onStart', this.onUploadStartHandler.bind(this));
 	        main_core_events.EventEmitter.subscribe(uploader, 'onDone', this.onUploadDoneHandler.bind(this));
 	        main_core_events.EventEmitter.subscribe(uploader, 'onFileCanvasIsLoaded', this.onFileCanvasIsLoadedHandler.bind(this));
+	        main_core_events.EventEmitter.unsubscribe('onDemandRecalculateWrapper', this.recalculateWrapperHandler);
+	        main_core_events.EventEmitter.subscribe('onDemandRecalculateWrapper', this.recalculateWrapperHandler);
 	      }
+	    }
+	  }, {
+	    key: "unsubscribeEvents",
+	    value: function unsubscribeEvents() {
+	      main_core_events.EventEmitter.unsubscribe('onDemandRecalculateWrapper', this.recalculateWrapperHandler);
+	      main_core_events.EventEmitter.unsubscribe('onUploaderIsInited', this.onUploaderIsInitedHandler);
 	    }
 	  }, {
 	    key: "getInputInstance",
@@ -239,6 +267,10 @@
 	  }, {
 	    key: "buildShadowElement",
 	    value: function buildShadowElement(wrapper) {
+	      if (wrapper.offsetParent === null) {
+	        return;
+	      }
+
 	      var shadowElement = wrapper.querySelector('div.ui-image-item-shadow');
 
 	      if (!shadowElement) {

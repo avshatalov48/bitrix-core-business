@@ -9,6 +9,8 @@
 use Bitrix\Main;
 use Bitrix\Main\Data\ConnectionPool;
 
+IncludeModuleLangFile(__FILE__);
+
 abstract class CAllDatabase
 {
 	var $DBName;
@@ -402,155 +404,41 @@ abstract class CAllDatabase
 
 	abstract function PrepareUpdate($strTableName, $arFields);
 
-	function ParseSqlBatch($strSql, $bIncremental = False)
+	/**
+	 * @deprecated Use \Bitrix\Main\DB\Connection::parseSqlBatch()
+	 * @param string $strSql
+	 * @return array
+	 */
+	function ParseSqlBatch($strSql)
 	{
-		if(mb_strtolower($this->type) == "mysql")
-			$delimiter = ";";
-		else
-			$delimiter = "(?<!\\*)/(?!\\*)";
-
-		$strSql = trim($strSql);
-
-		$ret = array();
-		$str = "";
-
-		do
-		{
-			if(preg_match("%^(.*?)(['\"`#]|--|".$delimiter.")%is", $strSql, $match))
-			{
-				//Found string start
-				if($match[2] == "\"" || $match[2] == "'" || $match[2] == "`")
-				{
-					$strSql = mb_substr($strSql, mb_strlen($match[0]));
-					$str .= $match[0];
-					//find a qoute not preceeded by \
-					if(preg_match("%^(.*?)(?<!\\\\)".$match[2]."%s", $strSql, $string_match))
-					{
-						$strSql = mb_substr($strSql, mb_strlen($string_match[0]));
-						$str .= $string_match[0];
-					}
-					else
-					{
-						//String falled beyong end of file
-						$str .= $strSql;
-						$strSql = "";
-					}
-				}
-				//Comment found
-				elseif($match[2] == "#" || $match[2] == "--")
-				{
-					//Take that was before comment as part of sql
-					$strSql = mb_substr($strSql, mb_strlen($match[1]));
-					$str .= $match[1];
-					//And cut the rest
-					$p = mb_strpos($strSql, "\n");
-					if($p === false)
-					{
-						$p1 = mb_strpos($strSql, "\r");
-						if($p1 === false)
-						{
-							$strSql = "";
-						}
-						elseif($p < $p1)
-						{
-							$strSql = mb_substr($strSql, $p);
-						}
-						else
-						{
-							$strSql = mb_substr($strSql, $p1);
-						}
-					}
-					else
-					{
-						$strSql = mb_substr($strSql, $p);
-					}
-				}
-				//Delimiter!
-				else
-				{
-					//Take that was before delimiter as part of sql
-					$strSql = mb_substr($strSql, mb_strlen($match[0]));
-					$str .= $match[1];
-					//Delimiter must be followed by whitespace
-					if(preg_match("%^[\n\r\t ]%", $strSql))
-					{
-						$str = trim($str);
-						if($str <> '')
-						{
-							if($bIncremental)
-							{
-								$strSql1 = str_replace("\r\n", "\n", $str);
-								if(!$this->QueryLong($strSql1, true))
-								{
-									$ret[] = $this->GetErrorMessage();
-								}
-							}
-							else
-							{
-								$ret[] = $str;
-								$str = "";
-							}
-						}
-					}
-					//It was not delimiter!
-					elseif($strSql <> '')
-					{
-						$str .= $match[2];
-					}
-				}
-			}
-			else //End of file is our delimiter
-			{
-				$str .= $strSql;
-				$strSql = "";
-			}
-		}
-		while(mb_strlen($strSql));
-
-		$str = trim($str);
-		if($str <> '')
-		{
-			if($bIncremental)
-			{
-				$strSql1 = str_replace("\r\n", "\n", $str);
-				if(!$this->QueryLong($strSql1, true))
-				{
-					$ret[] = $this->GetErrorMessage();
-				}
-			}
-			else
-			{
-				$ret[] = $str;
-			}
-		}
-		return $ret;
+		$connection = Main\Application::getInstance()->getConnection();
+		return $connection->parseSqlBatch($strSql);
 	}
 
-	function RunSQLBatch($filepath, $bIncremental = False)
+	function RunSQLBatch($filepath)
 	{
 		if(!file_exists($filepath) || !is_file($filepath))
+		{
 			return array("File $filepath is not found.");
+		}
 
 		$arErr = array();
 		$contents = file_get_contents($filepath);
 
-		$arSql = $this->ParseSqlBatch($contents, $bIncremental);
-		foreach($arSql as $strSql)
+		$connection = Main\Application::getInstance()->getConnection();
+
+		foreach($connection->parseSqlBatch($contents) as $strSql)
 		{
-			if ($bIncremental)
+			if(!$this->Query($strSql, true))
 			{
-				$arErr[] = $strSql;
-			}
-			else
-			{
-				$strSql = str_replace("\r\n", "\n", $strSql);
-				if(!$this->Query($strSql, true))
-					$arErr[] = "<hr><pre>Query:\n".$strSql."\n\nError:\n<font color=red>".$this->GetErrorMessage()."</font></pre>";
+				$arErr[] = "<hr><pre>Query:\n".$strSql."\n\nError:\n<font color=red>".$this->GetErrorMessage()."</font></pre>";
 			}
 		}
 
 		if(!empty($arErr))
+		{
 			return $arErr;
+		}
 
 		return false;
 	}

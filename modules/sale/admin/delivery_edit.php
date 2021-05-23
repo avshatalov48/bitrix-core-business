@@ -379,7 +379,7 @@ if (!empty($arStoreList))
 
 	$arStore = array();
 	if ($str_STORE <> '')
-		$arStore = unserialize($str_STORE);
+		$arStore = unserialize($str_STORE, ['allowed_classes' => false]);
 ?>
 	<tr>
 		<td width="40%" valign="top"><?echo GetMessage("SDEN_STORE");?>:</td>

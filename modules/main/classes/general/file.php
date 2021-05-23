@@ -14,6 +14,7 @@ use Bitrix\Main\File\Image;
 use Bitrix\Main\File\Image\Rectangle;
 use Bitrix\Main\File\Internal;
 use Bitrix\Main\ORM\Query;
+use Bitrix\Main\Security;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -72,12 +73,12 @@ class CFile extends CAllFile
 		}
 	}
 
-	protected static function transformName($name, $bForceMD5 = false, $bSkipExt = false)
+	protected static function transformName($name, $forceRandom = false, $bSkipExt = false)
 	{
 		//safe filename without path
 		$fileName = GetFileName($name);
 
-		$originalName = ($bForceMD5 != true && COption::GetOptionString("main", "save_original_file_name", "N") == "Y");
+		$originalName = ($forceRandom != true && COption::GetOptionString("main", "save_original_file_name", "N") == "Y");
 		if($originalName)
 		{
 			//transforming original name:
@@ -112,8 +113,8 @@ class CFile extends CAllFile
 
 		if(!$originalName)
 		{
-			//name is md5-generated:
-			$fileName = md5(uniqid("", true)).($bSkipExt == true || ($ext = GetFileExtension($fileName)) == ''? '' : ".".$ext);
+			//name is randomly generated
+			$fileName = Security\Random::getString(32).($bSkipExt == true || ($ext = GetFileExtension($fileName)) == ''? '' : ".".$ext);
 		}
 
 		return $fileName;
@@ -149,7 +150,7 @@ class CFile extends CAllFile
 		return "";
 	}
 
-	public static function SaveFile($arFile, $strSavePath, $bForceMD5=false, $bSkipExt=false, $dirAdd='', $checkDuplicates = true)
+	public static function SaveFile($arFile, $strSavePath, $forceRandom = false, $skipExtension = false, $dirAdd = '', $checkDuplicates = true)
 	{
 		$strFileName = GetFileName($arFile["name"]);	/* filename.gif */
 
@@ -192,7 +193,7 @@ class CFile extends CAllFile
 		$arFile["ORIGINAL_NAME"] = $strFileName;
 
 		//translit, replace unsafe chars, etc.
-		$strFileName = self::transformName($strFileName, $bForceMD5, $bSkipExt);
+		$strFileName = self::transformName($strFileName, $forceRandom, $skipExtension);
 
 		//transformed name must be valid, check disk quota, etc.
 		if (self::validateFile($strFileName, $arFile) !== "")
@@ -212,7 +213,7 @@ class CFile extends CAllFile
 		$bExternalStorage = false;
 		foreach(GetModuleEvents("main", "OnFileSave", true) as $arEvent)
 		{
-			if(ExecuteModuleEventEx($arEvent, array(&$arFile, $strFileName, $strSavePath, $bForceMD5, $bSkipExt, $dirAdd, $checkDuplicates)))
+			if(ExecuteModuleEventEx($arEvent, array(&$arFile, $strFileName, $strSavePath, $forceRandom, $skipExtension, $dirAdd, $checkDuplicates)))
 			{
 				$bExternalStorage = true;
 				break;
@@ -221,70 +222,46 @@ class CFile extends CAllFile
 
 		if(!$bExternalStorage)
 		{
+			// we should keep number of files in a folder below 10,000
+			// three chars from md5 give us 4096 subdirs
+
 			$upload_dir = COption::GetOptionString("main", "upload_dir", "upload");
-			if($bForceMD5 != true && COption::GetOptionString("main", "save_original_file_name", "N") == "Y")
+
+			if($forceRandom != true && COption::GetOptionString("main", "save_original_file_name", "N") == "Y")
 			{
-				$dir_add = $dirAdd;
-				if($dir_add == '')
+				//original name
+				$subdir = $dirAdd;
+				if($subdir == '')
 				{
-					$i = 0;
 					while(true)
 					{
-						$dir_add = substr(md5(uniqid("", true)), 0, 3);
-						if(!$io->FileExists($_SERVER["DOCUMENT_ROOT"]."/".$upload_dir."/".$strSavePath."/".$dir_add."/".$strFileName))
+						$random = Security\Random::getString(32);
+						$subdir = substr(md5($random), 0, 3)."/".$random;
+
+						if(!$io->FileExists($_SERVER["DOCUMENT_ROOT"]."/".$upload_dir."/".$strSavePath."/".$subdir."/".$strFileName))
 						{
 							break;
 						}
-						if($i >= 25)
-						{
-							$j = 0;
-							while(true)
-							{
-								$dir_add = substr(md5(mt_rand()), 0, 3)."/".substr(md5(mt_rand()), 0, 3);
-								if(!$io->FileExists($_SERVER["DOCUMENT_ROOT"]."/".$upload_dir."/".$strSavePath."/".$dir_add."/".$strFileName))
-								{
-									break;
-								}
-								if($j >= 25)
-								{
-									$dir_add = substr(md5(mt_rand()), 0, 3)."/".md5(mt_rand());
-									break;
-								}
-								$j++;
-							}
-							break;
-						}
-						$i++;
 					}
 				}
-				if(substr($strSavePath, -1, 1) <> "/")
-				{
-					$strSavePath .= "/".$dir_add;
-				}
-				else
-				{
-					$strSavePath .= $dir_add."/";
-				}
+				$strSavePath = rtrim($strSavePath, "/")."/".$subdir;
 			}
 			else
 			{
-				$strFileExt = ($bSkipExt == true || ($ext = GetFileExtension($strFileName)) == ''? '' : ".".$ext);
+				//random name
+				$fileExtension = ($skipExtension == true || ($ext = GetFileExtension($strFileName)) == ''? '' : ".".$ext);
 				while(true)
 				{
-					if(substr($strSavePath, -1, 1) <> "/")
-					{
-						$strSavePath .= "/".substr($strFileName, 0, 3);
-					}
-					else
-					{
-						$strSavePath .= substr($strFileName, 0, 3)."/";
-					}
+					$subdir = substr(md5($strFileName), 0, 3);
+					$strSavePath = rtrim($strSavePath, "/")."/".$subdir;
 
 					if(!$io->FileExists($_SERVER["DOCUMENT_ROOT"]."/".$upload_dir."/".$strSavePath."/".$strFileName))
+					{
 						break;
+					}
 
 					//try the new name
-					$strFileName = md5(uniqid("", true)).$strFileExt;
+					$strFileName = Security\Random::getString(32).$fileExtension;
 				}
 			}
 

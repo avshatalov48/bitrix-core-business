@@ -4,7 +4,7 @@
 //**    MODIFICATION OF THIS FILE WILL ENTAIL SITE FAILURE            **/
 //**********************************************************************/
 if (!defined("UPDATE_SYSTEM_VERSION"))
-	define("UPDATE_SYSTEM_VERSION", "20.300.0");
+	define("UPDATE_SYSTEM_VERSION", "20.600.1");
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 define("HELP_FILE", "marketplace/sysupdate.php");
@@ -1988,6 +1988,12 @@ $tabControl->BeginNextTab();
 						<td nowrap><?echo GetMessage("SUP_ACTIVE")?>&nbsp;&nbsp;</td>
 						<td><?echo GetMessage("SUP_ACTIVE_PERIOD", array("#DATE_TO#"=>(($arUpdateList["CLIENT"][0]["@"]["DATE_TO"] <> '') ? $arUpdateList["CLIENT"][0]["@"]["DATE_TO"] : "<i>N/A</i>"), "#DATE_FROM#" => (($arUpdateList["CLIENT"][0]["@"]["DATE_FROM"] <> '') ? $arUpdateList["CLIENT"][0]["@"]["DATE_FROM"] : "<i>N/A</i>")));?></td>
 					</tr>
+					<?if($arUpdateList["CLIENT"][0]["@"]["B24SUBSC_DATE"] != ""):?>
+					<tr>
+						<td nowrap><?echo GetMessage("SUP_MARKET_SUBSCRIPTION")?>&nbsp;&nbsp;</td>
+						<td><?echo ConvertTimeStamp($arUpdateList["CLIENT"][0]["@"]["B24SUBSC_DATE"]);?></td>
+					</tr>
+					<?endif;?>
 					<tr>
 						<td nowrap><?echo GetMessage("SUP_SERVER")?>&nbsp;&nbsp;</td>
 						<td><?echo $arUpdateList["CLIENT"][0]["@"]["HTTP_HOST"]?></td>

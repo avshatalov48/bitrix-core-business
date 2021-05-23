@@ -175,7 +175,7 @@ BX.ajax = function(config)
 			{
 				if (config.onfailure)
 				{
-					config.onfailure("timeout");
+					config.onfailure('timeout', '', config);
 				}
 
 				BX.onCustomEvent(config.xhr, 'onAjaxFailure', ['timeout', '', config]);
@@ -206,7 +206,7 @@ BX.ajax = function(config)
 						{
 							if (config.onfailure)
 							{
-								config.onfailure("auth", config.xhr.status);
+								config.onfailure('auth', config.xhr.status, config);
 							}
 
 							BX.onCustomEvent(config.xhr, 'onAjaxFailure', ['auth', config.xhr.status, config]);
@@ -227,7 +227,7 @@ BX.ajax = function(config)
 					{
 						if (config.onfailure)
 						{
-							config.onfailure("status", config.xhr.status);
+							config.onfailure('status', config.xhr.status, config);
 						}
 
 						BX.onCustomEvent(config.xhr, 'onAjaxFailure', ['status', config.xhr.status, config]);
@@ -1006,7 +1006,7 @@ var buildAjaxPromiseToRestoreCsrf = function(config, withoutRestoringCsrf)
 		promise.then(function(){
 			var strings = BX.prop.getArray(assets, "string", []);
 			var stringAsset = strings.join('\n');
-			BX.html(null, stringAsset).then(function(){
+			BX.html(document.head, stringAsset, { useAdjacentHTML: true }).then(function(){
 				assetsLoaded.fulfill(response);
 			});
 		});
@@ -1501,7 +1501,7 @@ BX.ajax.UpdatePageTitle = function(title)
 	var obTitle = BX('pagetitle');
 	if (obTitle)
 	{
-		obTitle.removeChild(obTitle.firstChild);
+		BX.remove(obTitle.firstChild);
 		if (!obTitle.firstChild)
 			obTitle.appendChild(document.createTextNode(title));
 		else

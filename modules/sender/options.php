@@ -115,7 +115,7 @@ $tabControl->BeginNextTab();
 			elseif($type[0]=="text-list" || $type[0]=="srlz-list"):
 				if ($type[0]=="srlz-list")
 				{
-					$aVal = !empty($val) ? unserialize($val) : '';
+					$aVal = !empty($val) ? unserialize($val, ['allowed_classes' => false]) : '';
 				}
 				else
 				{

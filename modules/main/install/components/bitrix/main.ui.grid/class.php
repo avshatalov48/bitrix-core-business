@@ -130,6 +130,29 @@ class CMainUIGrid extends CBitrixComponent
 		return $returns;
 	}
 
+	private function prepareTemplateRow(): void
+	{
+		$templateRow = [
+			'id' => 'template_0',
+			'not_count' => true,
+			'attrs' => [
+				'hidden' => 'true',
+			],
+		];
+
+		foreach ($this->arParams['ROWS'] as $key => $row)
+		{
+			if ($row['id'] === 'template_0')
+			{
+				$templateRow = array_merge($row, $templateRow);
+				unset($this->arParams['ROWS'][$key]);
+				break;
+			}
+
+		}
+
+		array_unshift($this->arParams['ROWS'], $templateRow);
+	}
 
 	/**
 	 * Prepares arParams
@@ -304,6 +327,16 @@ class CMainUIGrid extends CBitrixComponent
 		$this->arParams["ALLOW_ROWS_SORT"] = Grid\Params::prepareBoolean(
 			array($this->arParams["ALLOW_ROWS_SORT"]),
 			false
+		);
+
+		$this->arParams["ALLOW_ROWS_SORT_IN_EDIT_MODE"] = Grid\Params::prepareBoolean(
+			array($this->arParams["ALLOW_ROWS_SORT_IN_EDIT_MODE"]),
+			false
+		);
+
+		$this->arParams["ALLOW_ROWS_SORT_INSTANT_SAVE"] = Grid\Params::prepareBoolean(
+			array($this->arParams["ALLOW_ROWS_SORT_INSTANT_SAVE"]),
+			true
 		);
 
 		$this->arParams["ALLOW_SELECT_ROWS"] = Grid\Params::prepareBoolean(
@@ -2200,15 +2233,7 @@ class CMainUIGrid extends CBitrixComponent
 				$this->arParams['ROWS'] = [];
 			}
 
-			$templateRow = [
-				'id' => 'template_0',
-				'not_count' => true,
-				'attrs' => [
-					'hidden' => 'true',
-				],
-			];
-			array_unshift($this->arParams['ROWS'], $templateRow);
-
+			$this->prepareTemplateRow();
 			$this->prepareParams();
 			$this->prepareResult();
 			$this->prepareDefaultOptions();

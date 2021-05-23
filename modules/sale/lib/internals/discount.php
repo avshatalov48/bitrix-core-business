@@ -367,7 +367,7 @@ class DiscountTable extends Main\Entity\DataManager
 		if (isset($fields['ACTIONS_LIST']))
 		{
 			if (!is_array($fields['ACTIONS_LIST']) && \CheckSerializedData($fields['ACTIONS_LIST']))
-				$fields['ACTIONS_LIST'] = unserialize($fields['ACTIONS_LIST']);
+				$fields['ACTIONS_LIST'] = unserialize($fields['ACTIONS_LIST'], ['allowed_classes' => false]);
 			if (is_array($fields['ACTIONS_LIST']))
 			{
 				$giftManager = Gift\Manager::getInstance();
@@ -507,7 +507,7 @@ class DiscountTable extends Main\Entity\DataManager
 		if (isset($fields['ACTIONS_LIST']))
 		{
 			if (!is_array($fields['ACTIONS_LIST']) && \CheckSerializedData($fields['ACTIONS_LIST']))
-				$fields['ACTIONS_LIST'] = unserialize($fields['ACTIONS_LIST']);
+				$fields['ACTIONS_LIST'] = unserialize($fields['ACTIONS_LIST'], ['allowed_classes' => false]);
 			if (is_array($fields['ACTIONS_LIST']))
 			{
 				Gift\RelatedDataTable::deleteByDiscount($id['ID']);
@@ -709,10 +709,10 @@ class DiscountTable extends Main\Entity\DataManager
 	protected static function copyOldFields(&$result, $data)
 	{
 		if (!isset($data['CONDITIONS_LIST']) && isset($data['CONDITIONS']))
-			$result['CONDITIONS_LIST'] = (is_array($data['CONDITIONS']) ? $data['CONDITIONS'] : unserialize($data['CONDITIONS']));
+			$result['CONDITIONS_LIST'] = (is_array($data['CONDITIONS']) ? $data['CONDITIONS'] : unserialize($data['CONDITIONS'], ['allowed_classes' => false]));
 
 		if (!isset($data['ACTIONS_LIST']) && isset($data['ACTIONS']))
-			$result['ACTIONS_LIST'] = (is_array($data['ACTIONS']) ? $data['ACTIONS'] : unserialize($data['ACTIONS']));
+			$result['ACTIONS_LIST'] = (is_array($data['ACTIONS']) ? $data['ACTIONS'] : unserialize($data['ACTIONS'], ['allowed_classes' => false]));
 	}
 
 	/**

@@ -51,34 +51,40 @@ class RecentItem implements \JsonSerializable
 		return $this->entityId;
 	}
 
-	public function getLastUseDate()
+	public function getLastUseDate(): ?int
 	{
 		return $this->lastUseDate;
 	}
 
-	public function setLastUseDate(int $lastUseDate)
+	public function setLastUseDate(int $lastUseDate): self
 	{
 		$this->lastUseDate = $lastUseDate;
+
+		return $this;
 	}
 
-	public function isLoaded()
+	public function isLoaded(): bool
 	{
 		return $this->loaded;
 	}
 
-	public function setLoaded(bool $flag)
+	public function setLoaded(bool $flag): self
 	{
 		$this->loaded = $flag;
+
+		return $this;
 	}
 
-	public function isAvailable()
+	public function isAvailable(): bool
 	{
 		return $this->available;
 	}
 
-	public function setAvailable(bool $flag)
+	public function setAvailable(bool $flag): self
 	{
 		$this->available = $flag;
+
+		return $this;
 	}
 
 	public function jsonSerialize()

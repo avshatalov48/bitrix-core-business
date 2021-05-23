@@ -62,7 +62,7 @@ if ((!empty($arCurrentValues['SELL_AMOUNT']) && $arCurrentValues["REFRESHED_COMP
 	|| $arCurrentValues["REFRESHED_COMPONENT_MODE"] === "N")
 {
 	$arAmount = array();
-	$arAvAmount = unserialize(Bitrix\Main\Config\Option::get("sale", "pay_amount"));
+	$arAvAmount = unserialize(Bitrix\Main\Config\Option::get("sale", "pay_amount"), ['allowed_classes' => false]);
 	if (empty($arAvAmount))
 	{
 		$arAvAmount = array (

@@ -373,7 +373,7 @@ class CIMMessage
 			$lastId = 0;
 			$lastReadId = 0;
 			$lastRead = false;
-			$limitFetchMessages = 20;
+			$limitFetchMessages = 30;
 			$blockNotify = false;
 		}
 		else
@@ -396,7 +396,7 @@ class CIMMessage
 				$chatId = intval($arRes['CHAT_ID']);
 				$startId = intval($arRes['START_ID']);
 				$lastId = intval($arRes['LAST_ID']);
-				$limitFetchMessages = $arRes['STATUS'] != IM_STATUS_READ && $arRes['COUNTER'] > 20? $arRes['COUNTER']: 20;
+				$limitFetchMessages = $arRes['STATUS'] != IM_STATUS_READ && $arRes['COUNTER'] > 30? $arRes['COUNTER']: 30;
 				$lastReadId = intval($arRes['LAST_READ_ID']);
 				$lastRead = \Bitrix\Main\Type\DateTime::createFromTimestamp($arRes['LAST_READ']);
 				$blockNotify = $arRes['NOTIFY_BLOCK'] != 'N';
@@ -1077,33 +1077,6 @@ class CIMMessage
 		return true;
 	}
 
-	public static function GetFlashMessage($unreadMessage)
-	{
-		$flashed = Array();
-
-		$notifyFlash = \Bitrix\Im\NotifyFlash::getInstance();
-
-		foreach ($unreadMessage as $dialogId => $list)
-		{
-			foreach($list as $id)
-			{
-				if ($notifyFlash->exists(\Bitrix\Im\NotifyFlash::TYPE_MESSAGE, $id))
-				{
-					$flashed[$dialogId][$id] = false;
-				}
-				else
-				{
-					$notifyFlash->set(\Bitrix\Im\NotifyFlash::TYPE_MESSAGE, $id);
-					$flashed[$dialogId][$id] = true;
-				}
-			}
-		}
-
-		$notifyFlash->commit();
-
-		return $flashed;
-	}
-
 	public static function Delete($id, $userId = null, $completeDelete = false, $byEvent = false)
 	{
 		return CIMMessenger::Delete($id, $userId, $completeDelete, $byEvent);
@@ -1176,7 +1149,7 @@ class CIMMessage
 			'chatId' => $arParams['CHAT_ID'],
 			'dialogId' => isset($arParams['TO_CHAT_ID'])? 'chat'.$arParams['TO_CHAT_ID']: 0,
 			'chat' => isset($arChat['chat'])? $arChat['chat']: [],
-			'lines' => isset($arChat['lines'])? $arChat['lines']: [],
+			'lines' => isset($arChat['lines'])? $arChat['lines'][$arParams['CHAT_ID']]: null,
 			'userInChat' => isset($arChat['userInChat'])? $arChat['userInChat']: [],
 			'userBlockChat' => $arChat['userChatBlockStatus']? $arChat['userChatBlockStatus']: [],
 			'users' => $arUsers['users'],

@@ -126,7 +126,6 @@ class Placement extends \IRestService
 		}
 
 		$appInfo = static::getApplicationInfo($server);
-
 		HandlerHelper::checkCallback($placementHandler, $appInfo);
 
 		$scopeList = static::getScope($server);
@@ -183,6 +182,16 @@ class Placement extends \IRestService
 						);
 					}
 				}
+			}
+
+			if (
+				array_key_exists('ICON', $params)
+				&& is_array($params['ICON'])
+				&& $params['ICON']['fileData']
+				&& ($file = \CRestUtil::saveFile($params['ICON']['fileData']))
+			)
+			{
+				$placementBind['ICON'] = $file;
 			}
 
 			$result = PlacementTable::add($placementBind);

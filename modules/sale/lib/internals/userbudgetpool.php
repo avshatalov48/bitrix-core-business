@@ -3,55 +3,137 @@ namespace Bitrix\Sale\Internals;
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale;
+use Bitrix\Main;
+
+Loc::loadMessages(__FILE__);
 
 class UserBudgetPool
 {
-	protected static $userBudgetPool = array();
+	private const STATUS_LOCKED_NOW = 1;
+	private const STATUS_LOCKED_EARLIER = -1;
+	private const STATUS_NOT_LOCKED = 0;
 
-	protected $items = array();
+	private $statusLock = self::STATUS_NOT_LOCKED;
+	private $userId;
 
-	const BUDGET_TYPE_ORDER_CANCEL_PART = 'ORDER_CANCEL_PART'; //
-	const BUDGET_TYPE_ORDER_UNPAY = 'ORDER_UNPAY'; //
-	const BUDGET_TYPE_ORDER_PART_RETURN = 'ORDER_PART_RETURN'; //
-	const BUDGET_TYPE_OUT_CHARGE_OFF = 'OUT_CHARGE_OFF'; //
-	const BUDGET_TYPE_EXCESS_SUM_PAID = 'EXCESS_SUM_PAID'; //
-	const BUDGET_TYPE_MANUAL = 'MANUAL'; //
-	const BUDGET_TYPE_ORDER_PAY = 'ORDER_PAY'; //
-	const BUDGET_TYPE_ORDER_PAY_PART = 'ORDER_PAY_PART'; //
+	protected static $userBudgetPool = [];
 
-	public function __construct()
+	protected $items = [];
+
+	const BUDGET_TYPE_ORDER_CANCEL_PART = 'ORDER_CANCEL_PART';
+	const BUDGET_TYPE_ORDER_UNPAY = 'ORDER_UNPAY';
+	const BUDGET_TYPE_ORDER_PART_RETURN = 'ORDER_PART_RETURN';
+	const BUDGET_TYPE_OUT_CHARGE_OFF = 'OUT_CHARGE_OFF';
+	const BUDGET_TYPE_EXCESS_SUM_PAID = 'EXCESS_SUM_PAID';
+	const BUDGET_TYPE_MANUAL = 'MANUAL';
+	const BUDGET_TYPE_ORDER_PAY = 'ORDER_PAY';
+	const BUDGET_TYPE_ORDER_PAY_PART = 'ORDER_PAY_PART';
+
+	protected function __construct($userId)
 	{
+		$this->userId = $userId;
 	}
 
 	/**
 	 * @param $sum
-	 * @param $type
+	 * @param $budgetType
 	 * @param Sale\Order $order
-	 * @param Sale\Payment $payment
+	 * @param Sale\Payment|null $payment
+	 * @throws Main\Db\SqlQueryException
 	 */
-	public function add($sum, $type, Sale\Order $order, Sale\Payment $payment = null)
+	public function add($sum, $budgetType, Sale\Order $order, Sale\Payment $payment = null)
 	{
-		$fields = array(
+		if (!$this->isLocked())
+		{
+			$this->lock();
+		}
+
+		if ($this->isStatusLockEarlier())
+		{
+			return;
+		}
+
+		$fields = [
 			"SUM" => $sum,
 			"CURRENCY" => $order->getCurrency(),
-			"TYPE" => $type,
+			"TYPE" => $budgetType,
 			"ORDER" => $order,
-		);
+		];
 
 		if ($payment !== null)
+		{
 			$fields['PAYMENT'] = $payment;
+		}
 
 		$this->items[] = $fields;
 
 	}
 
 	/**
-	 * @return array
+	 * @throws Main\Db\SqlQueryException
+	 */
+	protected function lock()
+	{
+		if ($this->statusLock === self::STATUS_NOT_LOCKED)
+		{
+			$connection = Main\Application::getConnection();
+			$name = $connection->getSqlHelper()->forSql($this->getUniqLockName());
+			$dbRes = $connection->query("SELECT GET_LOCK('{$name}', 0) as L");
+			$result = $dbRes->fetch();
+			if ($result['L'] === '0')
+			{
+				$this->statusLock = self::STATUS_LOCKED_EARLIER;
+
+				return;
+			}
+
+			$this->statusLock = self::STATUS_LOCKED_NOW;
+		}
+	}
+
+	private function getUniqLockName() : string
+	{
+		return "user_budget_{$this->userId}";
+	}
+
+	/**
+	 * @throws Main\Db\SqlQueryException
+	 * @return void
+	 */
+	protected function unlock()
+	{
+		if ($this->statusLock === self::STATUS_LOCKED_NOW)
+		{
+			$connection = Main\Application::getConnection();
+			$name = $connection->getSqlHelper()->forSql($this->getUniqLockName());
+			$connection->query("SELECT RELEASE_LOCK('{$name}')");
+
+			$this->statusLock = self::STATUS_NOT_LOCKED;
+		}
+	}
+
+	protected function isLocked()
+	{
+		return
+			$this->statusLock === self::STATUS_LOCKED_EARLIER
+			|| $this->statusLock === self::STATUS_LOCKED_NOW
+		;
+	}
+
+	protected function isStatusLockEarlier()
+	{
+		return $this->statusLock === self::STATUS_LOCKED_EARLIER;
+	}
+
+	/**
+	 * @return array|false
 	 */
 	public function get()
 	{
 		if (isset($this->items))
+		{
 			return $this->items;
+		}
 
 		return false;
 	}
@@ -59,12 +141,18 @@ class UserBudgetPool
 	/**
 	 * @param $index
 	 * @return bool
+	 * @throws Main\Db\SqlQueryException
 	 */
 	public function delete($index)
 	{
 		if (isset($this->items) && isset($this->items[$index]))
 		{
 			unset($this->items[$index]);
+			if (count($this->items) === 0)
+			{
+				$this->unlock();
+			}
+
 			return true;
 		}
 
@@ -72,30 +160,33 @@ class UserBudgetPool
 	}
 
 	/**
-	 * @param $key
+	 * @param $userId
 	 * @return UserBudgetPool
 	 */
-	public static function getUserBudgetPool($key)
+	public static function getUserBudgetPool($userId)
 	{
-		if (!isset(static::$userBudgetPool[$key]))
-			static::$userBudgetPool[$key] = new static();
+		if (!isset(static::$userBudgetPool[$userId]))
+		{
+			static::$userBudgetPool[$userId] = new static($userId);
+		}
 
-		return static::$userBudgetPool[$key];
+		return static::$userBudgetPool[$userId];
 	}
 
 	/**
 	 * @param Sale\Order $order
 	 * @param $value
 	 * @param $type
-	 * @param Sale\Payment $payment
+	 * @param Sale\Payment|null $payment
+	 * @throws Main\Db\SqlQueryException
 	 */
 	public static function addPoolItem(Sale\Order $order, $value, $type, Sale\Payment $payment = null)
 	{
 		if (floatval($value) == 0)
 			return;
 
-		$key = $order->getUserId();
-		$pool = static::getUserBudgetPool($key);
+		$userId = $order->getUserId();
+		$pool = static::getUserBudgetPool($userId);
 		$pool->add($value, $type, $order, $payment);
 	}
 
@@ -108,9 +199,18 @@ class UserBudgetPool
 		$result = new Sale\Result();
 
 		$pool = static::getUserBudgetPool($userId);
+
+		if ($pool->isStatusLockEarlier())
+		{
+			return $result->addError(
+				new Sale\ResultError(
+					Loc::getMessage('SALE_PROVIDER_USER_BUDGET_LOCKED')
+				)
+			);
+		}
+
 		foreach ($pool->get() as $key => $budgetDat)
 		{
-
 			$orderId = null;
 			$paymentId = null;
 
@@ -126,21 +226,10 @@ class UserBudgetPool
 				$paymentId = $budgetDat['PAYMENT']->getId();
 			}
 
-//			if ($budgetDat['TYPE'] == Internals\UserBudgetPool::BUDGET_TYPE_ORDER_PAY_PART
-//				|| $budgetDat['TYPE'] == Internals\UserBudgetPool::BUDGET_TYPE_ORDER_PAY)
-//			{
-//				if (!\CSaleUserAccount::Pay($userId, ($budgetDat['SUM'] * -1), $budgetDat['CURRENCY'], $orderId, false, $paymentId))
-//				{
-//					$result->addError( new ResultError(Loc::getMessage("SALE_PROVIDER_USER_BUDGET_".$budgetDat['TYPE']."_ERROR"), "SALE_PROVIDER_USER_BUDGET_".$budgetDat['TYPE']."_ERROR") );
-//				}
-//			}
-//			else
-//			{
 			if (!\CSaleUserAccount::UpdateAccount($userId, $budgetDat['SUM'], $budgetDat['CURRENCY'], $budgetDat['TYPE'], $orderId, '', $paymentId))
 			{
 				$result->addError( new Sale\ResultError(Loc::getMessage("SALE_PROVIDER_USER_BUDGET_".$budgetDat['TYPE']."_ERROR"), "SALE_PROVIDER_USER_BUDGET_".$budgetDat['TYPE']."_ERROR") );
 			}
-//			}
 
 			$pool->delete($key);
 		}
@@ -230,5 +319,10 @@ class UserBudgetPool
 		}
 
 		return $budget;
+	}
+
+	public function __destruct()
+	{
+		$this->unlock();
 	}
 }

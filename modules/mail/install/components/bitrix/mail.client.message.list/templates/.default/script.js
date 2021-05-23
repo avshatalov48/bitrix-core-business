@@ -588,7 +588,7 @@
 	      }.bind(this));
 	    },
 	    onErrorRequest: function onErrorRequest(response) {
-	      options = {};
+	      var options = {};
 	      this.checkErrorRights(response.errors);
 	      options.errorMessage = response.errors[0].message;
 	      this.reloadGrid(options);

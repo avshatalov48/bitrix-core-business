@@ -15,6 +15,7 @@ $MESS["REST_MP_SUBSCRIPTION_DEMO_EULA_TITLE"] = "I have read and agree with the 
 $MESS["REST_MP_SUBSCRIPTION_DEMO_TEXT_1"] = "Install and use applications available in <a href=\"javascript:void(0)\" onclick=\"#ONCLICK#\" >Bitrix24.Market</a> for free for 30 days.";
 $MESS["REST_MP_SUBSCRIPTION_DEMO_TEXT_2"] = "Try out the hundreds of new features for free. Subscribe when you know it's worth it.";
 $MESS["REST_MP_SUBSCRIPTION_DEMO_TITLE"] = "Subscribe for 30 days for free!";
+$MESS["REST_MP_SUBSCRIPTION_ERROR_OPEN_BUY_URL"] = "Unknown error when opening a page.";
 $MESS["REST_MP_SUBSCRIPTION_TEXT_1"] = "Your Bitrix24 has no limits!";
 $MESS["REST_MP_SUBSCRIPTION_TEXT_2"] = "Tailor your Bitrix24 to fit your business.";
 $MESS["REST_MP_SUBSCRIPTION_TEXT_3"] = "<a href=\"javascript:void(0)\" onclick=\"#ONCLICK#\" >Subscribe to Bitrix24.Market</a> and get:";

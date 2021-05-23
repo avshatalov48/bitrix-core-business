@@ -5,9 +5,6 @@ if (!$USER->CanDoOperation('fileman_edit_existent_files') || !check_bitrix_sessi
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/include.php");
 
-if(CModule::IncludeModule("compression"))
-	CCompress::Disable2048Spaces();
-
 if (!isset($_REQUEST['target']) || !isset($_REQUEST['edname']))
 	die();
 
@@ -97,7 +94,7 @@ if ($target == 'get_all')
 	//Get taskbar settings
 	$taskbars = CUserOptions::GetOption("fileman", "taskbar_settings_".$edname, false);
 	if ($taskbars !== false && CheckSerializedData($taskbars))
-		$taskbars = unserialize($taskbars);
+		$taskbars = unserialize($taskbars, ['allowed_classes' => false]);
 	else
 		$taskbars = false;
 
@@ -117,7 +114,7 @@ if ($target == 'get_all')
 	?><script><?
 	$taskbarset = CUserOptions::GetOption("fileman", "taskbarset_settings_".$edname, false);
 	if ($taskbarset !== false && CheckSerializedData($taskbarset))
-		$taskbarset = unserialize($taskbarset);
+		$taskbarset = unserialize($taskbarset, ['allowed_classes' => false]);
 	else
 		$taskbarset = false;
 

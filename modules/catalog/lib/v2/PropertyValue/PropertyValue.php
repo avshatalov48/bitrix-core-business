@@ -3,7 +3,6 @@
 namespace Bitrix\Catalog\v2\PropertyValue;
 
 use Bitrix\Catalog\v2\BaseEntity;
-use Bitrix\Main\Result;
 
 /**
  * Class PropertyValue
@@ -57,17 +56,5 @@ class PropertyValue extends BaseEntity
 	public function getDescription()
 	{
 		return $this->getField('DESCRIPTION');
-	}
-
-	public function deleteInternal(): Result
-	{
-		// ToDo debug here
-		return parent::deleteInternal();
-	}
-
-	public function saveInternal(): Result
-	{
-		// ToDo debug here
-		return parent::saveInternal();
 	}
 }

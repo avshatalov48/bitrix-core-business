@@ -202,46 +202,8 @@ if ($_REQUEST['unique_id'])
 			include_once($file);
 		else
 			include_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/lang/en/admin/site_checker.php');
+
 		InitPureDB();
-		if (!function_exists('AddMessage2Log'))
-		{
-			function AddMessage2Log($sText, $sModule = "", $traceDepth = 6, $bShowArgs = false)
-			{
-				echo $sText;
-			}
-		}
-
-		if (!function_exists('htmlspecialcharsbx'))
-		{
-			function htmlspecialcharsbx($string, $flags=ENT_COMPAT)
-			{
-				//shitty function for php 5.4 where default encoding is UTF-8
-				return htmlspecialchars($string, $flags, (defined("BX_UTF")? "UTF-8" : "ISO-8859-1"));
-			}
-		}
-
-		if (!function_exists('GetMessage'))
-		{
-			function GetMessage($code, $arReplace = array())
-			{
-				global $MESS;
-				$strResult = $MESS[$code];
-				foreach($arReplace as $k => $v)
-					$strResult = str_replace($k, $v, $strResult);
-				return $strResult;
-			}
-		}
-
-		if (!function_exists('JSEscape'))
-		{
-			function JSEscape($s)
-			{
-				static $aSearch = array("\xe2\x80\xa9", "\\", "'", "\"", "\r\n", "\r", "\n", "\xe2\x80\xa8");
-				static $aReplace = array(" ", "\\\\", "\\'", '\\"', "\n", "\n", "\\n'+\n'", "\\n'+\n'");
-				$val =  str_replace($aSearch, $aReplace, $s);
-				return preg_replace("'</script'i", "</s'+'cript", $val);
-			}
-		}
 
 		$oTest = new CSiteCheckerTest($_REQUEST['step'], 0, $fix_mode);
 		if (file_exists(DEBUG_FLAG))
@@ -268,11 +230,11 @@ if ($_REQUEST['unique_id'])
 			iPercent = '.$oTest->percent.';
 			test_percent = '.$oTest->test_percent.';
 			strCurrentTestFunc = "'.$oTest->last_function.'";
-			strCurrentTestName = "'.JSEscape($oTest->strCurrentTestName).'";
-			strNextTestName = "'.JSEscape($oTest->strNextTestName).'";
-			strNextRequest = "'.JSEscape($strNextRequest).'";
-			strResult = "'.JSEscape(str_replace(array("\r","\n"),"",$oTest->strResult)).'";
-			strFinalStatus = "'.JSEscape($strFinalStatus).'";
+			strCurrentTestName = "'.CUtil::JSEscape($oTest->strCurrentTestName).'";
+			strNextTestName = "'.CUtil::JSEscape($oTest->strNextTestName).'";
+			strNextRequest = "'.CUtil::JSEscape($strNextRequest).'";
+			strResult = "'.CUtil::JSEscape(str_replace(array("\r","\n"),"",$oTest->strResult)).'";
+			strFinalStatus = "'.CUtil::JSEscape($strFinalStatus).'";
 			test_result = '.($oTest->result === true ? 1 : ($oTest->result === false ? -1 : 0)).'; // 0 = note
 		';
 	}
@@ -283,7 +245,6 @@ if ($_REQUEST['unique_id'])
 if (file_exists(DEBUG_FLAG))
 {
 	define('NOT_CHECK_PERMISSIONS', true);
-	define("BX_COMPRESSION_DISABLED", true);
 }
 
 if($_REQUEST['test_start'])

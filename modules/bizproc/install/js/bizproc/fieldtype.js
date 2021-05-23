@@ -90,7 +90,7 @@
 						if (v)
 						{
 							node.innerHTML = v;
-							this.initControl(node);
+							this.initControl(node, property);
 						}
 					}.bind(this)
 				);
@@ -98,7 +98,7 @@
 
 			if (needInit && node)
 			{
-				this.initControl(node);
+				this.initControl(node, property);
 			}
 
 			return node;
@@ -144,7 +144,7 @@
 					break;
 				case 'user':
 					result = [];
-					var i, name, pair, matches, pairs = value.split(',');
+					var i, name, pair, matches, pairs = BX.Type.isArray(value) ? value : value.split(',');
 
 					for (i = 0; i < pairs.length; ++i)
 					{
@@ -261,7 +261,7 @@
 				if (controlNode && node.parentNode)
 				{
 					var wrapper = BX.create('div', {children: [controlNode]});
-					this.initControl(wrapper);
+					this.initControl(wrapper, property);
 					node.parentNode.insertBefore(wrapper, node);
 				}
 			}
@@ -546,7 +546,7 @@
 
 					option = BX.create('option', {
 						props: {value: key},
-						text: property['Options'][key]
+						text: BX.Text.decode(property['Options'][key])
 					});
 
 					if (isEqual(key, value))
@@ -563,7 +563,7 @@
 				{
 					option = BX.create('option', {
 						props: {value: i},
-						text: property['Options'][i]
+						text: BX.Text.decode(property['Options'][i])
 					});
 
 					if (isEqual(i, value))
@@ -577,7 +577,7 @@
 
 			return node;
 		},
-		initControl: function(controlNode)
+		initControl: function(controlNode, property)
 		{
 			var dlg;
 			if (dlg = BX.Bizproc.Automation && BX.Bizproc.Automation.Designer.getRobotSettingsDialog())
@@ -587,6 +587,10 @@
 			else if (dlg = BX.Bizproc.Automation && BX.Bizproc.Automation.Designer.getTriggerSettingsDialog())
 			{
 				dlg.component.triggerManager.initSettingsDialogControls(controlNode);
+			}
+			else if (property && property['Type'] === 'user' && BX.Bizproc.UserSelector)
+			{
+				BX.Bizproc.UserSelector.decorateNode(controlNode.querySelector('[data-role="user-selector"]'));
 			}
 		},
 		getDocumentFields: function()

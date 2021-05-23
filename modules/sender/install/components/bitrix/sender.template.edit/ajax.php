@@ -14,6 +14,6 @@ if (!Bitrix\Main\Loader::includeModule('sender'))
 
 $actions = array();
 $actions[] = CommonAjax\ActionGetTemplate::get();
-$checker = CommonAjax\Checker::getViewLetterPermissionChecker();
+$checker = CommonAjax\Checker::getModifyTemplatePermissionChecker();
 
 Controller\Listener::create()->addChecker($checker)->setActions($actions)->run();

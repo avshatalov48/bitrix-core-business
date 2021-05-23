@@ -16,6 +16,7 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\UI\Filter\AdditionalDateType;
+use Bitrix\Sender\Connector;
 use Bitrix\Sender\Connector\BaseFilter as ConnectorBaseFilter;
 use Bitrix\Sender\Connector\ResultView;
 
@@ -25,7 +26,7 @@ Loc::loadMessages(__FILE__);
  * Class Lead
  * @package Bitrix\Sender\Integration\Crm\Connectors
  */
-class Lead extends ConnectorBaseFilter
+class Lead extends ConnectorBaseFilter implements Connector\IncrementallyConnector
 {
 	/**
 	 * Get name.
@@ -142,7 +143,19 @@ class Lead extends ConnectorBaseFilter
 	 */
 	public function getData()
 	{
-		return $this->getDataWithCustomSelect();
+		if (!$this->hasFieldValues())
+		{
+			return array();
+		}
+
+		$query = $this->getQuery();
+		if ($this->getResultView()->hasNav())
+		{
+			$query->setOffset($this->getResultView()->getNav()->getOffset());
+			$query->setLimit($this->getResultView()->getNav()->getLimit());
+		}
+
+		return QueryData::getData($query, $this->getDataTypeId());
 	}
 
 	/**
@@ -433,24 +446,52 @@ class Lead extends ConnectorBaseFilter
 	}
 
 	/**
-	 * @param array $selectList
+	 * @param int $offset
+	 * @param int $limit
+	 * @param string|null $excludeType
 	 *
-	 * @return array|Result|\CAllDBResult
+	 * @return array|Entity\Query[]|null[]
 	 */
-	public function getDataWithCustomSelect($selectList = [])
+	public function getLimitedQueries(int $offset, int $limit, string $excludeType = null): array
 	{
-		if (!$this->hasFieldValues())
-		{
-			return array();
-		}
-
 		$query = $this->getQuery();
-		if ($this->getResultView()->hasNav())
-		{
-			$query->setOffset($this->getResultView()->getNav()->getOffset());
-			$query->setLimit($this->getResultView()->getNav()->getLimit());
-		}
 
+		$query->whereBetween('ID', $offset, $limit);
+		return [
+			$query
+		];
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getEntityLimitInfo(): array
+	{
+		$lastLead = \CCrmLead::GetListEx(
+			['ID' => 'DESC'],
+			['CHECK_PERMISSIONS' => 'N'],
+			false,
+            ['nTopCount' => '1'],
+			['ID']
+		)->Fetch();
+		$lastLeadId = $lastLead['ID'] ?? 0;
+
+		return [
+			'lastContactId' => 0,
+			'lastCompanyId' => 0,
+			'lastId' => $lastLeadId,
+		];
+	}
+
+	/**
+	 * @param int $offset
+	 * @param int $limit
+	 *
+	 * @return Result
+	 */
+	public function getLimitedData(int $offset, int $limit): \Bitrix\Main\DB\Result
+	{
+		$query = $this->getLimitedQueries($offset, $limit)[0];
 		return QueryData::getData($query, $this->getDataTypeId());
 	}
 }

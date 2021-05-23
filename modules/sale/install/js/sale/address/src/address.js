@@ -138,9 +138,6 @@ export const AddressControlConstructor = Vue.extend({
 		this.addressWidget = factory.createAddressWidget({
 			address: this.initValue ? this.buildAddress(this.initValue) : null,
 			mapBehavior: 'manual',
-			popupBindOptions: {
-				position: 'right'
-			},
 			mode: ControlMode.edit,
 			useFeatures:
 				{

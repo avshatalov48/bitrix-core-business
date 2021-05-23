@@ -426,11 +426,24 @@ function __blogPostSetFollow(log_id)
 				)
 			)
 			{
-				menuItems.push({
+				var editParams = {
 					text: BX.message('BLOG_BLOG_BLOG_EDIT'),
-					href: urlToEdit,
-					target: '_top'
-				});
+				};
+				if (BX.type.isNotEmptyString(postData.backgroundCode))
+				{
+					editParams.onclick = function() {
+						BX.Livefeed.PostInstance.showBackgroundWarning({
+							urlToEdit: urlToEdit,
+							menuPopupWindow: this.popupWindow
+						});
+					}
+				}
+				else
+				{
+					editParams.href = urlToEdit;
+					editParams.target = '_top';
+				}
+				menuItems.push(editParams);
 			}
 
 			if(!BX.util.in_array(postType, [ 'DRAFT', 'MODERATION' ]))
@@ -608,17 +621,21 @@ function __blogPostSetFollow(log_id)
 			start : { width : start_anim },
 			finish : { width : 1 },
 			transition : BX.easing.makeEaseOut(BX.easing.transitions.quad),
-			step : BX.delegate(function(state) { this.btn.style.width = state.width +'px' }, this),
+			step : BX.delegate(function(state) {
+				this.btn.style.width = state.width +'px'
+			}, this),
 			complete : BX.delegate(function(){
 				this.btn.innerHTML = '';
 				this.btn.appendChild(text_block);
-				var width_2 = text_block.offsetWidth,
-					easing_2 = new BX.easing({
+				var width_2 = text_block.scrollWidth + 31; // 31 - image width
+				var easing_2 = new BX.easing({
 						duration : 300,
 						start : { width_2:0 },
 						finish : { width_2:width_2 },
 						transition : BX.easing.makeEaseOut(BX.easing.transitions.quad),
-						step : BX.delegate(function(state){ this.btn.style.width = state.width_2 + 'px'; }, this)
+						step : BX.delegate(function(state){
+							this.btn.style.width = state.width_2 + 'px';
+						}, this)
 					});
 					easing_2.animate();
 				}, this)
@@ -772,7 +789,7 @@ function __blogPostSetFollow(log_id)
 			}
 			else
 				this.node.setAttribute("inumpage", 1);
-			BX.adjust(this.parentNode, {style : {display : "inline-block"}});
+			BX.adjust(this.parentNode, {style : {display : "flex"}});
 		}
 		else
 		{

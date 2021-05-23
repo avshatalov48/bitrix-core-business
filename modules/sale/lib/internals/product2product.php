@@ -657,7 +657,7 @@ class Product2ProductTable extends Main\Entity\DataManager
 		$allowStatuses = Config\Option::get("sale", "p2p_status_list", "");
 		$allowCollecting = Config\Option::get("sale", "p2p_allow_collect_data");
 		if ($allowStatuses != '')
-			$allowStatuses = unserialize($allowStatuses);
+			$allowStatuses = unserialize($allowStatuses, ['allowed_classes' => false]);
 		else
 			$allowStatuses = array();
 

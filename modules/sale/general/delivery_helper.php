@@ -556,7 +556,7 @@ class CSaleDeliveryHelper
 
 			while ($arItem = $dbItemsList->GetNext())
 			{
-				$arItem["DIMENSIONS"] = unserialize($arItem["~DIMENSIONS"]);
+				$arItem["DIMENSIONS"] = unserialize($arItem["~DIMENSIONS"], ['allowed_classes' => false]);
 				unset($arItem["~DIMENSIONS"]);
 				$arOrder["ITEMS"][] = $arItem;
 			}

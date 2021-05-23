@@ -124,13 +124,24 @@ class Date extends Base
 
 		if ($renderMode & FieldType::RENDER_MODE_PUBLIC && $allowSelection)
 		{
-			$renderResult = '<input name="'.htmlspecialcharsbx($name).'" type="text" '
-				.'class="'.htmlspecialcharsbx($className).'"
-					value="'.htmlspecialcharsbx($value).'"
-					placeholder="'.htmlspecialcharsbx($fieldType->getDescription()).'"
-					data-role="inline-selector-target"
-					data-selector-type="'.htmlspecialcharsbx($fieldType->getType()).'"
-				>';
+			$selectorAttributes = '';
+			if ($allowSelection)
+			{
+				$selectorAttributes = sprintf(
+					'data-role="inline-selector-target" data-selector-type="%s" data-property="%s" ',
+					htmlspecialcharsbx($fieldType->getType()),
+					htmlspecialcharsbx(Main\Web\Json::encode($fieldType->getProperty()))
+				);
+			}
+
+			$renderResult = sprintf(
+				'<input name="%s" type="text" class="%s" value="%s" placeholder="%s" %s/>',
+				htmlspecialcharsbx($name),
+				htmlspecialcharsbx($className),
+				htmlspecialcharsbx($value),
+				htmlspecialcharsbx($fieldType->getDescription()),
+				$selectorAttributes
+			);
 		}
 		elseif ($renderMode & FieldType::RENDER_MODE_MOBILE)
 		{
@@ -482,14 +493,15 @@ class Date extends Base
 					continue 2;
 			try
 			{
-				$oTz = new \DateTimeZone($tz);
-				$timezones[$tz] = ['timezone_id' => $tz, 'offset' => $oTz->getOffset(new \DateTime("now", $oTz))];
+				$dateTimeZone = new \DateTimeZone($tz);
+				$timezones[$tz] = ['timezone_id' => $tz, 'offset' => $dateTimeZone->getOffset(new \DateTime("now", $dateTimeZone))];
 			} catch (\Exception $e)
 			{
 			}
 		}
 
-		uasort($timezones, function ($a, $b) {
+		uasort($timezones, function ($a, $b)
+		{
 			if ($a['offset'] == $b['offset'])
 				return strcmp($a['timezone_id'], $b['timezone_id']);
 

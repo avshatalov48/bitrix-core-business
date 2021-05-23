@@ -6,6 +6,10 @@ this.BX = this.BX || {};
 	var ClosableDirective = {
 	  bind: function bind(el, binding, vnode) {
 	    handleOutsideClick = function handleOutsideClick(e) {
+	      if (e.type === 'mousedown' && e.which !== 1) {
+	        return;
+	      }
+
 	      e.stopPropagation();
 	      var _binding$value = binding.value,
 	          handler = _binding$value.handler,
@@ -17,17 +21,24 @@ this.BX = this.BX || {};
 	          clickedOnExcludedEl = excludedEl.contains(e.target);
 	        }
 	      });
+	      /**
+	       * Click inside map wrapper
+	       */
+
+	      if (e.target.closest('.location-map-wrapper')) {
+	        clickedOnExcludedEl = true;
+	      }
 
 	      if (!el.contains(e.target) && !clickedOnExcludedEl) {
 	        vnode.context[handler]();
 	      }
 	    };
 
-	    document.addEventListener('click', handleOutsideClick);
+	    document.addEventListener('mousedown', handleOutsideClick);
 	    document.addEventListener('touchstart', handleOutsideClick);
 	  },
 	  unbind: function unbind() {
-	    document.removeEventListener('click', handleOutsideClick);
+	    document.removeEventListener('mousedown', handleOutsideClick);
 	    document.removeEventListener('touchstart', handleOutsideClick);
 	  }
 	};
@@ -162,9 +173,6 @@ this.BX = this.BX || {};
 	    this.addressWidget = factory.createAddressWidget({
 	      address: this.initValue ? this.buildAddress(this.initValue) : null,
 	      mapBehavior: 'manual',
-	      popupBindOptions: {
-	        position: 'right'
-	      },
 	      mode: location_core.ControlMode.edit,
 	      useFeatures: {
 	        fields: false,

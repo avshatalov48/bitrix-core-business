@@ -1631,7 +1631,7 @@ class CAllSaleDiscount
 			{
 				if (CheckSerializedData($arFields['CONDITIONS']))
 				{
-					$arConditions = unserialize($arFields['CONDITIONS']);
+					$arConditions = unserialize($arFields['CONDITIONS'], ['allowed_classes' => false]);
 				}
 			}
 			else
@@ -1657,7 +1657,7 @@ class CAllSaleDiscount
 			{
 				if (CheckSerializedData($arFields['ACTIONS']))
 				{
-					$arActions = unserialize($arFields['ACTIONS']);
+					$arActions = unserialize($arFields['ACTIONS'], ['allowed_classes' => false]);
 				}
 			}
 			else
@@ -1711,7 +1711,7 @@ class CAllSaleDiscount
 				}
 				return false;
 			}
-			$conditions = unserialize($conditions);
+			$conditions = unserialize($conditions, ['allowed_classes' => false]);
 			if (!is_array($conditions) || empty($conditions))
 			{
 				if ($type == self::PREPARE_CONDITIONS)
@@ -1850,7 +1850,7 @@ class CAllSaleDiscount
 			{
 				$fields[$oldField] = (string)$fields[$oldField];
 				if (CheckSerializedData($fields[$oldField]))
-					$fields[$oldField] = unserialize($fields[$oldField]);
+					$fields[$oldField] = unserialize($fields[$oldField], ['allowed_classes' => false]);
 				else
 					$fields[$oldField] = null;
 			}

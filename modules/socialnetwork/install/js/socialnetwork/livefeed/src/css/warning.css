@@ -1,0 +1,13 @@
+.sonet-livefeed-popup-warning {
+	max-width: 360px;
+}
+
+.sonet-livefeed-popup-warning .popup-window-content {
+	padding: 10px 10px 30px 10px;
+	background-color: transparent;
+}
+
+.sonet-livefeed-popup-warning .popup-window-buttons {
+	border-top: 1px solid #E8E9EC;
+	padding-top: 15px;
+}

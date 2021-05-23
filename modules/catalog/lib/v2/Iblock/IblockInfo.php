@@ -67,4 +67,9 @@ class IblockInfo
 	{
 		return $this->canHaveSku() ? (int)$this->iblock->get('SKU_PROPERTY_ID') : null;
 	}
+
+	public function getVatId(): ?int
+	{
+		return (int)$this->iblock->get('VAT_ID') ?: null;
+	}
 }

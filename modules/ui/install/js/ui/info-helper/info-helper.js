@@ -40,7 +40,134 @@ BX.UI.InfoHelper =
 				window.open(this.frameUrl,'_blank');
 			}
 
+			if (event.data.action === 'reloadParent')
+			{
+				this.reloadParent();
+			}
+
+			if (event.data.action === 'openSlider' && !!event.data.url)
+			{
+				top.BX.SidePanel.Instance.open(event.data.url);
+			}
+
+			if (event.data.action === 'openInformer' && !!event.data.code && !!event.data.option)
+			{
+				top.BX.UI.InfoHelper.__showExternal(
+					event.data.code,
+					event.data.option
+				);
+			}
+
+			if (event.data.action === 'activateDemoSubscription')
+			{
+				if (event.data.licenseAgreed === 'Y')
+				{
+					var ajaxRestPath = '/bitrix/tools/rest.php';
+					var callback = function(result)
+					{
+						var slider = BX.SidePanel.Instance.getTopSlider();
+						if (slider)
+						{
+							BX.UI.InfoHelper.frameNode.contentWindow.postMessage(
+								{
+									action: 'onActivateDemoSubscriptionResult',
+									result:result
+								},
+								'*'
+							);
+						}
+					}.bind(this);
+
+					BX.ajax(
+						{
+							dataType: 'json',
+							method: 'POST',
+							url: ajaxRestPath,
+							data: {
+								action: 'activate_demo',
+								sessid: BX.bitrix_sessid()
+							},
+							onsuccess: callback,
+							onfailure: function(error_type, error)
+							{
+								callback({error: error_type + (!!error ? ': ' + error : '')});
+							}
+						}
+					);
+				}
+			}
+
+			if (event.data.action === 'activateDemoLicense')
+			{
+				BX.ajax.runAction("ui.infoHelper.activateDemoLicense").then(
+					function(response)
+					{
+						var slider = BX.SidePanel.Instance.getTopSlider();
+						if (slider)
+						{
+							BX.UI.InfoHelper.frameNode.contentWindow.postMessage(
+								{
+									action: 'onActivateDemoLicenseResult',
+										result: response
+								},
+								'*'
+							);
+						}
+					}.bind(this)
+				);
+			}
+
 		}, this));
+	},
+
+	__showExternal: function(code, option)
+	{
+		var width = 700;
+		var sliderId = this.getSliderId() + ':' + code;
+		var frame = BX.create('iframe', {
+			attrs: {
+				className: 'info-helper-panel-iframe',
+				src: "about:blank"
+			}
+		});
+		if (!!option && !!option.width && option.width > 0)
+		{
+			width = option.width;
+		}
+		BX.SidePanel.Instance.open(
+			sliderId,
+			{
+				contentCallback: function(slider) {
+					return new Promise(function(resolve, reject) {
+						BX.ajax.runAction("ui.infoHelper.getInitParams").then(function(response)
+						{
+							frame.src = this.frameUrlTemplate.replace(/code/, code);
+
+							resolve(
+								BX.create('div', {
+									attrs: {
+										className: 'info-helper-container',
+										id: "info-helper-container"
+									},
+									children: [
+										this.getLoader(),
+										frame
+									]
+								})
+							);
+						}.bind(this));
+					}.bind(this));
+				}.bind(this),
+				width: width,
+				loader: 'default-loader',
+				cacheable: false,
+				data: { rightBoundary: 0 },
+				events: {
+					onLoad: function () {
+						BX.UI.InfoHelper.showFrame(frame);
+					},
+				}
+			});
 	},
 
 	show: function(code)
@@ -136,10 +263,14 @@ BX.UI.InfoHelper =
 		return this.frameNode;
 	},
 
-	showFrame: function()
+	showFrame: function(frame)
 	{
+		if (!frame)
+		{
+			frame = this.getFrame();
+		}
 		setTimeout(function(){
-			this.getFrame().classList.add("info-helper-panel-iframe-show");
+			frame.classList.add("info-helper-panel-iframe-show");
 		}.bind(this), 600);
 	},
 
@@ -169,6 +300,27 @@ BX.UI.InfoHelper =
 	getSlider: function()
 	{
 		return BX.SidePanel.Instance.getSlider(this.getSliderId());
+	},
+
+	reloadParent: function()
+	{
+		var slider = false;
+		var sliderTop = BX.SidePanel.Instance.getTopSlider();
+		if (!!sliderTop)
+		{
+			slider = BX.SidePanel.Instance.getPreviousSlider(sliderTop);
+		}
+
+		if (!!slider)
+		{
+			slider.reload();
+		}
+		else
+		{
+			window.location.reload();
+		}
+
+		return true;
 	},
 
 	isOpen: function()

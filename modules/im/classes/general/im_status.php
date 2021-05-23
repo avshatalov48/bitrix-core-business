@@ -15,12 +15,21 @@ class CIMStatus
 
 	public static function Set($userId, $params)
 	{
+		global $CACHE_MANAGER;
+
 		$userId = intval($userId);
 		if ($userId <= 0)
 			return false;
 
 		if (isset($params['STATUS']))
+		{
 			$params['IDLE'] = null;
+		}
+
+		if (isset($params['STATUS']) || isset($params['COLOR']))
+		{
+			$CACHE_MANAGER->ClearByTag("USER_NAME_".$userId);
+		}
 
 		$previousStatus = Array(
 			'USER_ID' => $userId,
@@ -351,6 +360,7 @@ class CIMStatus
 					'idle' => $user['IDLE'],
 					'last_activity_date' => $user['LAST_ACTIVITY_DATE'],
 					'mobile_last_date' => $user['MOBILE_LAST_DATE'],
+					'absent' => \CIMContactList::formatAbsentResult($user["ID"]),
 				);
 
 				self::$CACHE_USERS[$user["ID"]] = $users[$user["ID"]];

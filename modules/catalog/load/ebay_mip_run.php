@@ -27,7 +27,7 @@ $IBLOCK_ID = (int)$IBLOCK_ID;
 
 if ($XML_DATA && CheckSerializedData($XML_DATA))
 {
-	$XML_DATA = unserialize(stripslashes($XML_DATA));
+	$XML_DATA = unserialize(stripslashes($XML_DATA), ['allowed_classes' => false]);
 
 	if (!is_array($XML_DATA))
 		$XML_DATA = array();

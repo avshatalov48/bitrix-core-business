@@ -100,7 +100,6 @@ class EventHandler
 		$dataToInsert = [];
 		foreach($eventDataArray as $eventData)
 		{
-
 			if (!$eventData['SEND_RESULT'])
 			{
 				continue;
@@ -109,11 +108,12 @@ class EventHandler
 			$recipient = $eventData['RECIPIENT'];
 			$fields = $eventData['RECIPIENT']['FIELDS'];
 
-			$entityId = $fields['CRM_ENTITY_ID']??$recipient['CONTACT_ID'];
-			if(!$entityId)
-			{
-				continue;
-			}
+			$entityId = $fields['CRM_ENTITY_ID'];
+
+			if (!$entityId)
+            {
+                continue;
+            }
 
 			$dataToInsert[] = [
 				'RECIPIENT_ID' => $recipient['ID'],
@@ -125,12 +125,9 @@ class EventHandler
 			];
 		}
 
-		try
+		if($dataToInsert)
 		{
 			TimeLineQueueTable::addMulti($dataToInsert, true);
-		} catch (\Exception $e)
-		{
-
 		}
 	}
 
@@ -157,6 +154,7 @@ class EventHandler
 		$batchData = [];
 		$idsToDelete = [];
 		self::lockTimelineQueue($letterId);
+		$letter = Entity\Letter::createInstanceById($letterId);
 
 		try
 		{
@@ -173,8 +171,14 @@ class EventHandler
 				return "";
 			}
 
-			foreach ($queuedRows as $row) {
+			foreach ($queuedRows as $row)
+			{
 				$idsToDelete[] = $row['ID'];
+				if (!$letter)
+                {
+                    continue;
+                }
+
 				$fields = Json::decode($row['FIELDS']);
 				if (isset($fields['CRM_ENTITY_TYPE_ID']) && $fields['CRM_ENTITY_TYPE_ID'])
 				{
@@ -200,12 +204,12 @@ class EventHandler
 
 				if (!$selector)
 				{
-					break;
+				    continue;
 				}
 
 				if (!$selector->search()->hasEntities())
 				{
-					break;
+					continue;
 				}
 
 				$recipient = [
@@ -214,12 +218,14 @@ class EventHandler
 					'CONTACT_CODE' => $row['CONTACT_CODE'],
 				];
 
-				$letter = Entity\Letter::create($row['POSTING_ID']);
-
 				$batchData[] = static::buildTimeLineEvent($selector, $letter, $recipient);
 			}
 
-			Timeline\RecipientEntry::createMulti($batchData);
+			if (!empty($batchData))
+            {
+                Timeline\RecipientEntry::createMulti($batchData);
+            }
+
 			TimeLineQueueTable::deleteList(['=ID' => $idsToDelete]);
 		} catch (\Exception $e)
 		{
@@ -230,7 +236,7 @@ class EventHandler
 		return TimeLineJob::getAgentName($letterId);
 	}
 
-	protected static function addTimeLineEvent(ActualEntitySelector $selector, Entity\Letter $letter, $recipient)
+	protected static function addTimeLineEvent(ActualEntitySelector $selector, Entity\Base $letter, $recipient)
 	{
 		$parameters = static::buildTimeLineEvent($selector, $letter, $recipient);
 
@@ -240,7 +246,7 @@ class EventHandler
 		}
 	}
 
-	protected static function buildTimeLineEvent(ActualEntitySelector $selector, Entity\Letter $letter, $recipient)
+	protected static function buildTimeLineEvent(ActualEntitySelector $selector, Entity\Base $letter, $recipient)
 	{
 		$isAd = $letter instanceof Entity\Ad;
 		$createdBy = $letter->get('CREATED_BY');

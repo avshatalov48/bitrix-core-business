@@ -2,8 +2,6 @@
 
 namespace Bitrix\Catalog\v2\Sku;
 
-use Bitrix\Catalog\v2\BaseCollection;
-use Bitrix\Catalog\v2\BaseEntity;
 use Bitrix\Catalog\v2\BaseIblockElementEntity;
 use Bitrix\Catalog\v2\BaseIblockElementFactory;
 use Bitrix\Catalog\v2\IoC\Dependency;
@@ -55,21 +53,12 @@ class SkuFactory extends BaseIblockElementFactory
 	}
 
 	/**
-	 * @param \Bitrix\Catalog\v2\BaseEntity|null $parent
 	 * @return \Bitrix\Catalog\v2\Sku\SkuCollection
 	 */
-	public function createCollection(BaseEntity $parent = null): BaseCollection
+	public function createCollection(): SkuCollection
 	{
-		/** @var \Bitrix\Catalog\v2\Sku\SkuCollection $collection */
-		$collection = $this->container->make(self::SKU_COLLECTION, [
+		return $this->container->make(self::SKU_COLLECTION, [
 			Dependency::IBLOCK_INFO => $this->iblockInfo,
 		]);
-
-		if ($parent)
-		{
-			$collection->setParent($parent);
-		}
-
-		return $collection;
 	}
 }

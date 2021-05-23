@@ -2380,7 +2380,7 @@ class CSaleYMHandler
 		while ($arSite = $rsSites->Fetch())
 		{
 			$serSiteSett = COption::GetOptionString("sale", "yandex_market_purchase_settings", "", $arSite["ID"], true);
-			$siteSett = unserialize($serSiteSett);
+			$siteSett = unserialize($serSiteSett, ['allowed_classes' => false]);
 
 			if(is_array($siteSett) && !empty($siteSett))
 				$settings[$arSite["ID"]] = $siteSett;
@@ -2389,7 +2389,7 @@ class CSaleYMHandler
 		if(empty($settings))
 		{
 			$serSiteSett = COption::GetOptionString("sale", "yandex_market_purchase_settings", "");
-			$siteSett = unserialize($serSiteSett);
+			$siteSett = unserialize($serSiteSett, ['allowed_classes' => false]);
 
 			if(is_array($siteSett) && !empty($siteSett))
 				$settings[CSite::GetDefSite()] = $siteSett;

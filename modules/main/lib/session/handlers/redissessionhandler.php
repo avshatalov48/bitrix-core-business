@@ -116,7 +116,11 @@ class RedisSessionHandler extends AbstractSessionHandler
 
 	protected function closeConnection(): void
 	{
-		$this->connection->close();
+		if ($this->isConnected())
+		{
+			$this->connection->close();
+		}
+
 		$this->connection = null;
 	}
 

@@ -8,6 +8,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Rest\AppTable;
 use Bitrix\Main\Loader;
 use Bitrix\Main\UI\Extension;
+use Bitrix\Rest\Marketplace\Client;
 
 Loc::loadMessages(__FILE__);
 
@@ -42,14 +43,17 @@ if ($arResult['PAYMENT_TYPE'] === AppTable::STATUS_SUBSCRIPTION || $arResult['AP
 			]
 		);
 		$buyButton = Loc::getMessage('REST_APP_LAYOUT_PAYMENT_ACCESS_BTN_BUY_SUBSCRIBE_NEW');
-		$demoButton = Loc::getMessage('REST_APP_LAYOUT_PAYMENT_ACCESS_BTN_DEMO_SUBSCRIBE');
+		if (Client::isSubscriptionDemoAvailable())
+		{
+			$demoButton = Loc::getMessage('REST_APP_LAYOUT_PAYMENT_ACCESS_BTN_DEMO_SUBSCRIBE');
+		}
 	}
 	else
 	{
 		$title = Loc::getMessage('REST_APP_LAYOUT_PAYMENT_ACCESS_TITLE_SUBSCRIBE_2');
 		$buyButton = Loc::getMessage('REST_APP_LAYOUT_PAYMENT_ACCESS_BTN_BUY_SUBSCRIBE');
 	}
-	$buyUrl = '/settings/license_buy.php?product=subscr';
+	$buyUrl = \Bitrix\Rest\Marketplace\Url::getSubscriptionBuyUrl();
 }
 else
 {

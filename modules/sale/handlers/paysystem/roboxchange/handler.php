@@ -22,7 +22,8 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler
 
 	protected const DEFAULT_TEMPLATE_NAME = 'template';
 
-	private const ANALYTICS_LABEL_VALUE = 'api_1c-bitrix';
+	private const ANALYTICS_LABEL_RU_VALUE = 'api_1c-bitrix';
+	private const ANALYTICS_LABEL_KZ_VALUE = 'api_1c-bitrix_kz';
 
 	/**
 	 * @param Payment $payment
@@ -41,6 +42,7 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler
 			'PAYMENT_ID' => $this->getBusinessValue($payment, 'PAYMENT_ID'),
 			'SUM' => PriceMaths::roundPrecision($payment->getSum()),
 			'CURRENCY' => $payment->getField('CURRENCY'),
+			'OUT_SUM_CURRENCY' => $this->getOutSumCurrency($payment),
 			'ADDITIONAL_USER_FIELDS' => $this->getAdditionalUserFields($payment),
 		];
 		$this->setExtraParams($params);
@@ -54,10 +56,13 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler
 	 */
 	private function getAdditionalUserFields(Payment $payment): array
 	{
+		$countryCode = $this->getCountryCode($payment);
+
 		$additionalUserFields = [
+			'SHP_BX_PAYMENT_CODE' => $payment->getField('XML_ID'),
 			'SHP_BX_PAYSYSTEM_CODE' => $payment->getPaymentSystemId(),
 			'SHP_HANDLER' => 'ROBOXCHANGE',
-			'SHP_PARTNER' => self::ANALYTICS_LABEL_VALUE,
+			'SHP_PARTNER' => $countryCode === 'RU' ? self::ANALYTICS_LABEL_RU_VALUE : self::ANALYTICS_LABEL_KZ_VALUE,
 		];
 		ksort($additionalUserFields);
 
@@ -70,26 +75,33 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler
 	 */
 	private function getSignatureValue(Payment $payment): string
 	{
-		$code = 'ROBOXCHANGE_SHOPPASSWORD';
+		$passwordCode = 'ROBOXCHANGE_SHOPPASSWORD';
 		if ($this->isTestMode($payment))
 		{
-			$code .= '_TEST';
+			$passwordCode .= '_TEST';
 		}
 
-		$shopPassword1 = (string)$this->getBusinessValue($payment, $code);
+		$shopPassword1 = (string)$this->getBusinessValue($payment, $passwordCode);
 
-		$signatureValue =
-			$this->getBusinessValue($payment, 'ROBOXCHANGE_SHOPLOGIN') . ":"
-			. (float)$payment->getSum() . ":"
-			. $this->getBusinessValue($payment, 'PAYMENT_ID') . ":"
-			. $shopPassword1;
+		$signaturePartList = [
+			$this->getBusinessValue($payment, 'ROBOXCHANGE_SHOPLOGIN'),
+			(float)$payment->getSum(),
+			$this->getBusinessValue($payment, 'PAYMENT_ID'),
+		];
+
+		if ($outSumCurrency = $this->getOutSumCurrency($payment))
+		{
+			$signaturePartList[] = $outSumCurrency;
+		}
+
+		$signaturePartList[] = $shopPassword1;
 
 		foreach ($this->getAdditionalUserFields($payment) as $fieldName => $fieldValue)
 		{
-			$signatureValue .= ":{$fieldName}={$fieldValue}";
+			$signaturePartList[] = implode('=', [$fieldName, $fieldValue]);
 		}
 
-		return md5($signatureValue);
+		return md5(implode(':', $signaturePartList));
 	}
 
 	/**
@@ -142,44 +154,29 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler
 	 */
 	private function isCorrectHash(Payment $payment, Request $request): bool
 	{
-		$code = 'ROBOXCHANGE_SHOPPASSWORD2';
+		$passwordCode2 = 'ROBOXCHANGE_SHOPPASSWORD2';
 		if ($this->isTestMode($payment))
 		{
-			$code .= '_TEST';
+			$passwordCode2 .= '_TEST';
 		}
 
-		$shopPassword2 = (string)$this->getBusinessValue($payment, $code);
+		$shopPassword2 = (string)$this->getBusinessValue($payment, $passwordCode2);
 
-		$hash =
-			$request->get('OutSum') . ":"
-			. $request->get('InvId') . ":"
-			. $shopPassword2;
+		$signaturePartList = [
+			$request->get('OutSum'),
+			$request->get('InvId'),
+		];
+
+		$signaturePartList[] = $shopPassword2;
 
 		foreach ($this->getAdditionalUserFields($payment) as $fieldName => $fieldValue)
 		{
-			$hash .= ":{$fieldName}={$fieldValue}";
+			$signaturePartList[] = implode('=', [$fieldName, $fieldValue]);
 		}
 
-		return ToUpper(md5($hash)) === ToUpper($request->get('SignatureValue'));
-	}
+		$hash = md5(implode(':', $signaturePartList));
 
-	/**
-	 * @param Payment $payment
-	 * @param Request $request
-	 * @return bool
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
-	 * @throws \Bitrix\Main\ArgumentTypeException
-	 * @throws \Bitrix\Main\ObjectException
-	 */
-	private function isCorrectSum(Payment $payment, Request $request): bool
-	{
-		$sum = PriceMaths::roundPrecision($request->get('OutSum'));
-		$paymentSum = PriceMaths::roundPrecision($payment->getSum());
-
-		PaySystem\Logger::addDebugInfo(__CLASS__.": requestSum={$sum}; paymentSum={$paymentSum}");
-
-		return $paymentSum === $sum;
+		return ToUpper($hash) === ToUpper($request->get('SignatureValue'));
 	}
 
 	/**
@@ -247,35 +244,23 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler
 			$psStatusDescription .= "; ".Loc::getMessage('SALE_HPS_ROBOXCHANGE_RES_PAY_TYPE').": ".$request->get("IncCurrLabel");
 		}
 
-		$fields = [
-			"PS_INVOICE_ID" => $request->get('InvId'),
-			"PS_STATUS" => "N",
+		$result->setPsData([
+			"PS_STATUS" => "Y",
 			"PS_STATUS_CODE" => "-",
 			"PS_STATUS_DESCRIPTION" => $psStatusDescription,
 			"PS_STATUS_MESSAGE" => Loc::getMessage('SALE_HPS_ROBOXCHANGE_RES_PAYED'),
-			"PS_SUM" => $request->get('OutSum'),
+			"PS_SUM" => $payment->getSum(),
 			"PS_CURRENCY" => $payment->getField('CURRENCY'),
 			"PS_RESPONSE_DATE" => new DateTime(),
-		];
+		]);
 
-		$result->setPsData($fields);
+		PaySystem\Logger::addDebugInfo(
+			__CLASS__.': PS_CHANGE_STATUS_PAY='.$this->getBusinessValue($payment, 'PS_CHANGE_STATUS_PAY')
+		);
 
-		if ($this->isCorrectSum($payment, $request))
+		if ($this->getBusinessValue($payment, 'PS_CHANGE_STATUS_PAY') === 'Y')
 		{
-			$fields["PS_STATUS"] = 'Y';
-
-			PaySystem\Logger::addDebugInfo(
-				__CLASS__.': PS_CHANGE_STATUS_PAY='.$this->getBusinessValue($payment, 'PS_CHANGE_STATUS_PAY')
-			);
-
-			if ($this->getBusinessValue($payment, 'PS_CHANGE_STATUS_PAY') === 'Y')
-			{
-				$result->setOperationType(PaySystem\ServiceResult::MONEY_COMING);
-			}
-		}
-		else
-		{
-			$result->addError(new Error(Loc::getMessage('SALE_HPS_ROBOXCHANGE_ERROR_SUM')));
+			$result->setOperationType(PaySystem\ServiceResult::MONEY_COMING);
 		}
 
 		return $result;
@@ -295,7 +280,39 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler
 	 */
 	public function getCurrencyList()
 	{
-		return ['RUB'];
+		return ['RUB', 'KZT', 'USD', 'EUR'];
+	}
+
+	/**
+	 * @param Payment $payment
+	 * @return string
+	 */
+	private function getOutSumCurrency(Payment $payment): string
+	{
+		$countryCode = $this->getCountryCode($payment);
+
+		$currency = (string)$payment->getField('CURRENCY');
+		$currency = ($currency === 'RUB') ? 'RUR' : $currency;
+
+		if (
+			($countryCode === 'RU' && $currency === 'RUR')
+			|| ($countryCode === 'KZ' && $currency === 'KZT')
+		)
+		{
+			$currency = '';
+		}
+
+		return $currency;
+	}
+
+	/**
+	 * @param Payment $payment
+	 * @return string
+	 */
+	private function getCountryCode(Payment $payment): string
+	{
+		$countryCode = (string)$this->getBusinessValue($payment, 'ROBOXCHANGE_COUNTRY_CODE');
+		return $countryCode ?: 'RU';
 	}
 
 	/**

@@ -2,67 +2,54 @@
 
 namespace Bitrix\Seo\BusinessSuite\Utils;
 
-use Bitrix\Main;
 use Bitrix\Seo\BusinessSuite\ServiceAdapter;
+use Bitrix\Seo\BusinessSuite\ServiceMetaData;
 use Bitrix\Seo\BusinessSuite\ServiceWrapper;
-use Bitrix\Seo\Retargeting\IMultiClientService;
-use Bitrix\Seo\Retargeting\IService;
 
 final class ServicePool
 {
-	/** @var self[] */
-	private static $pool = [];
-
-	/**@var string*/
-	private $type;
-
-	/** @var IService|null $current */
-	private $current;
-
-	public static function getInstance(string $type) : self
+	private static function buildService($type, $clientId, $serviceType) : ?ServiceWrapper
 	{
-		if(!array_key_exists($type,static::$pool))
+		if (is_string($type) && $clientId && is_string($serviceType))
 		{
-			static::$pool[$type] = new self($type);
+			return ServiceAdapter::createServiceWrapperContainer()->setMeta(
+				ServiceMetaData::create()
+					->setType($type)
+					->setEngineCode($serviceType)
+					->setClientId($clientId)
+					->setService(ServiceFactory::getServiceByEngineCode($serviceType))
+			);
 		}
-		return static::$pool[$type];
+		return null;
 	}
 
-	private function __construct(string $type)
+	/**
+	 * build service Wrapper
+	 * @param array|string $type
+	 *
+	 * @return ServiceWrapper|null
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public static function getService($type) : ?ServiceWrapper
 	{
-		$this->type = $type;
-	}
-
-	public function getService()
-	{
-		return $this->current = $this->current ?? static::getNextService($this->type);
-	}
-
-	private static function getNextService($type) : ?ServiceWrapper
-	{
-		while ($data = ServiceQueue::getInstance($type)->getHead())
+		$types = (is_array($type)? $type : [$type]);
+		foreach ($types as $type)
 		{
-			try
+			while ($data = ServiceQueue::getInstance($type)->getHead())
 			{
-				['TYPE' => $type, 'CLIENT_ID' => $id, 'SERVICE_TYPE' => $serviceType] = $data;
-				if (isset($id, $type, $serviceType))
+				try
 				{
-					$wrapper =
-						ServiceAdapter::createServiceWrapperContainer()
-							->getInstance()
-							->setService(ServiceFactory::getServiceByEngineCode($serviceType))
-							->setClientId($id);
-
-					if ($wrapper::getAuthAdapter($type)->hasAuth())
+					$wrapper = static::buildService($data['TYPE'],$data['CLIENT_ID'],$data['SERVICE_TYPE']);
+				}
+				finally
+				{
+					if ($wrapper && $wrapper::getAuthAdapter($type)->hasAuth())
 					{
 						return $wrapper;
 					}
+					ServiceQueue::getInstance($type)->removeHead();
 				}
 			}
-			catch (\Throwable $exception)
-			{}
-
-			ServiceQueue::getInstance($type)->removeHead();
 		}
 		return null;
 	}

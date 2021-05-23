@@ -243,7 +243,7 @@ export class EntityCard
 	{
 		const [fields, response] = event.getCompatData();
 
-		const title = fields.NAME || '';
+		const title = fields['NAME-CODE'].NAME || '';
 		this.changePageTitle(title);
 
 		if (response.data)

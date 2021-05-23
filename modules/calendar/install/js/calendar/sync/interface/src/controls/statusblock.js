@@ -2,7 +2,7 @@
 'use strict';
 
 import {Loc, Tag} from "main.core";
-import SyncStatusPopup from "./syncstatuspopup";
+import {SyncStatusPopup} from "calendar.sync.manager";
 
 export default class StatusBlock
 {
@@ -10,9 +10,9 @@ export default class StatusBlock
 	{
 		this.status = options.status;
 		this.connections = options.connections;
-		this.withStatus = options.withStatus;
+		this.withStatusLabel = options.withStatusLabel;
 		this.popupWithUpdateButton = options.popupWithUpdateButton;
-		this.popupId = options.id;
+		this.popupId = options.popupId;
 	}
 
 	static createInstance(options)
@@ -20,7 +20,7 @@ export default class StatusBlock
 		return new this(options);
 	}
 
-	getContentStatusBlock()
+	getContent()
 	{
 		let statusInfoBlock;
 		if (this.status === 'success')
@@ -48,27 +48,34 @@ export default class StatusBlock
 			`;
 		}
 
-		statusInfoBlock.addEventListener('mouseenter', (event) => {
+		statusInfoBlock.addEventListener('mouseenter', () => {
 			this.handlerMouseEnter(statusInfoBlock);
 		});
 
-		statusInfoBlock.addEventListener('mouseleave', (event) => {
+		statusInfoBlock.addEventListener('mouseleave', () => {
 			this.handlerMouseLeave();
 		});
 
-		const statusTextLabel = Tag.render `
-			<div class="calendar-sync-status-subtitle">
-				<span data-hint=""></span>
-				<span class="calendar-sync-status-text">${Loc.getMessage('LABEL_STATUS_INFO')}:</span>
-			</div>
-		`;
-
-		return Tag.render `
+		this.statusBlock = Tag.render `
 			<div class="calendar-sync-status-block" id="calendar-sync-status-block">
-				${this.withStatus ? statusTextLabel : ''}
+				${this.getStatusTextLabel()}
 				${statusInfoBlock}
 			</div>
 		`;
+
+		return this.statusBlock;
+	}
+
+	getStatusTextLabel()
+	{
+		return this.withStatusLabel
+			? Tag.render`
+				<div class="calendar-sync-status-subtitle">
+					<span data-hint=""></span>
+					<span class="calendar-sync-status-text">${Loc.getMessage('LABEL_STATUS_INFO')}:</span>
+				</div>`
+			: ''
+		;
 	}
 
 	handlerMouseEnter(statusBlock)
@@ -102,21 +109,10 @@ export default class StatusBlock
 	{
 		if(this.status !== 'not_connected')
 		{
-			this.popup = SyncStatusPopup.createInstance({
-				connections: this.connections,
-				withUpdateButton: this.popupWithUpdateButton,
-				node: node,
-				id: this.popupId,
-			});
+			this.popup = this.getPopup(node);
 			this.popup.show();
 
-			this.popup.getPopup().getPopupContainer().addEventListener('mouseenter', e => {
-				clearTimeout(this.statusBlockEnterTimeout);
-				clearTimeout(this.statusBlockLeaveTimeout);
-			});
-			this.popup.getPopup().getPopupContainer().addEventListener('mouseleave', () => {
-				this.hidePopup();
-			});
+			this.addPopupHandlers();
 		}
 	}
 
@@ -126,5 +122,37 @@ export default class StatusBlock
 		{
 			this.popup.hide();
 		}
+	}
+
+	addPopupHandlers()
+	{
+		this.popup.getPopup().getPopupContainer().addEventListener('mouseenter', () =>
+		{
+			clearTimeout(this.statusBlockEnterTimeout);
+			clearTimeout(this.statusBlockLeaveTimeout);
+		});
+
+		this.popup.getPopup().getPopupContainer().addEventListener('mouseleave', () =>
+		{
+			this.hidePopup();
+		});
+	}
+
+	getPopup(node)
+	{
+		return SyncStatusPopup.createInstance({
+			connections: this.connections,
+			withUpdateButton: this.popupWithUpdateButton,
+			node: node,
+			id: this.popupId,
+		});
+	}
+
+	refresh(status, connections)
+	{
+		this.status = status;
+		this.connections = connections;
+
+		return this;
 	}
 }

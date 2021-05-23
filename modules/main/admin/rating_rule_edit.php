@@ -77,8 +77,8 @@ if($ID>0 && !$bTypeChange)
 	$ratingRule = CRatingRule::GetByID($ID);
 	if(!($arRatingRule = $ratingRule->ExtractFields("str_")))
 		$ID=0;
-	$str_CONDITION_CONFIG = unserialize(htmlspecialcharsback($str_CONDITION_CONFIG));
-	$str_ACTION_CONFIG = unserialize(htmlspecialcharsback($str_ACTION_CONFIG));
+	$str_CONDITION_CONFIG = unserialize(htmlspecialcharsback($str_CONDITION_CONFIG), ['allowed_classes' => false]);
+	$str_ACTION_CONFIG = unserialize(htmlspecialcharsback($str_ACTION_CONFIG), ['allowed_classes' => false]);
 }
 
 $sDocTitle = ($ID>0? GetMessage("MAIN_RATING_RULE_EDIT_RECORD", array("#ID#"=>$ID)) : GetMessage("MAIN_RATING_RULE_NEW_RECORD"));

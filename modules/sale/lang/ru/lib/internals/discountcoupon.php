@@ -29,4 +29,11 @@ $MESS["DISCOUNT_COUPON_PACKET_NEW_GENERATE_COUPON_ZERO_ERR"] = "Не удало�
 $MESS["DISCOUNT_COUPON_PACKET_GENERATE_COUPON_ZERO_ERR"] = "Не удалось создать купоны";
 $MESS["DISCOUNT_COUPON_PACKET_GENERATE_COUPON_COUNT_ERR"] = "Удалось создать #RESULT# купонов из #COUNT# за #ALL# попыток";
 $MESS["DISCOUNT_COUPON_PACKET_EMPTY"] = "Отсутствует информация о параметрах создаваемых купонов";
-?>
+$MESS["DISCOUNT_COUPON_SAVE_ERROR_DISCOUNT_INACTIVE"] = "правило корзины деактивировано";
+$MESS["DISCOUNT_COUPON_SAVE_ERROR_DISCOUNT_WRONG_ACTIVE_PERIOD"] = "дата оформления заказа не попадает в период действия правила корзины";
+$MESS["DISCOUNT_COUPON_SAVE_ERROR_WRONG_USER_COUPON"] = "купон является именным и не принадлежит владельцу заказа";
+$MESS["DISCOUNT_COUPON_SAVE_ERROR_COUPON_WRONG_ACTIVE_PERIOD"] = "дата оформления заказа не попадает в период действия купона";
+$MESS["DISCOUNT_COUPON_SAVE_ERROR_COUPON_BASKET_ROW_INACTIVE"] = "купон на одну позицию заказа уже использован";
+$MESS["DISCOUNT_COUPON_SAVE_ERROR_COUPON_ONE_ORDER_INACTIVE"] = "купон на один заказ уже использован";
+$MESS["DISCOUNT_COUPON_SAVE_ERROR_COUPON_INACTIVE"] = "купон неактивен";
+$MESS["DISCOUNT_COUPON_SAVE_ERROR_COUPON_MAX_USE_LIMIT"] = "превышено число использований многоразового купона";

@@ -323,7 +323,7 @@ if (is_array($arResult["ActiveFeatures"]) && count($arResult["ActiveFeatures"]) 
 
 					if (in_array($row['AUDIT_TYPE_ID'], array("PAGE_EDIT", "PAGE_ADD", "PAGE_DELETE")))
 					{
-						$path = unserialize($row["DESCRIPTION"]);
+						$path = unserialize($row["DESCRIPTION"], ['allowed_classes' => false]);
 						$path = $path["path"];
 						if ($path)
 						{

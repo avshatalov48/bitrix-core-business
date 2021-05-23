@@ -123,4 +123,17 @@ class TaxiDelivery extends \Bitrix\Main\Engine\Controller
 
 		return $shipment;
 	}
+
+	/**
+	 * Workaround action needed only to run Yandex Go journal processor agent:
+	 * \Sale\Handlers\Delivery\YandexTaxi\EventJournal\JournalProcessor::processJournal
+	 *
+	 * Needs to be removed after the order auto-confirmation feature is released on Yandex' side
+	 *
+	 * @return array
+	 */
+	public function checkRequestStatusAction()
+	{
+		return [];
+	}
 }

@@ -2428,9 +2428,12 @@ this.BX = this.BX || {};
 	    value: function expandTimeline(direction, scaleDateFrom, scaleDateTo) {
 	      var _this9 = this;
 
-	      var loadedTimelineSize, scrollLeft;
-	      if (!scaleDateFrom) scaleDateFrom = this.loadedDataFrom || this.scaleDateFrom;
-	      if (!scaleDateTo) scaleDateTo = this.loadedDataTo || this.scaleDateTo;
+	      var loadedTimelineSize;
+	      var scrollLeft;
+	      var prevScaleDateFrom = this.scaleDateFrom;
+	      var prevScaleDateTo = this.scaleDateTo;
+	      if (!scaleDateFrom) scaleDateFrom = this.scaleDateFrom;
+	      if (!scaleDateTo) scaleDateTo = this.scaleDateTo;
 
 	      if (direction === 'left') {
 	        var oldScaleDateFrom = new Date(this.scaleDateFrom.getTime());
@@ -2444,7 +2447,6 @@ this.BX = this.BX || {};
 	          this.limitScaleSizeMode = true;
 	        }
 
-	        this.rebuildDebounce();
 	        scrollLeft = this.getPosByDate(oldScaleDateFrom);
 	      } else if (direction === 'right') {
 	        var oldDateTo = this.scaleDateTo;
@@ -2462,35 +2464,24 @@ this.BX = this.BX || {};
 	          }, 10);
 	          this.limitScaleSizeMode = true;
 	        }
-
-	        this.rebuildDebounce();
 	      } else {
 	        this.scaleDateFrom = new Date(scaleDateFrom.getTime() - calendar_util.Util.getDayLength() * this.SCALE_OFFSET_BEFORE);
 	        this.scaleDateTo = new Date(scaleDateTo.getTime() + calendar_util.Util.getDayLength() * this.SCALE_OFFSET_AFTER);
-	        this.rebuildDebounce();
 	      }
+
+	      var reloadData = this.scaleDateFrom.getTime() < prevScaleDateFrom.getTime() || this.scaleDateTo.getTime() > prevScaleDateTo.getTime();
+	      this.emit('onExpandTimeline', new main_core_events.BaseEvent({
+	        data: {
+	          reload: reloadData,
+	          dateFrom: this.scaleDateFrom,
+	          dateTo: this.scaleDateTo
+	        }
+	      }));
+	      this.rebuildDebounce();
 
 	      if (scrollLeft !== undefined) {
 	        this.DOM.timelineFixedWrap.scrollLeft = scrollLeft;
-	      } // let i, entry, entrieIds = [];
-	      //
-	      // if (!BX.type.isArray(this.entries))
-	      // 	this.entries = [];
-	      //
-	      // for (i = 0; i < this.entries.length; i++)
-	      // {
-	      // 	entry = this.entries[i];
-	      // 	entrieIds.push(entry.id);
-	      // }
-	      //this.loadDataLock = true;
-	      // BX.onCustomEvent('OnCalendarPlannerScaleChanged', [{
-	      // 	from: Util.formatDate(loadedDataFrom),
-	      // 	to: Util.formatDate(loadedDataTo),
-	      // 	entrieIds: entrieIds,
-	      // 	entries: this.entries,
-	      // 	focusSelector: focusSelector === true
-	      // }]);
-
+	      }
 	    }
 	  }, {
 	    key: "update",
@@ -2666,6 +2657,7 @@ this.BX = this.BX || {};
 	    value: function doCheckSelectorStatus(event) {
 	      if (event instanceof main_core_events.BaseEvent) {
 	        var data = event.getData();
+	        this.clearCacheTime();
 	        var selectorStatus = this.checkTimePeriod(data.dateFrom, data.dateTo) === true;
 	        this.selector.setSelectorStatus(selectorStatus);
 
@@ -2677,207 +2669,7 @@ this.BX = this.BX || {};
 	          this.showProposeControl();
 	        }
 	      }
-	    } // DoUpdate(params)
-	    // {
-	    // 	if (this.id === params.plannerId)
-	    // 	{
-	    // 		let rebuild = false;
-	    // 		if (params.selector && params.selector.fullDay)
-	    // 		{
-	    // 			this.setFullDayMode(params.selector.fullDay);
-	    // 		}
-	    //
-	    // 		if (params.config)
-	    // 		{
-	    // 			if (this.fullDayMode && params.config.changeFromFullDay)
-	    // 			{
-	    // 				params.config.scaleType = params.config.changeFromFullDay.scaleType;
-	    // 				params.config.timelineCellWidth = params.config.changeFromFullDay.timelineCellWidth;
-	    // 				delete params.config.changeFromFullDay;
-	    // 			}
-	    //
-	    // 			// Check if we should rebuild scale
-	    // 			if (params.config.scaleDateFrom && params.config.scaleDateFrom !== this.scaleDateFrom)
-	    // 				rebuild = true;
-	    // 			if (!rebuild && params.config.scaleDateTo && params.config.scaleDateTo !== this.scaleDateTo)
-	    // 				rebuild = true;
-	    // 			if (!rebuild && params.config.scaleType && params.config.scaleType !== this.scaleType)
-	    // 				rebuild = true;
-	    // 			if (params.config.shownScaleTimeFrom && params.config.shownScaleTimeFrom !== this.shownScaleTimeFrom)
-	    // 			{
-	    // 				this.shownScaleTimeFrom = params.config.shownScaleTimeFrom;
-	    // 				rebuild = true;
-	    // 			}
-	    // 			if (params.config.shownScaleTimeTo && params.config.shownScaleTimeTo !== this.shownScaleTimeTo)
-	    // 			{
-	    // 				this.shownScaleTimeTo = params.config.shownScaleTimeTo;
-	    // 				rebuild = true;
-	    // 			}
-	    //
-	    // 			this.setConfig(params.config);
-	    // 		}
-	    //
-	    // 		if (!this.shown && params.show)
-	    // 		{
-	    // 			this.show({animation: true});
-	    // 		}
-	    // 		else if (rebuild)
-	    // 		{
-	    // 			this.rebuild({updateSelector: false});
-	    // 		}
-	    //
-	    // 		if (params.hide && this.shown)
-	    // 		{
-	    // 			this.Hide(params.hideAnimation !== false);
-	    // 		}
-	    //
-	    // 		if (this.shown)
-	    // 		{
-	    // 			if (params.data !== undefined && params.data !== false)
-	    // 			{
-	    // 				this.ClearAccessibilityData();
-	    // 				this.UpdateData(params.data);
-	    // 				this.SetLoadedDataLimits(params.loadedDataFrom, params.loadedDataTo);
-	    // 			}
-	    //
-	    // 			if (params.selector !== undefined &&
-	    // 				params.selector.from && params.selector.to)
-	    // 			{
-	    // 				params.selector.focus = params.focusSelector === true;
-	    // 				params.selector.updateScaleType = false;
-	    //
-	    // 				// this.limitScaleSizeMode - is true if timeline scrolled by mouse or
-	    // 				// mousewheel and we load some data from deep future or from past
-	    // 				// (so we should't expand timeline in this case)
-	    // 				if (params.selector.to.getTime() > this.loadedDataTo.getTime()
-	    // 					&& !this.limitScaleSizeMode)
-	    // 				{
-	    // 					this.expandTimeline('right', false, params.selector.to, true);
-	    // 				}
-	    // 				else if (params.selector.from.getTime() < this.loadedDataFrom.getTime()
-	    // 					&& !this.limitScaleSizeMode)
-	    // 				{
-	    // 					this.expandTimeline('left', params.selector.from, false, true);
-	    // 				}
-	    // 				else
-	    // 				{
-	    // 					if (!this.readonly)
-	    // 					{
-	    // 						this.scaleDateFrom = this.loadedDataFrom;
-	    // 						this.scaleDateTo = this.loadedDataTo;
-	    // 					}
-	    //
-	    // 					this.rebuild({
-	    // 						updateSelector: true,
-	    // 						selectorParams: params.selector
-	    // 					});
-	    // 				}
-	    // 			}
-	    //
-	    // 			if (!this.compactMode && this.loadedDataTo !== this.scaleDateTo)
-	    // 			{
-	    // 				this.checkTimelineScroll();
-	    // 			}
-	    // 		}
-	    //
-	    // 		if (params.params && params.params.callback)
-	    // 		{
-	    // 			params.params.callback();
-	    // 		}
-	    //
-	    // 		if (this.expandTimelineTimeout)
-	    // 			this.expandTimelineTimeout = !!clearTimeout(this.expandTimelineTimeout);
-	    //
-	    // 		let _this = this;
-	    // 		this.expandTimelineTimeout = setTimeout(
-	    // 			function()
-	    // 			{
-	    // 				_this.loadDataLock = false;
-	    // 				if (_this.lastExpandparams)
-	    // 				{
-	    // 					let p = _this.lastExpandparams;
-	    // 					_this.expandTimeline(p.direction, p.loadedDataFrom, p.loadedDataTo, p.focusSelector);
-	    // 				}
-	    // 			},
-	    // 			this.expandTimelineDelay
-	    // 		);
-	    //
-	    // 		// We reset value to the false to allow user to extend timeline manually
-	    // 		this.limitScaleSizeMode = false;
-	    //
-	    // 		BX.onCustomEvent('OnCalendarPlannerUpdated', [this, {
-	    // 			plannerId: this.id,
-	    // 			entries: this.entries
-	    // 		}]);
-	    // 	}
-	    // }
-	    // DoExpand(params)
-	    // {
-	    // 	if (this.id == params.plannerId)
-	    // 	{
-	    // 		if (this.compactMode)
-	    // 		{
-	    // 			if (params.config)
-	    // 			{
-	    // 				this.setConfig(params.config);
-	    // 			}
-	    //
-	    // 			this.ExpandFromCompactMode();
-	    // 		}
-	    // 	}
-	    // }
-	    //
-	    // DoSetConfig(params)
-	    // {
-	    // 	if (this.id == params.plannerId && params.config)
-	    // 	{
-	    // 		this.setConfig(params.config);
-	    // 	}
-	    // }
-	    //
-	    // DoResize(params)
-	    // {
-	    // 	if (this.id == params.plannerId)
-	    // 	{
-	    // 		let _this = this;
-	    //
-	    // 		if (params.width)
-	    // 			params.width = parseInt(params.width) || this.width;
-	    // 		params.width = Math.max(params.width, this.minWidth);
-	    //
-	    // 		this.width = params.width;
-	    // 		this.adjustCellWidth();
-	    //
-	    // 		this.resizePlannerWidth(params.width, false);
-	    //
-	    // 		if (this.resizeRebuildTimeout)
-	    // 			this.resizeRebuildTimeout = clearTimeout(this.resizeRebuildTimeout);
-	    //
-	    // 		this.resizeRebuildTimeout = setTimeout(function()
-	    // 		{
-	    // 			_this.rebuild();
-	    // 		}, 200);
-	    // 	}
-	    // }
-	    //
-	    // DoUninstall(params)
-	    // {
-	    // 	if (params && this.id == params.plannerId)
-	    // 	{
-	    // 		Dom.clean(this.DOM.wrap, 1);
-	    // 		BX.removeCustomEvent('OnCalendarPlannerDoUpdate', BX.proxy(this.DoUpdate, this));
-	    // 		BX.removeCustomEvent('OnCalendarPlannerDoExpand', BX.proxy(this.DoExpand, this));
-	    // 		BX.removeCustomEvent('OnCalendarPlannerDoResize', BX.proxy(this.DoResize, this));
-	    // 		BX.removeCustomEvent('OnCalendarPlannerDoSetConfig', BX.proxy(this.DoSetConfig, this));
-	    // 		BX.removeCustomEvent('OnCalendarPlannerDoUninstall', BX.proxy(this.DoUninstall, this));
-	    //
-	    // 		if (this.settingsPopup)
-	    // 		{
-	    // 			this.settingsPopup.close();
-	    // 		}
-	    // 	}
-	    // }
-
+	    }
 	  }, {
 	    key: "proposeTime",
 	    value: function proposeTime() {

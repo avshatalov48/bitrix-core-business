@@ -88,6 +88,9 @@ class CashboxCheckTable extends DataManager
 				'data_type' => 'string',
 				'required' => true
 			),
+			'ERROR_MESSAGE' => array(
+				'data_type' => 'text',
+			),
 		);
 	}
 }

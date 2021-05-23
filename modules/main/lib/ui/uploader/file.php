@@ -321,7 +321,7 @@ class File
 	 */
 	protected static function getFromCache($hash, $path)
 	{
-		return unserialize(\CBXVirtualIo::GetInstance()->GetFile($path.$hash."/.log")->GetContents());
+		return unserialize(\CBXVirtualIo::GetInstance()->GetFile($path.$hash."/.log")->GetContents(), ['allowed_classes' => false]);
 	}
 
 	/**
@@ -572,7 +572,10 @@ class File
 	public static function http()
 	{
 		if (is_null(static::$http))
+		{
 			static::$http = new HttpClient;
+			static::$http->setPrivateIp(false);
+		}
 		return static::$http;
 	}
 

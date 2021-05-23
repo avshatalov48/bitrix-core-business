@@ -125,7 +125,7 @@ if ($arResult["FatalErrorMessage"] == '')
 			$v5 = array();
 			if ($ar["DESCRIPTION"] <> '' && mb_substr($ar["DESCRIPTION"], 0, mb_strlen("v2:")) == "v2:")
 			{
-				$v4 = @unserialize(mb_substr($ar["DESCRIPTION"], 3));
+				$v4 = @unserialize(mb_substr($ar["DESCRIPTION"], 3), ['allowed_classes' => false]);
 				if (is_array($v4))
 				{
 					$v1 = $v4["DESCRIPTION"];
@@ -158,7 +158,7 @@ if ($arResult["FatalErrorMessage"] == '')
 		$errorMessageTmp = "";
 
 		if (array_key_exists("bp_image", $_FILES))
-			$imageId = CFile::SaveFile($_FILES["bp_image"], "bizproc_wf", true);
+			$imageId = CFile::SaveFile($_FILES["bp_image"], "bizproc_wf");
 		else
 			$imageId = intval($_REQUEST["bp_image"]);
 

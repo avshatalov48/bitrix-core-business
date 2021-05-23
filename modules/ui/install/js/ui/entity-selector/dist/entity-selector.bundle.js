@@ -1,124 +1,7 @@
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
-(function (exports,main_popup,main_core_events,main_core,main_loader) {
+(function (exports,main_popup,main_core_collections,main_core_events,main_core,main_loader) {
 	'use strict';
-
-	var _Symbol$iterator;
-	_Symbol$iterator = Symbol.iterator;
-
-	var ItemCollection = /*#__PURE__*/function () {
-	  function ItemCollection() {
-	    var comparator = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-	    babelHelpers.classCallCheck(this, ItemCollection);
-	    babelHelpers.defineProperty(this, "comparator", null);
-	    babelHelpers.defineProperty(this, "items", []);
-	    this.comparator = main_core.Type.isFunction(comparator) ? comparator : null;
-	  }
-
-	  babelHelpers.createClass(ItemCollection, [{
-	    key: "add",
-	    value: function add(item) {
-	      var index = -1;
-
-	      if (this.comparator) {
-	        index = this.searchIndexToInsert(item);
-	        this.items.splice(index, 0, item);
-	      } else {
-	        this.items.push(item);
-	      }
-
-	      return index;
-	    }
-	  }, {
-	    key: "has",
-	    value: function has(item) {
-	      return this.items.includes(item);
-	    }
-	  }, {
-	    key: "getIndex",
-	    value: function getIndex(item) {
-	      return this.items.indexOf(item);
-	    }
-	  }, {
-	    key: "getByIndex",
-	    value: function getByIndex(index) {
-	      if (main_core.Type.isNumber(index) && index >= 0) {
-	        var item = this.items[index];
-	        return main_core.Type.isUndefined(item) ? null : item;
-	      }
-
-	      return null;
-	    }
-	  }, {
-	    key: "getFirst",
-	    value: function getFirst() {
-	      var first = this.items[0];
-	      return main_core.Type.isUndefined(first) ? null : first;
-	    }
-	  }, {
-	    key: "getLast",
-	    value: function getLast() {
-	      var last = this.items[this.count() - 1];
-	      return main_core.Type.isUndefined(last) ? null : last;
-	    }
-	  }, {
-	    key: "count",
-	    value: function count() {
-	      return this.items.length;
-	    }
-	  }, {
-	    key: "delete",
-	    value: function _delete(item) {
-	      var index = this.getIndex(item);
-
-	      if (index !== -1) {
-	        this.items.splice(index, 1);
-	        return true;
-	      }
-
-	      return false;
-	    }
-	  }, {
-	    key: "clear",
-	    value: function clear() {
-	      this.items = [];
-	    }
-	  }, {
-	    key: _Symbol$iterator,
-	    value: function value() {
-	      return this.items[Symbol.iterator]();
-	    }
-	  }, {
-	    key: "forEach",
-	    value: function forEach(callbackfn, thisArg) {
-	      return this.items.forEach(callbackfn, thisArg);
-	    }
-	  }, {
-	    key: "getItems",
-	    value: function getItems() {
-	      return this.items;
-	    }
-	  }, {
-	    key: "searchIndexToInsert",
-	    value: function searchIndexToInsert(value) {
-	      var low = 0;
-	      var high = this.items.length;
-
-	      while (low < high) {
-	        var mid = Math.floor((low + high) / 2);
-
-	        if (this.comparator(this.items[mid], value) >= 0) {
-	          low = mid + 1;
-	        } else {
-	          high = mid;
-	        }
-	      }
-
-	      return low;
-	    }
-	  }]);
-	  return ItemCollection;
-	}();
 
 	var ItemNodeComparator = /*#__PURE__*/function () {
 	  function ItemNodeComparator() {
@@ -126,49 +9,84 @@ this.BX.UI = this.BX.UI || {};
 	  }
 
 	  babelHelpers.createClass(ItemNodeComparator, null, [{
-	    key: "makeComparator",
-	    value: function makeComparator(orderProperty, orderDirection) {
-	      var sortOrder = orderDirection === 'desc' ? 1 : -1;
-	      return function (nodeA, nodeB) {
-	        var itemA = nodeA.getItem();
-	        var itemB = nodeB.getItem();
-	        var valueA = itemA[orderProperty];
-	        var valueB = itemB[orderProperty];
-	        var result = 0;
-
-	        if (main_core.Type.isString(valueA)) {
-	          result = valueA.localeCompare(valueB);
-	        } else {
-	          if (main_core.Type.isNull(valueA) || main_core.Type.isNull(valueB)) {
-	            result = valueA === valueB ? 0 : main_core.Type.isNull(valueA) ? 1 : -1;
-	          } else {
-	            result = valueA < valueB ? -1 : valueA > valueB ? 1 : 0;
-	          }
-	        }
-
-	        return result * sortOrder;
-	      };
-	    }
-	  }, {
 	    key: "makeMultipleComparator",
 	    value: function makeMultipleComparator(order) {
 	      var _this = this;
 
-	      var props = Object.keys(order);
-	      return function (a, b) {
+	      var props = Object.keys(order).map(function (property) {
+	        return "get".concat(main_core.Text.capitalize(property));
+	      });
+	      /*
+	      asc *
+	      asc nulls last *
+	      asc nulls first
+	      	desc *
+	      desc nulls first *
+	      desc nulls last
+	      */
+
+	      var directions = [];
+	      Object.values(order).forEach(function (element) {
+	        var direction = element.toLowerCase().trim(); // Default sorting: 'asc' || 'asc nulls last'
+
+	        var ascOrdering = true;
+	        var nullsOrdering = true;
+
+	        if (direction === 'desc' || direction === 'desc nulls first') {
+	          ascOrdering = false;
+	        } else if (direction === 'asc nulls first') {
+	          nullsOrdering = false;
+	        } else if (direction === 'desc nulls last') {
+	          ascOrdering = false;
+	          nullsOrdering = false;
+	        }
+
+	        directions.push({
+	          ascOrdering: ascOrdering,
+	          nullsOrdering: nullsOrdering
+	        });
+	      });
+	      var numberOfProperties = props.length;
+	      return function (nodeA, nodeB) {
 	        var i = 0;
 	        var result = 0;
-	        var numberOfProperties = props.length;
 
 	        while (result === 0 && i < numberOfProperties) {
-	          var orderProperty = props[i];
-	          var orderDirection = order[props[i]];
-	          result = _this.makeComparator(orderProperty, orderDirection)(a, b);
+	          var propertyGetter = props[i];
+	          var direction = directions[i];
+	          result = _this.compareItemNodes(nodeA, nodeB, propertyGetter, direction.ascOrdering, direction.nullsOrdering);
 	          i += 1;
 	        }
 
 	        return result;
 	      };
+	    }
+	  }, {
+	    key: "compareItemNodes",
+	    value: function compareItemNodes(nodeA, nodeB, propertyGetter, ascOrdering, nullsOrdering) {
+	      var itemA = nodeA.getItem();
+	      var itemB = nodeB.getItem();
+	      itemA.getCustomData().get();
+	      var valueA = itemA[propertyGetter]();
+	      var valueB = itemB[propertyGetter]();
+	      var result = 0;
+
+	      if (valueA !== null && valueB === null) {
+	        result = nullsOrdering ? -1 : 1;
+	      } else if (valueA === null && valueB !== null) {
+	        result = nullsOrdering ? 1 : -1;
+	      } else if (valueA === null && valueB === null) {
+	        result = ascOrdering ? -1 : 1;
+	      } else {
+	        if (main_core.Type.isString(valueA)) {
+	          result = valueA.localeCompare(valueB);
+	        } else {
+	          result = valueA - valueB;
+	        }
+	      }
+
+	      var sortOrder = ascOrdering ? 1 : -1;
+	      return result * sortOrder;
 	    }
 	  }]);
 	  return ItemNodeComparator;
@@ -208,23 +126,102 @@ this.BX.UI = this.BX.UI || {};
 	  return Highlighter;
 	}();
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-selector-item-badge\"></span>"]);
+	var TextNodeType = /*#__PURE__*/function () {
+	  function TextNodeType() {
+	    babelHelpers.classCallCheck(this, TextNodeType);
+	  }
 
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
+	  babelHelpers.createClass(TextNodeType, null, [{
+	    key: "isValid",
+	    value: function isValid(type) {
+	      return main_core.Type.isString(type) && (type === this.HTML || type === this.TEXT);
+	    }
+	  }]);
+	  return TextNodeType;
+	}();
 
-	  return data;
-	}
+	babelHelpers.defineProperty(TextNodeType, "TEXT", 'text');
+	babelHelpers.defineProperty(TextNodeType, "HTML", 'html');
+
+	var TextNode = /*#__PURE__*/function () {
+	  function TextNode(options) {
+	    babelHelpers.classCallCheck(this, TextNode);
+	    babelHelpers.defineProperty(this, "text", null);
+	    babelHelpers.defineProperty(this, "type", null);
+
+	    if (main_core.Type.isPlainObject(options)) {
+	      if (main_core.Type.isString(options.text)) {
+	        this.text = options.text;
+	      }
+
+	      if (TextNodeType.isValid(options.type)) {
+	        this.type = options.type;
+	      }
+	    } else if (main_core.Type.isString(options)) {
+	      this.text = options;
+	    }
+	  }
+
+	  babelHelpers.createClass(TextNode, [{
+	    key: "getText",
+	    value: function getText() {
+	      return this.text;
+	    }
+	  }, {
+	    key: "getType",
+	    value: function getType() {
+	      return this.type;
+	    }
+	  }, {
+	    key: "isNullable",
+	    value: function isNullable() {
+	      return this.getText() === null;
+	    }
+	  }, {
+	    key: "renderTo",
+	    value: function renderTo(element) {
+	      var text = this.getText();
+
+	      if (text === null) {
+	        return;
+	      }
+
+	      if (this.getType() === null || this.getType() === TextNodeType.TEXT) {
+	        element.textContent = text;
+	      } else if (this.getType() === TextNodeType.HTML) {
+	        element.innerHTML = text;
+	      }
+	    }
+	  }, {
+	    key: "toString",
+	    value: function toString() {
+	      var _this$getText;
+
+	      return (_this$getText = this.getText()) !== null && _this$getText !== void 0 ? _this$getText : '';
+	    }
+	  }, {
+	    key: "toJSON",
+	    value: function toJSON() {
+	      if (this.getType() === null) {
+	        return this.getText();
+	      } else {
+	        return {
+	          text: this.getText(),
+	          type: this.getType()
+	        };
+	      }
+	    }
+	  }]);
+	  return TextNode;
+	}();
 
 	var ItemBadge = /*#__PURE__*/function () {
 	  function ItemBadge(badgeOptions) {
 	    babelHelpers.classCallCheck(this, ItemBadge);
-	    babelHelpers.defineProperty(this, "title", '');
+	    babelHelpers.defineProperty(this, "title", null);
 	    babelHelpers.defineProperty(this, "textColor", null);
 	    babelHelpers.defineProperty(this, "bgColor", null);
-	    babelHelpers.defineProperty(this, "container", null);
+	    babelHelpers.defineProperty(this, "containers", new WeakMap());
 	    var options = main_core.Type.isPlainObject(badgeOptions) ? badgeOptions : {};
 	    this.setTitle(options.title);
 	    this.setTextColor(options.textColor);
@@ -234,16 +231,20 @@ this.BX.UI = this.BX.UI || {};
 	  babelHelpers.createClass(ItemBadge, [{
 	    key: "getTitle",
 	    value: function getTitle() {
+	      var titleNode = this.getTitleNode();
+	      return titleNode !== null && !titleNode.isNullable() ? titleNode.getText() : '';
+	    }
+	  }, {
+	    key: "getTitleNode",
+	    value: function getTitleNode() {
 	      return this.title;
 	    }
 	  }, {
 	    key: "setTitle",
 	    value: function setTitle(title) {
-	      if (main_core.Type.isStringFilled(title)) {
-	        this.title = title;
+	      if (main_core.Type.isStringFilled(title) || main_core.Type.isPlainObject(title) || title === null) {
+	        this.title = title === null ? null : new TextNode(title);
 	      }
-
-	      return this;
 	    }
 	  }, {
 	    key: "getTextColor",
@@ -256,8 +257,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isString(textColor) || textColor === null) {
 	        this.textColor = textColor;
 	      }
-
-	      return this;
 	    }
 	  }, {
 	    key: "getBgColor",
@@ -270,27 +269,174 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isString(bgColor) || bgColor === null) {
 	        this.bgColor = bgColor;
 	      }
-
-	      return this;
 	    }
 	  }, {
-	    key: "render",
-	    value: function render() {
-	      var container = main_core.Tag.render(_templateObject());
-	      container.textContent = this.getTitle();
+	    key: "getContainer",
+	    value: function getContainer(target) {
+	      var container = this.containers.get(target);
+
+	      if (!container) {
+	        container = document.createElement('span');
+	        container.className = 'ui-selector-item-badge';
+	        this.containers.set(target, container);
+	      }
+
+	      return container;
+	    }
+	  }, {
+	    key: "renderTo",
+	    value: function renderTo(target) {
+	      var container = this.getContainer(target);
+	      var titleNode = this.getTitleNode();
+
+	      if (titleNode) {
+	        this.getTitleNode().renderTo(container);
+	      } else {
+	        container.textContent = '';
+	      }
+
 	      main_core.Dom.style(container, 'color', this.getTextColor());
 	      main_core.Dom.style(container, 'background-color', this.getBgColor());
-	      return container;
+	      main_core.Dom.append(container, target);
+	    }
+	  }, {
+	    key: "toJSON",
+	    value: function toJSON() {
+	      return {
+	        title: this.getTitleNode(),
+	        textColor: this.getTextColor(),
+	        bgColor: this.getBgColor()
+	      };
 	    }
 	  }]);
 	  return ItemBadge;
 	}();
 
+	var SearchField = /*#__PURE__*/function () {
+	  function SearchField(fieldOptions) {
+	    babelHelpers.classCallCheck(this, SearchField);
+	    babelHelpers.defineProperty(this, "name", null);
+	    babelHelpers.defineProperty(this, "type", 'string');
+	    babelHelpers.defineProperty(this, "searchable", true);
+	    babelHelpers.defineProperty(this, "system", false);
+	    babelHelpers.defineProperty(this, "sort", null);
+	    var options = main_core.Type.isPlainObject(fieldOptions) ? fieldOptions : {};
+
+	    if (!main_core.Type.isStringFilled(options.name)) {
+	      throw new Error('EntitySelector.SearchField: "name" parameter is required.');
+	    }
+
+	    this.name = options.name;
+	    this.setType(options.type);
+	    this.setSystem(options.system);
+	    this.setSort(options.sort);
+	    this.setSearchable(options.searchable);
+	  }
+
+	  babelHelpers.createClass(SearchField, [{
+	    key: "getName",
+	    value: function getName() {
+	      return this.name;
+	    }
+	  }, {
+	    key: "getType",
+	    value: function getType() {
+	      return this.type;
+	    }
+	  }, {
+	    key: "setType",
+	    value: function setType(type) {
+	      if (main_core.Type.isStringFilled(type)) {
+	        this.type = type;
+	      }
+	    }
+	  }, {
+	    key: "getSort",
+	    value: function getSort() {
+	      return this.sort;
+	    }
+	  }, {
+	    key: "setSort",
+	    value: function setSort(sort) {
+	      if (main_core.Type.isNumber(sort) || sort === null) {
+	        this.sort = sort;
+	      }
+	    }
+	  }, {
+	    key: "setSearchable",
+	    value: function setSearchable(flag) {
+	      if (main_core.Type.isBoolean(flag)) {
+	        this.searchable = flag;
+	      }
+	    }
+	  }, {
+	    key: "isSearchable",
+	    value: function isSearchable() {
+	      return this.searchable;
+	    }
+	  }, {
+	    key: "setSystem",
+	    value: function setSystem(flag) {
+	      if (main_core.Type.isBoolean(flag)) {
+	        this.system = flag;
+	      }
+	    }
+	  }, {
+	    key: "isCustom",
+	    value: function isCustom() {
+	      return !this.isSystem();
+	    }
+	  }, {
+	    key: "isSystem",
+	    value: function isSystem() {
+	      return this.system;
+	    }
+	  }]);
+	  return SearchField;
+	}();
+
+	var MatchIndex = /*#__PURE__*/function () {
+	  function MatchIndex(field, queryWord, startIndex) {
+	    babelHelpers.classCallCheck(this, MatchIndex);
+	    babelHelpers.defineProperty(this, "field", null);
+	    babelHelpers.defineProperty(this, "queryWord", null);
+	    babelHelpers.defineProperty(this, "startIndex", null);
+	    babelHelpers.defineProperty(this, "endIndex", null);
+	    this.field = field;
+	    this.queryWord = queryWord;
+	    this.startIndex = startIndex;
+	    this.endIndex = startIndex + queryWord.length;
+	  }
+
+	  babelHelpers.createClass(MatchIndex, [{
+	    key: "getField",
+	    value: function getField() {
+	      return this.field;
+	    }
+	  }, {
+	    key: "getQueryWord",
+	    value: function getQueryWord() {
+	      return this.queryWord;
+	    }
+	  }, {
+	    key: "getStartIndex",
+	    value: function getStartIndex() {
+	      return this.startIndex;
+	    }
+	  }, {
+	    key: "getEndIndex",
+	    value: function getEndIndex() {
+	      return this.endIndex;
+	    }
+	  }]);
+	  return MatchIndex;
+	}();
+
 	var comparator = function comparator(a, b) {
 	  if (a.getStartIndex() === b.getStartIndex()) {
-	    return a.getEndIndex() > b.getEndIndex() ? 1 : -1;
+	    return a.getEndIndex() > b.getEndIndex() ? -1 : 1;
 	  } else {
-	    return a.getStartIndex() > b.getStartIndex() ? -1 : 1;
+	    return a.getStartIndex() > b.getStartIndex() ? 1 : -1;
 	  }
 	};
 
@@ -299,7 +445,7 @@ this.BX.UI = this.BX.UI || {};
 	    var indexes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
 	    babelHelpers.classCallCheck(this, MatchField);
 	    babelHelpers.defineProperty(this, "field", null);
-	    babelHelpers.defineProperty(this, "matchIndexes", new ItemCollection(comparator));
+	    babelHelpers.defineProperty(this, "matchIndexes", new main_core_collections.OrderedArray(comparator));
 	    this.field = field;
 	    this.addIndexes(indexes);
 	  }
@@ -334,135 +480,68 @@ this.BX.UI = this.BX.UI || {};
 	  return MatchField;
 	}();
 
-	function _templateObject12() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-selector-item-link-text\">", "</span>\n\t\t\t"]);
+	var Animation = /*#__PURE__*/function () {
+	  function Animation() {
+	    babelHelpers.classCallCheck(this, Animation);
+	  }
 
-	  _templateObject12 = function _templateObject12() {
-	    return data;
-	  };
+	  babelHelpers.createClass(Animation, null, [{
+	    key: "handleTransitionEnd",
+	    value: function handleTransitionEnd(element, propertyName) {
+	      var properties = main_core.Type.isArray(propertyName) ? new Set(propertyName) : new Set([propertyName]);
+	      return new Promise(function (resolve) {
+	        var handler = function handler(event) {
+	          if (event.target !== element || !properties.has(event.propertyName)) {
+	            return;
+	          }
 
-	  return data;
-	}
+	          properties.delete(event.propertyName);
 
-	function _templateObject11() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<a \n\t\t\t\t\tclass=\"ui-selector-item-link\"\n\t\t\t\t\thref=\"", "\" \n\t\t\t\t\ttarget=\"_blank\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t>", "</a>\n\t\t\t"]);
+	          if (properties.size === 0) {
+	            resolve(event);
+	            main_core.Event.unbind(element, 'transitionend', handler);
+	          }
+	        };
 
-	  _templateObject11 = function _templateObject11() {
-	    return data;
-	  };
+	        main_core.Event.bind(element, 'transitionend', handler);
+	      });
+	    }
+	  }, {
+	    key: "handleAnimationEnd",
+	    value: function handleAnimationEnd(element, animationName) {
+	      return new Promise(function (resolve) {
+	        var handler = function handler(event) {
+	          if (!animationName || event.animationName === animationName) {
+	            resolve(event);
+	            main_core.Event.unbind(element, 'animationend', handler);
+	          }
+	        };
 
-	  return data;
-	}
+	        main_core.Event.bind(element, 'animationend', handler);
+	      });
+	    }
+	  }]);
+	  return Animation;
+	}();
 
-	function _templateObject10() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-item-badges\">", "</div>\n\t\t\t"]);
+	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 
-	  _templateObject10 = function _templateObject10() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject9() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-item-indicator\"></div>\n\t\t\t"]);
-
-	  _templateObject9 = function _templateObject9() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject8() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-item-caption\"></div>\n\t\t\t"]);
-
-	  _templateObject8 = function _templateObject8() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-item-supertitle\"></div>\n\t\t\t"]);
-
-	  _templateObject7 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-item-subtitle\"></div>\n\t\t\t"]);
-
-	  _templateObject6 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-item-title\"></div>\n\t\t\t"]);
-
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-item-avatar\"></div>\n\t\t\t"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"ui-selector-item\" \n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\tonmouseenter=\"", "\"\n\t\t\t\t\tonmouseleave=\"", "\"\n\t\t\t\t>\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"ui-selector-item-titles\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t<div class=\"ui-selector-item-title-box\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-item-children\" ontransitionend=\"", "\"></div>\n\t\t\t"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-item-box", "\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	function _classStaticPrivateMethodGet(receiver, classConstructor, method) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } return method; }
 	var RenderMode = function RenderMode() {
 	  babelHelpers.classCallCheck(this, RenderMode);
 	};
 	babelHelpers.defineProperty(RenderMode, "PARTIAL", 'partial');
 	babelHelpers.defineProperty(RenderMode, "OVERRIDE", 'override');
 
+	var _makeEllipsisTitle = new WeakSet();
+
 	var ItemNode = /*#__PURE__*/function () {
 	  // for the fast access
 	  function ItemNode(item, nodeOptions) {
 	    babelHelpers.classCallCheck(this, ItemNode);
+
+	    _makeEllipsisTitle.add(this);
+
 	    babelHelpers.defineProperty(this, "item", null);
 	    babelHelpers.defineProperty(this, "tab", null);
 	    babelHelpers.defineProperty(this, "cache", new main_core.Cache.MemoryCache());
@@ -479,13 +558,15 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "renderMode", RenderMode.PARTIAL);
 	    babelHelpers.defineProperty(this, "title", null);
 	    babelHelpers.defineProperty(this, "subtitle", null);
-	    babelHelpers.defineProperty(this, "caption", null);
 	    babelHelpers.defineProperty(this, "supertitle", null);
+	    babelHelpers.defineProperty(this, "caption", null);
+	    babelHelpers.defineProperty(this, "captionOptions", {});
 	    babelHelpers.defineProperty(this, "avatar", null);
 	    babelHelpers.defineProperty(this, "link", null);
 	    babelHelpers.defineProperty(this, "linkTitle", null);
 	    babelHelpers.defineProperty(this, "textColor", null);
 	    babelHelpers.defineProperty(this, "badges", null);
+	    babelHelpers.defineProperty(this, "badgesOptions", {});
 	    babelHelpers.defineProperty(this, "highlights", []);
 	    babelHelpers.defineProperty(this, "renderWithDebounce", main_core.Runtime.debounce(this.render, 50, this));
 	    var options = main_core.Type.isPlainObject(nodeOptions) ? nodeOptions : {};
@@ -502,30 +583,40 @@ this.BX.UI = this.BX.UI || {};
 	      comparator = ItemNodeComparator.makeMultipleComparator(options.itemOrder);
 	    }
 
-	    this.children = new ItemCollection(comparator);
+	    this.children = new main_core_collections.OrderedArray(comparator);
 	    this.renderMode = options.renderMode === RenderMode.OVERRIDE ? RenderMode.OVERRIDE : RenderMode.PARTIAL;
 
 	    if (this.renderMode === RenderMode.OVERRIDE) {
-	      this.title = '';
-	      this.subtitle = '';
-	      this.caption = '';
-	      this.supertitle = '';
+	      this.setTitle('');
+	      this.setSubtitle('');
+	      this.setSupertitle('');
+	      this.setCaption('');
+	      this.setLinkTitle('');
 	      this.avatar = '';
 	      this.textColor = '';
 	      this.link = '';
-	      this.linkTitle = '';
 	      this.badges = [];
+	      this.captionOptions = {
+	        fitContent: null,
+	        maxWidth: null
+	      };
+	      this.badgesOptions = {
+	        fitContent: null,
+	        maxWidth: null
+	      };
 	    }
 
 	    this.setTitle(options.title);
 	    this.setSubtitle(options.subtitle);
 	    this.setSupertitle(options.supertitle);
 	    this.setCaption(options.caption);
+	    this.setCaptionOptions(options.captionOptions);
 	    this.setAvatar(options.avatar);
 	    this.setTextColor(options.textColor);
 	    this.setLink(options.link);
 	    this.setLinkTitle(options.linkTitle);
 	    this.setBadges(options.badges);
+	    this.setBadgesOptions(options.badgesOptions);
 	    this.setDynamic(options.dynamic);
 	    this.setOpen(options.open);
 	  }
@@ -549,7 +640,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "setTab",
 	    value: function setTab(tab) {
 	      this.tab = tab;
-	      return this;
 	    }
 	  }, {
 	    key: "getTab",
@@ -565,7 +655,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "setParentNode",
 	    value: function setParentNode(parentNode) {
 	      this.parentNode = parentNode;
-	      return this;
 	    }
 	  }, {
 	    key: "getNextSibling",
@@ -652,6 +741,25 @@ this.BX.UI = this.BX.UI || {};
 	      return itemNode;
 	    }
 	  }, {
+	    key: "addItems",
+	    value: function addItems(items) {
+	      var _this2 = this;
+
+	      if (main_core.Type.isArray(items)) {
+	        this.disableRender();
+	        items.forEach(function (item) {
+	          if (item instanceof Item) {
+	            _this2.addItem(item);
+	          }
+	        });
+	        this.enableRender();
+
+	        if (this.isRendered()) {
+	          this.renderWithDebounce();
+	        }
+	      }
+	    }
+	  }, {
 	    key: "hasItem",
 	    value: function hasItem(item) {
 	      return this.childItems.has(item);
@@ -663,9 +771,7 @@ this.BX.UI = this.BX.UI || {};
 	        return false;
 	      }
 
-	      while (child.getFirstChild()) {
-	        child.removeChild(child.getFirstChild());
-	      }
+	      child.removeChildren();
 
 	      if (child.isFocused()) {
 	        child.unfocus();
@@ -677,7 +783,7 @@ this.BX.UI = this.BX.UI || {};
 	      this.childItems.delete(child.getItem());
 
 	      if (this.isRendered()) {
-	        this.render();
+	        main_core.Dom.remove(child.getOuterContainer());
 	      }
 
 	      return true;
@@ -685,8 +791,29 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "removeChildren",
 	    value: function removeChildren() {
-	      while (this.getFirstChild()) {
-	        this.removeChild(this.getFirstChild());
+	      if (!this.hasChildren()) {
+	        return;
+	      }
+
+	      this.getChildren().forEach(function (node) {
+	        node.removeChildren();
+
+	        if (node.isFocused()) {
+	          node.unfocus();
+	        }
+
+	        node.setParentNode(null);
+	        node.getItem().removeNode(node);
+	      });
+	      this.getChildren().clear();
+	      this.childItems = new WeakMap();
+
+	      if (this.isRendered()) {
+	        if (main_core.Browser.isIE()) {
+	          main_core.Dom.clean(this.getChildrenContainer());
+	        } else {
+	          this.getChildrenContainer().textContent = '';
+	        }
 	      }
 	    }
 	  }, {
@@ -732,7 +859,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "loadChildren",
 	    value: function loadChildren() {
-	      var _this2 = this;
+	      var _this3 = this;
 
 	      if (!this.isDynamic()) {
 	        throw new Error('EntitySelector.ItemNode.loadChildren: an item node is not dynamic.');
@@ -744,8 +871,8 @@ this.BX.UI = this.BX.UI || {};
 
 	      this.dynamicPromise = main_core.ajax.runAction('ui.entityselector.getChildren', {
 	        json: {
-	          parentItem: this.getItem(),
-	          dialog: this.getDialog()
+	          parentItem: this.getItem().getAjaxJson(),
+	          dialog: this.getDialog().getAjaxJson()
 	        },
 	        getParameters: {
 	          context: this.getDialog().getContext()
@@ -753,16 +880,16 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	      this.dynamicPromise.then(function (response) {
 	        if (response && response.data && main_core.Type.isPlainObject(response.data.dialog)) {
-	          _this2.addChildren(response.data.dialog.items);
+	          _this3.addChildren(response.data.dialog.items);
 
-	          _this2.render();
+	          _this3.render();
 	        }
 
-	        _this2.loaded = true;
+	        _this3.loaded = true;
 	      });
 	      this.dynamicPromise.catch(function (error) {
-	        _this2.loaded = false;
-	        _this2.dynamicPromise = null;
+	        _this3.loaded = false;
+	        _this3.dynamicPromise = null;
 	        console.error(error);
 	      });
 	      return this.dynamicPromise;
@@ -777,8 +904,6 @@ this.BX.UI = this.BX.UI || {};
 	          this.open = open;
 	        }
 	      }
-
-	      return this;
 	    }
 	  }, {
 	    key: "isOpen",
@@ -796,8 +921,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isBoolean(autoOpen)) {
 	        this.autoOpen = autoOpen;
 	      }
-
-	      return this;
 	    }
 	  }, {
 	    key: "setDynamic",
@@ -805,8 +928,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isBoolean(dynamic)) {
 	        this.dynamic = dynamic;
 	      }
-
-	      return this;
 	    }
 	  }, {
 	    key: "isDynamic",
@@ -833,13 +954,13 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "showLoader",
 	    value: function showLoader() {
-	      this.getLoader().show();
+	      void this.getLoader().show();
 	      main_core.Dom.addClass(this.getIndicatorContainer(), 'ui-selector-item-indicator-hidden');
 	    }
 	  }, {
 	    key: "hideLoader",
 	    value: function hideLoader() {
-	      this.getLoader().hide();
+	      void this.getLoader().hide();
 	      main_core.Dom.removeClass(this.getIndicatorContainer(), 'ui-selector-item-indicator-hidden');
 	    }
 	  }, {
@@ -852,7 +973,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "expand",
 	    value: function expand() {
-	      var _this3 = this;
+	      var _this4 = this;
 
 	      if (this.isOpen() || !this.hasChildren() && !this.isDynamic()) {
 	        return;
@@ -860,22 +981,35 @@ this.BX.UI = this.BX.UI || {};
 
 	      if (this.isDynamic() && !this.isLoaded()) {
 	        this.loadChildren().then(function () {
-	          _this3.destroyLoader();
+	          _this4.destroyLoader();
 
-	          _this3.expand();
+	          _this4.expand();
 	        });
 	        this.showLoader();
 	        return;
 	      }
 
-	      main_core.Dom.style(this.getChildrenContainer(), 'height', "".concat(this.getChildrenContainer().scrollHeight, "px"));
 	      main_core.Dom.addClass(this.getOuterContainer(), 'ui-selector-item-box-open');
-	      this.setOpen(true);
+	      main_core.Dom.style(this.getChildrenContainer(), 'height', '0px');
+	      main_core.Dom.style(this.getChildrenContainer(), 'opacity', 0);
+	      requestAnimationFrame(function () {
+	        requestAnimationFrame(function () {
+	          main_core.Dom.style(_this4.getChildrenContainer(), 'height', "".concat(_this4.getChildrenContainer().scrollHeight, "px"));
+	          main_core.Dom.style(_this4.getChildrenContainer(), 'opacity', 1);
+	          Animation.handleTransitionEnd(_this4.getChildrenContainer(), 'height').then(function () {
+	            main_core.Dom.style(_this4.getChildrenContainer(), 'height', null);
+	            main_core.Dom.style(_this4.getChildrenContainer(), 'opacity', null);
+	            main_core.Dom.addClass(_this4.getOuterContainer(), 'ui-selector-item-box-open');
+
+	            _this4.setOpen(true);
+	          });
+	        });
+	      });
 	    }
 	  }, {
 	    key: "collapse",
 	    value: function collapse() {
-	      var _this4 = this;
+	      var _this5 = this;
 
 	      if (!this.isOpen()) {
 	        return;
@@ -883,35 +1017,109 @@ this.BX.UI = this.BX.UI || {};
 
 	      main_core.Dom.style(this.getChildrenContainer(), 'height', "".concat(this.getChildrenContainer().offsetHeight, "px"));
 	      requestAnimationFrame(function () {
-	        main_core.Dom.removeClass(_this4.getOuterContainer(), 'ui-selector-item-box-open');
-	        main_core.Dom.style(_this4.getChildrenContainer(), 'height', null);
+	        requestAnimationFrame(function () {
+	          main_core.Dom.style(_this5.getChildrenContainer(), 'height', '0px');
+	          main_core.Dom.style(_this5.getChildrenContainer(), 'opacity', 0);
+	          Animation.handleTransitionEnd(_this5.getChildrenContainer(), 'height').then(function () {
+	            main_core.Dom.style(_this5.getChildrenContainer(), 'height', null);
+	            main_core.Dom.style(_this5.getChildrenContainer(), 'opacity', null);
+	            main_core.Dom.removeClass(_this5.getOuterContainer(), 'ui-selector-item-box-open');
 
-	        _this4.setOpen(false);
+	            _this5.setOpen(false);
+	          });
+	        });
 	      });
 	    }
 	  }, {
 	    key: "render",
 	    value: function render() {
+	      var _this6 = this;
+
+	      var appendChildren = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
 	      if (this.isRoot()) {
-	        this.renderRoot();
+	        this.renderRoot(appendChildren);
 	        return;
 	      }
 
-	      this.getTitleContainer().textContent = main_core.Type.isString(this.getTitle()) ? this.getTitle() : '';
-	      this.getSubtitleContainer().textContent = main_core.Type.isString(this.getSubtitle()) ? this.getSubtitle() : '';
-	      this.getSupertitleContainer().textContent = main_core.Type.isString(this.getSupertitle()) ? this.getSupertitle() : '';
-	      this.getCaptionContainer().textContent = main_core.Type.isString(this.getCaption()) ? this.getCaption() : '';
+	      var titleNode = this.getTitleNode();
+
+	      if (titleNode) {
+	        titleNode.renderTo(this.getTitleContainer());
+	      } else {
+	        this.getTitleContainer().textContent = '';
+	      }
+
+	      var supertitleNode = this.getSupertitleNode();
+
+	      if (supertitleNode) {
+	        supertitleNode.renderTo(this.getSupertitleContainer());
+	      } else {
+	        this.getSupertitleContainer().textContent = '';
+	      }
+
+	      var subtitleNode = this.getSubtitleNode();
+
+	      if (subtitleNode) {
+	        subtitleNode.renderTo(this.getSubtitleContainer());
+	      } else {
+	        this.getSubtitleContainer().textContent = '';
+	      }
+
+	      var captionNode = this.getCaptionNode();
+
+	      if (captionNode) {
+	        captionNode.renderTo(this.getCaptionContainer());
+	      } else {
+	        this.getCaptionContainer().textContent = '';
+	      }
+
+	      var captionFitContent = this.getCaptionOption('fitContent');
+
+	      if (main_core.Type.isBoolean(captionFitContent)) {
+	        main_core.Dom.style(this.getCaptionContainer(), 'flex-shrink', captionFitContent ? 0 : null);
+	      }
+
+	      var captionMaxWidth = this.getCaptionOption('maxWidth');
+
+	      if (main_core.Type.isString(captionMaxWidth) || main_core.Type.isNumber(captionMaxWidth)) {
+	        main_core.Dom.style(this.getCaptionContainer(), 'max-width', main_core.Type.isNumber(captionMaxWidth) ? "".concat(captionMaxWidth, "px") : captionMaxWidth);
+	      }
 
 	      if (main_core.Type.isStringFilled(this.getTextColor())) {
-	        main_core.Dom.style(this.getTitleContainer(), 'color', this.getTextColor());
+	        this.getTitleContainer().style.color = this.getTextColor();
 	      } else {
-	        main_core.Dom.style(this.getTitleContainer(), 'color', null);
+	        this.getTitleContainer().style.removeProperty('color');
 	      }
 
 	      if (main_core.Type.isStringFilled(this.getAvatar())) {
-	        main_core.Dom.style(this.getAvatarContainer(), 'background-image', "url('".concat(this.getAvatar(), "')"));
+	        this.getAvatarContainer().style.backgroundImage = "url('".concat(this.getAvatar(), "')");
 	      } else {
-	        main_core.Dom.style(this.getAvatarContainer(), 'background-image', null);
+	        this.getAvatarContainer().style.removeProperty('background-image');
+	      }
+
+	      main_core.Dom.clean(this.getBadgeContainer());
+	      this.getBadges().forEach(function (badge) {
+	        badge.renderTo(_this6.getBadgeContainer());
+	      });
+	      var badgesFitContent = this.getBadgesOption('fitContent');
+
+	      if (main_core.Type.isBoolean(badgesFitContent)) {
+	        main_core.Dom.style(this.getBadgeContainer(), 'flex-shrink', badgesFitContent ? 0 : null);
+	      }
+
+	      var badgesMaxWidth = this.getBadgesOption('maxWidth');
+
+	      if (main_core.Type.isString(badgesMaxWidth) || main_core.Type.isNumber(badgesMaxWidth)) {
+	        main_core.Dom.style(this.getBadgeContainer(), 'max-width', main_core.Type.isNumber(badgesMaxWidth) ? "".concat(badgesMaxWidth, "px") : badgesMaxWidth);
+	      }
+
+	      var linkTitleNode = this.getLinkTitleNode();
+
+	      if (linkTitleNode) {
+	        linkTitleNode.renderTo(this.getLinkTextContainer());
+	      } else {
+	        this.getLinkTextContainer().textContent = '';
 	      }
 
 	      if (this.hasChildren() || this.isDynamic()) {
@@ -920,18 +1128,22 @@ this.BX.UI = this.BX.UI || {};
 	        if (this.getDepthLevel() >= this.getTab().getItemMaxDepth()) {
 	          main_core.Dom.addClass(this.getOuterContainer(), 'ui-selector-item-box-max-depth');
 	        }
-	      } else {
+	      } else if (this.getOuterContainer().classList.contains('ui-selector-item-box-has-children')) {
 	        main_core.Dom.removeClass(this.getOuterContainer(), ['ui-selector-item-box-has-children', 'ui-selector-item-box-max-depth']);
 	      }
 
 	      this.highlight();
+	      this.renderChildren(appendChildren);
 
 	      if (this.isAutoOpen()) {
-	        this.expand();
 	        this.setAutoOpen(false);
+	        requestAnimationFrame(function () {
+	          requestAnimationFrame(function () {
+	            _this6.expand();
+	          });
+	        });
 	      }
 
-	      this.renderChildren();
 	      this.rendered = true;
 	    }
 	    /**
@@ -941,7 +1153,8 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "renderRoot",
 	    value: function renderRoot() {
-	      this.renderChildren();
+	      var appendChildren = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+	      this.renderChildren(appendChildren);
 	      this.rendered = true;
 	      var stub = this.getTab().getStub();
 
@@ -960,14 +1173,37 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "renderChildren",
 	    value: function renderChildren() {
-	      var _this5 = this;
+	      var _this7 = this;
 
-	      main_core.Dom.clean(this.getChildrenContainer());
+	      var appendChildren = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+	      if (!appendChildren) {
+	        if (main_core.Browser.isIE()) {
+	          main_core.Dom.clean(this.getChildrenContainer());
+	        } else {
+	          this.getChildrenContainer().textContent = '';
+	        }
+	      }
 
 	      if (this.hasChildren()) {
+	        var previousSibling = null;
 	        this.getChildren().forEach(function (child) {
-	          child.render();
-	          main_core.Dom.append(child.getOuterContainer(), _this5.getChildrenContainer());
+	          child.render(appendChildren);
+	          var container = child.getOuterContainer();
+
+	          if (!appendChildren) {
+	            main_core.Dom.append(container, _this7.getChildrenContainer());
+	          }
+
+	          if (!container.parentNode) {
+	            if (previousSibling !== null) {
+	              main_core.Dom.insertAfter(container, previousSibling.getOuterContainer());
+	            } else {
+	              main_core.Dom.append(container, _this7.getChildrenContainer());
+	            }
+	          }
+
+	          previousSibling = child;
 	        });
 	      }
 	    }
@@ -994,44 +1230,109 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getTitle",
 	    value: function getTitle() {
-	      return this.title !== null ? this.title : this.getItem().getTitle();
+	      var titleNode = this.getTitleNode();
+	      return titleNode !== null ? titleNode.getText() : null;
+	    }
+	  }, {
+	    key: "getTitleNode",
+	    value: function getTitleNode() {
+	      return this.title !== null ? this.title : this.getItem().getTitleNode();
 	    }
 	  }, {
 	    key: "setTitle",
 	    value: function setTitle(title) {
-	      if (main_core.Type.isString(title) || title === null) {
-	        this.title = title;
+	      if (main_core.Type.isString(title) || main_core.Type.isPlainObject(title)) {
+	        this.title = new TextNode(title);
+	      } else if (title === null) {
+	        this.title = null;
 	      }
-
-	      return this;
 	    }
 	  }, {
 	    key: "getSubtitle",
 	    value: function getSubtitle() {
-	      return this.subtitle !== null ? this.subtitle : this.getItem().getSubtitle();
+	      var subtitleNode = this.getSubtitleNode();
+	      return subtitleNode !== null ? subtitleNode.getText() : null;
+	    }
+	  }, {
+	    key: "getSubtitleNode",
+	    value: function getSubtitleNode() {
+	      return this.subtitle !== null ? this.subtitle : this.getItem().getSubtitleNode();
 	    }
 	  }, {
 	    key: "setSubtitle",
 	    value: function setSubtitle(subtitle) {
-	      if (main_core.Type.isString(subtitle) || subtitle === null) {
-	        this.subtitle = subtitle;
+	      if (main_core.Type.isString(subtitle) || main_core.Type.isPlainObject(subtitle)) {
+	        this.subtitle = new TextNode(subtitle);
+	      } else if (subtitle === null) {
+	        this.subtitle = null;
 	      }
-
-	      return this;
 	    }
 	  }, {
 	    key: "getSupertitle",
 	    value: function getSupertitle() {
-	      return this.supertitle !== null ? this.supertitle : this.getItem().getSupertitle();
+	      var supertitleNode = this.getSupertitleNode();
+	      return supertitleNode !== null ? supertitleNode.getText() : null;
+	    }
+	  }, {
+	    key: "getSupertitleNode",
+	    value: function getSupertitleNode() {
+	      return this.supertitle !== null ? this.supertitle : this.getItem().getSupertitleNode();
 	    }
 	  }, {
 	    key: "setSupertitle",
 	    value: function setSupertitle(supertitle) {
-	      if (main_core.Type.isString(supertitle) || supertitle === null) {
-	        this.supertitle = supertitle;
+	      if (main_core.Type.isString(supertitle) || main_core.Type.isPlainObject(supertitle)) {
+	        this.supertitle = new TextNode(supertitle);
+	      } else if (supertitle === null) {
+	        this.supertitle = null;
+	      }
+	    }
+	  }, {
+	    key: "getCaption",
+	    value: function getCaption() {
+	      var caption = this.getCaptionNode();
+	      return caption !== null ? caption.getText() : null;
+	    }
+	  }, {
+	    key: "getCaptionNode",
+	    value: function getCaptionNode() {
+	      return this.caption !== null ? this.caption : this.getItem().getCaptionNode();
+	    }
+	  }, {
+	    key: "setCaption",
+	    value: function setCaption(caption) {
+	      if (main_core.Type.isString(caption) || main_core.Type.isPlainObject(caption)) {
+	        this.caption = new TextNode(caption);
+	      } else if (caption === null) {
+	        this.caption = null;
+	      }
+	    }
+	  }, {
+	    key: "getCaptionOption",
+	    value: function getCaptionOption(option) {
+	      if (!main_core.Type.isUndefined(this.captionOptions[option])) {
+	        return this.captionOptions[option];
 	      }
 
-	      return this;
+	      return this.getItem().getCaptionOption(option);
+	    }
+	  }, {
+	    key: "setCaptionOption",
+	    value: function setCaptionOption(option, value) {
+	      if (main_core.Type.isStringFilled(option) && !main_core.Type.isUndefined(value)) {
+	        this.captionOptions[option] = value;
+	      }
+	    }
+	  }, {
+	    key: "setCaptionOptions",
+	    value: function setCaptionOptions(options) {
+	      var _this8 = this;
+
+	      if (main_core.Type.isPlainObject(options)) {
+	        Object.keys(options).forEach(function (option) {
+	          _this8.setCaptionOption(option, options[option]);
+	        });
+	      }
 	    }
 	  }, {
 	    key: "getAvatar",
@@ -1044,8 +1345,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isString(avatar) || avatar === null) {
 	        this.avatar = avatar;
 	      }
-
-	      return this;
 	    }
 	  }, {
 	    key: "getTextColor",
@@ -1058,22 +1357,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isString(textColor) || textColor === null) {
 	        this.textColor = textColor;
 	      }
-
-	      return this;
-	    }
-	  }, {
-	    key: "getCaption",
-	    value: function getCaption() {
-	      return this.caption !== null ? this.caption : this.getItem().getCaption();
-	    }
-	  }, {
-	    key: "setCaption",
-	    value: function setCaption(caption) {
-	      if (main_core.Type.isString(caption) || caption === null) {
-	        this.caption = caption;
-	      }
-
-	      return this;
 	    }
 	  }, {
 	    key: "getLink",
@@ -1086,22 +1369,26 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isString(link) || link === null) {
 	        this.link = link;
 	      }
-
-	      return this;
 	    }
 	  }, {
 	    key: "getLinkTitle",
 	    value: function getLinkTitle() {
-	      return this.linkTitle !== null ? this.linkTitle : this.getItem().getLinkTitle();
+	      var linkTitle = this.getLinkTitleNode();
+	      return linkTitle !== null ? linkTitle.getText() : null;
+	    }
+	  }, {
+	    key: "getLinkTitleNode",
+	    value: function getLinkTitleNode() {
+	      return this.linkTitle !== null ? this.linkTitle : this.getItem().getLinkTitleNode();
 	    }
 	  }, {
 	    key: "setLinkTitle",
 	    value: function setLinkTitle(title) {
-	      if (main_core.Type.isString(title) || title === null) {
-	        this.linkTitle = title;
+	      if (main_core.Type.isString(title) || main_core.Type.isPlainObject(title)) {
+	        this.linkTitle = new TextNode(title);
+	      } else if (title === null) {
+	        this.linkTitle = null;
 	      }
-
-	      return this;
 	    }
 	  }, {
 	    key: "getBadges",
@@ -1111,152 +1398,234 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "setBadges",
 	    value: function setBadges(badges) {
-	      var _this6 = this;
+	      var _this9 = this;
 
 	      if (main_core.Type.isArray(badges)) {
 	        this.badges = [];
 	        badges.forEach(function (badge) {
-	          _this6.badges.push(new ItemBadge(badge));
+	          _this9.badges.push(new ItemBadge(badge));
 	        });
 	      } else if (badges === null) {
 	        this.badges = null;
 	      }
+	    }
+	  }, {
+	    key: "getBadgesOption",
+	    value: function getBadgesOption(option) {
+	      if (!main_core.Type.isUndefined(this.badgesOptions[option])) {
+	        return this.badgesOptions[option];
+	      }
 
-	      return this;
+	      return this.getItem().getBadgesOption(option);
+	    }
+	  }, {
+	    key: "setBadgesOption",
+	    value: function setBadgesOption(option, value) {
+	      if (main_core.Type.isStringFilled(option) && !main_core.Type.isUndefined(value)) {
+	        this.badgesOptions[option] = value;
+	      }
+	    }
+	  }, {
+	    key: "setBadgesOptions",
+	    value: function setBadgesOptions(options) {
+	      var _this10 = this;
+
+	      if (main_core.Type.isPlainObject(options)) {
+	        Object.keys(options).forEach(function (option) {
+	          _this10.setBadgesOption(option, options[option]);
+	        });
+	      }
 	    }
 	  }, {
 	    key: "getOuterContainer",
 	    value: function getOuterContainer() {
-	      var _this7 = this;
+	      var _this11 = this;
 
 	      return this.cache.remember('outer-container', function () {
 	        var className = '';
 
-	        if (_this7.hasChildren() || _this7.isDynamic()) {
+	        if (_this11.hasChildren() || _this11.isDynamic()) {
 	          className += ' ui-selector-item-box-has-children';
 
-	          if (_this7.getDepthLevel() >= _this7.getTab().getItemMaxDepth()) {
+	          if (_this11.getDepthLevel() >= _this11.getTab().getItemMaxDepth()) {
 	            className += ' ui-selector-item-box-max-depth';
 	          }
-	        } else if (_this7.getItem().isSelected()) {
+	        } else if (_this11.getItem().isSelected()) {
 	          className += ' ui-selector-item-box-selected';
 	        }
 
-	        if (_this7.isOpen()) {
+	        if (_this11.isOpen()) {
 	          className += ' ui-selector-item-box-open';
 	        }
 
-	        return main_core.Tag.render(_templateObject$1(), className, _this7.getContainer(), _this7.getChildrenContainer());
+	        var div = document.createElement('div');
+	        div.className = "ui-selector-item-box".concat(className);
+	        div.appendChild(_this11.getContainer());
+	        div.appendChild(_this11.getChildrenContainer());
+	        return div;
 	      });
 	    }
 	  }, {
 	    key: "getChildrenContainer",
 	    value: function getChildrenContainer() {
-	      var _this8 = this;
-
 	      if (this.isRoot() && this.getTab()) {
 	        return this.getTab().getItemsContainer();
 	      }
 
 	      return this.cache.remember('children-container', function () {
-	        return main_core.Tag.render(_templateObject2(), _this8.handleTransitionEnd.bind(_this8));
+	        var div = document.createElement('div');
+	        div.className = 'ui-selector-item-children';
+	        return div;
 	      });
 	    }
 	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
-	      var _this9 = this;
+	      var _this12 = this;
 
 	      return this.cache.remember('container', function () {
-	        return main_core.Tag.render(_templateObject3(), _this9.handleClick.bind(_this9), _this9.handleMouseEnter.bind(_this9), _this9.handleMouseLeave.bind(_this9), _this9.getAvatarContainer(), _this9.getSupertitleContainer(), _this9.getTitleContainer(), main_core.Type.isArrayFilled(_this9.getBadges()) ? _this9.getBadgeContainer() : '', _this9.getCaptionContainer(), _this9.getSubtitleContainer(), main_core.Type.isStringFilled(_this9.getLink()) ? _this9.getLinkContainer() : '', _this9.getIndicatorContainer());
+	        var div = document.createElement('div');
+	        div.className = 'ui-selector-item';
+	        main_core.Event.bind(div, 'click', _this12.handleClick.bind(_this12));
+	        main_core.Event.bind(div, 'mouseenter', _this12.handleMouseEnter.bind(_this12));
+	        main_core.Event.bind(div, 'mouseleave', _this12.handleMouseLeave.bind(_this12));
+	        div.appendChild(_this12.getAvatarContainer());
+	        div.appendChild(_this12.getTitlesContainer());
+	        div.appendChild(_this12.getIndicatorContainer());
+
+	        if (main_core.Type.isStringFilled(_this12.getLink())) {
+	          div.appendChild(_this12.getLinkContainer());
+	        }
+
+	        return div;
 	      });
 	    }
 	  }, {
 	    key: "getAvatarContainer",
 	    value: function getAvatarContainer() {
 	      return this.cache.remember('avatar', function () {
-	        return main_core.Tag.render(_templateObject4());
+	        var div = document.createElement('div');
+	        div.className = 'ui-selector-item-avatar';
+	        return div;
+	      });
+	    }
+	  }, {
+	    key: "getTitlesContainer",
+	    value: function getTitlesContainer() {
+	      var _this13 = this;
+
+	      return this.cache.remember('titles', function () {
+	        var div = document.createElement('div');
+	        div.className = 'ui-selector-item-titles';
+	        div.appendChild(_this13.getSupertitleContainer());
+	        div.appendChild(_this13.getTitleBoxContainer());
+	        div.appendChild(_this13.getSubtitleContainer());
+	        return div;
+	      });
+	    }
+	  }, {
+	    key: "getTitleBoxContainer",
+	    value: function getTitleBoxContainer() {
+	      var _this14 = this;
+
+	      return this.cache.remember('title-box', function () {
+	        var div = document.createElement('div');
+	        div.className = 'ui-selector-item-title-box';
+	        div.appendChild(_this14.getTitleContainer());
+	        div.appendChild(_this14.getBadgeContainer());
+	        div.appendChild(_this14.getCaptionContainer());
+	        return div;
 	      });
 	    }
 	  }, {
 	    key: "getTitleContainer",
 	    value: function getTitleContainer() {
 	      return this.cache.remember('title', function () {
-	        return main_core.Tag.render(_templateObject5());
+	        var div = document.createElement('div');
+	        div.className = 'ui-selector-item-title';
+	        return div;
 	      });
 	    }
 	  }, {
 	    key: "getSubtitleContainer",
 	    value: function getSubtitleContainer() {
 	      return this.cache.remember('subtitle', function () {
-	        return main_core.Tag.render(_templateObject6());
+	        var div = document.createElement('div');
+	        div.className = 'ui-selector-item-subtitle';
+	        return div;
 	      });
 	    }
 	  }, {
 	    key: "getSupertitleContainer",
 	    value: function getSupertitleContainer() {
 	      return this.cache.remember('supertitle', function () {
-	        return main_core.Tag.render(_templateObject7());
+	        var div = document.createElement('div');
+	        div.className = 'ui-selector-item-supertitle';
+	        return div;
 	      });
 	    }
 	  }, {
 	    key: "getCaptionContainer",
 	    value: function getCaptionContainer() {
 	      return this.cache.remember('caption', function () {
-	        return main_core.Tag.render(_templateObject8());
+	        var div = document.createElement('div');
+	        div.className = 'ui-selector-item-caption';
+	        return div;
 	      });
 	    }
 	  }, {
 	    key: "getIndicatorContainer",
 	    value: function getIndicatorContainer() {
 	      return this.cache.remember('indicator', function () {
-	        return main_core.Tag.render(_templateObject9());
+	        var div = document.createElement('div');
+	        div.className = 'ui-selector-item-indicator';
+	        return div;
 	      });
 	    }
 	  }, {
 	    key: "getBadgeContainer",
 	    value: function getBadgeContainer() {
-	      var _this10 = this;
-
 	      return this.cache.remember('badge', function () {
-	        var badges = [];
-
-	        _this10.getBadges().forEach(function (badge) {
-	          badge.render();
-	          badges.push(badge.render());
-	        });
-
-	        return main_core.Tag.render(_templateObject10(), badges);
+	        var div = document.createElement('div');
+	        div.className = 'ui-selector-item-badges';
+	        return div;
 	      });
 	    }
 	  }, {
 	    key: "getLinkContainer",
 	    value: function getLinkContainer() {
-	      var _this11 = this;
+	      var _this15 = this;
 
 	      return this.cache.remember('link', function () {
-	        return main_core.Tag.render(_templateObject11(), _this11.getLink(), _this11.handleLinkClick.bind(_this11), _this11.getLinkTextContainer());
+	        var anchor = document.createElement('a');
+	        anchor.className = 'ui-selector-item-link';
+	        anchor.href = _this15.getLink();
+	        anchor.target = '_blank';
+	        anchor.title = '';
+	        main_core.Event.bind(anchor, 'click', _this15.handleLinkClick.bind(_this15));
+	        anchor.appendChild(_this15.getLinkTextContainer());
+	        return anchor;
 	      });
 	    }
 	  }, {
 	    key: "getLinkTextContainer",
 	    value: function getLinkTextContainer() {
-	      var _this12 = this;
-
 	      return this.cache.remember('link-text', function () {
-	        return main_core.Tag.render(_templateObject12(), _this12.getLinkTitle());
+	        var span = document.createElement('span');
+	        span.className = 'ui-selector-item-link-text';
+	        return span;
 	      });
 	    }
 	  }, {
 	    key: "showLink",
 	    value: function showLink() {
-	      var _this13 = this;
+	      var _this16 = this;
 
 	      if (main_core.Type.isStringFilled(this.getLink())) {
 	        main_core.Dom.addClass(this.getLinkContainer(), 'ui-selector-item-link--show');
 	        requestAnimationFrame(function () {
 	          requestAnimationFrame(function () {
-	            main_core.Dom.addClass(_this13.getLinkContainer(), 'ui-selector-item-link--animate');
+	            main_core.Dom.addClass(_this16.getLinkContainer(), 'ui-selector-item-link--animate');
 	          });
 	        });
 	      }
@@ -1281,20 +1650,22 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "highlight",
 	    value: function highlight() {
-	      var _this14 = this;
+	      var _this17 = this;
 
 	      this.getHighlights().forEach(function (matchField) {
 	        var field = matchField.getField();
 	        var fieldName = field.getName();
 
 	        if (field.isCustom()) {
-	          var text = _this14.getItem().getCustomData().get(fieldName);
+	          var text = _this17.getItem().getCustomData().get(fieldName);
 
-	          _this14.getSubtitleContainer().innerHTML = Highlighter.mark(text, matchField.getMatches());
+	          _this17.getSubtitleContainer().innerHTML = Highlighter.mark(text, matchField.getMatches());
 	        } else if (field.getName() === 'title') {
-	          _this14.getTitleContainer().innerHTML = Highlighter.mark(_this14.getItem().getTitle(), matchField.getMatches());
+	          _this17.getTitleContainer().innerHTML = Highlighter.mark(_this17.getItem().getTitle(), matchField.getMatches());
 	        } else if (field.getName() === 'subtitle') {
-	          _this14.getSubtitleContainer().innerHTML = Highlighter.mark(_this14.getItem().getSubtitle(), matchField.getMatches());
+	          _this17.getSubtitleContainer().innerHTML = Highlighter.mark(_this17.getItem().getSubtitle(), matchField.getMatches());
+	        } else if (field.getName() === 'supertitle') {
+	          _this17.getSupertitleContainer().innerHTML = Highlighter.mark(_this17.getItem().getSupertitle(), matchField.getMatches());
 	        }
 	      });
 	    }
@@ -1410,17 +1781,12 @@ this.BX.UI = this.BX.UI || {};
 	      event.stopPropagation();
 	    }
 	  }, {
-	    key: "handleTransitionEnd",
-	    value: function handleTransitionEnd(event) {
-	      if (event.propertyName === 'height') {
-	        main_core.Dom.style(this.getChildrenContainer(), 'height', null);
-	      }
-	    }
-	  }, {
 	    key: "handleMouseEnter",
 	    value: function handleMouseEnter() {
 	      this.focus();
 	      this.showLink();
+
+	      _classPrivateMethodGet(this, _makeEllipsisTitle, _makeEllipsisTitle2).call(this);
 	    }
 	  }, {
 	    key: "handleMouseLeave",
@@ -1431,6 +1797,43 @@ this.BX.UI = this.BX.UI || {};
 	  }]);
 	  return ItemNode;
 	}();
+
+	var _sanitizeTitle = function _sanitizeTitle(text) {
+	  return text.replace(/[\t ]+/gm, ' ').replace(/\n+/gm, '\n').trim();
+	};
+
+	var _isEllipsisActive = function _isEllipsisActive(element) {
+	  return element.offsetWidth < element.scrollWidth;
+	};
+
+	var _makeEllipsisTitle2 = function _makeEllipsisTitle2() {
+	  var _this18 = this;
+
+	  var _this$constructor;
+
+	  if (_classStaticPrivateMethodGet(_this$constructor = this.constructor, ItemNode, _isEllipsisActive).call(_this$constructor, this.getTitleContainer())) {
+	    var _this$constructor2;
+
+	    main_core.Dom.attr(this.getContainer(), 'title', _classStaticPrivateMethodGet(_this$constructor2 = this.constructor, ItemNode, _sanitizeTitle).call(_this$constructor2, this.getTitleContainer().textContent));
+	  } else {
+	    main_core.Dom.attr(this.getContainer(), 'title', null);
+	  }
+
+	  var containers = [this.getSupertitleContainer(), this.getSubtitleContainer(), this.getCaptionContainer()].concat(babelHelpers.toConsumableArray(this.getBadges().map(function (badge) {
+	    return badge.getContainer(_this18.getBadgeContainer());
+	  })));
+	  containers.forEach(function (container) {
+	    var _this$constructor3;
+
+	    if (_classStaticPrivateMethodGet(_this$constructor3 = _this18.constructor, ItemNode, _isEllipsisActive).call(_this$constructor3, container)) {
+	      var _this$constructor4;
+
+	      main_core.Dom.attr(container, 'title', _classStaticPrivateMethodGet(_this$constructor4 = _this18.constructor, ItemNode, _sanitizeTitle).call(_this$constructor4, container.textContent));
+	    } else {
+	      main_core.Dom.attr(container, 'title', null);
+	    }
+	  });
+	};
 
 	var SearchFieldIndex = /*#__PURE__*/function () {
 	  function SearchFieldIndex(field) {
@@ -1570,6 +1973,9 @@ this.BX.UI = this.BX.UI || {};
 
 	var asciiWordRegExp = /[^\x00-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]+/g;
 	var hasUnicodeWordRegExp = /[a-z][A-Z]|[A-Z]{2}[a-z]|[0-9][a-zA-Z]|[a-zA-Z][0-9]|[^a-zA-Z0-9 ]/;
+	var nonWhitespaceRegExp = /[^\s]+/g;
+	var specialChars = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}";
+	var specialCharsRegExp = new RegExp("[".concat(specialChars, "]"));
 
 	var SearchIndex = /*#__PURE__*/function () {
 	  function SearchIndex() {
@@ -1603,7 +2009,7 @@ this.BX.UI = this.BX.UI || {};
 
 	      var searchFields = entity.getSearchFields();
 	      searchFields.forEach(function (field) {
-	        if (!field.isSeachable()) {
+	        if (!field.isSearchable()) {
 	          return;
 	        }
 
@@ -1612,6 +2018,8 @@ this.BX.UI = this.BX.UI || {};
 	            index.addIndex(_this.createIndex(field, item.getTitle()));
 	          } else if (field.getName() === 'subtitle') {
 	            index.addIndex(_this.createIndex(field, item.getSubtitle()));
+	          } else if (field.getName() === 'supertitle') {
+	            index.addIndex(_this.createIndex(field, item.getSupertitle()));
 	          }
 	        } else {
 	          var customData = item.getCustomData().get(field.getName());
@@ -1639,6 +2047,7 @@ this.BX.UI = this.BX.UI || {};
 	          // "GoPro111 Leto15"
 	          // [go, pro, 111, leto, 15] + [gopro111, leto15]
 	          this.fillComplexWords(wordIndexes);
+	          this.fillNonCharWords(wordIndexes, text);
 	          index = new SearchFieldIndex(field, wordIndexes);
 	        }
 	      } else if (field.getType() === 'email') {
@@ -1680,6 +2089,7 @@ this.BX.UI = this.BX.UI || {};
 	    value: function splitTextInternal(text, regExp) {
 	      var match;
 	      var result = [];
+	      regExp.lastIndex = 0;
 
 	      while ((match = regExp.exec(text)) !== null) {
 	        if (match.index === regExp.lastIndex) {
@@ -1729,132 +2139,97 @@ this.BX.UI = this.BX.UI || {};
 	        }
 	      });
 	    }
+	    /**
+	     *  @private
+	     */
+
+	  }, {
+	    key: "fillNonCharWords",
+	    value: function fillNonCharWords(indexes, text) {
+	      if (!specialCharsRegExp.test(text)) {
+	        return;
+	      }
+
+	      var match;
+
+	      while ((match = nonWhitespaceRegExp.exec(text)) !== null) {
+	        if (match.index === nonWhitespaceRegExp.lastIndex) {
+	          nonWhitespaceRegExp.lastIndex++;
+	        }
+
+	        var word = match[0];
+
+	        if (specialCharsRegExp.test(word)) {
+	          indexes.push(new WordIndex(word.toLowerCase(), match.index));
+
+	          for (var i = 0; i < word.length; i++) {
+	            var char = word[i];
+
+	            if (!specialChars.includes(char)) {
+	              break;
+	            }
+
+	            var wordToIndex = word.substr(i + 1);
+
+	            if (wordToIndex.length) {
+	              indexes.push(new WordIndex(wordToIndex.toLowerCase(), match.index + i + 1));
+	            }
+	          }
+	        }
+	      }
+
+	      nonWhitespaceRegExp.lastIndex = 0;
+	    }
 	  }]);
 	  return SearchIndex;
-	}();
-
-	var SearchField = /*#__PURE__*/function () {
-	  function SearchField(fieldOptions) {
-	    babelHelpers.classCallCheck(this, SearchField);
-	    babelHelpers.defineProperty(this, "name", null);
-	    babelHelpers.defineProperty(this, "type", 'string');
-	    babelHelpers.defineProperty(this, "searchable", true);
-	    babelHelpers.defineProperty(this, "system", false);
-	    var options = main_core.Type.isPlainObject(fieldOptions) ? fieldOptions : {};
-
-	    if (!main_core.Type.isStringFilled(options.name)) {
-	      throw new Error('EntitySelector.SearchField: "name" parameter is required.');
-	    }
-
-	    this.name = options.name;
-	    this.setType(options.type);
-	    this.setSystem(options.system);
-	    this.setSeachable(options.searchable);
-	  }
-
-	  babelHelpers.createClass(SearchField, [{
-	    key: "getName",
-	    value: function getName() {
-	      return this.name;
-	    }
-	  }, {
-	    key: "getType",
-	    value: function getType() {
-	      return this.type;
-	    }
-	  }, {
-	    key: "setType",
-	    value: function setType(type) {
-	      if (main_core.Type.isStringFilled(type)) {
-	        this.type = type;
-	      }
-	    }
-	  }, {
-	    key: "setSeachable",
-	    value: function setSeachable(flag) {
-	      if (main_core.Type.isBoolean(flag)) {
-	        this.searchable = flag;
-	      }
-
-	      return this;
-	    }
-	  }, {
-	    key: "isSeachable",
-	    value: function isSeachable() {
-	      return this.searchable;
-	    }
-	  }, {
-	    key: "setSystem",
-	    value: function setSystem(flag) {
-	      if (main_core.Type.isBoolean(flag)) {
-	        this.system = flag;
-	      }
-
-	      return this;
-	    }
-	  }, {
-	    key: "isCustom",
-	    value: function isCustom() {
-	      return !this.isSystem();
-	    }
-	  }, {
-	    key: "isSystem",
-	    value: function isSystem() {
-	      return this.system;
-	    }
-	  }]);
-	  return SearchField;
 	}();
 
 	/**
 	 * @memberof BX.UI.EntitySelector
 	 */
-	var Entity = /*#__PURE__*/function (_EventEmitter) {
-	  babelHelpers.inherits(Entity, _EventEmitter);
-
+	var Entity = /*#__PURE__*/function () {
 	  function Entity(entityOptions) {
-	    var _this;
-
 	    babelHelpers.classCallCheck(this, Entity);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Entity).call(this));
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "id", null);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "options", {});
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "searchable", true);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "searchFields", new ItemCollection());
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "dynamicLoad", false);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "dynamicSearch", false);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "searchCacheLimits", []);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "itemOptions", {});
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "tagOptions", {});
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "badgeOptions", []);
-
-	    _this.setEventNamespace('BX.UI.EntitySelector.Entity');
-
+	    babelHelpers.defineProperty(this, "id", null);
+	    babelHelpers.defineProperty(this, "options", {});
+	    babelHelpers.defineProperty(this, "searchable", true);
+	    babelHelpers.defineProperty(this, "searchFields", null);
+	    babelHelpers.defineProperty(this, "dynamicLoad", false);
+	    babelHelpers.defineProperty(this, "dynamicSearch", false);
+	    babelHelpers.defineProperty(this, "searchCacheLimits", []);
+	    babelHelpers.defineProperty(this, "itemOptions", {});
+	    babelHelpers.defineProperty(this, "tagOptions", {});
+	    babelHelpers.defineProperty(this, "badgeOptions", []);
+	    babelHelpers.defineProperty(this, "textNodes", new Map());
 	    var options = main_core.Type.isPlainObject(entityOptions) ? entityOptions : {};
 
 	    if (!main_core.Type.isStringFilled(options.id)) {
 	      throw new Error('EntitySelector.Entity: "id" parameter is required.');
 	    }
 
-	    var defaultOptions = _this.constructor.getEntityDefaultOptions(options.id) || {};
+	    var defaultOptions = this.constructor.getEntityDefaultOptions(options.id) || {};
 	    options = main_core.Runtime.merge(JSON.parse(JSON.stringify(defaultOptions)), options);
-	    _this.id = options.id;
-	    _this.options = main_core.Type.isPlainObject(options.options) ? options.options : {};
-	    _this.itemOptions = main_core.Type.isPlainObject(options.itemOptions) ? options.itemOptions : {};
-	    _this.tagOptions = main_core.Type.isPlainObject(options.tagOptions) ? options.tagOptions : {};
-	    _this.badgeOptions = main_core.Type.isArray(options.badgeOptions) ? options.badgeOptions : [];
-
-	    _this.setSeachable(options.searchable);
-
-	    _this.setDynamicLoad(options.dynamicLoad);
-
-	    _this.setDynamicSearch(options.dynamicSearch);
-
-	    _this.setSearchFields(options.searchFields);
-
-	    _this.setSearchCacheLimits(options.searchCacheLimits);
-
-	    return _this;
+	    this.id = options.id.toLowerCase();
+	    this.options = main_core.Type.isPlainObject(options.options) ? options.options : {};
+	    this.itemOptions = main_core.Type.isPlainObject(options.itemOptions) ? options.itemOptions : {};
+	    this.tagOptions = main_core.Type.isPlainObject(options.tagOptions) ? options.tagOptions : {};
+	    this.badgeOptions = main_core.Type.isArray(options.badgeOptions) ? options.badgeOptions : [];
+	    this.searchFields = new main_core_collections.OrderedArray(function (fieldA, fieldB) {
+	      if (fieldA.getSort() !== null && fieldB.getSort() === null) {
+	        return -1;
+	      } else if (fieldA.getSort() === null && fieldB.getSort() !== null) {
+	        return 1;
+	      } else if (fieldA.getSort() === null && fieldB.getSort() === null) {
+	        return -1;
+	      } else {
+	        return fieldA.getSort() - fieldB.getSort();
+	      }
+	    });
+	    this.setSearchable(options.searchable);
+	    this.setDynamicLoad(options.dynamicLoad);
+	    this.setDynamicSearch(options.dynamicSearch);
+	    this.setSearchFields(options.searchFields);
+	    this.setSearchCacheLimits(options.searchCacheLimits);
 	  }
 
 	  babelHelpers.createClass(Entity, [{
@@ -1906,18 +2281,43 @@ this.BX.UI = this.BX.UI || {};
 	      return badges;
 	    }
 	  }, {
+	    key: "getOptionTextNode",
+	    value: function getOptionTextNode(option, entityType) {
+	      if (!main_core.Type.isString(option)) {
+	        return null;
+	      }
+
+	      if (!main_core.Type.isString(entityType)) {
+	        entityType = 'default';
+	      }
+
+	      var optionNodes = this.textNodes.get(option);
+	      var node = optionNodes ? optionNodes.get(entityType) : undefined;
+
+	      if (main_core.Type.isUndefined(node)) {
+	        if (!optionNodes) {
+	          optionNodes = new Map();
+	          this.textNodes.set(option, optionNodes);
+	        }
+
+	        var itemOption = this.getItemOption(option, entityType);
+	        node = main_core.Type.isString(itemOption) || main_core.Type.isPlainObject(itemOption) ? new TextNode(itemOption) : null;
+	        optionNodes.set(entityType, node);
+	      }
+
+	      return node;
+	    }
+	  }, {
 	    key: "isSearchable",
 	    value: function isSearchable() {
 	      return this.searchable;
 	    }
 	  }, {
-	    key: "setSeachable",
-	    value: function setSeachable(flag) {
+	    key: "setSearchable",
+	    value: function setSearchable(flag) {
 	      if (main_core.Type.isBoolean(flag)) {
 	        this.searchable = flag;
 	      }
-
-	      return this;
 	    }
 	  }, {
 	    key: "getSearchFields",
@@ -1927,7 +2327,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "setSearchFields",
 	    value: function setSearchFields(searchFields) {
-	      var _this2 = this;
+	      var _this = this;
 
 	      this.searchFields.clear(); // Default Search Fields
 
@@ -1954,24 +2354,27 @@ this.BX.UI = this.BX.UI || {};
 	          {
 	            // delete a default title field
 	            if (field.getName() === 'title') {
-	              _this2.searchFields.delete(titleField);
+	              _this.searchFields.delete(titleField);
 	            } else if (field.getName() === 'subtitle') {
-	              _this2.searchFields.delete(subtitleField);
+	              _this.searchFields.delete(subtitleField);
 	            }
 	          }
 
-	        _this2.searchFields.add(field);
+	        _this.searchFields.add(field);
+	      });
+	      this.searchFields.forEach(function (field, index) {
+	        field.setSort(index);
 	      });
 	    }
 	  }, {
 	    key: "setSearchCacheLimits",
 	    value: function setSearchCacheLimits(limits) {
-	      var _this3 = this;
+	      var _this2 = this;
 
 	      if (main_core.Type.isArrayFilled(limits)) {
 	        limits.forEach(function (limit) {
 	          if (main_core.Type.isStringFilled(limit)) {
-	            _this3.searchCacheLimits.push(new RegExp(limit, 'i'));
+	            _this2.searchCacheLimits.push(new RegExp(limit, 'i'));
 	          }
 	        });
 	      }
@@ -1992,8 +2395,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isBoolean(flag)) {
 	        this.dynamicLoad = flag;
 	      }
-
-	      return this;
 	    }
 	  }, {
 	    key: "hasDynamicSearch",
@@ -2006,8 +2407,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isBoolean(flag)) {
 	        this.dynamicSearch = flag;
 	      }
-
-	      return this;
 	    }
 	  }, {
 	    key: "toJSON",
@@ -2023,7 +2422,7 @@ this.BX.UI = this.BX.UI || {};
 	  }], [{
 	    key: "getDefaultOptions",
 	    value: function getDefaultOptions() {
-	      var _this4 = this;
+	      var _this3 = this;
 
 	      if (this.defaultOptions === null) {
 	        this.defaultOptions = {};
@@ -2032,7 +2431,7 @@ this.BX.UI = this.BX.UI || {};
 	          var entities = settings.get('entities', []);
 	          entities.forEach(function (entity) {
 	            if (main_core.Type.isStringFilled(entity.id) && main_core.Type.isPlainObject(entity.options)) {
-	              _this4.defaultOptions[entity.id] = JSON.parse(JSON.stringify(entity.options)); // clone
+	              _this3.defaultOptions[entity.id] = JSON.parse(JSON.stringify(entity.options)); // clone
 	            }
 	          });
 	        });
@@ -2114,57 +2513,95 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	  }]);
 	  return Entity;
-	}(main_core_events.EventEmitter);
+	}();
 
 	babelHelpers.defineProperty(Entity, "extensions", null);
 	babelHelpers.defineProperty(Entity, "defaultOptions", null);
 
-	function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+	var TypeUtils = /*#__PURE__*/function () {
+	  function TypeUtils() {
+	    babelHelpers.classCallCheck(this, TypeUtils);
+	  }
 
-	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+	  babelHelpers.createClass(TypeUtils, null, [{
+	    key: "createMapFromOptions",
+	    value: function createMapFromOptions(options) {
+	      if (main_core.Type.isPlainObject(options)) {
+	        return new Map(Object.entries(options));
+	      }
 
-	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+	      var map = new Map();
+
+	      if (main_core.Type.isArrayFilled(options)) {
+	        options.forEach(function (element) {
+	          if (main_core.Type.isArray(element) && element.length === 2 && main_core.Type.isString(element[0])) {
+	            map.set(element[0], element[1]);
+	          }
+	        });
+	      }
+
+	      return map;
+	    }
+	  }, {
+	    key: "convertMapToObject",
+	    value: function convertMapToObject(map) {
+	      var obj = {};
+
+	      if (main_core.Type.isMap(map)) {
+	        map.forEach(function (value, key) {
+	          if (main_core.Type.isString(key)) {
+	            obj[key] = value;
+	          }
+	        });
+	      }
+
+	      return obj;
+	    }
+	  }]);
+	  return TypeUtils;
+	}();
+
+	function _classPrivateMethodGet$1(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+
+	var _renderNodes = new WeakSet();
 
 	/**
 	 * @memberof BX.UI.EntitySelector
 	 * @package ui.entity-selector
 	 */
-	var Item = /*#__PURE__*/function (_EventEmitter) {
-	  babelHelpers.inherits(Item, _EventEmitter);
-
+	var Item = /*#__PURE__*/function () {
 	  function Item(itemOptions) {
-	    var _this;
-
 	    babelHelpers.classCallCheck(this, Item);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Item).call(this));
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "id", null);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "entityId", null);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "entityType", null);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "title", '');
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "subtitle", null);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "caption", null);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "supertitle", null);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "avatar", null);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "textColor", null);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "link", null);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "linkTitle", null);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "tagOptions", null);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "badges", null);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "dialog", null);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "nodes", new Set());
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "selected", false);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "searchable", true);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "saveable", true);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "deselectable", true);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "hidden", false);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "searchIndex", null);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "customData", null);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "sort", null);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "contextSort", null);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "globalSort", null);
 
-	    _this.setEventNamespace('BX.UI.EntitySelector.Item');
+	    _renderNodes.add(this);
 
+	    babelHelpers.defineProperty(this, "id", null);
+	    babelHelpers.defineProperty(this, "entityId", null);
+	    babelHelpers.defineProperty(this, "entityType", null);
+	    babelHelpers.defineProperty(this, "title", null);
+	    babelHelpers.defineProperty(this, "subtitle", null);
+	    babelHelpers.defineProperty(this, "supertitle", null);
+	    babelHelpers.defineProperty(this, "caption", null);
+	    babelHelpers.defineProperty(this, "captionOptions", {});
+	    babelHelpers.defineProperty(this, "avatar", null);
+	    babelHelpers.defineProperty(this, "textColor", null);
+	    babelHelpers.defineProperty(this, "link", null);
+	    babelHelpers.defineProperty(this, "linkTitle", null);
+	    babelHelpers.defineProperty(this, "tagOptions", null);
+	    babelHelpers.defineProperty(this, "badges", null);
+	    babelHelpers.defineProperty(this, "badgesOptions", {});
+	    babelHelpers.defineProperty(this, "dialog", null);
+	    babelHelpers.defineProperty(this, "nodes", new Set());
+	    babelHelpers.defineProperty(this, "selected", false);
+	    babelHelpers.defineProperty(this, "searchable", true);
+	    babelHelpers.defineProperty(this, "saveable", true);
+	    babelHelpers.defineProperty(this, "deselectable", true);
+	    babelHelpers.defineProperty(this, "hidden", false);
+	    babelHelpers.defineProperty(this, "searchIndex", null);
+	    babelHelpers.defineProperty(this, "customData", null);
+	    babelHelpers.defineProperty(this, "sort", null);
+	    babelHelpers.defineProperty(this, "contextSort", null);
+	    babelHelpers.defineProperty(this, "globalSort", null);
 	    var options = main_core.Type.isPlainObject(itemOptions) ? itemOptions : {};
 
 	    if (!main_core.Type.isStringFilled(options.id) && !main_core.Type.isNumber(options.id)) {
@@ -2175,46 +2612,30 @@ this.BX.UI = this.BX.UI || {};
 	      throw new Error('EntitySelector.Item: "entityId" parameter is required.');
 	    }
 
-	    _this.id = options.id;
-	    _this.entityId = options.entityId;
-	    _this.entityType = main_core.Type.isStringFilled(options.entityType) ? options.entityType : 'default';
-	    _this.selected = main_core.Type.isBoolean(options.selected) ? options.selected : false;
-	    _this.customData = main_core.Type.isPlainObject(options.customData) ? new Map(Object.entries(options.customData)) : new Map();
-	    _this.tagOptions = main_core.Type.isPlainObject(options.tagOptions) ? new Map(Object.entries(options.tagOptions)) : new Map();
-
-	    _this.setTitle(options.title);
-
-	    _this.setSubtitle(options.subtitle);
-
-	    _this.setSupertitle(options.supertitle);
-
-	    _this.setCaption(options.caption);
-
-	    _this.setAvatar(options.avatar);
-
-	    _this.setTextColor(options.textColor);
-
-	    _this.setLink(options.link);
-
-	    _this.setLinkTitle(options.linkTitle);
-
-	    _this.setBadges(options.badges);
-
-	    _this.setSearchable(options.searchable);
-
-	    _this.setSaveable(options.saveable);
-
-	    _this.setDeselectable(options.deselectable);
-
-	    _this.setHidden(options.hidden);
-
-	    _this.setContextSort(options.contextSort);
-
-	    _this.setGlobalSort(options.globalSort);
-
-	    _this.setSort(options.sort);
-
-	    return _this;
+	    this.id = options.id;
+	    this.entityId = options.entityId.toLowerCase();
+	    this.entityType = main_core.Type.isStringFilled(options.entityType) ? options.entityType : 'default';
+	    this.selected = main_core.Type.isBoolean(options.selected) ? options.selected : false;
+	    this.customData = TypeUtils.createMapFromOptions(options.customData);
+	    this.tagOptions = TypeUtils.createMapFromOptions(options.tagOptions);
+	    this.setTitle(options.title);
+	    this.setSubtitle(options.subtitle);
+	    this.setSupertitle(options.supertitle);
+	    this.setCaption(options.caption);
+	    this.setCaptionOptions(options.captionOptions);
+	    this.setAvatar(options.avatar);
+	    this.setTextColor(options.textColor);
+	    this.setLink(options.link);
+	    this.setLinkTitle(options.linkTitle);
+	    this.setBadges(options.badges);
+	    this.setBadgesOptions(options.badgesOptions);
+	    this.setSearchable(options.searchable);
+	    this.setSaveable(options.saveable);
+	    this.setDeselectable(options.deselectable);
+	    this.setHidden(options.hidden);
+	    this.setContextSort(options.contextSort);
+	    this.setGlobalSort(options.globalSort);
+	    this.setSort(options.sort);
 	  }
 
 	  babelHelpers.createClass(Item, [{
@@ -2249,85 +2670,120 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getTitle",
 	    value: function getTitle() {
+	      var titleNode = this.getTitleNode();
+	      return titleNode !== null && !titleNode.isNullable() ? titleNode.getText() : '';
+	    }
+	  }, {
+	    key: "getTitleNode",
+	    value: function getTitleNode() {
 	      return this.title;
 	    }
 	  }, {
 	    key: "setTitle",
 	    value: function setTitle(title) {
-	      if (main_core.Type.isStringFilled(title)) {
-	        this.title = title;
+	      if (main_core.Type.isStringFilled(title) || main_core.Type.isPlainObject(title) || title === null) {
+	        this.title = title === null ? null : new TextNode(title);
+	        this.resetSearchIndex();
 
-	        if (this.isRendered()) {
-	          var _iterator = _createForOfIteratorHelper(this.getNodes()),
-	              _step;
-
-	          try {
-	            for (_iterator.s(); !(_step = _iterator.n()).done;) {
-	              var node = _step.value;
-	              node.render();
-	            }
-	          } catch (err) {
-	            _iterator.e(err);
-	          } finally {
-	            _iterator.f();
-	          }
-	        }
+	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
 	      }
 	    }
 	  }, {
 	    key: "getSubtitle",
 	    value: function getSubtitle() {
-	      return this.subtitle !== null ? this.subtitle : this.getEntityItemOption('subtitle');
+	      var subtitleNode = this.getSubtitleNode();
+	      return subtitleNode !== null ? subtitleNode.getText() : null;
+	    }
+	  }, {
+	    key: "getSubtitleNode",
+	    value: function getSubtitleNode() {
+	      return this.subtitle !== null ? this.subtitle : this.getEntityTextNode('subtitle');
 	    }
 	  }, {
 	    key: "setSubtitle",
 	    value: function setSubtitle(subtitle) {
-	      if (main_core.Type.isString(subtitle) || subtitle === null) {
-	        this.subtitle = subtitle;
+	      if (main_core.Type.isString(subtitle) || main_core.Type.isPlainObject(subtitle) || subtitle === null) {
+	        this.subtitle = subtitle === null ? null : new TextNode(subtitle);
+	        this.resetSearchIndex();
 
-	        if (this.isRendered()) {
-	          var _iterator2 = _createForOfIteratorHelper(this.getNodes()),
-	              _step2;
-
-	          try {
-	            for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-	              var node = _step2.value;
-	              node.render();
-	            }
-	          } catch (err) {
-	            _iterator2.e(err);
-	          } finally {
-	            _iterator2.f();
-	          }
-	        }
+	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
 	      }
 	    }
 	  }, {
 	    key: "getSupertitle",
 	    value: function getSupertitle() {
-	      return this.supertitle !== null ? this.supertitle : this.getEntityItemOption('supertitle');
+	      var supertitleNode = this.getSupertitleNode();
+	      return supertitleNode !== null ? supertitleNode.getText() : null;
+	    }
+	  }, {
+	    key: "getSupertitleNode",
+	    value: function getSupertitleNode() {
+	      return this.supertitle !== null ? this.supertitle : this.getEntityTextNode('supertitle');
 	    }
 	  }, {
 	    key: "setSupertitle",
 	    value: function setSupertitle(supertitle) {
-	      if (main_core.Type.isString(supertitle) || supertitle === null) {
-	        this.supertitle = supertitle;
+	      if (main_core.Type.isString(supertitle) || main_core.Type.isPlainObject(supertitle) || supertitle === null) {
+	        this.supertitle = supertitle === null ? null : new TextNode(supertitle);
+	        this.resetSearchIndex();
 
-	        if (this.isRendered()) {
-	          var _iterator3 = _createForOfIteratorHelper(this.getNodes()),
-	              _step3;
+	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
+	      }
+	    }
+	  }, {
+	    key: "getCaption",
+	    value: function getCaption() {
+	      var captionNode = this.getCaptionNode();
+	      return captionNode !== null ? captionNode.getText() : null;
+	    }
+	  }, {
+	    key: "getCaptionNode",
+	    value: function getCaptionNode() {
+	      return this.caption !== null ? this.caption : this.getEntityTextNode('caption');
+	    }
+	  }, {
+	    key: "setCaption",
+	    value: function setCaption(caption) {
+	      if (main_core.Type.isString(caption) || main_core.Type.isPlainObject(caption) || caption === null) {
+	        this.caption = caption === null ? null : new TextNode(caption);
+	        this.resetSearchIndex();
 
-	          try {
-	            for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-	              var node = _step3.value;
-	              node.render();
-	            }
-	          } catch (err) {
-	            _iterator3.e(err);
-	          } finally {
-	            _iterator3.f();
-	          }
-	        }
+	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
+	      }
+	    }
+	  }, {
+	    key: "getCaptionOption",
+	    value: function getCaptionOption(option) {
+	      if (!main_core.Type.isUndefined(this.captionOptions[option])) {
+	        return this.captionOptions[option];
+	      }
+
+	      var captionOptions = this.getEntityItemOption('captionOptions');
+
+	      if (main_core.Type.isPlainObject(captionOptions) && !main_core.Type.isUndefined(captionOptions[option])) {
+	        return captionOptions[option];
+	      }
+
+	      return null;
+	    }
+	  }, {
+	    key: "setCaptionOption",
+	    value: function setCaptionOption(option, value) {
+	      if (main_core.Type.isStringFilled(option) && !main_core.Type.isUndefined(value)) {
+	        this.captionOptions[option] = value;
+
+	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
+	      }
+	    }
+	  }, {
+	    key: "setCaptionOptions",
+	    value: function setCaptionOptions(options) {
+	      var _this = this;
+
+	      if (main_core.Type.isPlainObject(options)) {
+	        Object.keys(options).forEach(function (option) {
+	          _this.setCaptionOption(option, options[option]);
+	        });
 	      }
 	    }
 	  }, {
@@ -2341,21 +2797,7 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isString(avatar) || avatar === null) {
 	        this.avatar = avatar;
 
-	        if (this.isRendered()) {
-	          var _iterator4 = _createForOfIteratorHelper(this.getNodes()),
-	              _step4;
-
-	          try {
-	            for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
-	              var node = _step4.value;
-	              node.render();
-	            }
-	          } catch (err) {
-	            _iterator4.e(err);
-	          } finally {
-	            _iterator4.f();
-	          }
-	        }
+	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
 	      }
 	    }
 	  }, {
@@ -2369,49 +2811,7 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isString(textColor) || textColor === null) {
 	        this.textColor = textColor;
 
-	        if (this.isRendered()) {
-	          var _iterator5 = _createForOfIteratorHelper(this.getNodes()),
-	              _step5;
-
-	          try {
-	            for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
-	              var node = _step5.value;
-	              node.render();
-	            }
-	          } catch (err) {
-	            _iterator5.e(err);
-	          } finally {
-	            _iterator5.f();
-	          }
-	        }
-	      }
-	    }
-	  }, {
-	    key: "getCaption",
-	    value: function getCaption() {
-	      return this.caption !== null ? this.caption : this.getEntityItemOption('caption');
-	    }
-	  }, {
-	    key: "setCaption",
-	    value: function setCaption(caption) {
-	      if (main_core.Type.isString(caption) || caption === null) {
-	        this.caption = caption;
-
-	        if (this.isRendered()) {
-	          var _iterator6 = _createForOfIteratorHelper(this.getNodes()),
-	              _step6;
-
-	          try {
-	            for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
-	              var node = _step6.value;
-	              node.render();
-	            }
-	          } catch (err) {
-	            _iterator6.e(err);
-	          } finally {
-	            _iterator6.f();
-	          }
-	        }
+	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
 	      }
 	    }
 	  }, {
@@ -2425,23 +2825,28 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setLink(link) {
 	      if (main_core.Type.isString(link) || link === null) {
 	        this.link = link;
+
+	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
 	      }
 	    }
 	  }, {
 	    key: "getLinkTitle",
 	    value: function getLinkTitle() {
-	      if (this.linkTitle !== null) {
-	        return this.linkTitle;
-	      }
-
-	      var linkTitle = this.getEntityItemOption('linkTitle');
-	      return linkTitle !== null ? linkTitle : main_core.Loc.getMessage('UI_SELECTOR_ITEM_LINK_TITLE');
+	      var linkTitleNode = this.getLinkTitleNode();
+	      return linkTitleNode !== null ? linkTitleNode.getText() : main_core.Loc.getMessage('UI_SELECTOR_ITEM_LINK_TITLE');
+	    }
+	  }, {
+	    key: "getLinkTitleNode",
+	    value: function getLinkTitleNode() {
+	      return this.linkTitle !== null ? this.linkTitle : this.getEntityTextNode('linkTitle');
 	    }
 	  }, {
 	    key: "setLinkTitle",
 	    value: function setLinkTitle(linkTitle) {
-	      if (main_core.Type.isString(linkTitle) || linkTitle === null) {
-	        this.linkTitle = linkTitle;
+	      if (main_core.Type.isString(linkTitle) || main_core.Type.isPlainObject(linkTitle) || linkTitle === null) {
+	        this.linkTitle = linkTitle === null ? null : new TextNode(linkTitle);
+
+	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
 	      }
 	    }
 	  }, {
@@ -2471,8 +2876,47 @@ this.BX.UI = this.BX.UI || {};
 	        badges.forEach(function (badge) {
 	          _this2.badges.push(new ItemBadge(badge));
 	        });
+
+	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
 	      } else if (badges === null) {
 	        this.badges = null;
+
+	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
+	      }
+	    }
+	  }, {
+	    key: "getBadgesOption",
+	    value: function getBadgesOption(option) {
+	      if (!main_core.Type.isUndefined(this.badgesOptions[option])) {
+	        return this.badgesOptions[option];
+	      }
+
+	      var badgesOptions = this.getEntityItemOption('badgesOptions');
+
+	      if (main_core.Type.isPlainObject(badgesOptions) && !main_core.Type.isUndefined(badgesOptions[option])) {
+	        return badgesOptions[option];
+	      }
+
+	      return null;
+	    }
+	  }, {
+	    key: "setBadgesOption",
+	    value: function setBadgesOption(option, value) {
+	      if (main_core.Type.isStringFilled(option) && !main_core.Type.isUndefined(value)) {
+	        this.badgesOptions[option] = value;
+
+	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
+	      }
+	    }
+	  }, {
+	    key: "setBadgesOptions",
+	    value: function setBadgesOptions(options) {
+	      var _this3 = this;
+
+	      if (main_core.Type.isPlainObject(options)) {
+	        Object.keys(options).forEach(function (option) {
+	          _this3.setBadgesOption(option, options[option]);
+	        });
 	      }
 	    }
 	    /**
@@ -2574,10 +3018,6 @@ this.BX.UI = this.BX.UI || {};
 
 	      this.selected = false;
 
-	      if (dialog) {
-	        dialog.handleItemDeselect(this);
-	      }
-
 	      if (this.isRendered()) {
 	        this.getNodes().forEach(function (node) {
 	          node.deselect();
@@ -2585,16 +3025,10 @@ this.BX.UI = this.BX.UI || {};
 	      }
 
 	      if (dialog) {
+	        dialog.handleItemDeselect(this);
 	        dialog.emit('Item:onDeselect', {
 	          item: this
 	        });
-
-	        if (dialog.getTagSelector()) {
-	          dialog.getTagSelector().removeTag({
-	            id: this.getId(),
-	            entityId: this.getEntityId()
-	          });
-	        }
 	      }
 	    }
 	  }, {
@@ -2732,6 +3166,11 @@ this.BX.UI = this.BX.UI || {};
 	      return this.getEntity().getTagOption(option, this.getEntityType());
 	    }
 	  }, {
+	    key: "getEntityTextNode",
+	    value: function getEntityTextNode(option) {
+	      return this.getEntity().getOptionTextNode(option, this.getEntityType());
+	    }
+	  }, {
 	    key: "getTagOptions",
 	    value: function getTagOptions() {
 	      return this.tagOptions;
@@ -2810,6 +3249,10 @@ this.BX.UI = this.BX.UI || {};
 	    value: function getTagLink() {
 	      return this.replaceMacros(this.getTagGlobalOption('link', true));
 	    }
+	    /**
+	     * @internal
+	     */
+
 	  }, {
 	    key: "replaceMacros",
 	    value: function replaceMacros(str) {
@@ -2819,6 +3262,10 @@ this.BX.UI = this.BX.UI || {};
 
 	      return str.replace(/#id#/i, this.getId()).replace(/#element_id#/i, this.getId());
 	    }
+	    /**
+	     * @internal
+	     */
+
 	  }, {
 	    key: "createTag",
 	    value: function createTag() {
@@ -2826,9 +3273,8 @@ this.BX.UI = this.BX.UI || {};
 	        id: this.getId(),
 	        entityId: this.getEntityId(),
 	        entityType: this.getEntityType(),
-	        title: this.getTagOption('title') || this.getTitle(),
+	        title: this.getTagOption('title') || this.getTitleNode() && this.getTitleNode().toJSON() || '',
 	        deselectable: this.isDeselectable(),
-	        customData: this.getCustomData(),
 	        avatar: this.getTagAvatar(),
 	        link: this.getTagLink(),
 	        maxWidth: this.getTagMaxWidth(),
@@ -2836,6 +3282,11 @@ this.BX.UI = this.BX.UI || {};
 	        bgColor: this.getTagBgColor(),
 	        fontWeight: this.getTagFontWeight()
 	      };
+	    }
+	  }, {
+	    key: "getAjaxJson",
+	    value: function getAjaxJson() {
+	      return this.toJSON();
 	    }
 	  }, {
 	    key: "toJSON",
@@ -2846,30 +3297,38 @@ this.BX.UI = this.BX.UI || {};
 	        entityType: this.getEntityType(),
 	        selected: this.isSelected(),
 	        deselectable: this.isDeselectable(),
+	        searchable: this.isSearchable(),
+	        saveable: this.isSaveable(),
 	        hidden: this.isHidden(),
-	        title: this.getTitle(),
+	        title: this.getTitleNode(),
 	        link: this.getLink(),
-	        linkTitle: this.getLinkTitle(),
-	        subtitle: this.getSubtitle(),
-	        supertitle: this.getSupertitle(),
-	        caption: this.getCaption(),
+	        linkTitle: this.getLinkTitleNode(),
+	        subtitle: this.getSubtitleNode(),
+	        supertitle: this.getSupertitleNode(),
+	        caption: this.getCaptionNode(),
 	        avatar: this.getAvatar(),
-	        customData: this.getCustomData()
+	        textColor: this.getTextColor(),
+	        sort: this.getSort(),
+	        contextSort: this.getContextSort(),
+	        globalSort: this.getGlobalSort(),
+	        customData: TypeUtils.convertMapToObject(this.getCustomData()),
+	        tagOptions: TypeUtils.convertMapToObject(this.getTagOptions()),
+	        badges: this.getBadges()
 	      };
 	    }
 	  }]);
 	  return Item;
-	}(main_core_events.EventEmitter);
+	}();
 
-	function _templateObject$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tab-stub\">", "</div>\n\t\t\t"]);
+	var _renderNodes2 = function _renderNodes2() {
+	  if (this.isRendered()) {
+	    this.getNodes().forEach(function (node) {
+	      node.render();
+	    });
+	  }
+	};
 
-	  _templateObject$2 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject;
 
 	var BaseStub = /*#__PURE__*/function () {
 	  function BaseStub(tab, options) {
@@ -2882,8 +3341,17 @@ this.BX.UI = this.BX.UI || {};
 	    this.tab = tab;
 	    this.autoShow = this.getOption('autoShow', true);
 	  }
+	  /**
+	   * @abstract
+	   */
+
 
 	  babelHelpers.createClass(BaseStub, [{
+	    key: "render",
+	    value: function render() {
+	      throw new Error('You must implement render() method.');
+	    }
+	  }, {
 	    key: "getTab",
 	    value: function getTab() {
 	      return this.tab;
@@ -2894,7 +3362,7 @@ this.BX.UI = this.BX.UI || {};
 	      var _this = this;
 
 	      return this.cache.remember('outer-container', function () {
-	        return main_core.Tag.render(_templateObject$2(), _this.render());
+	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tab-stub\">", "</div>\n\t\t\t"])), _this.render());
 	      });
 	    }
 	  }, {
@@ -2932,44 +3400,11 @@ this.BX.UI = this.BX.UI || {};
 
 	      return null;
 	    }
-	  }, {
-	    key: "render",
-	    value: function render() {
-	      throw new Error('You must implement render() method.');
-	    }
 	  }]);
 	  return BaseStub;
 	}();
 
-	function _templateObject3$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-tab-default-stub-arrow\"></div>"]);
-
-	  _templateObject3$1 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-tab-default-stub-subtitle\">", "</div>"]);
-
-	  _templateObject2$1 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tab-default-stub\">\n\t\t\t\t\t<div class=\"ui-selector-tab-default-stub-icon\"", "></div>\n\t\t\t\t\t<div class=\"ui-selector-tab-default-stub-titles\">\n\t\t\t\t\t\t<div class=\"ui-selector-tab-default-stub-title\">", "</div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject$3 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$1, _templateObject2, _templateObject3, _templateObject4;
 
 	var DefaultStub = /*#__PURE__*/function (_BaseStub) {
 	  babelHelpers.inherits(DefaultStub, _BaseStub);
@@ -3003,14 +3438,16 @@ this.BX.UI = this.BX.UI || {};
 
 	        var iconStyle = main_core.Type.isStringFilled(icon) ? "style=\"background-image: url('".concat(icon, "'); opacity: ").concat(iconOpacity / 100, ";\"") : '';
 	        var arrow = _this2.getOption('arrow', false) && _this2.getTab().getDialog().getActiveFooter() !== null;
-	        return main_core.Tag.render(_templateObject$3(), iconStyle, title, subtitle ? main_core.Tag.render(_templateObject2$1(), subtitle) : '', arrow ? main_core.Tag.render(_templateObject3$1()) : '');
+	        return main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tab-default-stub\">\n\t\t\t\t\t<div class=\"ui-selector-tab-default-stub-icon\" ", "></div>\n\t\t\t\t\t<div class=\"ui-selector-tab-default-stub-titles\">\n\t\t\t\t\t\t<div class=\"ui-selector-tab-default-stub-title\">", "</div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), iconStyle, title, subtitle ? main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-tab-default-stub-subtitle\">", "</div>"])), subtitle) : '', arrow ? main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-tab-default-stub-arrow\"></div>"]))) : '');
 	      });
 	    }
 	  }, {
 	    key: "getDefaultTitle",
 	    value: function getDefaultTitle() {
-	      var tabTitle = main_core.Text.encode(this.getTab().getTitle());
-	      return main_core.Loc.getMessage('UI_SELECTOR_TAB_STUB_TITLE').replace(/#TAB_TITLE#/, tabTitle);
+	      var titleNode = this.getTab().getTitleNode();
+	      var titleContainer = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-selector-tab-default-stub-title\"></span>"])));
+	      titleNode.renderTo(titleContainer);
+	      return main_core.Loc.getMessage('UI_SELECTOR_TAB_STUB_TITLE').replace(/#TAB_TITLE#/, titleContainer.innerHTML);
 	    }
 	  }, {
 	    key: "render",
@@ -3021,15 +3458,7 @@ this.BX.UI = this.BX.UI || {};
 	  return DefaultStub;
 	}(BaseStub);
 
-	function _templateObject$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-footer\">", "</div>\n\t\t\t"]);
-
-	  _templateObject$4 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$2;
 
 	var BaseFooter = /*#__PURE__*/function () {
 	  function BaseFooter(context, options) {
@@ -3088,7 +3517,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (this.container === null) {
-	        this.container = main_core.Tag.render(_templateObject$4(), this.render());
+	        this.container = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-footer\">", "</div>\n\t\t\t"])), this.render());
 	      }
 
 	      return this.container;
@@ -3106,120 +3535,54 @@ this.BX.UI = this.BX.UI || {};
 	  return BaseFooter;
 	}();
 
-	function _templateObject5$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-items\"></div>\n\t\t\t"]);
-
-	  _templateObject5$1 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tab-title\">", "</div>\n\t\t\t"]);
-
-	  _templateObject4$1 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tab-icon\"></div>\n\t\t\t"]);
-
-	  _templateObject3$2 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"ui-selector-tab-label", "\" \n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\tonmouseenter=\"", "\"\n\t\t\t\t\tonmouseleave=\"", "\"\n\t\t\t\t>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject2$2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tab-content\">", "</div>\n\t\t\t"]);
-
-	  _templateObject$5 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$3, _templateObject2$1, _templateObject3$1, _templateObject4$1, _templateObject5;
 
 	/**
 	 * @memberof BX.UI.EntitySelector
 	 */
-	var Tab = /*#__PURE__*/function (_EventEmitter) {
-	  babelHelpers.inherits(Tab, _EventEmitter);
-
+	var Tab = /*#__PURE__*/function () {
 	  function Tab(dialog, tabOptions) {
-	    var _this;
-
 	    babelHelpers.classCallCheck(this, Tab);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Tab).call(this));
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "id", null);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "title", null);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "rootNode", null);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "dialog", null);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "stub", null);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "visible", true);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "rendered", false);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "locked", false);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "selected", false);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "hovered", false);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "icon", {});
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "textColor", {});
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "bgColor", {});
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "itemMaxDepth", 3);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "footer", null);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "showDefaultFooter", true);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "cache", new main_core.Cache.MemoryCache());
-
-	    _this.setEventNamespace('BX.UI.EntitySelector.Tab');
-
+	    babelHelpers.defineProperty(this, "id", null);
+	    babelHelpers.defineProperty(this, "title", null);
+	    babelHelpers.defineProperty(this, "rootNode", null);
+	    babelHelpers.defineProperty(this, "dialog", null);
+	    babelHelpers.defineProperty(this, "stub", null);
+	    babelHelpers.defineProperty(this, "visible", true);
+	    babelHelpers.defineProperty(this, "rendered", false);
+	    babelHelpers.defineProperty(this, "locked", false);
+	    babelHelpers.defineProperty(this, "selected", false);
+	    babelHelpers.defineProperty(this, "hovered", false);
+	    babelHelpers.defineProperty(this, "icon", {});
+	    babelHelpers.defineProperty(this, "textColor", {});
+	    babelHelpers.defineProperty(this, "bgColor", {});
+	    babelHelpers.defineProperty(this, "itemMaxDepth", 5);
+	    babelHelpers.defineProperty(this, "footer", null);
+	    babelHelpers.defineProperty(this, "showDefaultFooter", true);
+	    babelHelpers.defineProperty(this, "showAvatars", null);
+	    babelHelpers.defineProperty(this, "cache", new main_core.Cache.MemoryCache());
 	    var options = main_core.Type.isPlainObject(tabOptions) ? tabOptions : {};
 
 	    if (!main_core.Type.isStringFilled(options.id)) {
 	      throw new Error('EntitySelector.Tab: "id" parameter is required.');
 	    }
 
-	    _this.setDialog(dialog);
-
-	    _this.id = options.id;
-	    _this.showDefaultFooter = options.showDefaultFooter !== false;
-	    _this.rootNode = new ItemNode(null, {
+	    this.setDialog(dialog);
+	    this.id = options.id;
+	    this.showDefaultFooter = options.showDefaultFooter !== false;
+	    this.rootNode = new ItemNode(null, {
 	      itemOrder: options.itemOrder
 	    });
-
-	    _this.rootNode.setTab(babelHelpers.assertThisInitialized(_this));
-
-	    _this.setVisible(options.visible);
-
-	    _this.setTitle(options.title);
-
-	    _this.setItemMaxDepth(options.itemMaxDepth);
-
-	    _this.setIcon(options.icon);
-
-	    _this.setTextColor(options.textColor);
-
-	    _this.setBgColor(options.bgColor);
-
-	    _this.setStub(options.stub, options.stubOptions);
-
-	    _this.setFooter(options.footer, options.footerOptions);
-
-	    return _this;
+	    this.rootNode.setTab(this);
+	    this.setVisible(options.visible);
+	    this.setTitle(options.title);
+	    this.setItemMaxDepth(options.itemMaxDepth);
+	    this.setIcon(options.icon);
+	    this.setTextColor(options.textColor);
+	    this.setBgColor(options.bgColor);
+	    this.setStub(options.stub, options.stubOptions);
+	    this.setFooter(options.footer, options.footerOptions);
+	    this.setShowAvatars(options.showAvatars);
 	  }
 
 	  babelHelpers.createClass(Tab, [{
@@ -3252,8 +3615,8 @@ this.BX.UI = this.BX.UI || {};
 	      var instance = null;
 	      var options = main_core.Type.isPlainObject(stubOptions) ? stubOptions : {};
 
-	      if (main_core.Type.isString(stub)) {
-	        var className = main_core.Reflection.getClass(stub);
+	      if (main_core.Type.isString(stub) || main_core.Type.isFunction(stub)) {
+	        var className = main_core.Type.isString(stub) ? main_core.Reflection.getClass(stub) : stub;
 
 	        if (main_core.Type.isFunction(className)) {
 	          instance = new className(this, options);
@@ -3320,6 +3683,24 @@ this.BX.UI = this.BX.UI || {};
 	      this.getDialog().adjustFooter();
 	    }
 	  }, {
+	    key: "setShowAvatars",
+	    value: function setShowAvatars(flag) {
+	      if (main_core.Type.isBoolean(flag) || flag === null) {
+	        this.showAvatars = flag;
+
+	        if (this.isRendered()) {
+	          this.renderContainer();
+	        }
+	      }
+	    }
+	  }, {
+	    key: "shouldShowAvatars",
+	    value: function shouldShowAvatars() {
+	      var _this$showAvatars;
+
+	      return (_this$showAvatars = this.showAvatars) !== null && _this$showAvatars !== void 0 ? _this$showAvatars : this.getDialog().shouldShowAvatars();
+	    }
+	  }, {
 	    key: "getRootNode",
 	    value: function getRootNode() {
 	      return this.rootNode;
@@ -3327,17 +3708,23 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "setTitle",
 	    value: function setTitle(title) {
-	      if (main_core.Type.isStringFilled(title)) {
-	        this.title = title;
+	      if (main_core.Type.isStringFilled(title) || main_core.Type.isPlainObject(title) || title === null) {
+	        this.title = title === null ? null : new TextNode(title);
 
 	        if (this.isRendered()) {
-	          this.getTitleContainer().textContent = title;
+	          this.renderLabel();
 	        }
 	      }
 	    }
 	  }, {
 	    key: "getTitle",
 	    value: function getTitle() {
+	      var titleNode = this.getTitleNode();
+	      return titleNode !== null && !titleNode.isNullable() ? titleNode.getText() : '';
+	    }
+	  }, {
+	    key: "getTitleNode",
+	    value: function getTitleNode() {
 	      return this.title;
 	    }
 	  }, {
@@ -3370,6 +3757,10 @@ this.BX.UI = this.BX.UI || {};
 	    value: function getTextColor(state) {
 	      return this.getPropertyByState('textColor', state);
 	    }
+	    /**
+	     * @private
+	     */
+
 	  }, {
 	    key: "setProperty",
 	    value: function setProperty(name, states) {
@@ -3405,6 +3796,10 @@ this.BX.UI = this.BX.UI || {};
 
 	      return null;
 	    }
+	    /**
+	     * @private
+	     */
+
 	  }, {
 	    key: "getPropertyByCurrentState",
 	    value: function getPropertyByCurrentState(name) {
@@ -3437,43 +3832,41 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
-	      var _this2 = this;
+	      var _this = this;
 
 	      return this.cache.remember('container', function () {
-	        return main_core.Tag.render(_templateObject$5(), _this2.getItemsContainer());
+	        return main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tab-content\">", "</div>\n\t\t\t"])), _this.getItemsContainer());
 	      });
 	    }
 	  }, {
 	    key: "getLabelContainer",
 	    value: function getLabelContainer() {
-	      var _this3 = this;
+	      var _this2 = this;
 
 	      return this.cache.remember('label', function () {
-	        var className = _this3.isVisible() ? '' : ' ui-selector-tab-label-hidden';
-	        return main_core.Tag.render(_templateObject2$2(), className, _this3.handleLabelClick.bind(_this3), _this3.handleLabelMouseEnter.bind(_this3), _this3.handleLabelMouseLeave.bind(_this3), _this3.getIconContainer(), _this3.getTitleContainer());
+	        var className = _this2.isVisible() ? '' : ' ui-selector-tab-label-hidden';
+	        return main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"ui-selector-tab-label", "\" \n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\tonmouseenter=\"", "\"\n\t\t\t\t\tonmouseleave=\"", "\"\n\t\t\t\t>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), className, _this2.handleLabelClick.bind(_this2), _this2.handleLabelMouseEnter.bind(_this2), _this2.handleLabelMouseLeave.bind(_this2), _this2.getIconContainer(), _this2.getTitleContainer());
 	      });
 	    }
 	  }, {
 	    key: "getIconContainer",
 	    value: function getIconContainer() {
 	      return this.cache.remember('icon', function () {
-	        return main_core.Tag.render(_templateObject3$2());
+	        return main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tab-icon\"></div>\n\t\t\t"])));
 	      });
 	    }
 	  }, {
 	    key: "getTitleContainer",
 	    value: function getTitleContainer() {
-	      var _this4 = this;
-
 	      return this.cache.remember('title', function () {
-	        return main_core.Tag.render(_templateObject4$1(), main_core.Text.encode(_this4.getTitle()));
+	        return main_core.Tag.render(_templateObject4$1 || (_templateObject4$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tab-title\"></div>\n\t\t\t"])));
 	      });
 	    }
 	  }, {
 	    key: "getItemsContainer",
 	    value: function getItemsContainer() {
 	      return this.cache.remember('items', function () {
-	        return main_core.Tag.render(_templateObject5$1());
+	        return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-items\"></div>\n\t\t\t"])));
 	      });
 	    }
 	  }, {
@@ -3482,6 +3875,8 @@ this.BX.UI = this.BX.UI || {};
 	      this.getRootNode().render();
 	      this.rendered = true;
 	    }
+	    /** @internal **/
+
 	  }, {
 	    key: "renderLabel",
 	    value: function renderLabel() {
@@ -3489,6 +3884,26 @@ this.BX.UI = this.BX.UI || {};
 	      main_core.Dom.style(this.getLabelContainer(), 'background-color', this.getPropertyByCurrentState('bgColor'));
 	      var icon = this.getPropertyByCurrentState('icon');
 	      main_core.Dom.style(this.getIconContainer(), 'background-image', icon ? "url('".concat(icon, "')") : null);
+	      var titleNode = this.getTitleNode();
+
+	      if (titleNode) {
+	        this.getTitleNode().renderTo(this.getTitleContainer());
+	      } else {
+	        this.getTitleContainer().textContent = '';
+	      }
+	    }
+	    /** @internal **/
+
+	  }, {
+	    key: "renderContainer",
+	    value: function renderContainer() {
+	      var className = 'ui-selector-tab-content--hide-avatars';
+
+	      if (this.shouldShowAvatars()) {
+	        main_core.Dom.removeClass(this.getContainer(), className);
+	      } else {
+	        main_core.Dom.addClass(this.getContainer(), className);
+	      }
 	    }
 	  }, {
 	    key: "isVisible",
@@ -3515,6 +3930,10 @@ this.BX.UI = this.BX.UI || {};
 	    value: function isRendered() {
 	      return this.rendered && this.getDialog() && this.getDialog().isRendered();
 	    }
+	    /**
+	     * @internal
+	     */
+
 	  }, {
 	    key: "select",
 	    value: function select() {
@@ -3529,9 +3948,6 @@ this.BX.UI = this.BX.UI || {};
 	        this.renderLabel();
 	      }
 
-	      this.getDialog().emit('Tab:onSelect', {
-	        tab: this
-	      });
 	      this.selected = true;
 
 	      if (this.isVisible()) {
@@ -3541,7 +3957,15 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.getFooter()) {
 	        this.getFooter().show();
 	      }
+
+	      this.getDialog().emit('Tab:onSelect', {
+	        tab: this
+	      });
 	    }
+	    /**
+	     * @internal
+	     */
+
 	  }, {
 	    key: "deselect",
 	    value: function deselect() {
@@ -3555,9 +3979,6 @@ this.BX.UI = this.BX.UI || {};
 	        main_core.Dom.removeClass(this.getLabelContainer(), 'ui-selector-tab-label-active');
 	      }
 
-	      this.getDialog().emit('Tab:onDeselect', {
-	        tab: this
-	      });
 	      this.selected = false;
 
 	      if (this.isVisible()) {
@@ -3567,6 +3988,10 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.getFooter()) {
 	        this.getFooter().hide();
 	      }
+
+	      this.getDialog().emit('Tab:onDeselect', {
+	        tab: this
+	      });
 	    }
 	  }, {
 	    key: "hover",
@@ -3634,111 +4059,9 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	  }]);
 	  return Tab;
-	}(main_core_events.EventEmitter);
-
-	var Animation = /*#__PURE__*/function () {
-	  function Animation() {
-	    babelHelpers.classCallCheck(this, Animation);
-	  }
-
-	  babelHelpers.createClass(Animation, null, [{
-	    key: "handleTransitionEnd",
-	    value: function handleTransitionEnd(element, propertyName) {
-	      var properties = main_core.Type.isArray(propertyName) ? new Set(propertyName) : new Set([propertyName]);
-	      return new Promise(function (resolve) {
-	        var handler = function handler(event) {
-	          if (event.target !== element || !properties.has(event.propertyName)) {
-	            return;
-	          }
-
-	          properties.delete(event.propertyName);
-
-	          if (properties.size === 0) {
-	            resolve(event);
-	            main_core.Event.unbind(element, 'transitionend', handler);
-	          }
-	        };
-
-	        main_core.Event.bind(element, 'transitionend', handler);
-	      });
-	    }
-	  }, {
-	    key: "handleAnimationEnd",
-	    value: function handleAnimationEnd(element, animationName) {
-	      return new Promise(function (resolve) {
-	        var handler = function handler(event) {
-	          if (!animationName || event.animationName === animationName) {
-	            resolve(event);
-	            main_core.Event.unbind(element, 'animationend', handler);
-	          }
-	        };
-
-	        main_core.Event.bind(element, 'animationend', handler);
-	      });
-	    }
-	  }]);
-	  return Animation;
 	}();
 
-	function _templateObject6$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-tag-remove\" onclick=\"", "\"></div>\n\t\t\t"]);
-
-	  _templateObject6$1 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-tag-title\"></div>\n\t\t\t"]);
-
-	  _templateObject5$2 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-tag-avatar\"></div>\n\t\t\t"]);
-
-	  _templateObject4$2 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div \n\t\t\t\t\t\tclass=\"ui-tag-selector-tag-content", "\" \n\t\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t>\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t\n\t\t\t\t"]);
-
-	  _templateObject3$3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<a\n\t\t\t\t\t\tclass=\"ui-tag-selector-tag-content\"\n\t\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t\thref=\"", "\"\n\t\t\t\t\t\ttarget=\"_blank\"\n\t\t\t\t\t>\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</a>\n\t\t\t\t"]);
-
-	  _templateObject2$3 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-item ui-tag-selector-tag\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>"]);
-
-	  _templateObject$6 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$4, _templateObject2$2, _templateObject3$2, _templateObject4$2, _templateObject5$1, _templateObject6;
 
 	var TagItem = /*#__PURE__*/function () {
 	  function TagItem(itemOptions) {
@@ -3746,7 +4069,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "id", null);
 	    babelHelpers.defineProperty(this, "entityId", null);
 	    babelHelpers.defineProperty(this, "entityType", null);
-	    babelHelpers.defineProperty(this, "title", '');
+	    babelHelpers.defineProperty(this, "title", null);
 	    babelHelpers.defineProperty(this, "avatar", null);
 	    babelHelpers.defineProperty(this, "maxWidth", null);
 	    babelHelpers.defineProperty(this, "textColor", null);
@@ -3770,9 +4093,9 @@ this.BX.UI = this.BX.UI || {};
 	    }
 
 	    this.id = options.id;
-	    this.entityId = options.entityId;
+	    this.entityId = options.entityId.toLowerCase();
 	    this.entityType = main_core.Type.isStringFilled(options.entityType) ? options.entityType : 'default';
-	    this.customData = main_core.Type.isPlainObject(options.customData) ? new Map(Object.entries(options.customData)) : new Map();
+	    this.customData = TypeUtils.createMapFromOptions(options.customData);
 	    this.onclick = main_core.Type.isFunction(options.onclick) ? options.onclick : null;
 	    this.link = main_core.Type.isStringFilled(options.link) ? options.link : null;
 	    this.setTitle(options.title);
@@ -3812,16 +4135,19 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getTitle",
 	    value: function getTitle() {
+	      return this.getTitleNode() && !this.getTitleNode().isNullable() ? this.getTitleNode().getText() : '';
+	    }
+	  }, {
+	    key: "getTitleNode",
+	    value: function getTitleNode() {
 	      return this.title;
 	    }
 	  }, {
 	    key: "setTitle",
 	    value: function setTitle(title) {
-	      if (main_core.Type.isStringFilled(title)) {
-	        this.title = title;
+	      if (main_core.Type.isStringFilled(title) || main_core.Type.isPlainObject(title) || title === null) {
+	        this.title = title === null ? null : new TextNode(title);
 	      }
-
-	      return this;
 	    }
 	  }, {
 	    key: "getAvatar",
@@ -3842,8 +4168,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isString(avatar) || avatar === null) {
 	        this.avatar = avatar;
 	      }
-
-	      return this;
 	    }
 	  }, {
 	    key: "getTextColor",
@@ -3862,8 +4186,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isString(textColor) || textColor === null) {
 	        this.textColor = textColor;
 	      }
-
-	      return this;
 	    }
 	  }, {
 	    key: "getBgColor",
@@ -3882,8 +4204,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isString(bgColor) || bgColor === null) {
 	        this.bgColor = bgColor;
 	      }
-
-	      return this;
 	    }
 	  }, {
 	    key: "getFontWeight",
@@ -3902,8 +4222,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isString(fontWeight) || fontWeight === null) {
 	        this.fontWeight = fontWeight;
 	      }
-
-	      return this;
 	    }
 	  }, {
 	    key: "getMaxWidth",
@@ -3929,13 +4247,16 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isBoolean(flag)) {
 	        this.deselectable = flag;
 	      }
-
-	      return this;
 	    }
 	  }, {
 	    key: "isDeselectable",
 	    value: function isDeselectable() {
 	      return this.deselectable !== null ? this.deselectable : this.getSelector().isDeselectable();
+	    }
+	  }, {
+	    key: "getCustomData",
+	    value: function getCustomData() {
+	      return this.customData;
 	    }
 	  }, {
 	    key: "getLink",
@@ -3950,8 +4271,15 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "render",
 	    value: function render() {
-	      this.getTitleContainer().textContent = this.getTitle();
-	      main_core.Dom.attr(this.getContentContainer(), 'title', this.getTitle());
+	      var titleNode = this.getTitleNode();
+
+	      if (titleNode) {
+	        titleNode.renderTo(this.getTitleContainer()); //Dom.attr(this.getContentContainer(), 'title', this.getTitle());
+	      } else {
+	        this.getTitleContainer().textContent = '';
+	        main_core.Dom.attr(this.getContentContainer(), 'title', '');
+	      }
+
 	      var avatar = this.getAvatar();
 
 	      if (main_core.Type.isStringFilled(avatar)) {
@@ -3987,7 +4315,7 @@ this.BX.UI = this.BX.UI || {};
 	      var _this = this;
 
 	      return this.cache.remember('container', function () {
-	        return main_core.Tag.render(_templateObject$6(), _this.getContentContainer(), _this.getRemoveIcon());
+	        return main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-item ui-tag-selector-tag\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>"])), _this.getContentContainer(), _this.getRemoveIcon());
 	      });
 	    }
 	  }, {
@@ -3997,10 +4325,10 @@ this.BX.UI = this.BX.UI || {};
 
 	      return this.cache.remember('content-container', function () {
 	        if (main_core.Type.isStringFilled(_this2.getLink())) {
-	          return main_core.Tag.render(_templateObject2$3(), _this2.handleContainerClick.bind(_this2), _this2.getLink(), _this2.getAvatarContainer(), _this2.getTitleContainer());
+	          return main_core.Tag.render(_templateObject2$2 || (_templateObject2$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<a\n\t\t\t\t\t\tclass=\"ui-tag-selector-tag-content\"\n\t\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t\thref=\"", "\"\n\t\t\t\t\t\ttarget=\"_blank\"\n\t\t\t\t\t>\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</a>\n\t\t\t\t"])), _this2.handleContainerClick.bind(_this2), _this2.getLink(), _this2.getAvatarContainer(), _this2.getTitleContainer());
 	        } else {
 	          var className = main_core.Type.isFunction(_this2.getOnclick()) ? ' ui-tag-selector-tag-content--clickable' : '';
-	          return main_core.Tag.render(_templateObject3$3(), className, _this2.handleContainerClick.bind(_this2), _this2.getAvatarContainer(), _this2.getTitleContainer());
+	          return main_core.Tag.render(_templateObject3$2 || (_templateObject3$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div \n\t\t\t\t\t\tclass=\"ui-tag-selector-tag-content", "\" \n\t\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t>\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t\n\t\t\t\t"])), className, _this2.handleContainerClick.bind(_this2), _this2.getAvatarContainer(), _this2.getTitleContainer());
 	        }
 	      });
 	    }
@@ -4008,14 +4336,14 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getAvatarContainer",
 	    value: function getAvatarContainer() {
 	      return this.cache.remember('avatar', function () {
-	        return main_core.Tag.render(_templateObject4$2());
+	        return main_core.Tag.render(_templateObject4$2 || (_templateObject4$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-tag-avatar\"></div>\n\t\t\t"])));
 	      });
 	    }
 	  }, {
 	    key: "getTitleContainer",
 	    value: function getTitleContainer() {
 	      return this.cache.remember('title', function () {
-	        return main_core.Tag.render(_templateObject5$2());
+	        return main_core.Tag.render(_templateObject5$1 || (_templateObject5$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-tag-title\"></div>\n\t\t\t"])));
 	      });
 	    }
 	  }, {
@@ -4024,7 +4352,7 @@ this.BX.UI = this.BX.UI || {};
 	      var _this3 = this;
 
 	      return this.cache.remember('remove-icon', function () {
-	        return main_core.Tag.render(_templateObject6$1(), _this3.handleRemoveIconClick.bind(_this3));
+	        return main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-tag-remove\" onclick=\"", "\"></div>\n\t\t\t"])), _this3.handleRemoveIconClick.bind(_this3));
 	      });
 	    }
 	  }, {
@@ -4098,65 +4426,7 @@ this.BX.UI = this.BX.UI || {};
 	  return TagItem;
 	}();
 
-	function _templateObject6$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-create-button", "\">\n\t\t\t\t\t<span \n\t\t\t\t\t\tclass=\"ui-tag-selector-create-button-caption\"\n\t\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t>", "</span>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject6$2 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-tag-selector-item ui-tag-selector-add-button", "\">\n\t\t\t\t\t<span \n\t\t\t\t\t\tclass=\"ui-tag-selector-add-button-caption\" \n\t\t\t\t\t\tonclick=\"", "\">", "</span>\n\t\t\t\t</span>\n\t\t\t"]);
-
-	  _templateObject5$3 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input \n\t\t\t\t\ttype=\"text\" \n\t\t\t\t\tclass=\"ui-tag-selector-item ui-tag-selector-text-box", "\" \n\t\t\t\t\tautocomplete=\"off\"\n\t\t\t\t\tplaceholder=\"", "\"\n\t\t\t\t\toninput=\"", "\"\n\t\t\t\t\tonblur=\"", "\"\n\t\t\t\t\tonkeyup=\"", "\"\n\t\t\t\t\tonkeydown=\"", "\"\n\t\t\t\t\tvalue=\"\"\n\t\t\t\t>\n\t\t\t"]);
-
-	  _templateObject4$3 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-items\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject3$4 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"ui-tag-selector-container\" \n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t", "\n\t\t\t\t>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject2$4 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-outer-container", "\">", "</div>\n\t\t\t"]);
-
-	  _templateObject$7 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$5, _templateObject2$3, _templateObject3$3, _templateObject4$3, _templateObject5$2, _templateObject6$1;
 
 	/**
 	 * @memberof BX.UI.EntitySelector
@@ -4262,6 +4532,11 @@ this.BX.UI = this.BX.UI || {};
 	    value: function getDialog() {
 	      return this.dialog;
 	    }
+	    /**
+	     * @internal
+	     * @param dialog
+	     */
+
 	  }, {
 	    key: "setDialog",
 	    value: function setDialog(dialog) {
@@ -4503,6 +4778,10 @@ this.BX.UI = this.BX.UI || {};
 	    value: function isRendered() {
 	      return this.rendered;
 	    }
+	    /**
+	     * @private
+	     */
+
 	  }, {
 	    key: "updateTags",
 	    value: function updateTags() {
@@ -4520,7 +4799,7 @@ this.BX.UI = this.BX.UI || {};
 	      return this.cache.remember('outer-container', function () {
 	        var className = _this6.isReadonly() ? ' ui-tag-selector-container-readonly' : '';
 	        className += _this6.isLocked() ? ' ui-tag-selector-container-locked' : '';
-	        return main_core.Tag.render(_templateObject$7(), className, _this6.getContainer());
+	        return main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-outer-container", "\">", "</div>\n\t\t\t"])), className, _this6.getContainer());
 	      });
 	    }
 	  }, {
@@ -4530,7 +4809,7 @@ this.BX.UI = this.BX.UI || {};
 
 	      return this.cache.remember('container', function () {
 	        var style = _this7.getMaxHeight() ? " style=\"max-height: ".concat(_this7.getMaxHeight(), "px; -ms-overflow-style: -ms-autohiding-scrollbar;\"") : '';
-	        return main_core.Tag.render(_templateObject2$4(), _this7.handleContainerClick.bind(_this7), style, _this7.getItemsContainer(), _this7.getCreateButton());
+	        return main_core.Tag.render(_templateObject2$3 || (_templateObject2$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"ui-tag-selector-container\" \n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t", "\n\t\t\t\t>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this7.handleContainerClick.bind(_this7), style, _this7.getItemsContainer(), _this7.getCreateButton());
 	      });
 	    }
 	  }, {
@@ -4539,7 +4818,7 @@ this.BX.UI = this.BX.UI || {};
 	      var _this8 = this;
 
 	      return this.cache.remember('items-container', function () {
-	        return main_core.Tag.render(_templateObject3$4(), _this8.getTextBox(), _this8.getAddButton());
+	        return main_core.Tag.render(_templateObject3$3 || (_templateObject3$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-items\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this8.getTextBox(), _this8.getAddButton());
 	      });
 	    }
 	  }, {
@@ -4549,7 +4828,7 @@ this.BX.UI = this.BX.UI || {};
 
 	      return this.cache.remember('text-box', function () {
 	        var className = _this9.textBoxVisible ? '' : ' ui-tag-selector-item-hidden';
-	        var input = main_core.Tag.render(_templateObject4$3(), className, main_core.Text.encode(_this9.getPlaceholder()), _this9.handleTextBoxInput.bind(_this9), _this9.handleTextBoxBlur.bind(_this9), _this9.handleTextBoxKeyUp.bind(_this9), _this9.handleTextBoxKeyDown.bind(_this9));
+	        var input = main_core.Tag.render(_templateObject4$3 || (_templateObject4$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input \n\t\t\t\t\ttype=\"text\" \n\t\t\t\t\tclass=\"ui-tag-selector-item ui-tag-selector-text-box", "\" \n\t\t\t\t\tautocomplete=\"off\"\n\t\t\t\t\tplaceholder=\"", "\"\n\t\t\t\t\toninput=\"", "\"\n\t\t\t\t\tonblur=\"", "\"\n\t\t\t\t\tonkeyup=\"", "\"\n\t\t\t\t\tonkeydown=\"", "\"\n\t\t\t\t\tvalue=\"\"\n\t\t\t\t>\n\t\t\t"])), className, main_core.Text.encode(_this9.getPlaceholder()), _this9.handleTextBoxInput.bind(_this9), _this9.handleTextBoxBlur.bind(_this9), _this9.handleTextBoxKeyUp.bind(_this9), _this9.handleTextBoxKeyDown.bind(_this9));
 
 	        var width = _this9.getTextBoxWidth();
 
@@ -4587,6 +4866,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "clearTextBox",
 	    value: function clearTextBox() {
 	      this.getTextBox().value = '';
+	      this.textBoxOldValue = '';
 	    }
 	  }, {
 	    key: "showTextBox",
@@ -4745,7 +5025,7 @@ this.BX.UI = this.BX.UI || {};
 	      return this.cache.remember('add-button', function () {
 	        var caption = main_core.Text.encode(_this10.getActualButtonCaption());
 	        var className = _this10.addButtonVisible ? '' : ' ui-tag-selector-item-hidden';
-	        return main_core.Tag.render(_templateObject5$3(), className, _this10.handleAddButtonClick.bind(_this10), caption);
+	        return main_core.Tag.render(_templateObject5$2 || (_templateObject5$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-tag-selector-item ui-tag-selector-add-button", "\">\n\t\t\t\t\t<span \n\t\t\t\t\t\tclass=\"ui-tag-selector-add-button-caption\" \n\t\t\t\t\t\tonclick=\"", "\">", "</span>\n\t\t\t\t</span>\n\t\t\t"])), className, _this10.handleAddButtonClick.bind(_this10), caption);
 	      });
 	    }
 	  }, {
@@ -4813,7 +5093,7 @@ this.BX.UI = this.BX.UI || {};
 
 	      return this.cache.remember('create-button', function () {
 	        var className = _this11.createButtonVisible ? '' : ' ui-tag-selector-item-hidden';
-	        return main_core.Tag.render(_templateObject6$2(), className, _this11.handleCreateButtonClick.bind(_this11), main_core.Text.encode(_this11.getCreateButtonCaption()));
+	        return main_core.Tag.render(_templateObject6$1 || (_templateObject6$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-create-button", "\">\n\t\t\t\t\t<span \n\t\t\t\t\t\tclass=\"ui-tag-selector-create-button-caption\"\n\t\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t>", "</span>\n\t\t\t\t</div>\n\t\t\t"])), className, _this11.handleCreateButtonClick.bind(_this11), main_core.Text.encode(_this11.getCreateButtonCaption()));
 	      });
 	    }
 	  }, {
@@ -4848,7 +5128,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "handleContainerClick",
 	    value: function handleContainerClick(event) {
 	      this.emit('onContainerClick', {
-	        selector: this,
 	        event: event
 	      });
 	    }
@@ -4860,7 +5139,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (newValue !== this.textBoxOldValue) {
 	        this.textBoxOldValue = newValue;
 	        this.emit('onInput', {
-	          selector: this,
 	          event: event
 	        });
 	      }
@@ -4869,12 +5147,11 @@ this.BX.UI = this.BX.UI || {};
 	    key: "handleTextBoxBlur",
 	    value: function handleTextBoxBlur(event) {
 	      this.emit('onBlur', {
-	        selector: this,
 	        event: event
 	      });
 
 	      if (this.textBoxAutoHide) {
-	        this.getTextBox().value = '';
+	        this.clearTextBox();
 	        this.showAddButton();
 	        this.hideTextBox();
 	      }
@@ -4883,18 +5160,16 @@ this.BX.UI = this.BX.UI || {};
 	    key: "handleTextBoxKeyUp",
 	    value: function handleTextBoxKeyUp(event) {
 	      this.emit('onKeyUp', {
-	        selector: this,
 	        event: event
 	      });
 
 	      if (event.key === 'Enter') {
 	        this.emit('onEnter', {
-	          selector: this,
 	          event: event
 	        });
 
 	        if (this.textBoxAutoHide) {
-	          this.getTextBox().value = '';
+	          this.clearTextBox();
 	          this.showAddButton();
 	          this.hideTextBox();
 	        }
@@ -4909,14 +5184,12 @@ this.BX.UI = this.BX.UI || {};
 
 	        if (main_core.Browser.isMac() && event.metaKey || event.ctrlKey) {
 	          this.emit('onMetaEnter', {
-	            selector: this,
 	            event: event
 	          });
 	        }
 	      }
 
 	      this.emit('onKeyDown', {
-	        selector: this,
 	        event: event
 	      });
 	    }
@@ -4927,7 +5200,6 @@ this.BX.UI = this.BX.UI || {};
 	      this.showTextBox();
 	      this.focusTextBox();
 	      this.emit('onAddButtonClick', {
-	        selector: this,
 	        event: event
 	      });
 	    }
@@ -4935,7 +5207,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "handleCreateButtonClick",
 	    value: function handleCreateButtonClick(event) {
 	      this.emit('onCreateButtonClick', {
-	        selector: this,
 	        event: event
 	      });
 	    }
@@ -4944,6 +5215,7 @@ this.BX.UI = this.BX.UI || {};
 	}(main_core_events.EventEmitter);
 
 	var Navigation = /*#__PURE__*/function () {
+	  // IE/Edge compatible event names
 	  function Navigation(dialog) {
 	    babelHelpers.classCallCheck(this, Navigation);
 	    babelHelpers.defineProperty(this, "dialog", null);
@@ -5158,9 +5430,8 @@ this.BX.UI = this.BX.UI || {};
 	      }
 
 	      var keyName = this.constructor.keyMap[event.key] || event.key;
-	      var query = this.getDialog().getTagSelectorQuery();
 
-	      if (main_core.Type.isStringFilled(query) && ['ArrowLeft', 'ArrowRight'].includes(keyName)) {
+	      if (activeTab === this.getDialog().getSearchTab() && ['ArrowLeft', 'ArrowRight'].includes(keyName)) {
 	        return;
 	      }
 
@@ -5282,13 +5553,12 @@ this.BX.UI = this.BX.UI || {};
 	}();
 
 	babelHelpers.defineProperty(Navigation, "keyMap", {
-	  // IE/Edge
 	  'Down': 'ArrowDown',
 	  'Up': 'ArrowUp',
 	  'Left': 'ArrowLeft',
 	  'Right': 'ArrowRight',
 	  'Spacebar': 'Space',
-	  ' ': 'Space' // All
+	  ' ': 'Space' // For all browsers
 
 	});
 
@@ -5373,15 +5643,7 @@ this.BX.UI = this.BX.UI || {};
 	  return SliderIntegration;
 	}();
 
-	function _templateObject$8() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-selector-footer-default\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject$8 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$6;
 
 	var DefaultFooter = /*#__PURE__*/function (_BaseFooter) {
 	  babelHelpers.inherits(DefaultFooter, _BaseFooter);
@@ -5401,7 +5663,7 @@ this.BX.UI = this.BX.UI || {};
 	  babelHelpers.createClass(DefaultFooter, [{
 	    key: "render",
 	    value: function render() {
-	      return main_core.Tag.render(_templateObject$8(), this.getContent() ? this.getContent() : '');
+	      return main_core.Tag.render(_templateObject$6 || (_templateObject$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-selector-footer-default\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.getContent() ? this.getContent() : '');
 	    }
 	  }, {
 	    key: "getContent",
@@ -5452,6 +5714,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "item", null);
 	    babelHelpers.defineProperty(this, "queryWords", null);
 	    babelHelpers.defineProperty(this, "matchFields", new Map());
+	    babelHelpers.defineProperty(this, "sort", null);
 	    this.item = item;
 	    this.queryWords = queryWords;
 	    this.addIndexes(matchIndexes);
@@ -5473,6 +5736,11 @@ this.BX.UI = this.BX.UI || {};
 	      return this.matchFields;
 	    }
 	  }, {
+	    key: "getSort",
+	    value: function getSort() {
+	      return this.sort;
+	    }
+	  }, {
 	    key: "addIndex",
 	    value: function addIndex(matchIndex) {
 	      var matchField = this.matchFields.get(matchIndex.getField());
@@ -5480,6 +5748,11 @@ this.BX.UI = this.BX.UI || {};
 	      if (!matchField) {
 	        matchField = new MatchField(matchIndex.getField());
 	        this.matchFields.set(matchIndex.getField(), matchField);
+	        var fieldSort = matchIndex.getField().getSort();
+
+	        if (fieldSort !== null) {
+	          this.sort = this.sort === null ? fieldSort : Math.min(this.sort, fieldSort);
+	        }
 	      }
 
 	      matchField.addIndex(matchIndex);
@@ -5497,43 +5770,6 @@ this.BX.UI = this.BX.UI || {};
 	  return MatchResult;
 	}();
 
-	var MatchIndex = /*#__PURE__*/function () {
-	  function MatchIndex(field, queryWord, startIndex) {
-	    babelHelpers.classCallCheck(this, MatchIndex);
-	    babelHelpers.defineProperty(this, "field", null);
-	    babelHelpers.defineProperty(this, "queryWord", null);
-	    babelHelpers.defineProperty(this, "startIndex", null);
-	    babelHelpers.defineProperty(this, "endIndex", null);
-	    this.field = field;
-	    this.queryWord = queryWord;
-	    this.startIndex = startIndex;
-	    this.endIndex = startIndex + queryWord.length;
-	  }
-
-	  babelHelpers.createClass(MatchIndex, [{
-	    key: "getField",
-	    value: function getField() {
-	      return this.field;
-	    }
-	  }, {
-	    key: "getQueryWord",
-	    value: function getQueryWord() {
-	      return this.queryWord;
-	    }
-	  }, {
-	    key: "getStartIndex",
-	    value: function getStartIndex() {
-	      return this.startIndex;
-	    }
-	  }, {
-	    key: "getEndIndex",
-	    value: function getEndIndex() {
-	      return this.endIndex;
-	    }
-	  }]);
-	  return MatchIndex;
-	}();
-
 	var collator = new Intl.Collator(undefined, {
 	  sensitivity: 'base'
 	});
@@ -5546,21 +5782,29 @@ this.BX.UI = this.BX.UI || {};
 	  babelHelpers.createClass(SearchEngine, null, [{
 	    key: "matchItems",
 	    value: function matchItems(items, searchQuery) {
-	      var _this = this;
-
 	      var matchResults = [];
 	      var queryWords = searchQuery.getQueryWords();
-	      items.forEach(function (item) {
-	        if (item.isSelected() || !item.isSearchable() || item.isHidden() || !item.getEntity().isSearchable()) {
-	          return;
+	      var limit = searchQuery.getResultLimit();
+
+	      for (var i = 0; i < items.length; i++) {
+	        if (limit === 0) {
+	          break;
 	        }
 
-	        var matchResult = _this.matchItem(item, queryWords);
+	        var item = items[i];
+
+	        if (item.isSelected() || !item.isSearchable() || item.isHidden() || !item.getEntity().isSearchable()) {
+	          continue;
+	        }
+
+	        var matchResult = this.matchItem(item, queryWords);
 
 	        if (matchResult) {
 	          matchResults.push(matchResult);
+	          limit--;
 	        }
-	      });
+	      }
+
 	      return matchResults;
 	    }
 	  }, {
@@ -5623,6 +5867,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "query", '');
 	    babelHelpers.defineProperty(this, "cacheable", true);
 	    babelHelpers.defineProperty(this, "dynamicSearchEntities", []);
+	    babelHelpers.defineProperty(this, "resultLimit", 100);
 	    this.query = query.trim().replace(/\s\s+/g, ' ');
 	    this.queryWords = main_core.Type.isStringFilled(this.query) ? this.query.split(' ') : [];
 	  }
@@ -5655,6 +5900,18 @@ this.BX.UI = this.BX.UI || {};
 	      return this.cacheable;
 	    }
 	  }, {
+	    key: "setResultLimit",
+	    value: function setResultLimit(limit) {
+	      if (main_core.Type.isNumber(limit) && limit >= 0) {
+	        this.resultLimit = limit;
+	      }
+	    }
+	  }, {
+	    key: "getResultLimit",
+	    value: function getResultLimit() {
+	      return this.resultLimit;
+	    }
+	  }, {
 	    key: "hasDynamicSearch",
 	    value: function hasDynamicSearch() {
 	      return this.getDynamicSearchEntities().length > 0;
@@ -5685,6 +5942,11 @@ this.BX.UI = this.BX.UI || {};
 	      return this.dynamicSearchEntities;
 	    }
 	  }, {
+	    key: "getAjaxJson",
+	    value: function getAjaxJson() {
+	      return this.toJSON();
+	    }
+	  }, {
 	    key: "toJSON",
 	    value: function toJSON() {
 	      return {
@@ -5697,55 +5959,7 @@ this.BX.UI = this.BX.UI || {};
 	  return SearchQuery;
 	}();
 
-	function _templateObject5$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-search-loader-spacer\"></div>"]);
-
-	  _templateObject5$4 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-search-loader-text\">", "</div>\n\t\t\t"]);
-
-	  _templateObject4$4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-search-loader-icon\"></div>"]);
-
-	  _templateObject3$5 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-search-loader-box\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>"]);
-
-	  _templateObject2$5 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$9() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-search-loader\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject$9 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$7, _templateObject2$4, _templateObject3$4, _templateObject4$4, _templateObject5$3;
 
 	var SearchLoader = /*#__PURE__*/function () {
 	  function SearchLoader(tab) {
@@ -5779,7 +5993,7 @@ this.BX.UI = this.BX.UI || {};
 	      var _this = this;
 
 	      return this.cache.remember('container', function () {
-	        return main_core.Tag.render(_templateObject$9(), _this.getBoxContainer(), _this.getSpacerContainer());
+	        return main_core.Tag.render(_templateObject$7 || (_templateObject$7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-search-loader\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this.getBoxContainer(), _this.getSpacerContainer());
 	      });
 	    }
 	  }, {
@@ -5788,28 +6002,28 @@ this.BX.UI = this.BX.UI || {};
 	      var _this2 = this;
 
 	      return this.cache.remember('box-container', function () {
-	        return main_core.Tag.render(_templateObject2$5(), _this2.getIconContainer(), _this2.getTextContainer());
+	        return main_core.Tag.render(_templateObject2$4 || (_templateObject2$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-search-loader-box\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>"])), _this2.getIconContainer(), _this2.getTextContainer());
 	      });
 	    }
 	  }, {
 	    key: "getIconContainer",
 	    value: function getIconContainer() {
 	      return this.cache.remember('icon', function () {
-	        return main_core.Tag.render(_templateObject3$5());
+	        return main_core.Tag.render(_templateObject3$4 || (_templateObject3$4 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-search-loader-icon\"></div>"])));
 	      });
 	    }
 	  }, {
 	    key: "getTextContainer",
 	    value: function getTextContainer() {
 	      return this.cache.remember('text', function () {
-	        return main_core.Tag.render(_templateObject4$4(), main_core.Loc.getMessage('UI_SELECTOR_SEARCH_LOADER_TEXT'));
+	        return main_core.Tag.render(_templateObject4$4 || (_templateObject4$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-search-loader-text\">", "</div>\n\t\t\t"])), main_core.Loc.getMessage('UI_SELECTOR_SEARCH_LOADER_TEXT'));
 	      });
 	    }
 	  }, {
 	    key: "getSpacerContainer",
 	    value: function getSpacerContainer() {
 	      return this.cache.remember('spacer', function () {
-	        return main_core.Tag.render(_templateObject5$4());
+	        return main_core.Tag.render(_templateObject5$3 || (_templateObject5$3 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-search-loader-spacer\"></div>"])));
 	      });
 	    }
 	  }, {
@@ -5846,45 +6060,7 @@ this.BX.UI = this.BX.UI || {};
 	  return SearchLoader;
 	}();
 
-	function _templateObject4$5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-search-footer-loader\"></div>\n\t\t\t"]);
-
-	  _templateObject4$5 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-selector-search-footer-query\"></span>\n\t\t\t"]);
-
-	  _templateObject3$6 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-selector-search-footer-label\">", "</span>\n\t\t\t"]);
-
-	  _templateObject2$6 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$a() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-selector-search-footer\" onclick=\"", "\">\n\t\t\t\t<div class=\"ui-selector-search-footer-box\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t<div class=\"ui-selector-search-footer-cmd\">", "</div>\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject$a = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$8, _templateObject2$5, _templateObject3$5, _templateObject4$5;
 
 	var SearchTabFooter = /*#__PURE__*/function (_BaseFooter) {
 	  babelHelpers.inherits(SearchTabFooter, _BaseFooter);
@@ -5910,7 +6086,7 @@ this.BX.UI = this.BX.UI || {};
 	  babelHelpers.createClass(SearchTabFooter, [{
 	    key: "render",
 	    value: function render() {
-	      return main_core.Tag.render(_templateObject$a(), this.handleClick.bind(this), this.getLabelContainer(), this.getQueryContainer(), this.getLoaderContainer(), main_core.Browser.isMac() ? '&#8984;+Enter' : 'Ctrl+Enter');
+	      return main_core.Tag.render(_templateObject$8 || (_templateObject$8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-selector-search-footer\" onclick=\"", "\">\n\t\t\t\t<div class=\"ui-selector-search-footer-box\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t<div class=\"ui-selector-search-footer-cmd\">", "</div>\n\t\t\t</div>\n\t\t"])), this.handleClick.bind(this), this.getLabelContainer(), this.getQueryContainer(), this.getLoaderContainer(), main_core.Browser.isMac() ? '&#8984;+Enter' : 'Ctrl+Enter');
 	    }
 	  }, {
 	    key: "getLoader",
@@ -5928,12 +6104,12 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "showLoader",
 	    value: function showLoader() {
-	      this.getLoader().show();
+	      void this.getLoader().show();
 	    }
 	  }, {
 	    key: "hideLoader",
 	    value: function hideLoader() {
-	      this.getLoader().hide();
+	      void this.getLoader().hide();
 	    }
 	  }, {
 	    key: "setLabel",
@@ -5948,21 +6124,21 @@ this.BX.UI = this.BX.UI || {};
 	      var _this2 = this;
 
 	      return this.cache.remember('label', function () {
-	        return main_core.Tag.render(_templateObject2$6(), _this2.getOption('label', main_core.Loc.getMessage('UI_SELECTOR_CREATE_ITEM_LABEL')));
+	        return main_core.Tag.render(_templateObject2$5 || (_templateObject2$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-selector-search-footer-label\">", "</span>\n\t\t\t"])), _this2.getOption('label', main_core.Loc.getMessage('UI_SELECTOR_CREATE_ITEM_LABEL')));
 	      });
 	    }
 	  }, {
 	    key: "getQueryContainer",
 	    value: function getQueryContainer() {
 	      return this.cache.remember('name-container', function () {
-	        return main_core.Tag.render(_templateObject3$6());
+	        return main_core.Tag.render(_templateObject3$5 || (_templateObject3$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-selector-search-footer-query\"></span>\n\t\t\t"])));
 	      });
 	    }
 	  }, {
 	    key: "getLoaderContainer",
 	    value: function getLoaderContainer() {
 	      return this.cache.remember('loader', function () {
-	        return main_core.Tag.render(_templateObject4$5());
+	        return main_core.Tag.render(_templateObject4$5 || (_templateObject4$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-search-footer-loader\"></div>\n\t\t\t"])));
 	      });
 	    }
 	  }, {
@@ -5970,7 +6146,9 @@ this.BX.UI = this.BX.UI || {};
 	    value: function createItem() {
 	      var _this3 = this;
 
-	      if (this.getDialog().getTagSelector().isLocked()) {
+	      var tagSelector = this.getDialog().getTagSelector();
+
+	      if (tagSelector && tagSelector.isLocked()) {
 	        return;
 	      }
 
@@ -5986,7 +6164,11 @@ this.BX.UI = this.BX.UI || {};
 
 	      event.preventDefault();
 	      this.showLoader();
-	      this.getDialog().getTagSelector().lock();
+
+	      if (tagSelector) {
+	        tagSelector.lock();
+	      }
+
 	      this.getDialog().emitAsync('Search:onItemCreateAsync', {
 	        searchQuery: this.getTab().getLastSearchQuery()
 	      }).then(function () {
@@ -6051,7 +6233,6 @@ this.BX.UI = this.BX.UI || {};
 	    options.stubOptions.autoShow = false;
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(SearchTab).call(this, dialog, options));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "lastSearchQuery", null);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "loadWithDebounce", main_core.Runtime.debounce(_this.load, 500, babelHelpers.assertThisInitialized(_this)));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "queryCache", new Set());
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "queryXhr", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "searchLoader", new SearchLoader(babelHelpers.assertThisInitialized(_this)));
@@ -6060,6 +6241,9 @@ this.BX.UI = this.BX.UI || {};
 
 	    _this.setAllowCreateItem(searchOptions.allowCreateItem, searchOptions.footerOptions);
 
+	    _this.loadWithDebounce = main_core.Runtime.debounce(function () {
+	      _this.load(_this.getLastSearchQuery());
+	    }, 500);
 	    return _this;
 	  }
 
@@ -6076,10 +6260,7 @@ this.BX.UI = this.BX.UI || {};
 	      }
 
 	      this.lastSearchQuery = searchQuery;
-	      var matchResults = [];
-	      this.getDialog().getItems().forEach(function (items) {
-	        matchResults = matchResults.concat(SearchEngine.matchItems(items, searchQuery));
-	      });
+	      var matchResults = SearchEngine.matchItems(this.getDialog().getItems(), searchQuery);
 	      this.clearResults();
 	      this.appendResults(matchResults);
 
@@ -6088,7 +6269,7 @@ this.BX.UI = this.BX.UI || {};
 	      }
 
 	      if (this.shouldLoad(searchQuery)) {
-	        this.loadWithDebounce(searchQuery);
+	        this.loadWithDebounce();
 
 	        if (!this.isEmptyResult()) {
 	          this.getStub().hide();
@@ -6128,6 +6309,19 @@ this.BX.UI = this.BX.UI || {};
 	      var _this2 = this;
 
 	      matchResults.sort(function (a, b) {
+	        var matchSortA = a.getSort();
+	        var matchSortB = b.getSort();
+
+	        if (matchSortA !== null && matchSortB !== null) {
+	          return matchSortA - matchSortB;
+	        }
+
+	        if (matchSortA !== null && matchSortB === null) {
+	          return -1;
+	        } else if (matchSortA === null && matchSortB !== null) {
+	          return 1;
+	        }
+
 	        var contextSortA = a.getItem().getContextSort();
 	        var contextSortB = b.getItem().getContextSort();
 
@@ -6163,7 +6357,7 @@ this.BX.UI = this.BX.UI || {};
 	        }
 	      });
 	      this.getRootNode().enableRender();
-	      this.render();
+	      this.getRootNode().render(true);
 	    }
 	  }, {
 	    key: "getDynamicEntities",
@@ -6242,8 +6436,8 @@ this.BX.UI = this.BX.UI || {};
 	      this.getSearchLoader().show();
 	      main_core.ajax.runAction('ui.entityselector.doSearch', {
 	        json: {
-	          dialog: this.getDialog(),
-	          searchQuery: searchQuery
+	          dialog: this.getDialog().getAjaxJson(),
+	          searchQuery: searchQuery.getAjaxJson()
 	        },
 	        onrequeststart: function onrequeststart(xhr) {
 	          _this3.queryXhr = xhr;
@@ -6279,7 +6473,7 @@ this.BX.UI = this.BX.UI || {};
 
 	          var isTabEmpty = _this3.isEmptyResult();
 
-	          var matchResults = SearchEngine.matchItems(items, _this3.getLastSearchQuery());
+	          var matchResults = SearchEngine.matchItems(Array.from(items.values()), _this3.getLastSearchQuery());
 
 	          _this3.appendResults(matchResults);
 
@@ -6327,65 +6521,7 @@ this.BX.UI = this.BX.UI || {};
 	  return SearchTab;
 	}(Tab);
 
-	function _templateObject6$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-footer-container\">", "</div>\n\t\t\t"]);
-
-	  _templateObject6$3 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5$5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"ui-selector-tab-labels\"\n\t\t\t\t\tonmouseenter=\"", "\"\n\t\t\t\t\tonmouseleave=\"", "\"\n\t\t\t\t></div>\n\t\t\t"]);
-
-	  _templateObject5$5 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4$6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-tab-contents\"></div>"]);
-
-	  _templateObject4$6 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tabs\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject3$7 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-dialog\" style=\"width:", "px; height:", "px;\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject2$7 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$b() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-search\"></div>"]);
-
-	  _templateObject$b = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$9, _templateObject2$6, _templateObject3$6, _templateObject4$6, _templateObject5$4, _templateObject6$2;
 
 	var LoadState = function LoadState() {
 	  babelHelpers.classCallCheck(this, LoadState);
@@ -6413,6 +6549,11 @@ this.BX.UI = this.BX.UI || {};
 	    value: function getById(id) {
 	      return instances.get(id) || null;
 	    }
+	  }, {
+	    key: "getInstances",
+	    value: function getInstances() {
+	      return Array.from(instances.values());
+	    }
 	  }]);
 
 	  function Dialog(dialogOptions) {
@@ -6422,8 +6563,8 @@ this.BX.UI = this.BX.UI || {};
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Dialog).call(this));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "id", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "items", new Map());
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "tabs", []);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "entities", []);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "tabs", new Map());
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "entities", new Map());
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "targetNode", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "popup", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "cache", new main_core.Cache.MemoryCache());
@@ -6442,12 +6583,13 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "autoHide", true);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "offsetTop", 5);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "offsetLeft", 0);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "zIndex", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "cacheable", true);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "width", 565);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "height", 420);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "maxLabelWidth", 160);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "minLabelWidth", 45);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "showAvatars", true);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "compactView", false);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "activeTab", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "recentTab", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "searchTab", null);
@@ -6465,6 +6607,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "focusOnFirst", true);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "focusedNode", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "clearUnavailableItems", false);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "overlappingObserver", null);
 
 	    _this.setEventNamespace('BX.UI.EntitySelector.Dialog');
 
@@ -6473,6 +6616,7 @@ this.BX.UI = this.BX.UI || {};
 	    _this.multiple = main_core.Type.isBoolean(options.multiple) ? options.multiple : true;
 	    _this.context = main_core.Type.isStringFilled(options.context) ? options.context : null;
 	    _this.clearUnavailableItems = options.clearUnavailableItems === true;
+	    _this.compactView = options.compactView === true;
 
 	    if (main_core.Type.isArray(options.entities)) {
 	      options.entities.forEach(function (entity) {
@@ -6515,7 +6659,7 @@ this.BX.UI = this.BX.UI || {};
 
 	    _this.setWidth(options.width);
 
-	    _this.setHeight(options.height);
+	    void _this.setHeight(options.height);
 
 	    _this.setAutoHide(options.autoHide);
 
@@ -6525,11 +6669,11 @@ this.BX.UI = this.BX.UI || {};
 
 	    _this.setOffsetTop(options.offsetTop);
 
-	    _this.setZindex(options.zIndex);
-
 	    _this.setCacheable(options.cacheable);
 
 	    _this.setFocusOnFirst(options.focusOnFirst);
+
+	    _this.setShowAvatars(options.showAvatars);
 
 	    _this.recentTab = new RecentTab(babelHelpers.assertThisInitialized(_this), options.recentTabOptions);
 	    _this.searchTab = new SearchTab(babelHelpers.assertThisInitialized(_this), options.searchTabOptions, options.searchOptions);
@@ -6553,7 +6697,7 @@ this.BX.UI = this.BX.UI || {};
 	    }
 
 	    if (main_core.Type.isPlainObject(options.popupOptions)) {
-	      var allowedOptions = ['overlay', 'bindOptions'];
+	      var allowedOptions = ['overlay', 'bindOptions', 'targetContainer', 'zIndexOptions'];
 	      var popupOptions = {};
 	      Object.keys(options.popupOptions).forEach(function (option) {
 	        if (allowedOptions.includes(option)) {
@@ -6577,427 +6721,76 @@ this.BX.UI = this.BX.UI || {};
 	  }
 
 	  babelHelpers.createClass(Dialog, [{
-	    key: "setOptions",
-	    value: function setOptions(dialogOptions) {
-	      var _this2 = this;
-
-	      var options = main_core.Type.isPlainObject(dialogOptions) ? dialogOptions : {};
-
-	      if (main_core.Type.isArray(options.tabs)) {
-	        options.tabs.forEach(function (tab) {
-	          _this2.addTab(tab);
-	        });
-	      }
-
-	      if (main_core.Type.isArray(options.selectedItems)) {
-	        options.selectedItems.forEach(function (itemOptions) {
-	          var options = Object.assign({}, main_core.Type.isPlainObject(itemOptions) ? itemOptions : {});
-	          options.selected = true;
-
-	          _this2.addItem(options);
-	        });
-	      }
-
-	      if (main_core.Type.isArray(options.items)) {
-	        options.items.forEach(function (itemOptions) {
-	          _this2.addItem(itemOptions);
-	        });
-	      }
-
-	      this.setFooter(options.footer, options.footerOptions);
+	    key: "show",
+	    value: function show() {
+	      this.load();
+	      this.getPopup().show();
 	    }
 	  }, {
-	    key: "getId",
-	    value: function getId() {
-	      return this.id;
+	    key: "hide",
+	    value: function hide() {
+	      this.getPopup().close();
 	    }
 	  }, {
-	    key: "getContext",
-	    value: function getContext() {
-	      return this.context;
-	    }
-	  }, {
-	    key: "getNavigation",
-	    value: function getNavigation() {
-	      return this.navigation;
-	    }
-	  }, {
-	    key: "getFooter",
-	    value: function getFooter() {
-	      return this.footer;
-	    }
-	  }, {
-	    key: "getActiveFooter",
-	    value: function getActiveFooter() {
-	      if (!this.getActiveTab()) {
-	        return null;
-	      }
-
-	      if (this.getActiveTab().getFooter()) {
-	        return this.getActiveTab().getFooter();
-	      }
-
-	      return this.getFooter() && this.getActiveTab().canShowDefaultFooter() ? this.getFooter() : null;
-	    }
-	  }, {
-	    key: "adjustFooter",
-	    value: function adjustFooter() {
-	      if (!this.getActiveTab()) {
+	    key: "destroy",
+	    value: function destroy() {
+	      if (this.destroying) {
 	        return;
 	      }
 
-	      if (this.getActiveTab().getFooter()) {
-	        if (this.getFooter()) {
-	          this.getFooter().hide();
-	        }
-
-	        this.getActiveTab().getFooter().show();
-	      } else {
-	        if (this.getFooter()) {
-	          if (this.getActiveTab().canShowDefaultFooter()) {
-	            this.getFooter().show();
-	          } else {
-	            this.getFooter().hide();
-	          }
-	        }
-	      }
-	    }
-	  }, {
-	    key: "setFooter",
-	    value: function setFooter(footerContent, footerOptions) {
-	      /** @var {BaseFooter} */
-	      var footer = null;
-
-	      if (footerContent !== null) {
-	        footer = this.constructor.createFooter(this, footerContent, footerOptions);
-
-	        if (footer === null) {
-	          return;
-	        }
-	      }
-
-	      if (this.isRendered() && this.getFooter() !== null) {
-	        main_core.Dom.remove(this.getFooter().getContainer());
-	        this.adjustFooter();
-	      }
-
-	      this.footer = footer;
+	      this.destroying = true;
+	      this.emit('onDestroy');
+	      this.disconnectTabOverlapping();
+	      instances.delete(this.getId());
 
 	      if (this.isRendered()) {
-	        this.appendFooter(footer);
-	        this.adjustFooter();
+	        this.getPopup().destroy();
 	      }
+
+	      for (var property in this) {
+	        if (this.hasOwnProperty(property)) {
+	          delete this[property];
+	        }
+	      }
+
+	      Object.setPrototypeOf(this, null);
 	    }
 	  }, {
-	    key: "appendFooter",
-	    value: function appendFooter(footer) {
-	      if (footer instanceof BaseFooter) {
-	        main_core.Dom.append(footer.getContainer(), this.getFooterContainer());
-	      }
+	    key: "isOpen",
+	    value: function isOpen() {
+	      return this.popup && this.popup.isShown();
 	    }
 	  }, {
-	    key: "addTab",
-	    value: function addTab(tab) {
-	      if (main_core.Type.isPlainObject(tab)) {
-	        tab = new Tab(this, tab);
-	      }
-
-	      if (!(tab instanceof Tab)) {
-	        throw new Error('EntitySelector: a tab must be an instance of EntitySelector.Tab.');
-	      }
-
-	      if (this.getTab(tab.getId())) {
-	        console.error("EntitySelector: the \"".concat(tab.getId(), "\" tab is already existed."));
-	        return tab;
-	      }
-
-	      tab.setDialog(this);
-	      this.tabs.push(tab);
-
+	    key: "adjustPosition",
+	    value: function adjustPosition() {
 	      if (this.isRendered()) {
-	        this.insertTab(tab);
+	        this.getPopup().adjustPosition();
 	      }
-
-	      return tab;
 	    }
 	  }, {
-	    key: "getTabs",
-	    value: function getTabs() {
-	      return this.tabs;
-	    }
-	  }, {
-	    key: "getTab",
-	    value: function getTab(id) {
-	      if (!main_core.Type.isStringFilled(id)) {
-	        return null;
+	    key: "search",
+	    value: function search(queryString) {
+	      var query = main_core.Type.isStringFilled(queryString) ? queryString.trim() : '';
+
+	      if (!main_core.Type.isStringFilled(query)) {
+	        this.selectFirstTab();
+
+	        if (this.getSearchTab()) {
+	          this.getSearchTab().clearResults();
+	        }
+	      } else if (this.getSearchTab()) {
+	        this.selectTab(this.getSearchTab().getId());
+	        this.getSearchTab().search(query);
 	      }
 
-	      var tab = this.getTabs().find(function (tab) {
-	        return tab.getId() === id;
+	      this.emit('onSearch', {
+	        query: query
 	      });
-	      return tab || null;
-	    }
-	  }, {
-	    key: "getRecentTab",
-	    value: function getRecentTab() {
-	      return this.recentTab;
-	    }
-	  }, {
-	    key: "getSearchTab",
-	    value: function getSearchTab() {
-	      return this.searchTab;
-	    }
-	  }, {
-	    key: "selectTab",
-	    value: function selectTab(id) {
-	      var newActiveTab = this.getTab(id);
-
-	      if (!newActiveTab || newActiveTab === this.getActiveTab()) {
-	        return newActiveTab;
-	      }
-
-	      if (this.getActiveTab()) {
-	        this.getActiveTab().deselect();
-	      }
-
-	      this.activeTab = newActiveTab;
-	      newActiveTab.select();
-
-	      if (!newActiveTab.isRendered()) {
-	        newActiveTab.render();
-	      }
-
-	      this.focusSearch();
-	      this.clearNodeFocus();
-
-	      if (this.shouldFocusOnFirst()) {
-	        this.focusOnFirstNode();
-	      }
-
-	      this.adjustFooter();
-	      return newActiveTab;
-	    }
-	    /**
-	     * @private
-	     */
-
-	  }, {
-	    key: "insertTab",
-	    value: function insertTab(tab) {
-	      tab.renderLabel();
-	      main_core.Dom.append(tab.getLabelContainer(), this.getLabelsContainer());
-	      main_core.Dom.append(tab.getContainer(), this.getTabContentsContainer());
-
-	      if (tab.getFooter()) {
-	        main_core.Dom.append(tab.getFooter().getContainer(), this.getFooterContainer());
-	      }
-	    }
-	  }, {
-	    key: "selectFirstTab",
-	    value: function selectFirstTab() {
-	      var onlyVisible = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-
-	      for (var i = 0; i < this.getTabs().length; i++) {
-	        var tab = this.getTabs()[i];
-
-	        if (onlyVisible === false || tab.isVisible()) {
-	          return this.selectTab(tab.getId());
-	        }
-	      }
-
-	      if (this.isDropdownMode()) {
-	        return this.selectTab(this.getRecentTab().getId());
-	      }
-
-	      return null;
-	    }
-	  }, {
-	    key: "selectLastTab",
-	    value: function selectLastTab() {
-	      var onlyVisible = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-
-	      for (var i = this.getTabs().length - 1; i >= 0; i--) {
-	        var tab = this.getTabs()[i];
-
-	        if (onlyVisible === false || tab.isVisible()) {
-	          return this.selectTab(tab.getId());
-	        }
-	      }
-
-	      if (this.isDropdownMode()) {
-	        return this.selectTab(this.getRecentTab().getId());
-	      }
-
-	      return null;
-	    }
-	  }, {
-	    key: "getActiveTab",
-	    value: function getActiveTab() {
-	      return this.activeTab;
-	    }
-	  }, {
-	    key: "getNextTab",
-	    value: function getNextTab() {
-	      var onlyVisible = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-	      var nextTab = null;
-	      var activeFound = false;
-
-	      for (var i = 0; i < this.getTabs().length; i++) {
-	        var tab = this.getTabs()[i];
-
-	        if (onlyVisible && !tab.isVisible()) {
-	          continue;
-	        }
-
-	        if (tab === this.getActiveTab()) {
-	          activeFound = true;
-	        } else if (activeFound) {
-	          nextTab = tab;
-	          break;
-	        }
-	      }
-
-	      return nextTab;
-	    }
-	  }, {
-	    key: "getPreviousTab",
-	    value: function getPreviousTab() {
-	      var onlyVisible = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-	      var previousTab = null;
-	      var activeFound = false;
-
-	      for (var i = this.getTabs().length - 1; i >= 0; i--) {
-	        var tab = this.getTabs()[i];
-
-	        if (onlyVisible && !tab.isVisible()) {
-	          continue;
-	        }
-
-	        if (tab === this.getActiveTab()) {
-	          activeFound = true;
-	        } else if (activeFound) {
-	          previousTab = tab;
-	          break;
-	        }
-	      }
-
-	      return previousTab;
-	    }
-	  }, {
-	    key: "removeTab",
-	    value: function removeTab(id) {
-	      var tab = this.getTab(id);
-
-	      if (!tab) {
-	        return;
-	      }
-
-	      tab.removeNodes();
-	      this.tabs = this.tabs.filter(function (el) {
-	        return tab.getId() !== el.getId();
-	      });
-	      main_core.Dom.remove(tab.getLabelContainer(), this.getLabelsContainer());
-	      main_core.Dom.remove(tab.getContainer(), this.getTabContentsContainer());
-
-	      if (tab.getFooter()) {
-	        main_core.Dom.remove(tab.getFooter().getContainer(), this.getFooterContainer());
-	      }
-
-	      this.selectFirstTab();
-	    }
-	  }, {
-	    key: "getItem",
-	    value: function getItem(item) {
-	      var id = null;
-	      var entityId = null;
-
-	      if (main_core.Type.isArray(item) && item.length === 2) {
-	        var _item = babelHelpers.slicedToArray(item, 2);
-
-	        entityId = _item[0];
-	        id = _item[1];
-	      } else if (item instanceof Item) {
-	        id = item.getId();
-	        entityId = item.getEntityId();
-	      } else if (main_core.Type.isObjectLike(item)) {
-	        id = item.id;
-	        entityId = item.entityId;
-	      }
-
-	      var entityItems = this.getEntityItems(entityId);
-
-	      if (entityItems) {
-	        return entityItems.get(String(id)) || null;
-	      }
-
-	      return null;
-	    }
-	  }, {
-	    key: "getItems",
-	    value: function getItems() {
-	      return this.items;
-	    }
-	  }, {
-	    key: "getSelectedItems",
-	    value: function getSelectedItems() {
-	      return Array.from(this.selectedItems);
-	    }
-	  }, {
-	    key: "setPreselectedItems",
-	    value: function setPreselectedItems(itemIds) {
-	      this.preselectedItems = this.validateItemIds(itemIds);
-	    }
-	  }, {
-	    key: "getPreselectedItems",
-	    value: function getPreselectedItems() {
-	      return this.preselectedItems;
-	    }
-	  }, {
-	    key: "setUndeselectedItems",
-	    value: function setUndeselectedItems(itemIds) {
-	      this.undeselectedItems = this.validateItemIds(itemIds);
-	    }
-	  }, {
-	    key: "getUndeselectedItems",
-	    value: function getUndeselectedItems() {
-	      return this.undeselectedItems;
-	    }
-	    /**
-	     * @private
-	     */
-
-	  }, {
-	    key: "validateItemIds",
-	    value: function validateItemIds(itemIds) {
-	      if (!main_core.Type.isArrayFilled(itemIds)) {
-	        return [];
-	      }
-
-	      var result = [];
-	      itemIds.forEach(function (itemId) {
-	        if (!main_core.Type.isArray(itemId) || itemId.length !== 2) {
-	          return;
-	        }
-
-	        var _itemId = babelHelpers.slicedToArray(itemId, 2),
-	            entityId = _itemId[0],
-	            id = _itemId[1];
-
-	        if (main_core.Type.isStringFilled(entityId) && (main_core.Type.isStringFilled(id) || main_core.Type.isNumber(id))) {
-	          result.push(itemId);
-	        }
-	      });
-	      return result;
-	    }
-	  }, {
-	    key: "getEntityItems",
-	    value: function getEntityItems(entityId) {
-	      return this.items.get(entityId) || null;
 	    }
 	  }, {
 	    key: "addItem",
 	    value: function addItem(options) {
-	      var _this3 = this;
+	      var _this2 = this;
 
 	      if (!main_core.Type.isPlainObject(options)) {
 	        throw new Error('EntitySelector.addItem: wrong item options.');
@@ -7008,7 +6801,7 @@ this.BX.UI = this.BX.UI || {};
 	      if (!item) {
 	        item = new Item(options);
 	        var undeselectable = this.getUndeselectedItems().some(function (itemId) {
-	          return itemId[0] === item.getEntityId() && itemId[1] === item.getId();
+	          return itemId[0] === item.getEntityId() && String(itemId[1]) === String(item.getId());
 	        });
 
 	        if (undeselectable) {
@@ -7048,7 +6841,7 @@ this.BX.UI = this.BX.UI || {};
 
 	      var children = main_core.Type.isArray(options.children) ? options.children : [];
 	      tabs.forEach(function (tabId) {
-	        var tab = _this3.getTab(tabId);
+	        var tab = _this2.getTab(tabId);
 
 	        if (tab) {
 	          var itemNode = tab.getRootNode().addItem(item, options.nodeOptions);
@@ -7063,22 +6856,493 @@ this.BX.UI = this.BX.UI || {};
 	      item = this.getItem(item);
 
 	      if (item) {
-	        var entityItems = this.getEntityItems(item.getEntityId());
+	        this.handleItemDeselect(item);
+	        item.getNodes().forEach(function (node) {
+	          node.getParentNode().removeChild(node);
+	        });
+	        var entityItems = this.getEntityItemsInternal(item.getEntityId());
 
 	        if (entityItems) {
-	          entityItems.delete(item.getId());
+	          entityItems.delete(String(item.getId()));
 
 	          if (entityItems.size === 0) {
 	            this.items.delete(item.getEntityId());
 	          }
 	        }
-
-	        item.getNodes().forEach(function (node) {
-	          node.getParentNode().removeChild(node);
-	        });
 	      }
 
 	      return item;
+	    }
+	  }, {
+	    key: "removeItems",
+	    value: function removeItems() {
+	      var _this3 = this;
+
+	      this.getItemsInternal().forEach(function (items) {
+	        items.forEach(function (item) {
+	          _this3.removeItem(item);
+	        });
+	      });
+	    }
+	  }, {
+	    key: "getItem",
+	    value: function getItem(item) {
+	      var id = null;
+	      var entityId = null;
+
+	      if (main_core.Type.isArray(item) && item.length === 2) {
+	        var _item = babelHelpers.slicedToArray(item, 2);
+
+	        entityId = _item[0];
+	        id = _item[1];
+	      } else if (item instanceof Item) {
+	        id = item.getId();
+	        entityId = item.getEntityId();
+	      } else if (main_core.Type.isObjectLike(item)) {
+	        id = item.id;
+	        entityId = item.entityId;
+	      }
+
+	      var entityItems = this.getEntityItemsInternal(entityId);
+
+	      if (entityItems) {
+	        return entityItems.get(String(id)) || null;
+	      }
+
+	      return null;
+	    }
+	  }, {
+	    key: "getSelectedItems",
+	    value: function getSelectedItems() {
+	      return Array.from(this.selectedItems);
+	    }
+	  }, {
+	    key: "getItems",
+	    value: function getItems() {
+	      var items = [];
+	      this.getItemsInternal().forEach(function (entityItems) {
+	        Array.prototype.push.apply(items, Array.from(entityItems.values()));
+	      });
+	      return items;
+	    }
+	    /**
+	     * @internal
+	     */
+
+	  }, {
+	    key: "getItemsInternal",
+	    value: function getItemsInternal() {
+	      return this.items;
+	    }
+	  }, {
+	    key: "getEntityItems",
+	    value: function getEntityItems(entityId) {
+	      var items = this.getEntityItemsInternal(entityId);
+	      return items === null ? [] : Array.from(items.values());
+	    }
+	    /**
+	     * @internal
+	     */
+
+	  }, {
+	    key: "getEntityItemsInternal",
+	    value: function getEntityItemsInternal(entityId) {
+	      return this.items.get(entityId) || null;
+	    }
+	    /**
+	     * @private
+	     */
+
+	  }, {
+	    key: "validateItemIds",
+	    value: function validateItemIds(itemIds) {
+	      if (!main_core.Type.isArrayFilled(itemIds)) {
+	        return [];
+	      }
+
+	      var result = [];
+	      itemIds.forEach(function (itemId) {
+	        if (!main_core.Type.isArray(itemId) || itemId.length !== 2) {
+	          return;
+	        }
+
+	        var _itemId = babelHelpers.slicedToArray(itemId, 2),
+	            entityId = _itemId[0],
+	            id = _itemId[1];
+
+	        if (main_core.Type.isStringFilled(entityId) && (main_core.Type.isStringFilled(id) || main_core.Type.isNumber(id))) {
+	          result.push(itemId);
+	        }
+	      });
+	      return result;
+	    }
+	  }, {
+	    key: "addTab",
+	    value: function addTab(tab) {
+	      if (main_core.Type.isPlainObject(tab)) {
+	        tab = new Tab(this, tab);
+	      }
+
+	      if (!(tab instanceof Tab)) {
+	        throw new Error('EntitySelector: a tab must be an instance of EntitySelector.Tab.');
+	      }
+
+	      if (this.getTab(tab.getId())) {
+	        console.error("EntitySelector: the \"".concat(tab.getId(), "\" tab is already existed."));
+	        return tab;
+	      }
+
+	      tab.setDialog(this);
+	      this.tabs.set(tab.getId(), tab);
+
+	      if (this.isRendered()) {
+	        this.insertTab(tab);
+	      }
+
+	      return tab;
+	    }
+	  }, {
+	    key: "getTabs",
+	    value: function getTabs() {
+	      return Array.from(this.tabs.values());
+	    }
+	  }, {
+	    key: "getTab",
+	    value: function getTab(id) {
+	      return this.tabs.get(id) || null;
+	    }
+	  }, {
+	    key: "getRecentTab",
+	    value: function getRecentTab() {
+	      return this.recentTab;
+	    }
+	  }, {
+	    key: "getSearchTab",
+	    value: function getSearchTab() {
+	      return this.searchTab;
+	    }
+	  }, {
+	    key: "selectTab",
+	    value: function selectTab(id) {
+	      var _this4 = this;
+
+	      var newActiveTab = this.getTab(id);
+
+	      if (!newActiveTab || newActiveTab === this.getActiveTab()) {
+	        return newActiveTab;
+	      }
+
+	      if (this.getActiveTab()) {
+	        this.getActiveTab().deselect();
+	      }
+
+	      this.activeTab = newActiveTab;
+	      newActiveTab.select();
+
+	      if (!newActiveTab.isRendered()) {
+	        newActiveTab.render();
+	      }
+
+	      requestAnimationFrame(function () {
+	        requestAnimationFrame(function () {
+	          _this4.focusSearch();
+	        });
+	      });
+	      this.clearNodeFocus();
+
+	      if (this.shouldFocusOnFirst()) {
+	        this.focusOnFirstNode();
+	      }
+
+	      this.adjustFooter();
+	      return newActiveTab;
+	    }
+	    /**
+	     * @private
+	     */
+
+	  }, {
+	    key: "insertTab",
+	    value: function insertTab(tab) {
+	      tab.renderLabel();
+	      tab.renderContainer();
+	      main_core.Dom.append(tab.getLabelContainer(), this.getLabelsContainer());
+	      main_core.Dom.append(tab.getContainer(), this.getTabContentsContainer());
+
+	      if (tab.getFooter()) {
+	        main_core.Dom.append(tab.getFooter().getContainer(), this.getFooterContainer());
+	      }
+	    }
+	  }, {
+	    key: "selectFirstTab",
+	    value: function selectFirstTab() {
+	      var onlyVisible = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+	      var tabs = this.getTabs();
+
+	      for (var i = 0; i < tabs.length; i++) {
+	        var tab = tabs[i];
+
+	        if (onlyVisible === false || tab.isVisible()) {
+	          return this.selectTab(tab.getId());
+	        }
+	      }
+
+	      if (this.isDropdownMode()) {
+	        return this.selectTab(this.getRecentTab().getId());
+	      }
+
+	      return null;
+	    }
+	  }, {
+	    key: "selectLastTab",
+	    value: function selectLastTab() {
+	      var onlyVisible = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+	      var tabs = this.getTabs();
+
+	      for (var i = tabs.length - 1; i >= 0; i--) {
+	        var tab = tabs[i];
+
+	        if (onlyVisible === false || tab.isVisible()) {
+	          return this.selectTab(tab.getId());
+	        }
+	      }
+
+	      if (this.isDropdownMode()) {
+	        return this.selectTab(this.getRecentTab().getId());
+	      }
+
+	      return null;
+	    }
+	  }, {
+	    key: "getActiveTab",
+	    value: function getActiveTab() {
+	      return this.activeTab;
+	    }
+	  }, {
+	    key: "getNextTab",
+	    value: function getNextTab() {
+	      var onlyVisible = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+	      var nextTab = null;
+	      var activeFound = false;
+	      var tabs = this.getTabs();
+
+	      for (var i = 0; i < tabs.length; i++) {
+	        var tab = tabs[i];
+
+	        if (onlyVisible && !tab.isVisible()) {
+	          continue;
+	        }
+
+	        if (tab === this.getActiveTab()) {
+	          activeFound = true;
+	        } else if (activeFound) {
+	          nextTab = tab;
+	          break;
+	        }
+	      }
+
+	      return nextTab;
+	    }
+	  }, {
+	    key: "getPreviousTab",
+	    value: function getPreviousTab() {
+	      var onlyVisible = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+	      var previousTab = null;
+	      var activeFound = false;
+	      var tabs = this.getTabs();
+
+	      for (var i = tabs.length - 1; i >= 0; i--) {
+	        var tab = tabs[i];
+
+	        if (onlyVisible && !tab.isVisible()) {
+	          continue;
+	        }
+
+	        if (tab === this.getActiveTab()) {
+	          activeFound = true;
+	        } else if (activeFound) {
+	          previousTab = tab;
+	          break;
+	        }
+	      }
+
+	      return previousTab;
+	    }
+	  }, {
+	    key: "removeTab",
+	    value: function removeTab(id) {
+	      var tab = this.getTab(id);
+
+	      if (!tab) {
+	        return;
+	      }
+
+	      tab.getRootNode().removeChildren();
+	      this.tabs.delete(id);
+	      main_core.Dom.remove(tab.getLabelContainer(), this.getLabelsContainer());
+	      main_core.Dom.remove(tab.getContainer(), this.getTabContentsContainer());
+
+	      if (tab.getFooter()) {
+	        main_core.Dom.remove(tab.getFooter().getContainer(), this.getFooterContainer());
+	      }
+
+	      this.selectFirstTab();
+	    }
+	  }, {
+	    key: "addEntity",
+	    value: function addEntity(entity) {
+	      if (main_core.Type.isPlainObject(entity)) {
+	        entity = new Entity(entity);
+	      }
+
+	      if (!(entity instanceof Entity)) {
+	        throw new Error('EntitySelector: an entity must be an instance of EntitySelector.Entity.');
+	      }
+
+	      if (this.hasEntity(entity.getId())) {
+	        console.error("EntitySelector: the \"".concat(entity.getId(), "\" entity is already existed."));
+	        return entity;
+	      }
+
+	      this.entities.set(entity.getId(), entity);
+	      return entity;
+	    }
+	  }, {
+	    key: "getEntity",
+	    value: function getEntity(id) {
+	      return this.entities.get(id) || null;
+	    }
+	  }, {
+	    key: "hasEntity",
+	    value: function hasEntity(id) {
+	      return this.entities.has(id);
+	    }
+	  }, {
+	    key: "getEntities",
+	    value: function getEntities() {
+	      return Array.from(this.entities.values());
+	    }
+	  }, {
+	    key: "removeEntity",
+	    value: function removeEntity(id) {
+	      this.removeEntityItems(id);
+	      this.entities.delete(id);
+	    }
+	  }, {
+	    key: "removeEntityItems",
+	    value: function removeEntityItems(id) {
+	      var _this5 = this;
+
+	      var items = this.getEntityItemsInternal(id);
+
+	      if (items) {
+	        items.forEach(function (item) {
+	          _this5.removeItem(item);
+	        });
+	      }
+	    }
+	  }, {
+	    key: "getFooter",
+	    value: function getFooter() {
+	      return this.footer;
+	    }
+	  }, {
+	    key: "getActiveFooter",
+	    value: function getActiveFooter() {
+	      if (!this.getActiveTab()) {
+	        return null;
+	      }
+
+	      if (this.getActiveTab().getFooter()) {
+	        return this.getActiveTab().getFooter();
+	      }
+
+	      return this.getFooter() && this.getActiveTab().canShowDefaultFooter() ? this.getFooter() : null;
+	    }
+	    /**
+	     * @internal
+	     */
+
+	  }, {
+	    key: "adjustFooter",
+	    value: function adjustFooter() {
+	      if (!this.getActiveTab()) {
+	        return;
+	      }
+
+	      if (this.getActiveTab().getFooter()) {
+	        if (this.getFooter()) {
+	          this.getFooter().hide();
+	        }
+
+	        this.getActiveTab().getFooter().show();
+	      } else {
+	        if (this.getFooter()) {
+	          if (this.getActiveTab().canShowDefaultFooter()) {
+	            this.getFooter().show();
+	          } else {
+	            this.getFooter().hide();
+	          }
+	        }
+	      }
+	    }
+	  }, {
+	    key: "setFooter",
+	    value: function setFooter(footerContent, footerOptions) {
+	      /** @var {BaseFooter} */
+	      var footer = null;
+
+	      if (footerContent !== null) {
+	        footer = this.constructor.createFooter(this, footerContent, footerOptions);
+
+	        if (footer === null) {
+	          return null;
+	        }
+	      }
+
+	      if (this.isRendered() && this.getFooter() !== null) {
+	        main_core.Dom.remove(this.getFooter().getContainer());
+	        this.adjustFooter();
+	      }
+
+	      this.footer = footer;
+
+	      if (this.isRendered()) {
+	        this.appendFooter(footer);
+	        this.adjustFooter();
+	      }
+
+	      return footer;
+	    }
+	    /**
+	     * @internal
+	     */
+
+	  }, {
+	    key: "appendFooter",
+	    value: function appendFooter(footer) {
+	      if (footer instanceof BaseFooter) {
+	        main_core.Dom.append(footer.getContainer(), this.getFooterContainer());
+	      }
+	    }
+	    /**
+	     * @internal
+	     */
+
+	  }, {
+	    key: "getId",
+	    value: function getId() {
+	      return this.id;
+	    }
+	  }, {
+	    key: "getContext",
+	    value: function getContext() {
+	      return this.context;
+	    }
+	  }, {
+	    key: "getNavigation",
+	    value: function getNavigation() {
+	      return this.navigation;
 	    }
 	  }, {
 	    key: "deselectAll",
@@ -7091,6 +7355,31 @@ this.BX.UI = this.BX.UI || {};
 	    key: "isMultiple",
 	    value: function isMultiple() {
 	      return this.multiple;
+	    }
+	  }, {
+	    key: "setTargetNode",
+	    value: function setTargetNode(node) {
+	      if (!main_core.Type.isDomNode(node) && !main_core.Type.isNull(node) && !main_core.Type.isObject(node)) {
+	        return;
+	      }
+
+	      this.targetNode = node;
+
+	      if (this.isRendered()) {
+	        this.getPopup().setBindElement(this.targetNode);
+	        this.getPopup().adjustPosition();
+	      }
+	    }
+	  }, {
+	    key: "getTargetNode",
+	    value: function getTargetNode() {
+	      if (this.targetNode === null) {
+	        if (this.getTagSelectorMode() === TagSelectorMode.OUTSIDE) {
+	          return this.getTagSelector().getOuterContainer();
+	        }
+	      }
+
+	      return this.targetNode;
 	    }
 	  }, {
 	    key: "setHideOnSelect",
@@ -7137,409 +7426,27 @@ this.BX.UI = this.BX.UI || {};
 	      return this.clearSearchOnSelect;
 	    }
 	  }, {
-	    key: "addEntity",
-	    value: function addEntity(entity) {
-	      if (main_core.Type.isPlainObject(entity)) {
-	        entity = new Entity(entity);
-	      }
+	    key: "setShowAvatars",
+	    value: function setShowAvatars(flag) {
+	      if (main_core.Type.isBoolean(flag)) {
+	        this.showAvatars = flag;
 
-	      if (!(entity instanceof Entity)) {
-	        throw new Error('EntitySelector: an entity must be an instance of EntitySelector.Entity.');
-	      }
-
-	      if (this.hasEntity(entity.getId())) {
-	        console.error("EntitySelector: the \"".concat(entity.getId(), "\" entity is already existed."));
-	        return;
-	      }
-
-	      this.entities.push(entity);
-	    }
-	  }, {
-	    key: "getEntity",
-	    value: function getEntity(id) {
-	      return this.getEntities().find(function (entity) {
-	        return entity.getId() === id;
-	      }) || null;
-	    }
-	  }, {
-	    key: "hasEntity",
-	    value: function hasEntity(id) {
-	      return this.getEntities().some(function (entity) {
-	        return entity.getId() === id;
-	      });
-	    }
-	  }, {
-	    key: "getEntities",
-	    value: function getEntities() {
-	      return this.entities;
-	    }
-	  }, {
-	    key: "removeEntity",
-	    value: function removeEntity(id) {
-	      var index = this.getEntities().find(function (entity) {
-	        return entity.getId() === id;
-	      });
-
-	      if (index >= 0) {
-	        this.getEntities().splice(index, 1);
-	      }
-	    }
-	  }, {
-	    key: "getTagSelector",
-	    value: function getTagSelector() {
-	      return this.tagSelector;
-	    }
-	  }, {
-	    key: "getTagSelectorMode",
-	    value: function getTagSelectorMode() {
-	      return this.tagSelectorMode;
-	    }
-	  }, {
-	    key: "isTagSelectorInside",
-	    value: function isTagSelectorInside() {
-	      return this.getTagSelector() && this.getTagSelectorMode() === TagSelectorMode.INSIDE;
-	    }
-	  }, {
-	    key: "isTagSelectorOutside",
-	    value: function isTagSelectorOutside() {
-	      return this.getTagSelector() && this.getTagSelectorMode() === TagSelectorMode.OUTSIDE;
-	    }
-	  }, {
-	    key: "getTagSelectorQuery",
-	    value: function getTagSelectorQuery() {
-	      return this.getTagSelector() ? this.getTagSelector().getTextBoxValue() : '';
-	    }
-	  }, {
-	    key: "setTagSelector",
-	    value: function setTagSelector(tagSelector) {
-	      this.tagSelector = tagSelector;
-	      this.tagSelector.subscribe('onInput', main_core.Runtime.debounce(this.handleTagSelectorInput, 200, this));
-	      this.tagSelector.subscribe('onAddButtonClick', this.handleTagSelectorAddButtonClick.bind(this));
-	      this.tagSelector.subscribe('onTagRemove', this.handleTagSelectorTagRemove.bind(this));
-	      this.tagSelector.subscribe('onAfterTagRemove', this.handleTagSelectorAfterTagRemove.bind(this));
-	      this.tagSelector.subscribe('onAfterTagAdd', this.handleTagSelectorAfterTagAdd.bind(this));
-	      this.tagSelector.subscribe('onContainerClick', this.handleTagSelectorClick.bind(this));
-	      this.tagSelector.setDialog(this);
-	    }
-	  }, {
-	    key: "focusSearch",
-	    value: function focusSearch() {
-	      if (this.getTagSelector()) {
-	        if (this.getActiveTab() !== this.getSearchTab()) {
-	          this.getTagSelector().clearTextBox();
-	        }
-
-	        this.getTagSelector().focusTextBox();
-	      }
-	    }
-	  }, {
-	    key: "clearSearch",
-	    value: function clearSearch() {
-	      if (this.getTagSelector()) {
-	        this.getTagSelector().clearTextBox();
-
-	        if (this.getActiveTab() === this.getSearchTab()) {
-	          this.selectFirstTab();
+	        if (this.isRendered()) {
+	          this.getTabs().forEach(function (tab) {
+	            tab.renderContainer();
+	          });
 	        }
 	      }
 	    }
 	  }, {
-	    key: "getLoader",
-	    value: function getLoader() {
-	      if (this.loader === null) {
-	        this.loader = new main_loader.Loader({
-	          target: this.getTabsContainer(),
-	          size: 100
-	        });
-	      }
-
-	      return this.loader;
+	    key: "shouldShowAvatars",
+	    value: function shouldShowAvatars() {
+	      return this.showAvatars;
 	    }
 	  }, {
-	    key: "showLoader",
-	    value: function showLoader() {
-	      this.getLoader().show();
-	    }
-	  }, {
-	    key: "hideLoader",
-	    value: function hideLoader() {
-	      if (this.loader !== null) {
-	        this.getLoader().hide();
-	      }
-	    }
-	  }, {
-	    key: "destroyLoader",
-	    value: function destroyLoader() {
-	      if (this.loader !== null) {
-	        this.getLoader().destroy();
-	      }
-
-	      this.loader = null;
-	    }
-	  }, {
-	    key: "handleTagSelectorInput",
-	    value: function handleTagSelectorInput() {
-	      if (this.getTagSelectorMode() === TagSelectorMode.OUTSIDE && !this.isOpen()) {
-	        this.show();
-	      }
-
-	      var query = this.getTagSelector().getTextBoxValue();
-	      this.search(query);
-	    }
-	  }, {
-	    key: "handleTagSelectorAddButtonClick",
-	    value: function handleTagSelectorAddButtonClick() {
-	      this.show();
-	    }
-	  }, {
-	    key: "handleTagSelectorTagRemove",
-	    value: function handleTagSelectorTagRemove(event) {
-	      var _event$getData = event.getData(),
-	          tag = _event$getData.tag;
-
-	      var item = this.getItem({
-	        id: tag.getId(),
-	        entityId: tag.getEntityId()
-	      });
-
-	      if (item) {
-	        item.deselect();
-	      }
-
-	      this.focusSearch();
-	    }
-	  }, {
-	    key: "handleTagSelectorAfterTagRemove",
-	    value: function handleTagSelectorAfterTagRemove() {
-	      this.adjustByTagSelector();
-	    }
-	  }, {
-	    key: "handleTagSelectorAfterTagAdd",
-	    value: function handleTagSelectorAfterTagAdd() {
-	      this.adjustByTagSelector();
-	    }
-	  }, {
-	    key: "handleTagSelectorClick",
-	    value: function handleTagSelectorClick() {
-	      this.focusSearch();
-	    }
-	  }, {
-	    key: "adjustByTagSelector",
-	    value: function adjustByTagSelector() {
-	      var _this4 = this;
-
-	      if (this.getTagSelectorMode() === TagSelectorMode.OUTSIDE) {
-	        this.adjustPosition();
-	      } else if (this.getTagSelectorMode() === TagSelectorMode.INSIDE) {
-	        var newTagSelectorHeight = this.getTagSelector().calcHeight();
-
-	        if (newTagSelectorHeight > 0) {
-	          var offset = newTagSelectorHeight - (this.tagSelectorHeight || this.getTagSelector().getMinHeight());
-	          this.tagSelectorHeight = newTagSelectorHeight;
-
-	          if (offset !== 0) {
-	            var height = this.getHeight();
-	            this.setHeight(height + offset).then(function () {
-	              _this4.adjustPosition();
-	            });
-	          }
-	        }
-	      }
-	    }
-	  }, {
-	    key: "observeTabOverlapping",
-	    value: function observeTabOverlapping() {
-	      var _this5 = this;
-
-	      var observer = new MutationObserver(function () {
-	        if (_this5.getTabs().some(function (tab) {
-	          return tab.isVisible();
-	        })) {
-	          var left = parseInt(_this5.getPopup().getPopupContainer().style.left, 10);
-
-	          if (left < _this5.getMinLabelWidth()) {
-	            main_core.Dom.style(_this5.getPopup().getPopupContainer(), 'left', "".concat(_this5.getMinLabelWidth(), "px"));
-	          }
-	        }
-	      });
-	      observer.observe(this.getPopup().getPopupContainer(), {
-	        attributes: true,
-	        attributeFilter: ['style']
-	      });
-	    }
-	    /**
-	     * @internal
-	     */
-
-	  }, {
-	    key: "handleItemSelect",
-	    value: function handleItemSelect(item) {
-	      var animate = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-
-	      if (!this.isMultiple()) {
-	        this.deselectAll();
-	      }
-
-	      if (this.getTagSelector() && (this.isMultiple() || this.isTagSelectorOutside())) {
-	        var tag = item.createTag();
-	        tag.animate = animate;
-	        this.getTagSelector().addTag(tag);
-	      }
-
-	      this.selectedItems.add(item);
-	    }
-	    /**
-	     * @internal
-	     */
-
-	  }, {
-	    key: "handleItemDeselect",
-	    value: function handleItemDeselect(item) {
-	      this.selectedItems.delete(item);
-	    }
-	  }, {
-	    key: "handlePopupAfterShow",
-	    value: function handlePopupAfterShow() {
-	      this.focusSearch();
-	      this.adjustByTagSelector();
-	      this.emit('onShow');
-	    }
-	  }, {
-	    key: "handlePopupFirstShow",
-	    value: function handlePopupFirstShow() {
-	      var _this6 = this;
-
-	      this.emit('onFirstShow');
-	      requestAnimationFrame(function () {
-	        requestAnimationFrame(function () {
-	          main_core.Dom.addClass(_this6.getPopup().getPopupContainer(), 'ui-selector-popup-container');
-	        });
-	      });
-	      this.observeTabOverlapping();
-	    }
-	  }, {
-	    key: "handlePopupAfterClose",
-	    value: function handlePopupAfterClose() {
-	      if (this.isTagSelectorOutside()) {
-	        if (this.getActiveTab() && this.getActiveTab() === this.getSearchTab()) {
-	          this.selectFirstTab();
-	        }
-
-	        this.getTagSelector().clearTextBox();
-	        this.getTagSelector().showAddButton();
-	        this.getTagSelector().hideTextBox();
-	      }
-
-	      this.emit('onHide');
-	    }
-	  }, {
-	    key: "handlePopupDestroy",
-	    value: function handlePopupDestroy() {
-	      this.destroy();
-	    }
-	  }, {
-	    key: "handleLabelsMouseEnter",
-	    value: function handleLabelsMouseEnter() {
-	      var _this7 = this;
-
-	      var rect = main_core.Dom.getPosition(this.getLabelsContainer());
-	      var freeSpace = rect.right;
-
-	      if (freeSpace > this.getMinLabelWidth()) {
-	        main_core.Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
-	        main_core.Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
-	        main_core.Dom.style(this.getLabelsContainer(), 'max-width', "".concat(Math.min(freeSpace, this.getMaxLabelWidth()), "px"));
-	        Animation.handleTransitionEnd(this.getLabelsContainer(), 'max-width').then(function () {
-	          main_core.Dom.removeClass(_this7.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
-	          main_core.Dom.addClass(_this7.getLabelsContainer(), 'ui-selector-tab-labels--active');
-	        });
-	      } else {
-	        main_core.Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
-	      }
-	    }
-	  }, {
-	    key: "handleLabelsMouseLeave",
-	    value: function handleLabelsMouseLeave() {
-	      var _this8 = this;
-
-	      main_core.Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
-	      main_core.Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
-	      main_core.Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
-	      Animation.handleTransitionEnd(this.getLabelsContainer(), 'max-width').then(function () {
-	        main_core.Dom.removeClass(_this8.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
-	      });
-	      main_core.Dom.style(this.getLabelsContainer(), 'max-width', null);
-	    }
-	  }, {
-	    key: "show",
-	    value: function show() {
-	      this.load();
-	      this.getPopup().show();
-	    }
-	  }, {
-	    key: "hide",
-	    value: function hide() {
-	      this.getPopup().close();
-	    }
-	  }, {
-	    key: "destroy",
-	    value: function destroy() {
-	      if (this.destroying) {
-	        return;
-	      }
-
-	      this.destroying = true;
-	      this.emit('onDestroy');
-	      instances.delete(this.getId());
-
-	      if (this.isRendered()) {
-	        this.getPopup().destroy();
-	      }
-
-	      for (var property in this) {
-	        if (this.hasOwnProperty(property)) {
-	          delete this[property];
-	        }
-	      }
-
-	      Object.setPrototypeOf(this, null);
-	    }
-	  }, {
-	    key: "isOpen",
-	    value: function isOpen() {
-	      return this.popup && this.popup.isShown();
-	    }
-	  }, {
-	    key: "setTargetNode",
-	    value: function setTargetNode(node) {
-	      if (!main_core.Type.isDomNode(node) && !main_core.Type.isNull(node) && !main_core.Type.isObject(node)) {
-	        return;
-	      }
-
-	      this.targetNode = node;
-
-	      if (this.isRendered()) {
-	        this.getPopup().setBindElement(this.targetNode);
-	        this.getPopup().adjustPosition();
-	      }
-	    }
-	  }, {
-	    key: "getTargetNode",
-	    value: function getTargetNode() {
-	      if (this.targetNode === null) {
-	        if (this.getTagSelectorMode() === TagSelectorMode.OUTSIDE) {
-	          return this.getTagSelector().getOuterContainer();
-	        }
-	      }
-
-	      return this.targetNode;
-	    }
-	  }, {
-	    key: "adjustPosition",
-	    value: function adjustPosition() {
-	      if (this.isRendered()) {
-	        this.getPopup().adjustPosition();
-	      }
+	    key: "isCompactView",
+	    value: function isCompactView() {
+	      return this.compactView;
 	    }
 	  }, {
 	    key: "setAutoHide",
@@ -7572,41 +7479,6 @@ this.BX.UI = this.BX.UI || {};
 	    key: "shouldHideByEsc",
 	    value: function shouldHideByEsc() {
 	      return this.hideByEsc;
-	    }
-	  }, {
-	    key: "freeze",
-	    value: function freeze() {
-	      if (this.isFrozen()) {
-	        return;
-	      }
-
-	      this.frozenProps = {
-	        autoHide: this.isAutoHide(),
-	        hideByEsc: this.shouldHideByEsc()
-	      };
-	      this.setAutoHide(false);
-	      this.setHideByEsc(false);
-	      this.getNavigation().disable();
-	      main_core.Dom.addClass(this.getContainer(), 'ui-selector-dialog--freeze');
-	      this.frozen = true;
-	    }
-	  }, {
-	    key: "unfreeze",
-	    value: function unfreeze() {
-	      if (!this.isFrozen()) {
-	        return;
-	      }
-
-	      this.setAutoHide(this.frozenProps.autoHide !== false);
-	      this.setHideByEsc(this.frozenProps.hideByEsc !== false);
-	      this.getNavigation().enable();
-	      main_core.Dom.removeClass(this.getContainer(), 'ui-selector-dialog--freeze');
-	      this.frozen = false;
-	    }
-	  }, {
-	    key: "isFrozen",
-	    value: function isFrozen() {
-	      return this.frozen;
 	    }
 	  }, {
 	    key: "getWidth",
@@ -7689,18 +7561,6 @@ this.BX.UI = this.BX.UI || {};
 	      return this.getPopup().getZindex();
 	    }
 	  }, {
-	    key: "setZindex",
-	    value: function setZindex(index) {
-	      if (main_core.Type.isNumber(index) && index > 0 || index === null) {
-	        this.zIndex = index;
-
-	        if (this.isRendered()) {
-	          this.getPopup().params.zIndexAbsolute = index !== null ? index : 0;
-	          this.adjustPosition();
-	        }
-	      }
-	    }
-	  }, {
 	    key: "isCacheable",
 	    value: function isCacheable() {
 	      return this.cacheable;
@@ -7729,6 +7589,33 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    }
 	  }, {
+	    key: "focusOnFirstNode",
+	    value: function focusOnFirstNode() {
+	      if (this.getActiveTab()) {
+	        var itemNode = this.getActiveTab().getRootNode().getFirstChild();
+
+	        if (itemNode) {
+	          itemNode.focus();
+	          return itemNode;
+	        }
+	      }
+
+	      return null;
+	    }
+	  }, {
+	    key: "getFocusedNode",
+	    value: function getFocusedNode() {
+	      return this.focusedNode;
+	    }
+	  }, {
+	    key: "clearNodeFocus",
+	    value: function clearNodeFocus() {
+	      if (this.focusedNode) {
+	        this.focusedNode.unfocus();
+	        this.focusedNode = null;
+	      }
+	    }
+	  }, {
 	    key: "isDropdownMode",
 	    value: function isDropdownMode() {
 	      return this.dropdownMode;
@@ -7742,6 +7629,60 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    }
 	  }, {
+	    key: "setPreselectedItems",
+	    value: function setPreselectedItems(itemIds) {
+	      this.preselectedItems = this.validateItemIds(itemIds);
+	    }
+	  }, {
+	    key: "getPreselectedItems",
+	    value: function getPreselectedItems() {
+	      return this.preselectedItems;
+	    }
+	  }, {
+	    key: "setUndeselectedItems",
+	    value: function setUndeselectedItems(itemIds) {
+	      this.undeselectedItems = this.validateItemIds(itemIds);
+	    }
+	  }, {
+	    key: "getUndeselectedItems",
+	    value: function getUndeselectedItems() {
+	      return this.undeselectedItems;
+	    }
+	    /**
+	     * @private
+	     */
+
+	  }, {
+	    key: "setOptions",
+	    value: function setOptions(dialogOptions) {
+	      var _this6 = this;
+
+	      var options = main_core.Type.isPlainObject(dialogOptions) ? dialogOptions : {};
+
+	      if (main_core.Type.isArray(options.tabs)) {
+	        options.tabs.forEach(function (tab) {
+	          _this6.addTab(tab);
+	        });
+	      }
+
+	      if (main_core.Type.isArray(options.selectedItems)) {
+	        options.selectedItems.forEach(function (itemOptions) {
+	          var options = Object.assign({}, main_core.Type.isPlainObject(itemOptions) ? itemOptions : {});
+	          options.selected = true;
+
+	          _this6.addItem(options);
+	        });
+	      }
+
+	      if (main_core.Type.isArray(options.items)) {
+	        options.items.forEach(function (itemOptions) {
+	          _this6.addItem(itemOptions);
+	        });
+	      }
+
+	      this.setFooter(options.footer, options.footerOptions);
+	    }
+	  }, {
 	    key: "getMaxLabelWidth",
 	    value: function getMaxLabelWidth() {
 	      return this.maxLabelWidth;
@@ -7752,23 +7693,118 @@ this.BX.UI = this.BX.UI || {};
 	      return this.minLabelWidth;
 	    }
 	  }, {
+	    key: "getTagSelector",
+	    value: function getTagSelector() {
+	      return this.tagSelector;
+	    }
+	  }, {
+	    key: "getTagSelectorMode",
+	    value: function getTagSelectorMode() {
+	      return this.tagSelectorMode;
+	    }
+	  }, {
+	    key: "isTagSelectorInside",
+	    value: function isTagSelectorInside() {
+	      return this.getTagSelector() && this.getTagSelectorMode() === TagSelectorMode.INSIDE;
+	    }
+	  }, {
+	    key: "isTagSelectorOutside",
+	    value: function isTagSelectorOutside() {
+	      return this.getTagSelector() && this.getTagSelectorMode() === TagSelectorMode.OUTSIDE;
+	    }
+	  }, {
+	    key: "getTagSelectorQuery",
+	    value: function getTagSelectorQuery() {
+	      return this.getTagSelector() ? this.getTagSelector().getTextBoxValue() : '';
+	    }
+	    /**
+	     * @private
+	     */
+
+	  }, {
+	    key: "setTagSelector",
+	    value: function setTagSelector(tagSelector) {
+	      this.tagSelector = tagSelector;
+	      this.tagSelector.subscribe('onInput', main_core.Runtime.debounce(this.handleTagSelectorInput, 200, this));
+	      this.tagSelector.subscribe('onAddButtonClick', this.handleTagSelectorAddButtonClick.bind(this));
+	      this.tagSelector.subscribe('onTagRemove', this.handleTagSelectorTagRemove.bind(this));
+	      this.tagSelector.subscribe('onAfterTagRemove', this.handleTagSelectorAfterTagRemove.bind(this));
+	      this.tagSelector.subscribe('onAfterTagAdd', this.handleTagSelectorAfterTagAdd.bind(this));
+	      this.tagSelector.subscribe('onContainerClick', this.handleTagSelectorClick.bind(this));
+	      this.tagSelector.setDialog(this);
+	    }
+	  }, {
+	    key: "focusSearch",
+	    value: function focusSearch() {
+	      if (this.getTagSelector()) {
+	        if (this.getActiveTab() !== this.getSearchTab()) {
+	          this.getTagSelector().clearTextBox();
+	        }
+
+	        this.getTagSelector().focusTextBox();
+	      }
+	    }
+	  }, {
+	    key: "clearSearch",
+	    value: function clearSearch() {
+	      if (this.getTagSelector()) {
+	        this.getTagSelector().clearTextBox();
+
+	        if (this.getActiveTab() === this.getSearchTab()) {
+	          this.selectFirstTab();
+	        }
+	      }
+	    }
+	  }, {
+	    key: "getLoader",
+	    value: function getLoader() {
+	      if (this.loader === null) {
+	        this.loader = new main_loader.Loader({
+	          target: this.getTabsContainer(),
+	          size: 100
+	        });
+	      }
+
+	      return this.loader;
+	    }
+	  }, {
+	    key: "showLoader",
+	    value: function showLoader() {
+	      void this.getLoader().show();
+	    }
+	  }, {
+	    key: "hideLoader",
+	    value: function hideLoader() {
+	      if (this.loader !== null) {
+	        void this.getLoader().hide();
+	      }
+	    }
+	  }, {
+	    key: "destroyLoader",
+	    value: function destroyLoader() {
+	      if (this.loader !== null) {
+	        this.getLoader().destroy();
+	      }
+
+	      this.loader = null;
+	    }
+	  }, {
 	    key: "getPopup",
 	    value: function getPopup() {
-	      var _this9 = this;
+	      var _this7 = this;
 
 	      if (this.popup !== null) {
 	        return this.popup;
 	      }
 
 	      this.getTabs().forEach(function (tab) {
-	        _this9.insertTab(tab);
+	        _this7.insertTab(tab);
 	      });
 	      this.popup = new main_popup.Popup(Object.assign({
 	        contentPadding: 0,
 	        padding: 0,
 	        offsetTop: this.getOffsetTop(),
 	        offsetLeft: this.getOffsetLeft(),
-	        zIndexAbsolute: this.zIndex,
 	        animation: {
 	          showClassName: 'ui-selector-popup-animation-show',
 	          closeClassName: 'ui-selector-popup-animation-close',
@@ -7794,67 +7830,103 @@ this.BX.UI = this.BX.UI || {};
 	      return this.popup;
 	    }
 	  }, {
+	    key: "isRendered",
+	    value: function isRendered() {
+	      return this.rendered;
+	    }
+	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
-	      var _this10 = this;
+	      var _this8 = this;
 
 	      return this.cache.remember('container', function () {
 	        var searchContainer = '';
 
-	        if (_this10.getTagSelectorMode() === TagSelectorMode.INSIDE) {
-	          searchContainer = main_core.Tag.render(_templateObject$b());
+	        if (_this8.getTagSelectorMode() === TagSelectorMode.INSIDE) {
+	          searchContainer = main_core.Tag.render(_templateObject$9 || (_templateObject$9 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-search\"></div>"])));
 
-	          _this10.getTagSelector().renderTo(searchContainer);
+	          _this8.getTagSelector().renderTo(searchContainer);
 	        }
 
-	        return main_core.Tag.render(_templateObject2$7(), _this10.getWidth(), _this10.getHeight(), searchContainer, _this10.getTabsContainer(), _this10.getFooterContainer());
+	        var className = _this8.isCompactView() ? ' ui-selector-dialog--compact-view' : '';
+	        return main_core.Tag.render(_templateObject2$6 || (_templateObject2$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"ui-selector-dialog", "\" \n\t\t\t\t\tstyle=\"width:", "px; height:", "px;\"\n\t\t\t\t>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), className, _this8.getWidth(), _this8.getHeight(), searchContainer, _this8.getTabsContainer(), _this8.getFooterContainer());
 	      });
 	    }
 	  }, {
 	    key: "getTabsContainer",
 	    value: function getTabsContainer() {
-	      var _this11 = this;
+	      var _this9 = this;
 
 	      return this.cache.remember('tabs-container', function () {
-	        return main_core.Tag.render(_templateObject3$7(), _this11.getTabContentsContainer(), _this11.getLabelsContainer());
+	        return main_core.Tag.render(_templateObject3$6 || (_templateObject3$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tabs\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this9.getTabContentsContainer(), _this9.getLabelsContainer());
 	      });
 	    }
 	  }, {
 	    key: "getTabContentsContainer",
 	    value: function getTabContentsContainer() {
 	      return this.cache.remember('tab-contents', function () {
-	        return main_core.Tag.render(_templateObject4$6());
+	        return main_core.Tag.render(_templateObject4$6 || (_templateObject4$6 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-tab-contents\"></div>"])));
 	      });
 	    }
 	  }, {
 	    key: "getLabelsContainer",
 	    value: function getLabelsContainer() {
-	      var _this12 = this;
+	      var _this10 = this;
 
 	      return this.cache.remember('labels-container', function () {
-	        return main_core.Tag.render(_templateObject5$5(), _this12.handleLabelsMouseEnter.bind(_this12), _this12.handleLabelsMouseLeave.bind(_this12));
+	        return main_core.Tag.render(_templateObject5$4 || (_templateObject5$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"ui-selector-tab-labels\"\n\t\t\t\t\tonmouseenter=\"", "\"\n\t\t\t\t\tonmouseleave=\"", "\"\n\t\t\t\t></div>\n\t\t\t"])), _this10.handleLabelsMouseEnter.bind(_this10), _this10.handleLabelsMouseLeave.bind(_this10));
 	      });
 	    }
 	  }, {
 	    key: "getFooterContainer",
 	    value: function getFooterContainer() {
-	      var _this13 = this;
+	      var _this11 = this;
 
 	      return this.cache.remember('footer', function () {
-	        var footer = _this13.getFooter() && _this13.getFooter().getContainer();
+	        var footer = _this11.getFooter() && _this11.getFooter().getContainer();
 
-	        return main_core.Tag.render(_templateObject6$3(), footer ? footer : '');
+	        return main_core.Tag.render(_templateObject6$2 || (_templateObject6$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-footer-container\">", "</div>\n\t\t\t"])), footer ? footer : '');
 	      });
 	    }
 	  }, {
-	    key: "isRendered",
-	    value: function isRendered() {
-	      return this.rendered;
+	    key: "freeze",
+	    value: function freeze() {
+	      if (this.isFrozen()) {
+	        return;
+	      }
+
+	      this.frozenProps = {
+	        autoHide: this.isAutoHide(),
+	        hideByEsc: this.shouldHideByEsc()
+	      };
+	      this.setAutoHide(false);
+	      this.setHideByEsc(false);
+	      this.getNavigation().disable();
+	      main_core.Dom.addClass(this.getContainer(), 'ui-selector-dialog--freeze');
+	      this.frozen = true;
+	    }
+	  }, {
+	    key: "unfreeze",
+	    value: function unfreeze() {
+	      if (!this.isFrozen()) {
+	        return;
+	      }
+
+	      this.setAutoHide(this.frozenProps.autoHide !== false);
+	      this.setHideByEsc(this.frozenProps.hideByEsc !== false);
+	      this.getNavigation().enable();
+	      main_core.Dom.removeClass(this.getContainer(), 'ui-selector-dialog--freeze');
+	      this.frozen = false;
+	    }
+	  }, {
+	    key: "isFrozen",
+	    value: function isFrozen() {
+	      return this.frozen;
 	    }
 	  }, {
 	    key: "load",
 	    value: function load() {
-	      var _this14 = this;
+	      var _this12 = this;
 
 	      if (this.loadState !== LoadState.UNSENT || !this.hasDynamicLoad()) {
 	        return;
@@ -7865,34 +7937,34 @@ this.BX.UI = this.BX.UI || {};
 	      }
 
 	      setTimeout(function () {
-	        if (_this14.isLoading()) {
-	          _this14.showLoader();
+	        if (_this12.isLoading()) {
+	          _this12.showLoader();
 	        }
 	      }, 400);
 	      this.loadState = LoadState.LOADING;
 	      main_core.ajax.runAction('ui.entityselector.load', {
 	        json: {
-	          dialog: this
+	          dialog: this.getAjaxJson()
 	        },
 	        getParameters: {
 	          context: this.getContext()
 	        }
 	      }).then(function (response) {
 	        if (response && response.data && main_core.Type.isPlainObject(response.data.dialog)) {
-	          _this14.loadState = LoadState.DONE;
+	          _this12.loadState = LoadState.DONE;
 	          var entities = main_core.Type.isArrayFilled(response.data.dialog.entities) ? response.data.dialog.entities : [];
 	          entities.forEach(function (entityOptions) {
-	            var entity = _this14.getEntity(entityOptions.id);
+	            var entity = _this12.getEntity(entityOptions.id);
 
 	            if (entity) {
 	              entity.setDynamicSearch(entityOptions.dynamicSearch);
 	            }
 	          });
 
-	          _this14.setOptions(response.data.dialog);
+	          _this12.setOptions(response.data.dialog);
 
-	          _this14.getPreselectedItems().forEach(function (preselectedItem) {
-	            var item = _this14.getItem(preselectedItem);
+	          _this12.getPreselectedItems().forEach(function (preselectedItem) {
+	            var item = _this12.getItem(preselectedItem);
 
 	            if (item) {
 	              item.select(true);
@@ -7902,67 +7974,51 @@ this.BX.UI = this.BX.UI || {};
 	          var recentItems = response.data.dialog.recentItems;
 
 	          if (main_core.Type.isArray(recentItems)) {
-	            recentItems.forEach(function (recentItem) {
-	              var item = _this14.getItem(recentItem);
-
-	              if (item) {
-	                _this14.getRecentTab().getRootNode().addItem(item);
-	              }
+	            var items = recentItems.map(function (recentItem) {
+	              return _this12.getItem(recentItem);
 	            });
+
+	            _this12.getRecentTab().getRootNode().addItems(items);
 	          }
 
-	          if (!_this14.getRecentTab().getRootNode().hasChildren() && _this14.getRecentTab().getStub()) {
-	            _this14.getRecentTab().getStub().show();
+	          if (!_this12.getRecentTab().getRootNode().hasChildren() && _this12.getRecentTab().getStub()) {
+	            _this12.getRecentTab().getStub().show();
 	          }
 
-	          if (_this14.getTagSelector()) {
-	            _this14.getTagSelector().unlock();
+	          if (_this12.getTagSelector()) {
+	            _this12.getTagSelector().unlock();
 	          }
 
-	          if (_this14.isRendered() && !_this14.getActiveTab()) {
-	            _this14.selectFirstTab();
+	          if (_this12.isRendered() && !_this12.getActiveTab()) {
+	            _this12.selectFirstTab();
 	          }
 
-	          _this14.focusSearch();
+	          _this12.focusSearch();
 
-	          _this14.destroyLoader();
+	          _this12.destroyLoader();
 
-	          if (_this14.shouldFocusOnFirst()) {
-	            _this14.focusOnFirstNode();
+	          if (_this12.shouldFocusOnFirst()) {
+	            _this12.focusOnFirstNode();
 	          }
 
-	          _this14.emit('onLoad');
+	          _this12.emit('onLoad');
 	        }
 	      }).catch(function (error) {
-	        _this14.loadState = LoadState.UNSENT;
+	        _this12.loadState = LoadState.UNSENT;
 
-	        if (_this14.getTagSelector()) {
-	          _this14.getTagSelector().unlock();
+	        if (_this12.getTagSelector()) {
+	          _this12.getTagSelector().unlock();
 	        }
 
-	        _this14.focusSearch();
+	        _this12.focusSearch();
 
-	        _this14.destroyLoader();
+	        _this12.destroyLoader();
 
-	        _this14.emit('onLoadError', {
+	        _this12.emit('onLoadError', {
 	          error: error
 	        });
 
 	        console.error(error);
-	      });
-	    }
-	  }, {
-	    key: "hasDynamicLoad",
-	    value: function hasDynamicLoad() {
-	      return this.getEntities().some(function (entity) {
-	        return entity.hasDynamicLoad();
-	      });
-	    }
-	  }, {
-	    key: "hasDynamicSearch",
-	    value: function hasDynamicSearch() {
-	      return this.getEntities().some(function (entity) {
-	        return entity.isSearchable() && entity.hasDynamicSearch();
 	      });
 	    }
 	  }, {
@@ -7976,24 +8032,22 @@ this.BX.UI = this.BX.UI || {};
 	      return this.loadState === LoadState.LOADING;
 	    }
 	  }, {
-	    key: "search",
-	    value: function search(queryString) {
-	      var query = main_core.Type.isStringFilled(queryString) ? queryString.trim() : '';
-
-	      if (!main_core.Type.isStringFilled(query)) {
-	        this.selectFirstTab();
-
-	        if (this.getSearchTab()) {
-	          this.getSearchTab().clearResults();
-	        }
-	      } else if (this.getSearchTab()) {
-	        this.selectTab(this.getSearchTab().getId());
-	        this.getSearchTab().search(query);
-	      }
-
-	      this.emit('onSearch', {
-	        query: query
+	    key: "hasDynamicLoad",
+	    value: function hasDynamicLoad() {
+	      var hasDynamicLoad = false;
+	      this.entities.forEach(function (entity) {
+	        hasDynamicLoad = hasDynamicLoad || entity.hasDynamicLoad();
 	      });
+	      return hasDynamicLoad;
+	    }
+	  }, {
+	    key: "hasDynamicSearch",
+	    value: function hasDynamicSearch() {
+	      var hasDynamicSearch = false;
+	      this.entities.forEach(function (entity) {
+	        hasDynamicSearch = hasDynamicSearch || entity.isSearchable() && entity.hasDynamicSearch();
+	      });
+	      return hasDynamicSearch;
 	    }
 	  }, {
 	    key: "saveRecentItem",
@@ -8005,6 +8059,10 @@ this.BX.UI = this.BX.UI || {};
 	      this.recentItemsToSave.push(item);
 	      this.saveRecentItemsWithDebounce();
 	    }
+	    /**
+	     * @private
+	     */
+
 	  }, {
 	    key: "saveRecentItems",
 	    value: function saveRecentItems() {
@@ -8014,8 +8072,10 @@ this.BX.UI = this.BX.UI || {};
 
 	      main_core.ajax.runAction('ui.entityselector.saveRecentItems', {
 	        json: {
-	          dialog: this,
-	          recentItems: this.recentItemsToSave
+	          dialog: this.getAjaxJson(),
+	          recentItems: this.recentItemsToSave.map(function (item) {
+	            return item.getAjaxJson();
+	          })
 	        },
 	        getParameters: {
 	          context: this.getContext()
@@ -8026,37 +8086,283 @@ this.BX.UI = this.BX.UI || {};
 	      this.recentItemsToSave = [];
 	    }
 	  }, {
-	    key: "getFocusedNode",
-	    value: function getFocusedNode() {
-	      return this.focusedNode;
-	    }
-	  }, {
-	    key: "clearNodeFocus",
-	    value: function clearNodeFocus() {
-	      if (this.focusedNode) {
-	        this.focusedNode.unfocus();
-	        this.focusedNode = null;
-	      }
-	    }
-	  }, {
-	    key: "focusOnFirstNode",
-	    value: function focusOnFirstNode() {
-	      if (this.getActiveTab()) {
-	        var itemNode = this.getActiveTab().getRootNode().getFirstChild();
-
-	        if (itemNode) {
-	          itemNode.focus();
-	          return itemNode;
-	        }
-	      }
-
-	      return null;
-	    }
-	  }, {
 	    key: "shouldClearUnavailableItems",
 	    value: function shouldClearUnavailableItems() {
 	      return this.clearUnavailableItems;
 	    }
+	    /**
+	     * @private
+	     */
+
+	  }, {
+	    key: "handleTagSelectorInput",
+	    value: function handleTagSelectorInput() {
+	      if (this.getTagSelectorMode() === TagSelectorMode.OUTSIDE && !this.isOpen()) {
+	        this.show();
+	      }
+
+	      var query = this.getTagSelector().getTextBoxValue();
+	      this.search(query);
+	    }
+	    /**
+	     * @private
+	     */
+
+	  }, {
+	    key: "handleTagSelectorAddButtonClick",
+	    value: function handleTagSelectorAddButtonClick() {
+	      this.show();
+	    }
+	    /**
+	     * @private
+	     */
+
+	  }, {
+	    key: "handleTagSelectorTagRemove",
+	    value: function handleTagSelectorTagRemove(event) {
+	      var _event$getData = event.getData(),
+	          tag = _event$getData.tag;
+
+	      var item = this.getItem({
+	        id: tag.getId(),
+	        entityId: tag.getEntityId()
+	      });
+
+	      if (item) {
+	        item.deselect();
+	      }
+
+	      this.focusSearch();
+	    }
+	    /**
+	     * @private
+	     */
+
+	  }, {
+	    key: "handleTagSelectorAfterTagRemove",
+	    value: function handleTagSelectorAfterTagRemove() {
+	      this.adjustByTagSelector();
+	    }
+	    /**
+	     * @private
+	     */
+
+	  }, {
+	    key: "handleTagSelectorAfterTagAdd",
+	    value: function handleTagSelectorAfterTagAdd() {
+	      this.adjustByTagSelector();
+	    }
+	    /**
+	     * @private
+	     */
+
+	  }, {
+	    key: "adjustByTagSelector",
+	    value: function adjustByTagSelector() {
+	      var _this13 = this;
+
+	      if (this.getTagSelectorMode() === TagSelectorMode.OUTSIDE) {
+	        this.adjustPosition();
+	      } else if (this.getTagSelectorMode() === TagSelectorMode.INSIDE) {
+	        var newTagSelectorHeight = this.getTagSelector().calcHeight();
+
+	        if (newTagSelectorHeight > 0) {
+	          var offset = newTagSelectorHeight - (this.tagSelectorHeight || this.getTagSelector().getMinHeight());
+	          this.tagSelectorHeight = newTagSelectorHeight;
+
+	          if (offset !== 0) {
+	            var height = this.getHeight();
+	            this.setHeight(height + offset).then(function () {
+	              _this13.adjustPosition();
+	            });
+	          }
+	        }
+	      }
+	    }
+	    /**
+	     * @private
+	     */
+
+	  }, {
+	    key: "handleTagSelectorClick",
+	    value: function handleTagSelectorClick() {
+	      this.focusSearch();
+	    }
+	    /**
+	     * @internal
+	     */
+
+	  }, {
+	    key: "handleItemSelect",
+	    value: function handleItemSelect(item) {
+	      var animate = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+
+	      if (!this.isMultiple()) {
+	        this.deselectAll();
+	      }
+
+	      if (this.getTagSelector() && (this.isMultiple() || this.isTagSelectorOutside())) {
+	        var tag = item.createTag();
+	        tag.animate = animate;
+	        this.getTagSelector().addTag(tag);
+	      }
+
+	      this.selectedItems.add(item);
+	    }
+	    /**
+	     * @internal
+	     */
+
+	  }, {
+	    key: "handleItemDeselect",
+	    value: function handleItemDeselect(item) {
+	      this.selectedItems.delete(item);
+
+	      if (this.getTagSelector()) {
+	        this.getTagSelector().removeTag({
+	          id: item.getId(),
+	          entityId: item.getEntityId()
+	        });
+	      }
+	    }
+	    /**
+	     * @private
+	     */
+
+	  }, {
+	    key: "handlePopupAfterShow",
+	    value: function handlePopupAfterShow() {
+	      this.focusSearch();
+	      this.adjustByTagSelector();
+	      this.emit('onShow');
+	    }
+	    /**
+	     * @private
+	     */
+
+	  }, {
+	    key: "handlePopupFirstShow",
+	    value: function handlePopupFirstShow() {
+	      var _this14 = this;
+
+	      this.emit('onFirstShow');
+	      requestAnimationFrame(function () {
+	        requestAnimationFrame(function () {
+	          main_core.Dom.addClass(_this14.getPopup().getPopupContainer(), 'ui-selector-popup-container');
+	        });
+	      });
+	      this.observeTabOverlapping();
+	    }
+	    /**
+	     * @private
+	     */
+
+	  }, {
+	    key: "observeTabOverlapping",
+	    value: function observeTabOverlapping() {
+	      var _this15 = this;
+
+	      this.disconnectTabOverlapping();
+	      this.overlappingObserver = new MutationObserver(function () {
+	        if (_this15.getTabs().some(function (tab) {
+	          return tab.isVisible();
+	        })) {
+	          var left = parseInt(_this15.getPopup().getPopupContainer().style.left, 10);
+
+	          if (left < _this15.getMinLabelWidth()) {
+	            main_core.Dom.style(_this15.getPopup().getPopupContainer(), 'left', "".concat(_this15.getMinLabelWidth(), "px"));
+	          }
+	        }
+	      });
+	      this.overlappingObserver.observe(this.getPopup().getPopupContainer(), {
+	        attributes: true,
+	        attributeFilter: ['style']
+	      });
+	    }
+	    /**
+	     * @private
+	     */
+
+	  }, {
+	    key: "disconnectTabOverlapping",
+	    value: function disconnectTabOverlapping() {
+	      if (this.overlappingObserver) {
+	        this.overlappingObserver.disconnect();
+	      }
+	    }
+	    /**
+	     * @private
+	     */
+
+	  }, {
+	    key: "handlePopupAfterClose",
+	    value: function handlePopupAfterClose() {
+	      if (this.isTagSelectorOutside()) {
+	        if (this.getActiveTab() && this.getActiveTab() === this.getSearchTab()) {
+	          this.selectFirstTab();
+	        }
+
+	        this.getTagSelector().clearTextBox();
+	        this.getTagSelector().showAddButton();
+	        this.getTagSelector().hideTextBox();
+	      }
+
+	      this.emit('onHide');
+	    }
+	    /**
+	     * @private
+	     */
+
+	  }, {
+	    key: "handlePopupDestroy",
+	    value: function handlePopupDestroy() {
+	      this.destroy();
+	    }
+	    /**
+	     * @private
+	     */
+
+	  }, {
+	    key: "handleLabelsMouseEnter",
+	    value: function handleLabelsMouseEnter() {
+	      var _this16 = this;
+
+	      var rect = main_core.Dom.getRelativePosition(this.getLabelsContainer(), this.getPopup().getTargetContainer());
+	      var freeSpace = rect.right;
+
+	      if (freeSpace > this.getMinLabelWidth()) {
+	        main_core.Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
+	        main_core.Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
+	        main_core.Dom.style(this.getLabelsContainer(), 'max-width', "".concat(Math.min(freeSpace, this.getMaxLabelWidth()), "px"));
+	        Animation.handleTransitionEnd(this.getLabelsContainer(), 'max-width').then(function () {
+	          main_core.Dom.removeClass(_this16.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
+	          main_core.Dom.addClass(_this16.getLabelsContainer(), 'ui-selector-tab-labels--active');
+	        });
+	      } else {
+	        main_core.Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
+	      }
+	    }
+	    /**
+	     * @private
+	     */
+
+	  }, {
+	    key: "handleLabelsMouseLeave",
+	    value: function handleLabelsMouseLeave() {
+	      var _this17 = this;
+
+	      main_core.Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
+	      main_core.Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
+	      main_core.Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
+	      Animation.handleTransitionEnd(this.getLabelsContainer(), 'max-width').then(function () {
+	        main_core.Dom.removeClass(_this17.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
+	      });
+	      main_core.Dom.style(this.getLabelsContainer(), 'max-width', null);
+	    }
+	    /**
+	     * @private
+	     */
+
 	  }, {
 	    key: "handleItemNodeFocus",
 	    value: function handleItemNodeFocus(event) {
@@ -8070,14 +8376,18 @@ this.BX.UI = this.BX.UI || {};
 	      this.clearNodeFocus();
 	      this.focusedNode = node;
 	    }
+	    /**
+	     * @private
+	     */
+
 	  }, {
 	    key: "handleItemNodeUnfocus",
 	    value: function handleItemNodeUnfocus() {
 	      this.clearNodeFocus();
 	    }
 	  }, {
-	    key: "toJSON",
-	    value: function toJSON() {
+	    key: "getAjaxJson",
+	    value: function getAjaxJson() {
 	      return {
 	        id: this.getId(),
 	        context: this.getContext(),
@@ -8123,14 +8433,28 @@ this.BX.UI = this.BX.UI || {};
 	  return Dialog;
 	}(main_core_events.EventEmitter);
 
+	var EntitySelector = {
+	  Dialog: Dialog,
+	  Item: Item,
+	  Tab: Tab,
+	  Entity: Entity,
+	  TagSelector: TagSelector,
+	  BaseFooter: BaseFooter,
+	  DefaultFooter: DefaultFooter,
+	  BaseStub: BaseStub,
+	  DefaultStub: DefaultStub
+	};
+
+	exports.EntitySelector = EntitySelector;
 	exports.Dialog = Dialog;
 	exports.Item = Item;
 	exports.Tab = Tab;
+	exports.Entity = Entity;
 	exports.TagSelector = TagSelector;
 	exports.BaseFooter = BaseFooter;
 	exports.DefaultFooter = DefaultFooter;
 	exports.BaseStub = BaseStub;
 	exports.DefaultStub = DefaultStub;
 
-}((this.BX.UI.EntitySelector = this.BX.UI.EntitySelector || {}),BX.Main,BX.Event,BX,BX));
+}((this.BX.UI.EntitySelector = this.BX.UI.EntitySelector || {}),BX.Main,BX.Collections,BX.Event,BX,BX));
 //# sourceMappingURL=entity-selector.bundle.js.map

@@ -342,8 +342,9 @@ class CRestStatisticComponent extends CBitrixComponent implements Controllerable
 		{
 			if (empty($filter['STAT_DATE_to']))
 			{
-				$date = date("Y-m-d", time() - $this->arParams['MAX_SECOND_RANGE_DATE_FILTER']);
-				$filter['STAT_DATE_from'] = new DateTime($date . " 00:00:00", "Y-m-d H:i:s");
+				$date = new DateTime();
+				$date->add('-' . (int)$this->arParams['MAX_DAYS_RANGE_DATE_FILTER'] . 'D');
+				$filter['STAT_DATE_from'] = $date;
 			}
 			else
 			{
@@ -353,11 +354,9 @@ class CRestStatisticComponent extends CBitrixComponent implements Controllerable
 
 		if (empty($filter['STAT_DATE_to']))
 		{
-			$date = date(
-				"Y-m-d",
-				strtotime($filter['STAT_DATE_from']) + $this->arParams['MAX_SECOND_RANGE_DATE_FILTER']
-			);
-			$filter['STAT_DATE_to'] = new DateTime($date . " 23:59:59", "Y-m-d H:i:s");
+			$date = clone $filter['STAT_DATE_from'];
+			$date->add((int)$this->arParams['MAX_DAYS_RANGE_DATE_FILTER'] . 'D');
+			$filter['STAT_DATE_to'] = $date;
 		}
 		else
 		{

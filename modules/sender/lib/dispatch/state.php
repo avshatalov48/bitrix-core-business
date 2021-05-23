@@ -880,6 +880,7 @@ class State
 		if ($state === self::SENDING)
 		{
 			$fields['AUTO_SEND_TIME'] = $sendDate ?: new DateTime();
+			$fields['WAITING_RECIPIENT'] = 'Y';
 		}
 		if ($state === self::PLANNED)
 		{
@@ -889,7 +890,6 @@ class State
 		{
 			$fields['AUTO_SEND_TIME'] = $sendDate;
 		}
-
 		if ($updatedBy = $this->letter->get('UPDATED_BY'))
 		{
 			$fields['UPDATED_BY'] = $updatedBy;

@@ -57,6 +57,7 @@ class pull extends CModule
 		RegisterModule("pull");
 		RegisterModuleDependences("main", "OnBeforeProlog", "main", "", "", 50, "/modules/pull/ajax_hit_before.php");
 		RegisterModuleDependences("main", "OnProlog", "main", "", "", 3, "/modules/pull/ajax_hit.php");
+		RegisterModuleDependences("main", "OnProlog", "pull", "CPullOptions", "OnProlog");
 		RegisterModuleDependences("main", "OnEpilog", "pull", "CPullOptions", "OnEpilog");
 		RegisterModuleDependences("main", "OnAfterEpilog", "pull", "\Bitrix\Pull\Event", "onAfterEpilog");
 		RegisterModuleDependences("main", "OnAfterEpilog", "pull", "CPullWatch", "DeferredSql");
@@ -127,6 +128,7 @@ class pull extends CModule
 		UnRegisterModuleDependences("main", "OnAfterUnRegisterModule", "pull", "CPullOptions", "ClearCheckCache");
 		UnRegisterModuleDependences("perfmon", "OnGetTableSchema", "pull", "CPullTableSchema", "OnGetTableSchema");
 		UnRegisterModuleDependences("main", "OnProlog", "main", "", "", "/modules/pull/ajax_hit.php");
+		UnRegisterModuleDependences("main", "OnProlog", "pull", "CPullOptions", "OnProlog");
 		UnRegisterModuleDependences("main", "OnEpilog", "pull", "CPullOptions", "OnEpilog");
 		UnRegisterModuleDependences("main", "OnAfterEpilog", "pull", "\Bitrix\Pull\Event", "onAfterEpilog");
 		UnRegisterModuleDependences("main", "OnAfterEpilog", "pull", "CPullWatch", "DeferredSql");

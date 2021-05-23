@@ -8,7 +8,10 @@
 
 use Bitrix\Main;
 
-class CTask
+/**
+ * @deprecated Use CTask
+ */
+class CAllTask
 {
 	protected static $TASK_OPERATIONS_CACHE = array();
 
@@ -524,4 +527,8 @@ class CTask
 
 		return false;
 	}
+}
+
+class CTask extends CAllTask
+{
 }

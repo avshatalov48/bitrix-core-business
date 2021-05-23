@@ -32,14 +32,19 @@ if (!function_exists('getWrapperMenu'))
 					$result .= '<li class="ui-sidepanel-menu-item'.($item['ACTIVE'] ? ' ui-sidepanel-menu-active' : '').'">';
 					$result .= '<a ';
 					$result .= getLinkItemAttributes($item['ATTRIBUTES'], 'ui-sidepanel-menu-link');
-					$result .= '><div class="ui-sidepanel-menu-link-text">'.$item['NAME'].'</div></a>';
+					$result .= '><div class="ui-sidepanel-menu-link-text">'.$item['NAME'].'</div>';
+					$result .= ($item['NOTICE'] ? '<span class="ui-sidepanel-menu-notice-icon"></span>' : '');
+					$result .= '</a>';
+
 				}
 				else
 				{
 					$result .= '<li class="ui-sidepanel-submenu-item'.($item['ACTIVE'] ? ' ui-sidepanel-submenu-active' : '').'">';
 					$result .= '<a ';
 					$result .= getLinkItemAttributes($item['ATTRIBUTES'], 'ui-sidepanel-submenu-link');
-					$result .= '><div class="ui-sidepanel-menu-link-text">'.$item['NAME'].'</div></a>';
+					$result .= '><div class="ui-sidepanel-menu-link-text">'.$item['NAME'].'</div>';
+					$result .= ($item['NOTICE'] ? '<span class="ui-sidepanel-menu-notice-icon"></span>' : '');
+					$result .= '</a>';
 				}
 
 				$result .= getWrapperMenu($item['CHILDREN'], $level + 1);

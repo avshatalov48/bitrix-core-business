@@ -348,7 +348,7 @@ if($strWarning == '')
 						if(COption::GetOptionString("main", "event_log_menu", "N") === "Y")
 						{
 							$mt = COption::GetOptionString("fileman", "menutypes", $default_value, $site);
-							$mt = unserialize(str_replace("\\", "", $mt));
+							$mt = unserialize(str_replace("\\", "", $mt), ['allowed_classes' => false]);
 							$res_log['menu_name'] = $mt[$menutype];
 							$res_log['path'] = mb_substr(dirname($path), 1);
 							CEventLog::Log(

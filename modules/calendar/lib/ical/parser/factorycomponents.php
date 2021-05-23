@@ -4,13 +4,6 @@
 namespace Bitrix\Calendar\ICal\Parser;
 
 
-
-use Bitrix\Calendar\ICal\Basic\BasicComponent;
-use Bitrix\Calendar\ICal\Basic\Observance;
-use Bitrix\Main\ObjectException;
-use Bitrix\Main\Type\DateTime;
-
-
 class FactoryComponents
 {
 	/**
@@ -18,20 +11,33 @@ class FactoryComponents
 	 */
 	private $componentName;
 	/**
-	 * @var BasicComponent
+	 * @var ParserComponent
 	 */
 	private $component;
 
+	/**
+	 * @param string $componentName
+	 * @return FactoryComponents
+	 */
 	public static function createInstance(string $componentName): FactoryComponents
 	{
 		return new self($componentName);
 	}
 
+	/**
+	 * FactoryComponents constructor.
+	 * @param string $componentName
+	 */
 	public function __construct(string $componentName)
 	{
 		$this->componentName = $componentName;
 	}
 
+	/**
+	 * @param $properties
+	 * @param $subComponents
+	 * @return $this
+	 */
 	public function createComponent($properties, $subComponents): FactoryComponents
 	{
 		switch ($this->componentName)
@@ -49,38 +55,49 @@ class FactoryComponents
 				$this->component = $this->getTimezoneComponent($properties, $subComponents);
 				break;
 			default:
-				$this->component = null;
+				$this->addMessageLog();
 		}
 
 		return $this;
 	}
 
-	public function getComponent()
+	/**
+	 * @return ParserComponent|null
+	 */
+	public function getComponent(): ?ParserComponent
 	{
 		return $this->component;
 	}
 
-	private function getStandardComponent($properties): Observance
+	/**
+	 * @param $properties
+	 * @return StandardObservance
+	 */
+	private function getStandardComponent(?array $properties): StandardObservance
 	{
-		$standard = StandardObservances::getInstance();
-		try
-		{
-			$standard->setOffsetToValue($properties['tzoffsetto']['value'])
-				->setOffsetFromValue($properties['tzoffsetfrom']['value'])
-				->setTimezoneFromAbbr($properties['tzname']['value'])
-				->setDTStart(new DateTime($properties['dtstart']['value'], 'Ymd\THis'));
-		}
-		catch (ObjectException $e)
-		{
-		}
-
-		return $standard;
+		return StandardObservance::createInstance()
+				->setTzOffsetTo($properties['tzoffsetto'])
+				->setTzOffsetFrom($properties['tzoffsetfrom'])
+				->setDtStart($properties['dtstart']);
 	}
 
+	private function getDaylightComponent(?array $properties): DaylightObservances
+	{
+		return DaylightObservances::createInstance()
+			->setTzOffsetTo($properties['tzoffsetto'])
+			->setTzOffsetFrom($properties['tzoffsetfrom'])
+			->setDtStart($properties['dtstart']);
+	}
+
+	/**
+	 * @param $properties
+	 * @param $subComponents
+	 * @return Calendar
+	 */
 	private function getCalendarComponent($properties, $subComponents): Calendar
 	{
 		$name = $properties['name']['value'] ?? 'Outer Calendar';
-		return  (Calendar::getInstance($name))
+		return  (Calendar::createInstance($name))
 			->setMethod($properties['method'])
 			->setProdId($properties['prodid'])
 			->setCalScale($properties['calscale'])
@@ -88,9 +105,14 @@ class FactoryComponents
 			->setSubComponents($subComponents);
 	}
 
+	/**
+	 * @param $properties
+	 * @param $subComponents
+	 * @return Event
+	 */
 	private function getEventComponent($properties, $subComponents): Event
 	{
-		return (Event::getInstance($properties['uid']['value']))
+		return (Event::createInstance($properties['uid']->getValue()))
 			->setStart($properties['dtstart'])
 			->setEnd($properties['dtend'])
 			->setDescription($properties['description'])
@@ -110,11 +132,24 @@ class FactoryComponents
 			->setAttachment($properties['attach']);
 	}
 
+	/**
+	 * @param $properties
+	 * @param $subComponents
+	 * @return Timezone
+	 */
 	private function getTimezoneComponent($properties, $subComponents): Timezone
 	{
-		return (Timezone::getInstance())
-			->setTimezoneId($properties['tzid']['value'])
-			->setTimezoneUrl($properties['tzurl']['value'])
+		return Timezone::createInstance()
+			->setTimezoneId($properties['tzid'])
+			->setTimezoneUrl($properties['tzurl'])
 			->setSubComponents($subComponents);
+	}
+
+	/**
+	 *
+	 */
+	private function addMessageLog(): void
+	{
+		AddMessage2Log("Component not found: {$this->componentName}", "calendar", 2);
 	}
 }

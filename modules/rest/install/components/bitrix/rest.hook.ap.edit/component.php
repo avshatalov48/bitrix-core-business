@@ -160,7 +160,7 @@ if($request->isPost() && check_bitrix_sessid())
 	}
 }
 
-$arResult["SCOPE"] = \CRestUtil::getScopeList();
+$arResult["SCOPE"] = \Bitrix\Rest\Engine\ScopeManager::getInstance()->listScope();
 $arResult["SCOPE"] = \Bitrix\Rest\APAuth\PermissionTable::cleanPermissionList($arResult['SCOPE']);
 
 $arResult['HTTPS'] = $request->isHttps();

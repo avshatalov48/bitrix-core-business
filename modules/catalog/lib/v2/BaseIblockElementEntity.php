@@ -5,6 +5,9 @@ namespace Bitrix\Catalog\v2;
 use Bitrix\Catalog\ProductTable;
 use Bitrix\Catalog\v2\Fields\TypeCasters\MapTypeCaster;
 use Bitrix\Catalog\v2\Iblock\IblockInfo;
+use Bitrix\Catalog\v2\Image\HasImageCollection;
+use Bitrix\Catalog\v2\Image\ImageCollection;
+use Bitrix\Catalog\v2\Image\ImageRepositoryContract;
 use Bitrix\Catalog\v2\Property\HasPropertyCollection;
 use Bitrix\Catalog\v2\Property\PropertyCollection;
 use Bitrix\Catalog\v2\Property\PropertyRepositoryContract;
@@ -19,7 +22,7 @@ use Bitrix\Main\Result;
  * !!! This API is in alpha stage and is not stable. This is subject to change at any time without notice.
  * @internal
  */
-abstract class BaseIblockElementEntity extends BaseEntity implements HasPropertyCollection
+abstract class BaseIblockElementEntity extends BaseEntity implements HasPropertyCollection, HasImageCollection
 {
 	/** @var \Bitrix\Catalog\v2\Iblock\IblockInfo */
 	protected $iblockInfo;
@@ -27,16 +30,22 @@ abstract class BaseIblockElementEntity extends BaseEntity implements HasProperty
 	protected $propertyRepository;
 	/** @var \Bitrix\Catalog\v2\Property\PropertyCollection|\Bitrix\Catalog\v2\Property\Property[] */
 	protected $propertyCollection;
+	/** @var \Bitrix\Catalog\v2\Image\ImageRepositoryContract */
+	protected $imageRepository;
+	/** @var \Bitrix\Catalog\v2\Image\ImageCollection|\Bitrix\Catalog\v2\Image\BaseImage[] */
+	protected $imageCollection;
 
 	public function __construct(
 		IblockInfo $iblockInfo,
 		RepositoryContract $repository,
-		PropertyRepositoryContract $propertyRepository
+		PropertyRepositoryContract $propertyRepository,
+		ImageRepositoryContract $imageRepository
 	)
 	{
 		parent::__construct($repository);
 		$this->iblockInfo = $iblockInfo;
 		$this->propertyRepository = $propertyRepository;
+		$this->imageRepository = $imageRepository;
 	}
 
 	/**
@@ -64,7 +73,7 @@ abstract class BaseIblockElementEntity extends BaseEntity implements HasProperty
 	/**
 	 * @return \Bitrix\Catalog\v2\Property\PropertyCollection|\Bitrix\Catalog\v2\Property\Property[]
 	 */
-	protected function loadPropertyCollection(): BaseCollection
+	protected function loadPropertyCollection(): PropertyCollection
 	{
 		return $this->propertyRepository->getCollectionByParent($this);
 	}
@@ -77,7 +86,85 @@ abstract class BaseIblockElementEntity extends BaseEntity implements HasProperty
 	 */
 	public function setPropertyCollection(PropertyCollection $propertyCollection): self
 	{
+		$propertyCollection->setParent($this);
+
 		$this->propertyCollection = $propertyCollection;
+
+		return $this;
+	}
+
+	/**
+	 * @return $this
+	 *
+	 * @internal
+	 */
+	protected function unsetPropertyCollection(): self
+	{
+		if ($this->propertyCollection !== null)
+		{
+			$this->propertyCollection->setParent(null);
+			$this->propertyCollection = null;
+		}
+
+		return $this;
+	}
+
+	/**
+	 * @return ImageCollection|\Bitrix\Catalog\v2\Image\BaseImage[]
+	 */
+	public function getImageCollection(): ImageCollection
+	{
+		if ($this->imageCollection === null)
+		{
+			$this->setImageCollection($this->loadImageCollection());
+		}
+
+		return $this->imageCollection;
+	}
+
+	/**
+	 * @return ImageCollection|\Bitrix\Catalog\v2\Image\BaseImage[]
+	 */
+	public function getFrontImageCollection(): ImageCollection
+	{
+		return $this->getImageCollection();
+	}
+
+	/**
+	 * @return ImageCollection|\Bitrix\Catalog\v2\Image\BaseImage[]
+	 */
+	protected function loadImageCollection(): ImageCollection
+	{
+		return $this->imageRepository->getCollectionByParent($this);
+	}
+
+	/**
+	 * @param ImageCollection $imageCollection
+	 * @return $this
+	 *
+	 * @internal
+	 */
+	public function setImageCollection(ImageCollection $imageCollection): self
+	{
+		$imageCollection->setParent($this);
+
+		$this->imageCollection = $imageCollection;
+
+		return $this;
+	}
+
+	/**
+	 * @return $this
+	 *
+	 * @internal
+	 */
+	protected function unsetImageCollection(): self
+	{
+		if ($this->imageCollection !== null)
+		{
+			$this->imageCollection->setParent(null);
+			$this->imageCollection = null;
+		}
 
 		return $this;
 	}
@@ -106,10 +193,19 @@ abstract class BaseIblockElementEntity extends BaseEntity implements HasProperty
 		}
 		elseif ($name === 'DETAIL_PICTURE' || $name === 'PREVIEW_PICTURE')
 		{
+			$imageCollection = $this->getImageCollection();
+			$image = ($name === 'DETAIL_PICTURE') ? $imageCollection->getDetailImage() : $imageCollection->getPreviewImage();
 			if (is_numeric($value))
 			{
 				$value = \CFile::MakeFileArray($value);
 			}
+
+			if (is_array($value))
+			{
+				$image->setFileStructure($value);
+			}
+
+			return $this;
 		}
 
 		return parent::setField($name, $value);
@@ -156,10 +252,16 @@ abstract class BaseIblockElementEntity extends BaseEntity implements HasProperty
 		return $this->getName() !== null && $this->getName() !== '';
 	}
 
+	public function getDetailUrl(): string
+	{
+		return (string)$this->getField('DETAIL_PAGE_URL');
+	}
+
 	public function saveInternal(): Result
 	{
 		$entityChanged = $this->isChanged();
 		$propertyCollectionChanged = $this->propertyCollection && $this->propertyCollection->isChanged();
+		$imageCollectionChanged = $this->imageCollection && $this->imageCollection->isChanged();
 
 		$result = parent::saveInternal();
 
@@ -173,8 +275,14 @@ abstract class BaseIblockElementEntity extends BaseEntity implements HasProperty
 			// ToDo reload if at least one file property changed?
 			if ($propertyCollectionChanged)
 			{
-				// re-initialize saved ids from database after file is saved
-				$this->setPropertyCollection($this->loadPropertyCollection());
+				// hack to re-initialize saved ids from database after files saving
+				$this->unsetPropertyCollection();
+			}
+
+			if ($imageCollectionChanged)
+			{
+				// hack to re-initialize saved ids from database after files saving
+				$this->unsetImageCollection();
 			}
 		}
 
@@ -209,6 +317,9 @@ abstract class BaseIblockElementEntity extends BaseEntity implements HasProperty
 			'DETAIL_PICTURE' => static function ($value) {
 				return is_numeric($value) ? (int)$value : $value;
 			},
+
+			// ToDo make immutable
+			'DETAIL_PAGE_URL' => MapTypeCaster::NOTHING,
 
 			'QUANTITY' => MapTypeCaster::NULLABLE_FLOAT,
 			'WEIGHT' => MapTypeCaster::NULLABLE_INT,

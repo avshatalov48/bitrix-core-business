@@ -134,10 +134,13 @@ class SaveFile
 				$langFile->setOperatingEncoding(Main\Localization\Translation::getSourceEncoding($langId));
 			}
 
-			if (!$langFile->load() && $langFile->hasErrors())
+			if (!$langFile->loadTokens())
 			{
-				$this->addErrors($langFile->getErrors());
-				continue;
+				if (!$langFile->load() && $langFile->hasErrors())
+				{
+					$this->addErrors($langFile->getErrors());
+					continue;
+				}
 			}
 
 			$hasDataToUpdate = false;

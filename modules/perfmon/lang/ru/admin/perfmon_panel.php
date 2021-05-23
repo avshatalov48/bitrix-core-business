@@ -55,7 +55,6 @@ $MESS["PERFMON_PANEL_MAIL_UNITS"] = "время отправки одного п
 $MESS["PERFMON_PANEL_SESSION"] = "Время старта сессии";
 $MESS["PERFMON_PANEL_SESSION_UNITS"] = "секунд";
 $MESS["PERFMON_PANEL_SESSION_ERR"] = "не измерено";
-$MESS["PERFMON_PANEL_SESSION_NOTE"] = "Время старта сессии не может быть измерено т.к. в модуле Проактивной защиты включено хранение сессий в базе данных.";
 $MESS["PERFMON_PANEL_PHP"] = "Конфигурация PHP";
 $MESS["PERFMON_PANEL_PHP_REC"] = "рекомендации";
 $MESS["PERFMON_PANEL_COMPONENT_CACHE"] = "Автокеширование компонентов";

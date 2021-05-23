@@ -30,7 +30,7 @@ final class LivefeedIndexPost extends Stepper
 		$return = false;
 
 		$params = Option::get("blog", "livefeedindexpost", "");
-		$params = ($params !== "" ? @unserialize($params) : array());
+		$params = ($params !== "" ? @unserialize($params, ['allowed_classes' => false]) : array());
 		$params = (is_array($params) ? $params : array());
 		if (empty($params))
 		{

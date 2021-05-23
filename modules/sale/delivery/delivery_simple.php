@@ -68,7 +68,7 @@ class CDeliverySimple
 	
 	function GetSettings($strSettings)
 	{
-		return unserialize($strSettings);
+		return unserialize($strSettings, ['allowed_classes' => false]);
 	}
 	
 	function SetSettings($arSettings)

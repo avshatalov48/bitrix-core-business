@@ -1,3 +1,6 @@
-<?
+<?php
+$MESS["SALE_HPS_BILL_LA_BANK_ADDRESS"] = "Spain";
+$MESS["SALE_HPS_BILL_LA_BANK_CITY"] = "Barcelona";
+$MESS["SALE_HPS_BILL_LA_BUYER_COMPANY_ADDRESS"] = "Barcelona";
 $MESS["SALE_HPS_BILL_LA_COMMENT"] = "Invoice comment";
 $MESS["SALE_HPS_BILL_LA_COMMENT_ADD"] = "Additional comments";

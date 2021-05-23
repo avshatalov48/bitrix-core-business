@@ -59,37 +59,52 @@ class NosqlPrimarySelector
 					$passFilter = true;
 
 					// check if only equality operations & 1-level filter
-					foreach ($query->getFilter() as $filterElement => $filterValue)
+					if ($query->getFilter())
 					{
-						if (is_numeric($filterElement) && is_array($filterValue))
+						foreach ($query->getFilter() as $filterElement => $filterValue)
 						{
-							// filter has subfilters. not ok
-							$passFilter = false;
-							break;
-						}
+							if (is_numeric($filterElement) && is_array($filterValue))
+							{
+								// filter has subfilters. not ok
+								$passFilter = false;
+								break;
+							}
 
-						// no multiple values for HSPHP
-						if (is_array($filterValue))
-						{
-							$passFilter = false;
-							break;
-						}
+							// no multiple values for HSPHP
+							if (is_array($filterValue))
+							{
+								$passFilter = false;
+								break;
+							}
 
-						// skip system keys
-						if ($filterElement === 'LOGIC')
-						{
-							continue;
-						}
+							// skip system keys
+							if ($filterElement === 'LOGIC')
+							{
+								continue;
+							}
 
-						$operation = substr($filterElement, 0, 1);
+							$operation = substr($filterElement, 0, 1);
 
-						if ($operation !== '=')
-						{
-							// only equal operation allowed. not ok
-							$passFilter = false;
-							break;
+							if ($operation !== '=')
+							{
+								// only equal operation allowed. not ok
+								$passFilter = false;
+								break;
+							}
 						}
 					}
+					elseif ($query->getFilterHandler()->hasConditions())
+					{
+						foreach ($query->getFilterHandler()->getConditions() as $condition)
+						{
+							if ($condition->getOperator() !== '=' || !is_scalar($condition->getValue()))
+							{
+								$passFilter = false;
+								break;
+							}
+						}
+					}
+
 
 					// fine!
 					if ($passFilter)
@@ -116,15 +131,25 @@ class NosqlPrimarySelector
 		// prepare filter
 		$filter = array();
 
-		foreach ($query->getFilter() as $filterElem)
+		if ($query->getFilter())
 		{
-			if (is_array($filterElem))
+			foreach ($query->getFilter() as $filterElem)
 			{
-				$filter = array_merge($filter, $filterElem);
+				if (is_array($filterElem))
+				{
+					$filter = array_merge($filter, $filterElem);
+				}
+				else
+				{
+					$filter[] = $filterElem;
+				}
 			}
-			else
+		}
+		elseif ($query->getFilterHandler()->hasConditions())
+		{
+			foreach ($query->getFilterHandler()->getConditions() as $condition)
 			{
-				$filter[] = $filterElem;
+				$filter[] = $condition->getValue();
 			}
 		}
 

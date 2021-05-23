@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Main\Analytics;
 
+use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\Context;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\Page\AssetLocation;
@@ -10,6 +11,7 @@ class Counter
 {
 	protected static $data = array();
 	protected static $enabled = true;
+	protected static $bufferRestarted = false;
 
 	public static function enable()
 	{
@@ -82,15 +84,29 @@ JS;
 
 	public static function onBeforeEndBufferContent()
 	{
-		$server = Context::getCurrent()->getServer();
-		$ajax = $server->get("HTTP_BX_AJAX");
+		$request = Context::getCurrent()->getRequest();
+		$isAjaxRequest = $request->isAjaxRequest();
+		$isAdminSection = defined("ADMIN_SECTION") && ADMIN_SECTION === true;
+		if ($isAjaxRequest || $isAdminSection)
+		{
+			return;
+		}
 
-		if (SiteSpeed::isOn() &&
-			static::$enabled === true &&
-			$ajax === null &&
-			(!defined("ADMIN_SECTION") || ADMIN_SECTION !== true) &&
-			!SiteSpeed::isIntranetSite(SITE_ID)
-		)
+		$isSlider = $request->getQuery('IFRAME') === "Y";
+		if (static::$bufferRestarted === true && !$isSlider)
+		{
+			return;
+		}
+
+		$settings = Configuration::getValue("analytics_counter");
+		$forceEnabled = isset($settings["enabled"]) && $settings["enabled"] === true;
+
+		if ($forceEnabled === false && SiteSpeed::isIntranetSite(SITE_ID))
+		{
+			return;
+		}
+
+		if (SiteSpeed::isOn() && static::$enabled === true)
 		{
 			Counter::injectIntoPage();
 		}
@@ -98,7 +114,7 @@ JS;
 
 	public static function onBeforeRestartBuffer()
 	{
-		static::disable();
+		static::$bufferRestarted = true;
 	}
 
 	public static function sendData($id, array $arParams)

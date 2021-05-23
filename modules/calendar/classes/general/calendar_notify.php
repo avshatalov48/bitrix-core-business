@@ -576,7 +576,7 @@ class CCalendarNotify
 			{
 				if ($arLog['PARAMS'] != "")
 				{
-					$arLog['PARAMS'] = unserialize($arLog['PARAMS']);
+					$arLog['PARAMS'] = unserialize($arLog['PARAMS'], ['allowed_classes' => false]);
 					if (!is_array($arLog['PARAMS']))
 						$arLog['PARAMS'] = [];
 				}
@@ -640,6 +640,7 @@ class CCalendarNotify
 					}
 				}
 
+				$commentCropped = truncateText($params['MESSAGE'], 100);
 				foreach($attendees as $attendee)
 				{
 					if (in_array($attendee["USER_ID"], $excludeUserIdList))
@@ -661,7 +662,7 @@ class CCalendarNotify
 							],
 							[
 								$url <> '' ? "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".$event["NAME"]."</a>" : $event["NAME"],
-								$params['MESSAGE']
+								$commentCropped
 							],
 							$strMsgAddComment
 						);
@@ -672,7 +673,7 @@ class CCalendarNotify
 								],
 								[
 									$event["NAME"],
-									$params['MESSAGE']
+									$commentCropped
 								],
 								$strMsgAddComment
 							).($url <> ''? " (".$url.")" : "");

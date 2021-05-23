@@ -7,9 +7,6 @@ if (!$USER->CanDoOperation('fileman_view_file_structure') && !$USER->CanDoOperat
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/include.php");
 
-if(CModule::IncludeModule("compression"))
-	CCompress::Disable2048Spaces();
-
 if (isset($_GET['cname']) && isset($_GET['stid']) && isset($_GET['tname']) && isset($_GET['mode']) && $_GET['mode']=='params')
 {
 	?>

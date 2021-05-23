@@ -327,12 +327,7 @@ class Collect
 
 						if ($this->convertEncoding)
 						{
-							$errorMessage = '';
-							$content = Main\Text\Encoding::convertEncoding($content, $sourceEncoding, $this->encoding, $errorMessage);
-							if (!$content && !empty($errorMessage))
-							{
-								$this->addError(new Main\Error($errorMessage));
-							}
+							$content = Main\Text\Encoding::convertEncoding($content, $sourceEncoding, $this->encoding);
 						}
 
 						$target->putContents($content);

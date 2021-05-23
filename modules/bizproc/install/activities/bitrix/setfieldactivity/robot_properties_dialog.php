@@ -64,8 +64,8 @@ $mergeMultipleFields = $dialog->getMap()['MergeMultipleFields'];
 					autoHide: true,
 					offsetLeft: (BX.pos(this)['width'] / 2),
 					angle: { position: 'top', offset: 0 },
-					zIndex: 200,
-					className: 'bizproc-automation-inline-selector-menu'
+					className: 'bizproc-automation-inline-selector-menu',
+					overlay: { backgroundColor: 'transparent' }
 				}
 			);
 

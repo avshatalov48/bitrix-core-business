@@ -3,24 +3,31 @@
 namespace Bitrix\Seo\BusinessSuite;
 
 
+use Bitrix\Main\NotImplementedException;
 use Bitrix\Seo\Retargeting;
 use Bitrix\Seo\BusinessSuite\AuthAdapter\Facebook\BusinessAuthAdapter;
 
 class ServiceWrapper implements  Retargeting\IService, Retargeting\IMultiClientService, IInternalService
 {
+	/** @var ServiceMetaData $meta*/
+	protected $metaData;
 
 	/** @var BusinessAuthAdapter[] $authAdapterPool*/
 	protected static $authAdapterPool = [];
 
-	/** @var Retargeting\IService|IInternalService|null $internalService */
-	protected $internalService;
-
-	/** @var $clientId*/
-	protected $clientId;
-
 	/** @var static $instance*/
 	protected static $instance = [];
 
+	private function __construct()
+	{}
+
+	private function __clone()
+	{}
+
+	/**
+	 * get
+	 * @return static
+	 */
 	public static function getInstance()
 	{
 		if (!static::$instance[$key = get_called_class()])
@@ -30,47 +37,66 @@ class ServiceWrapper implements  Retargeting\IService, Retargeting\IMultiClientS
 		return static::$instance[$key];
 	}
 
+	/**
+	 * @return bool|null
+	 */
 	public static function canUseMultipleClients() : ?bool
 	{
-		$internal = static::getInstance()->internalService;
+		$internal = static::getInstance()->getMetaData()->getService();
 		return $internal instanceof Retargeting\IMultiClientService && $internal::canUseMultipleClients();
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getClientId()
 	{
-		return $this->clientId;
+		return $this->metaData->getClientId();
 	}
 
+	/**
+	 * @param string $clientId
+	 *
+	 * @return mixed|void
+	 * @throws NotImplementedException
+	 */
 	public function setClientId($clientId)
 	{
-		$this->clientId = $clientId;
-		return $this;
+		throw new NotImplementedException("method not implement");
 	}
 
+	/**
+	 * @param string $type
+	 *
+	 * @return string|null
+	 */
 	public static function getEngineCode($type) : ?string
 	{
-		if($service = static::getInstance()->internalService)
+		if($service = static::getInstance()->getMetaData()->getService())
 		{
 			return $service::getEngineCode($type);
 		}
 		return null;
 	}
 
+	/**
+	 * @return array|null
+	 */
 	public static function getTypes() : ?array
 	{
-		if($service = static::getInstance()->internalService)
+		if($service = static::getInstance()->getMetaData()->getService())
 		{
 			return $service::getTypes();
 		}
 		return null;
 	}
 
-	public function setService(?Retargeting\IService $service) : self
-	{
-		$this->internalService = $service;
-		return $this;
-	}
-
+	/**
+	 * @param string $type
+	 *
+	 * @return BusinessAuthAdapter
+	 * @throws \Bitrix\Main\SystemException
+	 */
 	public static function getAuthAdapter($type) : BusinessAuthAdapter
 	{
 		static::$authAdapterPool[$key] =  static::$authAdapterPool[$key = get_called_class()] ?? [];
@@ -86,7 +112,7 @@ class ServiceWrapper implements  Retargeting\IService, Retargeting\IMultiClientS
 	 */
 	public static function getTypeByEngine(string $engineCode): ?string
 	{
-		if($service = static::getInstance()->internalService)
+		if($service = static::getInstance()->getMetaData()->getService())
 		{
 			return $service->getTypeByEngine($engineCode);
 		}
@@ -98,7 +124,7 @@ class ServiceWrapper implements  Retargeting\IService, Retargeting\IMultiClientS
 	 */
 	public static function canUseAsInternal(): bool
 	{
-		if($service = static::getInstance()->internalService)
+		if($service = static::getInstance()->getMetaData()->getService())
 		{
 			return $service->canUseAsInternal();
 		}
@@ -110,10 +136,33 @@ class ServiceWrapper implements  Retargeting\IService, Retargeting\IMultiClientS
 	 */
 	public static function getMethodPrefix(): string
 	{
-		if($service = static::getInstance()->internalService)
+		$meta = static::getInstance()->getMetaData();
+		if($meta && $service = $meta->getService())
 		{
-			return $service->getMethodPrefix();
+			return ($meta->getType() === 'instagram'? 'instagram.' : '') . $service->getMethodPrefix();
 		}
 		return '';
+	}
+
+	/**
+	 * set service meta
+	 *
+	 * @param ServiceMetaData|null $metaData
+	 *
+	 * @return ServiceWrapper
+	 */
+	public function setMeta(?ServiceMetaData $metaData)
+	{
+		$this->metaData = $metaData;
+		return $this;
+	}
+
+	/**
+	 * get service meta
+	 * @return ServiceMetaData|null
+	 */
+	public function getMetaData() : ?ServiceMetaData
+	{
+		return $this->metaData;
 	}
 };

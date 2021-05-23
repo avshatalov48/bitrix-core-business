@@ -53,7 +53,10 @@ class IncomingEventManager
 
 	public static function handleReply(array $params): bool
 	{
-		$localEvent = ICalUtil::getEventByUId($params['event']['DAV_XML_ID']);
+		$uid = $params['event']['DAV_XML_ID'];
+		$emailUser = $params['event']['ATTENDEES_MAIL'][0];
+		$userId = ICalUtil::getUserIdByEmail($emailUser);
+		$localEvent = ICalUtil::getEventByUId($userId, $uid);
 
 		if (!empty($localEvent))
 		{
@@ -90,7 +93,7 @@ class IncomingEventManager
 						die();
 					}
 					$fileContent = Encoding::convertEncoding($fileContent, OutcomingEventManager::CHARSET, SITE_CHARSET);
-					list($icalEvent, $method) = static::getDataInfo($fileContent);
+					$icalComponent = static::getDataInfo($fileContent);
 
 					if ($method === Dictionary::METHODS['reply'])
 					{
@@ -104,8 +107,9 @@ class IncomingEventManager
 	public static function handleCancel($params)
 	{
 		$event = $params['event'];
+		$userId = $params['userId'];
 
-		$originalValue = ICalUtil::getEventByUId($event['DAV_XML_ID']);
+		$originalValue = ICalUtil::getEventByUId($userId, $event['DAV_XML_ID']);
 		if (!empty($originalValue))
 		{
 			$deleteParams = [
@@ -119,6 +123,7 @@ class IncomingEventManager
 
 	public static function getDataInfo($data, $params = []): array
 	{
+
 		$attachmentManager = IncomingAttachmentManager::getInstance([
 			'data' => $data,
 		]);
@@ -233,7 +238,7 @@ class IncomingEventManager
 			];
 		}
 
-		$originalValue = ICalUtil::getEventByUId($event['DAV_XML_ID']);
+		$originalValue = ICalUtil::getEventByUId($userId, $event['DAV_XML_ID']);
 		$event['ID'] = $originalValue ? $originalValue['ID'] : 0;
 
 		return $event;
@@ -262,7 +267,7 @@ class IncomingEventManager
 		{
 			if ($attendee['EMAIL'] == $params['userEmail'])
 			{
-				$usersInfo = ICalUtil::getUsersById([$params['userId']]);
+				$usersInfo = ICalUtil::getIndexUsersById([$params['userId']]);
 				$attendee['NAME'] = $usersInfo[$params['userId']]['NAME'];
 				$attendee['LAST_NAME'] = $usersInfo[$params['userId']]['LAST_NAME'];
 				$attendee['STATUS'] = $params['answer'] === 'confirmed' ? 'accepted' : 'declined';

@@ -29,7 +29,7 @@ $signer = new \Bitrix\Main\Security\Sign\Signer;
 try
 {
 	$params = $signer->unsign(base64_decode($request->get('signedParamsString')), 'sale.account.pay');
-	$params = unserialize($params);
+	$params = unserialize($params, ['allowed_classes' => false]);
 	$params['AJAX_DISPLAY'] = "Y";
 }
 catch (\Bitrix\Main\Security\Sign\BadSignatureException $e)

@@ -16,6 +16,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\Loader;
 use \Bitrix\Rest\Engine\Access;
+use Bitrix\Main\ModuleManager;
 
 if(!CModule::IncludeModule("rest"))
 {
@@ -25,7 +26,7 @@ if(!CModule::IncludeModule("rest"))
 $request = \Bitrix\Main\Context::getCurrent()->getRequest();
 
 $arResult['SUBSCRIPTION_AVAILABLE'] = \Bitrix\Rest\Marketplace\Client::isSubscriptionAvailable();
-$arResult['SUBSCRIPTION_BUY_URL'] = '/settings/license_buy.php?product=subscr';
+$arResult['SUBSCRIPTION_BUY_URL'] = \Bitrix\Rest\Marketplace\Url::getSubscriptionBuyUrl();
 $arResult['ANALYTIC_FROM'] = '';
 if (!empty($request->get('from')))
 {
@@ -36,10 +37,6 @@ $arParams['APP'] = !empty($arParams['APP']) ? $arParams['APP'] : $_GET['app'];
 
 $arResult['REST_ACCESS'] = Access::isAvailable($arParams['APP']) && Access::isAvailableCount(Access::ENTITY_TYPE_APP, $arParams['APP']);
 
-if (!$arResult['REST_ACCESS'])
-{
-	$arResult['REST_ACCESS_HELPER_CODE'] = Access::getHelperCode();
-}
 $ver = false;
 
 $arResult['CHECK_HASH'] = false;
@@ -160,6 +157,13 @@ if($arApp)
 	}
 
 	$arResult["APP"] = $arApp;
+
+	$arResult['REST_ACCESS_HELPER_CODE'] = Access::getHelperCode(Access::ACTION_INSTALL, Access::ENTITY_TYPE_APP, $arResult["APP"]);
+
+	if (!ModuleManager::isModuleInstalled('bitrix24'))
+	{
+		$arResult['POPUP_BUY_SUBSCRIPTION_PRIORITY'] = true;
+	}
 }
 
 $arResult["ADMIN"] = \CRestUtil::isAdmin();
@@ -175,7 +179,7 @@ if($request->isPost() && $request['install'] && check_bitrix_sessid())
 	}
 	else
 	{
-		$scopeList = \CRestUtil::getScopeList();
+		$scopeList = \Bitrix\Rest\Engine\ScopeManager::getInstance()->listScope();
 		\Bitrix\Main\Localization\Loc::loadMessages($_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/modules/rest/scope.php');
 		$arResult['SCOPE_DENIED'] = array();
 		if(is_array($arResult['APP']['RIGHTS']))

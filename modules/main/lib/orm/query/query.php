@@ -1494,7 +1494,8 @@ class Query
 					}
 
 					// check for base linking
-					if ($dstField instanceof TextField && $dstEntity->hasField($dstField->getName().'_SINGLE'))
+					if (($dstField instanceof TextField || $dstField instanceof ArrayField)
+						&& $dstEntity->hasField($dstField->getName().'_SINGLE'))
 					{
 						$utmLinkField = $dstEntity->getField($dstField->getName().'_SINGLE');
 
@@ -1837,7 +1838,7 @@ class Query
 
 					// register primary's chain
 					$idChain = $this->getRegisteredChain($primaryName);
-					$this->registerChain($section, $idChain);
+					$this->registerChain($section, $idChain, $primaryName);
 				}
 			}
 		}
@@ -3416,6 +3417,7 @@ class Query
 		if (!isset($this->{$storage_name}[$alias]))
 		{
 			$this->{$storage_name}[$alias] = $reg_chain;
+			// should we store by definition too?
 		}
 
 		if (!is_null($opt_key))

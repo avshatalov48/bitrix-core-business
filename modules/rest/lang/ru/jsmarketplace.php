@@ -27,3 +27,4 @@ $MESS["REST_MP_SUBSCRIPTION_DEMO_EULA_LINK"] = "https://www.1c-bitrix.ru/downloa
 $MESS["REST_MP_SUBSCRIPTION_DEMO_TITLE"] = "30 дней бесплатной подписки!";
 $MESS["REST_MP_SUBSCRIPTION_DEMO_TEXT_1"] = "Установите и используйте любые приложения, доступные в <a href=\"javascript:void(0)\" onclick=\"#ONCLICK#\" >Битрикс24.Маркет</a> бесплатно в течение 30 дней.";
 $MESS["REST_MP_SUBSCRIPTION_DEMO_TEXT_2"] = "Попробуйте насколько удобно работать с сотнями дополнительных возможностей бесплатно и продлите подписку, когда ощутите пользу для вашей компании.";
+$MESS["REST_MP_SUBSCRIPTION_ERROR_OPEN_BUY_URL"] = "Неизвестная ошибка открытия страницы.";

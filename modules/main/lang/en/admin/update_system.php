@@ -20,6 +20,7 @@ $MESS["SUP_HISTORY"] = "History of updates";
 $MESS["SUP_HTTP_BX_MASTER"] = "The web cluster may only be updated using a master copy at <a href=\"#ADDR#\">#ADDR#</a>";
 $MESS["SUP_INITIAL"] = "Initialising...";
 $MESS["SUP_LICENSE_KEY"] = "License key";
+$MESS["SUP_MARKET_SUBSCRIPTION"] = "Bitrix24.Market Plus is active till:";
 $MESS["SUP_MSSQL_L4111"] = "You are using MS SQL #VERS#, but the system requires version 10.0 or higher (Microsoft SQL Server 2008 or higher). Please update your MS SQL installation or contact the techsupport.";
 $MESS["SUP_MSSQL_LNATIVE"] = "You are using an ODBC driver to connect with the MSSQL server. Please switch to the SQLSRV expansion or refer to technical support.";
 $MESS["SUP_MYSQL_COLL_ERROR"] = "Collation of your MySQL database '#CD#' does not match that of the connection '#CC#'.";

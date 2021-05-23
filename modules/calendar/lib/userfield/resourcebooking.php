@@ -9,6 +9,7 @@ use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Bitrix24;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Type\Date;
+use Bitrix\Main\UserTable;
 
 Loc::loadMessages(__FILE__);
 
@@ -463,7 +464,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 
 			foreach(\Bitrix\Main\EventManager::getInstance()->findEventHandlers("calendar", "onAfterResourceBookingAdd") as $event)
 			{
-				ExecuteModuleEventEx($event, [
+				ExecuteModuleEventEx($event, [[
 					'userFieldValueId' => $valueToSave,
 					'bookingEventId' => $entryId,
 					'resourceType' => $resourceType,
@@ -474,7 +475,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 					'skipTime' => $eventFields['SKIP_TIME'],
 					'timezoneFrom' => $eventFields['TZ_FROM'],
 					'timezoneTo' => $eventFields['TZ_TO']
-				]);
+				]]);
 			}
 
 			\CTimeZone::Enable();
@@ -747,37 +748,48 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 		$resources = [];
 		$resourceNames = [];
 		$userIdList = [];
-		$resourseIdList = [];
+		$resourceIdList = [];
+
 		foreach($value['ENTRIES'] as $entry)
 		{
 			if ($entry['TYPE'] == 'user')
 			{
-				$userIdList[] = $entry['RESOURCE_ID'];
-
-				$db = \CUser::getList($by = 'ID', $order = 'ASC',
-					array('ID'=> $entry['RESOURCE_ID']),
-					array('FIELDS' => array('ID', 'LOGIN', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'TITLE', 'PERSONAL_PHOTO'))
-				);
-				if ($row = $db->fetch())
-				{
-					$row['URL'] = \CCalendar::getUserUrl($row["ID"]);
-					$users[] = $row;
-				}
+				$userIdList[] = (int) $entry['RESOURCE_ID'];
 			}
 			else
 			{
-				$resourseIdList[] = $entry['RESOURCE_ID'];
+				$resourceIdList[] = (int) $entry['RESOURCE_ID'];
 			}
 		}
 
-		if (count($resourseIdList) > 0)
+		$userIdList = array_unique($userIdList);
+		$resourceIdList = array_unique($resourceIdList);
+
+		if (!empty($userIdList))
+		{
+			$orm = UserTable::getList([
+				'filter' => [
+				   '=ID' => $userIdList,
+				   'ACTIVE' => 'Y'
+				],
+				'select' => ['ID', 'LOGIN', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'TITLE', 'PERSONAL_PHOTO']
+		   ]);
+
+			while ($user = $orm->fetch())
+			{
+				$user['URL'] = \CCalendar::getUserUrl($user["ID"]);
+				$users[] = $user;
+			}
+		}
+
+		if (count($resourceIdList) > 0)
 		{
 			$sectionList = Internals\SectionTable::getList(
 				array(
 					"filter" => array(
 						"=ACTIVE" => 'Y',
 						"!=CAL_TYPE" => ['user', 'group', 'company_calendar'],
-						"ID" => $resourseIdList
+						"ID" => $resourceIdList
 					),
 					"select" => array("ID", "CAL_TYPE", "NAME")
 				)
@@ -909,25 +921,35 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 		{
 			if ($entry['TYPE'] == 'user')
 			{
-				$userIdList[] = $entry['RESOURCE_ID'];
-
-				$db = \CUser::getList($by = 'ID', $order = 'ASC',
-					array('ID'=> $entry['RESOURCE_ID']),
-					array('FIELDS' => array('ID', 'LOGIN', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'TITLE', 'PERSONAL_PHOTO'))
-				);
-				if ($row = $db->fetch())
-				{
-					$row['URL'] = \CCalendar::getUserUrl($row["ID"]);
-					$users[] = $row;
-				}
+				$userIdList[] = (int) $entry['RESOURCE_ID'];
 			}
 			else
 			{
-				$resourseIdList[] = $entry['RESOURCE_ID'];
+				$resourseIdList[] = (int) $entry['RESOURCE_ID'];
 			}
 		}
 
-		if (count($resourseIdList) > 0)
+		$userIdList = array_unique($userIdList);
+		$resourseIdList = array_unique($resourseIdList);
+
+		if (!empty($userIdList))
+		{
+			$orm = UserTable::getList([
+				   'filter' => [
+					   '=ID' => $userIdList,
+					   'ACTIVE' => 'Y'
+				   ],
+				   'select' => ['ID', 'LOGIN', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'TITLE', 'PERSONAL_PHOTO']
+			   ]);
+
+			while ($user = $orm->fetch())
+			{
+				$user['URL'] = \CCalendar::getUserUrl($user["ID"]);
+				$users[] = $user;
+			}
+		}
+
+		if (!empty($resourseIdList))
 		{
 			$sectionList = Internals\SectionTable::getList(
 				array(
@@ -1169,15 +1191,16 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 
 		if (!empty($selectedUsers))
 		{
-			$dbUsers = \CUser::getList($by = 'ID', $order = 'ASC',
-				[
-					'ID'=> implode(' | ', $selectedUsers)
+			$orm = UserTable::getList([
+				'filter' => [
+					'=ID' => $selectedUsers,
+					'ACTIVE' => 'Y'
 				],
-				['FIELDS' => ['ID', 'LOGIN', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'EMAIL']]
-			);
+				'select' => ['ID', 'LOGIN', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'EMAIL']
+			]);
 
 			$resultData['SETTINGS']['USER_INDEX'] = [];
-			while($user = $dbUsers->fetch())
+			while($user = $orm->fetch())
 			{
 				$resultData['SETTINGS']['USER_INDEX'][$user['ID']] = [
 					'id' => $user['ID'],
@@ -1301,14 +1324,18 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 			}
 
 			// User Index
-			$dbUsers = \CUser::getList($by = 'ID', $order = 'ASC',
+			$orm = UserTable::getList(
 				[
-					'ID'=> implode(' | ', $userIdList)
-				],
-				['FIELDS' => ['ID', 'LOGIN', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'EMAIL']]
+					'filter' => [
+						'=ID' => $userIdList,
+						'ACTIVE' => 'Y'
+					],
+					'select' => ['ID', 'LOGIN', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'EMAIL']
+				]
 			);
 
-			while($user = $dbUsers->fetch())
+			$resultData['SETTINGS']['USER_INDEX'] = [];
+			while($user = $orm->fetch())
 			{
 				$resultData['userIndex'][$user['ID']] = [
 					'id' => $user['ID'],

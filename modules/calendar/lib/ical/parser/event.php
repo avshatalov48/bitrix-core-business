@@ -4,55 +4,59 @@
 namespace Bitrix\Calendar\ICal\Parser;
 
 
-use Bitrix\Calendar\ICal\Basic\BasicComponent;
-use Bitrix\Calendar\ICal\Basic\ICalUtil;
-use Bitrix\Calendar\Util;
-use Bitrix\Main\Type\Date;
-use Bitrix\Main\Type\DateTime;
-use \Bitrix\Main\Localization\Loc;
-
-class Event extends BasicComponent implements ParserComponent
+class Event extends ParserComponent
 {
+	public const COMPONENT_TYPE = 'VEVENT';
 	private $alerts = [];
 	private $start;
 	private $end;
-	private $tzStart;
-	private $tzEnd;
 	private $name;
-	private $description = '';
+	private $description;
 	private $uid;
 	private $created;
-	private $withTimezone = false;
-	private $transparent = null;
+	private $transparent;
 	private $attendees = [];
-	private $organizer = null;
-	private $status = null;
+	private $organizer;
+	private $status;
 	private $rrule;
-	private $withTime;
-	private $location = null;
+	private $location;
 	private $modified;
-	private $sequence = 0;
+	private $sequence;
 	private $dtstamp;
 	private $url;
 	private $categories;
 	private $exDate;
-	private $attachments;
+	private $attachments = [];
 
-	public static function getInstance(string $uid): Event
+	/**
+	 * @param string $uid
+	 * @return Event
+	 */
+	public static function createInstance(string $uid): Event
 	{
 		return new self($uid);
 	}
 
+	/**
+	 * Event constructor.
+	 * @param string $uid
+	 */
 	public function __construct(string $uid)
 	{
 		$this->uid = $uid;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getType(): string
 	{
-		return 'VEVENT';
+		return self::COMPONENT_TYPE;
 	}
 
+	/**
+	 * @return string[]
+	 */
 	public function getProperties(): array
 	{
 		return [
@@ -61,149 +65,214 @@ class Event extends BasicComponent implements ParserComponent
 		];
 	}
 
-	public function setStart($start = []): Event
+	/**
+	 * @param ParserPropertyType|null $start
+	 * @return $this
+	 */
+	public function setStart(?ParserPropertyType $start): Event
 	{
-		$this->start = $start['value'];
-
-		if (!$this->isFullDayEvent($start))
-		{
-			$this->withTimezone = true;
-			$this->withTime = true;
-			$this->tzStart = $start['parameter']['tzid'];
-		}
-		else
-		{
-			$this->withTime = false;
-			$this->withTimezone = false;
-		}
+		$this->start = $start;
 
 		return $this;
 	}
 
-	public function setEnd($end = []): Event
+	/**
+	 * @param ParserPropertyType|null $end
+	 * @return $this
+	 */
+	public function setEnd(?ParserPropertyType $end): Event
 	{
-		$this->end = $end['value'];
+		$this->end = $end;
 
-		if (!$this->isFullDayEvent($end))
-		{
-			$this->withTimezone = true;
-			$this->withTime = true;
-			$this->tzEnd = $end['parameter']['tzid'];
-		}
-		else
-		{
-			$this->withTime = false;
-			$this->withTimezone = false;
-		}
 		return $this;
 	}
 
-	public function setDescription($description): Event
+	/**
+	 * @param ParserPropertyType|null $description
+	 * @return $this
+	 */
+	public function setDescription(?ParserPropertyType $description): Event
 	{
-		$this->description = $description['value'];
+		$this->description = $description;
+
 		return $this;
 	}
 
-	public function setSummary($summary): Event
+	/**
+	 * @param ParserPropertyType|null $summary
+	 * @return $this
+	 */
+	public function setSummary(?ParserPropertyType $summary): Event
 	{
-		$this->name = $summary['value'];
+		$this->name = $summary;
+
 		return $this;
 	}
 
-	public function setSequence($sequence): Event
+	/**
+	 * @param ParserPropertyType|null $sequence
+	 * @return $this
+	 */
+	public function setSequence(?ParserPropertyType $sequence): Event
 	{
-		$this->sequence = $sequence['value'];
+		$this->sequence = $sequence;
+
 		return $this;
 	}
 
-	public function setCreated($created): Event
+	/**
+	 * @param ParserPropertyType|null $created
+	 * @return $this
+	 */
+	public function setCreated(?ParserPropertyType $created): Event
 	{
-		$this->created = $created['value'];
+		$this->created = $created;
+
 		return $this;
 	}
 
-	public function setDTStamp($dtstamp): Event
+	/**
+	 * @param ParserPropertyType|null $dtstamp
+	 * @return $this
+	 */
+	public function setDTStamp(?ParserPropertyType $dtstamp): Event
 	{
-		$this->dtstamp = $dtstamp['value'];
+		$this->dtstamp = $dtstamp;
 		return $this;
 	}
 
-	public function setLocation($location): Event
+	/**
+	 * @param ParserPropertyType|null $location
+	 * @return $this
+	 */
+	public function setLocation(?ParserPropertyType $location): Event
 	{
-		$this->location = $location['value'];
+		$this->location = $location;
+
 		return $this;
 	}
 
-	public function setUrl($url = []): Event
+	/**
+	 * @param ParserPropertyType|null $url
+	 * @return $this
+	 */
+	public function setUrl(?ParserPropertyType $url): Event
 	{
-		$this->url = $url['value'];
+		$this->url = $url;
+
 		return $this;
 	}
 
-	public function setRRule($rrule = []): Event
+	/**
+	 * @param ParserPropertyType|null $rrule
+	 * @return $this
+	 */
+	public function setRRule(?ParserPropertyType $rrule): Event
 	{
-		$this->rrule = $rrule['value'];
+		$this->rrule = $rrule;
+
 		return $this;
 	}
 
-	public function setTransparent($transp): Event
+	/**
+	 * @param ParserPropertyType|null $transparent
+	 * @return $this
+	 */
+	public function setTransparent(?ParserPropertyType $transparent): Event
 	{
-		$this->transparent = $transp['value'];
+		$this->transparent = $transparent;
+
 		return $this;
 	}
 
-	public function setCategories($categories): Event
+	/**
+	 * @param ParserPropertyType|null $categories
+	 * @return $this
+	 */
+	public function setCategories(?ParserPropertyType $categories): Event
 	{
-		$this->categories = $categories['value'];
+		$this->categories = $categories;
+
 		return $this;
 	}
 
-	public function setOrganizer($organizer): Event
+	/**
+	 * @param ParserPropertyType|null $organizer
+	 * @return $this
+	 */
+	public function setOrganizer(?ParserPropertyType $organizer): Event
 	{
 		$this->organizer = $organizer;
+
 		return $this;
 	}
 
-	public function setAttendees($attendees): Event
+	/**
+	 * @param ParserPropertyType[]|null $attendees
+	 * @return $this
+	 */
+	public function setAttendees(?array $attendees): Event
 	{
 		$this->attendees = $attendees;
+
 		return $this;
 	}
 
-	public function setModified($modified): Event
+	/**
+	 * @param ParserPropertyType|null $modified
+	 * @return $this
+	 */
+	public function setModified(?ParserPropertyType $modified): Event
 	{
-		$this->modified = $modified['value'];
+		$this->modified = $modified;
+
 		return $this;
 	}
 
-	public function setExDate($exDate): Event
+	/**
+	 * @param ParserPropertyType|null $exDate
+	 * @return $this
+	 */
+	public function setExDate(?ParserPropertyType $exDate): Event
 	{
-		$this->exDate = $exDate['value'];
+		$this->exDate = $exDate;
+
 		return $this;
 	}
 
-	public function setStatus($status): Event
+	/**
+	 * @param ParserPropertyType|null $status
+	 * @return $this
+	 */
+	public function setStatus(?ParserPropertyType $status): Event
 	{
-		$this->status = is_array($status) ? $status['value'] : $status;
+		$this->status = $status;
 
 		return $this;
 	}
 
-	public function setAttachment($attachments): Event
+	/**
+	 * @param ParserPropertyType[]|null $attachments
+	 * @return $this
+	 */
+	public function setAttachment(?array $attachments): Event
 	{
 		$this->attachments = $attachments;
+
 		return $this;
 	}
 
-	public function setSubComponents($subComponents): Event
+	/**
+	 * @param iterable|null $subComponents
+	 * @return $this
+	 */
+	public function setSubComponents(?iterable $subComponents): Event
 	{
-		if (!empty($subComponents))
+		if (!is_null($subComponents))
 		{
-			foreach($subComponents as $subComponent)
+			foreach ($subComponents as $subComponent)
 			{
-				if (($subComponent instanceof BasicComponent)
-					&& $subComponent->getType() === 'alert'
-				)
+				if ($subComponent->getType() === 'alert')
 				{
 					$this->alerts[] = $subComponent;
 				}
@@ -213,239 +282,168 @@ class Event extends BasicComponent implements ParserComponent
 		return $this;
 	}
 
-	public function getContent(): array
+	/**
+	 * @return $this
+	 */
+	public function getContent(): Event
 	{
-		$event = [];
-		$event['DATE_FROM'] = $this->getStart();
-		$event['DATE_TO'] = $this->getEnd();
-		$event['TZ_FROM'] = $this->getTzFrom();
-		$event['TZ_TO'] = $this->getTzTo();
-		$event['DESCRIPTION'] = $this->getDescription();
-		$event['NAME'] = $this->getName();
-		$event['SKIP_TIME'] = $this->hasSkipDay();
-		$event['DATE_CREATE'] = $this->getCreated();
-		$event['TIMESTAMP_X'] = $this->getModified();
-		$event['STATUS'] = $this->getStatus();
-		$event['IMPORTANCE'] = $this->getImportance();
-		$event['LOCATION'] = $this->getLocation();
-		$event['TEXT_LOCATION'] = $this->getLocation();
-		$event['REMIND'] = $this->getAlert();
-		$event['RRULE'] = $this->getRRule();
-		$event['EXDATE'] = $this->getExDate();
-		$event['DAV_XML_ID'] = $this->getUid();
-		$event['ATTENDEES_MAIL'] = $this->getAttendees();
-		$event['ORGANIZER_MAIL'] = $this->getOrganizer();
-		$event['DAV_XML_ID'] = $this->getUid();
-		$event['VERSION'] = $this->getVersion();
-		$event['DT_STAMP'] = $this->getDtStamp();
-		$event['URL'] = $this->getUrl();
-		$event['ACCESSIBILITY'] = $this->getTransparent();
-		$event['ATTACHMENT_LINK'] = $this->getAttachmentLink();
-
-		return $event;
+		return $this;
 	}
 
-	public function getStart(): Date
+	/**
+	 * @return ParserPropertyType|null
+	 */
+	public function getStart(): ?ParserPropertyType
 	{
-		if (($this->withTimezone && Util::isTimezoneValid($this->tzStart)) || $this->withTime)
-		{
-			return ICalUtil::getIcalDateTime($this->start, $this->tzStart);
-		}
-
-		return ICalUtil::getIcalDate($this->start);
+		return $this->start;
 	}
 
-	public function getEnd(): Date
+	/**
+	 * @return ParserPropertyType|null
+	 */
+	public function getEnd(): ?ParserPropertyType
 	{
-		if (($this->withTimezone && Util::isTimezoneValid($this->tzEnd)) || $this->withTime)
-		{
-			return ICalUtil::getIcalDateTime($this->end, $this->tzEnd);
-		}
-
-		return ICalUtil::getIcalDate($this->end)->add('-1 day');
+		return $this->end;
 	}
 
-	public function getTzFrom(): \DateTimeZone
-	{
-		return Util::isTimezoneValid($this->tzStart) ? Util::prepareTimezone($this->tzStart) : Util::prepareTimezone();
-	}
-
-	public function getTzTo(): \DateTimeZone
-	{
-		return Util::isTimezoneValid($this->tzEnd) ? Util::prepareTimezone($this->tzEnd) : Util::prepareTimezone();
-	}
-
-	public function getDescription(): ?string
+	/**
+	 * @return ParserPropertyType|null
+	 */
+	public function getDescription(): ?ParserPropertyType
 	{
 		return $this->description;
 	}
 
-	public function getName(): ?string
+	/**
+	 * @return ParserPropertyType|null
+	 */
+	public function getName(): ?ParserPropertyType
 	{
 		return $this->name;
 	}
 
-	public function hasSkipDay(): ?bool
-	{
-		return !$this->withTime;
-	}
-
+	/**
+	 * @return string|null
+	 */
 	public function getUid(): ?string
 	{
 		return $this->uid;
 	}
 
-	public function getCreated(): DateTime
+	/**
+	 * @return ParserPropertyType|null
+	 */
+	public function getCreated(): ?ParserPropertyType
 	{
-		return ICalUtil::getIcalDateTime($this->created);
+		return $this->created;
 	}
 
-	public function getModified(): DateTime
+	/**
+	 * @return ParserPropertyType|null
+	 */
+	public function getModified(): ?ParserPropertyType
 	{
-		return ICalUtil::getIcalDateTime($this->modified);
+		return $this->modified;
 	}
 
-	public function getStatus(): ?string
+	/**
+	 * @return ParserPropertyType|null
+	 */
+	public function getStatus(): ?ParserPropertyType
 	{
 		return $this->status;
 	}
 
-	public function getImportance()
+	/**
+	 * @return ParserPropertyType|null
+	 */
+	public function getLocation(): ?ParserPropertyType
 	{
-		return;
+		return $this->location;
 	}
 
-	public function getLocation(): ?string
+	/**
+	 * @return ParserComponent[]
+	 */
+	public function getAlert(): array
 	{
-		return is_string($this->location) ? $this->location : null;
+		return $this->alerts;
 	}
 
-	public function getAlert()
+	/**
+	 * @return ParserPropertyType|null
+	 */
+	public function getRRule(): ?ParserPropertyType
 	{
+		return $this->rrule;
 	}
 
-	public function getRRule(): array
-	{
-		$params = [];
-		$parts = explode(';', $this->rrule);
-
-		if (!empty($parts))
-		{
-			foreach ($parts as $part)
-			{
-				list($k, $v) = explode('=', $part);
-
-				if ($k === 'UNTIL')
-				{
-					$v = ICalUtil::getIcalDateTime($v);
-				}
-
-				$params[$k] = $v;
-			}
-		}
-
-		return $params;
-	}
-
-	public function getExDate()
+	/**
+	 * @return ParserPropertyType|null
+	 */
+	public function getExDate(): ?ParserPropertyType
 	{
 		return $this->exDate;
 	}
 
-	public function getTransparent(): ?string
+	/**
+	 * @return ParserPropertyType|null
+	 */
+	public function getTransparent(): ?ParserPropertyType
 	{
 		return $this->transparent;
 	}
 
-	public function getOrganizer(): ?array
+	/**
+	 * @return ParserPropertyType|null
+	 */
+	public function getOrganizer(): ?ParserPropertyType
 	{
-		$organizer['MAILTO'] = (explode(':', $this->organizer['value']))[1];
-		$organizer['EMAIL'] = $this->organizer['parameter']['email'] ?? $organizer['MAILTO'];
-		$name = explode(" ", trim($this->organizer['parameter']['cn'], '"'), 2);
-		$organizer['NAME'] = $name[0];
-		$organizer['LAST_NAME'] = $name[1] ?? '';
-		return $organizer;
+		return $this->organizer;
 	}
 
+	/**
+	 * @return ParserPropertyType[]|null
+	 */
 	public function getAttendees(): ?array
 	{
-		$participants = [];
-		$attendees = $this->attendees;
-
-		if (!empty($attendees))
-		{
-			foreach($attendees as $attendee)
-			{
-				$participant['MAILTO'] = (explode(':', $attendee['value']))[1];
-				$participant['EMAIL'] = $attendee['parameter']['email'] ?? $participant['MAILTO'];
-				$name = explode(" ", trim($attendee['parameter']['cn'], '"'), 2);
-				if (empty($name[0]))
-				{
-					$participant['NAME'] = $participant['EMAIL'];
-				}
-				else
-				{
-					$participant['NAME'] = $name[0];
-					$participant['LAST_NAME'] = $name[1] ?? '';
-				}
-				$participant['STATUS'] = $attendee['parameter']['partstat'];
-				$participant['ROLE'] = $attendee['parameter']['role'];
-				$participant['CUTYPE'] = $attendee['parameter']['cutype'];
-
-				$participants[] = $participant;
-				unset($participant);
-			}
-		}
-
-		return $participants;
+		return $this->attendees;
 	}
 
-	public function getDtStamp(): DateTime
+	public function getDtStamp(): ?ParserPropertyType
 	{
-		return ICalUtil::getIcalDateTime($this->dtstamp);
+		return $this->dtstamp;
 	}
 
-	public function getUrl(): ?string
+	/**
+	 * @return ParserPropertyType|null
+	 */
+	public function getUrl(): ?ParserPropertyType
 	{
 		return $this->url;
 	}
 
-	public function getCategories(): ?string
+	/**
+	 * @return ParserPropertyType|null
+	 */
+	public function getCategories(): ?ParserPropertyType
 	{
 		return $this->categories;
 	}
 
-	public function getVersion()
+	/**
+	 * @return ParserPropertyType|null
+	 */
+	public function getSequence(): ?ParserPropertyType
 	{
 		return $this->sequence;
 	}
 
-	public function getAttachmentLink(): array
+	/**
+	 * @return array
+	 */
+	public function getAttachments(): ?array
 	{
-		$attachmentsLinks = [];
-		if (!empty($this->attachments))
-		{
-			foreach($this->attachments as $attachment)
-			{
-				$attachmentsLinks[] = [
-					'filename' => $attachment['parameter']['filename'],
-					'link' => $attachment['value'],
-				];
-			}
-		}
-
-		return $attachmentsLinks;
-	}
-
-	private function isFullDayEvent(array $dateTime = null): bool
-	{
-		if (!empty($dateTime)
-			&& (!empty($dateTime['parameter']['tzid'])
-			|| $dateTime['parameter']['value'] !== 'DATE'))
-		{
-			return false;
-		}
-
-		return true;
+		return $this->attachments;
 	}
 }

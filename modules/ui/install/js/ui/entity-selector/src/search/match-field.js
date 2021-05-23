@@ -1,25 +1,25 @@
 import { Type } from 'main.core';
-import ItemCollection from '../item/item-collection';
 
 import type SearchField from './search-field';
-import type MatchIndex from './match-index';
+import MatchIndex from './match-index';
+import { OrderedArray } from 'main.core.collections';
 
 const comparator = (a: MatchIndex, b: MatchIndex) => {
 
 	if (a.getStartIndex() === b.getStartIndex())
 	{
-		return a.getEndIndex() > b.getEndIndex() ? 1 : -1;
+		return a.getEndIndex() > b.getEndIndex() ? -1 : 1;
 	}
 	else
 	{
-		return a.getStartIndex() > b.getStartIndex() ? -1 : 1;
+		return a.getStartIndex() > b.getStartIndex() ? 1 : -1;
 	}
 };
 
 export default class MatchField
 {
 	field: SearchField = null;
-	matchIndexes: ItemCollection<MatchIndex> = new ItemCollection(comparator);
+	matchIndexes: OrderedArray<MatchIndex> = new OrderedArray(comparator);
 
 	constructor(field: SearchField, indexes: MatchIndex[] = [])
 	{
@@ -27,22 +27,22 @@ export default class MatchField
 		this.addIndexes(indexes);
 	}
 
-	getField()
+	getField(): SearchField
 	{
 		return this.field;
 	}
 
-	getMatches()
+	getMatches(): OrderedArray<MatchIndex>
 	{
 		return this.matchIndexes;
 	}
 
-	addIndex(matchIndex: MatchIndex)
+	addIndex(matchIndex: MatchIndex): void
 	{
 		this.matchIndexes.add(matchIndex);
 	}
 
-	addIndexes(matchIndexes: MatchIndex[])
+	addIndexes(matchIndexes: MatchIndex[]): void
 	{
 		if (Type.isArray(matchIndexes))
 		{

@@ -185,13 +185,15 @@ class CCalendar
 
 		foreach(self::$arTypes as $type)
 		{
-			if(self::$type == $type['XML_ID'])
+			if(self::$type === $type['XML_ID'])
+			{
 				$arType = $type;
+			}
 		}
 
 		if (!$arType)
 		{
-			$APPLICATION->ThrowException('[EC_WRONG_TYPE] '.Loc::getMessage('EC_WRONG_TYPE'));
+			$APPLICATION->ThrowException('[EC_WRONG_TYPE] '.Loc::getMessage('EC_WRONG_TYPE'), 'calendar_wrong_type');
 			return false;
 		}
 
@@ -206,7 +208,7 @@ class CCalendar
 		//Show new event dialog
 		if (isset($_GET['EVENT_ID']))
 		{
-			if ($_GET['EVENT_ID'] == 'NEW')
+			if ($_GET['EVENT_ID'] === 'NEW')
 			{
 				$showNewEventDialog = true;
 			}
@@ -464,7 +466,7 @@ class CCalendar
 
 		$readOnly = !self::$perm['edit'] && !self::$perm['section_edit'];
 
-		if (self::$type == 'user' && self::$ownerId != self::$userId)
+		if (self::$type === 'user' && self::$ownerId != self::$userId)
 			$readOnly = true;
 
 		if (self::$bAnonym)
@@ -472,11 +474,11 @@ class CCalendar
 
 		$bCreateDefault = !self::$bAnonym;
 
-		if (self::$type == 'user')
+		if (self::$type === 'user')
 			$bCreateDefault = self::$ownerId == self::$userId;
 
 		$additonalMeetingsId = [];
-		$groupOrUser = self::$type == 'user' || self::$type == 'group';
+		$groupOrUser = self::$type === 'user' || self::$type === 'group';
 		if ($groupOrUser)
 		{
 			$noEditAccessedCalendars = true;
@@ -487,9 +489,9 @@ class CCalendar
 
 		foreach ($sections as $i => $section)
 		{
-			$sections[$i]['~IS_MEETING_FOR_OWNER'] = $section['CAL_TYPE'] == 'user' && $section['OWNER_ID'] != self::$userId && CCalendar::GetMeetingSection($section['OWNER_ID']) == $section['ID'];
+			$sections[$i]['~IS_MEETING_FOR_OWNER'] = $section['CAL_TYPE'] === 'user' && $section['OWNER_ID'] !== self::$userId && CCalendar::GetMeetingSection($section['OWNER_ID']) === $section['ID'];
 
-			if (!in_array($section['ID'], $hiddenSections) && $section['ACTIVE'] !== 'N')
+			if (!in_array($section['ID'], $hiddenSections, true) && $section['ACTIVE'] !== 'N')
 			{
 				$arSectionIds[] = $section['ID'];
 				// It's superposed calendar of the other user and it's need to show user's meetings
@@ -519,13 +521,13 @@ class CCalendar
 			if ($sections[$i]['SUPERPOSED'])
 			{
 				$type = $sections[$i]['CAL_TYPE'];
-				if ($type == 'user')
+				if ($type === 'user')
 				{
 					$path = self::$pathesForSite['path_to_user_calendar'];
 					$path = CComponentEngine::MakePathFromTemplate($path, array("user_id" => $sections[$i]['OWNER_ID']));
 					$trackingUsers[] = $sections[$i]['OWNER_ID'];
 				}
-				elseif($type == 'group')
+				elseif($type === 'group')
 				{
 					$path = self::$pathesForSite['path_to_group_calendar'];
 					$path = CComponentEngine::MakePathFromTemplate($path, array("group_id" => $sections[$i]['OWNER_ID']));
@@ -546,7 +548,7 @@ class CCalendar
 		if (!$readOnly && $showNewEventDialog)
 		{
 			$JSConfig['showNewEventDialog'] = true;
-			$JSConfig['bChooseMR'] = isset($_GET['CHOOSE_MR']) && $_GET['CHOOSE_MR'] == "Y";
+			$JSConfig['bChooseMR'] = isset($_GET['CHOOSE_MR']) && $_GET['CHOOSE_MR'] === "Y";
 		}
 
 		if (!in_array($JSConfig['lastSection'], $arSectionIds))
@@ -605,7 +607,7 @@ class CCalendar
 		$JSConfig['additonalMeetingsId'] = $additonalMeetingsId;
 
 		$selectedUserCodes = array('U'.self::$userId);
-		if (self::$type == 'user')
+		if (self::$type === 'user')
 		{
 			$selectedUserCodes[] = 'U'.self::$ownerId;
 		}
@@ -701,7 +703,7 @@ class CCalendar
 	{
 		global $CACHE_MANAGER;
 
-		$id = intval($id);
+		$id = (int)$id;
 		if (!$id)
 		{
 			return false;
@@ -786,11 +788,11 @@ class CCalendar
 				}
 			}
 
-			if($params['recursionMode'] == 'all')
+			if($params['recursionMode'] === 'all')
 			{
 				foreach($event['ATTENDEE_LIST'] as $attendee)
 				{
-					if ($attendee['status'] != 'N')
+					if ($attendee['status'] !== 'N')
 					{
 						$CACHE_MANAGER->ClearByTag('calendar_user_'.$attendee["id"]);
 						CCalendarNotify::Send(array(
@@ -1434,7 +1436,7 @@ class CCalendar
 		$TASK_ID = '1_tasks';
 
 		self::SetSilentErrorMode();
-		list($sectionId, $entityType, $entityId) = $calendarId;
+		[$sectionId, $entityType, $entityId] = $calendarId;
 
 		if ($sectionId !== $TASK_ID)
 		{
@@ -1492,7 +1494,7 @@ class CCalendar
 
 	public static function GetDavCalendarEventsList($calendarId, $arFilter = [])
 	{
-		list($sectionId, $entityType, $entityId) = $calendarId;
+		[$sectionId, $entityType, $entityId] = $calendarId;
 
 		CCalendar::SetOffset(false, 0);
 		$arFilter1 = array(
@@ -1631,7 +1633,7 @@ class CCalendar
 
 	public static function GetUserPermissionsForCalendar($calendarId, $userId)
 	{
-		list($sectionId, $entityType, $entityId) = $calendarId;
+		[$sectionId, $entityType, $entityId] = $calendarId;
 		$entityType = mb_strtolower($entityType);
 
 		if ($sectionId == 0)
@@ -1992,7 +1994,8 @@ class CCalendar
 			$sectionId = false;
 			if ($arFields['CAL_TYPE'] == 'user')
 			{
-				$sectionId = CCalendarSect::GetLastUsedSection('user', $arFields['OWNER_ID'], $userId);
+				$sectionId = CCalendar::GetMeetingSection($arFields['OWNER_ID'], true);
+				//$sectionId = CCalendarSect::GetLastUsedSection('user', $arFields['OWNER_ID'], $userId);
 				if ($sectionId)
 				{
 					$res = CCalendarSect::GetList(
@@ -2198,6 +2201,10 @@ class CCalendar
 				}
 
 				$eventMod = $curEvent;
+				if (!isset($eventMod['~DATE_FROM']))
+				{
+					$eventMod['~DATE_FROM'] = $eventMod['DATE_FROM'];
+				}
 				$eventMod['DATE_FROM'] = $newParams['currentEventDateFrom'];
 				$commentXmlId = CCalendarEvent::GetEventCommentXmlId($eventMod);
 				$newParams['arFields']['RELATIONS'] = array('COMMENT_XML_ID' => $commentXmlId);
@@ -2748,7 +2755,7 @@ class CCalendar
 		//	)
 		//)
 
-		list($sectionId, $entityType, $entityId) = $calendarId;
+		[$sectionId, $entityType, $entityId] = $calendarId;
 		$entityType = mb_strtolower($entityType);
 
 		if ($connectionType == 'exchange')
@@ -2857,14 +2864,14 @@ class CCalendar
 			'changekey' => $event['DAV_EXCH_LABEL']
 		];
 
-		list ( , $changeKey) = $exchange->FindInstance($params);
+		[ , $changeKey] = $exchange->FindInstance($params);
 
 		return $changeKey;
 	}
 
 	public static function DeleteCalendarEvent($calendarId, $eventId, $userId, $oEvent = false)
 	{
-		list($sectionId, $entityType, $entityId) = $calendarId;
+		[$sectionId, $entityType, $entityId] = $calendarId;
 		$res = CCalendarEvent::Delete(array(
 			'id' => $eventId,
 			'userId' => $userId,
@@ -3411,68 +3418,43 @@ class CCalendar
 		return false;
 	}
 
-	public static function RemoveConnection($connection = [])
+	public static function RemoveConnection(array $params = [])
 	{
 		if (Loader::includeModule('dav'))
 		{
-			// Clean sections
-			$res = \CCalendarSect::GetList(array('arFilter' => array('CAL_TYPE' => 'user', 'OWNER_ID' => self::$ownerId, 'CAL_DAV_CON' => $connection['id'])));
-
-			$pushChannelResult = PushTable::getList(array(
-				'select' => array('*'),
-				'filter' => array('ENTITY_TYPE' => 'CONNECTION', 'ENTITY_ID' => $connection['id'])
-			));
-			if ($row = $pushChannelResult->fetch())
+			$sections = self::getSectionsByConnectionId($params['id']);
+			if (($connection = (\CDavConnection::GetList(["ID" => "ASC"], ["ID" => $params['id']]))->Fetch())
+				&& is_array($connection)
+				&& \Bitrix\Calendar\Util::isGoogleConnection($connection['ACCOUNT_TYPE']))
 			{
-				\Bitrix\Calendar\Sync\GoogleApiPush::stopChannel($row, $connection['ENTITY_ID']);
+				self::stopGoogleConnectionChannels($params['id']);
+				if(is_array($sections))
+				{
+					$params['del_calendars']
+						? self::deleteGoogleConnectionSections($sections)
+						: self::editGoogleConnectionsSections($sections);
+				}
+				self::removeGoogleAuthToken($connection);
 			}
-
-			foreach ($res as $sect)
+			else
 			{
-				if ($connection['del_calendars'] == 'Y' && $sect['IS_LOCAL'] !== 'Y') // Delete all callendars from this connection
+				if (is_array($sections))
 				{
-					$pushChannelResult = PushTable::getList(array(
-						'select' => array('*'),
-						'filter' => array('ENTITY_TYPE' => 'SECTION', 'ENTITY_ID' => $sect['ID'])
-					));
-					if ($row = $pushChannelResult->fetch())
+					foreach ($sections as $section)
 					{
-						\Bitrix\Calendar\Sync\GoogleApiPush::stopChannel($row, $sect['OWNER_ID']);
-					}
-					CCalendarSect::Delete($sect['ID'], false);
-				}
-				else
-					CCalendarSect::Edit(array('arFields' => array("ID" => $sect['ID'], "CAL_DAV_CON" => '', 'CAL_DAV_CAL' => '', 'CAL_DAV_MOD' => '')));
-			}
-
-			// Delete Google oauth token if it's google oauth caldav connection
-			$resCon = \CDavConnection::GetList(array("ID" => "ASC"), array("ID" => $connection['id']));
-			if ($arCon = $resCon->Fetch())
-			{
-				$googleCalDavStatus = \CCalendarSync::GetGoogleCalendarConnection();
-				if ($googleCalDavStatus['googleCalendarPrimaryId'] && $arCon['ACCOUNT_TYPE'] == 'caldav_google_oauth')
-				{
-					$serverPath = 'https://apidata.googleusercontent.com/caldav/v2/' . $googleCalDavStatus['googleCalendarPrimaryId'] . '/user';
-				}
-				elseif ($googleCalDavStatus['googleCalendarPrimaryId'] && $arCon['ACCOUNT_TYPE'] == 'google_api_oauth')
-				{
-					$serverPath = 'https://www.googleapis.com/calendar/v3';
-				}
-
-				if ($arCon['SERVER'] == $serverPath)
-				{
-					if (Loader::includeModule('socialservices'))
-					{
-						$client = new CSocServGoogleOAuth(CCalendar::GetCurUserId());
-						$client->getEntityOAuth()->addScope(array('https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/calendar.readonly'));
-
-						// Delete stored tokens
-						$client->getEntityOAuth()->deleteStorageTokens();
+						if ($params['del_calendars'] === 'Y' /*&& $section['IS_LOCAL'] !== 'Y'*/)
+						{
+							CCalendarSect::Delete($section['ID'], false);
+						}
+						else
+						{
+							self::markSectionLikeDelete($section['ID']);
+						}
 					}
 				}
 			}
-			// Delete dav connections
-			\CDavConnection::Delete($connection['id']);
+
+			\CDavConnection::Delete($params['id']);
 		}
 	}
 
@@ -3896,7 +3878,7 @@ class CCalendar
 		$calendarId = $event->getParameter('id');
 		$userAgent = mb_strtolower($event->getParameter('agent'));
 		$agent = false;
-		list($sectionId, $entityType, $entityId) = $calendarId;
+		[$sectionId, $entityType, $entityId] = $calendarId;
 
 		static $arAgentsMap = array(
 				'android' => 'android', // Android/iOS CardDavBitrix24
@@ -4125,7 +4107,7 @@ class CCalendar
 			'rm_iblock_type' => COption::GetOptionString('calendar', 'rm_iblock_type', ""),
 			'rm_iblock_id' => COption::GetOptionString('calendar', 'rm_iblock_id', "", $siteIdForResMeet, !!$siteIdForResMeet),
 			'dep_manager_sub' => COption::GetOptionString('calendar', 'dep_manager_sub', true),
-			'denied_superpose_types' => unserialize(COption::GetOptionString('calendar', 'denied_superpose_types', serialize([]))),
+			'denied_superpose_types' => unserialize(COption::GetOptionString('calendar', 'denied_superpose_types', serialize([])), ['allowed_classes' => false]),
 			'pathes_for_sites' => $pathes_for_sites,
 			'pathes' => $pathes,
 			'forum_id' => COption::GetOptionString('calendar', 'forum_id', ""),
@@ -4170,7 +4152,7 @@ class CCalendar
 			$arAffectedSites = COption::GetOptionString('calendar', 'pathes_sites', false);
 
 			if ($arAffectedSites != false && CheckSerializedData($arAffectedSites))
-				$arAffectedSites = unserialize($arAffectedSites);
+				$arAffectedSites = unserialize($arAffectedSites, ['allowed_classes' => false]);
 		}
 		else
 		{
@@ -4187,7 +4169,7 @@ class CCalendar
 				$ar = COption::GetOptionString("calendar", 'pathes_'.$s, false);
 				if ($ar != false && CheckSerializedData($ar))
 				{
-					$ar = unserialize($ar);
+					$ar = unserialize($ar, ['allowed_classes' => false]);
 					if(is_array($ar))
 						$pathes[$s] = $ar;
 				}
@@ -4345,7 +4327,7 @@ class CCalendar
 				$type = self::$type;
 			if (!empty($type))
 			{
-				if ($type == 'user')
+				if ($type === 'user')
 				{
 					$path = COption::GetOptionString(
 						'calendar',
@@ -4353,7 +4335,7 @@ class CCalendar
 						COption::getOptionString('socialnetwork', 'user_page', "/company/personal/")."user/#user_id#/calendar/"
 					);
 				}
-				elseif($type == 'group')
+				elseif($type === 'group')
 				{
 					$path = COption::GetOptionString(
 						'calendar',
@@ -5448,133 +5430,170 @@ class CCalendar
 	public static function getTaskList($params = [])
 	{
 		$res = [];
-
-		$arFilter = array(
-			'!STATUS' => array(
-				CTasks::STATE_DEFERRED,
-			),
-			'CHECK_PERMISSIONS' => 'Y'
-		);
-
-		if (self::$userSettings['showCompletedTasks'] == 'N')
+		if (Loader::includeModule('tasks'))
 		{
-			$arFilter['!STATUS'][] = CTasks::STATE_COMPLETED;
-		}
+			$arFilter = [
+				'!STATUS' => [
+					CTasks::STATE_DEFERRED,
+				],
+				'CHECK_PERMISSIONS' => 'Y'
+			];
 
-		if ($params['type'] == 'user')
-		{
-			$arFilter['DOER'] = $params['ownerId'];
-		}
-		elseif ($params['type'] == 'group')
-		{
-			$arFilter['GROUP_ID'] = $params['ownerId'];
-		}
-
-		$tzEnabled = CTimeZone::Enabled();
-		if($tzEnabled)
-			CTimeZone::Disable();
-
-		$mgrResult = \Bitrix\Tasks\Manager\Task::getList(
-			\Bitrix\Tasks\Util\User::getId(),
-			array(
-				'order' => array("START_DATE_PLAN" => "ASC"),
-				'select' => array("ID", "TITLE", "DESCRIPTION", "CREATED_DATE", "DEADLINE", "START_DATE_PLAN", "END_DATE_PLAN", "DATE_START", "CLOSED_DATE", "STATUS_CHANGED_DATE", "STATUS", "REAL_STATUS"),
-				'legacyFilter' => $arFilter,
-			),
-			[]
-		);
-
-		$offset = CCalendar::GetOffset();
-		foreach ($mgrResult['DATA'] as $task)
-		{
-			$dtFrom = NULL;
-			$dtTo = NULL;
-
-			$skipFromOffset = false;
-			$skipToOffset = false;
-
-			if(isset($task["START_DATE_PLAN"]) && $task["START_DATE_PLAN"])
-				$dtFrom = CCalendar::CutZeroTime($task["START_DATE_PLAN"]);
-
-			if(isset($task["END_DATE_PLAN"]) && $task["END_DATE_PLAN"])
-				$dtTo = CCalendar::CutZeroTime($task["END_DATE_PLAN"]);
-
-			if(!isset($dtFrom) && isset($task["DATE_START"]))
+			if (self::$userSettings['showCompletedTasks'] == 'N')
 			{
-				$dtFrom = CCalendar::CutZeroTime($task["DATE_START"]);
+				$arFilter['!STATUS'][] = CTasks::STATE_COMPLETED;
 			}
 
-			if(!isset($dtTo) && isset($task["CLOSED_DATE"]))
-				$dtTo = CCalendar::CutZeroTime($task["CLOSED_DATE"]);
-
-			//Task statuses: 1 - New, 2 - Pending, 3 - In Progress, 4 - Supposedly completed, 5 - Completed, 6 - Deferred, 7 - Declined
-			if(!isset($dtTo) && isset($task["STATUS_CHANGED_DATE"]) && in_array($task["REAL_STATUS"], array('4', '5', '6', '7')))
-				$dtTo = CCalendar::CutZeroTime($task["STATUS_CHANGED_DATE"]);
-
-			if(isset($dtTo))
+			if ($params['type'] == 'user')
 			{
-				$ts = CCalendar::Timestamp($dtTo); // Correction display logic for harmony with Tasks interfaces
-				if(date("H:i", $ts) == '00:00')
-					$dtTo = CCalendar::Date($ts - 24 * 60 * 60);
+				$arFilter['DOER'] = $params['ownerId'];
 			}
-			elseif(isset($task["DEADLINE"]))
+			elseif ($params['type'] == 'group')
 			{
-				$dtTo = CCalendar::CutZeroTime($task["DEADLINE"]);
-				$ts = CCalendar::Timestamp($dtTo); // Correction display logic for harmony with Tasks interfaces
-				if(date("H:i", $ts) == '00:00')
-					$dtTo = CCalendar::Date($ts - 24 * 60 * 60);
+				$arFilter['GROUP_ID'] = $params['ownerId'];
+			}
 
-				if(!isset($dtFrom))
+			$tzEnabled = CTimeZone::Enabled();
+			if ($tzEnabled)
+			{
+				CTimeZone::Disable();
+			}
+
+			$mgrResult = \Bitrix\Tasks\Manager\Task::getList(
+				\Bitrix\Tasks\Util\User::getId(),
+				[
+					'order' => ["START_DATE_PLAN" => "ASC"],
+					'select' => [
+						"ID",
+						"TITLE",
+						"DESCRIPTION",
+						"CREATED_DATE",
+						"DEADLINE",
+						"START_DATE_PLAN",
+						"END_DATE_PLAN",
+						"DATE_START",
+						"CLOSED_DATE",
+						"STATUS_CHANGED_DATE",
+						"STATUS",
+						"REAL_STATUS"
+					],
+					'legacyFilter' => $arFilter,
+				],
+				[]
+			);
+
+			$offset = CCalendar::GetOffset();
+			foreach ($mgrResult['DATA'] as $task)
+			{
+				$dtFrom = null;
+				$dtTo = null;
+
+				$skipFromOffset = false;
+				$skipToOffset = false;
+
+				if (isset($task["START_DATE_PLAN"]) && $task["START_DATE_PLAN"])
 				{
-					$skipFromOffset = true;
-					$dtFrom = CCalendar::Date(time(), false);
-				}
-			}
-
-			if(!isset($dtTo))
-				$dtTo = CCalendar::Date(time(), false);
-
-			if(!isset($dtFrom))
-				$dtFrom = $dtTo;
-
-			$dtFromTS = CCalendar::Timestamp($dtFrom);
-			$dtToTS = CCalendar::Timestamp($dtTo);
-
-			if($dtToTS < $dtFromTS)
-			{
-				$dtToTS = $dtFromTS;
-				$dtTo = CCalendar::Date($dtToTS, true);
-			}
-
-			$skipTime = date("H:i", $dtFromTS) == '00:00' && date("H:i", $dtToTS) == '00:00';
-			if(!$skipTime && $offset != 0)
-			{
-				if(!$skipFromOffset)
-				{
-					$dtFromTS += $offset;
-					$dtFrom = CCalendar::Date($dtFromTS, true);
+					$dtFrom = CCalendar::CutZeroTime($task["START_DATE_PLAN"]);
 				}
 
-				if(!$skipToOffset)
+				if (isset($task["END_DATE_PLAN"]) && $task["END_DATE_PLAN"])
 				{
-					$dtToTS += $offset;
+					$dtTo = CCalendar::CutZeroTime($task["END_DATE_PLAN"]);
+				}
+
+				if (!isset($dtFrom) && isset($task["DATE_START"]))
+				{
+					$dtFrom = CCalendar::CutZeroTime($task["DATE_START"]);
+				}
+
+				if (!isset($dtTo) && isset($task["CLOSED_DATE"]))
+				{
+					$dtTo = CCalendar::CutZeroTime($task["CLOSED_DATE"]);
+				}
+
+				//Task statuses: 1 - New, 2 - Pending, 3 - In Progress, 4 - Supposedly completed, 5 - Completed, 6 - Deferred, 7 - Declined
+				if (!isset($dtTo) &&
+					isset($task["STATUS_CHANGED_DATE"]) &&
+					in_array($task["REAL_STATUS"], ['4', '5', '6', '7']))
+				{
+					$dtTo = CCalendar::CutZeroTime($task["STATUS_CHANGED_DATE"]);
+				}
+
+				if (isset($dtTo))
+				{
+					$ts = CCalendar::Timestamp($dtTo); // Correction display logic for harmony with Tasks interfaces
+					if (date("H:i", $ts) == '00:00')
+					{
+						$dtTo = CCalendar::Date($ts - 24 * 60 * 60);
+					}
+				}
+				elseif (isset($task["DEADLINE"]))
+				{
+					$dtTo = CCalendar::CutZeroTime($task["DEADLINE"]);
+					$ts = CCalendar::Timestamp($dtTo); // Correction display logic for harmony with Tasks interfaces
+					if (date("H:i", $ts) == '00:00')
+					{
+						$dtTo = CCalendar::Date($ts - 24 * 60 * 60);
+					}
+
+					if (!isset($dtFrom))
+					{
+						$skipFromOffset = true;
+						$dtFrom = CCalendar::Date(time(), false);
+					}
+				}
+
+				if (!isset($dtTo))
+				{
+					$dtTo = CCalendar::Date(time(), false);
+				}
+
+				if (!isset($dtFrom))
+				{
+					$dtFrom = $dtTo;
+				}
+
+				$dtFromTS = CCalendar::Timestamp($dtFrom);
+				$dtToTS = CCalendar::Timestamp($dtTo);
+
+				if ($dtToTS < $dtFromTS)
+				{
+					$dtToTS = $dtFromTS;
 					$dtTo = CCalendar::Date($dtToTS, true);
 				}
+
+				$skipTime = date("H:i", $dtFromTS) == '00:00' && date("H:i", $dtToTS) == '00:00';
+				if (!$skipTime && $offset != 0)
+				{
+					if (!$skipFromOffset)
+					{
+						$dtFromTS += $offset;
+						$dtFrom = CCalendar::Date($dtFromTS, true);
+					}
+
+					if (!$skipToOffset)
+					{
+						$dtToTS += $offset;
+						$dtTo = CCalendar::Date($dtToTS, true);
+					}
+				}
+
+				$res[] = [
+					"ID" => $task["ID"],
+					"~TYPE" => "tasks",
+					"NAME" => $task["TITLE"],
+					"DATE_FROM" => $dtFrom,
+					"DATE_TO" => $dtTo,
+					"DT_SKIP_TIME" => $skipTime ? 'Y' : 'N',
+					"CAN_EDIT" => CTasks::CanCurrentUserEdit($task)
+				];
 			}
 
-			$res[] = array(
-				"ID" => $task["ID"],
-				"~TYPE" => "tasks",
-				"NAME" => $task["TITLE"],
-				"DATE_FROM" => $dtFrom,
-				"DATE_TO" => $dtTo,
-				"DT_SKIP_TIME" => $skipTime ? 'Y' : 'N',
-				"CAN_EDIT" => CTasks::CanCurrentUserEdit($task)
-			);
+			if ($tzEnabled)
+			{
+				CTimeZone::Enable();
+			}
 		}
-
-		if($tzEnabled)
-			CTimeZone::Enable();
 
 		return $res;
 	}
@@ -5676,6 +5695,124 @@ class CCalendar
 	public static function setOwnerId($userId)
 	{
 		self::$ownerId = $userId;
+	}
+
+	/**
+	 * @param $id
+	 * @return array|false
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	private static function stopGoogleConnectionChannels(int $connectionId)
+	{
+		$pushConnectionChannelsDb = PushTable::getList([
+			'select' => ['*'],
+			'filter' => [
+				'ENTITY_TYPE' => 'CONNECTION',
+				'ENTITY_ID' => $connectionId
+			],
+		]);
+		if ($row = $pushConnectionChannelsDb->fetch())
+		{
+			\Bitrix\Calendar\Sync\GoogleApiPush::stopChannel($row, self::$ownerId);
+		}
+		return $row;
+	}
+
+	/**
+	 * @param $connectionId
+	 * @return array|false|mixed
+	 */
+	private static function getSectionsByConnectionId($connectionId)
+	{
+		return \CCalendarSect::GetList([
+			'arFilter' => [
+				'CAL_TYPE' => 'user',
+				'OWNER_ID' => self::$ownerId,
+				'CAL_DAV_CON' => $connectionId
+			]
+		]);
+	}
+
+	private static function deleteGoogleConnectionSections(array $sections)
+	{
+		foreach ($sections as $section)
+		{
+			self::stopGoogleSectionChannels($section);
+			CCalendarSect::Delete($section['ID'], false);
+		}
+	}
+
+	private static function editGoogleConnectionsSections(array $sections)
+	{
+		foreach ($sections as $section)
+		{
+			self::stopGoogleSectionChannels($section);
+			self::markSectionLikeDelete($section);
+		}
+	}
+
+	/**
+	 * @param $section
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	private static function stopGoogleSectionChannels(array $section): void
+	{
+		$pushSectionChannelsDb = PushTable::getList([
+			'select' => ['*'],
+			'filter' => [
+				'ENTITY_TYPE' => 'SECTION',
+				'ENTITY_ID' => $section['ID'],
+			],
+		]);
+		if ($row = $pushSectionChannelsDb->fetch())
+		{
+			\Bitrix\Calendar\Sync\GoogleApiPush::stopChannel($row, $section['OWNER_ID']);
+		}
+	}
+
+	/**
+	 * @param $sectionId
+	 */
+	private static function markSectionLikeDelete(int $sectionId): void
+	{
+		CCalendarSect::Edit([
+			'arFields' => [
+				"ID" => $sectionId,
+				"CAL_DAV_CON" => '',
+				'CAL_DAV_CAL' => '',
+				'CAL_DAV_MOD' => '',
+			],
+		]);
+	}
+
+	/**
+	 * @param array $connection
+	 * @throws Main\LoaderException
+	 */
+	private static function removeGoogleAuthToken(array $connection): void
+	{
+		$googleCalDavStatus = \CCalendarSync::GetGoogleCalendarConnection();
+		$serverPath = \Bitrix\Calendar\Sync\Google\Helper::GOOGLE_SERVER_PATH_V3;
+		if ($googleCalDavStatus['googleCalendarPrimaryId'] && $connection['ACCOUNT_TYPE'] === \Bitrix\Calendar\Sync\Google\Helper::GOOGLE_ACCOUNT_TYPE_CALDAV)
+		{
+			$serverPath = \Bitrix\Calendar\Sync\Google\Helper::GOOGLE_SERVER_PATH_V2 . $googleCalDavStatus['googleCalendarPrimaryId'] . '/user';
+		}
+
+		if ($connection['SERVER'] === $serverPath)
+		{
+			if (Loader::includeModule('socialservices'))
+			{
+				$client = new CSocServGoogleOAuth(CCalendar::GetCurUserId());
+				$client->getEntityOAuth()->addScope(['https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/calendar.readonly']);
+
+				// Delete stored tokens
+				$client->getEntityOAuth()->deleteStorageTokens();
+			}
+		}
 	}
 }
 ?>

@@ -57,6 +57,7 @@ $containerId .= $arParams['ID'] ?: 'def';
 	BX.message({
 		UI_TILE_SELECTOR_MORE: '<?=CUtil::JSEscape(Loc::getMessage("UI_TILE_SELECTOR_MORE"))?>'
 	});
+
 </script>
 <span id="<?=htmlspecialcharsbx($containerId)?>" class="ui-tile-selector-selector-wrap<?=($arParams['READONLY'] ? ' readonly' : '')?>">
 	<span id="<?=htmlspecialcharsbx($containerId)?>-mask" class="ui-tile-selector-selector-mask"></span>

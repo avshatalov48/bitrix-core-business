@@ -1,8 +1,10 @@
+import type { TextNodeOptions } from '../common/text-node-options';
+
 export type TagItemOptions = {
 	id: string,
 	entityId: number | string,
 	entityType?: string,
-	title?: string,
+	title?: string | TextNodeOptions,
 	avatar?: string,
 	textColor?: string,
 	bgColor?: string,

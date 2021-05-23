@@ -7,7 +7,9 @@ $arParams['MAP_ID'] =
 
 $current_search = $_GET['ys'];
 
-if (($strPositionInfo = $arParams['~MAP_DATA']) && CheckSerializedData($strPositionInfo) && ($arResult['POSITION'] = unserialize($strPositionInfo)))
+if (($strPositionInfo = $arParams['~MAP_DATA'])
+	&& CheckSerializedData($strPositionInfo)
+	&& ($arResult['POSITION'] = unserialize($strPositionInfo, ['allowed_classes' => false])))
 {
 	$arParams['INIT_MAP_LON'] = $arResult['POSITION']['yandex_lon'];
 	$arParams['INIT_MAP_LAT'] = $arResult['POSITION']['yandex_lat'];

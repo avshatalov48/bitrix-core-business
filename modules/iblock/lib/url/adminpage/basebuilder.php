@@ -1,8 +1,8 @@
 <?php
 namespace Bitrix\Iblock\Url\AdminPage;
 
-use Bitrix\Main,
-	Bitrix\Iblock;
+use Bitrix\Main;
+use	Bitrix\Iblock;
 
 abstract class BaseBuilder
 {
@@ -23,23 +23,29 @@ abstract class BaseBuilder
 	public const PAGE_SECTION_SAVE = 'sectionSave';
 	public const PAGE_SECTION_SEARCH = 'sectionSearch';
 
-	protected $id = null;
+	public const ENTITY_SECTION = 'section';
+	public const ENTITY_ELEMENT = 'element';
 
-	protected $weight = null;
-
-	protected $languageId = null;
+	/** @var Main\HttpRequest */
+	protected $request;
+	/** @var string */
+	protected $id;
+	/** @var int */
+	protected $weight;
+	/** @var string */
+	protected $languageId;
 
 	/** @var int */
-	protected $iblockId = null;
+	protected $iblockId;
 	/** @var array */
-	protected $iblock = null;
+	protected $iblock;
 	/** @var string */
-	protected $iblockListMode = null;
+	protected $iblockListMode;
 	/** @var bool */
-	protected $iblockListMixed = null;
+	protected $iblockListMixed;
 
 	/** @var string */
-	protected $prefix = null;
+	protected $prefix;
 
 	protected $urlParams = [];
 
@@ -50,14 +56,23 @@ abstract class BaseBuilder
 	protected $urlTemplates = [];
 
 	protected $templateVariables = [];
+	/** @var bool */
+	protected $sliderMode;
 
 	public function __construct()
 	{
+		$this->request = Main\Context::getCurrent()->getRequest();
+
 		$this->initSettings();
 		$this->initConfig();
 		$this->resetIblock();
 		$this->initIblockListMode();
 		$this->initUrlTemplates();
+	}
+
+	public function __destruct()
+	{
+		$this->request = null;
 	}
 
 	public function getId(): string
@@ -113,6 +128,10 @@ abstract class BaseBuilder
 
 	public function setUrlParams(array $list): void
 	{
+		if ($this->isSliderMode())
+		{
+			$list += static::getSliderOptions();
+		}
 		$this->urlParams = array_filter($list, [__CLASS__, 'clearNull']);
 		$this->compiledUrlParams = $this->compileUrlParams($this->urlParams);
 	}
@@ -127,6 +146,31 @@ abstract class BaseBuilder
 		$this->initIblockListMode();
 		return $this->iblockListMixed;
 	}
+
+	public function setMixedIblockList(): void
+	{
+		$this->setIblockListMode(Iblock\IblockTable::LIST_MODE_COMBINED);
+	}
+
+	public function setSeparateIblockList(): void
+	{
+		$this->setIblockListMode(Iblock\IblockTable::LIST_MODE_SEPARATE);
+	}
+
+	public function preloadUrlData(string $entityType, array $entityIds): void
+	{
+		switch ($entityType)
+		{
+			case self::ENTITY_SECTION:
+				$this->preloadSectionUrlData($entityIds);
+				break;
+			case self::ENTITY_ELEMENT:
+				$this->preloadElementUrlData($entityIds);
+				break;
+		}
+	}
+
+	public function clearPreloadedUrlData(): void {}
 
 	abstract public function use(): bool;
 
@@ -224,12 +268,37 @@ abstract class BaseBuilder
 		return 'lang='.urlencode($this->languageId);
 	}
 
+	public function setSliderMode(bool $mode): void
+	{
+		$this->sliderMode = $mode;
+	}
+
+	public function isSliderMode(): bool
+	{
+		return $this->sliderMode;
+	}
+
+	protected function checkCurrentPage(array $urlList): bool
+	{
+		$currentPage = $this->request->getRequestedPage();
+		foreach ($urlList as $url)
+		{
+			if (strncmp($currentPage, $url, strlen($url)) === 0)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	protected function initSettings(): void
 	{
 		$this->id = static::TYPE_ID;
 		$this->weight = static::TYPE_WEIGHT;
 		$this->setLanguageId(LANGUAGE_ID);
 		$this->setPrefix(static::PATH_PREFIX);
+		$this->sliderMode = $this->request->get('IFRAME') === 'Y';
 	}
 
 	protected function initConfig(): void
@@ -265,14 +334,26 @@ abstract class BaseBuilder
 			&& $listMode != Iblock\IblockTable::LIST_MODE_COMBINED
 		)
 		{
-			$listMode = ((string)Main\Config\Option::get('iblock', 'combined_list_mode') == 'Y'
+			$listMode = ((string)Main\Config\Option::get('iblock', 'combined_list_mode') === 'Y'
 				? Iblock\IblockTable::LIST_MODE_COMBINED
 				: Iblock\IblockTable::LIST_MODE_SEPARATE
 			);
 		}
 		$this->iblockListMode = $listMode;
-		unset($listMode);
 		$this->iblockListMixed = ($this->iblockListMode === Iblock\IblockTable::LIST_MODE_COMBINED);
+	}
+
+	protected function setIblockListMode(string $listMode): void
+	{
+		if (
+			$listMode === Iblock\IblockTable::LIST_MODE_SEPARATE
+			|| $listMode === Iblock\IblockTable::LIST_MODE_COMBINED
+		)
+		{
+			$this->iblockListMode = $listMode;
+			$this->iblockListMixed = ($this->iblockListMode === Iblock\IblockTable::LIST_MODE_COMBINED);
+			$this->initUrlTemplates();
+		}
 	}
 
 	protected function compileUrlParams(array $params): string
@@ -397,7 +478,7 @@ abstract class BaseBuilder
 
 	protected function getExtendedVariables(array $options = [], string $additional = ''): array
 	{
-		$replaces = $this->templateVariables;
+		$replaces = $this->getTemplateVariables();
 		$replaces['#ADDITIONAL_PARAMETERS#'] = $this->extendUrl($options, $additional);
 		return $replaces;
 	}
@@ -421,5 +502,17 @@ abstract class BaseBuilder
 	protected function getCopyAction(): string
 	{
 		return '&action=copy';
+	}
+
+	protected function preloadSectionUrlData(array $sectionIds): void {}
+
+	protected function preloadElementUrlData(array $elementIds): void {}
+
+	protected static function getSliderOptions(): array
+	{
+		return [
+			'IFRAME' => 'Y',
+			'IFRAME_TYPE' => 'SIDE_SLIDER',
+		];
 	}
 }

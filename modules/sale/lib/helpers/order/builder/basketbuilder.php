@@ -310,6 +310,18 @@ abstract class BasketBuilder
 				throw new BuildingException();
 			}
 
+			if (isset($productData['VAT_RATE']))
+			{
+				$item->markFieldCustom('VAT_RATE');
+				$item->setField('VAT_RATE', $productData['VAT_RATE']);
+			}
+
+			if (isset($productData['VAT_INCLUDED']))
+			{
+				$item->markFieldCustom('VAT_INCLUDED');
+				$item->setField('VAT_INCLUDED', $productData['VAT_INCLUDED']);
+			}
+
 			if(isset($productData["MODULE"]) && $productData["MODULE"] == "catalog")
 			{
 				$this->catalogProductsIds[] = $item->getField('PRODUCT_ID');
@@ -709,7 +721,7 @@ abstract class BasketBuilder
 		if(empty($productData["PROVIDER_DATA"]) || !CheckSerializedData($productData["PROVIDER_DATA"]))
 			return;
 
-		$trustData = unserialize($productData["PROVIDER_DATA"]);
+		$trustData = unserialize($productData["PROVIDER_DATA"], ['allowed_classes' => false]);
 
 		//quantity was changed so data must be changed
 		if(empty($trustData) || $trustData["QUANTITY"] == $productData["QUANTITY"])

@@ -9,6 +9,7 @@ use Bitrix\Main\Event;
 use Bitrix\Main\EventResult;
 use Bitrix\Main\Localization\Loc;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\Contact;
+use Bitrix\Main\PhoneNumber;
 
 /**
  * Class ContactToRequiredListener
@@ -136,12 +137,27 @@ final class ContactToRequiredListener
 			return;
 		}
 
+		$oPhone = PhoneNumber\Parser::getInstance()->parse($phone);
+		if (!$oPhone->isValid())
+		{
+			$event->addResult(
+				new EventResult(
+					EventResult::ERROR,
+					sprintf(
+						'%s: %s',
+						Loc::getMessage('SALE_YANDEX_TAXI_CLIENT_PHONE_NOT_VALID'),
+						(string)$oPhone->format()
+					)
+				)
+			);
+		}
+
 		$event->addResult(
 			new EventResult(
 				EventResult::SUCCESS,
 				(new Contact())
 					->setName($fullName)
-					->setPhone($phone)
+					->setPhone(PhoneNumber\Formatter::format($oPhone, PhoneNumber\Format::E164))
 			)
 		);
 	}

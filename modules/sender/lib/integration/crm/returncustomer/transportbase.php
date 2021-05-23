@@ -418,6 +418,8 @@ class TransportBase implements Transport\iBase
 						'CURRENCY' => $item->getCurrency(),
 						'BASE_PRICE' => $item->getBasePrice(),
 						'PRICE' => $item->getPrice(),
+						'CUSTOM_PRICE' => $item->isCustomPrice() ? 'Y' : 'N',
+
 					]);
 				}
 
@@ -432,6 +434,7 @@ class TransportBase implements Transport\iBase
 						'PAY_SYSTEM_ID' => $payment->getPaymentSystemId(),
 						'PAY_SYSTEM_NAME' => $payment->getPaymentSystemName(),
 						'PS_RECURRING_TOKEN' => $payment->getField('PS_RECURRING_TOKEN'),
+						'SUM' => $payment->getSum(),
 					]);
 				}
 

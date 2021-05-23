@@ -7,6 +7,7 @@
  */
 namespace Bitrix\Sender\Entity;
 
+use Bitrix\Main\ArgumentException;
 use Bitrix\Main\DB;
 use Bitrix\Main\Error;
 use Bitrix\Main\InvalidOperationException;
@@ -319,8 +320,15 @@ class Letter extends Base
 			return null;
 		}
 
-		$message = MainMessage\Adapter::create($code);
-		if ($message->isAds())
+		try
+		{
+			$message = MainMessage\Adapter::create($code);
+		} catch (ArgumentException $e)
+		{
+			return null;
+		}
+
+		if ($message->isAds() || $message->isMarketing())
 		{
 			$instance = new Ad();
 		}
@@ -579,7 +587,7 @@ class Letter extends Base
 		if ($isChanged && $this->getId() && $this->get('POSTING_ID'))
 		{
 			Posting\Builder::create()
-				->run($this->get('POSTING_ID'), false, false);
+				->run($this->get('POSTING_ID'), false);
 		}
 	}
 

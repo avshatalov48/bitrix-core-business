@@ -603,7 +603,7 @@ class Result extends BaseResult
 		{
 			$data = $this->result->fetchAll($converter);
 
-			foreach ($data as $row)
+			foreach ($data as &$row)
 			{
 				$this->hideObjectFields($row);
 			}

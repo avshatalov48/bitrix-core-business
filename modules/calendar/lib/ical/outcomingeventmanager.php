@@ -238,26 +238,6 @@ class OutcomingEventManager
 
 	private function getRequestMailEventFields(): array
 	{
-		return [
-			"=Reply-To" => $this->getOrganizerName().' <'.$this->getSenderAddress().'>',
-			"=From" => $this->getOrganizerName().' <'.$this->getSenderAddress().'>',
-			"=Message-Id" => $this->getMessageId(),
-			"=In-Reply-To" => $this->getMessageReplyTo(),
-			'EMAIL_FROM' => $this->getSenderAddress(),
-			'EMAIL_TO' => $this->getReceiverAddress(),
-			'MESSAGE_SUBJECT' => $this->getSubjectMessage(),
-			'MESSAGE_PHP' => $this->getBodyMessage(),
-			'DATE_FROM' => $this->getDateForTemplate(),
-			'NAME' => $this->eventFields['NAME'],
-			'DESCRIPTION' => $this->eventFields['DESCRIPTION'],
-			'ATTENDEES' => $this->getAttendeesList(),
-			'ORGANIZER' => $this->getOrganizerName(),
-			'LOCATION' => $this->eventFields['TEXT_LOCATION'],
-			'FILES_LINK' =>$this->getFilesLink(),
-			'METHOD' => $this->method,
-			'CHANGE_FIELDS' => $this->getChangeFieldsString(),
-			'TITLE' => $this->getEditTitle(),
-		];
 	}
 
 	private function getReplyMailEventFields()
@@ -307,6 +287,11 @@ class OutcomingEventManager
 
 	private function getAttendeesList(): string
 	{
+		if ($this->eventFields['MEETING']['HIDE_GUESTS'])
+		{
+			return Loc::getMessage('EC_CALENDAR_ICAL_MAIL_HIDE_GUESTS_INFORMATION');
+		}
+
 		$attendees = [];
 
 		foreach ($this->attendees as $attendee)

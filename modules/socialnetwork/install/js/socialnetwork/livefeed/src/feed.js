@@ -1,5 +1,11 @@
 import {Type, Loc, ajax, Event} from "main.core";
 import {PinnedPanel} from "./pinned";
+import {Post} from "./post";
+
+import './css/feed.css';
+import './css/gratitude.css';
+import './css/important.css';
+import './css/warning.css';
 
 class Feed
 {
@@ -228,14 +234,17 @@ class Feed
 
 let FeedInstance = null;
 let PinnedPanelInstance = null;
+let PostInstance = null;
 
 Event.ready(() =>
 {
 	FeedInstance = new Feed();
 	PinnedPanelInstance = new PinnedPanel();
+	PostInstance = new Post();
 });
 
 export {
 	FeedInstance,
-	PinnedPanelInstance
+	PinnedPanelInstance,
+	PostInstance
 };

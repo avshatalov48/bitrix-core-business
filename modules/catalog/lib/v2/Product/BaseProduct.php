@@ -3,9 +3,9 @@
 namespace Bitrix\Catalog\v2\Product;
 
 use Bitrix\Catalog\ProductTable;
-use Bitrix\Catalog\v2\BaseCollection;
 use Bitrix\Catalog\v2\BaseIblockElementEntity;
 use Bitrix\Catalog\v2\Iblock\IblockInfo;
+use Bitrix\Catalog\v2\Image\ImageRepositoryContract;
 use Bitrix\Catalog\v2\Property\PropertyRepositoryContract;
 use Bitrix\Catalog\v2\Section\HasSectionCollection;
 use Bitrix\Catalog\v2\Section\SectionCollection;
@@ -13,6 +13,8 @@ use Bitrix\Catalog\v2\Section\SectionRepositoryContract;
 use Bitrix\Catalog\v2\Sku\HasSkuCollection;
 use Bitrix\Catalog\v2\Sku\SkuCollection;
 use Bitrix\Catalog\v2\Sku\SkuRepositoryContract;
+use Bitrix\Main\Event;
+use Bitrix\Main\ORM;
 use Bitrix\Main\Result;
 
 /**
@@ -25,6 +27,8 @@ use Bitrix\Main\Result;
  */
 abstract class BaseProduct extends BaseIblockElementEntity implements HasSectionCollection, HasSkuCollection
 {
+	private const EVENT_PREFIX = 'Bitrix\Catalog\Product\Entity::';
+
 	/** @var \Bitrix\Catalog\v2\Section\SectionRepositoryContract */
 	protected $sectionRepository;
 	/** @var \Bitrix\Catalog\v2\Sku\SkuRepositoryContract */
@@ -39,11 +43,12 @@ abstract class BaseProduct extends BaseIblockElementEntity implements HasSection
 		IblockInfo $iblockInfo,
 		ProductRepositoryContract $productRepository,
 		PropertyRepositoryContract $propertyRepository,
+		ImageRepositoryContract $imageRepository,
 		SectionRepositoryContract $sectionRepository,
 		SkuRepositoryContract $skuRepository
 	)
 	{
-		parent::__construct($iblockInfo, $productRepository, $propertyRepository);
+		parent::__construct($iblockInfo, $productRepository, $propertyRepository, $imageRepository);
 		$this->sectionRepository = $sectionRepository;
 		$this->skuRepository = $skuRepository;
 
@@ -68,7 +73,7 @@ abstract class BaseProduct extends BaseIblockElementEntity implements HasSection
 	/**
 	 * @return \Bitrix\Catalog\v2\Section\SectionCollection|\Bitrix\Catalog\v2\Section\Section[]
 	 */
-	protected function loadSectionCollection(): BaseCollection
+	protected function loadSectionCollection(): SectionCollection
 	{
 		return $this->sectionRepository->getCollectionByProduct($this);
 	}
@@ -81,6 +86,8 @@ abstract class BaseProduct extends BaseIblockElementEntity implements HasSection
 	 */
 	public function setSectionCollection(SectionCollection $sectionCollection): self
 	{
+		$sectionCollection->setParent($this);
+
 		$this->sectionCollection = $sectionCollection;
 
 		return $this;
@@ -115,13 +122,74 @@ abstract class BaseProduct extends BaseIblockElementEntity implements HasSection
 	 */
 	public function setSkuCollection(SkuCollection $skuCollection): self
 	{
+		$skuCollection->setParent($this);
+
 		$this->skuCollection = $skuCollection;
 
 		return $this;
 	}
 
+	public function saveInternal(): Result
+	{
+		$isNew = $this->isNew();
+
+		$result = parent::saveInternal();
+		if ($result->isSuccess())
+		{
+			if ($isNew)
+			{
+				$eventId = self::EVENT_PREFIX.ORM\Data\DataManager::EVENT_ON_AFTER_ADD;
+			}
+			else
+			{
+				$eventId = self::EVENT_PREFIX.ORM\Data\DataManager::EVENT_ON_AFTER_UPDATE;
+			}
+
+			$this->sendOnAfterEvents($eventId);
+		}
+
+		return $result;
+	}
+
 	public function delete(): Result
 	{
-		return $this->deleteInternal();
+		$result = $this->deleteInternal();
+		if ($result->isSuccess())
+		{
+			$this->sendOnAfterEvents(self::EVENT_PREFIX.ORM\Data\DataManager::EVENT_ON_AFTER_DELETE);
+		}
+
+		return $result;
+	}
+
+	private function sendOnAfterEvents(string $eventId): void
+	{
+		$eventData = [
+			'id' => $this->getId(),
+		];
+
+		switch ($eventId)
+		{
+			case self::EVENT_PREFIX.ORM\Data\DataManager::EVENT_ON_AFTER_ADD:
+			case self::EVENT_PREFIX.ORM\Data\DataManager::EVENT_ON_AFTER_UPDATE:
+				$eventData['fields'] = $this->getFields();
+				$type = $this->getType();
+				if (
+					$type !== ProductTable::TYPE_SKU
+					&& $type !== ProductTable::TYPE_EMPTY_SKU
+				)
+				{
+					/** @var \Bitrix\Catalog\v2\Sku\BaseSku $item */
+					$item = $this->getSkuCollection()->getFirst();
+					if ($item !== null)
+					{
+						$eventData['fields']['PRICES'] = $item->getPriceCollection()->toArray();
+					}
+				}
+				break;
+		}
+
+		$event = new Event('catalog', $eventId, $eventData);
+		$event->send();
 	}
 }

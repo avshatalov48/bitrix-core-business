@@ -106,20 +106,24 @@ if ($arParams["INIT"] == 'Y')
 	}
 }
 // Message & Notify
+
+$arResult['SETTINGS_NOTIFY_BLOCKED'] = CIMSettings::GetSimpleNotifyBlocked();
+
+$arResult['CURRENT_USER'] = \CIMContactList::GetUserData(Array(
+	'ID' => $USER->GetID(),
+	'PHONES' => 'Y',
+	'SHOW_ONLINE' => 'N',
+	'EXTRA_FIELDS' => 'Y',
+	'DATE_ATOM' => 'Y'
+))['users'][$USER->GetID()];
+
 if ($arParams["INIT"] == 'Y')
 {
-	$arRecent = Array();
-	$arResult['CHAT'] = Array('chat' => Array(), 'userInChat' => Array(),);
+	$arResult['RECENT'] = \Bitrix\Im\Recent::get(null, ['JSON' => 'Y']);
 
-	if ($arParams['RECENT'] == 'Y')
-	{
-		$arRecent = CIMContactList::GetRecentList(Array('LOAD_LAST_MESSAGE' => 'Y', 'USE_TIME_ZONE' => 'N', 'USE_SMILES' => 'N'));
-		$arResult['RECENT'] = Array();
-
-		$arSmile = CIMMessenger::PrepareSmiles();
-		$arResult['SMILE'] = $arSmile['SMILE'];
-		$arResult['SMILE_SET'] = $arSmile['SMILE_SET'];
-	}
+	$arSmile = CIMMessenger::PrepareSmiles();
+	$arResult['SMILE'] = $arSmile['SMILE'];
+	$arResult['SMILE_SET'] = $arSmile['SMILE_SET'];
 
 	if ($arResult["CONTEXT"] == "LINES")
 	{
@@ -127,187 +131,20 @@ if ($arParams["INIT"] == 'Y')
 		$arResult['PATH_TO_CALL'] = '/online/call.ajax.php';
 		$arResult['PATH_TO_FILE'] = '/online/file.ajax.php';
 	}
-	if ($arResult["CONTEXT"] == "DESKTOP")
+	else if ($arResult["CONTEXT"] == "DESKTOP")
 	{
-		if (\COption::GetOptionInt('im', 'contact_list_load'))
-		{
-			$CIMContactList = new CIMContactList();
-			$arResult['CONTACT_LIST'] = $CIMContactList->GetList();
-
-			foreach ($arResult['CONTACT_LIST']['chats'] as $key => $value)
-			{
-				$value['fake'] = true;
-				$arResult['CHAT']['chat'][$key] = $value;
-			}
-		}
-		else
-		{
-			$arResult['CONTACT_LIST'] = Array(
-				'users' => Array(),
-				'groups' => Array(),
-				'userInGroup' => Array(),
-			);
-		}
-
-		if ($arParams['RECENT'] != 'Y')
-		{
-			$arRecent = CIMContactList::GetRecentList(Array(
-				'LOAD_LAST_MESSAGE' => 'Y',
-				'USE_TIME_ZONE' => 'N',
-				'USE_SMILES' => 'N'
-			));
-			$arResult['RECENT'] = Array();
-
-			$arSmile = CIMMessenger::PrepareSmiles();
-			$arResult['SMILE'] = $arSmile['SMILE'];
-			$arResult['SMILE_SET'] = $arSmile['SMILE_SET'];
-			$arResult['SETTINGS_NOTIFY_BLOCKED'] = CIMSettings::GetSimpleNotifyBlocked();
-		}
-
 		$arResult['PATH_TO_IM'] = '/desktop_app/im.ajax.php';
 		$arResult['PATH_TO_CALL'] = '/desktop_app/call.ajax.php';
 		$arResult['PATH_TO_FILE'] = '/desktop_app/file.ajax.php';
 	}
-	else
-	{
-		$arResult['CONTACT_LIST'] = Array(
-			'users' => Array(),
-			'groups' => Array(),
-			'userInGroup' => Array(),
-		);
-		if ($arParams['RECENT'] != 'Y')
-		{
-			$arResult['RECENT'] = false;
-			$arResult['SMILE'] = false;
-			$arResult['SMILE_SET'] = false;
-			$arResult['SETTINGS_NOTIFY_BLOCKED'] = Array();
-		}
-	}
 
-	$CIMNotify = new CIMNotify();
-	$arResult['NOTIFY'] = $CIMNotify->GetUnreadNotify(Array('GET_ONLY_FLASH' => 'Y', 'USE_TIME_ZONE' => 'N'));
-	$arResult['NOTIFY']['flashNotify'] = CIMNotify::GetFlashNotify($arResult['NOTIFY']['unreadNotify']);
-	$arResult["NOTIFY_COUNTER"] = $arResult['NOTIFY']['countNotify']; // legacy
-
-	$CIMMessage = new CIMMessage();
-	$arResult['MESSAGE'] = $CIMMessage->GetUnreadMessage(Array('USE_TIME_ZONE' => 'N', 'ORDER' => 'ASC'));
-	$arResult["MESSAGE_COUNTER"] = $arResult['MESSAGE']['countMessage']; // legacy
-
-	$CIMChat = new CIMChat();
-	$arChatMessage = $CIMChat->GetUnreadMessage(Array('USE_TIME_ZONE' => 'N', 'ORDER' => 'ASC'));
-	if ($arChatMessage['result'])
-	{
-		foreach ($arChatMessage['message'] as $id => $ar)
-		{
-			$ar['recipientId'] = 'chat'.$ar['recipientId'];
-			$arResult['MESSAGE']['message'][$id] = $ar;
-		}
-
-		foreach ($arChatMessage['usersMessage'] as $chatId => $ar)
-			$arResult['MESSAGE']['usersMessage']['chat'.$chatId] = $ar;
-
-		foreach ($arChatMessage['unreadMessage'] as $chatId => $ar)
-			$arResult['MESSAGE']['unreadMessage']['chat'.$chatId] = $ar;
-
-		foreach ($arChatMessage['users'] as $key => $value)
-			$arResult['MESSAGE']['users'][$key] = $value;
-
-		foreach ($arChatMessage['userInGroup'] as $key => $value)
-			$arResult['MESSAGE']['userInGroup'][$key] = $value;
-
-		foreach ($arChatMessage['files'] as $key => $value)
-			$arResult['MESSAGE']['files'][$key] = $value;
-
-		if ($arResult["CONTEXT"] == "DESKTOP")
-		{
-			foreach ($arChatMessage['chat'] as $key => $value)
-				$arResult['CHAT']['chat'][$key] = $value;
-		}
-		else
-		{
-			foreach ($arChatMessage['chat'] as $key => $value)
-			{
-				$value['fake'] = true;
-				$arResult['CHAT']['chat'][$key] = $value;
-			}
-		}
-
-		foreach ($arChatMessage['userInChat'] as $key => $value)
-			$arResult['CHAT']['userInChat'][$key] = $value;
-
-		foreach ($arChatMessage['userChatBlockStatus'] as $key => $value)
-			$arResult['CHAT']['userChatBlockStatus'][$key] = $value;
-	}
-	$arResult['MESSAGE']['flashMessage'] = CIMMessage::GetFlashMessage($arResult['MESSAGE']['unreadMessage']);
-	$arResult["MESSAGE_COUNTER"] = $arResult['MESSAGE']['countMessage']+$arChatMessage['countMessage']; // legacy
-
-	foreach ($arRecent as $userId => $value)
-	{
-		if ($value['TYPE'] == IM_MESSAGE_CHAT || $value['TYPE'] == IM_MESSAGE_OPEN || $value['TYPE'] == IM_MESSAGE_OPEN_LINE)
-		{
-			if (!isset($arResult['CHAT']['chat'][$value['CHAT']['id']]))
-			{
-				$value['CHAT']['fake'] = true;
-				$arResult['CHAT']['chat'][$value['CHAT']['id']] = $value['CHAT'];
-			}
-			$value['MESSAGE']['userId'] = $userId;
-			$value['MESSAGE']['recipientId'] = $userId;
-		}
-		else
-		{
-			$arResult['CONTACT_LIST']['users'][$value['USER']['id']] = $value['USER'];
-
-			$value['MESSAGE']['userId'] = $userId;
-			$value['MESSAGE']['recipientId'] = $userId;
-		}
-		$arResult['RECENT'][] = $value['MESSAGE'];
-	}
-
-	// Merge message users with contact list
-	if (isset($arResult['MESSAGE']['users']) && !empty($arResult['MESSAGE']['users']))
-	{
-		foreach ($arResult['MESSAGE']['users'] as $arUser)
-			$arResult['CONTACT_LIST']['users'][$arUser['id']] = $arUser;
-
-		if (isset($arResult['MESSAGE']['userInGroup']))
-		{
-			foreach ($arResult['MESSAGE']['userInGroup'] as $arUserInGroup)
-			{
-				if (isset($arResult['CONTACT_LIST']['userInGroup'][$arUserInGroup['id']]['users']))
-					$arResult['CONTACT_LIST']['userInGroup'][$arUserInGroup['id']]['users'] = array_unique(array_merge($arResult['CONTACT_LIST']['userInGroup'][$arUserInGroup['id']]['users'], $arUserInGroup['users']));
-				else
-				{
-					if (isset($arResult['CONTACT_LIST']['userInGroup']['other']['users']))
-						$arResult['CONTACT_LIST']['userInGroup']['other']['users'] = array_unique(array_merge($arResult['CONTACT_LIST']['userInGroup']['other']['users'], $arUserInGroup['users']));
-					else
-					{
-						$arUserInGroup['id'] = 'other';
-						$arResult['CONTACT_LIST']['userInGroup']['other'] = $arUserInGroup;
-					}
-				}
-			}
-		}
-	}
-	if (!isset($arResult['CONTACT_LIST']['users'][$USER->GetID()]))
-	{
-		$arUsers = CIMContactList::GetUserData(array(
-			'ID' => $USER->GetID(),
-			'DEPARTMENT' => 'N',
-			'USE_CACHE' => 'Y',
-			'SHOW_ONLINE' => 'N'
-		));
-		$arResult['CONTACT_LIST']['users'][$USER->GetID()] = $arUsers['users'][$USER->GetID()];
-	}
 	if (isset($arParams['CURRENT_TAB']))
 	{
 		$_REQUEST['IM_DIALOG'] = $arParams['CURRENT_TAB'];
 		$arResult['CURRENT_TAB'] = $arParams['CURRENT_TAB'];
 	}
 }
-else
-{
-	$arResult['SETTINGS_NOTIFY_BLOCKED'] = CIMSettings::GetSimpleNotifyBlocked();
-}
+
 $arResult['BOT'] = \Bitrix\Im\Bot::getListForJs();
 $arResult['COMMAND'] = \Bitrix\Im\Command::getListForJs();
 $arResult['TEXTAREA_ICON'] = \Bitrix\Im\App::getListForJs();
@@ -348,5 +185,3 @@ if (!(isset($arParams['TEMPLATE_HIDE']) && $arParams['TEMPLATE_HIDE'] == 'Y'))
 	$this->IncludeComponentTemplate();
 
 return $arResult;
-
-?>

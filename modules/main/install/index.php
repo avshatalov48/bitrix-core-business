@@ -138,7 +138,6 @@ class main extends CModule
 		RegisterModuleDependences("main", "OnEventLogGetAuditHandlers", "main", "CEventMain", "MakeMainObject");
 		RegisterModuleDependences("perfmon", "OnGetTableSchema", "main", "CTableSchema", "OnGetTableSchema");
 		RegisterModuleDependences("sender", "OnConnectorList", "main", "\\Bitrix\\Main\\SenderEventHandler", "onConnectorListUser");
-
 		RegisterModuleDependences("main", "OnUserTypeBuildList", "main", "CUserTypeString", "GetUserTypeDescription", 110);
 		RegisterModuleDependences("main", "OnUserTypeBuildList", "main", "CUserTypeInteger", "GetUserTypeDescription", 120);
 		RegisterModuleDependences("main", "OnUserTypeBuildList", "main", "CUserTypeDouble", "GetUserTypeDescription", 130);
@@ -152,18 +151,31 @@ class main extends CModule
 		RegisterModuleDependences("main", "OnUserTypeBuildList", "main", "CUserTypeIBlockElement", "GetUserTypeDescription", 190);
 		RegisterModuleDependences("main", "OnUserTypeBuildList", "main", "CUserTypeStringFormatted", "GetUserTypeDescription", 200);
 		RegisterModuleDependences("main", "OnUserTypeBuildList", "main", "\\Bitrix\\Main\\UrlPreview\\UrlPreviewUserType", "getUserTypeDescription", 210);
-
 		RegisterModuleDependences("main", "OnBeforeEndBufferContent", "main", "\\Bitrix\\Main\\Analytics\\Counter", "onBeforeEndBufferContent");
 		RegisterModuleDependences("main", "OnBeforeRestartBuffer", "main", "\\Bitrix\\Main\\Analytics\\Counter", "onBeforeRestartBuffer");
-
 		RegisterModuleDependences("main", "OnFileDelete", "main", "\\Bitrix\\Main\\UI\\Viewer\\FilePreviewTable", "onFileDelete");
-
 		RegisterModuleDependences("socialnetwork", "OnSocNetLogDelete", "main", "CUserCounter", "OnSocNetLogDelete");
 		RegisterModuleDependences("socialnetwork", "OnSocNetLogCommentDelete", "main", "CUserCounter", "OnSocNetLogCommentDelete");
-
 		RegisterModuleDependences("main", "OnAdminInformerInsertItems", "main", "CMpNotifications", "OnAdminInformerInsertItemsHandlerMP");
-
 		RegisterModuleDependences("rest", "OnRestServiceBuildDescription", "main", '\Bitrix\Main\Rest\Handlers', "onRestServiceBuildDescription");
+		RegisterModuleDependences("main", "OnBeforeUserTypeAdd", "main", '\Bitrix\Main\UserField\Internal\UserFieldHelper', "OnBeforeUserTypeAdd");
+		RegisterModuleDependences("main", "OnAfterUserTypeAdd", "main", '\Bitrix\Main\UserField\Internal\UserFieldHelper', "onAfterUserTypeAdd");
+		RegisterModuleDependences("main", "OnBeforeUserTypeDelete", "main", '\Bitrix\Main\UserField\Internal\UserFieldHelper', "OnBeforeUserTypeDelete");
+		RegisterModuleDependences("main", "OnAuthProvidersBuildList", "main", "\\Bitrix\\Main\\Access\\Auth\\AccessAuthProvider", "getProviders");
+		RegisterModuleDependences("iblock", "OnBeforeIBlockSectionUpdate", "main", "\\Bitrix\\Main\\Access\\Auth\\AccessEventHandler", "onBeforeIBlockSectionUpdate");
+		RegisterModuleDependences("iblock", "OnBeforeIBlockSectionAdd", "main", "\\Bitrix\\Main\\Access\\Auth\\AccessEventHandler", "onBeforeIBlockSectionAdd");
+		RegisterModuleDependences("iblock", "OnBeforeIBlockSectionDelete", "main", "\\Bitrix\\Main\\Access\\Auth\\AccessEventHandler", "onBeforeIBlockSectionDelete");
+
+		$eventManager = \Bitrix\Main\EventManager::getInstance();
+		$eventManager->registerEventHandler("sale", "OnSaleBasketItemSaved", "main", "\\Bitrix\\Main\\Analytics\\Catalog", "catchCatalogBasket");
+		$eventManager->registerEventHandler("sale", "OnSaleOrderSaved", "main", "\\Bitrix\\Main\\Analytics\\Catalog", "catchCatalogOrder");
+		$eventManager->registerEventHandler("sale", "OnSaleOrderPaid", "main", "\\Bitrix\\Main\\Analytics\\Catalog", "catchCatalogOrderPayment");
+		$eventManager->registerEventHandlerCompatible("sale", "onBuildDiscountConditionInterfaceControls", "main", "\\Bitrix\\Main\\Discount\\UserConditionControl", "onBuildDiscountConditionInterfaceControls", 1000);
+		$eventManager->registerEventHandler('main', 'OnBeforePhpMail', 'main', '\Bitrix\Main\Mail\Sender', 'applyCustomSmtp');
+		$eventManager->registerEventHandler('main', 'OnBuildFilterFactoryMethods', 'main', '\Bitrix\Main\Filter\FactoryMain', 'onBuildFilterFactoryMethods');
+		$eventManager->registerEventHandler('main', 'onGetUserFieldValues', 'main', '\Bitrix\Main\UserField\Internal\UserFieldHelper', 'onGetUserFieldValues');
+		$eventManager->registerEventHandler('main', 'onUpdateUserFieldValues', 'main', '\Bitrix\Main\UserField\Internal\UserFieldHelper', 'onUpdateUserFieldValues');
+		$eventManager->registerEventHandler('main', 'onDeleteUserFieldValues', 'main', '\Bitrix\Main\UserField\Internal\UserFieldHelper', 'onDeleteUserFieldValues');
 
 		if (LANGUAGE_ID == "ru")
 			COption::SetOptionString("main", "vendor", "1c_bitrix");
@@ -199,29 +211,6 @@ class main extends CModule
 		CAgent::AddAgent("CUser::CleanUpAgent();", "main", "N", 86400, "", "Y", ConvertTimeStamp(strtotime(date('Y-m-d 04:20:00', $nextDay)), 'FULL'));
 		CAgent::AddAgent("CUser::DeactivateAgent();", "main", "N", 86400, "", "Y", ConvertTimeStamp(strtotime(date('Y-m-d 04:25:00', $nextDay)), 'FULL'));
 		CAgent::AddAgent("CEventLog::CleanUpAgent();", "main", "N", 86400, "", "Y", ConvertTimeStamp(strtotime(date('Y-m-d 04:30:00', $nextDay)), 'FULL'));
-
-		$eventManager = \Bitrix\Main\EventManager::getInstance();
-
-		$eventManager->registerEventHandler("sale", "OnSaleBasketItemSaved", "main", "\\Bitrix\\Main\\Analytics\\Catalog", "catchCatalogBasket");
-		$eventManager->registerEventHandler("sale", "OnSaleOrderSaved", "main", "\\Bitrix\\Main\\Analytics\\Catalog", "catchCatalogOrder");
-		$eventManager->registerEventHandler("sale", "OnSaleOrderPaid", "main", "\\Bitrix\\Main\\Analytics\\Catalog", "catchCatalogOrderPayment");
-		$eventManager->registerEventHandlerCompatible("sale", "onBuildDiscountConditionInterfaceControls", "main", "\\Bitrix\\Main\\Discount\\UserConditionControl", "onBuildDiscountConditionInterfaceControls", 1000);
-
-		$eventManager->registerEventHandler('main', 'OnBeforePhpMail', 'main', '\Bitrix\Main\Mail\Sender', 'applyCustomSmtp');
-
-		$eventManager->registerEventHandler('main', 'OnBuildFilterFactoryMethods', 'main', '\Bitrix\Main\Filter\FactoryMain', 'onBuildFilterFactoryMethods');
-
-		RegisterModuleDependences("main", "OnBeforeUserTypeAdd", "main", '\Bitrix\Main\UserField\Internal\UserFieldHelper', "OnBeforeUserTypeAdd");
-		RegisterModuleDependences("main", "OnAfterUserTypeAdd", "main", '\Bitrix\Main\UserField\Internal\UserFieldHelper', "onAfterUserTypeAdd");
-		RegisterModuleDependences("main", "OnBeforeUserTypeDelete", "main", '\Bitrix\Main\UserField\Internal\UserFieldHelper', "OnBeforeUserTypeDelete");
-		$eventManager->registerEventHandler('main', 'onGetUserFieldValues', 'main', '\Bitrix\Main\UserField\Internal\UserFieldHelper', 'onGetUserFieldValues');
-		$eventManager->registerEventHandler('main', 'onUpdateUserFieldValues', 'main', '\Bitrix\Main\UserField\Internal\UserFieldHelper', 'onUpdateUserFieldValues');
-		$eventManager->registerEventHandler('main', 'onDeleteUserFieldValues', 'main', '\Bitrix\Main\UserField\Internal\UserFieldHelper', 'onDeleteUserFieldValues');
-
-		RegisterModuleDependences("main", "OnAuthProvidersBuildList", "main", "\\Bitrix\\Main\\Access\\Auth\\AccessAuthProvider", "getProviders");
-		RegisterModuleDependences("iblock", "OnBeforeIBlockSectionUpdate", "main", "\\Bitrix\\Main\\Access\\Auth\\AccessEventHandler", "onBeforeIBlockSectionUpdate");
-		RegisterModuleDependences("iblock", "OnBeforeIBlockSectionAdd", "main", "\\Bitrix\\Main\\Access\\Auth\\AccessEventHandler", "onBeforeIBlockSectionAdd");
-		RegisterModuleDependences("iblock", "OnBeforeIBlockSectionDelete", "main", "\\Bitrix\\Main\\Access\\Auth\\AccessEventHandler", "onBeforeIBlockSectionDelete");
 
 		self::InstallDesktop();
 
@@ -1726,7 +1715,6 @@ class main extends CModule
 		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/install/sounds", $_SERVER["DOCUMENT_ROOT"]."/bitrix/sounds", true, true);
 		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/install/components/bitrix", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components/bitrix", true, true);
 		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/install/gadgets/bitrix", $_SERVER["DOCUMENT_ROOT"]."/bitrix/gadgets/bitrix", true, true);
-		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/install/image_uploader", $_SERVER["DOCUMENT_ROOT"]."/bitrix/image_uploader", true, true);
 		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/install/panel", $_SERVER["DOCUMENT_ROOT"]."/bitrix/panel", true, true);
 		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/install/fonts", $_SERVER["DOCUMENT_ROOT"]."/bitrix/fonts", true, true);
 		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/install/css", $_SERVER["DOCUMENT_ROOT"]."/bitrix/css", true, true);

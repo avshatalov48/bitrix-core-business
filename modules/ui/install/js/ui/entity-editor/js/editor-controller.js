@@ -338,6 +338,17 @@ if (typeof BX.UI.EntityEditorController === 'undefined')
 
 		onBeforeSaveControl: function(data)
 		{
+			return this.onBeforeSaveControl(data);
+		},
+
+		/**
+		 * @deprecated Use onBeforeSaveControl instead
+		 *
+		 * This method with misprint left for backward compatibility and
+		 * will be removed in future
+		 */
+		onBeforesSaveControl: function(data)
+		{
 			return data;
 		}
 	};

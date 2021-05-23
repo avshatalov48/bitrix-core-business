@@ -348,6 +348,11 @@ BX.UI.Selector.prototype.openDialogPromiseRejected = function(reason)
 
 BX.UI.Selector.prototype.openContainer = function()
 {
+	if(this.popups.container)
+	{
+		this.popups.container.destroy();
+	}
+
 	this.popups.container = new BX.PopupWindow({
 		id: 'bx-selector-dialog-' + this.id + '-container',
 		bindElement: this.getPopupBind(),

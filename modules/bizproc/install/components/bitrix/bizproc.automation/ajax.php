@@ -29,7 +29,24 @@ if (!$curUser || !$curUser->IsAuthorized() || !check_bitrix_sessid() || $_SERVER
 	die();
 }
 
+$jsonDataMap = ['robot_json' => 'robot', 'form_data_json' => 'form_data', 'triggers_json' => 'triggers', 'templates_json' => 'templates'];
+$jsonValues = [];
+
+foreach ($jsonDataMap as $k => $v)
+{
+	if (isset($_REQUEST[$k]))
+	{
+		$jsonValues[$v] = \Bitrix\Main\Web\Json::decode($_REQUEST[$k]);
+		unset($_REQUEST[$k]);
+	}
+}
+
 CUtil::JSPostUnescape();
+
+foreach ($jsonValues as $k => $v)
+{
+	$_REQUEST[$k] = $v;
+}
 
 $action = !empty($_REQUEST['ajax_action']) ? $_REQUEST['ajax_action'] : null;
 
@@ -159,7 +176,9 @@ switch ($action)
 
 		$robotData = isset($_REQUEST['robot']) && is_array($_REQUEST['robot']) ? $_REQUEST['robot'] : null;
 		if (!$robotData)
+		{
 			$sendError('Empty robot data.');
+		}
 
 		$context = isset($_REQUEST['context']) && is_array($_REQUEST['context']) ? $_REQUEST['context'] : null;
 
@@ -189,7 +208,7 @@ switch ($action)
 		if (!$robotData)
 			$sendError('Empty robot data.');
 
-		$requestData = isset($_POST['form_data']) && is_array($_POST['form_data']) ? $_POST['form_data'] : array();
+		$requestData = isset($_REQUEST['form_data']) && is_array($_REQUEST['form_data']) ? $_REQUEST['form_data'] : [];
 
 		$template = new \Bitrix\Bizproc\Automation\Engine\Template($documentType);
 		$saveResult = $template->saveRobotSettings($robotData, $requestData);

@@ -26,7 +26,7 @@ class CMpNotifications
 		$daysCheck = intval(COption::GetOptionString('main', 'update_autocheck', '1'));
 		if($daysCheck > 0)
 		{
-			$arModulesResult = unserialize(COption::GetOptionString("main", "last_mp_modules_result"));
+			$arModulesResult = unserialize(COption::GetOptionString("main", "last_mp_modules_result"), ['allowed_classes' => false]);
 			if(!is_array($arModulesResult))
 			{
 				$arModulesResult = array("check_date" => 0);

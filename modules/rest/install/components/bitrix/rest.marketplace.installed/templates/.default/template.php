@@ -154,10 +154,15 @@ if (!$arResult['SLIDER'])
 									<a
 										class="ui-btn ui-btn-sm ui-btn-primary ui-btn-round<?=(!$app['REST_ACCESS']) ? ' ui-btn-disabled':''?>"
 										<? if ($app['REST_ACCESS']):?>
-											href="<?=$arResult['SUBSCRIPTION_BUY_URL']?>"
-											target="_blank"
+											<? if ($arResult['POPUP_BUY_SUBSCRIPTION_PRIORITY']):?>
+												onclick="BX.rest.Marketplace.buySubscription(this, <?=CUtil::PhpToJSObject($arParamsApp)?>);"
+												href="javascript:void(0)"
+											<? else:?>
+												href="<?=$arResult['SUBSCRIPTION_BUY_URL']?>"
+												target="_blank"
+											<? endif;?>
 										<? else:?>
-											onclick="top.BX.UI.InfoHelper.show('<?=$arResult['REST_ACCESS_HELPER_CODE']?>');"
+											onclick="top.BX.UI.InfoHelper.show('<?=$app['REST_ACCESS_HELPER_CODE']?>');"
 											href="javascript:void(0)"
 										<? endif;?>
 									>
@@ -173,9 +178,12 @@ if (!$arResult['SLIDER'])
 												target="_blank"
 											<? else:?>
 												href="<?=$app['BUY'][0]["LINK"]?>"
+												<? if (mb_strpos($app['BUY'][0]["LINK"], 'https://') === 0):?>
+													target="_blank"
+												<? endif;?>
 											<? endif;?>
 										<? else:?>
-											onclick="top.BX.UI.InfoHelper.show('<?=$arResult['REST_ACCESS_HELPER_CODE']?>');"
+											onclick="top.BX.UI.InfoHelper.show('<?=$app['REST_ACCESS_HELPER_CODE']?>');"
 											href="javascript:void(0)"
 										<? endif;?>
 									>
@@ -196,7 +204,7 @@ if (!$arResult['SLIDER'])
 												<? if ($app['REST_ACCESS']):?>
 													onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp) ?>);"
 												<? else:?>
-													onclick="top.BX.UI.InfoHelper.show('<?=$arResult['REST_ACCESS_HELPER_CODE']?>');"
+													onclick="top.BX.UI.InfoHelper.show('<?=$app['REST_ACCESS_HELPER_CODE']?>');"
 												<? endif;?>
 											>
 												<?=GetMessage("MARKETPLACE_INSTALL_BUTTON")?>
@@ -211,7 +219,7 @@ if (!$arResult['SLIDER'])
 													<? if ($app['REST_ACCESS']):?>
 														onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp) ?>);"
 													<? else:?>
-														onclick="top.BX.UI.InfoHelper.show('<?=$arResult['REST_ACCESS_HELPER_CODE']?>');"
+														onclick="top.BX.UI.InfoHelper.show('<?=$app['REST_ACCESS_HELPER_CODE']?>');"
 													<? endif?>
 												>
 													<?=GetMessage("MARKETPLACE_APP_DEMO")?>
@@ -222,7 +230,7 @@ if (!$arResult['SLIDER'])
 													<? if ($app['REST_ACCESS']):?>
 														onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp) ?>);"
 													<? else:?>
-														onclick="top.BX.UI.InfoHelper.show('<?=$arResult['REST_ACCESS_HELPER_CODE']?>');"
+														onclick="top.BX.UI.InfoHelper.show('<?=$app['REST_ACCESS_HELPER_CODE']?>');"
 													<? endif;?>
 												>
 													<?=GetMessage("MARKETPLACE_APP_TRIAL")?>
@@ -238,7 +246,7 @@ if (!$arResult['SLIDER'])
 											<? if ($app['REST_ACCESS']):?>
 												onclick="BX.rest.Marketplace.install(<?=CUtil::PhpToJSObject($arParamsApp)?>);"
 											<? else:?>
-												onclick="top.BX.UI.InfoHelper.show('<?=$arResult['REST_ACCESS_HELPER_CODE']?>');"
+												onclick="top.BX.UI.InfoHelper.show('<?=$app['REST_ACCESS_HELPER_CODE']?>');"
 											<? endif;?>
 										>
 											<?=GetMessage("MARKETPLACE_INSTALL_BUTTON")?>
@@ -254,7 +262,7 @@ if (!$arResult['SLIDER'])
 										<? if ($app['REST_ACCESS']):?>
 											onclick="BX.rest.Marketplace.install(<?=CUtil::PhpToJSObject($arParamsApp) ?>);"
 										<? else:?>
-											onclick="top.BX.UI.InfoHelper.show('<?=$arResult['REST_ACCESS_HELPER_CODE']?>');"
+											onclick="top.BX.UI.InfoHelper.show('<?=$app['REST_ACCESS_HELPER_CODE']?>');"
 										<? endif;?>
 									>
 										<?=GetMessage("MARKETPLACE_UPDATE_BUTTON")?>
@@ -294,7 +302,17 @@ if (!$arResult['SLIDER'])
 		echo GetMessage("MARKETPLACE_BUYS_EMPTY");
 	}
 	?>
-
+	<?php
+	$APPLICATION->IncludeComponent(
+		'bitrix:main.pagenavigation',
+		'',
+		array(
+			'NAV_OBJECT' => $arResult['NAV_OBJECT'],
+			'SEF_MODE' => 'N',
+			'BASE_LINK' => $arResult['CUR_URI']
+		),
+		$component
+	);?>
 	<?
 	if ($arResult["AJAX_MODE"])
 	{

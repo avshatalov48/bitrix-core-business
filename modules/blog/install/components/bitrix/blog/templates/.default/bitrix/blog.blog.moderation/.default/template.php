@@ -77,7 +77,7 @@ if($arResult["FATAL_ERROR"] <> '')
 	</div>
 	<?
 }
-elseif(count($arResult["POST"])>0)
+elseif(is_array($arResult["POST"]) && count($arResult["POST"])>0)
 {
 	foreach($arResult["POST"] as $ind => $CurPost)
 	{

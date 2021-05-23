@@ -214,6 +214,11 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	      return this.clientVersion[3];
 	    }
+	  }, {
+	    key: "isReady",
+	    value: function isReady() {
+	      return typeof BXDesktopSystem != "undefined";
+	    }
 	  }]);
 	  return Desktop;
 	}();

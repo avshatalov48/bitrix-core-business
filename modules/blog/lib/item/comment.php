@@ -121,17 +121,20 @@ class Comment
 			return false;
 		}
 
+		\CTimeZone::Disable();
 		$res = \CBlogComment::getList(
-			array("ID" => "DESC"),
-			array(
+			[ "ID" => "DESC" ],
+			[
 				"BLOG_ID" => $blogId,
 				"POST_ID" => $postId,
-				"AUTHOR_ID" => $authorId
-			),
+				"AUTHOR_ID" => $authorId,
+				">DATE_CREATE" => ConvertTimeStamp(time()-60*30, "FULL")
+			],
 			false,
-			array("nTopCount" => 1),
-			array("ID", "POST_ID", "BLOG_ID", "AUTHOR_ID", "POST_TEXT")
+			[ "nTopCount" => 1 ],
+			[ "ID", "POST_ID", "BLOG_ID", "AUTHOR_ID", "POST_TEXT" ]
 		);
+		\CTimeZone::Enable();
 
 		if (
 			($duplicateComment = $res->fetch())

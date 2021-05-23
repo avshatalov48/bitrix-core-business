@@ -6,6 +6,7 @@ export default class SearchQuery
 	query: string = '';
 	cacheable: boolean = true;
 	dynamicSearchEntities: string[] = [];
+	resultLimit: number = 100;
 
 	constructor(query: string)
 	{
@@ -41,6 +42,19 @@ export default class SearchQuery
 		return this.cacheable;
 	}
 
+	setResultLimit(limit: number)
+	{
+		if (Type.isNumber(limit) && limit >= 0)
+		{
+			this.resultLimit = limit;
+		}
+	}
+
+	getResultLimit(): number
+	{
+		return this.resultLimit;
+	}
+
 	hasDynamicSearch(): boolean
 	{
 		return this.getDynamicSearchEntities().length > 0;
@@ -71,7 +85,12 @@ export default class SearchQuery
 		return this.dynamicSearchEntities;
 	}
 
-	toJSON()
+	getAjaxJson(): { [key: string]: any }
+	{
+		return this.toJSON();
+	}
+
+	toJSON(): { [key: string]: any }
 	{
 		return {
 			queryWords: this.getQueryWords(),

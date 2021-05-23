@@ -1,4 +1,7 @@
 <?
+
+use Bitrix\Main\Loader;
+
 IncludeModuleLangFile(__FILE__);
 
 class CListFieldTypeList
@@ -70,11 +73,16 @@ class CListFieldTypeList
 			self::$types["G"] = new CListFieldType("G", GetMessage("LISTS_LIST_FIELD_G"), CListFieldType::NOT_FIELD, CListFieldType::NOT_READONLY);
 			self::$types["E"] = new CListFieldType("E", GetMessage("LISTS_LIST_FIELD_E"), CListFieldType::NOT_FIELD, CListFieldType::NOT_READONLY);
 			//User types
-			$type = CIBlockProperty::GetUserType();
-			if ($type)
+			$types = CIBlockProperty::GetUserType();
+			if ($types)
 			{
-				$ignoreTypes = array('directory', 'SectionAuto', 'SKU', 'EAutocomplete');
-				foreach($type as  $ar)
+				$ignoreTypes = ['directory', 'SectionAuto', 'SKU', 'EAutocomplete'];
+				if (self::isBlockYandexMapType())
+				{
+					$ignoreTypes[] = 'map_yandex';
+				}
+
+				foreach($types as  $ar)
 				{
 					if(in_array($ar['USER_TYPE'], $ignoreTypes))
 						continue;
@@ -87,6 +95,25 @@ class CListFieldTypeList
 				}
 			}
 		}
+	}
+
+	private static function isBlockYandexMapType(): bool
+	{
+		$licensePrefix = Loader::includeModule('bitrix24') ? \CBitrix24::getLicensePrefix() : '';
+		$portalZone = Loader::includeModule('intranet') ? CIntranetUtils::getPortalZone() : '';
+
+		$isBlock = false;
+
+		if (Loader::includeModule('bitrix24') && $licensePrefix === 'ua')
+		{
+			$isBlock = true;
+		}
+		elseif (Loader::includeModule('intranet') && $portalZone === 'ua')
+		{
+			$isBlock = true;
+		}
+
+		return $isBlock;
 	}
 }
 ?>

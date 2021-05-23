@@ -240,6 +240,14 @@ abstract class Base
 	}
 
 	/**
+	 * @return float|null
+	 */
+	public static function getDefaultVatRate(): ?float
+	{
+		return null;
+	}
+
+	/**
 	 * @param \Bitrix\Sale\Shipment $shipment.
 	 * @return Delivery\CalculationResult
 	 */
@@ -854,7 +862,7 @@ abstract class Base
 		{
 			$languageId = \CBitrix24::getLicensePrefix();
 
-			if(!in_array($languageId, ['ru', 'kz', 'by', 'ua']))
+			if(!in_array($languageId, ['ru', 'kz', 'by']))
 			{
 				$result = false;
 			}

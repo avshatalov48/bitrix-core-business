@@ -111,16 +111,16 @@ class SectionRepository implements SectionRepositoryContract
 		return new Result();
 	}
 
-	public function getCollectionByProduct(BaseProduct $product): BaseCollection
+	public function getCollectionByProduct(BaseProduct $product): SectionCollection
 	{
 		if ($product->isNew())
 		{
-			return $this->createCollection([], $product);
+			return $this->createCollection();
 		}
 
 		$result = $this->getListByProductId($product->getId());
 
-		return $this->createCollection($result, $product);
+		return $this->createCollection($result);
 	}
 
 	protected function getListByProductId(int $productId): array
@@ -148,7 +148,7 @@ class SectionRepository implements SectionRepositoryContract
 		return [];
 	}
 
-	protected function createEntity(array $fields): BaseEntity
+	protected function createEntity(array $fields): Section
 	{
 		$entity = $this->factory->createEntity();
 
@@ -157,13 +157,12 @@ class SectionRepository implements SectionRepositoryContract
 		return $entity;
 	}
 
-	protected function createCollection(array $entityFields, BaseProduct $product): BaseCollection
+	protected function createCollection(array $entityFields = []): SectionCollection
 	{
-		$collection = $this->factory->createCollection($product);
+		$collection = $this->factory->createCollection();
 
 		foreach ($entityFields as $fields)
 		{
-			/** @var \Bitrix\Catalog\v2\Section\Section $section */
 			$section = $this->createEntity($fields);
 			$collection->add($section);
 		}

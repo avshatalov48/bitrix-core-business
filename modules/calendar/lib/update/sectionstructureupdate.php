@@ -79,7 +79,7 @@ final class SectionStructureUpdate extends Stepper
 	private function loadCurrentStatus()
 	{
 		$status = Option::get('calendar', 'sectionStructureUpdaterStatus', 'default');
-		$status = ($status !== 'default' ? @unserialize($status) : []);
+		$status = ($status !== 'default' ? @unserialize($status, ['allowed_classes' => false]) : []);
 		$status = (is_array($status) ? $status : []);
 
 		if (empty($status))

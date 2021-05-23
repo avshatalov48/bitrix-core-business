@@ -2,15 +2,14 @@
 
 namespace Bitrix\Seo\LeadAds\Services;
 
-use Bitrix\Main\Error;
 use Bitrix\Main\Context;
+use Bitrix\Main\Error;
 use Bitrix\Main\Security\Random;
 use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Web\Json;
-
 use Bitrix\Seo\LeadAds;
-use Bitrix\Seo\WebHook;
 use Bitrix\Seo\Retargeting;
+use Bitrix\Seo\WebHook;
 
 /**
  * Class FormVkontakte

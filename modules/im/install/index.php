@@ -56,7 +56,7 @@ class im extends CModule
 			if(!$DB->Query("SELECT 'x' FROM b_im_chat", true))
 				$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/im/install/db/".mb_strtolower($DB->type)."/install.sql");
 		}
-		
+
 		if(!empty($this->errors))
 		{
 			$APPLICATION->ThrowException(implode("", $this->errors));
@@ -86,6 +86,7 @@ class im extends CModule
 		CAgent::AddAgent("CIMMail::MailNotifyAgent();", "im", "N", 600);
 		CAgent::AddAgent("CIMMail::MailMessageAgent();", "im", "N", 600);
 		CAgent::AddAgent("CIMDisk::RemoveTmpFileAgent();", "im", "N", 43200);
+		CAgent::AddAgent("\\Bitrix\\Im\\Notify::cleanNotifyAgent();", "im", "N", 7200);
 		CAgent::AddAgent("\\Bitrix\\Im\\Bot::deleteExpiredTokenAgent();", "im", "N", 86400);
 		CAgent::AddAgent("\\Bitrix\\Im\\Disk\\NoRelationPermission::cleaningAgent();", "im", "N", 3600);
 		CAgent::AddAgent("\\Bitrix\\Im\\Call\\Conference::removeTemporaryAliases();", "im", "N", 86400);
@@ -373,6 +374,7 @@ class im extends CModule
 		CAgent::RemoveAgent("CIMMail::MailNotifyAgent();", "im");
 		CAgent::RemoveAgent("CIMMail::MailMessageAgent();", "im");
 		CAgent::RemoveAgent("CIMDisk::RemoveTmpFileAgent();", "im");
+		CAgent::RemoveAgent("\\Bitrix\\Im\\Notify::cleanNotifyAgent();", "im");
 		CAgent::RemoveAgent("\\Bitrix\\Im\\Bot::deleteExpiredTokenAgent();", "im");
 		CAgent::RemoveAgent("\\Bitrix\\Im\\Disk\\NoRelationPermission::cleaningAgent();", "im");
 		CAgent::RemoveAgent("\\Bitrix\\Im\\Call\\Conference::removeTemporaryAliases();", "im");

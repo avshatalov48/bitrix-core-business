@@ -1656,6 +1656,53 @@ class CAllMailMessage
 		return static::saveMessage($mailboxId, $message, $header, $html, $text, $attachments, $params);
 	}
 
+	public static function isolateSelector($matches)
+	{
+		$head = $matches['head'];
+		$body = $matches['body'];
+		$prefix = 'mail-message-';
+		$wrapper = '#mail-message-wrapper ';
+		if(substr($head,0,1)==='@') $wrapper ='';
+		$closure = $matches['closure'];
+		$head = preg_replace('%([\.#])([a-z][-_a-z0-9]+)%msi', '$1'.$prefix.'$2', $head);
+		return $wrapper.$head.$body.$closure;
+	}
+
+	public static function isolateStylesInTheTag($matches)
+	{
+		$wrapper = '#mail-message-wrapper ';
+		$openingTag = $matches['openingTag'];
+		$closingTag = $matches['closingTag'];
+		$styles = $matches['styles'];
+		$bodySelectorPattern = '#(.*?)(^|\s)(body)\s*((?:\{)(?:.*?)(?:\}))(.*)#msi';
+		$bodySelector = preg_replace($bodySelectorPattern, '$2'.$wrapper.'$4', $styles);
+		//cut off body selector
+		$styles = preg_replace($bodySelectorPattern, '$1$5', $styles);
+		$styles = preg_replace('#(^|\s)(body)\s*({)#isU', '$1mail-msg-view-body$3', $styles);
+		$styles = preg_replace_callback('%(?:^|\s)(?<head>[@#\.]?[a-z].*?\{)(?<body>.*?)(?<closure>\})%msi', 'static::isolateSelector', $styles);
+		return  $openingTag.$bodySelector.$styles.$closingTag;
+	}
+
+	public static function isolateStylesInTheBody($html)
+	{
+		$prefix = 'mail-message-';
+		$html = preg_replace('%((?:^|\s)(?:class|id)(?:^|\s*)(?:=)(?:^|\s*)(\"|\'))((?:.*?)(?:\2))%', '$1'.$prefix.'$3', $html);
+		return $html;
+	}
+
+	public static function isolateMessageStyles($messageHtml)
+	{
+		//isolates the positioning of the element
+		$messageHtml = preg_replace('%((?:^|\s)position(?:^|\s)?:(?:^|\s)?)(absolute|fixed|inherit)%', '$1relative', $messageHtml);
+		//remove media queries
+		$messageHtml = preg_replace('%@media\b[^{]*({((?:[^{}]+|(?1))*)})%msi', '$2', $messageHtml);
+		//remove loading fonts
+		$messageHtml = preg_replace('%@font-face\b[^{]*({(?>[^{}]++|(?1))*})%msi', '', $messageHtml);
+		$messageHtml = static::isolateStylesInTheBody($messageHtml);
+		$messageHtml = preg_replace_callback('|(?<openingTag><style[^>]*>)(?<styles>.*)(?<closingTag><\/style>)|isU', 'static::isolateStylesInTheTag',$messageHtml);
+		return $messageHtml;
+	}
+
 	public static function saveMessage($mailboxId, &$message, &$header, &$bodyHtml, &$bodyText, &$attachments, $params = array())
 	{
 		global $DB;
@@ -1855,11 +1902,39 @@ class CAllMailMessage
 				$sanitizer = new \CBXSanitizer();
 				$sanitizer->setLevel(\CBXSanitizer::SECURE_LEVEL_LOW);
 				$sanitizer->applyDoubleEncode(false);
+
+				$validTagAttributes = [
+					'colspan',
+					'border',
+					'bgcolor',
+					'width',
+					'background',
+					'style',
+					'align',
+					'height',
+					'background-color',
+					'border',
+					'ltr',
+					'rtl',
+					'class',
+				];
+				$tableAttributes = array_merge(
+					$validTagAttributes,
+					[
+						'cellpadding',
+						'cellspacing',
+					]
+				);
 				$sanitizer->addTags(array(
 					'style' => array(),
 					'colgroup' => array(),
 					'col' => array('width'),
+					'table' => $tableAttributes,
+					'center' => $validTagAttributes,
+					'div' => $validTagAttributes,
+					'td' =>$validTagAttributes,
 				));
+				
 				$arFields['BODY_HTML'] = $sanitizer->sanitizeHtml($msg);
 
 				foreach ($arMessageParts as $part)
@@ -1875,6 +1950,7 @@ class CAllMailMessage
 						$arFields['BODY_HTML']
 					);
 				}
+				$arFields['BODY_HTML'] = static::isolateMessageStyles($arFields['BODY_HTML']);
 
 				\CMailMessage::update($message_id, array('BODY_HTML' => $arFields['BODY_HTML']));
 			}

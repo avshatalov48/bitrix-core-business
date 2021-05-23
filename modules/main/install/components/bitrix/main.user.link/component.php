@@ -49,7 +49,7 @@ if ($bSocialNetwork)
 {
 	if (!array_key_exists("SHOW_FIELDS", $arParams) || !$arParams["SHOW_FIELDS"])
 	{
-		$arParams["SHOW_FIELDS"] = unserialize(COption::GetOptionString("socialnetwork", "tooltip_fields", 's:0:"";'));
+		$arParams["SHOW_FIELDS"] = unserialize(COption::GetOptionString("socialnetwork", "tooltip_fields", 's:0:"";'), ['allowed_classes' => false]);
 		if (!is_array($arParams["SHOW_FIELDS"]))
 		{
 			$arParams["SHOW_FIELDS"] = (
@@ -77,7 +77,7 @@ if ($bSocialNetwork)
 
 	if (!array_key_exists("USER_PROPERTY", $arParams) || !$arParams["USER_PROPERTY"])
 	{
-		$arParams["USER_PROPERTY"] = unserialize(COption::GetOptionString("socialnetwork", "tooltip_properties", 's:0:"";'));
+		$arParams["USER_PROPERTY"] = unserialize(COption::GetOptionString("socialnetwork", "tooltip_properties", 's:0:"";'), ['allowed_classes' => false]);
 		if (!is_array($arParams["USER_PROPERTY"]))
 		{
 			if ($bIntranet)
@@ -93,7 +93,7 @@ if ($bSocialNetwork)
 	}
 
 	if (COption::GetOptionString("socialnetwork", "tooltip_show_rating", "N") == "Y")
-		$arParams["USER_RATING"] = unserialize(COption::GetOptionString("socialnetwork", "tooltip_rating_id", serialize(array())));
+		$arParams["USER_RATING"] = unserialize(COption::GetOptionString("socialnetwork", "tooltip_rating_id", serialize(array())), ['allowed_classes' => false]);
 
 }
 

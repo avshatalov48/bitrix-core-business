@@ -52,7 +52,8 @@ class EventTable extends Entity\DataManager
 				})
 				->configureUnserializeCallback(function ($str) {
 					return unserialize(
-						EventTable::getFetchModificationForFieldsField($str)
+						EventTable::getFetchModificationForFieldsField($str),
+						['allowed_classes' => false]
 					);
 				}),
 

@@ -1,13 +1,15 @@
 <?php
+
 namespace Bitrix\Bizproc;
 
 use Bitrix\Bizproc\Workflow\Entity\WorkflowInstanceTable;
-use \Bitrix\Main\Loader;
-use \Bitrix\Rest\AppLangTable;
-use \Bitrix\Rest\AppTable;
+use Bitrix\Main\Loader;
+use Bitrix\Rest\AppLangTable;
+use Bitrix\Rest\AppTable;
+use Bitrix\Rest\HandlerHelper;
 use Bitrix\Rest\PlacementTable;
-use \Bitrix\Rest\RestException;
-use \Bitrix\Rest\AccessException;
+use Bitrix\Rest\RestException;
+use Bitrix\Rest\AccessException;
 
 Loader::includeModule('rest');
 
@@ -17,11 +19,8 @@ class RestService extends \IRestService
 	public const PLACEMENT_ACTIVITY_PROPERTIES_DIALOG = 'BIZPROC_ACTIVITY_PROPERTIES_DIALOG';
 
 	protected static $app;
-	private static $allowedOperations = array('', '!', '<', '<=', '>', '>=');//, '><', '!><', '?', '=', '!=', '%', '!%', ''); May be later?
-
-	const ERROR_UNSUPPORTED_PROTOCOL = 'ERROR_UNSUPPORTED_PROTOCOL';
-	const ERROR_WRONG_HANDLER_URL = 'ERROR_WRONG_HANDLER_URL';
-	const ERROR_HANDLER_URL_MATCH = 'ERROR_HANDLER_URL_MATCH';
+	private static $allowedOperations = ['', '!', '<', '<=', '>', '>='];
+	//, '><', '!><', '?', '=', '!=', '%', '!%', ''); May be later?
 
 	const ERROR_ACTIVITY_ALREADY_INSTALLED = 'ERROR_ACTIVITY_ALREADY_INSTALLED';
 	const ERROR_ACTIVITY_ADD_FAILURE = 'ERROR_ACTIVITY_ADD_FAILURE';
@@ -29,7 +28,6 @@ class RestService extends \IRestService
 	const ERROR_ACTIVITY_NOT_FOUND = 'ERROR_ACTIVITY_NOT_FOUND';
 	const ERROR_EMPTY_LOG_MESSAGE = 'ERROR_EMPTY_LOG_MESSAGE';
 	const ERROR_WRONG_WORKFLOW_ID = 'ERROR_WRONG_WORKFLOW_ID';
-	const ERROR_WRONG_ACTIVITY_NAME = 'ERROR_WRONG_ACTIVITY_NAME';
 
 	const ERROR_TEMPLATE_VALIDATION_FAILURE = 'ERROR_TEMPLATE_VALIDATION_FAILURE';
 
@@ -69,6 +67,7 @@ class RestService extends \IRestService
 
 				//workflow
 				'bizproc.workflow.terminate' => [__CLASS__, 'terminateWorkflow'],
+				'bizproc.workflow.kill' => [__CLASS__, 'killWorkflow'],
 				'bizproc.workflow.start' => [__CLASS__, 'startWorkflow'],
 
 				//workflow.instance
@@ -677,6 +676,35 @@ class RestService extends \IRestService
 		$errors = [];
 
 		if (!\CBPDocument::terminateWorkflow($id, [], $errors, $status))
+		{
+			throw new RestException($errors[0]['message']);
+		}
+
+		return true;
+	}
+
+	/**
+	 * @param array $params Input params.
+	 * @param int $n Offset.
+	 * @param \CRestServer $server Rest server instance.
+	 * @return bool True on success.
+	 * @throws AccessException
+	 * @throws RestException
+	 */
+	public static function killWorkflow($params, $n, $server)
+	{
+		self::checkAdminPermissions();
+		$params = array_change_key_case($params, CASE_UPPER);
+
+		if (empty($params['ID']))
+		{
+			throw new RestException('Empty workflow instance ID', self::ERROR_WRONG_WORKFLOW_ID);
+		}
+
+		$id = $params['ID'];
+		$errors = \CBPDocument::killWorkflow($id);
+
+		if ($errors)
 		{
 			throw new RestException($errors[0]['message']);
 		}
@@ -1560,56 +1588,7 @@ class RestService extends \IRestService
 
 	private static function validateActivityHandler($handler, $server)
 	{
-		$handlerData = parse_url($handler);
-
-		if (is_array($handlerData)
-			&& $handlerData['host'] <> ''
-			&& mb_strpos($handlerData['host'], '.') > 0
-		)
-		{
-			if ($handlerData['scheme'] == 'http' || $handlerData['scheme'] == 'https')
-			{
-				$host = $handlerData['host'];
-				$app = self::getApp($server);
-				if ($app['URL'] <> '')
-				{
-					$urls = array($app['URL']);
-
-					if ($app['URL_DEMO'] <> '')
-					{
-						$urls[] = $app['URL_DEMO'];
-					}
-					if ($app['URL_INSTALL'] <> '')
-					{
-						$urls[] = $app['URL_INSTALL'];
-					}
-
-					$found = false;
-					foreach($urls as $url)
-					{
-						$a = parse_url($url);
-						if ($host == $a['host'] || $a['host'] == 'localhost')
-						{
-							$found = true;
-							break;
-						}
-					}
-
-					if(!$found)
-					{
-						throw new RestException('Handler URL host doesn\'t match application url', self::ERROR_HANDLER_URL_MATCH);
-					}
-				}
-			}
-			else
-			{
-				throw new RestException('Unsupported event handler protocol', self::ERROR_UNSUPPORTED_PROTOCOL);
-			}
-		}
-		else
-		{
-			throw new RestException('Wrong handler URL', self::ERROR_WRONG_HANDLER_URL);
-		}
+		HandlerHelper::checkCallback($handler);
 	}
 
 	private static function validateActivityProperties($properties)

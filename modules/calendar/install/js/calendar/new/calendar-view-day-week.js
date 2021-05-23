@@ -780,7 +780,10 @@
 			day.entries.timeline.sort(function(a, b)
 			{
 				if (a.part.fromTimeValue === b.part.fromTimeValue)
+				{
 					return (b.part.toTimeValue - b.part.fromTimeValue) - (a.part.toTimeValue - a.part.fromTimeValue);
+				}
+
 				return a.part.fromTimeValue - b.part.fromTimeValue;
 			});
 
@@ -1997,10 +2000,91 @@
 		}
 	};
 
+	DayView.prototype.correctDuration = function ()
+	{
+		var isToDateChange = false;
+		var fromDate = new Date(this.newEntry.dayFrom.date.getTime());
+		var toDate = new Date(this.newEntry.dayFrom.date.getTime());
+		fromDate.setHours(this.newEntry.timeFrom.h, this.newEntry.timeFrom.m, 0, 0);
+		toDate.setHours(this.newEntry.timeTo.h, this.newEntry.timeTo.m, 0, 0);
+		var fromDateOrig = new Date(fromDate.getTime());
+		var toDateOrig = new Date(toDate.getTime());
+		var items =
+			this.name === 'week'
+				? this.days[this.newEntry.dayFrom.dayOffset].entries.timeline
+				: this.days[0].entries.timeline;
+
+		for (var i = 0; i < items.length; i++)
+		{
+			if (items[i].entry.accessibility === 'free')
+			{
+				continue;
+			}
+
+			if (
+				fromDate < items[i].entry.to
+				&& fromDate >= items[i].entry.from
+			)
+			{
+				fromDate = items[i].entry.to;
+				if (!isToDateChange)
+				{
+					toDate.setHours(fromDate.getHours() + 1);
+					toDate.setMinutes(fromDate.getMinutes())
+				}
+			}
+
+			if (
+				toDate > items[i].entry.from
+				&& fromDate <= items[i].entry.from
+			)
+			{
+				isToDateChange = true;
+				toDate = items[i].entry.from;
+			}
+		}
+
+		if (((fromDate - fromDateOrig) / 60000) >= 30)
+		{
+			this.newEntry.timeFrom.h = fromDateOrig.getHours();
+			this.newEntry.timeFrom.m = fromDateOrig.getMinutes();
+			this.newEntry.timeTo.h = toDateOrig.getHours();
+			this.newEntry.timeTo.m = toDateOrig.getMinutes();
+		}
+		else
+		{
+			this.newEntry.timeFrom.h = fromDate.getHours();
+			this.newEntry.timeFrom.m = fromDate.getMinutes();
+			this.newEntry.timeTo.h = toDate.getHours();
+			this.newEntry.timeTo.m = toDate.getMinutes();
+		}
+	}
+
+	DayView.prototype.correctNewEntryWrap = function ()
+	{
+		var fromTimeValue = this.newEntry.timeFrom.h + this.newEntry.timeFrom.m / 60;
+		var toTimeValue = this.newEntry.timeTo.h + this.newEntry.timeTo.m / 60;
+		this.newEntry.entryNode.style.height = ((toTimeValue - fromTimeValue) * this.gridLineHeight - 3) + 'px';
+
+		var workTime = this.util.getWorkTime();
+
+		if (this.collapseOffHours)
+		{
+			fromTimeValue = Math.max(fromTimeValue, workTime.start);
+			this.startMousePos = this.offtimeTuneBaseZeroPos + ((fromTimeValue - workTime.start) * this.gridLineHeight + 1);
+		}
+		else
+		{
+			this.startMousePos = this.offtimeTuneBaseZeroPos + (fromTimeValue * this.gridLineHeight + 1);
+		}
+	}
+
 	DayView.prototype.handleMousedown = function(e)
 	{
 		if (!this.isActive())
+		{
 			return;
+		}
 
 		var compactForm = BX.Calendar.EntryManager.getCompactViewForm(false);
 		if (compactForm && compactForm.isShown())
@@ -2008,9 +2092,8 @@
 			return;
 		}
 
-		var
-			dayCode,
-			target = this.calendar.util.findTargetNode(e.target || e.srcElement);
+		var dayCode;
+		var target = this.calendar.util.findTargetNode(e.target || e.srcElement);
 
 		if (!this.calendar.util.readOnlyMode()
 			&& this.entryController.canDo(true, 'add_event')
@@ -2037,9 +2120,8 @@
 			this.newEntry.dayFrom = this.days[this.dayIndex[dayCode]];
 
 			this.newEntry.timeFrom = this.getTimeByPos(this.startMousePos - this.offtimeTuneBaseZeroPos, 30, true);
-			var
-				workTime = this.util.getWorkTime(),
-				fromTimeValue = this.newEntry.timeFrom.h + this.newEntry.timeFrom.m / 60;
+			var workTime = this.util.getWorkTime();
+			var fromTimeValue = this.newEntry.timeFrom.h + this.newEntry.timeFrom.m / 60;
 
 			if (this.collapseOffHours)
 			{
@@ -2049,13 +2131,22 @@
 			else
 			{
 				this.startMousePos = this.offtimeTuneBaseZeroPos + (fromTimeValue * this.gridLineHeight + 1);
-
 			}
 
-			if (this.newEntry.timeFrom.h == 23)
+			if (this.newEntry.timeFrom.h === 23)
+			{
 				this.newEntry.timeTo = {h: 23, m: 59};
+			}
 			else
-				this.newEntry.timeTo = {h: this.newEntry.timeFrom.h + 1, m: this.newEntry.timeFrom.m};
+			{
+				this.newEntry.timeTo = {
+					h: this.newEntry.timeFrom.h + 1,
+					m: this.newEntry.timeFrom.m
+				};
+			}
+
+			this.correctDuration();
+			this.correctNewEntryWrap(workTime);
 
 			this.newEntry.changeTimeCallback(this.newEntry.timeFrom, this.newEntry.timeTo);
 			this.newEntry.entryNode.style.top = (this.startMousePos - BX.pos(this.outerGrid).top) + 'px';

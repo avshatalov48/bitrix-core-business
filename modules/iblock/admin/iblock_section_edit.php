@@ -894,7 +894,7 @@ if($arTranslit["TRANSLITERATION"] == "Y")
 		<tr id="tr_NAME">
 			<td><?echo $tabControl->GetCustomLabelHTML()?></td>
 			<td nowrap>
-				<input type="text" size="50" name="NAME" id="NAME" maxlength="255" value="<?echo $str_NAME?>"><image id="name_link" title="<?echo GetMessage("IBSEC_E_LINK_TIP")?>" class="linked" src="/bitrix/themes/.default/icons/iblock/<?if($bLinked) echo 'link.gif'; else echo 'unlink.gif';?>" onclick="set_linked()" />
+				<input type="text" size="70" name="NAME" id="NAME" maxlength="255" value="<?echo $str_NAME?>"><img id="name_link" title="<?echo GetMessage("IBSEC_E_LINK_TIP")?>" class="linked" src="/bitrix/themes/.default/icons/iblock/<?if($bLinked) echo 'link.gif'; else echo 'unlink.gif';?>" onclick="set_linked()" />
 			</td>
 		</tr>
 	<?
@@ -908,7 +908,7 @@ if($arTranslit["TRANSLITERATION"] == "Y")
 			<td><?echo $tabControl->GetCustomLabelHTML()?></td>
 			<td nowrap>
 
-				<input type="text" size="50" name="CODE" id="CODE" maxlength="255" value="<?echo $str_CODE?>"><image id="code_link" title="<?echo GetMessage("IBSEC_E_LINK_TIP")?>" class="linked" src="/bitrix/themes/.default/icons/iblock/<?if($bLinked) echo 'link.gif'; else echo 'unlink.gif';?>" onclick="set_linked()" />
+				<input type="text" size="70" name="CODE" id="CODE" maxlength="255" value="<?echo $str_CODE?>"><img id="code_link" title="<?echo GetMessage("IBSEC_E_LINK_TIP")?>" class="linked" src="/bitrix/themes/.default/icons/iblock/<?if($bLinked) echo 'link.gif'; else echo 'unlink.gif';?>" onclick="set_linked()" />
 			</td>
 		</tr>
 	<?
@@ -918,7 +918,7 @@ if($arTranslit["TRANSLITERATION"] == "Y")
 }
 else
 {
-	$tabControl->AddEditField("NAME", GetMessage("IBLOCK_FIELD_NAME").":", true, array("size" => 50, "maxlength" => 255), $str_NAME);
+	$tabControl->AddEditField("NAME", GetMessage("IBLOCK_FIELD_NAME").":", true, array("size" => 70, "maxlength" => 255), $str_NAME);
 }
 
 $tabControl->BeginCustomField("PICTURE", GetMessage("IBSEC_E_PICTURE"), $arIBlock["FIELDS"]["SECTION_PICTURE"]["IS_REQUIRED"] === "Y");
@@ -1250,14 +1250,14 @@ if(COption::GetOptionString("iblock", "show_xml_id", "N")=="Y")
 		"XML_ID",
 		GetMessage("IBLOCK_FIELD_XML_ID").":",
 		$arIBlock["FIELDS"]["SECTION_XML_ID"]["IS_REQUIRED"] === "Y",
-		array("size" => 20, "maxlength" => 255),
+		array("size" => 70, "maxlength" => 255),
 		$str_XML_ID
 	);
 }
 
 if($arTranslit["TRANSLITERATION"] != "Y")
 {
-	$tabControl->AddEditField("CODE", GetMessage("IBLOCK_FIELD_CODE").":", $arIBlock["FIELDS"]["SECTION_CODE"]["IS_REQUIRED"] === "Y", array("size" => 20, "maxlength" => 255), $str_CODE);
+	$tabControl->AddEditField("CODE", GetMessage("IBLOCK_FIELD_CODE").":", $arIBlock["FIELDS"]["SECTION_CODE"]["IS_REQUIRED"] === "Y", array("size" => 70, "maxlength" => 255), $str_CODE);
 }
 
 $tabControl->BeginCustomField("DETAIL_PICTURE", GetMessage("IBLOCK_FIELD_DETAIL_PICTURE").":", $arIBlock["FIELDS"]["SECTION_DETAIL_PICTURE"]["IS_REQUIRED"] === "Y");

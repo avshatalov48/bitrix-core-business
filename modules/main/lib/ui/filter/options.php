@@ -863,7 +863,7 @@ class Options
 
 				while ($userOptions = $allUserOptions->fetch())
 				{
-					$currentUserOptions = unserialize($userOptions["VALUE"]);
+					$currentUserOptions = unserialize($userOptions["VALUE"], ['allowed_classes' => false]);
 
 					if (is_array($currentUserOptions))
 					{

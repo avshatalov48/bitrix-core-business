@@ -4,12 +4,13 @@ import BaseFooter from '../footer/base-footer';
 
 import type { BaseEvent } from 'main.core.events';
 import type Tab from '../tabs/tab';
+import type { FooterOptions } from './footer-content';
 
 export default class SearchTabFooter extends BaseFooter
 {
 	loader: Loader = null;
 
-	constructor(tab: Tab, options: { [option: string]: any })
+	constructor(tab: Tab, options: FooterOptions)
 	{
 		super(tab, options);
 
@@ -52,12 +53,12 @@ export default class SearchTabFooter extends BaseFooter
 
 	showLoader(): void
 	{
-		this.getLoader().show();
+		void this.getLoader().show();
 	}
 
 	hideLoader(): void
 	{
-		this.getLoader().hide();
+		void this.getLoader().hide();
 	}
 
 	setLabel(label: string)
@@ -99,7 +100,8 @@ export default class SearchTabFooter extends BaseFooter
 
 	createItem(): void
 	{
-		if (this.getDialog().getTagSelector().isLocked())
+		const tagSelector = this.getDialog().getTagSelector();
+		if (tagSelector && tagSelector.isLocked())
 		{
 			return;
 		}
@@ -115,7 +117,11 @@ export default class SearchTabFooter extends BaseFooter
 
 		event.preventDefault();
 		this.showLoader();
-		this.getDialog().getTagSelector().lock();
+
+		if (tagSelector)
+		{
+			tagSelector.lock();
+		}
 
 		this.getDialog()
 			.emitAsync('Search:onItemCreateAsync', {

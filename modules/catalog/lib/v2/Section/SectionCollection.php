@@ -3,8 +3,6 @@
 namespace Bitrix\Catalog\v2\Section;
 
 use Bitrix\Catalog\v2\BaseCollection;
-use Bitrix\Catalog\v2\BaseEntity;
-use Bitrix\Main\InvalidOperationException;
 use Bitrix\Main\Result;
 
 /**
@@ -26,30 +24,6 @@ class SectionCollection extends BaseCollection
 	{
 		$this->factory = $factory;
 		$this->repository = $repository;
-	}
-
-	/**
-	 * @param \Bitrix\Catalog\v2\BaseEntity|\Bitrix\Catalog\v2\Section\HasSectionCollection|null $parent
-	 * @return \Bitrix\Catalog\v2\BaseCollection
-	 */
-	public function setParent(?BaseEntity $parent): BaseCollection
-	{
-		parent::setParent($parent);
-
-		if ($parent)
-		{
-			if (!($parent instanceof HasSectionCollection))
-			{
-				throw new InvalidOperationException(sprintf(
-					'Parent entity must implement {%s} interface',
-					HasSectionCollection::class
-				));
-			}
-
-			$parent->setSectionCollection($this);
-		}
-
-		return $this;
 	}
 
 	/**

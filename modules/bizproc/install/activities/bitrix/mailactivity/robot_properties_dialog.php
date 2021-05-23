@@ -109,7 +109,7 @@ endif;
 	</div>
 	<input type="hidden" name="<?=htmlspecialcharsbx($map['MailMessageType']['FieldName'])?>" value="html">
 	<input type="hidden" name="<?=htmlspecialcharsbx($map['MailCharset']['FieldName'])?>" value="<?=htmlspecialcharsbx(SITE_CHARSET)?>">
-	<input type="hidden" name="<?=htmlspecialcharsbx($map['DirrectMail']['FieldName'])?>" value="N">
+	<input type="hidden" name="<?=htmlspecialcharsbx($map['DirrectMail']['FieldName'])?>" value="Y">
 	<input type="hidden" name="<?=htmlspecialcharsbx($map['MailSite']['FieldName'])?>" value="<?=htmlspecialcharsbx(SITE_ID)?>">
 <?
 $config = array(
@@ -221,7 +221,7 @@ $configAttributeValue = htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode($config
 							autoHide: true,
 							offsetLeft: (BX.pos(this)['width'] / 2),
 							angle: { position: 'top', offset: 0 },
-							zIndex: 200,
+							overlay: { backgroundColor: 'transparent' },
 							events:
 								{
 									onPopupClose: function()

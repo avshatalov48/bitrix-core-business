@@ -645,7 +645,7 @@
 			);
 		},
 		onErrorRequest: function(response) {
-			options = {};
+			let options = {};
 			this.checkErrorRights(response.errors);
 			options.errorMessage = response.errors[0].message;
 			this.reloadGrid(options);

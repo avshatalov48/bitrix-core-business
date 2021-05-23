@@ -83,4 +83,43 @@ class VatTable extends Main\Entity\DataManager
 			new Main\Entity\Validator\Length(null, 50),
 		);
 	}
+
+	/**
+	 * Returns the ID of the active VAT rate for the specified value. If necessary, it creates a new VAT rate.
+	 *
+	 * @param float $rate Vat rate value.
+	 * @param bool $create Create new vat, if not exists.
+	 * @return int|null
+	 */
+	public static function getActiveVatIdByRate(float $rate, bool $create = false): ?int
+	{
+		if ($rate < 0 || $rate > 100)
+		{
+			return null;
+		}
+		$row = static::getList([
+			'select' => ['ID'],
+			'filter' => [
+				'=ACTIVE' => 'Y',
+				'=RATE' => $rate,
+			]
+		])->fetch();
+		if (!empty($row))
+		{
+			return (int)$row['ID'];
+		}
+
+		if ($create)
+		{
+			$result = static::add([
+				'ACTIVE' => 'Y',
+				'NAME' => $rate . '%',
+				'RATE' => $rate,
+			]);
+
+			return $result->isSuccess() ? (int)$result->getId() : null;
+		}
+
+		return null;
+	}
 }

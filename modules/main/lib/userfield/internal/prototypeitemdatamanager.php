@@ -351,6 +351,16 @@ abstract class PrototypeItemDataManager extends ORM\Data\DataManager
 		{
 			$userField['USER_TYPE'] = array();
 		}
+		elseif (
+			isset($userField['USER_TYPE']['BASE_TYPE'])
+			&& $userField['USER_TYPE']['BASE_TYPE'] === 'datetime'
+			&& $value instanceof Main\Type\DateTime
+			&& isset($userField['SETTINGS']['USE_TIMEZONE'])
+			&& $userField['SETTINGS']['USE_TIMEZONE'] === 'Y'
+		)
+		{
+			$value = $value::createFromUserTime($value->format(Main\Type\DateTime::getFormat()));
+		}
 
 		if (
 			isset($userField['USER_TYPE']['CLASS_NAME']) &&

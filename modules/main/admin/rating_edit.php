@@ -82,7 +82,7 @@ if($ID>0 && !$bTypeChange)
 	$raging = CRatings::GetByID($ID);
 	if(!($raging_arr = $raging->ExtractFields("str_")))
 		$ID=0;
-	$str_CONFIGS = unserialize(htmlspecialcharsback($str_CONFIGS));
+	$str_CONFIGS = unserialize(htmlspecialcharsback($str_CONFIGS), ['allowed_classes' => false]);
 }
 
 $sDocTitle = ($ID>0? GetMessage("MAIN_RATING_EDIT_RECORD", array("#ID#"=>$ID)) : GetMessage("MAIN_RATING_NEW_RECORD"));

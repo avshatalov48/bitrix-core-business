@@ -118,7 +118,7 @@ WHERE SITEMAP_ID='".intval($sitemapId)."'
 
 		foreach(self::$iblockCache[$fields['IBLOCK_ID']] as $res)
 		{
-			$sitemapSettings = unserialize($res['SITEMAP_SETTINGS']);
+			$sitemapSettings = unserialize($res['SITEMAP_SETTINGS'], ['allowed_classes' => false]);
 
 			$add = false;
 

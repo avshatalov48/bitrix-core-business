@@ -125,7 +125,7 @@ class CIMChat
 		}
 
 		$limitById = '';
-		$limitFetchMessages = 20;
+		$limitFetchMessages = 30;
 		$relations = \CIMChat::GetRelationById($toChatId);
 		if (isset($relations[$fromUserId]))
 		{
@@ -393,13 +393,13 @@ class CIMChat
 
 		if ($chatData['ENTITY_TYPE'] == 'LINES' && $chatData['ENTITY_ID'] && CModule::IncludeModule('imopenlines'))
 		{
-			list(, $lineId) = explode('|', $chatData["ENTITY_ID"]);
+			[, $lineId] = explode('|', $chatData["ENTITY_ID"]);
 			$configManager = new \Bitrix\ImOpenLines\Config();
 			$arResult['openlines']['canVoteAsHead'][$lineId] = $configManager->canVoteAsHead($lineId);
 		}
 		else if ($chatData['ENTITY_TYPE'] == 'LIVECHAT' && $chatData['ENTITY_ID'] && CModule::IncludeModule('imopenlines'))
 		{
-			list($lineId, $userId) = explode('|', $chatData["ENTITY_ID"]);
+			[$lineId, $userId] = explode('|', $chatData["ENTITY_ID"]);
 			$userCode = 'livechat|' . $lineId . '|' . $chatData['ID'] . '|' . $userId;
 			unset($lineId, $userId);
 			foreach ($arResult['users'] as $userId => $userData)
@@ -808,7 +808,6 @@ class CIMChat
 			"FROM_USER_ID" => 0,
 			"SYSTEM" => 'Y',
 			"PUSH" => 'N',
-			"INCREMENT_COUNTER" => 'N',
 		));
 
 		$sql = "
@@ -1178,7 +1177,7 @@ class CIMChat
 		if (!empty($arLines) && CModule::IncludeModule('imopenlines'))
 		{
 			$orm = \Bitrix\Imopenlines\Model\SessionTable::getList(Array(
-				'select' => Array('CHAT_ID', 'ID', 'STATUS'),
+				'select' => Array('CHAT_ID', 'ID', 'STATUS', 'DATE_CREATE'),
 				'filter' => Array(
 					'=ID' => array_values($arLines)
 				)
@@ -1188,6 +1187,7 @@ class CIMChat
 				$lines[$row['CHAT_ID']] = Array(
 					'id' => (int)$row['ID'],
 					'status' => (int)$row['STATUS'],
+					'date_create' => $row['DATE_CREATE'],
 				);
 			}
 		}
@@ -1340,6 +1340,7 @@ class CIMChat
 				COUNT(M.ID) CNT,
 				MAX(M.ID) END_ID,
 				R1.LAST_ID START_ID,
+				C.AUTHOR_ID CHAT_AUTHOR_ID,
 				C.TYPE CHAT_TYPE,
 				C.ID CHAT_ID,
 				C.ENTITY_TYPE CHAT_ENTITY_TYPE,
@@ -1351,98 +1352,110 @@ class CIMChat
 			GROUP BY M.CHAT_ID, R1.LAST_ID, C.ID, C.ENTITY_TYPE, C.ENTITY_ID
 		";
 		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		if ($arRes = $dbRes->Fetch())
+		$arRes = $dbRes->Fetch();
+		if (!$arRes)
 		{
-			$relation = CIMMessage::SetLastId($chatId, $this->user_id, $arRes['END_ID']);
-			if ($relation)
+			return false;
+		}
+
+		if (
+			$arRes['CHAT_TYPE'] == IM_MESSAGE_OPEN_LINE
+			&& $arRes['CHAT_AUTHOR_ID'] == 0
+		)
+		{
+			return false;
+		}
+
+		$relation = CIMMessage::SetLastId($chatId, $this->user_id, $arRes['END_ID']);
+		if (!$relation)
+		{
+			return false;
+		}
+
+		\Bitrix\Main\Application::getConnection()->query(
+			"UPDATE b_im_recent SET DATE_UPDATE = NOW() WHERE USER_ID = ".$this->user_id." AND ITEM_CID = ".intval($chatId)
+		);
+
+		if (CModule::IncludeModule("pull"))
+		{
+			CPushManager::DeleteFromQueueBySubTag($this->user_id, 'IM_MESS');
+
+			if (
+				$arRes['CHAT_ENTITY_TYPE'] == 'LIVECHAT'
+				|| !\Bitrix\Im\User::getInstance($this->user_id)->isConnector()
+			)
 			{
-				\Bitrix\Main\Application::getConnection()->query(
-					"UPDATE b_im_recent SET DATE_UPDATE = NOW() WHERE USER_ID = ".$this->user_id." AND ITEM_CID = ".intval($chatId)
-				);
+				\Bitrix\Pull\Event::add($this->user_id, Array(
+					'module_id' => 'im',
+					'command' => 'readMessageChat',
+					'params' => Array(
+						'dialogId' => 'chat'.$chatId,
+						'chatId' => (int)$chatId,
+						'lastId' => (int)$arRes['END_ID'],
+						'counter' => (int)$relation['COUNTER']
+					),
+					'extra' => \Bitrix\Im\Common::getPullExtra()
+				));
+			}
 
-				if (CModule::IncludeModule("pull"))
+			$arRelation = self::GetRelationById($chatId);
+			unset($arRelation[$this->user_id]);
+
+			$pushMessage = Array(
+				'module_id' => 'im',
+				'command' => 'readMessageChatOpponent',
+				'expiry' => 600,
+				'params' => Array(
+					'dialogId' => 'chat'.$chatId,
+					'chatId' => (int)$chatId,
+					'userId' => (int)$this->user_id,
+					'userName' => \Bitrix\Im\User::getInstance($this->user_id)->getFullName(false),
+					'lastId' => (int)$arRes['END_ID'],
+					'date' => date('c', time()),
+					'chatMessageStatus' => $relation['CHAT_MESSAGE_STATUS'],
+				),
+				'extra' => \Bitrix\Im\Common::getPullExtra()
+			);
+			if ($arRes['CHAT_ENTITY_TYPE'] == 'LINES')
+			{
+				foreach ($arRelation as $rel)
 				{
-					CPushManager::DeleteFromQueueBySubTag($this->user_id, 'IM_MESS');
-
-					if (
-						$arRes['CHAT_ENTITY_TYPE'] == 'LIVECHAT'
-						|| !\Bitrix\Im\User::getInstance($this->user_id)->isConnector()
-					)
+					if ($rel["EXTERNAL_AUTH_ID"] == 'imconnector')
 					{
-						\Bitrix\Pull\Event::add($this->user_id, Array(
-							'module_id' => 'im',
-							'command' => 'readMessageChat',
-							'params' => Array(
-								'dialogId' => 'chat'.$chatId,
-								'chatId' => (int)$chatId,
-								'lastId' => (int)$arRes['END_ID'],
-								'counter' => (int)$relation['COUNTER']
-							),
-							'extra' => \Bitrix\Im\Common::getPullExtra()
-						));
-					}
-
-					$arRelation = self::GetRelationById($chatId);
-					unset($arRelation[$this->user_id]);
-
-					$pushMessage = Array(
-						'module_id' => 'im',
-						'command' => 'readMessageChatOpponent',
-						'expiry' => 600,
-						'params' => Array(
-							'dialogId' => 'chat'.$chatId,
-							'chatId' => (int)$chatId,
-							'userId' => (int)$this->user_id,
-							'userName' => \Bitrix\Im\User::getInstance($this->user_id)->getFullName(false),
-							'lastId' => (int)$arRes['END_ID'],
-							'date' => date('c', time()),
-							'chatMessageStatus' => $relation['CHAT_MESSAGE_STATUS'],
-						),
-						'extra' => \Bitrix\Im\Common::getPullExtra()
-					);
-					if ($arRes['CHAT_ENTITY_TYPE'] == 'LINES')
-					{
-						foreach ($arRelation as $rel)
-						{
-							if ($rel["EXTERNAL_AUTH_ID"] == 'imconnector')
-							{
-								unset($arRelation[$rel["USER_ID"]]);
-							}
-						}
-					}
-					if (count($arRelation) < 200)
-					{
-						\Bitrix\Pull\Event::add(array_keys($arRelation), $pushMessage);
-						if ($arRes['CHAT_TYPE'] == IM_MESSAGE_OPEN  || $arRes['CHAT_TYPE'] == IM_MESSAGE_OPEN_LINE)
-						{
-							CPullWatch::AddToStack('IM_PUBLIC_'.$chatId, $pushMessage);
-						}
+						unset($arRelation[$rel["USER_ID"]]);
 					}
 				}
-				foreach(GetModuleEvents("im", "OnAfterChatRead", true) as $arEvent)
+			}
+			if (count($arRelation) < 200)
+			{
+				\Bitrix\Pull\Event::add(array_keys($arRelation), $pushMessage);
+				if ($arRes['CHAT_TYPE'] == IM_MESSAGE_OPEN  || $arRes['CHAT_TYPE'] == IM_MESSAGE_OPEN_LINE)
 				{
-					ExecuteModuleEventEx($arEvent, array(Array(
-						'CHAT_ID' => $arRes['CHAT_ID'],
-						'CHAT_ENTITY_TYPE' => $arRes['CHAT_ENTITY_TYPE'],
-						'CHAT_ENTITY_ID' => $arRes['CHAT_ENTITY_ID'],
-						'START_ID' => $arRes['START_ID'],
-						'END_ID' => $arRes['END_ID'],
-						'COUNT' => $relation['COUNT'],
-						'USER_ID' => $this->user_id,
-						'BY_EVENT' => $byEvent
-					)));
+					CPullWatch::AddToStack('IM_PUBLIC_'.$chatId, $pushMessage);
 				}
-
-				return Array(
-					'DIALOG_ID' => 'chat'.$chatId,
-					'CHAT_ID' => (int)$chatId,
-					'LAST_ID' => (int)$arRes['END_ID'],
-					'COUNTER' => (int)$relation['COUNTER']
-				);
 			}
 		}
 
-		return false;
+		foreach(GetModuleEvents("im", "OnAfterChatRead", true) as $arEvent)
+		{
+			ExecuteModuleEventEx($arEvent, array(Array(
+				'CHAT_ID' => $arRes['CHAT_ID'],
+				'CHAT_ENTITY_TYPE' => $arRes['CHAT_ENTITY_TYPE'],
+				'CHAT_ENTITY_ID' => $arRes['CHAT_ENTITY_ID'],
+				'START_ID' => $arRes['START_ID'],
+				'END_ID' => $arRes['END_ID'],
+				'COUNT' => $relation['COUNT'],
+				'USER_ID' => $this->user_id,
+				'BY_EVENT' => $byEvent
+			)));
+		}
+
+		return Array(
+			'DIALOG_ID' => 'chat'.$chatId,
+			'CHAT_ID' => (int)$chatId,
+			'LAST_ID' => (int)$arRes['END_ID'],
+			'COUNTER' => (int)$relation['COUNTER']
+		);
 	}
 
 	public function SetUnReadMessage($chatId, $lastId)
@@ -2326,20 +2339,23 @@ class CIMChat
 				return false;
 			}
 
-			if (!IsModuleInstalled('intranet') && CModule::IncludeModule('socialnetwork') && CSocNetUser::IsFriendsAllowed())
+			if (
+				$entityType != 'PERSONAL'
+				&& !IsModuleInstalled('intranet')
+				&& CModule::IncludeModule('socialnetwork')
+				&& CSocNetUser::IsFriendsAllowed()
+			)
 			{
-				global $USER;
-
 				$arFriendUsers = Array();
-				$dbFriends = CSocNetUserRelations::GetList(array(),array("USER_ID" => $USER->GetID(), "RELATION" => SONET_RELATIONS_FRIEND), false, false, array("ID", "FIRST_USER_ID", "SECOND_USER_ID", "DATE_CREATE", "DATE_UPDATE", "INITIATED_BY"));
+				$dbFriends = CSocNetUserRelations::GetList(array(),array("USER_ID" => $this->user_id, "RELATION" => SONET_RELATIONS_FRIEND), false, false, array("ID", "FIRST_USER_ID", "SECOND_USER_ID", "DATE_CREATE", "DATE_UPDATE", "INITIATED_BY"));
 				while ($arFriends = $dbFriends->Fetch())
 				{
-					$friendId = $USER->GetID() == $arFriends["FIRST_USER_ID"]? $arFriends["SECOND_USER_ID"]: $arFriends["FIRST_USER_ID"];
+					$friendId = $this->user_id == $arFriends["FIRST_USER_ID"]? $arFriends["SECOND_USER_ID"]: $arFriends["FIRST_USER_ID"];
 					$arFriendUsers[$friendId] = $friendId;
 				}
 				foreach ($arUserId as $id => $userId)
 				{
-					if ($userId == $USER->GetID())
+					if ($userId == $this->user_id)
 						continue;
 
 					if (!isset($arFriendUsers[$userId]) && CIMSettings::GetPrivacy(CIMSettings::PRIVACY_CHAT, $userId) == CIMSettings::PRIVACY_RESULT_CONTACT)
@@ -3152,9 +3168,9 @@ class CIMChat
 				"SYSTEM" => 'Y',
 				"RECENT_ADD" => $skipRecent? 'N': 'Y',
 				"PARAMS" => Array(
-					"CODE" => 'CHAT_JOIN'
+					"CODE" => 'CHAT_JOIN',
+					"NOTIFY" => 'N',
 				),
-				"INCREMENT_COUNTER" => $arUserId,
 				"PUSH" => 'N'
 			));
 		}
@@ -3433,9 +3449,9 @@ class CIMChat
 				"SYSTEM"	 => 'Y',
 				"RECENT_ADD" => $skipRecent? 'N': 'Y',
 				"PARAMS" => Array(
-					"CODE" => 'CHAT_LEAVE'
+					"CODE" => 'CHAT_LEAVE',
+					"NOTIFY" => 'N',
 				),
-				"INCREMENT_COUNTER" => 'N',
 				"PUSH" => 'N'
 			));
 		}
@@ -3677,7 +3693,7 @@ class CIMChat
 		if (!CModule::IncludeModule('crm'))
 			return false;
 
-		list($entityType, $entityId) = explode('|', $code);
+		[$entityType, $entityId] = explode('|', $code);
 
 		global $USER;
 

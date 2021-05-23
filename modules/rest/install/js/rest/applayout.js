@@ -270,7 +270,10 @@
 		destroy: function()
 		{
 			BX.unbind(window, 'message', BX.proxy(this.receiveMessage, this));
-			BX(this.params.frameName).parentNode.removeChild(BX(this.params.frameName));
+			if (BX(this.params.frameName))
+			{
+				BX(this.params.frameName).parentNode.removeChild(BX(this.params.frameName));
+			}
 			this._destroyed = true;
 		},
 
@@ -337,7 +340,7 @@
 					}
 				}, this);
 
-				this.messageInterface[cmd[0]].apply(this, [args, _cb]);
+				this.messageInterface[cmd[0]].apply(this, [args, _cb, this]);
 			}
 		},
 
@@ -780,7 +783,7 @@
 
 		selectCRM: function(params, cb, loaded)
 		{
-			if(!loaded)
+			if(loaded !== true)
 			{
 				this.loadControl(
 					'crm_selector',

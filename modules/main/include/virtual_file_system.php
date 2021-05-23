@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2020 Bitrix
  */
 /*
 RewriteCond %{REQUEST_FILENAME} -f [OR]
@@ -18,10 +18,11 @@ RewriteCond %{REQUEST_FILENAME} [\xF1-\xF3][\x80-\xBF]{3} [OR]
 RewriteCond %{REQUEST_FILENAME} \xF4[\x80-\x8F][\x80-\xBF]{2}
 RewriteRule ^(.*)$ /bitrix/virtual_file_system.php [L]
 */
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/lib/loader.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/tools.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/virtual_io.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/bx_root.php");
+require_once(__DIR__."/../bx_root.php");
+require_once(__DIR__."/../lib/loader.php");
+require_once(__DIR__."/autoload.php");
+require_once(__DIR__."/../tools.php");
+
 require_once($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/dbconn.php");
 
 if (stripos(PHP_OS, "WIN") !== 0)
@@ -33,8 +34,8 @@ if (stripos(PHP_OS, "WIN") !== 0)
 $io = CBXVirtualIo::GetInstance();
 
 $requestUri = $_SERVER["REQUEST_URI"];
-if (($pos = mb_strpos($requestUri, "?")) !== false)
-	$requestUri = mb_substr($requestUri, 0, $pos);
+if (($pos = strpos($requestUri, "?")) !== false)
+	$requestUri = substr($requestUri, 0, $pos);
 
 $requestUri = rawurldecode($requestUri);
 $requestUri = $io->CombinePath('/', $requestUri);
@@ -96,7 +97,7 @@ if (!$io->FileExists($requestUriAbsolute))
 	}
 }
 
-if (mb_strtolower(mb_substr($requestUriAbsolute, -4)) == ".php")
+if (strtolower(substr($requestUriAbsolute, -4)) == ".php")
 {
 	$relativePath = $io->CombinePath("/", mb_substr($requestUriAbsolute, mb_strlen($_SERVER["DOCUMENT_ROOT"])));
 	$_SERVER["REAL_FILE_PATH"] = $relativePath;

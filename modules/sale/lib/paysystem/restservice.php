@@ -103,6 +103,7 @@ class RestService extends \IRestService
 		$fields = [
 			'NAME' => $params['NAME'],
 			'PSA_NAME' => $params['NAME'],
+			'NEW_WINDOW' => $params['NEW_WINDOW'] ?: 'N',
 			'ACTIVE' => $params['ACTIVE'] ?: 'N',
 			'PERSON_TYPE_ID' => $params['PERSON_TYPE_ID'],
 			'ACTION_FILE' => $params['BX_REST_HANDLER'],
@@ -249,6 +250,11 @@ class RestService extends \IRestService
 		if (isset($params['FIELDS']['NAME']))
 		{
 			$fields['NAME'] = $params['FIELDS']['NAME'];
+		}
+		
+		if (isset($params['FIELDS']['NEW_WINDOW']))
+		{
+			$fields['NEW_WINDOW'] = $params['FIELDS']['NEW_WINDOW'];
 		}
 
 		if (isset($params['FIELDS']['ACTIVE']))

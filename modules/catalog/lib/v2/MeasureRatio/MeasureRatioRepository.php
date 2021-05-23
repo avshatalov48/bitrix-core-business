@@ -142,12 +142,12 @@ class MeasureRatioRepository implements MeasureRatioRepositoryContract
 	{
 		if ($sku->isNew())
 		{
-			return $this->createCollection([], $sku);
+			return $this->createCollection();
 		}
 
 		$result = $this->getByProductId($sku->getId());
 
-		return $this->createCollection($result, $sku);
+		return $this->createCollection($result);
 	}
 
 	protected function getByProductId(int $skuId): array
@@ -166,7 +166,7 @@ class MeasureRatioRepository implements MeasureRatioRepositoryContract
 			;
 	}
 
-	protected function createEntity(array $fields): BaseEntity
+	protected function createEntity(array $fields = []): BaseMeasureRatio
 	{
 		$entity = $this->factory->createEntity();
 
@@ -175,14 +175,12 @@ class MeasureRatioRepository implements MeasureRatioRepositoryContract
 		return $entity;
 	}
 
-	protected function createCollection(array $entityFields, BaseSku $sku): MeasureRatioCollection
+	protected function createCollection(array $entityFields = []): MeasureRatioCollection
 	{
-		/** @var \Bitrix\Catalog\v2\MeasureRatio\MeasureRatioCollection $collection */
-		$collection = $this->factory->createCollection($sku);
+		$collection = $this->factory->createCollection();
 
 		foreach ($entityFields as $fields)
 		{
-			/** @var \Bitrix\Catalog\v2\MeasureRatio\BaseMeasureRatio $measureRatio */
 			$measureRatio = $this->createEntity($fields);
 			$collection->add($measureRatio);
 		}

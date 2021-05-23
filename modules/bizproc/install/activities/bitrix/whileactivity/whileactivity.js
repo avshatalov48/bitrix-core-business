@@ -80,3 +80,12 @@ WhileActivity = function()
 
 	return ob;
 };
+
+WhileActivity.changeConditionTypeHandler = function(selectElement)
+{
+	Array.from(selectElement.options).forEach(function(option) {
+
+		var container = document.getElementById(option.getAttribute('data-id'));
+		container.style.display = option.selected ? '' : 'none';
+	});
+}

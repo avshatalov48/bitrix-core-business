@@ -7,7 +7,8 @@
  * @copyright 2001-2019 Bitrix
  */
 
-import {Vuex} from "./../vuex.bitrix.js";
+import {BitrixVue} from "ui.vue";
+import {Vuex} from "../vuex.js";
 import {VuexBuilderModel} from "./model.js";
 
 const DatabaseType = Object.freeze({
@@ -19,16 +20,41 @@ const DatabaseType = Object.freeze({
 export class VuexBuilder
 {
 	/**
-	 * Create new instance of builder.
-	 *
+	 * @deprecated use init() method.
 	 * @returns {VuexBuilder}
 	 */
 	static create()
 	{
+		if (BitrixVue.developerMode)
+		{
+			console.warn('VuexBuilder: Method VuexBuilder.create is deprecated, use VuexBuilder.init instead.');
+		}
+
 		return new this;
 	}
 
-	constructor()
+	/**
+	 * Create new instance of builder and initialize Vuex store
+	 *
+	 * @param store {Vuex}
+	 *
+	 * @returns {VuexBuilder}
+	 */
+	static init(store)
+	{
+		if (store)
+		{
+			if (!(store instanceof Vuex.Store))
+			{
+				console.warn('VuexBuilder.init: passed store is not a Vuex.Store', store);
+				return new this;
+			}
+		}
+
+		return new this(store);
+	}
+
+	constructor(store)
 	{
 		this.models = [];
 
@@ -40,11 +66,13 @@ export class VuexBuilder
 			timeout: null,
 		};
 
-		this.withNamespace = true;
+		this.store = store;
+
+		this.builded = false;
 	}
 
 	/**
-	 * Add vuex module.
+	 * Add Vuex module.
 	 *
 	 * @param model {VuexBuilderModel}
 	 *
@@ -52,6 +80,11 @@ export class VuexBuilder
 	 */
 	addModel(model)
 	{
+		if (this.builded)
+		{
+			return this;
+		}
+
 		if (!(model instanceof VuexBuilderModel))
 		{
 			console.error('BX.VuexBuilder.addModel: passed model is not a BX.VuexBuilderModel', model, name);
@@ -64,14 +97,107 @@ export class VuexBuilder
 	}
 
 	/**
-	 * Disable namespace for builder with single model.
+	 * Add dynamic Vuex module.
 	 *
-	 * @param active {boolean}
+	 * @param model {VuexBuilderModel}
+	 *
+	 * @returns {Promise}
+	 */
+	addDynamicModel(model)
+	{
+		if (!(model instanceof VuexBuilderModel))
+		{
+			return new Promise((resolve, reject) =>
+			{
+				console.error('BX.VuexBuilder.addDynamicModel: passed model is not a BX.VuexBuilderModel', model);
+				reject('MODEL_ERROR');
+			});
+		}
+
+		if (
+			this.store.hasModule(model.getNamespace())
+			|| this.models.find(stored => stored.getNamespace() === model.getNamespace())
+		)
+		{
+			return new Promise((resolve, reject) =>
+			{
+				console.error('BX.VuexBuilder.addDynamicModel: model `'+model.getNamespace()+'` was not added because it is already registered.');
+				reject('DUPLICATE_MODEL');
+			});
+		}
+
+		this.models.push(model);
+
+		if (this.databaseConfig.active && model.databaseConfig.active !== false)
+		{
+			model.useDatabase(true, this.databaseConfig)
+		}
+		else
+		{
+			model.useDatabase(false);
+		}
+
+		model.setStore(this.store)
+
+		const promise = model.getModule();
+
+		return new Promise((resolve, reject) =>
+		{
+			promise.then(result => {
+				this.store.registerModule(result.namespace, result.module);
+				resolve();
+			}, error => {
+				console.error('BX.VuexBuilder.addDynamicModel: storage was not created due to runtime errors.', error? error: '');
+				reject('ERROR_IN_MODEL');
+			});
+		});
+	}
+
+	/**
+	 * Remove dynamic Vuex module.
+	 *
+	 * @param namespace {string}
+	 *
 	 * @returns {VuexBuilder}
+	 */
+	removeDynamicModel(namespace)
+	{
+		if (!this.builded)
+		{
+			console.error('BX.VuexBuilder.removeDynamicModel: you cannot use the method until builder is built.');
+			return this;
+		}
+
+		if (!this.store.hasModule(namespace))
+		{
+			console.error('BX.VuexBuilder.removeDynamicModel: module `'+namespace+'` not registered.');
+			return this;
+		}
+
+		this.models = this.models.filter(stored => stored.getNamespace() !== namespace);
+
+		this.store.unregisterModule(namespace);
+
+		return this;
+	}
+
+	/**
+	 * @returns {VuexBuilder}
+	 * @deprecated
 	 */
 	useNamespace(active)
 	{
-		this.withNamespace = !!active;
+		if (BitrixVue.developerMode)
+		{
+			if (active)
+			{
+				console.warn('VuexBuilder: Method `useNamespace` is deprecated, please remove this call.');
+			}
+			else
+			{
+				console.error('VuexBuilder: Method `useNamespace` is deprecated, using VuexBuilder without namespaces is no longer supported.');
+			}
+		}
 
 		return this;
 	}
@@ -136,27 +262,24 @@ export class VuexBuilder
 	}
 
 	/**
-	 * Build Vuex Store
+	 * Build Vuex Store asynchronously
 	 *
 	 * @param callback {Function|null}
 	 * @returns {Promise<any>}
 	 */
 	build(callback = null)
 	{
-		let withNamespace = this.models.length > 1;
-		if (!this.withNamespace && withNamespace)
+		if (this.builded)
 		{
-			return new Promise((resolve, reject) => {
-				console.error('BX.VuexBuilder.create: you can not use the "no namespace" mode with multiple databases.');
-
-				if (typeof callback !== 'function')
-				{
-					reject('MULTIPLE_MODULES_WITHOUT_NAMESPACE');
-				}
-			});
+			return this;
 		}
 
-		let results = [];
+		let promises = [];
+
+		if (!this.store)
+		{
+			this.store = Vuex.createStore();
+		}
 
 		this.models.forEach(model =>
 		{
@@ -164,31 +287,35 @@ export class VuexBuilder
 			{
 				model.useDatabase(true, this.databaseConfig)
 			}
-			if (this.withNamespace)
-			{
-				model.useNamespace(true);
-			}
 
-			results.push(model.getStore());
+			model.setStore(this.store)
+
+			promises.push(model.getModule());
 		});
+
 		return new Promise((resolve, reject) =>
 		{
-			Promise.all(results).then(stores =>
+			Promise.all(promises).then(modules =>
 			{
-				let modules = {};
-
-				stores.forEach(store => {
-					Object.assign(modules, store);
+				modules.forEach(result => {
+					this.store.registerModule(result.namespace, result.module);
 				});
 
-				let store = Vuex.store(this.withNamespace? {modules}: modules);
-				this.models.forEach(model => model.setStore(store));
+				const result = {
+					store: this.store,
+					models: this.models,
+					builder: this
+				};
 
-				resolve({store, models: this.models, builder: this});
+				this.builded = true;
+
 				if (typeof callback === 'function')
 				{
-					callback({store, models: this.models, builder: this});
+					callback(result);
 				}
+
+				resolve(result);
+
 			}, error => {
 				console.error('BX.VuexBuilder.create: storage was not created due to runtime errors.', error? error: '');
 				if (typeof callback !== 'function')
@@ -197,6 +324,55 @@ export class VuexBuilder
 				}
 			});
 		});
+	}
+
+	/**
+	 * Build Vuex Store synchronously
+	 *
+	 * @returns {Object<any>}
+	 */
+	syncBuild()
+	{
+		if (this.builded)
+		{
+			return {
+				store: this.store,
+				models: this.models,
+				builder: this
+			};
+		}
+
+		if (!this.store)
+		{
+			this.store = Vuex.createStore();
+		}
+
+		if (this.databaseConfig.active)
+		{
+			if (BitrixVue.developerMode)
+			{
+				console.error('VuexBuilder: Method `syncBuild` creates storage in synchronous mode, the database does not work in this mode.');
+			}
+
+			this.databaseConfig.active = false;
+		}
+
+		this.models.forEach(model =>
+		{
+			model.useDatabase(false);
+			model.setStore(this.store);
+
+			const {namespace, module} = model.getModuleWithDefaultState();
+			this.store.registerModule(namespace, module);
+		});
+
+		this.builded = true;
+
+		return {
+			store: this.store,
+			models: this.models,
+			builder: this
+		};
 	}
 }
 

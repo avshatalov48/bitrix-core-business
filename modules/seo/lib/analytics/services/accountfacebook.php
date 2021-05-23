@@ -2,6 +2,7 @@
 
 namespace Bitrix\Seo\Analytics\Services;
 
+use Bitrix\Main\Result;
 use Bitrix\Seo\Analytics\Internals\Expenses;
 use Bitrix\Main\Error;
 use Bitrix\Main\Type\Date;
@@ -10,110 +11,85 @@ use \Bitrix\Seo\Analytics\Account;
 use Bitrix\Seo\Analytics\Internals\Page;
 use Bitrix\Seo\Retargeting\Services\ResponseFacebook;
 use Bitrix\Seo\Retargeting\Response;
-use Bitrix\Seo\Retargeting\IRequestDirectly;
 
-class AccountFacebook extends Account implements IRequestDirectly
+class AccountFacebook extends Account
 {
 	const TYPE_CODE = 'facebook';
 
 	public function getList()
 	{
-		return $this->getRequest()->send(array(
-			'method' => 'GET',
-			'endpoint' => 'me/adaccounts',
-			'fields' => array(
-				'fields' => 'account_id,id,name'
-			),
-			'has_pagination' => true
+		$response = $this->request->send(array(
+			'methodName' => 'analytics.account.list',
+			'parameters' => array()
 		));
+
+		return $response;
 	}
 
 	public function getProfile()
 	{
-		$response = $this->getRequest()->send(array(
-			'method' => 'GET',
-			'endpoint' => 'me/',
-			'fields' => array(
-				'fields' => 'id,name,picture,link'
-			)
-		));
+		$response = $this->getRequest()->getClient()->get(
+			'https://graph.facebook.com/me?fields=id,name,picture,link&access_token=' .
+			urlencode($this->getRequest()->getAuthAdapter()->getToken())
+		);
+
+		if ($response)
+		{
+			$response = Json::decode($response);
+			if (is_array($response))
+			{
+				return array(
+					'ID' => $response['id'] ?? null,
+					'NAME' => $response['name'] ?? null,
+					'LINK' => '',
+					'PICTURE' => $response['picture']['data']['url'] ?? null,
+				);
+			}
+		}
 
 
-		if ($response->isSuccess())
-		{
-			$data = $response->fetch();
-			return array(
-				'ID' => $data['ID'],
-				'NAME' => $data['NAME'],
-				'LINK' => $data['LINK'],
-				'PICTURE' => $data['PICTURE'] ? $data['PICTURE']['data']['url'] : null,
-			);
-		}
-		else
-		{
-			return null;
-		}
+		return null;
 	}
 
 	/**
+	 * Get expenses.
+	 *
 	 * @param mixed $accountId Facebook Ad Account Id.
-	 * @param Date|null $dateFrom
-	 * @param Date|null $dateTo
+	 * @param Date|null $dateFrom Date from.
+	 * @param Date|null $dateTo Date to.
 	 * @return ResponseFacebook
 	 */
 	public function getExpenses($accountId, Date $dateFrom = null, Date $dateTo = null)
 	{
-		$result = new ResponseFacebook();
-
-		if (mb_substr($accountId, 0, 4) === 'act_')
-		{
-			$accountId = mb_substr($accountId, 4);
-		}
-
-		$fields = [
-			'fields' => 'account_currency,actions,clicks,cpc,cpm,impressions,spend',
-			'breakdowns' => 'publisher_platform',
+		$parameters = [
+			'ACCOUNT_ID' => $accountId,
 		];
 		if($dateFrom && $dateTo)
 		{
-			$fields['time_range'] = Json::encode([
-				'since' => $dateFrom->format('Y-m-d'),
-				'until' => $dateTo->format('Y-m-d'),
-			]);
+			$parameters['DATE_FROM'] = $dateFrom->format('Ymd');
+			$parameters['DATE_TO'] = $dateTo->format('Ymd');
 		}
 		$response = $this->getRequest()->send([
-			'method' => 'GET',
-			'endpoint' => 'act_'.$accountId.'/insights/',
-			'fields' => $fields,
+			'methodName' => 'analytics.expenses.get',
+			'parameters' => $parameters,
 		]);
-		if($response->isSuccess())
-		{
-			$insights = $response->getData();
-			$expenses = new Expenses();
-			foreach($insights as $data)
-			{
-				if(in_array($data['publisher_platform'], $this->getPublisherPlatforms()))
-				{
-					$data = $this->prepareExpensesData($data);
-					$expenses->add([
-						'impressions' => $data['impressions'],
-						'clicks' => $data['clicks'],
-						'actions' => $data['actions'],
-						'cpc' => $data['cpc'],
-						'cpm' => $data['cpm'],
-						'spend' => $data['spend'],
-						'currency' => $data['account_currency'],
-					]);
-				}
-			}
-			$result->setData(['expenses' => $expenses]);
-		}
-		else
-		{
-			$result->addErrors($response->getErrors());
-		}
 
-		return $result;
+		$data = $response->getData();
+		$expenses = new Expenses();
+		$expenses->add([
+			'impressions' => $data['impressions'],
+			'clicks' => $data['clicks'],
+			'actions' => $data['actions'],
+			'cpc' => $data['cpc'],
+			'cpm' => $data['cpm'],
+			'spend' => $data['spend'],
+			'currency' => $data['currency'],
+		]);
+
+		$response = (new ResponseFacebook());
+		$response->setData(['expenses' => $expenses]);
+
+		return $response;
 	}
 
 	protected function prepareExpensesData($data)
@@ -122,6 +98,49 @@ class AccountFacebook extends Account implements IRequestDirectly
 	}
 
 	/**
+	 * Return true if it has expenses report.
+	 *
+	 * @return bool
+	 */
+	public function hasExpensesReport()
+	{
+		return true;
+	}
+
+	/**
+	 * Get expenses report.
+	 *
+	 * @param mixed $accountId Facebook Ad Account Id.
+	 * @param Date|null $dateFrom Date from.
+	 * @param Date|null $dateTo Date to.
+	 * @return Result
+	 */
+	public function getExpensesReport($accountId, Date $dateFrom = null, Date $dateTo = null)
+	{
+		if (mb_substr($accountId, 0, 4) === 'act_')
+		{
+			$accountId = mb_substr($accountId, 4);
+		}
+
+		$parameters = [
+			'ACCOUNT_ID' => $accountId,
+		];
+		if($dateFrom && $dateTo)
+		{
+			$parameters['DATE_FROM'] = $dateFrom->format('Ymd');
+			$parameters['DATE_TO'] = $dateTo->format('Ymd');
+		}
+		$response = $this->getRequest()->send([
+			'methodName' => 'analytics.expenses.report',
+			'parameters' => $parameters,
+		]);
+
+		return $response;
+	}
+
+	/**
+	 * Return true if it has public pages.
+	 *
 	 * @return bool
 	 */
 	public function hasPublicPages()

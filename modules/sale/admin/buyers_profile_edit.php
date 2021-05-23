@@ -241,7 +241,14 @@ if(!empty($arProfile) && !empty($arUser))
 
 	$arFilterProps = array("PERSON_TYPE_ID" => $PERSON_TYPE, "ACTIVE" => "Y", "USER_PROPS" => "Y");
 
-	$tabControl->AddViewField("CODE_USER", GetMessage("BUYER_PE_USER").":", "[<a href=\"".$selfFolderUrl."user_edit.php?ID=".$arUser["ID"]."&lang=".LANGUAGE_ID."\">".$arUser["ID"]."</a>] (".htmlspecialcharsEx($arUser["LOGIN"]).") ".htmlspecialcharsEx($userFIO));
+	if ($adminSidePanelHelper->isPublicSidePanel())
+	{
+		$tabControl->AddViewField("CODE_USER", GetMessage("BUYER_PE_USER").":", "(".htmlspecialcharsEx($arUser["LOGIN"]).") ".htmlspecialcharsEx($userFIO));
+	}
+	else
+	{
+		$tabControl->AddViewField("CODE_USER", GetMessage("BUYER_PE_USER").":", "[<a href=\"".$selfFolderUrl."user_edit.php?ID=".$arUser["ID"]."&lang=".LANGUAGE_ID."\">".$arUser["ID"]."</a>] (".htmlspecialcharsEx($arUser["LOGIN"]).") ".htmlspecialcharsEx($userFIO));
+	}
 	$tabControl->AddEditField("CODE_PROFILE_NAME", GetMessage("BUYER_PE_PROFILE_NAME").":", false, array("size"=>30, "maxlength"=>255), htmlspecialcharsEx($profileName));
 
 	$propertyGroupID = "";

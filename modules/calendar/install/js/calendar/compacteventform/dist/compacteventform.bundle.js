@@ -2,8 +2,18 @@ this.BX = this.BX || {};
 (function (exports,main_core,main_core_events,calendar_util,main_popup,calendar_controls,calendar_entry,calendar_calendarsection,calendar_sync_interface) {
 	'use strict';
 
-	function _templateObject22() {
+	function _templateObject23() {
 	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"calendar-field calendar-field-string\">", "</span>"]);
+
+	  _templateObject23 = function _templateObject23() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject22() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-field-block\" style=\"display: none\">\n\t\t\t\t<div class=\"calendar-field-title\">", ":</div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"]);
 
 	  _templateObject22 = function _templateObject22() {
 	    return data;
@@ -13,7 +23,7 @@ this.BX = this.BX || {};
 	}
 
 	function _templateObject21() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-field-block\" style=\"display: none\">\n\t\t\t\t<div class=\"calendar-field-title\">", ":</div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-text\"></div>"]);
 
 	  _templateObject21 = function _templateObject21() {
 	    return data;
@@ -23,7 +33,7 @@ this.BX = this.BX || {};
 	}
 
 	function _templateObject20() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-text\"></div>"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-field-block\" style=\"display: none\">\n\t\t\t\t<div class=\"calendar-field-title\">", ":</div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"]);
 
 	  _templateObject20 = function _templateObject20() {
 	    return data;
@@ -33,7 +43,7 @@ this.BX = this.BX || {};
 	}
 
 	function _templateObject19() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-field-block\" style=\"display: none\">\n\t\t\t\t<div class=\"calendar-field-title\">", ":</div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-text\"></div>"]);
 
 	  _templateObject19 = function _templateObject19() {
 	    return data;
@@ -43,7 +53,7 @@ this.BX = this.BX || {};
 	}
 
 	function _templateObject18() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-text\"></div>"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-field-block\" style=\"display: none\">\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"]);
 
 	  _templateObject18 = function _templateObject18() {
 	    return data;
@@ -53,7 +63,7 @@ this.BX = this.BX || {};
 	}
 
 	function _templateObject17() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-field-block\" style=\"display: none\">\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-field-link\"></div>"]);
 
 	  _templateObject17 = function _templateObject17() {
 	    return data;
@@ -63,7 +73,7 @@ this.BX = this.BX || {};
 	}
 
 	function _templateObject16() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-field-link\"></div>"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-field-title\"></div>"]);
 
 	  _templateObject16 = function _templateObject16() {
 	    return data;
@@ -73,7 +83,7 @@ this.BX = this.BX || {};
 	}
 
 	function _templateObject15() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-field-title\"></div>"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-text\"></div>"]);
 
 	  _templateObject15 = function _templateObject15() {
 	    return data;
@@ -83,7 +93,7 @@ this.BX = this.BX || {};
 	}
 
 	function _templateObject14() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-text\"></div>"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-field-block\">\n\t\t\t<div class=\"calendar-field-title\">", ":</div>\n\t\t\t", "\n\t\t</div>"]);
 
 	  _templateObject14 = function _templateObject14() {
 	    return data;
@@ -93,7 +103,7 @@ this.BX = this.BX || {};
 	}
 
 	function _templateObject13() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-field-block\">\n\t\t\t<div class=\"calendar-field-title\">", ":</div>\n\t\t\t", "\n\t\t</div>"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-field-place\"></div>"]);
 
 	  _templateObject13 = function _templateObject13() {
 	    return data;
@@ -103,7 +113,7 @@ this.BX = this.BX || {};
 	}
 
 	function _templateObject12() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-field-place\"></div>"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-hide-members-container\" style=\"display: none;\">\n\t\t\t\t<div class=\"calendar-hide-members-container-inner\">\n\t\t\t\t\t<div class=\"calendar-hide-members-icon-hidden\"></div>\n\t\t\t\t\t<div class=\"calendar-hide-members-text\">", "</div>\n\t\t\t\t\t<span class=\"calendar-hide-members-helper\" data-hint=\"", "\"></span>\n\t\t\t\t</div>\n\t\t\t</div>"]);
 
 	  _templateObject12 = function _templateObject12() {
 	    return data;
@@ -143,7 +153,7 @@ this.BX = this.BX || {};
 	}
 
 	function _templateObject8() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div>\n\t\t\t<div class=\"calendar-field-container calendar-field-container-members\">\n\t\t\t\t", "\n\t\t\t\t<span class=\"calendar-create-chat-link\">", "</span>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t\t<div class=\"calendar-user-selector-wrap\"></div>\n\t\t\t<div class=\"calendar-add-popup-planner-wrap calendar-add-popup-show-planner\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t<div>"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["<div>\n\t\t\t<div class=\"calendar-field-container calendar-field-container-members\">\n\t\t\t\t", "\n\t\t\t\t<span class=\"calendar-create-chat-link\">", "</span>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t\t<div class=\"calendar-user-selector-wrap\"></div>\n\t\t\t<div class=\"calendar-add-popup-planner-wrap calendar-add-popup-show-planner\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t\t", "\n\t\t<div>"]);
 
 	  _templateObject8 = function _templateObject8() {
 	    return data;
@@ -306,6 +316,10 @@ this.BX = this.BX || {};
 	            formType: 'compact'
 	          });
 	        }
+
+	        if (!_this2.userPlannerSelector.isPlannerDisplayed()) {
+	          _this2.userPlannerSelector.checkBusyTime();
+	        }
 	      });
 	    }
 	  }, {
@@ -353,16 +367,7 @@ this.BX = this.BX || {};
 	        this.popup.destroy();
 	      }
 
-	      calendar_util.Util.closeAllPopups(); // setTimeout(()=>{
-	      // 	const popup = this.popup;
-	      // 	(function(){
-	      // 		Dom.removeClass(popup.popupContainer, 'calendar-simple-view-popup-close');
-	      // 		if (popup)
-	      // 		{
-	      // 			popup.destroy();
-	      // 		}
-	      // 	})();
-	      // }, 200);
+	      calendar_util.Util.closeAllPopups();
 	    }
 	  }, {
 	    key: "getPopupContent",
@@ -559,9 +564,6 @@ this.BX = this.BX || {};
 	        buttons[1].button.className = "ui-btn ui-btn-light-border";
 	      }
 
-	      setTimeout(function () {
-	        if (_this3.popup && _this3.popup.popupContainer) ;
-	      }, 0);
 	      return buttons;
 	    }
 	  }, {
@@ -882,12 +884,13 @@ this.BX = this.BX || {};
 	    value: function getUserPlannerSelector() {
 	      var _this9 = this;
 
-	      this.DOM.userPlannerSelectorOuterWrap = main_core.Tag.render(_templateObject8(), this.DOM.userSelectorWrap = main_core.Tag.render(_templateObject9(), main_core.Loc.getMessage('EC_ATTENDEES_MORE'), main_core.Loc.getMessage('EC_SEC_SLIDER_CHANGE')), main_core.Loc.getMessage('EC_SEC_SLIDER_CREATE_CHAT_LINK'), this.DOM.informWrap = main_core.Tag.render(_templateObject10(), main_core.Loc.getMessage('EC_NOTIFY_OPTION')), this.DOM.plannerOuterWrap = main_core.Tag.render(_templateObject11()));
+	      this.DOM.userPlannerSelectorOuterWrap = main_core.Tag.render(_templateObject8(), this.DOM.userSelectorWrap = main_core.Tag.render(_templateObject9(), main_core.Loc.getMessage('EC_ATTENDEES_MORE'), main_core.Loc.getMessage('EC_SEC_SLIDER_CHANGE')), main_core.Loc.getMessage('EC_SEC_SLIDER_CREATE_CHAT_LINK'), this.DOM.informWrap = main_core.Tag.render(_templateObject10(), main_core.Loc.getMessage('EC_NOTIFY_OPTION')), this.DOM.plannerOuterWrap = main_core.Tag.render(_templateObject11()), this.DOM.hideGuestsWrap = main_core.Tag.render(_templateObject12(), main_core.Loc.getMessage('EC_HIDE_GUEST_NAMES'), main_core.Loc.getMessage('EC_HIDE_GUEST_NAMES_HINT')));
 	      this.userPlannerSelector = new calendar_controls.UserPlannerSelector({
 	        outerWrap: this.DOM.userPlannerSelectorOuterWrap,
 	        wrap: this.DOM.userSelectorWrap,
 	        informWrap: this.DOM.informWrap,
 	        plannerOuterWrap: this.DOM.plannerOuterWrap,
+	        hideGuestsWrap: this.DOM.hideGuestsWrap,
 	        readOnlyMode: false,
 	        userId: this.userId,
 	        type: this.type,
@@ -895,7 +898,8 @@ this.BX = this.BX || {};
 	        zIndex: this.zIndex + 10
 	      });
 	      this.userPlannerSelector.subscribe('onDateChange', this.handlePlannerSelectorChanges.bind(this));
-	      this.userPlannerSelector.subscribe('onNotifyChange', this.checkForChanges);
+	      this.userPlannerSelector.subscribe('onNotifyChange', this.checkForChanges); // this.subscribe('onLoad', this.userPlannerSelector.checkEmployment.bind(this.userPlannerSelector));
+
 	      this.userPlannerSelector.subscribe('onUserCodesChange', this.checkForChanges);
 	      this.userPlannerSelector.subscribe('onOpenChat', function () {
 	        calendar_entry.EntryManager.openChatForEntry({
@@ -910,8 +914,8 @@ this.BX = this.BX || {};
 	    value: function getLocationControl() {
 	      var _this10 = this;
 
-	      this.DOM.locationWrap = main_core.Tag.render(_templateObject12());
-	      this.DOM.locationOuterWrap = main_core.Tag.render(_templateObject13(), main_core.Loc.getMessage('EC_LOCATION_LABEL'), this.DOM.locationWrap);
+	      this.DOM.locationWrap = main_core.Tag.render(_templateObject13());
+	      this.DOM.locationOuterWrap = main_core.Tag.render(_templateObject14(), main_core.Loc.getMessage('EC_LOCATION_LABEL'), this.DOM.locationWrap);
 	      this.locationSelector = new calendar_controls.Location({
 	        wrap: this.DOM.locationWrap,
 	        richLocationEnabled: this.locationFeatureEnabled,
@@ -940,7 +944,7 @@ this.BX = this.BX || {};
 	      var _this11 = this;
 
 	      this.reminderValues = [];
-	      this.DOM.remindersWrap = main_core.Tag.render(_templateObject14());
+	      this.DOM.remindersWrap = main_core.Tag.render(_templateObject15());
 	      this.remindersControl = new calendar_controls.Reminder({
 	        wrap: this.DOM.remindersWrap,
 	        zIndex: this.zIndex
@@ -967,23 +971,23 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getTypeInfoControl",
 	    value: function getTypeInfoControl() {
-	      this.DOM.typeInfoTitle = main_core.Tag.render(_templateObject15());
-	      this.DOM.typeInfoLink = main_core.Tag.render(_templateObject16());
-	      this.DOM.typeInfoWrap = main_core.Tag.render(_templateObject17(), this.DOM.typeInfoTitle, this.DOM.typeInfoLink);
+	      this.DOM.typeInfoTitle = main_core.Tag.render(_templateObject16());
+	      this.DOM.typeInfoLink = main_core.Tag.render(_templateObject17());
+	      this.DOM.typeInfoWrap = main_core.Tag.render(_templateObject18(), this.DOM.typeInfoTitle, this.DOM.typeInfoLink);
 	      return this.DOM.typeInfoWrap;
 	    }
 	  }, {
 	    key: "getRRuleInfoControl",
 	    value: function getRRuleInfoControl() {
-	      this.DOM.rruleInfo = main_core.Tag.render(_templateObject18());
-	      this.DOM.rruleInfoWrap = main_core.Tag.render(_templateObject19(), main_core.Loc.getMessage('EC_REPEAT'), this.DOM.rruleInfo);
+	      this.DOM.rruleInfo = main_core.Tag.render(_templateObject19());
+	      this.DOM.rruleInfoWrap = main_core.Tag.render(_templateObject20(), main_core.Loc.getMessage('EC_REPEAT'), this.DOM.rruleInfo);
 	      return this.DOM.rruleInfoWrap;
 	    }
 	  }, {
 	    key: "getTimezoneInfoControl",
 	    value: function getTimezoneInfoControl() {
-	      this.DOM.timezoneInfo = main_core.Tag.render(_templateObject20());
-	      this.DOM.timezoneInfoWrap = main_core.Tag.render(_templateObject21(), main_core.Loc.getMessage('EC_TIMEZONE'), this.DOM.timezoneInfo);
+	      this.DOM.timezoneInfo = main_core.Tag.render(_templateObject21());
+	      this.DOM.timezoneInfoWrap = main_core.Tag.render(_templateObject22(), main_core.Loc.getMessage('EC_TIMEZONE'), this.DOM.timezoneInfo);
 	      return this.DOM.timezoneInfoWrap;
 	    }
 	  }, {
@@ -1047,7 +1051,7 @@ this.BX = this.BX || {};
 	          this.DOM.titleInput.type = 'hidden'; // Hide input
 	          // Add label instead
 
-	          this.DOM.titleLabel = this.DOM.titleInput.parentNode.insertBefore(main_core.Tag.render(_templateObject22(), main_core.Text.encode(entry.getName())), this.DOM.titleInput);
+	          this.DOM.titleLabel = this.DOM.titleInput.parentNode.insertBefore(main_core.Tag.render(_templateObject23(), main_core.Text.encode(entry.getName())), this.DOM.titleInput);
 	          main_core.Dom.addClass(this.DOM.titleOuterWrap, 'calendar-field-container-view');
 	        } else {
 	          this.DOM.titleInput.disabled = true;
@@ -1101,7 +1105,8 @@ this.BX = this.BX || {};
 	          attendees: entry.getAttendees(),
 	          notify: !entry.isMeeting() || entry.getMeetingNotify(),
 	          viewMode: this.getMode() === CompactEventForm.VIEW_MODE,
-	          entryId: entry.id
+	          entryId: entry.id,
+	          hideGuests: entry.getHideGuests()
 	        });
 	        this.userPlannerSelector.setDateTime(this.dateTimeControl.getValue());
 	        this.userPlannerSelector.setViewMode(readOnly);
@@ -1197,7 +1202,8 @@ this.BX = this.BX || {};
 	        meeting_notify: this.userPlannerSelector.getInformValue() ? 'Y' : 'N',
 	        exclude_users: this.excludeUsers || [],
 	        attendeesEntityList: this.userPlannerSelector.getEntityList(),
-	        sendInvitesAgain: options.sendInvitesAgain ? 'Y' : 'N'
+	        sendInvitesAgain: options.sendInvitesAgain ? 'Y' : 'N',
+	        hide_guests: this.userPlannerSelector.hideGuests ? 'Y' : 'N'
 	      };
 
 	      if (entry.id && entry.isRecursive()) {
@@ -1364,12 +1370,12 @@ this.BX = this.BX || {};
 	    key: "handlePlannerSelectorChanges",
 	    value: function handlePlannerSelectorChanges(event) {
 	      if (event instanceof main_core_events.BaseEvent) {
-	        var data = event.getData(); // Date time
+	        var dateTimeValue = this.dateTimeControl.getValue();
+	        dateTimeValue.from = event.getData().dateFrom;
+	        dateTimeValue.to = event.getData().dateTo; // Date time
 
-	        this.dateTimeControl.setValue({
-	          from: data.dateFrom,
-	          to: data.dateTo
-	        }); //this.checkLocationAccessibility();
+	        this.dateTimeControl.setValue(dateTimeValue);
+	        this.userPlannerSelector.setDateTime(this.dateTimeControl.getValue());
 	      }
 	    }
 	  }, {
@@ -1392,6 +1398,7 @@ this.BX = this.BX || {};
 	          fullDay: dateTime.fullDay,
 	          location: this.locationSelector.getTextValue(),
 	          meetingNotify: this.userPlannerSelector.getInformValue() ? 'Y' : 'N',
+	          hideGuests: this.hideGuests ? 'Y' : 'N',
 	          attendeesEntityList: this.userPlannerSelector.getEntityList()
 	        }
 	      });
@@ -1431,6 +1438,21 @@ this.BX = this.BX || {};
 	          entry: this.entry
 	        }
 	      }));
+	    }
+	  }, {
+	    key: "showError",
+	    value: function showError(errorList) {
+	      var errorText = '';
+
+	      if (main_core.Type.isArray(errorList)) {
+	        errorList.forEach(function (error) {
+	          errorText += error.message + "\n";
+	        });
+	      }
+
+	      if (errorText !== '') {
+	        alert(errorText);
+	      }
 	    }
 	  }]);
 	  return CompactEventForm;

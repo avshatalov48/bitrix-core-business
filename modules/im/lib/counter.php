@@ -13,7 +13,7 @@ class Counter
 	const TYPE_MESSENGER = 'messenger';
 	const MODULE_ID = 'im';
 
-	public static function get($userId)
+	public static function get($userId = null)
 	{
 		$result = Array(
 			'TYPE' => Array(
@@ -27,6 +27,8 @@ class Counter
 			'CHAT' => Array(),
 			'LINES' => Array(),
 		);
+
+		$userId = Common::getUserId($userId);
 		if ($userId <= 0)
 		{
 			return $result;
@@ -123,10 +125,11 @@ class Counter
 		return true;
 	}
 
-	public static function getChatCounter($chatId, $userId)
+	public static function getChatCounter($chatId, $userId = null)
 	{
 		$chatId = intval($chatId);
-		$userId = intval($userId);
+		$userId = Common::getUserId($userId);
+
 		if ($chatId <= 0 || $userId <= 0)
 		{
 			return false;
@@ -137,9 +140,9 @@ class Counter
 		return intval($counters['CHAT'][$chatId]);
 	}
 
-	public static function getDialogCounter($userId, $opponentUserId)
+	public static function getDialogCounter($opponentUserId, $userId = null)
 	{
-		$userId = intval($userId);
+		$userId = Common::getUserId($userId);
 		$opponentUserId = intval($opponentUserId);
 		if ($userId <= 0 || $opponentUserId <= 0)
 		{
@@ -151,9 +154,9 @@ class Counter
 		return intval($counters['DIALOG'][$opponentUserId]);
 	}
 
-	public static function getNotifyCounter($userId)
+	public static function getNotifyCounter($userId = null)
 	{
-		$userId = intval($userId);
+		$userId = Common::getUserId($userId);
 		if ($userId <= 0)
 		{
 			return false;

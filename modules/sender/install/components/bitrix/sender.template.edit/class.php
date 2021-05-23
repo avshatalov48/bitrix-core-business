@@ -89,7 +89,7 @@ class SenderTemplateEditComponent extends Bitrix\Sender\Internals\CommonSenderCo
 			);
 		}
 
-		if (!Security\Access::getInstance()->canViewLetters())
+		if (!Security\Access::getInstance()->canModifyTemplates())
 		{
 			Security\AccessChecker::addError($this->errors);
 			return false;

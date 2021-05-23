@@ -24,7 +24,6 @@
 		this.actionUri = params.actionUri;
 		this.isFrame = params.isFrame || false;
 		this.prettyDateFormat = params.prettyDateFormat;
-		this.isFrame = params.isFrame || false;
 		this.isSaved = params.isSaved || false;
 		this.isOutside = params.isOutside || false;
 		this.mess = params.mess;
@@ -59,8 +58,6 @@
 				disabled: params.isTemplateShowed,
 				defaultTitle: this.getPatternTitle(this.mess.name)
 			});
-
-			var self = this;
 
 			BX.addCustomEvent("SidePanel.Slider:onClose", this.onPopupClose.bind(this));
 		}

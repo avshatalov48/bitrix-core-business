@@ -157,7 +157,7 @@ class SaleAccountPay extends \CBitrixComponent
 	{
 		global $APPLICATION;
 
-		$amountArray = unserialize(Main\Config\Option::get("sale", "pay_amount"), false);
+		$amountArray = unserialize(Main\Config\Option::get("sale", "pay_amount"), ['allowed_classes' => false]);
 
 		if (empty($amountArray))
 		{

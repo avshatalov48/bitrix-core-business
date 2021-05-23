@@ -1,4 +1,4 @@
-<?
+<?php
 
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
@@ -12,6 +12,13 @@ class CatalogProductControllerComponent extends CBitrixComponent
 {
 	private const TEMPLATE_CODE = 'SECTION';
 
+	private const URL_TEMPLATE_PRODUCT = 'product_details';
+	private const URL_TEMPLATE_COPY_PRODUCT = 'product_copy_details';
+	private const URL_TEMPLATE_VARIATION = 'variation_details';
+	private const URL_TEMPLATE_CREATE_PROPERTY = 'property_creator';
+	private const URL_TEMPLATE_MODIFY_PROPERTY = 'property_modify';
+	private const URL_TEMPLATE_FEEDBACK = 'feedback';
+
 	public function onPrepareComponentParams($params): array
 	{
 		$params['IFRAME'] = (bool)($params['IFRAME'] ?? $this->request->get('IFRAME') === 'Y');
@@ -19,16 +26,23 @@ class CatalogProductControllerComponent extends CBitrixComponent
 		return parent::onPrepareComponentParams($params);
 	}
 
-	protected function getTemplateUrls(): array
+	public static function getTemplateUrls(): array
 	{
 		return [
-			'product_details' => '#IBLOCK_ID#/product/#PRODUCT_ID#/',
-			'product_copy_details' => '#IBLOCK_ID#/product/0/copy/#COPY_PRODUCT_ID#/',
-			'variation_details' => '#IBLOCK_ID#/product/#PRODUCT_ID#/variation/#VARIATION_ID#/',
-			'property_creator' => '#IBLOCK_ID#/create_property/#PROPERTY_TYPE#/',
-			'property_modify' => '#IBLOCK_ID#/modify_property/#PROPERTY_ID#/',
-			'feedback' => 'feedback/',
+			self::URL_TEMPLATE_PRODUCT => '#IBLOCK_ID#/product/#PRODUCT_ID#/',
+			self::URL_TEMPLATE_COPY_PRODUCT => '#IBLOCK_ID#/product/0/copy/#COPY_PRODUCT_ID#/',
+			self::URL_TEMPLATE_VARIATION => '#IBLOCK_ID#/product/#PRODUCT_ID#/variation/#VARIATION_ID#/',
+			self::URL_TEMPLATE_CREATE_PROPERTY => '#IBLOCK_ID#/create_property/#PROPERTY_TYPE#/',
+			self::URL_TEMPLATE_MODIFY_PROPERTY => '#IBLOCK_ID#/modify_property/#PROPERTY_ID#/',
+			self::URL_TEMPLATE_FEEDBACK => 'feedback/',
 		];
+	}
+
+	public static function hasUrlTemplateId(string $templateId): bool
+	{
+		$templates = self::getTemplateUrls();
+
+		return isset($templates[$templateId]);
 	}
 
 	protected function checkModules(): bool
@@ -61,7 +75,7 @@ class CatalogProductControllerComponent extends CBitrixComponent
 
 		foreach ($templateUrls as $name => $url)
 		{
-			$this->arResult['PATH_TO'][ToUpper($name)] = $this->arParams['SEF_FOLDER'].$url;
+			$this->arResult['PATH_TO'][strtoupper($name)] = $this->arParams['SEF_FOLDER'].$url;
 		}
 
 		$variableAliases = CComponentEngine::MakeComponentVariableAliases([], $this->arParams['VARIABLE_ALIASES']);
@@ -91,7 +105,7 @@ class CatalogProductControllerComponent extends CBitrixComponent
 
 		foreach ($templates as $template)
 		{
-			$this->arResult['PATH_TO'][ToUpper($template)] = $currentPage.'?'.self::TEMPLATE_CODE.'='.$template;
+			$this->arResult['PATH_TO'][strtoupper($template)] = $currentPage.'?'.self::TEMPLATE_CODE.'='.$template;
 		}
 
 		$template = $this->request->get(self::TEMPLATE_CODE);
@@ -132,6 +146,40 @@ class CatalogProductControllerComponent extends CBitrixComponent
 			$this->arResult
 		);
 
-		$this->includeComponentTemplate($template);
+		if (
+			\Bitrix\Main\Context::getCurrent()->getRequest()->get('IFRAME') === 'Y'
+			|| \Bitrix\Main\Context::getCurrent()->getRequest()->get('mode') === 'dev'
+		)
+		{
+			$this->includeComponentTemplate($template);
+		}
+		else
+		{
+			$urlManager = \Bitrix\Iblock\Url\AdminPage\BuilderManager::getInstance();
+			$urlBuilder = $urlManager->getBuilder();
+			$urlBuilder->setIblockId($variables['IBLOCK_ID'] ?? 0);
+			$url = $urlBuilder->getElementListUrl(-1);
+
+			$sliderPath = '';
+			if ($template === self::URL_TEMPLATE_PRODUCT)
+			{
+				$sliderPath = str_replace(
+					['#IBLOCK_ID#', '#PRODUCT_ID#'],
+					[$variables['IBLOCK_ID'], $variables['PRODUCT_ID']],
+					$this->arResult['PATH_TO']['PRODUCT_DETAILS']
+				);
+			}
+			elseif ($template === self::URL_TEMPLATE_VARIATION)
+			{
+				$sliderPath = str_replace(
+					['#IBLOCK_ID#', '#PRODUCT_ID#', '#VARIATION_ID#'],
+					[$variables['IBLOCK_ID'], $variables['PRODUCT_ID'], $variables['VARIATION_ID']],
+					$this->arResult['PATH_TO']['VARIATION_DETAILS']
+				);
+			}
+			$uri = new \Bitrix\Main\Web\Uri($url);
+			$uri->addParams(['slider_path' => $sliderPath]);
+			\LocalRedirect($uri->getLocator());
+		}
 	}
 }

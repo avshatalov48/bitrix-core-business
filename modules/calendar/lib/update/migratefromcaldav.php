@@ -41,7 +41,7 @@ final class MigrateFromCaldav
 				$hasRows = true;
 				$connectionId = $row['CONNECTION_ID'];
 				$userId = intval($row['USER_ID']);
-				$sectionsList = checkSerializedData($row['SECTION_DATA']) ? unserialize($row['SECTION_DATA']) : false;
+				$sectionsList = checkSerializedData($row['SECTION_DATA']) ? unserialize($row['SECTION_DATA'], ['allowed_classes' => false]) : false;
 
 				if ($sectionsList)
 				{

@@ -4,6 +4,7 @@
 import {Loc} from "main.core";
 import SyncPanel from "../syncpanel";
 import SyncStatusPopup from "./syncstatuspopup";
+import SyncInterfaceManager from "../syncinterfacemanager";
 
 export default class SyncButton
 {
@@ -121,7 +122,7 @@ export default class SyncButton
 
 		const syncPanel = this.syncPanel;
 
-		BX.SidePanel.Instance.open("calendar:sync-slider", {
+		BX.SidePanel.Instance.open(SyncInterfaceManager.MAIN_SYNC_SLIDER_NAME, {
 			contentCallback(slider)
 			{
 				return new Promise((resolve, reject) => {

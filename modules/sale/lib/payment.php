@@ -172,6 +172,7 @@ class Payment extends Internals\CollectableEntity implements IBusinessValueProvi
 	{
 		$fields = [
 			'DATE_BILL' => new Main\Type\DateTime(),
+			'SUM' => 0,
 			'PAID' => 'N',
 			'XML_ID' => static::generateXmlId(),
 			'IS_RETURN' => static::RETURN_NONE,
@@ -548,7 +549,11 @@ class Payment extends Internals\CollectableEntity implements IBusinessValueProvi
 			if ($oldValue !== "Y")
 			{
 				$this->setField('DATE_MARKED', new Main\Type\DateTime());
-				$this->setField('EMP_MARKED_ID', $USER->GetID());
+
+				if (is_object($USER))
+				{
+					$this->setField('EMP_MARKED_ID', $USER->GetID());
+				}
 			}
 			elseif ($value === "N")
 			{

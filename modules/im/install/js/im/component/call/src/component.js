@@ -266,6 +266,7 @@ Vue.component('bx-im-component-call',
 		},
 		mobileDisabled()
 		{
+			return false;
 			if (this.application.device.type === DeviceType.mobile)
 			{
 				if (navigator.userAgent.toString().includes('iPad'))
@@ -510,8 +511,10 @@ Vue.component('bx-im-component-call',
 		/* endregion 03. Helpers */
 	},
 	components: {ErrorComponent, CheckDevices, OrientationDisabled},
+
+	// language=Vue
 	template: `
-		<div class="bx-im-component-call-wrap">
+		<div :class="['bx-im-component-call-wrap', {'bx-im-component-call-wrap-with-chat': showChat}]">
 			<div v-show="mobileDisabled">
 				<orientation-disabled/>
 			</div>

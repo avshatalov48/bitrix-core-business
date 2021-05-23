@@ -11,5 +11,5 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	'ui.buttons.icons',
 	'ui.alerts',
 	'ui.notification',
-	'translate.process',
+	'ui.stepprocessing',
 ]);

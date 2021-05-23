@@ -1,0 +1,405 @@
+.feed-post-block-background .feed-post-text-block-inner-inner {
+	background-position: top right;
+	background-repeat: no-repeat;
+	border-radius: 23px;
+	margin: 12px 0 0;
+	padding: 20px 132px 17px 25px;
+	position: relative;
+	min-height: 84px;
+}
+.feed-post-block-background.feed-post-block-grat .feed-post-text-block-inner-inner {
+	background-color: #E8F9FE;
+}
+
+.feed-post-block-background.feed-post-block-grat .feed-grat-block-arrow {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/arrow_mono.svg");
+}
+
+.feed-post-block-background.feed-post-block-grat.feed-post-block-grat-thumbsup .feed-post-text-block-inner-inner {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/01_thumbsup/background_mono.svg");
+}
+.feed-post-block-background.feed-post-block-grat.feed-post-block-grat-thumbsup .feed-grat-img {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/01_thumbsup/badge.svg");
+}
+
+.feed-post-block-background.feed-post-block-grat.feed-post-block-grat-flowers .feed-post-text-block-inner-inner {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/02_flowers/background_mono.svg");
+}
+.feed-post-block-background.feed-post-block-grat.feed-post-block-grat-flowers .feed-grat-img {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/02_flowers/badge.svg");
+}
+
+.feed-post-block-background.feed-post-block-grat.feed-post-block-grat-smile .feed-post-text-block-inner-inner {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/03_smile/background_mono.svg");
+}
+.feed-post-block-background.feed-post-block-grat.feed-post-block-grat-smile .feed-grat-img {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/03_smile/badge.svg");
+}
+
+.feed-post-block-background.feed-post-block-grat.feed-post-block-grat-star .feed-post-text-block-inner-inner {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/04_star/background_mono.svg");
+}
+.feed-post-block-background.feed-post-block-grat.feed-post-block-grat-star .feed-grat-img {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/04_star/badge.svg");
+}
+
+.feed-post-block-background.feed-post-block-grat.feed-post-block-grat-flag .feed-post-text-block-inner-inner {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/05_flag/background_mono.svg");
+}
+.feed-post-block-background.feed-post-block-grat.feed-post-block-grat-flag .feed-grat-img {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/05_flag/badge.svg");
+}
+
+.feed-post-block-background.feed-post-block-grat.feed-post-block-grat-thefirst .feed-post-text-block-inner-inner {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/06_thefirst/background_mono.svg");
+}
+.feed-post-block-background.feed-post-block-grat.feed-post-block-grat-thefirst .feed-grat-img {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/06_thefirst/badge.svg");
+}
+
+.feed-post-block-background.feed-post-block-grat.feed-post-block-grat-gift .feed-post-text-block-inner-inner {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/07_gift/background_mono.svg");
+}
+.feed-post-block-background.feed-post-block-grat.feed-post-block-grat-gift .feed-grat-img {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/07_gift/badge.svg");
+}
+
+.feed-post-block-background.feed-post-block-grat.feed-post-block-grat-crown .feed-post-text-block-inner-inner {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/08_crown/background_mono.svg");
+}
+.feed-post-block-background.feed-post-block-grat.feed-post-block-grat-crown .feed-grat-img {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/08_crown/badge.svg");
+}
+
+.feed-post-block-background.feed-post-block-grat.feed-post-block-grat-heart .feed-post-text-block-inner-inner {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/09_heart/background_mono.svg");
+}
+.feed-post-block-background.feed-post-block-grat.feed-post-block-grat-heart .feed-grat-img {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/09_heart/badge.svg");
+}
+
+.feed-post-block-background.feed-post-block-grat.feed-post-block-grat-cake .feed-post-text-block-inner-inner {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/10_cake/background_mono.svg");
+}
+.feed-post-block-background.feed-post-block-grat.feed-post-block-grat-cake .feed-grat-img {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/10_cake/badge.svg");
+}
+
+.feed-post-block-background.feed-post-block-grat.feed-post-block-grat-drink .feed-post-text-block-inner-inner {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/11_drink/background_mono.svg");
+}
+.feed-post-block-background.feed-post-block-grat.feed-post-block-grat-drink .feed-grat-img {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/11_drink/badge.svg");
+}
+
+.feed-post-block-background.feed-post-block-grat.feed-post-block-grat-money .feed-post-text-block-inner-inner {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/12_money/background_mono.svg");
+}
+.feed-post-block-background.feed-post-block-grat.feed-post-block-grat-money .feed-grat-img {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/12_money/badge.svg");
+}
+
+.feed-post-block-background.feed-post-block-grat.feed-post-block-grat-cup .feed-post-text-block-inner-inner {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/13_cup/background_mono.svg");
+}
+.feed-post-block-background.feed-post-block-grat.feed-post-block-grat-cup .feed-grat-img {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/13_cup/badge.svg");
+}
+
+.feed-post-block-background.feed-post-block-grat.feed-post-block-grat-beer .feed-post-text-block-inner-inner {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/14_beer/background_mono.svg");
+}
+.feed-post-block-background.feed-post-block-grat.feed-post-block-grat-beer .feed-grat-img {
+	background-image: url("/bitrix/images/socialnetwork/livefeed/medal/14_beer/badge.svg");
+}
+
+.feed-grat-block .feed-user-name-wrap {
+	margin: 10px 0;
+}
+.feed-grat-block.feed-grat-block-large .feed-user-name-wrap {
+	margin: 0 0 10px 0;
+}
+
+.feed-grat-block.feed-info-block {
+	display: block;
+	margin-top: 28px;
+	padding: 1px 14px 1px 0;
+	position: relative;
+}
+
+.feed-post-block-new .feed-grat-block.feed-info-block {
+	margin-bottom: 16px;
+}
+
+.feed-grat-block.feed-grat-block-large.feed-info-block {
+	max-width: 757px;
+}
+
+.feed-grat-block .feed-grat-img {
+	background-repeat: no-repeat;
+	background-position: center center;
+	width: 56px;
+	height: 56px;
+	min-width: 56px;
+}
+
+.feed-grat-block.feed-info-block .feed-workday-left-side {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	white-space: normal;
+	-webkit-box-align: start;
+	    -ms-flex-align: start;
+	        align-items: flex-start;
+}
+
+.feed-grat-block.feed-info-block .feed-workday-left-side,
+.feed-grat-block.feed-info-block .feed-user-name-wrap {
+	width: auto;
+}
+
+.feed-grat-block.feed-info-block .feed-user-name-wrap {
+	min-width: 250px;
+	width: 50%;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+	float: left;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+}
+
+.feed-grat-block .feed-workday-left-side .feed-user-name-wrap {
+	overflow: hidden;
+	white-space: nowrap;
+	min-height: 40px;
+}
+
+.feed-grat-block .feed-workday-left-side .feed-user-name-wrap .feed-user-name-wrap-inner {
+	overflow: hidden;
+}
+
+.feed-grat-block .feed-workday-left-side .feed-user-name-wrap .feed-user-avatar {
+	display: inline-block;
+	float: none;
+	margin: 0 8px 0 0;
+	vertical-align: middle;
+	width: 32px;
+	min-width: 32px;
+	height: 32px;
+}
+
+.feed-grat-block.feed-grat-block-large .feed-workday-left-side .feed-user-name-wrap .feed-user-avatar {
+	width: 56px;
+	min-width: 56px;
+	height: 56px;
+}
+
+.feed-grat-block-arrow {
+	background-repeat: no-repeat;
+	background-position: center center;
+	width: 50px;
+	height: 56px;
+	min-width: 50px;
+}
+
+.feed-grat-small-block-names .feed-user-name-wrap .feed-user-avatar {
+	height: 26px;
+	margin: 1px 8px 0 0;
+	width: 26px;
+}
+
+.feed-grat-small-left {
+	float: left;
+}
+
+.feed-grat-small-block-names {
+	overflow: hidden;
+	padding: 9px 0 2px 1px;
+}
+
+.feed-grat-block.feed-info-block .feed-grat-small-block-names .feed-user-name-wrap {
+	margin: 5px 0 14px;
+	white-space: nowrap;
+	width: 175px;
+}
+
+.feed-grat-small-block-names .feed-user-name-wrap .feed-workday-user-name {
+	display: inline-block;
+	max-width: 220px;
+	padding: 6px 0 0 0;
+	vertical-align: top;
+	width: auto;
+}
+.feed-post-block-background.feed-post-block-important .feed-post-text-block-inner-inner {
+	background-color: #F3FED6;
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='317' height='358' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cmask id='a' maskUnits='userSpaceOnUse' x='0' y='0' width='317' height='358'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M0 0h317v358H0V0z' fill='%23F3FED6'/%3E%3C/mask%3E%3Cg mask='url(%23a)' fill-rule='evenodd' clip-rule='evenodd'%3E%3Cpath d='M-550 .17h867v358h-867V.17z' fill='%23F3FED6'/%3E%3Cpath opacity='.1' d='M329 182.5c0 83.119-67.381 150.5-150.5 150.5S28 265.619 28 182.5 95.381 32 178.5 32 329 99.381 329 182.5zm-32.765 0c0 65.023-52.712 117.735-117.735 117.735S60.765 247.523 60.765 182.5 113.477 64.765 178.5 64.765 296.235 117.477 296.235 182.5zm-99.477-17.117h-31.976v.007h-13.719v13.072h13.719v71.709h-13.719v13.718h54.874v-13.718h-9.179v-84.788zm6.279-42.224c0 12.689-10.286 22.975-22.974 22.975s-22.974-10.286-22.974-22.975c0-12.688 10.286-22.974 22.974-22.974s22.974 10.286 22.974 22.974z' fill='%239DCF00'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.feed-important-icon {
+	width: 56px;
+	height: 56px;
+	background-color: transparent;
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='57' height='57' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M29.613 56.473a27.997 27.997 0 1126.882-27.977c.294 15.146-11.737 27.667-26.882 27.977z' fill='%23fff'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M28.503 48.5c11.045 0 20-8.954 20-20s-8.955-20-20-20c-11.046 0-20 8.954-20 20s8.954 20 20 20zm.23-25.353a3.382 3.382 0 100-6.764 3.382 3.382 0 000 6.764zm2.457 2.833h-4.707v.001h-2.02v1.924h2.02v10.556h-2.02v2.02h8.078v-2.02h-1.35v-12.48z' fill='%239DCF00'/%3E%3C/svg%3E");
+	background-position: center center;
+	background-repeat: no-repeat;
+}
+.feed-post-block-important .feed-post-text-block-inner-inner .feed-important-icon {
+	position: absolute;
+	right: 32px;
+	top: 23px;
+}
+
+.feed-imp-post .feed-info-block {
+	display: block;
+}
+
+.feed-imp-post .feed-info-block {
+	padding-bottom: 17px;
+}
+
+.feed-post-block-new.feed-imp-post .feed-info-block {
+	padding-bottom: 0;
+}
+
+.feed-post-block.feed-imp-post .feed-post-time-wrap {
+	top: 1px;
+}
+
+.feed-post-block.feed-imp-post.feed-post-block-files:not(.feed-post-block-pinned) .feed-post-time-wrap {
+	top: 15px;
+}
+
+.feed-post-block-new.feed-imp-post .feed-post-time-wrap {
+	top: 18px;
+}
+
+.feed-imp-post-footer {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	margin: 8px 0 0 -19px;
+	min-height: 36px;
+	padding: 17px 0 0 20px;
+	-webkit-box-orient: horizontal;
+	-webkit-box-direction: normal;
+	    -ms-flex-direction: row;
+	        flex-direction: row;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+}
+
+.feed-imp-post-footer .webform-button,
+.feed-imp-post-footer button {
+	margin: 0 16px 0 6px;
+}
+
+.feed-imp-btn-main-wrap {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+}
+
+.feed-imp-btn-wrap {
+	display: block;
+	overflow: hidden;
+}
+
+.block-have-read .feed-imp-btn-wrap {
+	margin-left: -27px;
+	padding-left: 27px;
+}
+
+.feed-foot-have-read {
+	display: inline-block;
+}
+
+.have-read-text-block {
+	color: #7CA400;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: horizontal;
+	-webkit-box-direction: normal;
+	    -ms-flex-direction: row;
+	        flex-direction: row;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	font-weight: bold;
+	padding: 0 5px 0 0;
+	white-space: nowrap;
+	font-size: 13px;
+}
+
+.have-read-text-block i {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='26' height='26' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M12.91 24.52C6.146 24.52.66 19.035.66 12.27.66 5.503 6.144.017 12.91.017c6.767 0 12.252 5.486 12.252 12.252 0 6.766-5.485 12.251-12.251 12.251z' fill='%239DCF00'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M11.484 13.595l-2.572-2.572-1.818 1.819 4.291 4.291.002-.002.1.1 7.981-7.983L17.65 7.43l-6.166 6.165z' fill='%23fff'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: center center;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	width: 26px;
+	height: 26px;
+	margin-right: 8px;
+}
+
+.have-read-text-block .feed-imp-post-footer-message {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+}
+
+.have-read-text-block .feed-imp-post-footer-comma {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	color: #555;
+	font-weight: normal;
+}
+
+.block-have-read {
+	padding-left: 27px;
+}
+
+.feed-imp-post-footer-text {
+	color: #010101;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	font-size: 13px;
+	line-height: 24px;
+}
+
+.feed-imp-post-user-link {
+	border-bottom: 1px solid transparent;
+	color: #0b66c3;
+	text-decoration: none;
+	line-height: 23px;
+	-webkit-transition: border-color 0.2s linear;
+	-o-transition: border-color 0.2s linear;
+	transition: border-color 0.2s linear;
+}
+
+.feed-imp-post-user-link:hover {
+	border-bottom-color: #0b66c3;
+	color: #0b66c3;
+	text-decoration: none;
+}
+.sonet-livefeed-popup-warning {
+	max-width: 360px;
+}
+
+.sonet-livefeed-popup-warning .popup-window-content {
+	padding: 10px 10px 30px 10px;
+	background-color: transparent;
+}
+
+.sonet-livefeed-popup-warning .popup-window-buttons {
+	border-top: 1px solid #E8E9EC;
+	padding-top: 15px;
+}

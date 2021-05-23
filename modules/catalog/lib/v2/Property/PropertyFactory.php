@@ -2,8 +2,6 @@
 
 namespace Bitrix\Catalog\v2\Property;
 
-use Bitrix\Catalog\v2\BaseCollection;
-use Bitrix\Catalog\v2\BaseEntity;
 use Bitrix\Catalog\v2\IoC\ContainerContract;
 
 /**
@@ -32,27 +30,18 @@ class PropertyFactory
 	}
 
 	/**
-	 * @return \Bitrix\Catalog\v2\BaseEntity
+	 * @return \Bitrix\Catalog\v2\Property\Property
 	 */
-	public function createEntity(): BaseEntity
+	public function createEntity(): Property
 	{
 		return $this->container->make(self::PROPERTY);
 	}
 
 	/**
-	 * @param \Bitrix\Catalog\v2\BaseEntity|null $parent
-	 * @return \Bitrix\Catalog\v2\BaseCollection
+	 * @return \Bitrix\Catalog\v2\Property\PropertyCollection
 	 */
-	public function createCollection(BaseEntity $parent = null): BaseCollection
+	public function createCollection(): PropertyCollection
 	{
-		/** @var \Bitrix\Catalog\v2\Property\PropertyCollection $collection */
-		$collection = $this->container->make(self::PROPERTY_COLLECTION);
-
-		if ($parent)
-		{
-			$collection->setParent($parent);
-		}
-
-		return $collection;
+		return $this->container->make(self::PROPERTY_COLLECTION);
 	}
 }

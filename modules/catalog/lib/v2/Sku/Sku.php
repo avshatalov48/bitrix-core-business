@@ -6,6 +6,7 @@ use Bitrix\Catalog\ProductTable;
 use Bitrix\Catalog\v2\BaseCollection;
 use Bitrix\Catalog\v2\BaseEntity;
 use Bitrix\Catalog\v2\Iblock\IblockInfo;
+use Bitrix\Catalog\v2\Image\ImageRepositoryContract;
 use Bitrix\Catalog\v2\MeasureRatio\MeasureRatioRepositoryContract;
 use Bitrix\Catalog\v2\Price\PriceRepositoryContract;
 use Bitrix\Catalog\v2\Product\BaseProduct;
@@ -27,6 +28,7 @@ class Sku extends BaseSku
 		IblockInfo $iblockInfo,
 		SkuRepositoryContract $skuRepository,
 		PropertyRepositoryContract $propertyRepository,
+		ImageRepositoryContract $imageRepository,
 		PriceRepositoryContract $priceRepository,
 		MeasureRatioRepositoryContract $measureRatioRepository
 	)
@@ -35,12 +37,26 @@ class Sku extends BaseSku
 			$iblockInfo,
 			$skuRepository,
 			$propertyRepository,
+			$imageRepository,
 			$priceRepository,
 			$measureRatioRepository
 		);
 
 		$this->setIblockId($this->iblockInfo->getSkuIblockId());
 		$this->setType(ProductTable::TYPE_FREE_OFFER);
+	}
+
+	public function getDetailUrl(): string
+	{
+		$detailUrl = parent::getDetailUrl();
+
+		/** @var \Bitrix\Catalog\v2\Product\BaseProduct $product */
+		if (!$detailUrl && $product = $this->getParent())
+		{
+			$detailUrl = $product->getDetailUrl();
+		}
+
+		return $detailUrl;
 	}
 
 	public function setParentCollection(?BaseCollection $collection): BaseEntity

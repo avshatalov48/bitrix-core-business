@@ -34,9 +34,9 @@ final class Installs implements IAuthSettings
 			}
 			elseif
 			(
-				($adapter = ServiceAdapter::load(Service::FACEBOOK_TYPE)) &&
-				($response = $adapter->getExtension()->getInstalls()) &&
-				$response->isSuccess()
+				($adapter = ServiceAdapter::loadFacebookService())
+				&& ($response = $adapter->getExtension()->getInstalls())
+				&& $response->isSuccess()
 			)
 			{
 				$cache->set(self::FACEBOOK_INSTALLS_CACHE_ID, self::$current->value = $response->fetch());

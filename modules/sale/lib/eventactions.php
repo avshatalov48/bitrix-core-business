@@ -56,6 +56,8 @@ class EventActions
 
 	const EVENT_ON_CHECK_PRINT_ERROR = "OnSalePaymentCheckPrintError";
 
+	const EVENT_ON_CHECK_VALIDATION_ERROR = "OnSalePaymentCheckValidationError";
+
 	const EVENT_ON_TAX_GET_LIST = "OnSaleTaxGetList";
 
 	const ENTITY_COLLECTABLE_ENTITY = CollectableEntity::class;
@@ -123,6 +125,11 @@ class EventActions
 			static::EVENT_ON_CHECK_PRINT_ERROR => array(
 				"ENTITY" => static::ENTITY_COLLECTABLE_ENTITY,
 				"METHOD" => array($notifyEntity, "sendCheckError"),
+			),
+
+			static::EVENT_ON_CHECK_VALIDATION_ERROR => array(
+				"ENTITY" => $orderEntity,
+				"METHOD" => array($notifyEntity, "sendCheckValidationError"),
 			),
 
 		);

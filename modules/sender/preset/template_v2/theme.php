@@ -145,7 +145,7 @@
 			font-size: 20px;
 			text-align: right;
 			vertical-align: middle;
-			font-family: Helvetica, Arial, sans-serif;
+			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 			word-break: break-word;
 		}
 

@@ -251,12 +251,12 @@ class Manager
 
 	public function getTradePlatformsXmlId($siteId)
 	{
-		$r = unserialize(Option::get("sale", "config_external_trade_platforms_xml_id"));
+		$r = unserialize(Option::get("sale", "config_external_trade_platforms_xml_id"), ['allowed_classes' => false]);
 		return $r[$siteId];
 	}
 	public function setTradePlatformsXmlId($siteId, $code)
 	{
-		$r = unserialize(Option::get("sale", "config_external_trade_platforms_xml_id"));
+		$r = unserialize(Option::get("sale", "config_external_trade_platforms_xml_id"), ['allowed_classes' => false]);
 
 		$r[$siteId] = $code;
 		Option::set("sale", "config_external_trade_platforms_xml_id", serialize($r));

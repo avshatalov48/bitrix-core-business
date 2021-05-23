@@ -14,6 +14,7 @@ class Imagick extends Engine
 {
 	/** @var \Imagick */
 	protected $image;
+	protected $animated = false;
 
 	/**
 	 * @inheritDoc
@@ -50,9 +51,18 @@ class Imagick extends Engine
 		try
 		{
 			$this->image = new \Imagick($this->file);
+
+			if (isset($this->options["allowAnimatedImages"]) && $this->options["allowAnimatedImages"] === true)
+			{
+				if ($this->image->getNumberImages() > 1)
+				{
+					$this->animated = true;
+					$this->image = $this->image->coalesceImages();
+				}
+			}
 			return true;
 		}
-		catch(\ImagickException $e)
+		catch (\ImagickException $e)
 		{
 			return false;
 		}
@@ -63,14 +73,19 @@ class Imagick extends Engine
 	 */
 	public function rotate($angle, Color $bgColor)
 	{
-		if($this->image === null)
+		if ($this->image === null)
 		{
 			return false;
 		}
 
 		$color = new \ImagickPixel($bgColor->toRgba());
 
-		return $this->image->rotateImage($color, $angle);
+		foreach ($this->image as $frame)
+		{
+			$frame->rotateImage($color, $angle);
+		}
+
+		return true;
 	}
 
 	/**
@@ -78,20 +93,17 @@ class Imagick extends Engine
 	 */
 	public function flipVertical()
 	{
-		if($this->image === null)
+		if ($this->image === null)
 		{
 			return false;
 		}
 
-		try
+		foreach ($this->image as $frame)
 		{
-			$this->image->flipImage();
-			return true;
+			$frame->flipImage();
 		}
-		catch(\ImagickException $e)
-		{
-			return false;
-		}
+
+		return true;
 	}
 
 	/**
@@ -99,20 +111,17 @@ class Imagick extends Engine
 	 */
 	public function flipHorizontal()
 	{
-		if($this->image === null)
+		if ($this->image === null)
 		{
 			return false;
 		}
 
-		try
+		foreach ($this->image as $frame)
 		{
-			$this->image->flopImage();
-			return true;
+			$frame->flopImage();
 		}
-		catch(\ImagickException $e)
-		{
-			return false;
-		}
+
+		return true;
 	}
 
 	/**
@@ -138,24 +147,21 @@ class Imagick extends Engine
 			return false;
 		}
 
-		try
+		//hope Imagick will use the best filter automatically
+		$filter = \Imagick::FILTER_UNDEFINED;
+
+		foreach($this->image as $frame)
 		{
 			if($source->getX() <> 0 || $source->getY() <> 0)
 			{
 				//need crop
-				$this->image->cropImage($source->getWidth(), $source->getHeight(), $source->getX(), $source->getY());
+				$frame->cropImage($source->getWidth(), $source->getHeight(), $source->getX(), $source->getY());
 			}
 
-			//hope Imagick will use the best filter automatically
-			$filter = \Imagick::FILTER_UNDEFINED;
-
 			//resizeImage has better quality than scaleImage (scaleImage uses a filter similar to FILTER_BOX)
-			return $this->image->resizeImage($destination->getWidth(), $destination->getHeight(), $filter, 1);
+			$frame->resizeImage($destination->getWidth(), $destination->getHeight(), $filter, 1);
 		}
-		catch(\ImagickException $e)
-		{
-			return false;
-		}
+		return true;
 	}
 
 	/**
@@ -316,13 +322,13 @@ class Imagick extends Engine
 	 */
 	public function save($file, $quality = 95, $format = null)
 	{
-		if($this->image === null)
+		if ($this->image === null)
 		{
 			return false;
 		}
 
 		$prefix = "";
-		if($format !== null)
+		if ($format !== null)
 		{
 			$format = static::convertFormat($format);
 			if($format !== null)
@@ -333,13 +339,20 @@ class Imagick extends Engine
 
 		$this->image->setImageCompressionQuality($quality);
 
-		if($format === "gif" || ($format = $this->image->getImageFormat()) === "GIF" || $format === "GIF87")
+		if ($format === "gif" || ($format = $this->image->getImageFormat()) === "GIF" || $format === "GIF87")
 		{
 			//strange artefacts with transparency - we limit the palette to 255 colors to fix it
 			$this->image->quantizeImage(255, \Imagick::COLORSPACE_SRGB, 0, false, false);
 		}
 
-		return $this->image->writeImage($prefix.$file);
+		if ($this->animated)
+		{
+			return $this->image->deconstructImages()->writeImages($prefix.$file, true);
+		}
+		else
+		{
+			return $this->image->writeImage($prefix.$file);
+		}
 	}
 
 	/**
@@ -367,6 +380,7 @@ class Imagick extends Engine
 		{
 			$this->image->clear();
 			$this->image = null;
+			$this->animated = false;
 		}
 	}
 

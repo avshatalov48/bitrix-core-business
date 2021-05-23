@@ -8,7 +8,7 @@ export default class MobileSyncBanner
 {
 	zIndex = 3100;
 	DOM = {};
-	QRCODE_SIZE = 128;
+	QRCODE_SIZE = 186;
 	QRCODE_COLOR_LIGHT = '#ffffff';
 	QRCODE_COLOR_DARK = '#000000';
 	QRCODE_WRAP_CLASS = 'calendar-sync-slider-qr-container';

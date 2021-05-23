@@ -21,6 +21,7 @@ $MESS["SENDER_LETTER_LIST_ACT_EDIT"] = "Редактировать";
 $MESS["SENDER_LETTER_LIST_ACT_VIEW"] = "Просмотреть";
 $MESS["SENDER_LETTER_LIST_ACT_COPY"] = "Копировать";
 $MESS["SENDER_LETTER_LIST_ACT_REMOVE"] = "Удалить";
+$MESS["SENDER_LETTER_LIST_UPDATE_INFO"] = "Запросить информацию у провайдера";
 $MESS["SENDER_LETTER_LIST_DURATION"] = "Время до окончания публикации после ее запуска.";
 $MESS["SENDER_LETTER_LIST_RECIPIENTS_ALL"] = "Количество получателей рекламы.";
 $MESS["SENDER_LETTER_LIST_RECIPIENTS_SENT"] = "Количество получателей рекламы, которым выполнена отправка.";

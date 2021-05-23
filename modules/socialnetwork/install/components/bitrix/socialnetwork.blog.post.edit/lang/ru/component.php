@@ -18,7 +18,6 @@ $MESS["BLOG_BLOG_BLOG_MES_DEL_NO_RIGHTS"] = "У вас нет прав на уд
 $MESS["BLOG_BLOG_SESSID_WRONG"] = "Ваша сессия истекла, пожалуйста, повторите действие";
 $MESS["BLOG_BLOG_BLOG_MES_DEL_OK"] = "Сообщение удалено";
 $MESS["BLOG_SONET_GROUP_MODULE_NOT_AVAIBLE"] = "Сообщения недоступны для этой группы";
-$MESS["BLOG_GRAT_IBLOCKELEMENT_NAME"] = "Благодарность #GRAT_NAME#";
 $MESS["BLOG_EMPTY_TITLE_PLACEHOLDER"] = "Изображение";
 $MESS["BLOG_EMPTY_TITLE_PLACEHOLDER2"] = "Файл";
 $MESS["BLOG_EMPTY_TITLE_PLACEHOLDER3"] = "Заголовок";

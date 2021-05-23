@@ -34,7 +34,7 @@ table.blogcode td {
 	padding: 4px 40px 8px 27px;
 	height: 18px;
 }
-table.blogcode td {font-family:"Courier New"; white-space:pre-wrap;}
+table.blogcode td {font-family:"Courier New"; white-space:pre-wrap; color: #333;}
 table.blogcode pre {font-family:"Courier New"; font-size: 12px; margin: 0; line-height: 15px; white-space:pre-wrap;}
 
 div.blog-post-quote, div.blog-post-code {padding-top: 0.6em; padding-bottom: 0.6em;}
@@ -67,6 +67,8 @@ div.blog-post-quote table.blogquote {
 	color: #525C69;
 }
 
+div.feed-post-block table.blogquote,
+div.feed-post-block table.blogcode,
 div.feed-com-block table.blogquote,
 div.feed-com-block table.blogcode {
 	background-color: #F3F6F7;

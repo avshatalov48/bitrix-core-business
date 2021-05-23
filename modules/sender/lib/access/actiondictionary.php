@@ -58,6 +58,8 @@ class ActionDictionary
 
 	const ACTION_SETTINGS_EDIT  = 'settings_edit';
 //	const ACTION_SETTINGS_VIEW  = 'settings_view';
+	const ACTION_ADS_MARKETING_FB_EDIT = 'ads_marketing_fb_edit';
+	const ACTION_ADS_MARKETING_INSTAGRAM_EDIT = 'ads_marketing_instagram_edit';
 
 	public const PREFIX="ACTION_";
 
@@ -84,6 +86,8 @@ class ActionDictionary
 			self::ACTION_ADS_YANDEX_EDIT              => PermissionDictionary::ADS_YANDEX_EDIT,
 			self::ACTION_ADS_GOOGLE_EDIT              => PermissionDictionary::ADS_GOOGLE_EDIT,
 			self::ACTION_ADS_VK_EDIT                  => PermissionDictionary::ADS_VK_EDIT,
+			self::ACTION_ADS_MARKETING_FB_EDIT        => PermissionDictionary::ADS_MARKETING_FB_EDIT,
+			self::ACTION_ADS_MARKETING_INSTAGRAM_EDIT => PermissionDictionary::ADS_MARKETING_INSTAGRAM_EDIT,
 			self::ACTION_ADS_FB_INSTAGRAM_EDIT        => PermissionDictionary::ADS_FB_INSTAGRAM_EDIT,
 			self::ACTION_ADS_LOOK_ALIKE_VK_EDIT       => PermissionDictionary::ADS_LOOK_ALIKE_VK_EDIT,
 			self::ACTION_ADS_LOOK_ALIKE_FB_EDIT       => PermissionDictionary::ADS_LOOK_ALIKE_FB_EDIT,
@@ -130,6 +134,8 @@ class ActionDictionary
 			self::ACTION_ADS_YANDEX_EDIT              => Permission::ACTION_MODIFY,
 			self::ACTION_ADS_GOOGLE_EDIT              => Permission::ACTION_MODIFY,
 			self::ACTION_ADS_VK_EDIT                  => Permission::ACTION_MODIFY,
+			self::ACTION_ADS_MARKETING_INSTAGRAM_EDIT => Permission::ACTION_MODIFY,
+			self::ACTION_ADS_MARKETING_FB_EDIT        => Permission::ACTION_MODIFY,
 			self::ACTION_ADS_FB_INSTAGRAM_EDIT        => Permission::ACTION_MODIFY,
 			self::ACTION_ADS_LOOK_ALIKE_VK_EDIT       => Permission::ACTION_MODIFY,
 			self::ACTION_ADS_LOOK_ALIKE_FB_EDIT       => Permission::ACTION_MODIFY,

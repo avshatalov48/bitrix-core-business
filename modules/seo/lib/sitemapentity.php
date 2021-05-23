@@ -88,7 +88,7 @@ class SitemapEntityTable extends Entity\DataManager
 			$arSitemaps = array();
 			while($arRes = $dbRes->fetch())
 			{
-				$arRes["SITEMAP_SETTINGS"] = unserialize($arRes['SITEMAP_SETTINGS']);
+				$arRes["SITEMAP_SETTINGS"] = unserialize($arRes['SITEMAP_SETTINGS'], ['allowed_classes' => false]);
 				self::$entityCache[$entityId][] = $arRes;
 				if ($arRes["SITEMAP_SETTINGS"][static::ENTITY_TYPE."_ACTIVE"] &&
 					$arRes["SITEMAP_SETTINGS"][static::ENTITY_TYPE."_ACTIVE"][$entityId] == "Y")

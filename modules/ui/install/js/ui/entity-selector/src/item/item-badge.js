@@ -1,12 +1,14 @@
-import { Tag, Type, Dom } from 'main.core';
+import { Type, Dom } from 'main.core';
 import type { ItemBadgeOptions } from './item-badge-options';
+import TextNode from '../common/text-node';
+import type { TextNodeOptions } from '../common/text-node-options';
 
 export default class ItemBadge
 {
-	title: string = '';
+	title: ?TextNode = null;
 	textColor: ?string = null;
 	bgColor: ?string = null;
-	container: ?HTMLElement = null;
+	containers: WeakMap<HTMLElement, HTMLElement> = new WeakMap();
 
 	constructor(badgeOptions: ItemBadgeOptions)
 	{
@@ -19,17 +21,22 @@ export default class ItemBadge
 
 	getTitle(): string
 	{
+		const titleNode = this.getTitleNode();
+
+		return titleNode !== null && !titleNode.isNullable() ? titleNode.getText() : '';
+	}
+
+	getTitleNode(): ?TextNode
+	{
 		return this.title;
 	}
 
-	setTitle(title: string): this
+	setTitle(title: ?string | TextNodeOptions): void
 	{
-		if (Type.isStringFilled(title))
+		if (Type.isStringFilled(title) || Type.isPlainObject(title) || title === null)
 		{
-			this.title = title;
+			this.title = title === null ? null : new TextNode(title);
 		}
-
-		return this;
 	}
 
 	getTextColor(): ?string
@@ -37,14 +44,12 @@ export default class ItemBadge
 		return this.textColor;
 	}
 
-	setTextColor(textColor: ?string): this
+	setTextColor(textColor: ?string): void
 	{
 		if (Type.isString(textColor) || textColor === null)
 		{
 			this.textColor = textColor;
 		}
-
-		return this;
 	}
 
 	getBgColor(): ?string
@@ -52,24 +57,53 @@ export default class ItemBadge
 		return this.bgColor;
 	}
 
-	setBgColor(bgColor: ?string): this
+	setBgColor(bgColor: ?string): void
 	{
 		if (Type.isString(bgColor) || bgColor === null)
 		{
 			this.bgColor = bgColor;
 		}
-
-		return this;
 	}
 
-	render(): HTMLElement
+	getContainer(target: HTMLElement): HTMLElement
 	{
-		const container = Tag.render`<span class="ui-selector-item-badge"></span>`;
+		let container = this.containers.get(target);
+		if (!container)
+		{
+			container = document.createElement('span');
+			container.className = 'ui-selector-item-badge';
 
-		container.textContent = this.getTitle();
-		Dom.style(container, 'color', this.getTextColor());
-		Dom.style(container, 'background-color', this.getBgColor());
+			this.containers.set(target, container);
+		}
 
 		return container;
+	}
+
+	renderTo(target: HTMLElement): void
+	{
+		const container = this.getContainer(target);
+
+		const titleNode = this.getTitleNode();
+		if (titleNode)
+		{
+			this.getTitleNode().renderTo(container);
+		}
+		else
+		{
+			container.textContent = '';
+		}
+
+		Dom.style(container, 'color', this.getTextColor());
+		Dom.style(container, 'background-color', this.getBgColor())
+		Dom.append(container, target);
+	}
+
+	toJSON()
+	{
+		return {
+			title: this.getTitleNode(),
+			textColor: this.getTextColor(),
+			bgColor: this.getBgColor()
+		}
 	}
 }

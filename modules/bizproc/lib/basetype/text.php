@@ -2,6 +2,7 @@
 namespace Bitrix\Bizproc\BaseType;
 
 use Bitrix\Bizproc\FieldType;
+use Bitrix\Main;
 
 /**
  * Class Text
@@ -38,13 +39,22 @@ class Text extends StringType
 		$controlId = static::generateControlId($field);
 		$className = static::generateControlClassName($fieldType, $field);
 
+		$selectorAttributes = '';
+		if ($isPublic && $allowSelection)
+		{
+			$selectorAttributes = sprintf(
+				'data-role="inline-selector-target" data-property="%s" ',
+				htmlspecialcharsbx(Main\Web\Json::encode($fieldType->getProperty()))
+			);
+		}
+
 		return sprintf(
-			"<textarea id=\"%s\" class=\"%s\" placeholder=\"%s\" rows=\"5\" cols=\"40\"  name=\"%s\"%s>%s</textarea>",
+			'<textarea id="%s" class="%s" placeholder="%s" rows="5" cols="40"  name="%s" %s>%s</textarea>',
 			htmlspecialcharsbx($controlId),
 			htmlspecialcharsbx($className),
 			htmlspecialcharsbx($fieldType->getDescription()),
 			htmlspecialcharsbx($name),
-			$isPublic && $allowSelection ? ' data-role="inline-selector-target"' : '',
+			$selectorAttributes,
 			htmlspecialcharsbx((string)$value)
 		);
 	}

@@ -232,6 +232,16 @@ abstract class ElementList extends Base
 		return $params;
 	}
 
+	protected function checkProductIblock(array $product): bool
+	{
+		$result = true;
+		if (!$this->isMultiIblockMode())
+		{
+			$result = ($product['PRODUCT_IBLOCK_ID'] == $this->arParams['IBLOCK_ID']);
+		}
+		return $result;
+	}
+
 	protected static function predictElementCountByVariants($variants, $isBigData = false)
 	{
 		$count = 0;
@@ -2432,7 +2442,11 @@ abstract class ElementList extends Base
 		$item['SKU_TREE_VALUES'] = array();
 
 		$iblockParams = $this->storage['IBLOCK_PARAMS'][$item['IBLOCK_ID']];
-		$skuPropList = $this->arResult['SKU_PROPS'][$item['IBLOCK_ID']];
+		$skuPropList = [];
+		if (isset($this->arResult['SKU_PROPS'][$item['IBLOCK_ID']]))
+		{
+			$skuPropList = $this->arResult['SKU_PROPS'][$item['IBLOCK_ID']];
+		}
 		$skuPropIds = array_keys($skuPropList);
 		$matrixFields = array_fill_keys($skuPropIds, false);
 

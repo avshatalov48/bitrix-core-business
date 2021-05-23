@@ -8,7 +8,7 @@
  * @global CCacheManager $CACHE_MANAGER
  */
 
-define("START_EXEC_EPILOG_BEFORE_1", microtime());
+define("START_EXEC_EPILOG_BEFORE_1", microtime(true));
 $GLOBALS["BX_STATE"] = "EB";
 
 if($USER->IsAuthorized() && (!defined("BX_AUTH_FORM") || !BX_AUTH_FORM))

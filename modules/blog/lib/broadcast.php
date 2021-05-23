@@ -109,7 +109,7 @@ class Broadcast
 		$value = Option::get('blog', 'log_notify_all_data', false);
 		if ($value)
 		{
-			$value = unserialize($value);
+			$value = unserialize($value, ['allowed_classes' => false]);
 			if (
 				is_array($value)
 				&& isset($value['cnt'])

@@ -754,9 +754,7 @@ class CPasswordStorage
 
 	public static function Init()
 	{
-		if (!function_exists('mcrypt_encrypt') && !function_exists('openssl_encrypt'))
-			return false;
-		return true;
+		return function_exists('openssl_encrypt');
 	}
 
 	public static function getEncryptKey()
@@ -1343,8 +1341,8 @@ class CTar
 		if (is_dir($file))
 			return $this->Error('File is directory: '.$file);
 
-		if ($this->EncryptKey && !function_exists('mcrypt_encrypt') && !function_exists('openssl_encrypt'))
-			return $this->Error('Function mcrypt_encrypt/openssl_encrypt is not available');
+		if ($this->EncryptKey && !function_exists('openssl_encrypt'))
+			return $this->Error('Function openssl_encrypt is not available');
 		
 		if ($mode == 'r' && !file_exists($file))
 			return $this->Error('File does not exist: '.$file);
@@ -1570,19 +1568,13 @@ class CTar
 	{
 		if ($m = strlen($data)%8)
 			$data .= str_repeat("\x00",  8 - $m);
-		if (function_exists('openssl_encrypt'))
-			return openssl_encrypt($data, 'BF-ECB', $md5_key, OPENSSL_RAW_DATA | OPENSSL_NO_PADDING);
-		else
-			return mcrypt_encrypt(MCRYPT_BLOWFISH, $md5_key, $data, MCRYPT_MODE_ECB);
+
+		return openssl_encrypt($data, 'BF-ECB', $md5_key, OPENSSL_RAW_DATA | OPENSSL_NO_PADDING);
 	}
 
 	public static function decrypt($data, $md5_key)
 	{
-		if (function_exists('openssl_decrypt'))
-			$val = openssl_decrypt($data, 'BF-ECB', $md5_key, OPENSSL_RAW_DATA | OPENSSL_NO_PADDING);
-		else
-			$val = mcrypt_decrypt(MCRYPT_BLOWFISH, $md5_key, $data, MCRYPT_MODE_ECB);
-		return $val;
+		return openssl_decrypt($data, 'BF-ECB', $md5_key, OPENSSL_RAW_DATA | OPENSSL_NO_PADDING);
 	}
 
 	# }

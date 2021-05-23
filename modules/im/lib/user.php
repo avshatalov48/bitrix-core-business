@@ -132,8 +132,12 @@ class User
 	public function getStatus()
 	{
 		$fields = $this->getFields();
+		if (!$fields)
+		{
+			return 'offline';
+		}
 
-		return $fields? $fields['status']: '';
+		return $fields['status']?: 'online';
 	}
 
 	/**
@@ -141,16 +145,7 @@ class User
 	 */
 	public function getIdle()
 	{
-		$fields = $this->getFields();
-
-		if ($fields && $fields['idle'])
-		{
-			return $fields['idle'];
-		}
-		else
-		{
-			return false;
-		}
+		return $this->getOnlineFields()['idle'];
 	}
 
 	/**
@@ -158,16 +153,7 @@ class User
 	 */
 	public function getLastActivityDate()
 	{
-		$fields = $this->getFields();
-
-		if ($fields && $fields['last_activity_date'])
-		{
-			return $fields['last_activity_date'];
-		}
-		else
-		{
-			return false;
-		}
+		return $this->getOnlineFields()['last_activity_date'];
 	}
 
 	/**
@@ -175,16 +161,7 @@ class User
 	 */
 	public function getMobileLastDate()
 	{
-		$fields = $this->getFields();
-
-		if ($fields && $fields['mobile_last_date'])
-		{
-			return $fields['mobile_last_date'];
-		}
-		else
-		{
-			return false;
-		}
+		return $this->getOnlineFields()['mobile_last_date'];
 	}
 
 	/**
@@ -378,16 +355,7 @@ class User
 	 */
 	public function isAbsent()
 	{
-		$fields = $this->getFields();
-
-		if ($fields && $fields['absent'])
-		{
-			return $fields['absent'];
-		}
-		else
-		{
-			return false;
-		}
+		return \CIMContactList::formatAbsentResult($this->getId());
 	}
 
 	/**
@@ -489,6 +457,7 @@ class User
 
 		$result = [
 			'ID' => $this->getId(),
+			'ACTIVE' => $this->isActive(),
 			'NAME' => $this->getFullName(false),
 			'FIRST_NAME' => $this->getName(false),
 			'LAST_NAME' => $this->getLastName(false),
@@ -503,11 +472,11 @@ class User
 			'CONNECTOR' => $this->isConnector(),
 			'EXTERNAL_AUTH_ID' => $this->getExternalAuthId(),
 			'STATUS' => $this->getStatus(),
-			'IDLE' => $this->getIdle(),
-			'LAST_ACTIVITY_DATE' => $this->getLastActivityDate(),
-			'MOBILE_LAST_DATE' => $this->getMobileLastDate(),
-			'DEPARTMENTS' => $this->getDepartments(),
+			'IDLE' => $options['SKIP_ONLINE'] === 'Y'? false: $this->getIdle(),
+			'LAST_ACTIVITY_DATE' => $options['SKIP_ONLINE'] === 'Y'? false: $this->getLastActivityDate(),
+			'MOBILE_LAST_DATE' => $options['SKIP_ONLINE'] === 'Y'? false: $this->getMobileLastDate(),
 			'ABSENT' => $this->isAbsent(),
+			'DEPARTMENTS' => $this->getDepartments(),
 			'PHONES' => $this->getPhones(),
 		];
 		if ($options['HR_PHOTO'])
@@ -560,7 +529,8 @@ class User
 				'ID' => self::getId(),
 				'PHONES' => 'Y',
 				'EXTRA_FIELDS' => 'Y',
-				'DATE_ATOM' => 'N'
+				'DATE_ATOM' => 'N',
+				'SHOW_ONLINE' => 'N',
 			));
 			if (isset($userData['users'][self::getId()]))
 			{
@@ -678,6 +648,25 @@ class User
 		return empty($list);
 	}
 
+	private function getOnlineFields()
+	{
+		$online = \CIMStatus::GetList(Array('ID' => $this->getId()));
+		if (!$online || !isset($online['users'][$this->getId()]))
+		{
+			return null;
+		}
+
+		$online = $online['users'][$this->getId()];
+
+		return [
+			'id' => $this->getId(),
+			'color' => $online['color']?: '',
+			'idle' => $online['idle']?: false,
+			'last_activity_date' => $online['last_activity_date']?: false,
+			'mobile_last_date' => $online['mobile_last_date']?: false,
+		];
+	}
+
 	public static function getList($params)
 	{
 		$params = is_array($params)? $params: Array();
@@ -716,7 +705,9 @@ class User
 		{
 			return false;
 		}
+
 		$filter = $ormParams['filter'];
+		$filter['!UF_DEPARTMENT'] = false;
 		$filter['ACTIVE'] = 'Y';
 
 		$intranetInstalled = \Bitrix\Main\Loader::includeModule('intranet');
@@ -1207,6 +1198,7 @@ class User
 
 		return $fields['NAME'];
 	}
+
 	public static function formatFullNameFromDatabase($fields)
 	{
 		if (is_null(self::$formatNameTemplate))

@@ -314,7 +314,7 @@ class CEventMain
 
 	public static function GetEventInfo($row, $arParams)
 	{
-		$DESCRIPTION = unserialize($row["DESCRIPTION"]);
+		$DESCRIPTION = unserialize($row["DESCRIPTION"], ['allowed_classes' => false]);
 		$userURL = $EventPrint = "";
 		$rsUser = CUser::GetByID($row['ITEM_ID']);
 		if($arUser = $rsUser->GetNext())

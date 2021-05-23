@@ -3,8 +3,6 @@
 namespace Bitrix\Catalog\v2\MeasureRatio;
 
 use Bitrix\Catalog\v2\BaseCollection;
-use Bitrix\Catalog\v2\BaseEntity;
-use Bitrix\Main\InvalidOperationException;
 
 /**
  * Class MeasureRatioCollection
@@ -22,30 +20,6 @@ class MeasureRatioCollection extends BaseCollection
 	public function __construct(MeasureRatioFactory $factory)
 	{
 		$this->factory = $factory;
-	}
-
-	/**
-	 * @param \Bitrix\Catalog\v2\BaseEntity|\Bitrix\Catalog\v2\MeasureRatio\HasMeasureRatioCollection|null $parent
-	 * @return \Bitrix\Catalog\v2\BaseCollection
-	 */
-	public function setParent(?BaseEntity $parent): BaseCollection
-	{
-		parent::setParent($parent);
-
-		if ($parent)
-		{
-			if (!($parent instanceof HasMeasureRatioCollection))
-			{
-				throw new InvalidOperationException(sprintf(
-					'Parent entity must implement {%s} interface',
-					HasMeasureRatioCollection::class
-				));
-			}
-
-			$parent->setMeasureRatioCollection($this);
-		}
-
-		return $this;
 	}
 
 	public function findDefault(): ?BaseMeasureRatio

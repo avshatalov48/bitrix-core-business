@@ -1,6 +1,7 @@
 export type SearchFieldOptions = {
 	name: string,
-	type: string,
+	type?: 'string' | 'email',
 	searchable?: boolean,
-	system?: boolean
+	system?: boolean,
+	sort?: number
 };

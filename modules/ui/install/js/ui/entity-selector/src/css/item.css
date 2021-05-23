@@ -3,11 +3,25 @@
 }
 
 .ui-selector-item-box {
+	height: 44px;
+	/*content-visibility: auto;*/
+}
 
+.ui-selector-dialog--compact-view .ui-selector-item-box {
+	height: 34px;
+}
+
+.ui-selector-item-box.ui-selector-item-box-has-children {
+	height: auto;
+	/*content-visibility: visible;*/
+}
+
+.ui-selector-item-box-has-children .ui-selector-item-box {
+	/*content-visibility: visible;*/
 }
 
 .ui-selector-item {
-	min-height: 48px;
+	min-height: 44px;
 	cursor: pointer;
 	margin-bottom: 1px;
 	padding: 0 45px 0 10px;
@@ -17,17 +31,35 @@
 }
 
 .bx-ie11 .ui-selector-item {
-	height: 48px;
+	height: 44px;
+}
+
+.ui-selector-dialog--compact-view .ui-selector-item {
+	min-height: 34px;
+}
+
+.bx-ie11 .ui-selector-dialog--compact-view .ui-selector-item {
+	height: 34px;
 }
 
 .ui-selector-item-avatar {
-	width: 32px;
-	height: 32px;
-	min-width: 32px;
+	width: 28px;
+	height: 28px;
+	min-width: 28px;
 	border-radius: 50%;
 	background-image: url(images/default-avatar.svg);
 	background-size: cover;
 	overflow: hidden;
+}
+
+.ui-selector-dialog--compact-view .ui-selector-item-avatar {
+	width: 22px;
+	height: 22px;
+	min-width: 22px;
+}
+
+.ui-selector-tab-content--hide-avatars .ui-selector-item-avatar {
+	display: none;
 }
 
 .ui-selector-item-titles {
@@ -39,6 +71,10 @@
 	overflow: hidden;
 	white-space: nowrap;
 	text-overflow: ellipsis;
+}
+
+.ui-selector-tab-content--hide-avatars .ui-selector-item-titles {
+	margin-left: 0;
 }
 
 .ui-selector-item-supertitle {
@@ -64,7 +100,7 @@
 }
 
 .ui-selector-item-title {
-	font-size: 16px;
+	font-size: 14px;
 	color: #535c69;
 	white-space: nowrap;
 	text-overflow: ellipsis;
@@ -115,7 +151,7 @@
 	position: absolute;
 	top: 0;
 	right: 45px;
-	height: 48px;
+	bottom: 0;
 	align-items: center;
 	padding-left: 10px;
 	opacity: 0;
@@ -142,7 +178,7 @@
 .ui-selector-item-link-text {
 	color: #9b9b9b;
 	border-bottom: 1px dashed rgba(155, 155, 155, 0.4);
-	font-size: 14px;
+	font-size: 13px;
 	white-space: nowrap;
 }
 
@@ -156,8 +192,8 @@
 	position: absolute;
 	right: 0;
 	top: 0;
+	bottom: 0;
 	width: 45px;
-	height: 48px;
 	background-repeat: no-repeat;
 	background-position: center center;
 	text-overflow: ellipsis;
@@ -169,9 +205,9 @@
 }
 
 .ui-selector-item-children {
+	display: none;
 	overflow: hidden;
 	height: 0;
-	opacity: 0;
 	transition: height 300ms, opacity 300ms;
 	margin-left: 16px;
 	padding-left: 16px;
@@ -190,8 +226,8 @@
 
 .ui-selector-item-box-open > .ui-selector-item-children {
 	height: auto;
-	opacity: 1;
 	margin-bottom: 15px;
+	display: block;
 }
 
 .ui-selector-item-box-has-children > .ui-selector-item > .ui-selector-item-indicator {

@@ -233,7 +233,8 @@ class CIBlockElement extends CAllIBlockElement
 	{
 		global $DB, $USER;
 		$MAX_LOCK = intval(COption::GetOptionString("workflow","MAX_LOCK_TIME","60"));
-		$uid = is_object($USER)? intval($USER->GetID()): 0;
+		//$uid = is_object($USER)? intval($USER->GetID()): 0;
+		$uid = $this->userId;
 
 		$formatActiveDates = CPageOption::GetOptionString("iblock", "FORMAT_ACTIVE_DATES", "-") != "-";
 		$shortFormatActiveDates = CPageOption::GetOptionString("iblock", "FORMAT_ACTIVE_DATES", "SHORT");
@@ -709,7 +710,7 @@ class CIBlockElement extends CAllIBlockElement
 				{
 					$DB->Query("SET @ranx=0");
 					$DB->Query("
-						SELECT @ranx:=el1.ranx
+						SELECT /*+ NO_DERIVED_CONDITION_PUSHDOWN() */ @ranx:=el1.ranx
 						FROM (
 							SELECT @ranx:=@ranx+1 AS ranx, el0.*
 							FROM (
@@ -745,7 +746,7 @@ class CIBlockElement extends CAllIBlockElement
 				{
 					$DB->Query("SET @ranx=0");
 					$res = $DB->Query("
-						SELECT el1.*
+						SELECT /*+ NO_DERIVED_CONDITION_PUSHDOWN() */ el1.*
 						FROM (
 							SELECT @ranx:=@ranx+1 AS `RANK`, el0.*
 							FROM (
@@ -824,17 +825,8 @@ class CIBlockElement extends CAllIBlockElement
 	///////////////////////////////////////////////////////////////////
 	public function Update($ID, $arFields, $bWorkFlow=false, $bUpdateSearch=true, $bResizePictures=false, $bCheckDiskQuota=true)
 	{
-		global $DB, $USER;
+		global $DB;
 		$ID = (int)$ID;
-
-		if ($this->workflowIncluded === null)
-		{
-			$this->workflowIncluded = Loader::includeModule('workflow');
-		}
-		if ($this->bizprocInstalled === null)
-		{
-			$this->bizprocInstalled = ModuleManager::isModuleInstalled('bizproc');
-		}
 
 		$db_element = CIBlockElement::GetList(array(), array("ID"=>$ID, "SHOW_HISTORY"=>"Y"), false, false,
 			array(
@@ -1009,14 +1001,25 @@ class CIBlockElement extends CAllIBlockElement
 			$arFields["WF_NEW"] = false;
 		}
 
-		if(is_set($arFields, "ACTIVE") && $arFields["ACTIVE"]!="Y")
-			$arFields["ACTIVE"]="N";
+		if (array_key_exists('NAME', $arFields) && $arFields['NAME'] === null)
+		{
+			unset($arFields['NAME']);
+		}
 
-		if(is_set($arFields, "PREVIEW_TEXT_TYPE") && $arFields["PREVIEW_TEXT_TYPE"]!="html")
-			$arFields["PREVIEW_TEXT_TYPE"]="text";
+		if (isset($arFields["ACTIVE"]) && $arFields["ACTIVE"] != "Y")
+		{
+			$arFields["ACTIVE"] = "N";
+		}
 
-		if(is_set($arFields, "DETAIL_TEXT_TYPE") && $arFields["DETAIL_TEXT_TYPE"]!="html")
-			$arFields["DETAIL_TEXT_TYPE"]="text";
+		if (isset($arFields["PREVIEW_TEXT_TYPE"]) && $arFields["PREVIEW_TEXT_TYPE"] != "html")
+		{
+			$arFields["PREVIEW_TEXT_TYPE"] = "text";
+		}
+
+		if (isset($arFields["DETAIL_TEXT_TYPE"]) && $arFields["DETAIL_TEXT_TYPE"] != "html")
+		{
+			$arFields["DETAIL_TEXT_TYPE"] = "text";
+		}
 
 		$strWarning = "";
 		if($bResizePictures)
@@ -1025,6 +1028,7 @@ class CIBlockElement extends CAllIBlockElement
 
 			if(
 				$arDef["DELETE_WITH_DETAIL"] === "Y"
+				&& isset($arFields["DETAIL_PICTURE"])
 				&& is_array($arFields["DETAIL_PICTURE"])
 				&& $arFields["DETAIL_PICTURE"]["del"] === "Y"
 			)
@@ -1035,9 +1039,11 @@ class CIBlockElement extends CAllIBlockElement
 			if(
 				$arDef["FROM_DETAIL"] === "Y"
 				&& (
-					(is_array($arFields["PREVIEW_PICTURE"]) && $arFields["PREVIEW_PICTURE"]["size"] <= 0)
+					!isset($arFields["PREVIEW_PICTURE"])
+					|| (is_array($arFields["PREVIEW_PICTURE"]) && $arFields["PREVIEW_PICTURE"]["size"] <= 0)
 					|| $arDef["UPDATE_WITH_DETAIL"] === "Y"
 				)
+				&& isset($arFields["DETAIL_PICTURE"])
 				&& is_array($arFields["DETAIL_PICTURE"])
 				&& $arFields["DETAIL_PICTURE"]["size"] > 0
 			)
@@ -1294,16 +1300,27 @@ class CIBlockElement extends CAllIBlockElement
 		if(is_set($arFields, "EXTERNAL_ID"))
 			$arFields["XML_ID"] = $arFields["EXTERNAL_ID"];
 
-		$PREVIEW_tmp = is_set($arFields, "PREVIEW_TEXT")? $arFields["PREVIEW_TEXT"]: $ar_wf_element["PREVIEW_TEXT"];
-		$PREVIEW_TYPE_tmp = is_set($arFields, "PREVIEW_TEXT_TYPE")? $arFields["PREVIEW_TEXT_TYPE"]: $ar_wf_element["PREVIEW_TEXT_TYPE"];
-		$DETAIL_tmp = is_set($arFields, "DETAIL_TEXT")? $arFields["DETAIL_TEXT"]: $ar_wf_element["DETAIL_TEXT"];
-		$DETAIL_TYPE_tmp = is_set($arFields, "DETAIL_TEXT_TYPE")? $arFields["DETAIL_TEXT_TYPE"]: $ar_wf_element["DETAIL_TEXT_TYPE"];
-
-		$arFields["SEARCHABLE_CONTENT"] = ToUpper(
-			(is_set($arFields, "NAME")? $arFields["NAME"]: $ar_wf_element["NAME"])."\r\n".
-			($PREVIEW_TYPE_tmp=="html"? HTMLToTxt($PREVIEW_tmp): $PREVIEW_tmp)."\r\n".
-			($DETAIL_TYPE_tmp=="html"? HTMLToTxt($DETAIL_tmp): $DETAIL_tmp)
+		$existFields = array(
+			'NAME' => isset($arFields['NAME']),
+			'PREVIEW_TEXT' => array_key_exists('PREVIEW_TEXT', $arFields),
+			'DETAIL_TEXT' => array_key_exists('DETAIL_TEXT', $arFields)
 		);
+		$searchableFields = [
+			'NAME' => $existFields['NAME'] ? $arFields["NAME"] : $ar_wf_element["NAME"],
+			'PREVIEW_TEXT' => $existFields['PREVIEW_TEXT'] ? $arFields["PREVIEW_TEXT"]: $ar_wf_element["PREVIEW_TEXT"],
+			'PREVIEW_TEXT_TYPE' => isset($arFields["PREVIEW_TEXT_TYPE"]) ? $arFields["PREVIEW_TEXT_TYPE"]: $ar_wf_element["PREVIEW_TEXT_TYPE"],
+			'DETAIL_TEXT' => $existFields['DETAIL_TEXT'] ? $arFields["DETAIL_TEXT"]: $ar_wf_element["DETAIL_TEXT"],
+			'DETAIL_TEXT_TYPE' => isset($arFields["DETAIL_TEXT_TYPE"]) ? $arFields["DETAIL_TEXT_TYPE"]: $ar_wf_element["DETAIL_TEXT_TYPE"]
+		];
+
+		if ($this->searchIncluded)
+		{
+			$arFields["SEARCHABLE_CONTENT"] = ToUpper(
+				$searchableFields['NAME']."\r\n".
+				($searchableFields['PREVIEW_TEXT_TYPE'] == "html" ? HTMLToTxt($searchableFields['PREVIEW_TEXT']) : $searchableFields['PREVIEW_TEXT'])."\r\n".
+				($searchableFields['DETAIL_TEXT_TYPE'] == "html" ? HTMLToTxt($searchableFields['DETAIL_TEXT']) : $searchableFields['DETAIL_TEXT'])
+			);
+		}
 
 		if(array_key_exists("IBLOCK_SECTION_ID", $arFields))
 		{
@@ -1452,7 +1469,7 @@ class CIBlockElement extends CAllIBlockElement
 						&& $arFields["WF_STATUS_ID"] != 1
 						)
 					{
-						$DB->Query("UPDATE b_iblock_element SET TIMESTAMP_X=TIMESTAMP_X, WF_STATUS_ID=".$arFields["WF_STATUS_ID"]." WHERE ID=".$ID);
+						$DB->Query("UPDATE b_iblock_element SET TIMESTAMP_X=TIMESTAMP_X, WF_STATUS_ID=".(int)$arFields["WF_STATUS_ID"]." WHERE ID=".$ID);
 					}
 				}
 
@@ -1567,12 +1584,61 @@ class CIBlockElement extends CAllIBlockElement
 			$strSql = "UPDATE b_iblock_element SET ".$strUpdate.($bTimeStampNA?"TIMESTAMP_X=TIMESTAMP_X":"TIMESTAMP_X=now()")." WHERE ID=".$ID;
 			$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 
-			if(
+			$existFields['PROPERTY_VALUES'] = (
 				isset($arFields["PROPERTY_VALUES"])
 				&& is_array($arFields["PROPERTY_VALUES"])
 				&& !empty($arFields["PROPERTY_VALUES"])
-			)
+			);
+
+			if ($existFields['PROPERTY_VALUES'])
+			{
 				CIBlockElement::SetPropertyValues($ID, $ar_element["IBLOCK_ID"], $arFields["PROPERTY_VALUES"]);
+			}
+
+			if (!$this->searchIncluded)
+			{
+				if (
+					$existFields['NAME']
+					|| $existFields['PREVIEW_TEXT']
+					|| $existFields['DETAIL_TEXT']
+					|| $existFields['PROPERTY_VALUES']
+				)
+				{
+					$elementFields = $arFields;
+					if (!$existFields['NAME'])
+					{
+						$elementFields['NAME'] = $searchableFields['NAME'];
+					}
+					if (!$existFields['PREVIEW_TEXT'])
+					{
+						$elementFields['PREVIEW_TEXT'] = $searchableFields['PREVIEW_TEXT'];
+						if (!isset($elementFields['PREVIEW_TEXT_TYPE']))
+						{
+							$elementFields['PREVIEW_TEXT_TYPE'] = $searchableFields['PREVIEW_TEXT_TYPE'];
+						}
+					}
+					if (!$existFields['DETAIL_TEXT'])
+					{
+						$elementFields['DETAIL_TEXT'] = $searchableFields['DETAIL_TEXT'];
+						if (!isset($elementFields['DETAIL_TEXT_TYPE']))
+						{
+							$elementFields['DETAIL_TEXT_TYPE'] = $searchableFields['DETAIL_TEXT_TYPE'];
+						}
+					}
+					$arFields['SEARCHABLE_CONTENT'] = $this->getSearchableContent($ID, $elementFields, $arIBlock);
+					unset($elementFields);
+					$updateFields = array(
+						'SEARCHABLE_CONTENT' => $arFields['SEARCHABLE_CONTENT']
+					);
+					$updateQuery = $DB->PrepareUpdate("b_iblock_element", $updateFields, "iblock");
+					if ($updateQuery != "")
+					{
+						$updateQuery .= ', TIMESTAMP_X = TIMESTAMP_X';
+						$DB->Query("UPDATE b_iblock_element SET ".$updateQuery." WHERE ID = ".$ID);
+					}
+					unset($updateFields);
+				}
+			}
 
 			if(is_set($arFields, "IBLOCK_SECTION"))
 				CIBlockElement::SetElementSection($ID, $arFields["IBLOCK_SECTION"], false, $arIBlock["RIGHTS_MODE"] === "E"? $arIBlock["ID"]: 0, $IBLOCK_SECTION_ID);
@@ -1590,9 +1656,12 @@ class CIBlockElement extends CAllIBlockElement
 				$ipropTemplates->set($arFields["IPROPERTY_TEMPLATES"]);
 			}
 
-			if($bUpdateSearch)
+			if ($bUpdateSearch)
 			{
-				CIBlockElement::UpdateSearch($ID, true);
+				if ($this->searchIncluded)
+				{
+					CIBlockElement::UpdateSearch($ID, true);
+				}
 			}
 
 			\Bitrix\Iblock\PropertyIndex\Manager::updateElementIndex($arIBlock["ID"], $ID);
@@ -1625,9 +1694,9 @@ class CIBlockElement extends CAllIBlockElement
 
 			if($arIBlock["FIELDS"]["LOG_ELEMENT_EDIT"]["IS_REQUIRED"] == "Y")
 			{
-				$USER_ID = is_object($USER)? intval($USER->GetID()) : 0;
+				//$USER_ID = is_object($USER)? intval($USER->GetID()) : 0;
 				$arEvents = GetModuleEvents("main", "OnBeforeEventLog", true);
-				if(empty($arEvents) || ExecuteModuleEventEx($arEvents[0], array($USER_ID))===false)
+				if(empty($arEvents) || ExecuteModuleEventEx($arEvents[0], array($this->userId))===false) //$USER_ID
 				{
 					$rsElement = CIBlockElement::GetList(
 						array(),
@@ -1641,7 +1710,7 @@ class CIBlockElement extends CAllIBlockElement
 						"CODE" => $arElement["CODE"],
 						"NAME" => $arElement["NAME"],
 						"ELEMENT_NAME" => $arIBlock["ELEMENT_NAME"],
-						"USER_ID" => $USER_ID,
+						"USER_ID" => $this->userId, // $USER_ID
 						"IBLOCK_PAGE_URL" => $arElement["LIST_PAGE_URL"],
 					);
 					CEventLog::Log(

@@ -4,150 +4,251 @@
 namespace Bitrix\Calendar\ICal\Parser;
 
 
-use Bitrix\Calendar\ICal\Basic\BasicComponent;
-use Bitrix\Calendar\ICal\Basic\Content;
-use Bitrix\Main\Type\Date;
-
-class Calendar extends BasicComponent implements ParserComponent
+class Calendar extends ParserComponent
 {
+	public const COMPONENT_TYPE = 'VCALENDAR';
+	/**
+	 * @var Event[]
+	 */
 	private $events = [];
+	/**
+	 * @var Timezone[]
+	 */
 	private $timezones = [];
+	/**
+	 * @var string
+	 */
 	private $name;
-	private $description;
-	private $withTimezone = false;
-	private $refreshInterval;
+	/**
+	 * @var ParserPropertyType|null
+	 */
 	private $productIdentifier;
+	/**
+	 * @var ParserPropertyType|null
+	 */
 	private $method;
+	/**
+	 * @var ParserPropertyType|null
+	 */
 	private $version;
+	/**
+	 * @var ParserPropertyType|null
+	 */
 	private $calScale;
 
-	public static function getInstance(string $name = ''): Calendar
+	/**
+	 * @param string $name
+	 * @return Calendar
+	 */
+	public static function createInstance(string $name = ''): Calendar
 	{
 		return new self($name);
 	}
 
+	/**
+	 * Calendar constructor.
+	 * @param $name
+	 */
 	public function __construct($name)
 	{
 		$this->name = $name;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getType(): string
 	{
-		return 'VCALENDAR';
+		return self::COMPONENT_TYPE;
 	}
 
+	/**
+	 * @return array
+	 */
 	public function getProperties(): array
 	{
-		// TODO: Implement getProperties() method.
+		return [];
 	}
 
-	public function setMethod($method): Calendar
+	/**
+	 * @param ParserPropertyType|null $method
+	 * @return $this
+	 */
+	public function setMethod(?ParserPropertyType $method): Calendar
 	{
-		$this->method = $method['value'];
+		$this->method = $method;
+
 		return $this;
 	}
 
-	public function setProdId($prodId): Calendar
+	/**
+	 * @param ParserPropertyType|null $prodId
+	 * @return $this
+	 */
+	public function setProdId(?ParserPropertyType $prodId): Calendar
 	{
-		$this->productIdentifier = $prodId['value'];
+		$this->productIdentifier = $prodId;
+
 		return $this;
 	}
 
-	public function setCalScale($calscale): Calendar
+	/**
+	 * @param ParserPropertyType|null $calscale
+	 * @return $this
+	 */
+	public function setCalScale(?ParserPropertyType $calscale): Calendar
 	{
-		$this->calScale = $calscale['value'];
+		$this->calScale = $calscale;
+
 		return $this;
 	}
 
-	public function setVersion($version): Calendar
+	/**
+	 * @param ParserPropertyType|null $version
+	 * @return $this
+	 */
+	public function setVersion(?ParserPropertyType $version): Calendar
 	{
-		$this->version = $version['value'];
+		$this->version = $version;
+
 		return $this;
 	}
 
-	public function setSubComponents(array $subComponents): Calendar
+	/**
+	 * @param Event $event
+	 * @return $this
+	 */
+	public function setEvent(Event $event): Calendar
+	{
+		$this->events[] = $event;
+
+		return $this;
+	}
+
+	/**
+	 * @param iterable $subComponents
+	 * @return $this
+	 */
+	public function setSubComponents(iterable $subComponents): Calendar
 	{
 		foreach ($subComponents as $subComponent)
 		{
-			if ($subComponent instanceof BasicComponent)
+			if ($subComponent instanceof ParserComponent)
 			{
 				if ($subComponent instanceof Event)
 				{
 					$this->events[] = $subComponent;
 				}
-				else
+				elseif($subComponent instanceof Timezone)
 				{
 					$this->timezones[] = $subComponent;
 				}
 			}
 		}
-		return $this;
-	}
-
-	public function handleEvents()
-	{
-		foreach ($this->events as &$event)
-		{
-			$event = $event->getContent();
-		}
-		unset($event);
 
 		return $this;
 	}
 
-	public function handleTimezones()
+	/**
+	 * @return $this
+	 */
+	public function getContent(): Calendar
 	{
-		foreach ($this->timezones as &$timezone)
-		{
-			$timezone->getContent();
-		}
-		unset($timezone);
-
 		return $this;
 	}
 
-	public function getContent(): array
-	{
-		$this->handleEvents();
-		$this->handleTimezones();
-		$calendar = [];
-		$calendar['PROD_ID'] = $this->getProdId();
-		$calendar['VERSION'] = $this->getVersion();
-		$calendar['TIMEZONES'] = $this->getTimezones();
-		$calendar['EVENTS'] = $this->getEvents();
-		$calendar['METHOD'] = $this->getMethod();
-		$calendar['CALSCALE'] = $this->getCalScale();
-
-		return $calendar;
-	}
-
+	/**
+	 * @return Event[]
+	 */
 	public function getEvents(): array
 	{
 		return $this->events;
 	}
 
-	public function getProdId(): string
+	/**
+	 * @return string|null
+	 */
+	public function getProdId(): ?string
 	{
-		return $this->productIdentifier;
+		if ($this->productIdentifier instanceof ParserPropertyType)
+		{
+			return $this->productIdentifier->getValue();
+		}
+
+		return null;
 	}
 
-	public function getVersion(): string
+	/**
+	 * @return string|null
+	 */
+	public function getVersion(): ?string
 	{
-		return $this->version;
+		if ($this->version instanceof ParserPropertyType)
+		{
+			return $this->version->getValue();
+		}
+
+		return null;
 	}
 
+	/**
+	 * @return Timezone[]
+	 */
 	public function getTimezones(): array
 	{
 		return $this->timezones;
 	}
 
+	/**
+	 * @return string|null
+	 */
 	public function getMethod(): ?string
 	{
-		return $this->method;
+		if ($this->method instanceof ParserPropertyType)
+		{
+			return $this->method->getValue();
+		}
+
+		return null;
 	}
 
-	private function getCalScale()
+	/**
+	 * @return ParserPropertyType|null
+	 */
+	public function getCalScale(): ?ParserPropertyType
 	{
 		return $this->calScale;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function countEvents(): int
+	{
+		return count($this->events);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getName(): string
+	{
+		return $this->name;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasOneEvent(): bool
+	{
+		return $this->countEvents() === 1;
+	}
+
+	/**
+	 * @return Event
+	 */
+	public function getEvent(): Event
+	{
+		return $this->events[0];
 	}
 }

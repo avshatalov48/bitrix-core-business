@@ -57,6 +57,14 @@ class AddressBookComponent extends CBitrixComponent implements Controllerable
 			$filter['EMAIL'] = "%".$requestFilter['EMAIL']."%";
 		}
 
+		global $USER;
+		if ((is_object($USER) && $USER->IsAuthorized()))
+		{
+			$filter[] = [
+				'USER_ID' => $USER->getId(),
+			];
+		}
+
 		if ($searchString)
 		{
 			$filter[] = [

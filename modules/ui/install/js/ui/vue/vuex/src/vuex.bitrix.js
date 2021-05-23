@@ -103,7 +103,7 @@ class BitrixVuex
 let Vuex;
 let VuexVendor;
 
-if (typeof exports !== 'undefined' && ('Vuex' in exports))
+if (typeof exports !== 'undefined' && typeof exports.Vuex !== 'undefined')
 {
 	Vuex = exports.Vuex;
 	VuexVendor = exports.VuexVendor;

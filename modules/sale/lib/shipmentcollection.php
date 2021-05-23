@@ -1560,6 +1560,7 @@ class ShipmentCollection
 		Internals\ShipmentExtraServiceTable::deleteByShipmentId($shipmentId);
 	}
 
+
 	/**
 	 * @return Internals\CollectionFilterIterator
 	 */

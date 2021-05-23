@@ -9,8 +9,8 @@
 namespace Bitrix\Sender\Internals;
 
 use Bitrix\Main\Application;
-use Bitrix\Main\HttpRequest;
 use Bitrix\Main\Context;
+use Bitrix\Main\HttpRequest;
 
 /**
  * Class PostFiles
@@ -186,43 +186,17 @@ class PostFiles
 					$filePath = $value;
 				}
 
-				$isCheckedSuccess = false;
-				$io = \CBXVirtualIo::GetInstance();
-				$docRoot = Application::getDocumentRoot();
-				if(mb_strpos($filePath, \CTempFile::GetAbsoluteRoot()) === 0)
-				{
-					$absPath = $filePath;
-				}
-				elseif(mb_strpos($io->CombinePath($docRoot, $filePath), \CTempFile::GetAbsoluteRoot()) === 0)
-				{
-					$absPath = $io->CombinePath($docRoot, $filePath);
-				}
-				else
-				{
-					$absPath = $io->CombinePath(\CTempFile::GetAbsoluteRoot(), $filePath);
-					$isCheckedSuccess = true;
-				}
+				$checkResult = self::checkAbsolutePath($filePath);
 
-				$absPath = realpath(str_replace("\\", "/", $absPath));
-				if (mb_strpos($absPath, realpath(\CTempFile::GetAbsoluteRoot())) !== 0)
+				if(is_null($checkResult))
 				{
 					continue;
 				}
 
-				if (!$isCheckedSuccess && $io->ValidatePathString($absPath) && $io->FileExists($absPath))
+				if($checkResult['isSuccess'])
 				{
-					$docRoot = $io->CombinePath($docRoot, '/');
-					$relPath = str_replace($docRoot, '', $absPath);
-					$perm = $GLOBALS['APPLICATION']->GetFileAccessPermission($relPath);
-					if ($perm >= "W")
-					{
-						$isCheckedSuccess = true;
-					}
-				}
-
-				if($isCheckedSuccess)
-				{
-					$result[$index] = \CFile::MakeFileArray($io->GetPhysicalName($absPath));
+					$io = \CBXVirtualIo::GetInstance();
+					$result[$index] = \CFile::MakeFileArray($io->GetPhysicalName($checkResult['absPath']));
 					if(is_array($value))
 					{
 						$result[$index]['name'] = $value['name'];
@@ -233,6 +207,53 @@ class PostFiles
 		}
 
 		return $result;
+	}
+
+	/**
+	 * @param $filePath
+	 *
+	 * @return array|null
+	 */
+	public static function checkAbsolutePath($filePath)
+	{
+		$isCheckedSuccess = false;
+		$io = \CBXVirtualIo::GetInstance();
+		$docRoot = Application::getDocumentRoot();
+		if(mb_strpos($filePath, \CTempFile::GetAbsoluteRoot()) === 0)
+		{
+			$absPath = $filePath;
+		}
+		elseif(mb_strpos($io->CombinePath($docRoot, $filePath), \CTempFile::GetAbsoluteRoot()) === 0)
+		{
+			$absPath = $io->CombinePath($docRoot, $filePath);
+		}
+		else
+		{
+			$absPath = $io->CombinePath(\CTempFile::GetAbsoluteRoot(), $filePath);
+			$isCheckedSuccess = true;
+		}
+
+		$absPath = realpath(str_replace("\\", "/", $absPath));
+		if (mb_strpos($absPath, realpath(\CTempFile::GetAbsoluteRoot())) !== 0)
+		{
+			return null;
+		}
+
+		if (!$isCheckedSuccess && $io->ValidatePathString($absPath) && $io->FileExists($absPath))
+		{
+			$docRoot = $io->CombinePath($docRoot, '/');
+			$relPath = str_replace($docRoot, '', $absPath);
+			$perm = $GLOBALS['APPLICATION']->GetFileAccessPermission($relPath);
+			if ($perm >= "W")
+			{
+				$isCheckedSuccess = true;
+			}
+		}
+
+		return [
+			'isSuccess' => $isCheckedSuccess,
+			'absPath'   => $absPath
+		];
 	}
 
 	/**

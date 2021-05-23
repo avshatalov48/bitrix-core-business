@@ -903,7 +903,19 @@
 
 		if(this.storage)
 		{
-			this.storage.set('bx-pull-config', config);
+			try
+			{
+				this.storage.set('bx-pull-config', config);
+			}
+			catch (e)
+			{
+				// try to delete the key "history" (landing site change history, see http://jabber.bx/view.php?id=136492)
+				if (localStorage && localStorage.removeItem)
+				{
+					localStorage.removeItem('history');
+				}
+				console.error(Utils.getDateForLog() + " Pull: Could not cache config in local storage. Error: ", e);
+			}
 		}
 	};
 
@@ -997,7 +1009,7 @@
 
 		if(!connectionDelay)
 		{
-			if(this.connectionAttempt > 3 && this.connectionType === ConnectionType.WebSocket)
+			if(this.connectionAttempt > 3 && this.connectionType === ConnectionType.WebSocket && !this.sharedConfig.isLongPollingBlocked())
 			{
 				// Websocket seems to be closed by network filter. Trying to fallback to long polling
 				this.sharedConfig.setWebSocketBlocked(true);
@@ -1441,6 +1453,9 @@
 		this.sendPullStatus(PullStatus.Online);
 		this.sharedConfig.setWebSocketBlocked(false);
 
+		// to prevent fallback to long polling in case of networking problems
+		this.sharedConfig.setLongPollingBlocked(true);
+
 		if(this.connectionType == ConnectionType.LongPolling)
 		{
 			this.connectionType = ConnectionType.WebSocket;
@@ -1451,6 +1466,11 @@
 		{
 			clearTimeout(this.offlineTimeout);
 			this.offlineTimeout = null;
+		}
+		if (this.restoreWebSocketTimeout)
+		{
+			clearTimeout(this.restoreWebSocketTimeout);
+			this.restoreWebSocketTimeout = null;
 		}
 		this.logToConsole('Pull: Websocket connection with push-server opened');
 	};
@@ -1483,6 +1503,8 @@
 			this.scheduleReconnect();
 		}
 
+		// to prevent fallback to long polling in case of networking problems
+		this.sharedConfig.setLongPollingBlocked(true);
 		this.isManualDisconnect = false;
 	};
 
@@ -1552,7 +1574,14 @@
 		session.ttl = (new Date()).getTime() + LS_SESSION_CACHE_TIME * 1000;
 		if(this.storage)
 		{
-			this.storage.set(LS_SESSION, JSON.stringify(session), LS_SESSION_CACHE_TIME);
+			try
+			{
+				this.storage.set(LS_SESSION, JSON.stringify(session), LS_SESSION_CACHE_TIME);
+			}
+			catch (e)
+			{
+				console.error(Utils.getDateForLog() + " Pull: Could not save session info in local storage. Error: ", e);
+			}
 		}
 
 		this.scheduleReconnect(15);
@@ -2001,6 +2030,7 @@
 
 		this.lsKeys = {
 			websocketBlocked: 'bx-pull-websocket-blocked',
+			longPollingBlocked: 'bx-pull-longpolling-blocked',
 			loggingEnabled: 'bx-pull-logging-enabled'
 		};
 
@@ -2044,7 +2074,41 @@
 			return false;
 		}
 
-		this.storage.set(this.lsKeys.websocketBlocked, (isWebSocketBlocked ? Utils.getTimestamp()+this.ttl : 0));
+		try
+		{
+			this.storage.set(this.lsKeys.websocketBlocked, (isWebSocketBlocked ? Utils.getTimestamp()+this.ttl : 0));
+		}
+		catch (e)
+		{
+			console.error(Utils.getDateForLog() + " Pull: Could not save WS_blocked flag in local storage. Error: ", e);
+		}
+	};
+
+	SharedConfig.prototype.isLongPollingBlocked = function()
+	{
+		if (!this.storage)
+		{
+			return false;
+		}
+
+		return this.storage.get(this.lsKeys.longPollingBlocked, 0) > Utils.getTimestamp();
+	};
+
+	SharedConfig.prototype.setLongPollingBlocked = function(isLongPollingBlocked)
+	{
+		if (!this.storage)
+		{
+			return false;
+		}
+
+		try
+		{
+			this.storage.set(this.lsKeys.longPollingBlocked, (isLongPollingBlocked ? Utils.getTimestamp()+this.ttl : 0));
+		}
+		catch (e)
+		{
+			console.error(Utils.getDateForLog() + " Pull: Could not save LP_blocked flag in local storage. Error: ", e);
+		}
 	};
 
 	SharedConfig.prototype.isLoggingEnabled = function()
@@ -2064,7 +2128,15 @@
 			return false;
 		}
 
-		this.storage.set(this.lsKeys.loggingEnabled, (isLoggingEnabled ? Utils.getTimestamp()+this.ttl : 0));
+		try
+		{
+			this.storage.set(this.lsKeys.loggingEnabled, (isLoggingEnabled ? Utils.getTimestamp()+this.ttl : 0));
+		}
+		catch (e)
+		{
+			console.error("LocalStorage error: ", e);
+			return false;
+		}
 	};
 
 	var ObjectExtend = function(child, parent)

@@ -2,9 +2,9 @@
 define("NEED_AUTH", true);
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 
-$userName = CUser::GetFullName();
+$userName = $USER->GetFullName();
 if (!$userName)
-	$userName = CUser::GetLogin();
+	$userName = $USER->GetLogin();
 ?>
 <script>
 	<?if ($userName):?>
@@ -13,7 +13,7 @@ if (!$userName)
 	BX.localStorage.remove("eshop_user_name");
 	<?endif?>
 
-	<?if (isset($_REQUEST["backurl"]) && strlen($_REQUEST["backurl"])>0 && preg_match('#^/\w#', $_REQUEST["backurl"])):?>
+	<?if (isset($_REQUEST["backurl"]) && $_REQUEST["backurl"] <> '' && preg_match('#^/\w#', $_REQUEST["backurl"])):?>
 	document.location.href = "<?=CUtil::JSEscape($_REQUEST["backurl"])?>";
 	<?endif?>
 </script>

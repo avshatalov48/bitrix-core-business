@@ -1,4 +1,4 @@
-<?
+<?php
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 class CBPStateMachineWorkflowActivity
@@ -106,31 +106,25 @@ class CBPStateMachineWorkflowActivity
 			$trackingService = $this->workflow->GetService("TrackingService");
 			$trackingService->setCompletedByWorkflow($this->workflow->GetInstanceId());
 		}
-		try
-		{
-			/**
-			 * @var CBPDocumentService $documentService
-			 */
 
-			$documentService = $this->workflow->GetService("DocumentService");
-			$documentService->onWorkflowStatusChange(
-				$this->GetDocumentId(),
-				$this->workflow->GetInstanceId(),
-				$status,
-				$this
-			);
+		/**
+		 * @var CBPDocumentService $documentService
+		 */
 
-			/**
-			 * @var CBPAllStateService $stateService
-			 */
+		$documentService = $this->workflow->GetService("DocumentService");
+		$documentService->onWorkflowStatusChange(
+			$this->GetDocumentId(),
+			$this->workflow->GetInstanceId(),
+			$status,
+			$this
+		);
 
-			$stateService = $this->workflow->GetService("StateService");
-			$stateService->onStatusChange($this->workflow->GetInstanceId(), $status);
-		}
-		catch (Exception $e)
-		{
+		/**
+		 * @var CBPAllStateService $stateService
+		 */
 
-		}
+		$stateService = $this->workflow->GetService("StateService");
+		$stateService->onStatusChange($this->workflow->GetInstanceId(), $status);
 	}
 
 	public function SetCustomStatusMode()
@@ -243,4 +237,3 @@ class CBPStateMachineWorkflowActivity
 		return array_merge($arErrors, parent::ValidateChild($childActivity, $bFirstChild));
 	}
 }
-?>

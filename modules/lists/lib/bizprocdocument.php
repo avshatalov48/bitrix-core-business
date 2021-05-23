@@ -1252,6 +1252,10 @@ class BizprocDocument extends CIBlockDocument
 							$ar[] = $a11;
 					}
 				}
+				if (!empty($ar))
+				{
+					$ar = array_unique($ar);
+				}
 
 				$arFields[$key] = $ar;
 			}
@@ -1391,7 +1395,13 @@ class BizprocDocument extends CIBlockDocument
 		}
 	}
 
-	public static function onWorkflowStatusChange($documentId, $workflowId, $status)
+	/**
+	 * @param string $documentId
+	 * @param string $workflowId
+	 * @param int $status
+	 * @param null|CBPActivity $rootActivity
+	 */
+	public static function onWorkflowStatusChange($documentId, $workflowId, $status, $rootActivity)
 	{
 		if ($status == CBPWorkflowStatus::Completed)
 		{
@@ -1401,6 +1411,16 @@ class BizprocDocument extends CIBlockDocument
 		if($status == CBPWorkflowStatus::Terminated)
 		{
 			CLists::deleteSocnetLog(array($workflowId));
+		}
+
+		if (
+			$rootActivity
+			&& $status === \CBPWorkflowStatus::Running
+			&& !$rootActivity->workflow->isNew()
+			&& !\CBPRuntime::isFeatureEnabled()
+		)
+		{
+			throw new \Exception(Loc::getMessage('LISTS_BIZPROC_RESUME_RESTRICTED'));
 		}
 	}
 

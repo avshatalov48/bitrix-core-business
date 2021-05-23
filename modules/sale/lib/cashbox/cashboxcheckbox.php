@@ -42,6 +42,7 @@ class CashboxCheckbox extends Cashbox implements IPrintImmediately, ICheckable
 	private const HTTP_RESPONSE_CODE_201 = 201;
 	private const HTTP_RESPONSE_CODE_202 = 202;
 	private const HTTP_RESPONSE_CODE_400 = 400;
+	private const HTTP_RESPONSE_CODE_401 = 401;
 	private const HTTP_RESPONSE_CODE_403 = 403;
 	private const HTTP_RESPONSE_CODE_422 = 422;
 
@@ -82,18 +83,6 @@ class CashboxCheckbox extends Cashbox implements IPrintImmediately, ICheckable
 	{
 		$checkData = $check->getDataForCheck();
 
-		$itemIds = [];
-		$order = $checkData['order'];
-		$basket = $order->getBasket();
-		$siteId = $order->getSiteId();
-		foreach ($basket as $basketItem)
-		{
-			$itemIds[] = $basketItem->getField('PRODUCT_ID');
-		}
-
-		$itemPropertiesCodes = ['ARTNUMBER'];
-		$itemProperties = self::getCatalogPropertiesForItems($itemIds, $itemPropertiesCodes, $siteId);
-
 		$isReturn = self::isCheckReturn($check);
 
 		$goods = [];
@@ -102,7 +91,7 @@ class CashboxCheckbox extends Cashbox implements IPrintImmediately, ICheckable
 			$goodEntry = [];
 
 			$itemId = $item['entity']->getField('PRODUCT_ID');
-			$code = $itemProperties[$itemId]['ARTNUMBER'];
+			$code = $item['properties']['ARTNUMBER'];
 			if (!$code)
 			{
 				$code = $itemId;
@@ -395,7 +384,8 @@ class CashboxCheckbox extends Cashbox implements IPrintImmediately, ICheckable
 		}
 
 		$firstRequestResponse = $firstRequestResult->getData();
-		if ($firstRequestResponse['http_code'] !== self::HTTP_RESPONSE_CODE_403)
+		$badResponseCodes = [self::HTTP_RESPONSE_CODE_401, self::HTTP_RESPONSE_CODE_403];
+		if (!in_array($firstRequestResponse['http_code'], $badResponseCodes))
 		{
 			return $firstRequestResult;
 		}
@@ -744,30 +734,5 @@ class CashboxCheckbox extends Cashbox implements IPrintImmediately, ICheckable
 		];
 
 		return static::DPS_URL.implode('&', $queryParams);
-	}
-
-	private static function getCatalogPropertiesForItems($itemIds, $properties, $siteId): array
-	{
-		$result = [];
-
-		$propertiesFieldNames = [];
-		foreach ($properties as $property)
-		{
-			$propertiesFieldNames[] = 'PROPERTY_' . $property;
-		}
-
-		$catalogData = Product::getData($itemIds, $siteId, $propertiesFieldNames);
-		foreach ($catalogData as $id => $item)
-		{
-			foreach ($properties as $property)
-			{
-				if ($item['PRODUCT_PROPS_VALUES']['PROPERTY_' .  $property . '_VALUE'] && $item['PRODUCT_PROPS_VALUES']['PROPERTY_' . $property . '_VALUE'] !== '&nbsp')
-				{
-					$result[$id][$property] = $item['PRODUCT_PROPS_VALUES']['PROPERTY_' .  $property . '_VALUE'];
-				}
-			}
-		}
-
-		return $result;
 	}
 }

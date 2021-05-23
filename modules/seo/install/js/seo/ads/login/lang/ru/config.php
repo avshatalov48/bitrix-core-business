@@ -29,6 +29,6 @@ $MESS["SEO_ADS_FACEBOOK_BUSINESS_LOGIN_ERROR_TITLE"] = "Ошибка";
 $MESS["SEO_ADS_FACEBOOK_BUSINESS_LOGIN_ERROR_CONTENT"] = "Произошла ошибка попробуйте установить Facebook для Битрикс чуть позже";
 $MESS["SEO_ADS_FACEBOOK_BUSINESS_SETUP_FIELDS_TITLE"] = "Настройки для интеграции с Facebook и Instagram";
 $MESS["SEO_ADS_FACEBOOK_BUSINESS_FEATURE_TITLE"] = "Включить возможности для продаж в Facebook и Instagram";
-$MESS["SEO_ADS_FACEBOOK_BUSINESS_SETUP_FIELDS_HINT"] = "Facebook для Битрикс24 — это решение, с помощью которого пользователи Facebook могут легко настроить пиксель Facebook, Business Manager и страницу для работы с функциями, такими как Магазины на Страницах Facebook, функции Messenger, функции Instagram и др.";
+$MESS["SEO_ADS_FACEBOOK_BUSINESS_SETUP_FIELDS_HINT"] = "Facebook для Битрикс24 – это решение, с помощью которого пользователи Facebook могут легко настроить пиксель Facebook, Business Manager и страницу для работы с функциями, такими как Магазины на Страницах Facebook, функции Messenger, функции Instagram и др.";
 $MESS["SEO_ADS_FACEBOOK_BUSINESS_FEATURE_HINT"] = "Включить возможности для продаж в Facebook и Instagram";
 $MESS["SEO_ADS_FACEBOOK_BUSINESS_LOGIN_FIELDS_ERROR_CONTENT"] = "Пожалуйста, заполните все обязательные поля";

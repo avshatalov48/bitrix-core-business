@@ -5,7 +5,9 @@ namespace Bitrix\Im\Call;
 use Bitrix\Im\Call\Integration\Chat;
 use Bitrix\Im\Call\Integration\EntityFabric;
 use Bitrix\Im\Call\Integration\EntityType;
+use Bitrix\Im\ChatTable;
 use Bitrix\Im\Dialog;
+use Bitrix\Im\Model\AliasTable;
 use Bitrix\Im\Model\CallTable;
 use Bitrix\Im\Model\CallUserTable;
 use Bitrix\Main\ArgumentException;
@@ -15,6 +17,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Event;
+use Bitrix\Main\UserTable;
 use Bitrix\Main\Web\JWT;
 
 class Call
@@ -26,6 +29,9 @@ class Call
 
 	const TYPE_INSTANT = 1;
 	const TYPE_PERMANENT = 2;
+
+	const RECORD_TYPE_VIDEO = 'video';
+	const RECORD_TYPE_AUDIO = 'audio';
 
 	const PROVIDER_PLAIN = 'Plain';
 	const PROVIDER_VOXIMPLANT = 'Voximplant';
@@ -391,7 +397,15 @@ class Call
 
 		$usersActive = 0;
 		$mobileUsers = 0;
-		foreach ($this->users as $user)
+		$externalUsers = 0;
+		$screenShared = false;
+		$recorded = false;
+		$authTypes = UserTable::getList([
+			'select' => ['ID', 'EXTERNAL_AUTH_ID'],
+			'filter' => ['=ID' => $this->getUsers()]
+		])->fetchAll();
+		$authTypes = array_column($authTypes, 'EXTERNAL_AUTH_ID', 'ID');
+		foreach ($this->users as $userId => $user)
 		{
 			if ($user->getLastSeen() != null)
 			{
@@ -401,11 +415,28 @@ class Call
 			{
 				$mobileUsers++;
 			}
+			if ($authTypes[$userId] === Auth::AUTH_TYPE)
+			{
+				$externalUsers++;
+				if ($user->getFirstJoined())
+				{
+					$userLateness = $user->getFirstJoined()->getTimestamp() - $this->startDate->getTimestamp();
+					AddEventToStatFile("im", "im_call_finish", $this->id, $userLateness, "user_lateness", $userId);
+				}
+			}
+			if ($user->wasRecorded())
+			{
+				$recorded = true;
+			}
+			if ($user->wasRecorded())
+			{
+				$screenShared = true;
+			}
 		}
 
 		$chatType = null;
 		$finishStatus = 'normal';
-		if ($this->entityType == EntityType::CHAT)
+		if ($this->entityType === EntityType::CHAT)
 		{
 			if(is_numeric($this->entityId))
 			{
@@ -427,24 +458,35 @@ class Call
 			}
 			else
 			{
+				$chatId = Dialog::getChatId($this->entityId);
+				$isVideoConf = (bool)AliasTable::getRow([
+					'filter' => ['=ENTITY_ID' => $chatId, '=ENTITY_TYPE' => \Bitrix\Im\Alias::ENTITY_TYPE_VIDEOCONF]
+				]);
 				$chatType = 'group';
 			}
 		}
 
-		if ($callLength > 30 && $finishStatus == 'normal')
+		if ($callLength > 30 && $finishStatus === 'normal')
 		{
 			\Bitrix\Im\Limit::incrementCounter(\Bitrix\Im\Limit::COUNTER_CALL_SUCCESS);
 		}
 
-		AddEventToStatFile("im", "im_call_finish", $this->id, $userCountChat, "user_count_chat");
-		AddEventToStatFile("im", "im_call_finish", $this->id, $usersActive, "user_count_call");
-		AddEventToStatFile("im", "im_call_finish", $this->id, $mobileUsers, "user_count_mobile");
-		AddEventToStatFile("im", "im_call_finish", $this->id, $callLength, "call_length");
+		AddEventToStatFile("im", "im_call_finish", $this->id, $userCountChat, "user_count_chat", 0);
+		AddEventToStatFile("im", "im_call_finish", $this->id, $usersActive, "user_count_call", 0);
+		AddEventToStatFile("im", "im_call_finish", $this->id, $mobileUsers, "user_count_mobile", 0);
+		AddEventToStatFile("im", "im_call_finish", $this->id, $externalUsers, "user_count_external", 0);
+		AddEventToStatFile("im", "im_call_finish", $this->id, $callLength, "call_length", 0);
+		AddEventToStatFile("im", "im_call_finish", $this->id, ($screenShared ? "Y" : "N"), "screen_shared", 0);
+		AddEventToStatFile("im", "im_call_finish", $this->id, ($recorded ? "Y" : "N"), "recorded", 0);
 		if($chatType)
 		{
-			AddEventToStatFile("im","im_call_finish", $this->id, $chatType, "chat_type");
+			AddEventToStatFile("im","im_call_finish", $this->id, $chatType, "chat_type", 0);
 		}
-		AddEventToStatFile("im","im_call_finish", $this->id, $finishStatus, "status");
+		if (isset($isVideoConf))
+		{
+			AddEventToStatFile("im","im_call_finish", $this->id, ($isVideoConf ? "Y" : "N"), "is_videoconf", 0);
+		}
+		AddEventToStatFile("im","im_call_finish", $this->id, $finishStatus, "status", 0);
 	}
 
 	public function getMaxUsers()

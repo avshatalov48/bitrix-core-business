@@ -11,8 +11,10 @@ use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\Journal\EventBuilder;
 use Sale\Handlers\Delivery\YandexTaxi\Api\ClaimReader\ClaimReader;
 use Sale\Handlers\Delivery\YandexTaxi\Api\Transport\Client;
 use Sale\Handlers\Delivery\YandexTaxi\Api\Transport\OauthTokenProvider;
+use \Sale\Handlers\Delivery\YandexTaxi\Api\Tariffs\Repository;
 use Sale\Handlers\Delivery\YandexTaxi\ClaimBuilder\ClaimBuilder;
 use Sale\Handlers\Delivery\YandexTaxi\Common\Logger;
+use Sale\Handlers\Delivery\YandexTaxi\Common\ReferralSourceBuilder;
 use Sale\Handlers\Delivery\YandexTaxi\Common\RegionCoordinatesMapper;
 use Sale\Handlers\Delivery\YandexTaxi\Common\RegionFinder;
 use Sale\Handlers\Delivery\YandexTaxi\Common\ShipmentDataExtractor;
@@ -62,6 +64,9 @@ final class ServiceContainer
 	/** @var RateCalculator */
 	private static $rateCalculator;
 
+	/** @var TariffsChecker */
+	private static $tariffsChecker;
+
 	/** @var Installator */
 	private static $installator;
 
@@ -103,6 +108,12 @@ final class ServiceContainer
 
 	/** @var RegionCoordinatesMapper */
 	private static $regionCoordinatesMapper;
+
+	/** @var Repository */
+	private static $tariffsRepository;
+
+	/** @var ReferralSourceBuilder */
+	private static $referralSourceBuilder;
 
 	/**
 	 * @return Logger
@@ -152,12 +163,16 @@ final class ServiceContainer
 		{
 			static::$transport = new Client(
 				static::getOauthTokenProvider(),
-				static::getLogger()
+				static::getLogger(),
+				static::getReferralSourceBuilder()
 			);
 
 			if (
 				(int)Option::get('sale', 'delivery_service_yandex_taxi_sandbox', 0) == 1
-				|| defined('BITRIX_SALE_HANDLERS_YANDEX_TAXI_TEST_ENVIRONMENT') && BITRIX_SALE_HANDLERS_YANDEX_TAXI_TEST_ENVIRONMENT === true
+				|| (
+					defined('BITRIX_SALE_HANDLERS_YANDEX_TAXI_TEST_ENVIRONMENT')
+					&& BITRIX_SALE_HANDLERS_YANDEX_TAXI_TEST_ENVIRONMENT === true
+				)
 			)
 			{
 				static::$transport->setIsTestEnvironment(true);
@@ -249,11 +264,28 @@ final class ServiceContainer
 		{
 			static::$rateCalculator = new RateCalculator(
 				static::getApi(),
-				static::getClaimBuilder()
+				static::getClaimBuilder(),
+				static::getTariffsChecker()
 			);
 		}
 
 		return static::$rateCalculator;
+	}
+
+	/**
+	 * @return TariffsChecker
+	 */
+	public static function getTariffsChecker(): TariffsChecker
+	{
+		if (is_null(static::$tariffsChecker))
+		{
+			static::$tariffsChecker = new TariffsChecker(
+				static::getApi(),
+				static::getShipmentDataExtractor()
+			);
+		}
+
+		return static::$tariffsChecker;
 	}
 
 	/**
@@ -263,7 +295,9 @@ final class ServiceContainer
 	{
 		if (is_null(static::$installator))
 		{
-			static::$installator = new Installator();
+			static::$installator = new Installator(
+				static::getTariffsRepository()
+			);
 		}
 
 		return static::$installator;
@@ -276,7 +310,11 @@ final class ServiceContainer
 	{
 		if (is_null(static::$claimBuilder))
 		{
-			static::$claimBuilder = new ClaimBuilder(static::getShipmentDataExtractor());
+			static::$claimBuilder = new ClaimBuilder(
+				static::getShipmentDataExtractor(),
+				static::getTariffsRepository(),
+				static::getReferralSourceBuilder()
+			);
 		}
 
 		return static::$claimBuilder;
@@ -469,5 +507,33 @@ final class ServiceContainer
 		}
 
 		return static::$regionCoordinatesMapper;
+	}
+
+	/**
+	 * @return Repository
+	 */
+	public static function getTariffsRepository(): Repository
+	{
+		if (is_null(static::$tariffsRepository))
+		{
+			static::$tariffsRepository = new Repository();
+		}
+
+		return static::$tariffsRepository;
+	}
+
+	/**
+	 * @return ReferralSourceBuilder
+	 */
+	public static function getReferralSourceBuilder(): ReferralSourceBuilder
+	{
+		if (is_null(static::$referralSourceBuilder))
+		{
+			static::$referralSourceBuilder = new ReferralSourceBuilder(
+				static::getRegionFinder()
+			);
+		}
+
+		return static::$referralSourceBuilder;
 	}
 }

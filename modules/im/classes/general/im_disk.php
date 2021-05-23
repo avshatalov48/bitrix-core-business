@@ -551,7 +551,8 @@ class CIMDisk
 				"CONTEXT" => "LIVECHAT",
 				"LINE_ID" => $lineId
 			];
-			$ar['SKIP_CONNECTOR'] = 'Y';
+			//TODO: fix 0135872
+			//$ar['SKIP_CONNECTOR'] = 'Y';
 		}
 
 		$text = trim($text);
@@ -604,14 +605,14 @@ class CIMDisk
 						\CIMMessageParam::SendPull($messageId, array_keys($messageParams));
 					}
 					$session->getData('CHAT_ID');
-
-					$uploadResult = self::UploadFileFromDisk(
+					//TODO: fix 0135872
+					/*$uploadResult = self::UploadFileFromDisk(
 						$session->getData('CHAT_ID'),
 						$fileIds,
 						$text,
 						['USER_ID' => $userId],
 						true
-					);
+					);*/
 				}
 			}
 			else if ($chat['ENTITY_TYPE'] == 'LINES')
@@ -629,7 +630,11 @@ class CIMDisk
 				}
 			}
 
-			if ($uploadResult && $uploadResult['MESSAGE_ID'] && $result['MESSAGE_ID'])
+			if (
+				!empty($uploadResult) &&
+				$uploadResult['MESSAGE_ID'] &&
+				$result['MESSAGE_ID']
+			)
 			{
 				\Bitrix\Im\Model\MessageParamTable::add([
 					"MESSAGE_ID" => $result['MESSAGE_ID'],
@@ -951,7 +956,7 @@ class CIMDisk
 				unset($chatRelation[$relation["USER_ID"]]);
 				continue;
 			}
-			if ($relation['USER_ID'] == self::GetUserId())
+			if ($relation['USER_ID'] == \Bitrix\Im\Common::getUserId($userId))
 			{
 				$relationError = false;
 			}

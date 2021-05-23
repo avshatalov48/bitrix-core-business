@@ -317,6 +317,11 @@ else
 
 			/** @var Cashbox\Cashbox $handler */
 			$handler = $cashbox['HANDLER'];
+			if (!class_exists($handler))
+			{
+				continue;
+			}
+
 			$isRestHandler = $handler === '\Bitrix\Sale\Cashbox\CashboxRest';
 			if ($isRestHandler)
 			{

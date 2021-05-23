@@ -2326,14 +2326,50 @@
 		 */
 		prependRowEditor: function()
 		{
+			return this.addRowEditor('prepend');
+		},
+
+		/**
+		 * @return {BX.Grid.Row}
+		 */
+		appendRowEditor: function()
+		{
+			return this.addRowEditor('append');
+		},
+
+		/**
+		 * @return {BX.Grid.Row}
+		 */
+		addRowEditor: function(direction = 'prepend')
+		{
 			BX.Dom.style(this.getTable(), 'min-height', null);
 			const templateRow = this.getTemplateRow();
 			this.editableRows.push(templateRow);
 
-			templateRow.prependTo(this.getBody());
+			if (direction === 'prepend')
+			{
+				templateRow.prependTo(this.getBody());
+			}
+			else
+			{
+				templateRow.appendTo(this.getBody());
+			}
+
 			templateRow.show();
 			templateRow.select();
 			templateRow.edit();
+
+			this.getRows().reset();
+
+			if (this.getParam('ALLOW_ROWS_SORT'))
+			{
+				this.rowsSortable.reinit();
+			}
+
+			if (this.getParam('ALLOW_COLUMNS_SORT'))
+			{
+				this.colsSortable.reinit();
+			}
 
 			this.hideEmptyStub();
 

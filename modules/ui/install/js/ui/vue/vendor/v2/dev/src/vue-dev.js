@@ -11,9 +11,9 @@
 
 let VueVendorV2;
 
-if (typeof exports !== 'undefined' && ('VueVendorV2' in exports))
+if (typeof exports !== 'undefined' && typeof exports.VueVendorV2 !== 'undefined')
 {
-	var currentVersion = '2.6.12';
+	let currentVersion = '2.6.12';
 	if (exports.VueVendorV2.version != currentVersion)
 	{
 		console.warn('BX.Vue already loaded. Loaded: '+exports.VueVendorV2.version+', Skipped: '+currentVersion);

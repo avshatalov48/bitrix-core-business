@@ -14,7 +14,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 
 global $USER;
 
-\CJSCore::init(array('socnetlogdest'));
+\CJSCore::init([ 'translit', 'socnetlogdest' ]);
 \Bitrix\Main\UI\Extension::load("ui.selector");
 
 $frame = $this->createFrame()->begin(false);

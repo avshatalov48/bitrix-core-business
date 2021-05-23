@@ -6,6 +6,8 @@ use Bitrix\Disk\Controller\File,
 	Bitrix\Disk\Controller\Content,
 	Bitrix\Main\Engine\ActionFilter,
 	Bitrix\Im\Controller\Call\Filter;
+use Bitrix\Main\Engine\Action;
+use Bitrix\Main\Loader;
 
 /**
  * "Proxy" controller to Disk controller actions.
@@ -40,6 +42,16 @@ class Disk extends Controller
 				],
 			],
 		];
+	}
+
+	protected function processBeforeAction(Action $action): bool
+	{
+		if (!Loader::includeModule('disk'))
+		{
+			return false;
+		}
+
+		return parent::processBeforeAction($action);
 	}
 
 	public function uploadAction($filename, $token = null)

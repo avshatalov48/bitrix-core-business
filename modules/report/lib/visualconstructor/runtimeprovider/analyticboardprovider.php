@@ -19,7 +19,7 @@ class AnalyticBoardProvider extends Base
 	 */
 	protected function availableFilterKeys()
 	{
-		return ['primary', 'boardKey', 'boardBatchKey'];
+		return ['primary', 'boardKey', 'boardBatchKey', 'group'];
 	}
 
 	/**
@@ -46,4 +46,28 @@ class AnalyticBoardProvider extends Base
 	{
 		return $this->getManagerInstance()->getIndices();
 	}
+
+	/**
+	 * @param array $entities
+	 * @param array $filteredEntityIds
+	 *
+	 * @return array
+	 */
+	protected function applyFilters($entities, $filteredEntityIds)
+	{
+		$result = [];
+
+		foreach ($entities as $key => $entity)
+		{
+			/** @var \Bitrix\Report\VisualConstructor\AnalyticBoard $entity */
+			if (in_array($key, $filteredEntityIds) || in_array($entity->getGroup(), $filteredEntityIds))
+			{
+				$this->processAvailableRelations($entity);
+				$result[] = $entity;
+			}
+		}
+
+		return $result;
+	}
+
 }

@@ -602,7 +602,7 @@
 }
 
 .calendar-sync-slider-qr {
-	width: 170px;
+	width: 204px;
 	position: absolute;
 	overflow: hidden;
 	left: 15%;
@@ -628,7 +628,7 @@
 }
 
 .calendar-sync-slider-section .calendar-sync-slider-qr {
-	left: 16%;
+	left: 12.7%;
 }
 
 .calendar-sync-slider-section .calendar-sync-slider-instruction-notice:after {
@@ -671,13 +671,13 @@
 }
 
 .calendar-sync-slider-qr-container {
-	width: 170px;
-	height: 170px;
+	width: 204px;
+	height: 204px;
 	background: #fff;
-	border-radius: 5px;
-	padding: 21px;
+	border-radius: 6px;
+	padding: 9px;
 	position: absolute;
-	top: 87px;
+	top: 77px;
 	left: 50%;
 	box-sizing: border-box;
 	transform: translateX(-50%);
@@ -707,7 +707,7 @@
 }
 
 .calendar-sync-qr-popup .calendar-sync-slider-qr {
-	left: 15%;
+	left: 12%;
 }
 
 .calendar-sync-qr-popup .calendar-sync-slider-content {
@@ -734,7 +734,7 @@
 }
 
 .calendar-sync-qr-popup .calendar-sync-slider-qr-container {
-	top: 72px;
+	top: 56px;
 }
 
 .calendar-sync-wrap-detail .calendar-sync-header {

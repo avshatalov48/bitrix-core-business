@@ -81,6 +81,12 @@
 	{
 		this.slider.open(uri, callback, parameters);
 	};
+
+	Page.prototype.redirect = function (uri)
+	{
+		window.open(uri, '_blank');
+	};
+
 	Page.prototype.slider = {
 
 		init: function (params)
@@ -212,7 +218,6 @@
 
 	BX.Sender.Page = new Page();
 	BX.Sender.Page.slider.init({
-		condition: ["/marketing/config/role/"],
 		options: {
 			cacheable: false,
 			events: {

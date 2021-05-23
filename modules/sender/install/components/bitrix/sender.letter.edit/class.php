@@ -52,6 +52,10 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 		$this->arParams['ID'] = $this->arParams['ID'] ? $this->arParams['ID'] : (int) $this->request->get('ID');
 		$this->arParams['IS_OUTSIDE'] = isset($this->arParams['IS_OUTSIDE']) ? (bool) $this->arParams['IS_OUTSIDE'] : $this->request->get('isOutside') === 'Y';
 
+		$this->arParams['IFRAME'] = isset($this->arParams['IFRAME'])
+			? ($this->arParams['IFRAME'] === true ? 'Y' : false)
+			: false;
+
 		if (empty($this->arParams['CAMPAIGN_ID']))
 		{
 			$this->arParams['CAMPAIGN_ID'] = (int) $this->request->get('CAMPAIGN_ID');
@@ -76,7 +80,7 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 			$this->arParams['MESSAGE_CODE'] = current($this->arParams['MESSAGE_CODE_LIST']);
 		}
 
-		if (!isset($this->arParams['IFRAME']))
+		if (!isset($this->arParams['IFRAME']) || !$this->arParams['IFRAME'])
 		{
 			$this->arParams['IFRAME'] = $this->request->get('IFRAME');
 		}
@@ -122,6 +126,10 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 			$value = $this->request->get($key);
 			switch ($option->getType())
 			{
+				case Message\ConfigurationOption::TYPE_TITLE:
+					$value = $this->request->get('TITLE');
+					$configuration->set('TITLE', $value);
+					break;
 				case Message\ConfigurationOption::TYPE_TEMPLATE_TYPE:
 					$value = $this->letter->get('TEMPLATE_TYPE');
 					$configuration->set('TEMPLATE_TYPE', $value);
@@ -283,6 +291,7 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 			'IS_TRIGGER' => $this->arParams['IS_TRIGGER'] ? 'Y' : 'N',
 			'UPDATED_BY' => Security\User::current()->getId()
 		);
+
 		if (!$this->letter->getId())
 		{
 			$data['CAMPAIGN_ID'] = $this->arParams['CAMPAIGN_ID'] ?: Entity\Campaign::getDefaultId(SITE_ID);
@@ -316,6 +325,14 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 		// redirect
 		if ($this->errors->isEmpty())
 		{
+			if(in_array(
+				$this->arResult['MESSAGE_CODE'],
+				[Message\iMarketing::CODE_FACEBOOK, Message\iMarketing::CODE_INSTAGRAM]
+			))
+			{
+				$this->letter->send();
+			}
+
 			if ($this->request->get('apply'))
 			{
 				if ($this->arParams['ID'])
@@ -368,6 +385,7 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 			$this->arParams['ID'],
 			$this->arParams['MESSAGE_CODE_LIST']
 		);
+
 		if (!$this->letter)
 		{
 			Security\AccessChecker::addError($this->errors, Security\AccessChecker::ERR_CODE_NOT_FOUND);
@@ -422,6 +440,20 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 			return false;
 		}
 
+		$isNewAds = in_array(
+			$this->arResult['MESSAGE_CODE'],
+			[Message\iMarketing::CODE_FACEBOOK, Message\iMarketing::CODE_INSTAGRAM]
+		);
+		// get row
+		$this->arResult['ROW'] = $this->letter->getData();
+		if ($this->arResult['ROW']['IS_TRIGGER'] === 'Y'
+			|| $isNewAds)
+		{
+			$this->arParams['SHOW_SEGMENTS'] = false;
+			$this->arParams['SHOW_CAMPAIGNS'] = false;
+			$this->arParams['GOTO_URI_AFTER_SAVE'] = $isNewAds ? false : null;
+		}
+
 		// Process POST
 		if ($this->request->isPost() && check_bitrix_sessid() && $this->arParams['CAN_EDIT'])
 		{
@@ -430,15 +462,6 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 		else if (!$this->letter->getId())
 		{
 			$this->prepareDefaultSegments();
-		}
-
-		// get row
-		$this->arResult['ROW'] = $this->letter->getData();
-		if ($this->arResult['ROW']['IS_TRIGGER'] === 'Y')
-		{
-			$this->arParams['SHOW_SEGMENTS'] = false;
-			$this->arParams['SHOW_CAMPAIGNS'] = false;
-			$this->arParams['GOTO_URI_AFTER_SAVE'] = null;
 		}
 
 		// get campaign
@@ -475,8 +498,19 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 			->withMessageCode($this->arResult['MESSAGE_CODE'])
 			->hasAny();
 
+		$this->arResult['SHOW_BUTTONS'] = true;
+
+		if(in_array($this->letter->getMessage()->getCode(),[
+			Integration\Seo\Ads\MessageMarketingFb::CODE,
+			Integration\Seo\Ads\MessageMarketingInstagram::CODE
+		]))
+		{
+			$this->arResult['SHOW_BUTTONS'] = false;
+		}
+
 		$this->arResult['SHOW_TEMPLATE_SELECTOR'] =
 			!$this->letter->getId() && !$this->request->isPost() && $this->arResult['USE_TEMPLATES'];
+
 		$this->arResult['CAN_CHANGE_TEMPLATE'] = $this->letter->canChangeTemplate();
 
 

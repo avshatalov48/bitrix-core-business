@@ -29,7 +29,7 @@ class AdminGridOption extends Stepper
 		$listGrid = Option::get(self::$moduleId, "listGridToConvert", "");
 		if ($listGrid !== "")
 		{
-			$listGrid = unserialize($listGrid);
+			$listGrid = unserialize($listGrid, ['allowed_classes' => false]);
 		}
 		$listGrid = is_array($listGrid) ? $listGrid : [];
 
@@ -48,7 +48,7 @@ class AdminGridOption extends Stepper
 		$listGrid = Option::get(self::$moduleId, "listGridToConvert", "");
 		if ($listGrid !== "" )
 		{
-			$listGrid = unserialize($listGrid);
+			$listGrid = unserialize($listGrid, ['allowed_classes' => false]);
 		}
 		$listGrid = is_array($listGrid) ? $listGrid : [];
 		if (empty($listGrid))
@@ -68,7 +68,7 @@ class AdminGridOption extends Stepper
 			$selectedRowsCount = $queryObject->getSelectedRowsCount();
 			while ($optionOldGrid = $queryObject->fetch())
 			{
-				$oldGridData = (!empty($optionOldGrid["VALUE"]) ? unserialize($optionOldGrid["VALUE"]) : []);
+				$oldGridData = (!empty($optionOldGrid["VALUE"]) ? unserialize($optionOldGrid["VALUE"], ['allowed_classes' => false]) : []);
 
 				if (!$oldGridData)
 				{

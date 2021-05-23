@@ -17,7 +17,7 @@ class CUserOptions
 		$arSqlSearch = array();
 		foreach ($arFilter as $key => $val)
 		{
-			$key = mb_strtoupper($key);
+			$key = strtoupper($key);
 			switch ($key)
 			{
 				case "ID":
@@ -67,8 +67,8 @@ class CUserOptions
 		{
 			foreach ($arOrder as $by => $order)
 			{
-				$by = mb_strtoupper($by);
-				$order = mb_strtoupper($order);
+				$by = strtoupper($by);
+				$order = strtoupper($order);
 				if ($order != "ASC")
 					$order = "DESC";
 
@@ -98,72 +98,57 @@ class CUserOptions
 	{
 		global $DB, $USER, $CACHE_MANAGER;
 
-		if ($user_id === false && is_object($USER) && ((get_class($USER) === 'CUser') || ($USER instanceof CUser)))
+		if ($user_id === false && is_object($USER) && $USER instanceof CUser)
+		{
 			$user_id = $USER->GetID();
+		}
 
 		$user_id = intval($user_id);
-		$category = mb_strtolower($category);
+		$category = strtolower($category);
 
-		if (!is_array(self::$cache[$user_id][$category]) || !array_key_exists($name, self::$cache[$user_id][$category]))
+		if (!isset(self::$cache[$user_id][$category]))
 		{
-			if ($user_id > 0)
+			$mcache_id = "user_option:{$user_id}:{$category}";
+
+			// options for user '0' are always from DB (there are much more options for user '0' than for specific one)
+			if ($user_id > 0 && $CACHE_MANAGER->read(3600, $mcache_id, "user_option"))
 			{
 				// options for specified user from managed cache
-				if (!isset(self::$cache[$user_id][$category]))
-				{
-					$mcache_id = "user_option:".$user_id.":".$category;
-					if ($CACHE_MANAGER->read(3600, $mcache_id, "user_option"))
-					{
-						self::$cache[$user_id][$category] = $CACHE_MANAGER->get($mcache_id);
-					}
-					else
-					{
-						$strSql = "
-							SELECT CATEGORY, NAME, VALUE, COMMON
-							FROM b_user_option
-							WHERE (USER_ID=".$user_id." OR USER_ID=0 AND COMMON='Y')
-								AND CATEGORY='".$DB->ForSql($category)."'
-						";
-						$res = $DB->Query($strSql);
-						while ($res_array = $res->Fetch())
-						{
-							if (!isset(self::$cache[$user_id][$category][$res_array["NAME"]]) || $res_array["COMMON"] <> 'Y')
-								self::$cache[$user_id][$category][$res_array["NAME"]] = unserialize($res_array["VALUE"]);
-						}
-
-						$CACHE_MANAGER->Set($mcache_id, self::$cache[$user_id][$category]);
-					}
-				}
-
-				if (!isset(self::$cache[$user_id][$category][$name]))
-				{
-					self::$cache[$user_id][$category][$name] = null;
-				}
+				self::$cache[$user_id][$category] = $CACHE_MANAGER->get($mcache_id);
 			}
 			else
 			{
-				// options for user '0' from DB (there are much more options for user '0' than for specific one)
-				if (!isset(self::$cache[$user_id][$category]))
-				{
-					$strSql = "
-						SELECT CATEGORY, NAME, VALUE, COMMON
-						FROM b_user_option
-						WHERE (USER_ID=".$user_id." OR USER_ID=0 AND COMMON='Y')
-							AND CATEGORY='".$DB->ForSql($category)."'
-					";
+				//read from DB
+				$sql = "
+					SELECT NAME, VALUE, COMMON
+					FROM b_user_option
+					WHERE (USER_ID = {$user_id} OR (USER_ID = 0 AND COMMON = 'Y'))
+						AND CATEGORY = '{$DB->ForSql($category)}'
+				";
 
-					$res = $DB->Query($strSql);
-					while ($res_array = $res->Fetch())
+				$res = $DB->Query($sql);
+				while ($option = $res->Fetch())
+				{
+					if (!isset(self::$cache[$user_id][$category][$option["NAME"]]) || $option["COMMON"] <> 'Y')
 					{
-						if (!isset(self::$cache[$user_id][$category][$res_array["NAME"]]) || $res_array["COMMON"] <> 'Y')
-							self::$cache[$user_id][$category][$res_array["NAME"]] = unserialize($res_array["VALUE"]);
+						self::$cache[$user_id][$category][$option["NAME"]] = unserialize($option["VALUE"], ['allowed_classes' => false]);
 					}
 				}
 
-				if (!isset(self::$cache[$user_id][$category][$name]))
+				if (!isset(self::$cache[$user_id][$category]))
 				{
-					self::$cache[$user_id][$category][$name] = null;
+					self::$cache[$user_id][$category] = [];
 				}
+
+				if ($user_id > 0)
+				{
+					$CACHE_MANAGER->Set($mcache_id, self::$cache[$user_id][$category]);
+				}
+			}
+
+			if (!isset(self::$cache[$user_id][$category][$name]))
+			{
+				self::$cache[$user_id][$category][$name] = null;
 			}
 		}
 
@@ -171,6 +156,7 @@ class CUserOptions
 		{
 			return $default_value;
 		}
+
 		return self::$cache[$user_id][$category][$name];
 	}
 
@@ -191,7 +177,7 @@ class CUserOptions
 			$user_id = $USER->GetID();
 		}
 
-		$category = mb_strtolower($category);
+		$category = strtolower($category);
 
 		$user_id = intval($user_id);
 		$arFields = array(

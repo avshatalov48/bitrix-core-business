@@ -161,6 +161,11 @@ else
 	$lAdmin->AddHeaders($arResult['HEADERS']);
 
 	$arSelectedFields = $lAdmin->GetVisibleHeaderColumns();
+	if (!in_array('ID', $arSelectedFields))
+	{
+		$arSelectedFields[] = 'ID';
+		$lAdmin->AddVisibleHeaderColumn('ID');
+	}
 	$arSelectedProps = array();
 
 	$allProps = array_merge($arProps, $arSKUProps);
@@ -244,12 +249,15 @@ else
 					$skuProperty .= '<i>'.htmlspecialcharsbx($val['NAME']).'</i>';
 
 				$arSkuActions = array();
-				$rowSku->AddField("NAME", '<div class="sku-item-name">' . $skuProperty . '</div>' . '<input type="hidden" name="prd" id="' . $tableId . '_sku-' . $val["ID"] . '">');
+				$rowSku->AddField("NAME", '<div class="sku-item-name">' . $skuProperty . '</div>');
 
 				$rowSku->AddViewFileField('DETAIL_PICTURE', $viewFileParams);
 				$rowSku->AddViewFileField('PREVIEW_PICTURE', $viewFileParams);
 
-				$rowSku->AddField("ID", $arItems["ID"] . "-" . $val["ID"]);
+				$rowSku->AddField(
+					'ID',
+					$arItems['ID'] . '-' . $val['ID'] . '<input type="hidden" name="prd" id="' . $tableId . '_sku-' . $val['ID'] . '">'
+				);
 				if (!empty($arResult['PRICES']))
 				{
 					foreach ($arResult['PRICES'] as $price)

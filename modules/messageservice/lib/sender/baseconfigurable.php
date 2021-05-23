@@ -231,10 +231,7 @@ abstract class BaseConfigurable extends Base
 			$providerId = $this->getId();
 			$providerType = mb_strtolower($this->getType());
 			$optionsString = Option::get('messageservice', 'sender.'.$providerType.'.'.$providerId);
-			if (CheckSerializedData($optionsString))
-			{
-				$this->options = unserialize($optionsString);
-			}
+			$this->options = unserialize($optionsString, ['allowed_classes' => false]);
 
 			if (!is_array($this->options))
 			{
@@ -287,5 +284,10 @@ abstract class BaseConfigurable extends Base
 		$providerType = mb_strtolower($this->getType());
 		Option::delete('messageservice', array('name' => 'sender.'.$providerType.'.'.$providerId));
 		return true;
+	}
+
+	public function getConfigComponentTemplatePageName(): string
+	{
+		return static::getId();
 	}
 }

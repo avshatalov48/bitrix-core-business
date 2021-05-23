@@ -8,8 +8,6 @@ $MESS["CP_BCS_TPL_DML_SIMPLE"] = "простой режим";
 $MESS["CP_BCS_TPL_DML_EXT"] = "расширенный";
 $MESS["CP_BCS_TPL_PROP_EMPTY"] = "не выбрано";
 $MESS["CP_BCS_TPL_TEMPLATE_THEME"] = "Цветовая тема";
-$MESS["CP_BCS_TPL_CUSTOM_FILTER"] = "Фильтр товаров";
-$MESS["CP_BCS_TPL_SETTINGS_INVALID_CONDITION"] = "Условие задано неверно";
 $MESS["CP_BCS_TPL_PRODUCT_BLOCKS_ORDER"] = "Порядок отображения блоков товара";
 $MESS["PRODUCT_BLOCKS_ORDER_TIP"] = "Для некоторых блоков порядок может не соблюдаться в связи с особенностями шаблона. Также, блок товара может не отображаться, так как его функционал выключен или недоступен.";
 $MESS["CP_BCS_TPL_PRODUCT_BLOCK_PRICE"] = "Цена";
@@ -108,4 +106,3 @@ $MESS["USE_ENHANCED_ECOMMERCE_TIP"] = "Требуется дополнитель
 Ecommerce и/или Яндекс.Метрике";
 $MESS["CP_BCS_TPL_DATA_LAYER_NAME"] = "Имя контейнера данных";
 $MESS["CP_BCS_TPL_BRAND_PROPERTY"] = "Свойство брендов";
-?>

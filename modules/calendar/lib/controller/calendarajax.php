@@ -174,9 +174,9 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 					'ACTIVE' => 'Y'
 				]]);
 
-			if(!$sections || count($sections) == 0)
+			if(!$sections || count($sections) === 0)
 			{
-				\CCalendar::RemoveConnection(['id' => intval($section['CAL_DAV_CON']), 'del_calendars' => 'Y']);
+				\CCalendar::RemoveConnection(['id' => (int) $section['CAL_DAV_CON'], 'del_calendars' => 'Y']);
 			}
 		}
 
@@ -365,8 +365,8 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 			$additionalResponseParams['userSettings'] = \Bitrix\Calendar\UserSettings::get($userId);
 			$additionalResponseParams['eventWithEmailGuestLimit'] = Limitation::getEventWithEmailGuestLimit();
 			$additionalResponseParams['countEventWithEmailGuestAmount'] = Limitation::getCountEventWithEmailGuestAmount();
-
 			$additionalResponseParams['iblockMeetingRoomList'] = \CCalendar::GetMeetingRoomList();
+			$additionalResponseParams['userIndex'] = \CCalendarEvent::getUserIndex();
 			$additionalResponseParams['locationFeatureEnabled'] = !\CCalendar::IsBitrix24() ||
 		\Bitrix\Bitrix24\Feature::isFeatureEnabled("calendar_location");
 			if ($additionalResponseParams['locationFeatureEnabled'])
@@ -854,7 +854,8 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 					'NOTIFY' => $request['meeting_notify'] === 'Y',
 					'REINVITE' => $request['meeting_reinvite'] === 'Y',
 					'ALLOW_INVITE' => $request['allow_invite'] === 'Y',
-					'MEETING_CREATOR' => \CCalendar::GetUserId()
+					'MEETING_CREATOR' => \CCalendar::GetUserId(),
+					'HIDE_GUESTS' => $request['hide_guests'] === 'Y'
 				);
 
 				if (!\CCalendarLocation::checkAccessibility($entryFields['LOCATION'], ['fields' => $entryFields]))
@@ -1160,7 +1161,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 	public function removeConnectionAction()
 	{
 		$request = $this->getRequest();
-		$connectId = intval($request['connectionId']);
+		$connectId = (int)$request['connectionId'];
 		\CCalendar::setOwnerId(\CCalendar::getCurUserId());
 		\CCalendar::RemoveConnection(['id' => $connectId, 'del_calendars' => 'Y']);
 		return true;

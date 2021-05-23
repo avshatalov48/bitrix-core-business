@@ -8,13 +8,11 @@
 
 namespace Bitrix\Sender\Integration\Seo\Ads;
 
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Error;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
-
-use Bitrix\Sender\Message;
 use Bitrix\Sender\Entity;
-
+use Bitrix\Sender\Message;
 use Bitrix\Sender\Message\iLookalikeAds;
 use Bitrix\Seo\Retargeting;
 

@@ -77,7 +77,7 @@ class Service implements Retargeting\IService, IInternalService
 	 */
 	public static function getTypes(): array
 	{
-		return [self::FACEBOOK_TYPE];
+		return [self::FACEBOOK_TYPE, self::INSTAGRAM_TYPE];
 	}
 
 	/**

@@ -1,5 +1,5 @@
-import {Loc, Tag, Type, Dom, Event} from "main.core";
-import {Loader} from "main.loader";
+import { Dom, Event, Loc, Tag, Type } from "main.core";
+import { Loader } from "main.loader";
 import "./client_selector.css";
 
 export class ClientSelector
@@ -179,11 +179,12 @@ export class ClientSelector
 		for (let item of this.items)
 		{
 			menuItems.push({
-				text: this.getMenuItemHtml(item),
+				html: this.getMenuItemHtml(item),
 				className : "seo-ads-client-menu menu-popup-no-icon",
 				onclick: this.onSelectItem.bind(this, item)
 			});
 		}
+
 		if (this.canUnSelectItem)
 		{
 			menuItems.push(

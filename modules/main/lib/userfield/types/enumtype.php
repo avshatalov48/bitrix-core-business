@@ -385,6 +385,11 @@ class EnumType extends BaseType
 		return static::getFieldValue($userField, $additionalParameters);
 	}
 
+	public function onBeforeSave($userField, $value)
+	{
+		return ($userField['MULTIPLE'] !== 'Y' && is_array($value)) ? array_shift($value) : $value;
+	}
+
 	public static function getFieldValue(array $userField, array $additionalParameters = [])
 	{
 		if(

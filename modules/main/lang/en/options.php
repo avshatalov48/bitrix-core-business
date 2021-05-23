@@ -72,7 +72,6 @@ $MESS["MAIN_OPTION_CLEAR_CACHE_CLEAR"] = "Clear";
 $MESS["MAIN_OPTION_CLEAR_CACHE_MANAGED"] = "All managed";
 $MESS["MAIN_OPTION_CLEAR_CACHE_MENU"] = "Menu";
 $MESS["MAIN_OPTION_CLEAR_CACHE_OLD"] = "Expired only";
-$MESS["MAIN_OPTION_COMMENT1"] = "Live ID requires mhash and mcrypt libraries to be installed in PHP.";
 $MESS["MAIN_OPTION_CONTROLLER_ADDIT_SECT"] = "Additional parameters";
 $MESS["MAIN_OPTION_CONTROLLER_ADD_BUTT"] = "Connect";
 $MESS["MAIN_OPTION_CONTROLLER_ADM_LOGIN"] = "Controller administrator login:";

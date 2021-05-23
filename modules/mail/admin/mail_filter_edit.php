@@ -106,16 +106,21 @@ if($REQUEST_METHOD=="POST" && ($save <> '' || $apply <> '') && $MOD_RIGHT>="W" &
 	}
 }
 
-$mf = CMailFilter::GetByID($ID);
-if(!$ar_res = $mf->ExtractFields("str_"))
-	$ID=0;
-else
+if($ID !== 0)
 {
-	$filter_type = $ar_res["ACTION_TYPE"];
-	if($filter_type <> '')
+	$mf = CMailFilter::GetByID($ID);
+	if (!$ar_res = $mf->ExtractFields("str_"))
 	{
-		$res = CMailFilter::GetFilterList($filter_type);
-		$arModFilter = $res->Fetch();
+		$ID = 0;
+	}
+	else
+	{
+		$filter_type = $ar_res["ACTION_TYPE"];
+		if ($filter_type <> '')
+		{
+			$res = CMailFilter::GetFilterList($filter_type);
+			$arModFilter = $res->Fetch();
+		}
 	}
 }
 

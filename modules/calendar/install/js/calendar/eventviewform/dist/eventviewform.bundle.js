@@ -155,8 +155,10 @@ this.BX = this.BX || {};
 	        this.initUserListControl(uid);
 	      }
 
-	      if (this.DOM.content.querySelector("#".concat(uid, "_time_inner_wrap")).offsetHeight > 50) {
-	        this.BX.addClass(this.DOM.content.querySelector("#".concat(uid, "_time_wrap")), 'calendar-slider-sidebar-head-long-time');
+	      var innerTimeWrap = this.DOM.content.querySelector("#".concat(uid, "_time_inner_wrap"));
+
+	      if (main_core.Type.isElementNode(innerTimeWrap) && innerTimeWrap.offsetHeight > 50) {
+	        main_core.Dom.addClass(this.DOM.content.querySelector("#".concat(uid, "_time_wrap")), 'calendar-slider-sidebar-head-long-time');
 	      }
 
 	      if (this.canDo(this.entry, 'edit') && this.DOM.editButton) {

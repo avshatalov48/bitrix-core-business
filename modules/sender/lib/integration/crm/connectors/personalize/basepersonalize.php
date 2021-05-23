@@ -457,15 +457,17 @@ abstract class BasePersonalize
 		$sortBy = 'id';
 		$sortOrder = 'asc';
 
+		if ($assignedByID < 1)
+		{
+			return;
+		}
+
 		$dbUsers = \CUser::GetList(
 			$sortBy,
 			$sortOrder,
 			['ID' => $assignedByID],
 			[
 				'SELECT' => [
-					'EMAIL',
-					'PHONE',
-					'IM',
 					'UF_SKYPE',
 					'UF_TWITTER',
 					'UF_FACEBOOK',
@@ -473,7 +475,20 @@ abstract class BasePersonalize
 					'UF_XING',
 					'UF_WEB_SITES',
 					'UF_PHONE_INNER',
-				]
+				],
+				'FIELDS' => [
+					'EMAIL',
+					'WORK_PHONE',
+					'PERSONAL_MOBILE',
+					'LOGIN',
+					'ACTIVE',
+					'NAME',
+					'LAST_NAME',
+					'SECOND_NAME',
+					'WORK_POSITION',
+					'PERSONAL_WWW',
+					'PERSONAL_CITY',
+				],
 			]
 		);
 
@@ -549,25 +564,30 @@ abstract class BasePersonalize
 				break;
 			case 'MODIFY_BY_ID':
 			case 'CREATED_BY_ID':
-				$dbUsers = \CUser::GetList(
-					$sortBy,
-					$sortOrder,
-					['ID' => $objDocument[$usedField]],
-					[
-						'SELECT' => [
-							'NAME',
-							'LAST_NAME'
+				if ($objDocument[$usedField] > 1)
+				{
+					$dbUsers = \CUser::GetList(
+						$sortBy,
+						$sortOrder,
+						['ID' => $objDocument[$usedField]],
+						[
+							'FIELDS' => [
+								'NAME',
+								'LAST_NAME'
+							]
 						]
-					]
-				);
+					);
 
-				$arUser = is_object($dbUsers)? $dbUsers->Fetch() : null;
-				$objDocument[$usedField] =
-					is_array($arUser)? implode(" ", [
-						$arUser['NAME'],
-						$arUser['LAST_NAME']
-					]
-					) : '';
+					$arUser = is_object($dbUsers)? $dbUsers->Fetch() : null;
+					$objDocument[$usedField] =
+						is_array($arUser)? implode(" ", [
+							$arUser['NAME'],
+							$arUser['LAST_NAME']
+						]
+						) : '';
+
+				}
+
 				break;
 			case 'CONTACT_ID':
 				$contactID = \Bitrix\Crm\Binding\ContactCompanyTable::getCompanyContactIDs($objDocument['ID']);

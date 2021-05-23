@@ -13,20 +13,28 @@ export default class SearchEngine
 	{
 		const matchResults = [];
 		const queryWords = searchQuery.getQueryWords();
+		let limit = searchQuery.getResultLimit();
 
-		items.forEach((item: Item) => {
+		for (let i = 0; i < items.length; i++)
+		{
+			if (limit === 0)
+			{
+				break;
+			}
 
+			const item = items[i];
 			if (item.isSelected() || !item.isSearchable() || item.isHidden() || !item.getEntity().isSearchable())
 			{
-				return;
+				continue;
 			}
 
 			const matchResult = this.matchItem(item, queryWords);
 			if (matchResult)
 			{
 				matchResults.push(matchResult);
+				limit--;
 			}
-		});
+		}
 
 		return matchResults;
 	}
@@ -61,7 +69,7 @@ export default class SearchEngine
 		}
 	}
 
-	static matchWord(item: Item, queryWord: string): MatchIndex
+	static matchWord(item: Item, queryWord: string): MatchIndex[]
 	{
 		const searchIndexes = item.getSearchIndex().getIndexes();
 		const matches = [];

@@ -45,7 +45,8 @@ class CCatalogAdminToolsAll
 		$intIBlockID,
 		&$arCatalog,
 		$arParams,
-		BaseBuilder $urlBuilder = null
+		BaseBuilder $urlBuilder = null,
+		$gridId = ''
 	)
 	{
 		$arResult = false;
@@ -107,6 +108,7 @@ class CCatalogAdminToolsAll
 					'ICON' => 'btn_new',
 					'TEXT' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_PROD'),
 					'TITLE' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_PROD_TITLE'),
+					'ID' => 'create_new_product_button_' . $gridId,
 					'LINK' => $urlBuilder->getElementDetailUrl(0, $arParams),
 					'PUBLIC' => $productCardEnabled, // TODO: remove this hack after refactoring \CAdminUiList::AddAdminContextMenu
 					'SHOW_TITLE' => true
@@ -1147,8 +1149,8 @@ class CCatalogAdminProductSetEdit
 		foreach ($arSets as $key => $arOneSet)
 		{
 			$blockName = self::$strMainPrefix.'_'.$arOneSet['ITEM_ID'];
-			if ((int)$key == 0)
-				$blockName .= '_'.randString(8);
+			$blockName .= '_'.Main\Security\Random::getString(8, true);
+
 			$strNamePrefix = self::$strMainPrefix.'['.$key.']';
 			$strIDPrefix = $blockName.'_'.$key;
 			?><table id="<? echo $strIDPrefix; ?>_TBL" class="internal" style="margin: 0 auto;">

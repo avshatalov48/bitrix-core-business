@@ -13,7 +13,7 @@ use Bitrix\Main\Analytics;
 
 Loc::loadMessages(__FILE__);
 
-if (!$USER->CanDoOperation("view_other_settings") || !Analytics\SiteSpeed::isRussianSiteManager())
+if (!$USER->CanDoOperation("view_other_settings") || !Analytics\SiteSpeed::isOn())
 {
 	$APPLICATION->AuthForm(Loc::getMessage("ACCESS_DENIED"));
 }

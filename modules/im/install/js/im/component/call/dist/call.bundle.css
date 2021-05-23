@@ -16,6 +16,7 @@
 	width: 100%;
 	color: white;
 	background-color: #000;
+	min-width: 940px;
 }
 
 .bx-im-application-call-mobile-state .bx-im-component-call{
@@ -25,6 +26,7 @@
 	left: 0;
 	bottom: 0;
 	width: 100%;
+    min-width: 100%;
 	height: 100%;
 	background: #3a414b;
 }
@@ -1250,4 +1252,44 @@
 	color: #fff;
 	letter-spacing: -.23px;
 	opacity: .6;
+}
+
+
+@media screen and (max-width: 1250px) {
+	.bx-im-component-call-wrap-with-chat .bx-messenger-videocall-top-button-text {
+		display: none;
+	}
+	.bx-im-component-call-wrap-with-chat .bx-messenger-videocall-top-button-icon.grid {
+		margin: initial;
+	}
+	.bx-im-component-call-wrap-with-chat .bx-messenger-videocall-top-button-icon.fullscreen-enter {
+		margin: initial;
+	}
+	.bx-im-component-call-wrap-with-chat .bx-messenger-videocall-top-button-icon.fullscreen-leave {
+		margin: initial;
+	}
+	.bx-im-component-call-wrap-with-chat .bx-messenger-videocall-top-recordstatus-time-separator {
+		display: none;
+	}
+	.bx-im-component-call-wrap-with-chat .bx-messenger-videocall-top-recordstatus-time-state {
+		display: none;
+	}
+}
+
+@media screen and (max-width: 1100px) {
+	.bx-im-component-call-wrap-with-chat .bx-messenger-videocall-top-participants-text {
+		display: none;
+	}
+}
+
+@media screen and (max-width: 1050px) {
+	.bx-im-component-call-wrap-with-chat .bx-messenger-videocall-panel-text {
+		display: none;
+	}
+	.bx-im-component-call-wrap-with-chat .bx-messenger-videocall-panel-item-with-arrow-right {
+		margin: 4px 0 auto 0;
+	}
+	.bx-im-component-call-wrap-with-chat .bx-messenger-videocall-panel-icon-background {
+		width: 41px;
+	}
 }

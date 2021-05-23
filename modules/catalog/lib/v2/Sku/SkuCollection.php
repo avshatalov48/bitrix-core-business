@@ -6,7 +6,6 @@ use Bitrix\Catalog\v2\BaseCollection;
 use Bitrix\Catalog\v2\BaseEntity;
 use Bitrix\Catalog\v2\IoC\ContainerContract;
 use Bitrix\Catalog\v2\IoC\Dependency;
-use Bitrix\Main\InvalidOperationException;
 
 /**
  * Class SkuCollection
@@ -27,31 +26,6 @@ class SkuCollection extends BaseCollection
 	{
 		$this->container = $container;
 		$this->factory = $factory;
-	}
-
-	/**
-	 * @param \Bitrix\Catalog\v2\BaseEntity|\Bitrix\Catalog\v2\Sku\HasSkuCollection|null $parent
-	 * @return \Bitrix\Catalog\v2\BaseCollection
-	 * @throws \Bitrix\Main\InvalidOperationException
-	 */
-	public function setParent(?BaseEntity $parent): BaseCollection
-	{
-		parent::setParent($parent);
-
-		if ($parent)
-		{
-			if (!($parent instanceof HasSkuCollection))
-			{
-				throw new InvalidOperationException(sprintf(
-					'Parent entity must implement {%s} interface',
-					HasSkuCollection::class
-				));
-			}
-
-			$parent->setSkuCollection($this);
-		}
-
-		return $this;
 	}
 
 	public function create(): BaseSku
@@ -107,5 +81,14 @@ class SkuCollection extends BaseCollection
 		}
 
 		return $filter;
+	}
+
+	/**
+	 * @param callable|null $callback
+	 * @return \Bitrix\Catalog\v2\BaseEntity|\Bitrix\Catalog\v2\Sku\BaseSku|null
+	 */
+	public function getFirst(callable $callback = null): ?BaseEntity
+	{
+		return parent::getFirst($callback);
 	}
 }

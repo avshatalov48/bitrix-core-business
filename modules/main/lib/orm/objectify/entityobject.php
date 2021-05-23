@@ -1996,7 +1996,7 @@ abstract class EntityObject implements ArrayAccess
 					$this->sysSetActual($k, $v);
 				}
 			}
-			elseif ($field instanceof ScalarField)
+			elseif ($field instanceof ScalarField || $field instanceof UserTypeField)
 			{
 				$v = $field->cast($v);
 				$this->sysSetActual($k, $v);

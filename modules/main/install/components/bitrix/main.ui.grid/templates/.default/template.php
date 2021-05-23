@@ -5,9 +5,9 @@
  * @var $arResult
  */
 
-use \Bitrix\Main\Text;
-use \Bitrix\Main\Grid;
-use \Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Grid;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Text;
 use Bitrix\Main\UI\Extension;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
@@ -24,6 +24,7 @@ Extension::load([
 	'ui.fonts.opensans',
 	'ui.buttons',
 	'dnd',
+	'ui.hint',
 ]);
 
 global $APPLICATION;
@@ -151,7 +152,20 @@ $displayedCount = count(
 									$isHidden = !array_key_exists($id, $arResult['COLUMNS']); ?><?
 										?><th class="main-grid-cell-head <?=$header["class"]?> <?=$arParams["ALLOW_COLUMNS_SORT"] ? " main-grid-draggable" : ""?> <?=$arParams["ALLOW_STICKED_COLUMNS"] && $header["sticked"] ? "main-grid-sticked-column" : ""?>" data-edit="(<?=Text\HtmlFilter::encode(CUtil::PhpToJSObject($header["editable"]))?>)" data-name="<?=Text\HtmlFilter::encode($id)?>" data-sort-url="<?=$header["sort_url"]?>" data-sort-by="<?=$header["sort"]?>" data-sort-order="<?=$header["next_sort_order"]?>" <?=(isset($header['title']) && $header['title'] != '' ? 'title="'.Text\HtmlFilter::encode($header['title']).'"' : '');?> <? if($header["width"] <> ''): ?> style="width: <?=$header["width"]?>px"<? endif ?>><?
 											?><span class="main-grid-cell-head-container" <? if($header["width"] <> ''): ?>style="width: <?=$header["width"]?>px"<? endif ?>><?
-												?><span class="main-grid-head-title<?=$arParams['DISABLE_HEADERS_TRANSFORM'] ? " main-grid-head-title-without-transform" : ""?>"><?=Text\HtmlFilter::encode($header["showname"] ? $header["name"] : ""); ?></span><?
+												?>
+										<span class="main-grid-head-title<?=$arParams['DISABLE_HEADERS_TRANSFORM'] ? " main-grid-head-title-without-transform" : ""?>">
+											<?=Text\HtmlFilter::encode($header["showname"] ? $header["name"] : ""); ?>
+											<? if (isset($header["hint"])): ?>
+											<script>
+												BX.ready(function() {
+													BX.UI.Hint.init(BX('hint_<?=$header["id"]?>'));
+												})
+											</script>
+											<span id="hint_<?=$header["id"]?>">
+												<span data-hint="<?=$header["hint"]?>"></span>
+											</span>
+											<? endif ?>
+										</span><?
 												if ($arParams["ALLOW_COLUMNS_RESIZE"] && $header["resizeable"] !== false) : ?><?
 													?><span class="main-grid-resize-button" onclick="event.stopPropagation(); " title=""></span><?
 												endif; ?><?
@@ -660,17 +674,9 @@ if (\Bitrix\Main\Grid\Context::isInternalRequest()) :
 			Grid.arParams.DEFAULT_COLUMNS = defaultColumns;
 			Grid.arParams.MESSAGES = messages;
 
-			if (action !== 'more')
-			{
-				Grid.arParams.EDITABLE_DATA = editableData;
-			}
-			else
-			{
-				var editableDataKeys = Object.keys(editableData);
-				editableDataKeys.forEach(function(key) {
-					Grid.arParams.EDITABLE_DATA[key] = editableData[key];
-				});
-			}
+			Object.keys(editableData).forEach(function(key) {
+				Grid.arParams.EDITABLE_DATA[key] = editableData[key];
+			});
 
 			BX.onCustomEvent(window, 'BX.Main.grid:paramsUpdated', []);
 		}
@@ -704,6 +710,8 @@ endif; ?>
 						array(
 							"ALLOW_COLUMNS_SORT" => $arParams["ALLOW_COLUMNS_SORT"],
 							"ALLOW_ROWS_SORT" => $arParams["ALLOW_ROWS_SORT"],
+							"ALLOW_ROWS_SORT_IN_EDIT_MODE" => $arParams["ALLOW_ROWS_SORT_IN_EDIT_MODE"],
+							"ALLOW_ROWS_SORT_INSTANT_SAVE" => $arParams["ALLOW_ROWS_SORT_INSTANT_SAVE"],
 							"ALLOW_COLUMNS_RESIZE" => $arParams["ALLOW_COLUMNS_RESIZE"],
 							"SHOW_ROW_CHECKBOXES" => $arParams["SHOW_ROW_CHECKBOXES"],
 							"ALLOW_HORIZONTAL_SCROLL" => $arParams["ALLOW_HORIZONTAL_SCROLL"],

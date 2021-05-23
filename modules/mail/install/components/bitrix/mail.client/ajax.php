@@ -2,6 +2,7 @@
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
+use Bitrix\Calendar\ICal\Parser\Calendar as CalendarIcalComponent;
 use Bitrix\Mail;
 use Bitrix\Mail\ImapCommands\MailsFlagsManager;
 use Bitrix\Mail\ImapCommands\MailsFoldersManager;
@@ -991,63 +992,66 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 
 	public function icalAction()
 	{
-		$request = Context::getCurrent()->getRequest();
-
-		$messageId = (int)$request->getPost("messageId");
-		$action = (string)$request->getPost("action");
-
-		if (!$messageId || !$action)
-		{
-			$this->addError(new Error(Loc::getMessage('MAIL_CLIENT_FORM_ERROR')));
-
-			return false;
-		}
-
-		$message = MailMessageTable::getList([
-			'runtime' => [
-				new Main\Entity\ReferenceField(
-					'MAILBOX',
-					'Bitrix\Mail\MailboxTable',
-					[
-						'=this.MAILBOX_ID' => 'ref.ID',
-					],
-					[
-						'join_type' => 'INNER',
-					]
-				),
-			],
-			'select'  => [
-				'ID',
-				'FIELD_FROM',
-				'FIELD_TO',
-				'OPTIONS',
-				'USER_ID' => 'MAILBOX.USER_ID',
-			],
-			'filter'  => [
-				'=ID' => $messageId,
-			],
-		])->fetch();
-
-		if (empty($message['OPTIONS']['iCal']))
-		{
-			return false;
-		}
-
-		list($event, $method) = ICalMailManager::parseRequest($message['OPTIONS']['iCal']);
-
-		if (isset($method) && $method === 'REQUEST')
-		{
-			ICalMailManager::manageRequest([
-				'event'  => $event,
-				'userId' => $message['USER_ID'],
-				'emailFrom'  => $message['FIELD_FROM'],
-				'emailTo'  => $message['FIELD_TO'],
-				'answer' => $action
-			]);
-
-			return true;
-		}
-
 		return false;
+//		$request = Context::getCurrent()->getRequest();
+//
+//		$messageId = (int)$request->getPost("messageId");
+//		$action = (string)$request->getPost("action");
+//
+//		if (!$messageId || !$action)
+//		{
+//			$this->addError(new Error(Loc::getMessage('MAIL_CLIENT_FORM_ERROR')));
+//
+//			return false;
+//		}
+//
+//		$message = MailMessageTable::getList([
+//			'runtime' => [
+//				new Main\Entity\ReferenceField(
+//					'MAILBOX',
+//					'Bitrix\Mail\MailboxTable',
+//					[
+//						'=this.MAILBOX_ID' => 'ref.ID',
+//					],
+//					[
+//						'join_type' => 'INNER',
+//					]
+//				),
+//			],
+//			'select'  => [
+//				'ID',
+//				'FIELD_FROM',
+//				'FIELD_TO',
+//				'OPTIONS',
+//				'USER_ID' => 'MAILBOX.USER_ID',
+//			],
+//			'filter'  => [
+//				'=ID' => $messageId,
+//			],
+//		])->fetch();
+//
+//		if (empty($message['OPTIONS']['iCal']))
+//		{
+//			return false;
+//		}
+//
+//		$icalComponent = ICalMailManager::parseRequest($message['OPTIONS']['iCal']);
+//
+//		if ($icalComponent->getMethod() === \Bitrix\Calendar\ICal\Parser\Dictionary::METHOD['request']
+//			&& $icalComponent->hasOneEvent()
+//		)
+//		{
+//			ICalMailManager::manageRequest([
+//				'event'  => $icalComponent->getEvent(),
+//				'userId' => $message['USER_ID'],
+//				'emailFrom'  => $message['FIELD_FROM'],
+//				'emailTo'  => $message['FIELD_TO'],
+//				'answer' => $action
+//			]);
+//
+//			return true;
+//		}
+//
+//		return false;
 	}
 }

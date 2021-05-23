@@ -17,98 +17,52 @@ class BizprocScriptEditAjaxController extends Main\Engine\Controller
 		parent::init();
 	}
 
-	public function configureActions()
-	{
-		return [
-			'exportScript' => [
-				'+prefilters' => [
-					new Main\Engine\ActionFilter\CloseSession(),
-				],
-				'-prefilters' => [
-					Main\Engine\ActionFilter\Csrf::class,
-				],
-			],
-			//'import' => [
-			//	'+prefilters' => [
-			//		new Main\Engine\ActionFilter\CloseSession(),
-			//	],
-			//],
-		];
-	}
-
-	public function exportScriptAction()
+	public function saveScriptAction()
 	{
 		$params = $this->getUnsignedParameters();
+		$postList = $this->getRequest()->getPostList();
+		$documentType = \CBPDocument::unSignDocumentType($postList->get('documentType'));
 
-		$tpl = \Bitrix\Bizproc\Workflow\Template\Entity\WorkflowTemplateTable::getById($params['SCRIPT_ID'])
-			->fetchObject();
-		if (!$tpl)
+		if (!$documentType)
 		{
 			return false;
 		}
 
-		$user = new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser);
+		$id = (int)$params['SCRIPT_ID'];
+		$userId = $this->getCurrentUser()->getId();
 
-		$canWrite = CBPDocument::CanUserOperateDocumentType(
-			CBPCanUserOperateOperation::CreateWorkflow,
-			$user->getId(),
-			[$tpl['MODULE_ID'], $tpl['ENTITY'], $tpl['DOCUMENT_TYPE']]
-		);
+		$canWrite =
+			($id > 0)
+			? \Bitrix\Bizproc\Script\Manager::canUserEditScript($id, $userId)
+			: \Bitrix\Bizproc\Script\Manager::canUserCreateScript($documentType, $userId)
+		;
 
 		if (!$canWrite)
 		{
 			return false;
 		}
 
-		$packer = new \Bitrix\Bizproc\Workflow\Template\Packer\RoboPackage();
-		$datum = $packer->pack($tpl)->getPackage();
-
-		$response = new Main\HttpResponse();
-
-		$response->setStatus('200 OK');
-		$response->addHeader('Content-Type', 'application/force-download; name="robots-'.$params['SCRIPT_ID'].'.bpr"');
-		$response->addHeader('Content-Transfer-Encoding', 'binary');
-		$response->addHeader('Content-Length', Main\Text\BinaryString::getLength($datum));
-		$response->addHeader('Content-Disposition', "attachment; filename=\"robots-".$params['SCRIPT_ID'].".bpr\"");
-		$response->addHeader('Cache-Control', "must-revalidate, post-check=0, pre-check=0");
-		$response->addHeader('Expires', "0");
-		$response->addHeader('Pragma', "public");
-
-		$response->setContent($datum);
-
-		return $response;
-	}
-
-	public function deleteScriptAction()
-	{
-		$params = $this->getUnsignedParameters();
-		$tpl = \Bitrix\Bizproc\Workflow\Template\Entity\WorkflowTemplateTable::getById($params['SCRIPT_ID'])
-			->fetchObject();
-		if (!$tpl)
+		$scriptFields = $postList->toArray();
+		if (is_string($scriptFields['robotsTemplate']))
 		{
-			return false;
+			$scriptFields['robotsTemplate'] = $this->fromPostJson($scriptFields['robotsTemplate']);
 		}
 
-		$user = new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser);
-
-		$canWrite = CBPDocument::CanUserOperateDocumentType(
-			CBPCanUserOperateOperation::CreateWorkflow,
-			$user->getId(),
-			[$tpl['MODULE_ID'], $tpl['ENTITY'], $tpl['DOCUMENT_TYPE']]
+		$result = \Bitrix\Bizproc\Script\Manager::saveScript(
+			$id, $documentType, $scriptFields,
+			$this->getCurrentUser()->getId()
 		);
 
-		if (!$canWrite)
-		{
-			return false;
-		}
-
-		\CBPWorkflowTemplateLoader::GetLoader()->DeleteTemplate($tpl['ID']);
-
-		return true;
+		return $result;
 	}
 
-	private function importScriptAction()
+	private function fromPostJson(string $json): array
 	{
-		//TODO
+		if (!defined('BX_UTF'))
+		{
+			$json = Main\Text\Encoding::convertEncoding($json, LANG_CHARSET, 'UTF-8');
+		}
+
+		return Main\Web\Json::decode($json);
 	}
 }

@@ -132,13 +132,22 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm implements ICorrection
 
 			if (isset($item['nomenclature_code']))
 			{
-				$position['nomenclature_code'] = $item['nomenclature_code'];
+				$position['nomenclature_code'] = $this->buildNomenclatureCode($item['nomenclature_code']);
 			}
 
 			$result['receipt']['items'][] = $position;
 		}
 
 		return $result;
+	}
+
+	protected function buildNomenclatureCode($code)
+	{
+		$hexCode = bin2hex($code);
+		$hexCodeArray = str_split($hexCode, 2);
+		$hexCodeArray = array_map('ToUpper', $hexCodeArray);
+
+		return join(' ', $hexCodeArray);
 	}
 
 	/**
@@ -270,6 +279,18 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm implements ICorrection
 			Check::PAYMENT_OBJECT_JOB => 'job',
 			Check::PAYMENT_OBJECT_EXCISE => 'excise',
 			Check::PAYMENT_OBJECT_PAYMENT => 'payment',
+			Check::PAYMENT_OBJECT_GAMBLING_BET => 'gambling_bet',
+			Check::PAYMENT_OBJECT_GAMBLING_PRIZE => 'gambling_prize',
+			Check::PAYMENT_OBJECT_LOTTERY => 'lottery',
+			Check::PAYMENT_OBJECT_LOTTERY_PRIZE => 'lottery_prize',
+			Check::PAYMENT_OBJECT_INTELLECTUAL_ACTIVITY => 'intellectual_activity',
+			Check::PAYMENT_OBJECT_AGENT_COMMISSION => 'agent_commission',
+			Check::PAYMENT_OBJECT_COMPOSITE => 'composite',
+			Check::PAYMENT_OBJECT_ANOTHER => 'another',
+			Check::PAYMENT_OBJECT_PROPERTY_RIGHT => 'property_right',
+			Check::PAYMENT_OBJECT_NON_OPERATING_GAIN => 'non-operating_gain',
+			Check::PAYMENT_OBJECT_SALES_TAX => 'sales_tax',
+			Check::PAYMENT_OBJECT_RESORT_FEE => 'resort_fee',
 		];
 	}
 

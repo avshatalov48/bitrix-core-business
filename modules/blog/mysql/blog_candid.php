@@ -52,7 +52,7 @@ class CBlogCandidate extends CAllBlogCandidate
 				$arBlog = CBlog::GetByID($arCandidat["BLOG_ID"]);
 				if ($arBlog["AUTO_GROUPS"] <> '')
 				{
-					$arAutoGroups = unserialize($arBlog["AUTO_GROUPS"]);
+					$arAutoGroups = unserialize($arBlog["AUTO_GROUPS"], ['allowed_classes' => false]);
 					if (is_array($arAutoGroups) && count($arAutoGroups) > 0)
 					{
 						$arBlogUser = CBlogUser::GetByID($arCandidat["USER_ID"], BLOG_BY_USER_ID);

@@ -25,6 +25,11 @@ final class Element extends Controller implements FallbackActionInterface
 {
 	protected $iblock;
 
+	protected function getDefaultPreFilters()
+	{
+		return [];
+	}
+
 	/**
 	 * Proxying all actions to the real controller
 	 *
@@ -36,7 +41,11 @@ final class Element extends Controller implements FallbackActionInterface
 	 */
 	public function fallbackAction($actionName)
 	{
-		return $this->forward($this->getController(), $actionName, $this->getParameters());
+		$this->setSourceParametersList(array_merge(
+			$this->getSourceParametersList(), [['iblock' => $this->getIblock()]]
+		));
+
+		return $this->forward($this->getController(), $actionName);
 	}
 
 	/**
@@ -61,16 +70,6 @@ final class Element extends Controller implements FallbackActionInterface
 		}
 
 		return $controller;
-	}
-
-	protected function getParameters()
-	{
-		$parameters = $this->getSourceParametersList()[0];
-
-		// add iblock object
-		$parameters['iblock'] = $this->getIblock();
-
-		return $parameters;
 	}
 
 	protected function getIblock()

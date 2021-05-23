@@ -725,7 +725,7 @@ class YandexCheckoutHandler
 	 */
 	public function getCurrencyList()
 	{
-		return ['RUB', 'BYN'];
+		return ['RUB'];
 	}
 
 	/**

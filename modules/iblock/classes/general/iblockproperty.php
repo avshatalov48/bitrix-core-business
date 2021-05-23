@@ -215,6 +215,8 @@ class CAllIBlockProperty
 
 		CIBlock::clearIblockTagCache($arProperty["IBLOCK_ID"]);
 
+		Iblock\PropertyTable::getEntity()->cleanCache();
+
 		$res = $DB->Query("DELETE FROM b_iblock_property WHERE ID=".$ID, true);
 
 		foreach (GetModuleEvents("iblock", "OnAfterIBlockPropertyDelete", true) as $arEvent)
@@ -346,6 +348,8 @@ class CAllIBlockProperty
 					//TODO: add error handling
 					unset($featureResult);
 				}
+
+				Iblock\PropertyTable::getEntity()->cleanCache();
 			}
 		}
 
@@ -511,7 +515,7 @@ class CAllIBlockProperty
 								$arFields["USER_TYPE_SETTINGS"] = (
 									is_array($oldData["USER_TYPE_SETTINGS"])
 									? $oldData["USER_TYPE_SETTINGS"]
-									: unserialize($oldData["USER_TYPE_SETTINGS"])
+									: unserialize($oldData["USER_TYPE_SETTINGS"], ['allowed_classes' => false])
 								);
 							}
 						}
@@ -584,6 +588,8 @@ class CAllIBlockProperty
 				//TODO: add error handling
 				unset($featureResult);
 			}
+
+			Iblock\PropertyTable::getEntity()->cleanCache();
 
 			global $BX_IBLOCK_PROP_CACHE;
 			if (isset($arFields["IBLOCK_ID"]))

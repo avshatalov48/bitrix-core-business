@@ -12,4 +12,3 @@ CJSCore::RegisterExt('pull', array(
 	'skip_core' => true,
 	'rel' => array('pull.client')
 ));
-

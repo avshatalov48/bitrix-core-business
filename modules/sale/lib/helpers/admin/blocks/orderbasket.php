@@ -1046,7 +1046,7 @@ class OrderBasket
 					if ($bUseHLIblock)
 					{
 						if(!is_array($arProp["USER_TYPE_SETTINGS"]))
-							$arProp["USER_TYPE_SETTINGS"] = unserialize($arProp["USER_TYPE_SETTINGS"]);
+							$arProp["USER_TYPE_SETTINGS"] = unserialize($arProp["USER_TYPE_SETTINGS"], ['allowed_classes' => false]);
 
 						$hlblock = HL\HighloadBlockTable::getList(array("filter" => array("TABLE_NAME" => $arProp["USER_TYPE_SETTINGS"]["TABLE_NAME"])))->fetch();
 						if ($hlblock)
@@ -1818,7 +1818,7 @@ class OrderBasket
 			elseif ($arElementInfo["DETAIL_PICTURE"] > 0)
 				$imgCode = $arElementInfo["DETAIL_PICTURE"];
 
-			if ($imgCode == "" && count($arParent) > 0)
+			if ($imgCode == "" && !empty($arParent) && is_array($arParent))
 			{
 				if ($arParent["PREVIEW_PICTURE"] > 0)
 					$imgCode = $arParent["PREVIEW_PICTURE"];

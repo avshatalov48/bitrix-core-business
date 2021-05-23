@@ -9,6 +9,8 @@ use Bitrix\Report\VisualConstructor\AnalyticBoardBatch;
 
 class EventHandler
 {
+	const BATCH_GROUP_SALES_GENERAL = 'sales_general';
+
 	const BATCH_INTERNET_SHOP = 'sale_internet_shop';
 	const REPORT_KEY = 'sale_report_board_';
 	const REPORT_VIEW_URL = '/shop/settings/sale_report_view.php';
@@ -28,6 +30,12 @@ class EventHandler
 		$batch->setKey(static::BATCH_INTERNET_SHOP);
 		$batch->setTitle(Loc::getMessage("SALE_REPORT_INTERNET_SHOP_BATCH_TITLE"));
 		$batch->setOrder(300);
+
+		if (method_exists($batch, 'setGroup'))
+		{
+			$batch->setGroup(self::BATCH_GROUP_SALES_GENERAL);
+		}
+
 		$batchList[] = $batch;
 
 		return $batchList;
@@ -60,6 +68,12 @@ class EventHandler
 			$reportPage->setTitle($row['TITLE']);
 			$reportPage->setBoardKey(static::REPORT_KEY . $row['ID']);
 			$reportPage->setBatchKey(static::BATCH_INTERNET_SHOP);
+
+			if (method_exists($reportPage, 'setGroup'))
+			{
+				$reportPage->setGroup(self::BATCH_GROUP_SALES_GENERAL);
+			}
+
 			$reportPage->setExternal(true);
 
 			$reportViewUrl = static::REPORT_VIEW_URL;

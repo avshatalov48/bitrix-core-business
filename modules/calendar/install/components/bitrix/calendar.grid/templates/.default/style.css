@@ -1,5 +1,3 @@
-.calendar-pagetitle-view #workarea-content { background: none; }
-
 /*.workarea-content-paddings { overflow-x: hidden !important; }*/
 
 /**/
@@ -3947,6 +3945,23 @@ select:not(:-internal-list-box) { overflow: visible !important; }
 	justify-content: center;
 }
 
+.calendar-settings-email-wrap {
+
+}
+.calendar-settings-email-wrap .tariff-lock{
+	display: none;
+}
+
+.calendar-settings-email-wrap.lock .tariff-lock{
+	display: inline-block;
+	margin-left: 10px;
+}
+.calendar-settings-email-wrap.lock .calendar-field-select{
+	width: 380px;
+	pointer-events: none;
+}
+
+
 .calendar-field-multiple-select {
 	display: block;
 	overflow: hidden;
@@ -5471,7 +5486,6 @@ select:not(:-internal-list-box) { overflow: visible !important; }
 .calendar-timeline-stream-section-content .calendar-timeline-stream-content-event:last-child { border-bottom: none; }
 
 .calendar-timeline-stream-content-event-time {
-	min-width: 120px;
 	max-width: 150px;
 	flex: 2;
 }
@@ -6480,6 +6494,10 @@ div#bx-selector-dialog-uf-crm-cal-event-search
 	transition: 350ms all linear;
 }
 
+.calendar-time-modifier .calendar-add-popup-wrap .calendar-field-time {
+    max-width: 80px;
+}
+
 .calendar-add-popup-wrap .calendar-options-item-datetime-hide-time .calendar-field-time {
 	margin: 0;
 	min-width: 0;
@@ -6593,6 +6611,7 @@ div#bx-selector-dialog-uf-crm-cal-event-search
 	border-bottom: 1px dashed rgba(39, 107, 179, .4);
 	transition: all .2s linear;
 	padding: 0;
+	cursor: pointer;
 }
 
 .calendar-field-link:hover, .calendar-add-popup-wrap .calendar-reminder-item:hover {
@@ -6886,10 +6905,22 @@ div#invite-email-email-user-popup
 }
 
 
-.calendar-popup-user-menu .popup-window-content{
+.calendar-popup-user-menu .popup-window-content {
 	padding: 0;
-	overflow: auto;
+	overflow-y: auto;
+	overflow-x: hidden;
 	max-height: 400px;
+}
+
+.calendar-popup-user-menu .popup-window-content::-webkit-scrollbar {
+	-webkit-appearance: none;
+	width: 7px;
+}
+
+.calendar-popup-user-menu .popup-window-content::-webkit-scrollbar-thumb {
+	border-radius: 14px;
+	background-color: rgba(0, 0, 0, .5);
+	box-shadow: 0 0 1px rgba(255, 255, 255, .5);
 }
 
 .calendar-popup-user-menu .calendar-add-popup-user-menu-item .menu-popup-item-icon img,
@@ -7177,4 +7208,77 @@ div#invite-email-email-user-popup
 	width: 132px;
 	height: 106px;
 	background: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22113%22%20height%3D%22103%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cpath%20fill%3D%22%232FC6F6%22%20d%3D%22M19.835%2010.19v3.256c0%205.39%204.19%209.765%209.365%209.765%204.888%200%208.896-3.902%209.326-8.877l.038-.888V10.19h19.067v3.255c0%205.39%204.195%209.765%209.364%209.765%204.882%200%208.896-3.902%209.327-8.877l.038-.888V10.19h7.192c6.269.398%2011.19%205.641%2011.521%2012.09l.016.93v65.1c0%203.355-2.431%206.119-5.562%206.473l-.681.038H7.349c-3.216%200-5.867-2.54-6.206-5.801l-.037-.71v-65.1c-.025-.339-.037-.67-.037-1.003.012-6.35%204.734-11.539%2010.712-11.986l.862-.031h7.192zm62.768%2019.9h-69.01v51.712h69.01V30.09zM33.634%2059.462a2.953%202.953%200%20012.953%202.953v5.905a2.953%202.953%200%2001-2.953%202.953H27.73a2.953%202.953%200%2001-2.953-2.953v-5.905a2.953%202.953%200%20012.953-2.953h5.905zm17.716%200a2.953%202.953%200%20012.953%202.953v5.905a2.953%202.953%200%2001-2.953%202.953h-5.905a2.953%202.953%200%2001-2.953-2.953v-5.905a2.953%202.953%200%20012.953-2.953h5.905zM33.634%2041.746a2.953%202.953%200%20012.953%202.953v5.905a2.953%202.953%200%2001-2.953%202.953H27.73a2.953%202.953%200%2001-2.953-2.953V44.7a2.953%202.953%200%20012.953-2.953h5.905zm17.716%200a2.953%202.953%200%20012.953%202.953v5.905a2.953%202.953%200%2001-2.953%202.953h-5.905a2.953%202.953%200%2001-2.953-2.953V44.7a2.953%202.953%200%20012.953-2.953h5.905zm17.716%200A2.953%202.953%200%200172.02%2044.7v5.905a2.953%202.953%200%2001-2.953%202.953h-5.905a2.953%202.953%200%2001-2.953-2.953V44.7a2.953%202.953%200%20012.953-2.953h5.905zM29.231.178c2.323.018%204.227%201.83%204.519%204.168l.038.65v7.16c0%202.644-2.054%204.786-4.588%204.786-2.34%200-4.27-1.825-4.553-4.185l-.036-.6V4.93c.013-2.637%202.085-4.766%204.62-4.753zm37.764.476c2.192%200%204.006%201.695%204.293%203.904l.04.614v6.79c0%202.493-1.942%204.518-4.339%204.518-2.197-.006-4.001-1.708-4.287-3.912l-.04-.613V5.172c0-2.5%201.942-4.518%204.333-4.518z%22/%3E%3Cg%20transform%3D%22translate%2867.5%2057.5%29%22%3E%3Ccircle%20cx%3D%2219.931%22%20cy%3D%2219.931%22%20r%3D%2222%22%20fill%3D%22%23FF5752%22%20stroke%3D%22%23FFF%22%20stroke-width%3D%225%22/%3E%3Cpath%20fill%3D%22%23FFF%22%20d%3D%22M20.98%2027.393h-2.096v-2.61a1.646%201.646%200%2001-.619-1.285%201.66%201.66%200%20011.666-1.654c.92%200%201.667.74%201.667%201.654%200%20.519-.242.982-.619%201.285v2.61zm-5.61-13.7c0-2.502%202.042-4.53%204.561-4.53%202.52%200%204.562%202.028%204.562%204.53v3.275H15.37v-3.276zm11.534%203.275v-3.276c0-3.823-3.122-6.921-6.973-6.921-3.85%200-6.972%203.098-6.972%206.921v3.276h-2.116v14.148H29.02V16.968h-2.116z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E) no-repeat top 2px left 17px;
+}
+
+
+/*hidden members*/
+.calendar-hide-members-container {
+	margin: -3px 0 10px 20px;
+}
+
+.calendar-hide-members-container-inner {
+	display: inline-flex;
+	align-items: center;
+	justify-content: flex-start;
+	cursor: pointer;
+}
+
+.calendar-hide-members-text {
+	font: 13px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #8B929B;
+}
+.calendar-hide-members-icon-hidden,
+.calendar-hide-members-icon-visible {
+	height: 15px;
+	width: 15px;
+	opacity: .6;
+	background: no-repeat center;
+	margin-right: 6px;
+	transition: .17s opacity linear;
+}
+.calendar-hide-members-container-inner:hover .calendar-hide-members-icon-hidden,
+.calendar-hide-members-container-inner:hover .calendar-hide-members-icon-visible {
+	opacity: 1;
+}
+
+.calendar-hide-members-icon-hidden {
+	background-image: url("data:image/svg+xml,%3Csvg width='16' height='14' viewBox='0 0 16 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M2.09804 0.831177L13.425 12.1581L12.4142 13.1688L10.7349 11.4893L10.6665 11.5209C9.80671 11.9014 8.91791 12.0916 8.00006 12.0916C5.28596 12.0916 2.82554 10.4282 0.618762 7.10152C0.57511 7.03571 0.567822 6.95339 0.596927 6.88217L0.618762 6.84092L0.769572 6.61661C1.52448 5.51019 2.30877 4.59648 3.12243 3.87535L1.08724 1.84196L2.09804 0.831177ZM8.00005 1.85072C10.7141 1.85072 13.1745 3.51408 15.3813 6.84082C15.425 6.90664 15.4323 6.98887 15.4031 7.06018L15.3813 7.10143L15.2305 7.32574C14.4922 8.40777 13.7257 9.30565 12.9312 10.0192L10.5312 7.61862C10.584 7.41163 10.612 7.19466 10.612 6.97117C10.612 5.52862 9.44261 4.3592 8.00005 4.3592C7.7763 4.3592 7.55923 4.38733 7.35197 4.44023L5.33275 2.42176C6.19285 2.04107 7.08192 1.85072 8.00005 1.85072ZM5.38808 6.97118C5.38808 8.41373 6.5575 9.58313 8.00005 9.58313C8.25186 9.58313 8.49533 9.54747 8.72578 9.48101L5.49025 6.24536C5.42375 6.47581 5.38808 6.71937 5.38808 6.97118Z' fill='%23525C69' fill-opacity='1'/%3E%3C/svg%3E");
+}
+
+.calendar-hide-members-icon-visible {
+	background-image: url("data:image/svg+xml,%3Csvg width='16' height='12' viewBox='0 0 16 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M15.009 6.1513C14.4088 7.00912 11.3344 11.1274 7.63194 11.1274C3.92957 11.1274 0.855178 7.00912 0.254972 6.1513C0.188284 6.05597 0.188284 5.93589 0.254972 5.84055C0.855178 4.98283 3.92957 0.864502 7.63194 0.864502C11.3344 0.864502 14.4088 4.98283 15.009 5.84055C15.0756 5.93589 15.0756 6.05597 15.009 6.1513ZM10.2494 5.99593C10.2494 7.4416 9.07752 8.61347 7.63185 8.61347C6.18617 8.61347 5.01429 7.4416 5.01429 5.99593C5.01429 4.55025 6.18617 3.37836 7.63185 3.37836C9.07752 3.37836 10.2494 4.55025 10.2494 5.99593Z' fill='%23525C69'/%3E%3C/svg%3E%0A");
+}
+
+.calendar-hide-members-helper {
+	position: relative;
+	top: -1px;
+}
+
+.calendar-error-wrap {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	min-height: 431px;
+	color: #525c69;
+}
+
+.calendar-error-icon {
+	display: block;
+	margin-bottom: 34px;
+	width: 63px;
+	height: 55px;
+	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20viewBox%3D%220%200%2063%2055%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M30.434%201.118a1.227%201.227%200%20012.132%200L62.02%2052.664a1.227%201.227%200%2001-1.065%201.836H2.045A1.227%201.227%200%2001.98%2052.664zM31.5%204.201L4.159%2052.045h54.68L31.5%204.201zM31.5%2041a2.455%202.455%200%20110%204.91%202.455%202.455%200%20010-4.91zm1.339-22.09v17.18h-3.794V18.91h3.794z%22%20fill%3D%22%23FF5752%22%20fill-rule%3D%22nonzero%22/%3E%3C/svg%3E') no-repeat;
+}
+
+.calendar-error-title {
+	display: block;
+	margin: 0;
+	font: 29px/32px 'OpenSans-Light', "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.calendar-error-desc {
+	display: block;
+	font: 14px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	opacity: .7;
 }

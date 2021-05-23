@@ -67,10 +67,10 @@ class CAdminFilter
 				continue;
 
 			$arItem = $arFilter;
-			$arItem["FIELDS"] = unserialize($arFilter["FIELDS"]);
+			$arItem["FIELDS"] = unserialize($arFilter["FIELDS"], ['allowed_classes' => false]);
 
 			if(!is_null($arFilter["SORT_FIELD"]))
-				$arItem["SORT_FIELD"] = unserialize($arFilter["SORT_FIELD"]);
+				$arItem["SORT_FIELD"] = unserialize($arFilter["SORT_FIELD"], ['allowed_classes' => false]);
 
 			if($arFilter["PRESET"] == "Y" && is_null($arFilter["LANGUAGE_ID"]))
 			{

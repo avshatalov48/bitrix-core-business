@@ -33,6 +33,7 @@ class Notify
 
 	const EVENT_ON_CHECK_PRINT_SEND_EMAIL = "SALE_CHECK_PRINT";
 	const EVENT_ON_CHECK_PRINT_ERROR_SEND_EMAIL = "SALE_CHECK_PRINT_ERROR";
+	const EVENT_ON_CHECK_VALIDATION_ERROR_SEND_EMAIL = "SALE_CHECK_VALIDATION_ERROR";
 
 	const EVENT_ON_ORDER_PAID_SEND_EMAIL = "OnOrderPaySendEmail";
 
@@ -513,7 +514,7 @@ class Notify
 		{
 			$siteData = $cacheSiteData[$order->getSiteId()];
 		}
-		
+
 		$statusData = Internals\StatusTable::getList(array(
 								 'select' => array(
 									 'ID',
@@ -1174,6 +1175,48 @@ class Notify
 				'CHECK' => $check
 			)
 		);
+
+		return $result;
+	}
+
+	/**
+	 * @param Internals\Entity $order
+	 * @return Result
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\ArgumentOutOfRangeException
+	 */
+	public static function sendCheckValidationError(Internals\Entity $order)
+	{
+		$result = new Result();
+
+		if (static::isNotifyDisabled())
+		{
+			return $result;
+		}
+
+		$context = Main\Context::getCurrent();
+		$server = $context->getServer();
+
+		$fields = array(
+			"ORDER_ID" => $order->getId(),
+			"ORDER_ACCOUNT_NUMBER" => $order->getField("ACCOUNT_NUMBER"),
+			"ORDER_DATE" => $order->getDateInsert()->toString(),
+			"EMAIL" => Main\Config\Option::get("main", "email_from"),
+			"SALE_EMAIL" => Main\Config\Option::get("sale", "order_email", "order@".$server->getServerName()),
+		);
+
+		if (IsModuleInstalled('crm'))
+		{
+			$fields['LINK_URL'] = 'http://'.$server->getServerName().'/shop/orders/details/'.$order->getId().'/';
+		}
+		else
+		{
+			$fields['LINK_URL'] = 'http://'.$server->getServerName().'/bitrix/admin/sale_order_view.php?ID='.$order->getId();
+		}
+
+		$eventName = static::EVENT_ON_CHECK_VALIDATION_ERROR_SEND_EMAIL;
+		$event = new \CEvent;
+		$event->Send($eventName, $order->getField('LID'), $fields, "N");
 
 		return $result;
 	}

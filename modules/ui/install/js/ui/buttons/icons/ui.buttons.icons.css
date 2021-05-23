@@ -937,4 +937,148 @@
 
 /*endregion*/
 
+/*region ui-btn-icon-tariff*/
+.ui-btn-icon-tariff.ui-btn,
+.ui-btn-icon-tariff.ui-btn-split,
+.ui-btn-icon-tariff.ui-btn-double,
+.ui-btn-icon-tariff.ui-btn-danger,
+.ui-btn-icon-tariff.ui-btn-primary,
+.ui-btn-icon-tariff.ui-btn-default,
+.ui-btn-icon-tariff.ui-btn-danger-dark,
+.ui-btn-icon-tariff.ui-btn-success-dark,
+.ui-btn-icon-tariff.ui-btn-primary-dark,
+.ui-btn-icon-tariff.ui-btn-link,
+.ui-btn-icon-tariff.ui-btn-light,
+.ui-btn-icon-tariff.ui-btn-success,
+.ui-btn-icon-tariff.ui-btn-secondary,
+.ui-btn-icon-tariff.ui-btn-light-border { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-tariff-white.svg?v=1.2); }
+
+/*endregion*/
+
+/*region ui-btn-icon-battery*/
+.ui-btn-icon-battery.ui-btn,
+.ui-btn-icon-battery.ui-btn-split,
+.ui-btn-icon-battery.ui-btn-double,
+.ui-btn-icon-battery.ui-btn-danger,
+.ui-btn-icon-battery.ui-btn-primary,
+.ui-btn-icon-battery.ui-btn-default,
+.ui-btn-icon-battery.ui-btn-danger-dark,
+.ui-btn-icon-battery.ui-btn-success-dark,
+.ui-btn-icon-battery.ui-btn-primary-dark,
+.ui-btn-icon-battery.ui-btn-link,
+.ui-btn-icon-battery.ui-btn-light,
+.ui-btn-icon-battery.ui-btn-success,
+.ui-btn-icon-battery.ui-btn-secondary,
+.ui-btn-icon-battery.ui-btn-light-border { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-battery-white.svg?v=1.2); }
+
+/*endregion*/
+
+/*region ui-btn-icon-no-battery*/
+.ui-btn-icon-no-battery.ui-btn,
+.ui-btn-icon-no-battery.ui-btn-split,
+.ui-btn-icon-no-battery.ui-btn-double,
+.ui-btn-icon-no-battery.ui-btn-danger,
+.ui-btn-icon-no-battery.ui-btn-primary,
+.ui-btn-icon-no-battery.ui-btn-default,
+.ui-btn-icon-no-battery.ui-btn-danger-dark,
+.ui-btn-icon-no-battery.ui-btn-success-dark,
+.ui-btn-icon-no-battery.ui-btn-primary-dark,
+.ui-btn-icon-no-battery.ui-btn-link,
+.ui-btn-icon-no-battery.ui-btn-light,
+.ui-btn-icon-no-battery.ui-btn-success,
+.ui-btn-icon-no-battery.ui-btn-secondary,
+.ui-btn-icon-no-battery.ui-btn-light-border { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-no-battery.svg?v=1.2); }
+
+/*endregion*/
+
+/*region ui-btn-icon-half-battery*/
+.ui-btn-icon-half-battery.ui-btn,
+.ui-btn-icon-half-battery.ui-btn-split,
+.ui-btn-icon-half-battery.ui-btn-double,
+.ui-btn-icon-half-battery.ui-btn-danger,
+.ui-btn-icon-half-battery.ui-btn-primary,
+.ui-btn-icon-half-battery.ui-btn-default,
+.ui-btn-icon-half-battery.ui-btn-danger-dark,
+.ui-btn-icon-half-battery.ui-btn-success-dark,
+.ui-btn-icon-half-battery.ui-btn-primary-dark,
+.ui-btn-icon-half-battery.ui-btn-link,
+.ui-btn-icon-half-battery.ui-btn-light,
+.ui-btn-icon-half-battery.ui-btn-success,
+.ui-btn-icon-half-battery.ui-btn-secondary,
+.ui-btn-icon-half-battery.ui-btn-light-border { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-half-battery-white.svg?v=1.2); }
+
+/*endregion*/
+
+/*region ui-btn-icon-low-battery*/
+.ui-btn-icon-low-battery.ui-btn,
+.ui-btn-icon-low-battery.ui-btn-split,
+.ui-btn-icon-low-battery.ui-btn-double,
+.ui-btn-icon-low-battery.ui-btn-danger,
+.ui-btn-icon-low-battery.ui-btn-primary,
+.ui-btn-icon-low-battery.ui-btn-default,
+.ui-btn-icon-low-battery.ui-btn-danger-dark,
+.ui-btn-icon-low-battery.ui-btn-success-dark,
+.ui-btn-icon-low-battery.ui-btn-primary-dark,
+.ui-btn-icon-low-battery.ui-btn-link,
+.ui-btn-icon-low-battery.ui-btn-light,
+.ui-btn-icon-low-battery.ui-btn-success,
+.ui-btn-icon-low-battery.ui-btn-secondary,
+.ui-btn-icon-low-battery.ui-btn-light-border { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-low-battery-white.svg?v=1.2); }
+
+/*endregion*/
+
+/*region ui-btn-icon-crit-battery*/
+.ui-btn-icon-crit-battery.ui-btn,
+.ui-btn-icon-crit-battery.ui-btn-split,
+.ui-btn-icon-crit-battery.ui-btn-double,
+.ui-btn-icon-crit-battery.ui-btn-danger,
+.ui-btn-icon-crit-battery.ui-btn-primary,
+.ui-btn-icon-crit-battery.ui-btn-default,
+.ui-btn-icon-crit-battery.ui-btn-danger-dark,
+.ui-btn-icon-crit-battery.ui-btn-success-dark,
+.ui-btn-icon-crit-battery.ui-btn-primary-dark,
+.ui-btn-icon-crit-battery.ui-btn-link,
+.ui-btn-icon-crit-battery.ui-btn-light,
+.ui-btn-icon-crit-battery.ui-btn-success,
+.ui-btn-icon-crit-battery.ui-btn-secondary,
+.ui-btn-icon-crit-battery.ui-btn-light-border { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-crit-battery.svg?v=1.2); }
+
+/*endregion*/
+
+/*region ui-btn-icon-alert*/
+.ui-btn-icon-alert.ui-btn,
+.ui-btn-icon-alert.ui-btn-split,
+.ui-btn-icon-alert.ui-btn-double,
+.ui-btn-icon-alert.ui-btn-danger,
+.ui-btn-icon-alert.ui-btn-primary,
+.ui-btn-icon-alert.ui-btn-default,
+.ui-btn-icon-alert.ui-btn-danger-dark,
+.ui-btn-icon-alert.ui-btn-success-dark,
+.ui-btn-icon-alert.ui-btn-primary-dark,
+.ui-btn-icon-alert.ui-btn-link,
+.ui-btn-icon-alert.ui-btn-light,
+.ui-btn-icon-alert.ui-btn-success,
+.ui-btn-icon-alert.ui-btn-secondary,
+.ui-btn-icon-alert.ui-btn-light-border { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-alert-white.svg?v=1.2); }
+
+/*endregion*/
+
+/*region ui-btn-icon-demo*/
+.ui-btn-icon-demo.ui-btn,
+.ui-btn-icon-demo.ui-btn-split,
+.ui-btn-icon-demo.ui-btn-double,
+.ui-btn-icon-demo.ui-btn-danger,
+.ui-btn-icon-demo.ui-btn-primary,
+.ui-btn-icon-demo.ui-btn-default,
+.ui-btn-icon-demo.ui-btn-danger-dark,
+.ui-btn-icon-demo.ui-btn-success-dark,
+.ui-btn-icon-demo.ui-btn-primary-dark,
+.ui-btn-icon-demo.ui-btn-link,
+.ui-btn-icon-demo.ui-btn-light,
+.ui-btn-icon-demo.ui-btn-success,
+.ui-btn-icon-demo.ui-btn-secondary,
+.ui-btn-icon-demo.ui-btn-light-border { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-demo.svg?v=1.2); }
+
+/*endregion*/
+
 /*endregion*/

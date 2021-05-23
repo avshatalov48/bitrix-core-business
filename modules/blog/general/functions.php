@@ -75,6 +75,7 @@ class blogTextParser extends CTextParser
 			"USER" => ($allow["USER"] == "N" ? "N" : "Y"),
 			"USER_LINK" => ($allow["USER_LINK"] == "N" ? "N" : "Y"),
 			"TAG" => ($allow["TAG"] == "N" ? "N" : "Y"),
+			'SPOILER' => ($allow['SPOILER'] === 'N' ? 'N' : 'Y'),
 			"USERFIELDS" => (is_array($allow["USERFIELDS"]) ? $allow["USERFIELDS"] : array())
 		);
 		if (!empty($this->arUserfields))
@@ -392,7 +393,7 @@ class blogTextParser extends CTextParser
 		return "<div class='blog-post-".$marker."' title=\"".GetMessage("BLOG_".ToUpper($marker))."\"><table class='blog".$marker."'><tr><td>";
 	}
 
-	function blogConvertVideo(&$arParams)
+	public static function blogConvertVideo(&$arParams)
 	{
 		$video = "";
 		$bEvents = false;
@@ -559,25 +560,32 @@ class blogTextParser extends CTextParser
 	{
 		$result = array();
 		
-//		IMAGES or FILES
+		// IMAGES or FILES
 		if(
-			(
+			is_array($arResult["COMMENT_PROPERTIES"]["DATA"])
+			&& (
 				array_key_exists("UF_BLOG_COMMENT_FILE", $arResult["COMMENT_PROPERTIES"]["DATA"])
 				|| array_key_exists("UF_BLOG_COMMENT_DOC", $arResult["COMMENT_PROPERTIES"]["DATA"])
 			)
-			&& array_key_exists('EDITOR_USE_IMAGE', $blog) && $blog["EDITOR_USE_IMAGE"] == "Y"
+			&& array_key_exists('EDITOR_USE_IMAGE', $blog) && $blog["EDITOR_USE_IMAGE"] === "Y"
 		)
+		{
 			$result[] = "UploadFile";
+		}
 		
-//		VIDEO
-		if($arResult["allowVideo"] && (isset($blog["EDITOR_USE_VIDEO"]) && $blog["EDITOR_USE_VIDEO"] == "Y"))
+		// VIDEO
+		if($arResult["allowVideo"] && (isset($blog["EDITOR_USE_VIDEO"]) && $blog["EDITOR_USE_VIDEO"] === "Y"))
+		{
 			$result[] = "InputVideo";
+		}
 		
-//		LINK
-		if(!$arResult["NoCommentUrl"] && (isset($blog["EDITOR_USE_LINK"]) && $blog["EDITOR_USE_LINK"] == "Y"))
+		// LINK
+		if(!$arResult["NoCommentUrl"] && (isset($blog["EDITOR_USE_LINK"]) && $blog["EDITOR_USE_LINK"] === "Y"))
+		{
 			$result[] = 'CreateLink';
+		}
 		
-//		OTHER for all
+		// OTHER for all
 		$result[] = "Quote";
 		$result[] = "BlogTag";
 		

@@ -107,11 +107,25 @@ class CatalogProductVariationDetailsComponent
 
 		foreach ($descriptionFieldNames as $name)
 		{
-			if (isset($fields[$name]))
+			if (isset($fields[$name]) && is_string($fields[$name]))
 			{
+				$fields[$name] = $this->sanitize(htmlspecialchars_decode($fields[$name]));
 				$fields[$name.'_TYPE'] = 'html';
 			}
 		}
+	}
+
+	private function sanitize(string $html): string
+	{
+		static $sanitizer = null;
+
+		if ($sanitizer === null)
+		{
+			$sanitizer = new \CBXSanitizer;
+			$sanitizer->setLevel(\CBXSanitizer::SECURE_LEVEL_LOW);
+		}
+
+		return $sanitizer->sanitizeHtml($html);
 	}
 
 	private function preparePictureFields(&$fields): void
@@ -157,9 +171,19 @@ class CatalogProductVariationDetailsComponent
 					$field = $this->prepareFilePropertyFromEditor($fields[$name], $descriptions, $deleted);
 					unset($fields[$name.'_descr']);
 				}
-				elseif (isset($field['AMOUNT'], $field['CURRENCY']) && Loader::includeModule('currency'))
+				elseif (Loader::includeModule('currency'))
 				{
-					$field = $field['AMOUNT'].IblockMoneyProperty::SEPARATOR.$field['CURRENCY'];
+					if (isset($field['AMOUNT'], $field['CURRENCY']))
+					{
+						$field = IblockMoneyProperty::getUnitedValue($field['AMOUNT'], $field['CURRENCY']);
+					}
+					elseif (isset($field['PRICE']['VALUE'], $field['CURRENCY']['VALUE']))
+					{
+						$field = IblockMoneyProperty::getUnitedValue(
+							$field['PRICE']['VALUE'],
+							$field['CURRENCY']['VALUE']
+						);
+					}
 				}
 
 				$index = mb_substr($name, $prefixLength);
@@ -373,6 +397,12 @@ class CatalogProductVariationDetailsComponent
 				{
 					$this->prepareDescriptionFields($fields);
 					$this->preparePictureFields($fields);
+
+					if (isset($fields['PURCHASING_PRICE']) && $fields['PURCHASING_PRICE'] === '')
+					{
+						$fields['PURCHASING_PRICE'] = null;
+					}
+
 					$variation->setFields($fields);
 				}
 
@@ -391,10 +421,15 @@ class CatalogProductVariationDetailsComponent
 					$variation->getMeasureRatioCollection()->setDefault($measureRatioField);
 				}
 
+				global $DB;
+				$DB->StartTransaction();
+
 				$result = $variation->save();
 
 				if ($result->isSuccess())
 				{
+					$DB->Commit();
+
 					$redirect = !$this->hasVariationId();
 					$this->setVariationId($variation->getId());
 
@@ -406,12 +441,12 @@ class CatalogProductVariationDetailsComponent
 
 					if (isset($response['ENTITY_DATA']['MEASURE']))
 					{
-						$response['ENTITY_DATA']['MEASURE'] = (string) $response['ENTITY_DATA']['MEASURE'];
+						$response['ENTITY_DATA']['MEASURE'] = (string)$response['ENTITY_DATA']['MEASURE'];
 					}
 
 					if (isset($response['ENTITY_DATA']['VAT_ID']))
 					{
-						$response['ENTITY_DATA']['VAT_ID'] = (string) $response['ENTITY_DATA']['VAT_ID'];
+						$response['ENTITY_DATA']['VAT_ID'] = (string)$response['ENTITY_DATA']['VAT_ID'];
 					}
 
 					if ($redirect)
@@ -421,6 +456,9 @@ class CatalogProductVariationDetailsComponent
 
 					return $response;
 				}
+
+				$DB->Rollback();
+				$this->errorCollection->add($result->getErrors());
 			}
 		}
 
@@ -634,6 +672,29 @@ class CatalogProductVariationDetailsComponent
 		$this->arResult['UI_CREATION_PROPERTY_URL'] = $this->getCreationPropertyUrl();
 		$this->arResult['VARIATION_GRID_ID'] = $this->getForm()->getVariationGridId();
 		$this->arResult['CARD_SETTINGS'] = $this->getForm()->getCardSettings();
+	}
+
+	public function setCardSettingAction(string $settingId, $selected): Bitrix\Main\Engine\Response\AjaxJson
+	{
+		if (!$this->checkModules() || !$this->checkPermissions() || !$this->checkRequiredParameters())
+		{
+			return Bitrix\Main\Engine\Response\AjaxJson::createError($this->errorCollection);
+		}
+
+		$selected = $selected === 'true';
+		$settings = $this->getForm()->getCardSettings();
+
+		foreach ($settings as $item)
+		{
+			if ($item['id'] === $settingId && $item['action'] === 'card' && $item['checked'] !== $selected)
+			{
+				$config = $this->getForm()->getCardUserConfig();
+				$config[$item['id']] = $selected;
+				$this->getForm()->saveCardUserConfig($config);
+			}
+		}
+
+		return Bitrix\Main\Engine\Response\AjaxJson::createSuccess();
 	}
 
 	public function setGridSettingAction(string $settingId, $selected, array $currentHeaders = []): Bitrix\Main\Engine\Response\AjaxJson

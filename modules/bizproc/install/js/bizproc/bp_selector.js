@@ -402,25 +402,39 @@
 		result.push({
 			tabName: BX.message('BIZPROC_JS_BP_SELECTOR_SYSTEM'),
 			tabId: 'system',
-			items: this.filterItems([{
-				text: BX.message('BIZPROC_JS_BP_SELECTOR_WORKFLOW_ID'),
-				value: '{=Workflow:ID}'
-			},{
-				text: BX.message('BIZPROC_JS_BP_SELECTOR_TARGET_USER'),
-				value: '{=Template:TargetUser}'
-			},{
-				text: BX.message('BIZPROC_JS_BP_SELECTOR_USER_ID'),
-				value: '{=User:ID}'
-			},{
-				text: BX.message('BIZPROC_JS_BP_SELECTOR_NOW'),
-				value: '{=System:Now}'
-			},{
-				text: BX.message('BIZPROC_JS_BP_SELECTOR_NOW_LOCAL'),
-				value: '{=System:NowLocal}'
-			},{
-				text: BX.message('BIZPROC_JS_BP_SELECTOR_DATE'),
-				value: '{=System:Date}'
-			}], query)
+			items: this.filterItems(
+				[
+					{
+						text: BX.message('BIZPROC_JS_BP_SELECTOR_WORKFLOW_ID'),
+						value: '{=Workflow:ID}'
+					},
+					{
+						text: BX.message('BIZPROC_JS_BP_SELECTOR_TARGET_USER'),
+						value: '{=Template:TargetUser}'
+					},
+					{
+						text: BX.message('BIZPROC_JS_BP_SELECTOR_USER_ID'),
+						value: '{=User:ID}'
+					},
+					{
+						text: BX.message('BIZPROC_JS_BP_SELECTOR_NOW'),
+						value: '{=System:Now}'
+					},
+					{
+						text: BX.message('BIZPROC_JS_BP_SELECTOR_NOW_LOCAL'),
+						value: '{=System:NowLocal}'
+					},
+					{
+						text: BX.message('BIZPROC_JS_BP_SELECTOR_DATE'),
+						value: '{=System:Date}'
+					},
+					{
+						text: BX.message('BIZPROC_JS_BP_SELECTOR_EOL'),
+						value: '{=System:Eol}'
+					}
+				],
+				query
+			)
 		});
 
 		result.push({

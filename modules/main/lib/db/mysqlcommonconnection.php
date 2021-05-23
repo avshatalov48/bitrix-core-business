@@ -52,15 +52,19 @@ abstract class MysqlCommonConnection extends Connection
 	 */
 	public function getIndexName($tableName, array $columns, $strict = false)
 	{
-		if (!is_array($columns) || count($columns) <= 0)
+		if (empty($columns))
+		{
 			return null;
+		}
 
 		$tableName = preg_replace("/[^a-z0-9_]+/i", "", $tableName);
 		$tableName = trim($tableName);
 
 		$rs = $this->query("SHOW INDEX FROM `".$this->getSqlHelper()->forSql($tableName)."`");
 		if (!$rs)
+		{
 			return null;
+		}
 
 		$indexes = array();
 		while ($ar = $rs->fetch())
@@ -68,24 +72,7 @@ abstract class MysqlCommonConnection extends Connection
 			$indexes[$ar["Key_name"]][$ar["Seq_in_index"] - 1] = $ar["Column_name"];
 		}
 
-		$columnsList = implode(",", $columns);
-		foreach ($indexes as $indexName => $indexColumns)
-		{
-			ksort($indexColumns);
-			$indexColumnList = implode(",", $indexColumns);
-			if ($strict)
-			{
-				if ($indexColumnList === $columnsList)
-					return $indexName;
-			}
-			else
-			{
-				if (mb_substr($indexColumnList, 0, mb_strlen($columnsList)) === $columnsList)
-					return $indexName;
-			}
-		}
-
-		return null;
+		return static::findIndex($indexes, $columns, $strict);
 	}
 
 	/**
@@ -160,17 +147,7 @@ abstract class MysqlCommonConnection extends Connection
 	}
 
 	/**
-	 * Creates index on column(s)
-	 * @api
-	 *
-	 * @param string          $tableName     Name of the table.
-	 * @param string          $indexName     Name of the new index.
-	 * @param string|string[] $columnNames   Name of the column or array of column names to be included into the index.
-	 * @param string[]        $columnLengths Array of column names and maximum length for them.
-	 * @param null            $indexType
-	 *
-	 * @return Result
-	 * @throws SqlQueryException
+	 * @inheritDoc
 	 */
 	public function createIndex($tableName, $indexName, $columnNames, $columnLengths = null, $indexType = null)
 	{
@@ -299,6 +276,14 @@ abstract class MysqlCommonConnection extends Connection
 	/*********************************************************
 	 * Type, version, cache, etc.
 	 *********************************************************/
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getType()
+	{
+		return "mysql";
+	}
 
 	/**
 	 * Sets default storage engine for all consequent CREATE TABLE statements and all other relevant DDL.

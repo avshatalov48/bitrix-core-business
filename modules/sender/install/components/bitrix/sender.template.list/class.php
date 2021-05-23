@@ -59,7 +59,7 @@ class SenderTemplateListComponent extends Bitrix\Sender\Internals\CommonSenderCo
 			$GLOBALS['APPLICATION']->SetTitle(Loc::getMessage('SENDER_TEMPLATE_LIST_COMP_TITLE'));
 		}
 
-		if (!Security\Access::getInstance()->canViewLetters())
+		if (!Security\Access::getInstance()->canViewTemplates())
 		{
 			Security\AccessChecker::addError($this->errors);
 			return false;

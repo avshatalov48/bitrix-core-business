@@ -4,13 +4,27 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-return [
-	'js' => [
-		'/bitrix/js/ui/vue/dist/vue.bitrix.bundle.js',
-	],
-	'rel' => [
+if (
+	defined('VUEJS_DEBUG') && VUEJS_DEBUG
+	&& (!defined('VUEJS_DEBUG_DISABLE') || !VUEJS_DEBUG_DISABLE)
+)
+{
+	$js = './vue2/dev/dist/vue.bundle.js';
+	$rel = [
 		'main.polyfill.core',
-		'ui.vue.vendor.v2',
-	],
+		'ui.vue.devtools'
+	];
+}
+else
+{
+	$js = './vue2/prod/dist/vue.bundle.js';
+	$rel = [
+		'main.polyfill.core',
+	];
+}
+
+return [
+	'js' => $js,
+	'rel' => $rel,
 	'skip_core' => true,
 ];

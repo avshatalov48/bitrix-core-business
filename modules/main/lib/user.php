@@ -281,35 +281,51 @@ class UserTable extends Entity\DataManager
 		return intval($seconds);
 	}
 
-	public static function getActiveUsersCount()
+	/**
+	 * @param Type\Date|null $lastLoginDate
+	 * @return int
+	 */
+	public static function getActiveUsersCount(Type\Date $lastLoginDate = null)
 	{
-		if (ModuleManager::isModuleInstalled("intranet"))
+		$connection = Application::getConnection();
+
+		if ($lastLoginDate !== null)
 		{
-			$sql = "SELECT COUNT(U.ID) ".
-				"FROM b_user U ".
-				"WHERE U.ACTIVE = 'Y' ".
-				"   AND U.LAST_LOGIN IS NOT NULL ".
-				"   AND EXISTS(".
-				"       SELECT 'x' ".
-				"       FROM b_utm_user UF, b_user_field F ".
-				"       WHERE F.ENTITY_ID = 'USER' ".
-				"           AND F.FIELD_NAME = 'UF_DEPARTMENT' ".
-				"           AND UF.FIELD_ID = F.ID ".
-				"           AND UF.VALUE_ID = U.ID ".
-				"           AND UF.VALUE_INT IS NOT NULL ".
-				"           AND UF.VALUE_INT <> 0".
-				"   )";
+			// logged in today
+			$filter = "AND U.LAST_LOGIN > ".$connection->getSqlHelper()->convertToDbDate($lastLoginDate);
 		}
 		else
 		{
-			$sql = "SELECT COUNT(ID) ".
-				"FROM b_user ".
-				"WHERE ACTIVE = 'Y' ".
-				"   AND LAST_LOGIN IS NOT NULL";
+			// logged in in total
+			$filter = "AND U.LAST_LOGIN IS NOT NULL";
 		}
 
-		$connection = Application::getConnection();
-		return $connection->queryScalar($sql);
+		if (ModuleManager::isModuleInstalled("intranet"))
+		{
+			$sql = "
+				SELECT COUNT(DISTINCT U.ID)
+				FROM
+					b_user U
+					INNER JOIN b_user_field F ON F.ENTITY_ID = 'USER' AND F.FIELD_NAME = 'UF_DEPARTMENT'
+					INNER JOIN b_utm_user UF ON
+						UF.FIELD_ID = F.ID
+						AND UF.VALUE_ID = U.ID
+						AND UF.VALUE_INT > 0
+				WHERE U.ACTIVE = 'Y'
+					{$filter}
+			";
+		}
+		else
+		{
+			$sql = "
+				SELECT COUNT(ID) 
+				FROM b_user U 
+				WHERE U.ACTIVE = 'Y' 
+				   {$filter}
+			";
+		}
+
+		return (int)$connection->queryScalar($sql);
 	}
 
 	public static function getUserGroupIds($userId)
@@ -393,7 +409,7 @@ class UserTable extends Entity\DataManager
 			}
 			else
 			{
-				$result = unserialize($result);
+				$result = unserialize($result, ['allowed_classes' => false]);
 			}
 
 			if (!is_array($result))

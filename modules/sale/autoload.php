@@ -4,7 +4,7 @@ global $DBType;
 
 CModule::AddAutoloadClasses(
 	"sale",
-	array(
+	[
 		"sale" => "install/index.php",
 		"CAllSaleDelivery" => "general/delivery.php",
 		"CSaleDelivery" => $DBType."/delivery.php",
@@ -470,7 +470,6 @@ CModule::AddAutoloadClasses(
 		'\Bitrix\Sale\PaySystem\ServiceHandler' => 'lib/paysystem/servicehandler.php',
 		'\Bitrix\Sale\PaySystem\IRefund' => 'lib/paysystem/irefund.php',
 		'\Bitrix\Sale\PaySystem\IPdf' => 'lib/paysystem/ipdf.php',
-		'\Bitrix\Sale\PaySystem\IRequested' => 'lib/paysystem/irequested.php',
 		'\Bitrix\Sale\PaySystem\IRefundExtended' => 'lib/paysystem/irefundextended.php',
 		'\Bitrix\Sale\PaySystem\Cert' => 'lib/paysystem/cert.php',
 		'\Bitrix\Sale\PaySystem\IPayable' => 'lib/paysystem/ipayable.php',
@@ -562,7 +561,7 @@ CModule::AddAutoloadClasses(
 		'\Bitrix\Sale\Location\Normalizer\Helper' => '/lib/location/normalizer/helper.php',
 
 		'\Sale\Handlers\Delivery\Additional\RusPost\Reliability\Service' => '/handlers/delivery/additional/ruspost/reliability/service.php'
-	)
+	]
 );
 
 \Bitrix\Main\Loader::registerNamespace(

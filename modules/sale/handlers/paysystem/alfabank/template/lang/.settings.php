@@ -3,6 +3,7 @@ return [
 	'*' => [
 		'languages' => [
 			'ru',
+			'en',
 		],
 	],
 ];

@@ -1,5 +1,4 @@
 import "./css/syncinterface.css";
-import SyncButton from "./controls/syncbutton";
 import SyncPanelItem from "./syncpanelitem";
 import ConnectionControls from "./controls/connectioncontrols";
 import MobileSyncBanner from "./controls/mobilesyncbanner";
@@ -11,13 +10,11 @@ import OutlookTemplate from "./itemstemplate/outlooktemplate";
 import YandexTemplate from "./itemstemplate/yandextemplate";
 import AndroidTemplate from "./itemstemplate/androidtemplate";
 import IphoneTemplate from "./itemstemplate/iphonetemplate";
-import SyncInterfaceManager from "./syncinterfacemanager";
 import SyncPanel from "./syncpanel";
 import GridUnit from "./gridunit"
+import IcalSyncPopup from "./controls/icalsyncpopup";
 
 export {
-	SyncInterfaceManager,
-	SyncButton,
 	SyncPanelItem,
 	ConnectionControls,
 	MobileSyncBanner,
@@ -31,4 +28,5 @@ export {
 	OutlookTemplate,
 	IphoneTemplate,
 	AndroidTemplate,
+	IcalSyncPopup,
 };

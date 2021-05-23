@@ -68,6 +68,8 @@ class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 			Message\iBase::CODE_CALL => 'ui-icon-service-infocall',
 			Message\iBase::CODE_AUDIO_CALL => 'ui-icon-service-audio-infocall',
 			Message\iBase::CODE_WEB_HOOK => '',
+			Integration\Seo\Ads\MessageMarketingFb::CODE => 'ui-icon-service-fb',
+			Integration\Seo\Ads\MessageMarketingInstagram::CODE => 'ui-icon-service-instagram',
 			Integration\Seo\Ads\MessageBase::CODE_ADS_FB => 'ui-icon-service-fb',
 			Integration\Seo\Ads\MessageBase::CODE_ADS_YA => 'ui-icon-service-ya-direct',
 			Integration\Seo\Ads\MessageBase::CODE_ADS_GA => 'ui-icon-service-google-ads',
@@ -125,6 +127,10 @@ class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 			elseif($message->isMailing())
 			{
 				$pathToAdd = $pathToLetterAdd;
+			}
+			elseif($message->isMarketing())
+			{
+				$pathToAdd = $pathToAdsAdd;
 			}
 			else
 			{
@@ -220,6 +226,7 @@ class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 
 		$mailingMessages = $this->filterMessages(Message\Factory::getMailingMessages(), MailingAction::getMap());
 		$adsMessages = $this->filterMessages(Message\Factory::getAdsMessages(), AdsAction::getMap());
+		$marketingMessages = $this->filterMessages(Message\Factory::getMarketingMessages(), AdsAction::getMap());
 		$rcMessages = $this->filterMessages(Message\Factory::getReturnCustomerMessages(), RcAction::getMap());
 		$tolokaMessages = $this->filterMessages(Message\Factory::getTolokaMessages(), RcAction::getMap());
 
@@ -235,6 +242,13 @@ class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 				$this->getAccessController()->check(ActionDictionary::ACTION_ADS_VIEW)
 				?
 					$adsMessages
+				:
+				[]
+			),
+			'MARKETING' =>  $this->getSenderMessages(
+				$this->getAccessController()->check(ActionDictionary::ACTION_ADS_VIEW)
+				?
+					$marketingMessages
 				:
 				[]
 			),

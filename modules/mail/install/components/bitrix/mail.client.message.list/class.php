@@ -96,8 +96,7 @@ class CMailClientMessageListComponent extends CBitrixComponent
 		}
 
 		$this->rememberCurrentMailboxId($this->mailbox['ID']);
-		$this->arResult['userHasCrmActivityPermission'] = Main\Loader::includeModule('crm') &&
-														  \CCrmPerms::isAccessEnabled();
+		$this->arResult['userHasCrmActivityPermission'] = Main\Loader::includeModule('crm') && \CCrmPerms::isAccessEnabled();
 		$mailboxesUnseen = \Bitrix\Mail\Helper\Message::getTotalUnseenForMailboxes(
 			Main\Engine\CurrentUser::get()->getId()
 		);
@@ -280,9 +279,9 @@ class CMailClientMessageListComponent extends CBitrixComponent
 				'MSG_UID' => 'MESSAGE_UID.MSG_UID',
 				new ORM\Fields\ExpressionField(
 					'BIND', 'CONCAT(%s, "-", %s)', [
-							  'MESSAGE_ACCESS.ENTITY_TYPE',
-							  'MESSAGE_ACCESS.ENTITY_ID',
-						  ]
+						'MESSAGE_ACCESS.ENTITY_TYPE',
+						'MESSAGE_ACCESS.ENTITY_ID',
+					]
 				),
 			];
 
@@ -337,29 +336,7 @@ class CMailClientMessageListComponent extends CBitrixComponent
 			{
 				$item['BIND'] = (array)$item['BIND'];
 				$item['CRM_ACTIVITY_OWNER'] = (array)@$item['CRM_ACTIVITY_OWNER'];
-
-				if (array_key_exists($item['MID'], $items))
-				{
-					$item['IS_SEEN'] = max($items[$item['MID']]['IS_SEEN'], $item['IS_SEEN']);
-					$item['BIND'] = array_unique(
-						array_filter(
-							array_merge(
-								$items[$item['MID']]['BIND'],
-								$item['BIND']
-							)
-						)
-					);
-					$item['CRM_ACTIVITY_OWNER'] = array_unique(
-						array_filter(
-							array_merge(
-								$items[$item['MID']]['CRM_ACTIVITY_OWNER'],
-								$item['CRM_ACTIVITY_OWNER']
-							)
-						)
-					);
-				}
-
-				$items[$item['MID']] = $item;
+				$items[$item['MSG_UID']] = $item;
 			}
 		}
 
@@ -466,8 +443,8 @@ class CMailClientMessageListComponent extends CBitrixComponent
 				if ($from->getEmail() == $this->mailbox['EMAIL'] && !empty($item['FIELD_TO']))
 				{
 					$columns['FROM'] = '<span class="mail-msg-from-title">'.
-									   htmlspecialcharsbx($item['FIELD_TO']).
-									   '</span>';
+						htmlspecialcharsbx($item['FIELD_TO']).
+					'</span>';
 
 					$from = new \Bitrix\Main\Mail\Address(current(explode(',', $item['FIELD_TO'])));
 				}
@@ -486,7 +463,7 @@ class CMailClientMessageListComponent extends CBitrixComponent
 			$columns['FROM'] = $this->getSenderColumnCell($avatarParams).$columns['FROM'];
 
 			$columns['SUBJECT'] = sprintf(
-				'<a href="%s" class="mail-msg-list-subject" onclick="BX.PreventDefault(); ">%s</a>',
+				'<a href="%s" class="mail-msg-list-subject">%s</a>',
 				htmlspecialcharsbx(
 					\CComponentEngine::makePathFromTemplate(
 						$this->arParams['PATH_TO_MAIL_MSG_VIEW'],
@@ -498,8 +475,8 @@ class CMailClientMessageListComponent extends CBitrixComponent
 			if ($item['OPTIONS']['attachments'] > 0 || $item['ATTACHMENTS'] > 0)
 			{
 				$columns['SUBJECT'] .= '<span class="mail-msg-list-attach-icon" title="'.
-									   Loc::getMessage('MAIL_MESSAGE_LIST_ATTACH_ICON_HINT').
-									   '"></span>';
+					Loc::getMessage('MAIL_MESSAGE_LIST_ATTACH_ICON_HINT').
+				'"></span>';
 			}
 
 			$dir = $this->mailboxHelper->getDirsHelper()->getDirByHash($item['DIR_MD5']);
@@ -642,32 +619,32 @@ class CMailClientMessageListComponent extends CBitrixComponent
 				[
 					'id' => $this->arResult['gridActionsData']['notRead']['id'],
 					'html' => '<span data-role="not-read-action">'.
-							  $this->arResult['gridActionsData']['notRead']['text'].
-							  '</span>',
+							$this->arResult['gridActionsData']['notRead']['text'].
+						'</span>',
 					'text' => '<span data-role="not-read-action">'.
-							  $this->arResult['gridActionsData']['notRead']['text'].
-							  '</span>',
+							$this->arResult['gridActionsData']['notRead']['text'].
+						'</span>',
 					'icon' => $this->arResult['gridActionsData']['notRead']['icon'],
 					'disabled' => $isDisabled,
 					'className' => "menu-popup-no-icon",
 					'onclick' => "BX.Mail.Client.Message.List['".
-								 CUtil::JSEscape($this->getComponentId()).
-								 "'].onReadClick('{$item['ID']}');",
+						CUtil::JSEscape($this->getComponentId()).
+					"'].onReadClick('{$item['ID']}');",
 				],
 				[
 					'id' => $this->arResult['gridActionsData']['read']['id'],
-					'html' => '<span data-role="read-action">'.
-							  $this->arResult['gridActionsData']['read']['text'].
-							  '</span>',
-					'text' => '<span data-role="read-action">'.
-							  $this->arResult['gridActionsData']['read']['text'].
-							  '</span>',
+					'html' =>'<span data-role="read-action">'.
+						$this->arResult['gridActionsData']['read']['text'].
+					'</span>',
+					'text' =>'<span data-role="read-action">'.
+						$this->arResult['gridActionsData']['read']['text'].
+					'</span>',
 					'icon' => $this->arResult['gridActionsData']['read']['icon'],
 					'disabled' => $isDisabled,
 					'className' => "menu-popup-no-icon",
 					'onclick' => "BX.Mail.Client.Message.List['".
-								 CUtil::JSEscape($this->getComponentId()).
-								 "'].onReadClick('{$item['ID']}');",
+						CUtil::JSEscape($this->getComponentId()).
+					"'].onReadClick('{$item['ID']}');",
 				],
 				[
 					'id' => $this->arResult['gridActionsData']['delete']['id'],
@@ -675,36 +652,36 @@ class CMailClientMessageListComponent extends CBitrixComponent
 					'text' => $this->arResult['gridActionsData']['delete']['text'],
 					'disabled' => $isDisabled,
 					'onclick' => "BX.Mail.Client.Message.List['".
-								 CUtil::JSEscape($this->getComponentId()).
-								 "'].onDeleteClick('{$item['ID']}');",
+						CUtil::JSEscape($this->getComponentId()).
+					"'].onDeleteClick('{$item['ID']}');",
 				],
 				[
 					'id' => $this->arResult['gridActionsData']['notSpam']['id'],
 					'icon' => $this->arResult['gridActionsData']['notSpam']['icon'],
 					'html' => '<span data-role="not-spam-action">'.
-							  $this->arResult['gridActionsData']['notSpam']['text'].
-							  '</span>',
+						$this->arResult['gridActionsData']['notSpam']['text'].
+					'</span>',
 					'text' => '<span data-role="not-spam-action">'.
-							  $this->arResult['gridActionsData']['notSpam']['text'].
-							  '</span>',
+						$this->arResult['gridActionsData']['notSpam']['text'].
+					'</span>',
 					'disabled' => $isDisabled,
 					'onclick' => "BX.Mail.Client.Message.List['".
-								 CUtil::JSEscape($this->getComponentId()).
-								 "'].onSpamClick('{$item['ID']}');",
+						CUtil::JSEscape($this->getComponentId()).
+					"'].onSpamClick('{$item['ID']}');",
 				],
 				[
 					'id' => $this->arResult['gridActionsData']['spam']['id'],
 					'icon' => $this->arResult['gridActionsData']['spam']['icon'],
 					'html' => '<span data-role="spam-action">'.
-							  $this->arResult['gridActionsData']['spam']['text'].
-							  '</span>',
+						$this->arResult['gridActionsData']['spam']['text'].
+					'</span>',
 					'text' => '<span data-role="spam-action">'.
-							  $this->arResult['gridActionsData']['spam']['text'].
-							  '</span>',
+						$this->arResult['gridActionsData']['spam']['text'].
+					'</span>',
 					'disabled' => $isDisabled,
 					'onclick' => "BX.Mail.Client.Message.List['".
-								 CUtil::JSEscape($this->getComponentId()).
-								 "'].onSpamClick('{$item['ID']}');",
+						CUtil::JSEscape($this->getComponentId()).
+					"'].onSpamClick('{$item['ID']}');",
 				],
 				[
 					'id' => $this->arResult['gridActionsData']['move']['id'].$item['ID'],
@@ -721,8 +698,8 @@ class CMailClientMessageListComponent extends CBitrixComponent
 					'text' => $this->arResult['gridActionsData']['task']['text'],
 					'href' => $isDisabled ? '' : $taskHref,
 					'onclick' => "top.BX.SidePanel.Instance.open('".
-								 \CUtil::jsEscape($taskHref).
-								 "', {'cacheable': false, 'loader': 'task-new-loader'}); if (event = event || window.event) event.preventDefault(); ",
+						\CUtil::jsEscape($taskHref).
+					"', {'cacheable': false, 'loader': 'task-new-loader'}); if (event = event || window.event) event.preventDefault(); ",
 					'dataset' => ['sliderIgnoreAutobinding' => true],
 					'disabled' => $isDisabled,
 				],
@@ -736,27 +713,27 @@ class CMailClientMessageListComponent extends CBitrixComponent
 							'id' => $this->arResult['gridActionsData']['addToCrm']['id'],
 							'icon' => $this->arResult['gridActionsData']['addToCrm']['icon'],
 							'html' => '<span data-role="crm-action">'.
-									  $this->arResult['gridActionsData']['addToCrm']['text'].
-									  '</span>',
+								$this->arResult['gridActionsData']['addToCrm']['text'].
+							'</span>',
 							'text' => '<span data-role="crm-action">'.
-									  $this->arResult['gridActionsData']['addToCrm']['text'].
-									  '</span>',
+								$this->arResult['gridActionsData']['addToCrm']['text'].
+							'</span>',
 							'onclick' => "BX.Mail.Client.Message.List['".
-										 CUtil::JSEscape($this->getComponentId()).
-										 "'].onCrmClick('{$item['ID']}');",
+								CUtil::JSEscape($this->getComponentId()).
+							"'].onCrmClick('{$item['ID']}');",
 						],
 						[
 							'id' => $this->arResult['gridActionsData']['excludeFromCrm']['id'],
 							'icon' => $this->arResult['gridActionsData']['excludeFromCrm']['icon'],
 							'html' => '<span data-role="not-crm-action">'.
-									  $this->arResult['gridActionsData']['excludeFromCrm']['text'].
-									  '</span>',
+								$this->arResult['gridActionsData']['excludeFromCrm']['text'].
+							'</span>',
 							'text' => '<span data-role="not-crm-action">'.
-									  $this->arResult['gridActionsData']['excludeFromCrm']['text'].
-									  '</span>',
+								$this->arResult['gridActionsData']['excludeFromCrm']['text'].
+							'</span>',
 							'onclick' => "BX.Mail.Client.Message.List['".
-										 CUtil::JSEscape($this->getComponentId()).
-										 "'].onCrmClick('{$item['ID']}');",
+								CUtil::JSEscape($this->getComponentId()).
+							"'].onCrmClick('{$item['ID']}');",
 						],
 					]
 				);
@@ -770,8 +747,8 @@ class CMailClientMessageListComponent extends CBitrixComponent
 						'text' => $this->arResult['gridActionsData']['liveFeed']['text'],
 						'href' => $isDisabled ? '' : $postHref,
 						'onclick' => "top.BX.SidePanel.Instance.open('".
-									 \CUtil::jsEscape($postHref).
-									 "', {'cacheable': false, 'loader': 'socialnetwork:userblogposteditex'}); if (event = event || window.event) event.preventDefault(); ",
+							\CUtil::jsEscape($postHref).
+						"', {'cacheable': false, 'loader': 'socialnetwork:userblogposteditex'}); if (event = event || window.event) event.preventDefault(); ",
 						'dataset' => ['sliderIgnoreAutobinding' => true],
 						'disabled' => $isDisabled,
 					],
@@ -1203,8 +1180,8 @@ class CMailClientMessageListComponent extends CBitrixComponent
 				],
 				'unseen' => isset($counts[$dir->getDirMd5()]['UNSEEN']) ? (int)$counts[$dir->getDirMd5()]['UNSEEN'] : 0,
 				'onclick' => "BX.Mail.Client.Message.List['".
-							 CUtil::JSEscape($this->getComponentId()).
-							 "'].onMoveToFolderClick(event)",
+					CUtil::JSEscape($this->getComponentId()).
+				"'].onMoveToFolderClick(event)",
 				'items' => $hasChild ? [
 					[
 						'id' => 'loading',
@@ -1235,7 +1212,8 @@ class CMailClientMessageListComponent extends CBitrixComponent
 
 		usort(
 			$list,
-			function($a, $b) {
+			function($a, $b)
+			{
 				$aSort = $a['order'];
 				$bSort = $b['order'];
 
@@ -1265,8 +1243,8 @@ class CMailClientMessageListComponent extends CBitrixComponent
 			}
 
 			$list[$k]['onclick'] = "BX.Mail.Client.Message.List['".
-								   \CUtil::jsEscape($this->getComponentId()).
-								   "'].onDirsMenuItemClick(this);";
+				\CUtil::jsEscape($this->getComponentId()).
+			"'].onDirsMenuItemClick(this);";
 			$list[$k]['items_unseen'] = $item['items_unseen'] = isset($item['items']) ? $this->prepareDirsMenu(
 				$item['items']
 			) : 0;

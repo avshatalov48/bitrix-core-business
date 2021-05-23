@@ -65,7 +65,7 @@ class CAllSalePaySystemAction
 
 	static function UnSerializeParams($strParams)
 	{
-		$arParams = unserialize($strParams);
+		$arParams = unserialize($strParams, ['allowed_classes' => false]);
 
 		if (!is_array($arParams))
 			$arParams = array();
@@ -356,7 +356,7 @@ class CAllSalePaySystemAction
 		}
 		else
 		{
-			$psParams = unserialize($psParams);
+			$psParams = unserialize($psParams, ['allowed_classes' => false]);
 			if (isset($psParams['BX_PAY_SYSTEM_ID']))
 				$paySystemId = $psParams['BX_PAY_SYSTEM_ID']['VALUE'];
 		}
@@ -379,7 +379,7 @@ class CAllSalePaySystemAction
 			{
 				if ($key === 'USER_COLUMNS')
 				{
-					$userColumns = unserialize($value['VALUE']);
+					$userColumns = unserialize($value['VALUE'], ['allowed_classes' => false]);
 					if ($userColumns)
 					{
 						foreach ($userColumns as $code => $column)
@@ -643,7 +643,7 @@ class CAllSalePaySystemAction
 					}
 					else
 					{
-						$params = unserialize($data['PARAMS']);
+						$params = unserialize($data['PARAMS'], ['allowed_classes' => false]);
 						$consumerId = $params['BX_PAY_SYSTEM_ID']['VALUE'];
 					}
 					$consumer = 'PAYSYSTEM_'.$consumerId;
@@ -941,7 +941,7 @@ class CAllSalePaySystemAction
 			{
 				if ($fields['PARAMS'])
 				{
-					$params = unserialize($fields['PARAMS']);
+					$params = unserialize($fields['PARAMS'], ['allowed_classes' => false]);
 					if (!isset($params['BX_PAY_SYSTEM_ID']))
 					{
 						$params['BX_PAY_SYSTEM_ID'] = array(
@@ -1023,7 +1023,7 @@ class CAllSalePaySystemAction
 
 			if (isset($fields['PARAMS']))
 			{
-				$params = unserialize($fields['PARAMS']);
+				$params = unserialize($fields['PARAMS'], ['allowed_classes' => false]);
 				if (!isset($params['BX_PAY_SYSTEM_ID']))
 					$params['BX_PAY_SYSTEM_ID'] = array('TYPE' => '', 'VALUE' => $id);
 				$fields['PARAMS'] = serialize($params);
@@ -1101,7 +1101,7 @@ class CAllSalePaySystemAction
 				$fields['PERSON_TYPE_ID'] = array_shift($personTypeList);
 		}
 
-		$itemParams = unserialize($fields['PARAMS']);
+		$itemParams = unserialize($fields['PARAMS'], ['allowed_classes' => false]);
 
 		$result = array();
 
@@ -1166,7 +1166,7 @@ class CAllSalePaySystemAction
 		while ($paySystem = $dbRes->fetch())
 		{
 			$codesAliases = array();
-			$params = unserialize($paySystem['PARAMS']);
+			$params = unserialize($paySystem['PARAMS'], ['allowed_classes' => false]);
 
 			if (is_array($params))
 			{

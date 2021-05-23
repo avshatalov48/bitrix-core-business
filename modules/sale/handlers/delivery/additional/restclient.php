@@ -114,7 +114,7 @@ class RestClient extends \Bitrix\Sale\Services\Base\RestClient
 		if($answer->isSuccess())
 		{
 			$data = $answer->getData();
-			$result = unserialize(rawurldecode($data['PRICE']));
+			$result = unserialize(rawurldecode($data['PRICE']), ['allowed_classes' => [CalculationResult::class]]);
 
 			if(!($result instanceof CalculationResult))
 			{
@@ -198,7 +198,7 @@ class RestClient extends \Bitrix\Sale\Services\Base\RestClient
 
 		if(!$skipCache && !$isLicenseWrong && $cache && $result = $cache->get($cacheIds))
 		{
-			$result = unserialize($result);
+			$result = unserialize($result, ['allowed_classes' => [ResultSerializable::class]]);
 		}
 
 		if(!($result instanceof ResultSerializable))

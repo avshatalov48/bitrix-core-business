@@ -10395,13 +10395,21 @@
 
 	      if (Type.isDomNode(node)) {
 	        if (params.htmlFirst || !externalJs.length && !externalCss.length) {
-	          node.innerHTML = parsedHtml.HTML;
+	          if (params.useAdjacentHTML) {
+	            node.insertAdjacentHTML('beforeend', parsedHtml.HTML);
+	          } else {
+	            node.innerHTML = parsedHtml.HTML;
+	          }
 	        }
 	      }
 
 	      return Promise.all([loadAll(externalJs), loadAll(externalCss)]).then(function () {
 	        if (Type.isDomNode(node) && (externalJs.length > 0 || externalCss.length > 0)) {
-	          node.innerHTML = parsedHtml.HTML;
+	          if (params.useAdjacentHTML) {
+	            node.insertAdjacentHTML('beforeend', parsedHtml.HTML);
+	          } else {
+	            node.innerHTML = parsedHtml.HTML;
+	          }
 	        } // eslint-disable-next-line
 
 
@@ -14656,6 +14664,32 @@
 	  }
 
 	  babelHelpers.createClass(ZIndexStack, [{
+	    key: "getBaseIndex",
+	    value: function getBaseIndex() {
+	      return this.baseIndex;
+	    }
+	  }, {
+	    key: "setBaseIndex",
+	    value: function setBaseIndex(index) {
+	      if (Type.isNumber(index) && index >= 0) {
+	        this.baseIndex = index;
+	        this.sort();
+	      }
+	    }
+	  }, {
+	    key: "setBaseStep",
+	    value: function setBaseStep(step) {
+	      if (Type.isNumber(step) && step > 0) {
+	        this.baseStep = step;
+	        this.sort();
+	      }
+	    }
+	  }, {
+	    key: "getBaseStep",
+	    value: function getBaseStep() {
+	      return this.baseStep;
+	    }
+	  }, {
 	    key: "register",
 	    value: function register(element) {
 	      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -14821,6 +14855,10 @@
 	};
 
 	babelHelpers.defineProperty(ZIndexManager, "stacks", new WeakMap());
+
+	var collections = {
+	  OrderedArray: OrderedArray
+	};
 
 	function getElement(element) {
 	  if (Type.isString(element)) {
@@ -15160,6 +15198,7 @@
 	exports.BaseError = BaseError;
 	exports.Extension = Extension$1;
 	exports.ZIndexManager = ZIndexManager;
+	exports.Collections = collections;
 	exports.getClass = getClass;
 	exports.namespace = namespace;
 	exports.message = message$1;
@@ -19682,7 +19721,7 @@ BX.ajax = function(config)
 			{
 				if (config.onfailure)
 				{
-					config.onfailure("timeout");
+					config.onfailure('timeout', '', config);
 				}
 
 				BX.onCustomEvent(config.xhr, 'onAjaxFailure', ['timeout', '', config]);
@@ -19713,7 +19752,7 @@ BX.ajax = function(config)
 						{
 							if (config.onfailure)
 							{
-								config.onfailure("auth", config.xhr.status);
+								config.onfailure('auth', config.xhr.status, config);
 							}
 
 							BX.onCustomEvent(config.xhr, 'onAjaxFailure', ['auth', config.xhr.status, config]);
@@ -19734,7 +19773,7 @@ BX.ajax = function(config)
 					{
 						if (config.onfailure)
 						{
-							config.onfailure("status", config.xhr.status);
+							config.onfailure('status', config.xhr.status, config);
 						}
 
 						BX.onCustomEvent(config.xhr, 'onAjaxFailure', ['status', config.xhr.status, config]);
@@ -20513,7 +20552,7 @@ var buildAjaxPromiseToRestoreCsrf = function(config, withoutRestoringCsrf)
 		promise.then(function(){
 			var strings = BX.prop.getArray(assets, "string", []);
 			var stringAsset = strings.join('\n');
-			BX.html(null, stringAsset).then(function(){
+			BX.html(document.head, stringAsset, { useAdjacentHTML: true }).then(function(){
 				assetsLoaded.fulfill(response);
 			});
 		});
@@ -21008,7 +21047,7 @@ BX.ajax.UpdatePageTitle = function(title)
 	var obTitle = BX('pagetitle');
 	if (obTitle)
 	{
-		obTitle.removeChild(obTitle.firstChild);
+		BX.remove(obTitle.firstChild);
 		if (!obTitle.firstChild)
 			obTitle.appendChild(document.createTextNode(title));
 		else

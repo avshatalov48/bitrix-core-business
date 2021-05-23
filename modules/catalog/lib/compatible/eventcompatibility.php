@@ -31,52 +31,14 @@ final class EventCompatibility
 
 	private static $allowEvents = 0;
 
-	private static $handlerList = array();
+	private static $handlerList = [];
 
-	private static $whiteList = array(
-		self::ENTITY_PRODUCT => array(
-			'ID' => true,
-			'QUANTITY' => true,
-			'QUANTITY_TRACE' => true,
-			'WEIGHT' => true,
-			'PRICE_TYPE' => true,
-			'RECUR_SCHEME_LENGTH' => true,
-			'RECUR_SCHEME_TYPE' => true,
-			'TRIAL_PRICE_ID' => true,
-			'WITHOUT_ORDER' => true,
-			'SELECT_BEST_PRICE' => true,
-			'VAT_ID' => true,
-			'VAT_INCLUDED' => true,
-			'CAN_BUY_ZERO' => true,
-			'NEGATIVE_AMOUNT_TRACE' => true,
-			'TMP_ID' => true,
-			'PURCHASING_PRICE' => true,
-			'PURCHASING_CURRENCY' => true,
-			'BARCODE_MULTI' => true,
-			'QUANTITY_RESERVED' => true,
-			'SUBSCRIBE' => true,
-			'WIDTH' => true,
-			'LENGTH' => true,
-			'HEIGHT' => true,
-			'MEASURE' => true,
-			'TYPE' => true,
-			'AVAILABLE' => true,
-			'BUNDLE' => true,
-			'PRICE_MODE' => true
-		),
-		self::ENTITY_PRICE => array(
-			'PRODUCT_ID' => true,
-			'CATALOG_GROUP_ID' => true,
-			'PRICE' => true,
-			'CURRENCY' => true,
-			'QUANTITY_FROM' => true,
-			'QUANTITY_TO' => true,
-			'PRICE_SCALE' => true,
-			'EXTRA_ID' => true,
-			'TMP_ID' => true,
-			'MEASURE_RATIO_ID' => true
-		)
-	);
+	private static $whiteList = [];
+
+	private static $entityClass = [
+		self::ENTITY_PRODUCT => '\Bitrix\Catalog\Model\Product',
+		self::ENTITY_PRICE => '\Bitrix\Catalog\Model\Price'
+	];
 
 	public static function execAgent()
 	{
@@ -211,10 +173,10 @@ final class EventCompatibility
 		);
 		if (!empty($handlerList))
 		{
-			$data = array(
+			$data = [
 				$event->getParameter('id'),
 				$event->getParameter('fields') + $event->getParameter('external_fields')
-			);
+			];
 
 			foreach ($handlerList as $handler)
 			{
@@ -261,7 +223,7 @@ final class EventCompatibility
 
 			foreach ($handlerList as $handler)
 			{
-				if (ExecuteModuleEventEx($handler, array(&$fields)) === false)
+				if (ExecuteModuleEventEx($handler, [&$fields]) === false)
 				{
 					$error = true;
 					break;
@@ -271,13 +233,13 @@ final class EventCompatibility
 
 			if (isset($fields['RECALL']))
 			{
-				$result->modifyActions(array('OLD_RECOUNT' => $fields['RECALL']));
+				$result->modifyActions(['OLD_RECOUNT' => $fields['RECALL']]);
 				unset($fields['RECALL']);
 			}
 			else
 			{
 				if (isset($actions['OLD_RECOUNT']))
-					$result->unsetActions(array('OLD_RECOUNT'));
+					$result->unsetActions(['OLD_RECOUNT']);
 			}
 
 			self::fillResultData($result, self::ENTITY_PRICE, $oldFields, $oldExternalFields, $fields);
@@ -314,10 +276,10 @@ final class EventCompatibility
 			$fields = $event->getParameter('fields');
 			$actions = $event->getParameter('actions');
 			$fields['RECALL'] = (isset($actions['OLD_RECOUNT']) && $actions['OLD_RECOUNT'] === true);
-			$data = array(
+			$data = [
 				$event->getParameter('id'),
 				$fields + $event->getParameter('external_fields')
-			);
+			];
 			unset($actions, $fields);
 
 			foreach ($handlerList as $handler)
@@ -355,7 +317,7 @@ final class EventCompatibility
 
 			foreach ($handlerList as $handler)
 			{
-				if (ExecuteModuleEventEx($handler, array($id, &$fields)) === false)
+				if (ExecuteModuleEventEx($handler, [$id, &$fields]) === false)
 				{
 					$error = true;
 					break;
@@ -365,13 +327,13 @@ final class EventCompatibility
 
 			if (isset($fields['RECALL']))
 			{
-				$result->modifyActions(array('OLD_RECOUNT' => $fields['RECALL']));
+				$result->modifyActions(['OLD_RECOUNT' => $fields['RECALL']]);
 				unset($fields['RECALL']);
 			}
 			else
 			{
 				if (isset($actions['OLD_RECOUNT']))
-					$result->unsetActions(array('OLD_RECOUNT'));
+					$result->unsetActions(['OLD_RECOUNT']);
 			}
 
 			self::fillResultData($result, self::ENTITY_PRICE, $oldFields, $oldExternalFields, $fields);
@@ -438,7 +400,7 @@ final class EventCompatibility
 		$eventIndex = $module.':'.$event;
 		if (!isset(self::$handlerList[$eventIndex]))
 		{
-			self::$handlerList[$eventIndex] = array();
+			self::$handlerList[$eventIndex] = [];
 			$eventManager = Main\EventManager::getInstance();
 			$result = $eventManager->findEventHandlers($module, $event);
 			if (!empty($result))
@@ -477,7 +439,7 @@ final class EventCompatibility
 
 			foreach ($handlerList as $handler)
 			{
-				if (ExecuteModuleEventEx($handler, array(&$fields)) === false)
+				if (ExecuteModuleEventEx($handler, [&$fields]) === false)
 				{
 					$error = true;
 					break;
@@ -513,10 +475,10 @@ final class EventCompatibility
 		$handlerList = self::getHandlerList('catalog', $eventName);
 		if (!empty($handlerList))
 		{
-			$data = array(
+			$data = [
 				$event->getParameter('id'),
 				$event->getParameter('fields') + $event->getParameter('external_fields')
-			);
+			];
 
 			foreach ($handlerList as $handler)
 			{
@@ -553,7 +515,7 @@ final class EventCompatibility
 
 			foreach ($handlerList as $handler)
 			{
-				if (ExecuteModuleEventEx($handler, array($id, &$fields)) === false)
+				if (ExecuteModuleEventEx($handler, [$id, &$fields]) === false)
 				{
 					$error = true;
 					break;
@@ -591,7 +553,7 @@ final class EventCompatibility
 
 			foreach ($handlerList as $handler)
 			{
-				if (ExecuteModuleEventEx($handler, array($id)) === false)
+				if (ExecuteModuleEventEx($handler, [$id]) === false)
 				{
 					$error = true;
 					break;
@@ -624,9 +586,9 @@ final class EventCompatibility
 		$handlerList = self::getHandlerList('catalog', $eventName);
 		if (!empty($handlerList))
 		{
-			$data = array(
+			$data = [
 				$event->getParameter('id')
-			);
+			];
 
 			foreach ($handlerList as $handler)
 			{
@@ -659,10 +621,10 @@ final class EventCompatibility
 			$fields = $event->getParameter('fields');
 			$actions = $event->getParameter('actions');
 			$fields['RECALL'] = (isset($actions['OLD_RECOUNT']) && $actions['OLD_RECOUNT'] === true);
-			$data = array(
+			$data = [
 				$event->getParameter('id'),
 				$fields + $event->getParameter('external_fields')
-			);
+			];
 			unset($actions, $fields);
 
 			foreach ($handlerList as $handler)
@@ -694,7 +656,7 @@ final class EventCompatibility
 			$result->addError(new Main\Entity\EntityError(
 				Loc::getMessage(
 					'BX_CATALOG_EVENT_COMPATIBILITY_ERR_UNKNOWN',
-					array('#EVENT#' => $eventName)
+					['#EVENT#' => $eventName]
 				)
 			));
 		}
@@ -709,10 +671,29 @@ final class EventCompatibility
 		array $handlerFields
 	)
 	{
-		$unsetFields = array();
-		$modifyFields = array();
-		$unsetExternalFields = array();
-		$modifyExternalFields = array();
+		$unsetFields = [];
+		$modifyFields = [];
+		$unsetExternalFields = [];
+		$modifyExternalFields = [];
+
+		if (!isset(self::$entityClass[$entity]))
+		{
+			return;
+		}
+		if (!isset(self::$whiteList[$entity]))
+		{
+			/** @var Catalog\Model\Entity $className */
+			$className = self::$entityClass[$entity];
+			$list = $className::getTabletFieldNames(Catalog\Model\Entity::FIELDS_ALL);
+			self::$whiteList[$entity] = (!empty($list)
+				? array_fill_keys($list, true)
+				: []
+			);
+		}
+		if (empty(self::$whiteList[$entity]))
+		{
+			return;
+		}
 
 		$handlerExternalFields = array_diff_key($handlerFields, self::$whiteList[$entity]);
 		if (!empty($handlerExternalFields))

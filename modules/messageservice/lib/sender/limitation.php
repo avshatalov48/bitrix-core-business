@@ -108,7 +108,7 @@ class Limitation
 			$optionsString = Option::get('messageservice', static::$optionName);
 			if (\CheckSerializedData($optionsString))
 			{
-				static::$options = unserialize($optionsString);
+				static::$options = unserialize($optionsString, ['allowed_classes' => false]);
 			}
 
 			if (!is_array(static::$options))

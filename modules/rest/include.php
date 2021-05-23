@@ -28,7 +28,9 @@ CJSCore::registerExt('marketplace', array(
 	'lang' => BX_ROOT.'/modules/rest/lang/'.LANGUAGE_ID.'/jsmarketplace.php',
 	'lang_additional' => array(
 		'REST_MARKETPLACE_CATEGORY_URL' => \Bitrix\Rest\Marketplace\Url::getCategoryUrl(),
+		'REST_BUY_SUBSCRIPTION_URL' => \Bitrix\Rest\Marketplace\Url::getSubscriptionBuyUrl(),
 		'CAN_BUY_SUBSCRIPTION' => \Bitrix\Rest\Marketplace\Client::canBuySubscription() ? 'Y' : 'N',
+		'CAN_ACTIVATE_DEMO_SUBSCRIPTION' => \Bitrix\Rest\Marketplace\Client::isSubscriptionDemoAvailable() ? 'Y' : 'N',
 	),
 	'rel' => array('ajax', 'popup', 'access', 'sidepanel', 'ui.notification'),
 ));

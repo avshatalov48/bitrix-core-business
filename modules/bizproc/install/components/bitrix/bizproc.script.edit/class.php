@@ -13,6 +13,13 @@ class BizprocScriptEditComponent extends \CBitrixComponent
 	public function onPrepareComponentParams($params)
 	{
 		$params["SCRIPT_ID"] = (int) $params["SCRIPT_ID"];
+		if (isset($params['DOCUMENT_TYPE_SIGNED']))
+		{
+			$params['DOCUMENT_TYPE_SIGNED'] = htmlspecialcharsback($params['DOCUMENT_TYPE_SIGNED']);
+			$params['DOCUMENT_TYPE'] = CBPDocument::unSignDocumentType($params['DOCUMENT_TYPE_SIGNED']);
+		}
+
+		$params["PLACEMENT"] = $params["PLACEMENT"]? (string)$params["PLACEMENT"] : null;
 		$params["SET_TITLE"] = ($params["SET_TITLE"] == "N" ? "N" : "Y");
 
 		return $params;
@@ -27,12 +34,30 @@ class BizprocScriptEditComponent extends \CBitrixComponent
 			return false;
 		}
 
+		$scriptId = $this->arParams['SCRIPT_ID'];
+		$isNew = empty($scriptId);
+
 		if ($this->arParams['SET_TITLE'] === 'Y')
 		{
-			$APPLICATION->SetTitle(GetMessage("BP_SCR_ED_CMP_TITLE"));
+			$APPLICATION->SetTitle(GetMessage($isNew? "BP_SCR_ED_CMP_TITLE_NEW" : "BP_SCR_ED_CMP_TITLE"));
 		}
 
-		$script = \Bitrix\Bizproc\Automation\Script\Manager::getById($this->arParams['SCRIPT_ID']);
+		if ($isNew && (empty($this->arParams['DOCUMENT_TYPE']) || empty($this->arParams['PLACEMENT'])))
+		{
+			ShowError(GetMessage("BP_SCR_ED_CMP_SCRIPT_CREATE_ERROR"));
+			return;
+		}
+
+		if ($isNew)
+		{
+			$script = \Bitrix\Bizproc\Script\Manager::createScript(
+				$this->arParams['DOCUMENT_TYPE']
+			);
+		}
+		else
+		{
+			$script = \Bitrix\Bizproc\Script\Manager::getById($scriptId)->collectValues();
+		}
 
 		if (!$script)
 		{
@@ -40,7 +65,10 @@ class BizprocScriptEditComponent extends \CBitrixComponent
 			return;
 		}
 
+		$documentType = [$script['MODULE_ID'], $script['ENTITY'], $script['DOCUMENT_TYPE']];
+
 		$this->arResult['SCRIPT'] = $script;
+		$this->arResult['DOCUMENT_TYPE_SIGNED'] = CBPDocument::signDocumentType($documentType);
 
 		$this->includeComponentTemplate();
 	}

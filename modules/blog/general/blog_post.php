@@ -1,6 +1,7 @@
 <?
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Blog\Integration;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -764,8 +765,8 @@ class CAllBlogPost
 				"EVENT_ID" => (
 					isset($arPost["UF_BLOG_POST_IMPRTNT"])
 					&& intval($arPost["UF_BLOG_POST_IMPRTNT"]) > 0
-						? \Bitrix\Blog\Integration\Socialnetwork\Log::EVENT_ID_POST_IMPORTANT
-						: \Bitrix\Blog\Integration\Socialnetwork\Log::EVENT_ID_POST
+						? Integration\Socialnetwork\Log::EVENT_ID_POST_IMPORTANT
+						: Integration\Socialnetwork\Log::EVENT_ID_POST
 				),
 				"=LOG_DATE" => (
 					$arPost["DATE_PUBLISH"] <> ''
@@ -863,7 +864,7 @@ class CAllBlogPost
 
 				$hasVideoTransforming = (
 					!empty($inlineAttachedObjectsIdList)
-					&& Bitrix\Blog\Integration\Disk\Transformation::getStatus(array(
+					&& Integration\Disk\Transformation::getStatus(array(
 						'attachedIdList' => $inlineAttachedObjectsIdList
 					))
 				);
@@ -892,7 +893,7 @@ class CAllBlogPost
 					CCrmLiveFeedComponent::processCrmBlogPostRights($logID, $arSoFields, $arPost, 'new');
 				}
 
-				Bitrix\Blog\Integration\Socialnetwork\CounterPost::increment(array(
+				Integration\Socialnetwork\CounterPost::increment(array(
 					'socnetPerms' => $socnetPerms,
 					'logId' => $logID,
 					'logEventId' => $arSoFields["EVENT_ID"],
@@ -959,18 +960,41 @@ class CAllBlogPost
 
 		$text4message .= $cut_suffix;
 
+		$eventId = Integration\Socialnetwork\Log::EVENT_ID_POST;
+		if (
+			isset($arPost['UF_BLOG_POST_IMPRTNT'])
+			&& (int)$arPost['UF_BLOG_POST_IMPRTNT'] > 0
+		)
+		{
+			$eventId = Integration\Socialnetwork\Log::EVENT_ID_POST_IMPORTANT;
+		}
+		elseif (
+			isset($arPost['UF_GRATITUDE'])
+			&& (int)$arPost['UF_GRATITUDE'] > 0
+		)
+		{
+			$eventId = Integration\Socialnetwork\Log::EVENT_ID_POST_GRAT;
+		}
+		elseif (
+			isset($arPost['UF_BLOG_POST_VOTE'])
+			&& (int)$arPost['UF_BLOG_POST_VOTE'] > 0
+		)
+		{
+			$eventId = Integration\Socialnetwork\Log::EVENT_ID_POST_GRAT;
+		}
+
 		$arSoFields = array(
 			"TITLE_TEMPLATE" => "#USER_NAME# ".GetMessage("BLG_SONET_TITLE"),
 			"TITLE" => $arPost["TITLE"],
 			"MESSAGE" => $text4message,
 			"TEXT_MESSAGE" => $text4message,
-			"ENABLE_COMMENTS" => (array_key_exists("ENABLE_COMMENTS", $arPost) && $arPost["ENABLE_COMMENTS"] == "N" ? "N" : "Y"),
-			"EVENT_ID" => (
-				isset($arPost["UF_BLOG_POST_IMPRTNT"])
-				&& intval($arPost["UF_BLOG_POST_IMPRTNT"]) > 0
-					? \Bitrix\Blog\Integration\Socialnetwork\Log::EVENT_ID_POST_IMPORTANT
-					: \Bitrix\Blog\Integration\Socialnetwork\Log::EVENT_ID_POST
-			)
+			"ENABLE_COMMENTS" => (
+				array_key_exists("ENABLE_COMMENTS", $arPost)
+				&& $arPost["ENABLE_COMMENTS"] === "N"
+					? "N"
+					: "Y"
+			),
+			"EVENT_ID" => $eventId
 		);
 
 		if ($blogPostEventIdList === null)

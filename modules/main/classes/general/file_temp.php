@@ -1,5 +1,8 @@
 <?php
 
+use Bitrix\Main;
+use Bitrix\Main\Security;
+
 class CTempFile
 {
 	private static $is_exit_function_registered = false;
@@ -34,11 +37,11 @@ class CTempFile
 			$i++;
 
 			if($file_name == '/')
-				$dir_add = md5(mt_rand());
+				$dir_add = Security\Random::getString(32);
 			elseif($i < 25)
-				$dir_add = mb_substr(md5(mt_rand()), 0, 3);
+				$dir_add = substr(Security\Random::getString(32), 0, 3);
 			else
-				$dir_add = md5(mt_rand());
+				$dir_add = Security\Random::getString(32);
 
 			$temp_path = $dir_name."/".$dir_add.$file_name;
 
@@ -71,7 +74,7 @@ class CTempFile
 			while(true)
 			{
 				$i++;
-				$dir_add = md5(mt_rand());
+				$dir_add = Security\Random::getString(32);
 				$temp_path = $dir_name.$dir_add."/";
 
 				if(!file_exists($temp_path))
@@ -80,8 +83,15 @@ class CTempFile
 		}
 		else //Fixed name during the session
 		{
-			$subdir = implode("/", (is_array($subdir) ? $subdir : array($subdir, bitrix_sessid())))."/";
-			while (mb_strpos($subdir, "//") !== false)
+			$localStorage = Main\Application::getInstance()->getLocalSession('userSessionData');
+			if (!isset($localStorage['tempFileToken']))
+			{
+				$localStorage->set('tempFileToken', Security\Random::getString(32));
+			}
+			$token = $localStorage->get('tempFileToken');
+
+			$subdir = implode("/", (is_array($subdir) ? $subdir : array($subdir, $token)))."/";
+			while (strpos($subdir, "//") !== false)
 				$subdir = str_replace("//", "/", $subdir);
 			$bFound = false;
 			for($i = $hours_to_keep_files-1; $i > 0; $i--)

@@ -223,7 +223,11 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 	 */
 	public static function getCustomizableFields() : array
 	{
-		return ['PRICE' => 'PRICE'];
+		return [
+			'PRICE' => 'PRICE',
+			'VAT_INCLUDED' => 'VAT_INCLUDED',
+			'VAT_RATE' => 'VAT_RATE'
+		];
 	}
 
 	/**

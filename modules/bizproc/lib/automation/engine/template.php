@@ -93,6 +93,12 @@ class Template
 		return $this;
 	}
 
+	public function setName(string $name)
+	{
+		$this->template['NAME'] = $name;
+		return $this;
+	}
+
 	public function getExecuteType($autoExecuteType)
 	{
 		return $this->autoExecuteType;
@@ -206,6 +212,10 @@ class Template
 		{
 			$this->template['PARAMETERS'] = $additional['PARAMETERS'];
 		}
+		if (isset($additional['CONSTANTS']) && is_array($additional['CONSTANTS']))
+		{
+			$this->template['CONSTANTS'] = $additional['CONSTANTS'];
+		}
 
 		$templateResult = $templateId ?
 			$this->updateBizprocTemplate($templateId, $userId) : $this->addBizprocTemplate($userId);
@@ -306,7 +316,7 @@ class Template
 
 		$raw = $this->template;
 		$raw['DOCUMENT_TYPE'] = $documentType;
-		$raw['NAME'] = $this->makeTemplateName();
+		$raw['NAME'] = $raw['NAME'] ?? $this->makeTemplateName();
 		$raw['USER_ID'] = $userId;
 		$raw['MODIFIER_USER'] = new \CBPWorkflowTemplateUser($userId);
 
@@ -350,16 +360,23 @@ class Template
 		$raw = $this->template;
 		$result = new Result();
 
+		$updateFields = [
+			'TEMPLATE'      => $raw['TEMPLATE'],
+			'PARAMETERS'    => $raw['PARAMETERS'],
+			'VARIABLES'     => [],
+			'CONSTANTS'     => $raw['CONSTANTS'],
+			'USER_ID' 		=> $userId,
+			'MODIFIER_USER' => new \CBPWorkflowTemplateUser($userId),
+		];
+
+		if (isset($raw['NAME']))
+		{
+			$updateFields['NAME'] = $raw['NAME'];
+		}
+
 		try
 		{
-			\CBPWorkflowTemplateLoader::update($id, [
-				'TEMPLATE'      => $raw['TEMPLATE'],
-				'PARAMETERS'    => $raw['PARAMETERS'],
-				'VARIABLES'     => [],
-				'CONSTANTS'     => $raw['CONSTANTS'],
-				'USER_ID' 		=> $userId,
-				'MODIFIER_USER' => new \CBPWorkflowTemplateUser($userId),
-			]);
+			\CBPWorkflowTemplateLoader::update($id, $updateFields);
 		}
 		catch (\Exception $e)
 		{
@@ -469,6 +486,7 @@ class Template
 			'ENTITY' => $documentType[1],
 			'DOCUMENT_TYPE' => $documentType[2],
 			'DOCUMENT_STATUS' => $this->template['DOCUMENT_STATUS'],
+			'NAME' => $this->template['NAME'] ?? $this->makeTemplateName(),
 			'AUTO_EXECUTE' => $this->autoExecuteType,
 			'TEMPLATE'     => [[
 				'Type' => 'SequentialWorkflowActivity',

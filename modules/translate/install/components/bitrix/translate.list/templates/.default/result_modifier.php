@@ -11,6 +11,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
  */
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Translate;
 
 $component = $this->getComponent();
 
@@ -188,7 +189,7 @@ if (!empty($arResult['GRID_DATA']))
 	};
 
 
-	$styles = array();
+	$styles = [];
 	foreach ($arResult['HEADERS'] as $header)
 	{
 		$styles[$header['id']] = $header['class'];
@@ -200,7 +201,7 @@ if (!empty($arResult['GRID_DATA']))
 	foreach ($arResult['GRID_DATA'] as &$row)
 	{
 		$row['columnClasses'] = $styles;
-		$row['actions'] = array();
+		$row['actions'] = [];
 
 		$actions = &$row['actions'];
 		$columns = &$row['columns'];
@@ -323,7 +324,7 @@ if (!empty($arResult['GRID_DATA']))
 
 			$ethalonExists = !empty($columns[mb_strtoupper($arParams['CURRENT_LANG']).'_LANG']);
 
-			$settings = !empty($row['settings']) ? $row['settings'] : array();
+			$settings = !empty($row['settings']) ? $row['settings'] : [];
 
 			foreach ($languageUpperKeys as $langId => $langUpper)
 			{
@@ -332,9 +333,9 @@ if (!empty($arResult['GRID_DATA']))
 				$columnDeficiency = "{$langUpper}_DEFICIENCY";
 
 				$isObligatory = true;
-				if (!empty($settings['languages']))
+				if (!empty($settings[Translate\Settings::OPTION_LANGUAGES]))
 				{
-					$isObligatory = in_array($langId, $settings['languages'], true);
+					$isObligatory = in_array($langId, $settings[Translate\Settings::OPTION_LANGUAGES], true);
 				}
 
 				$value = !empty($columns[$columnId]) ? $columns[$columnId] : null;
@@ -484,7 +485,7 @@ if (!empty($arResult['GRID_DATA']))
 					$formatSearchedCode($columns['PHRASE_CODE'], $arResult['CODE_SEARCH'], $arResult['CODE_SEARCH_CASE']);
 			}
 
-			$settings = !empty($row['settings']) ? $row['settings'] : array();
+			$settings = !empty($row['settings']) ? $row['settings'] : [];
 
 			foreach ($languageUpperKeys as $langId => $langUpper)
 			{
@@ -497,9 +498,9 @@ if (!empty($arResult['GRID_DATA']))
 				$deficiency = !empty($columns[$columnDeficiency]) ? $columns[$columnDeficiency] : null;
 
 				$isObligatory = true;
-				if (!empty($settings['languages']))
+				if (!empty($settings[Translate\Settings::OPTION_LANGUAGES]))
 				{
-					$isObligatory = in_array($langId, $settings['languages'], true);
+					$isObligatory = in_array($langId, $settings[Translate\Settings::OPTION_LANGUAGES], true);
 				}
 
 				if ($highlightSearchedPhrase || $highlightSearchedCode)

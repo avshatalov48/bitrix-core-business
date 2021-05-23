@@ -50,7 +50,7 @@ class CEventFileman
 	{
 		$site = CFileMan::__CheckSite($site);
 		$DOC_ROOT = CSite::GetSiteDocRoot($site);		
-		$DESCRIPTION = unserialize($row['DESCRIPTION']);
+		$DESCRIPTION = unserialize($row['DESCRIPTION'], ['allowed_classes' => false]);
 		
 		if (empty($DESCRIPTION['path']))
 		{ 

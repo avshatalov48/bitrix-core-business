@@ -39,6 +39,10 @@ Loc::loadMessages(__FILE__);
 			SignatureValue: "<?= CUtil::JSEscape($params['SIGNATURE_VALUE']) ?>",
 		}
 
+		<?php if (!empty($params['OUT_SUM_CURRENCY'])):?>
+			params.OutSumCurrency = "<?= CUtil::JSEscape($params['OUT_SUM_CURRENCY']) ?>";
+		<?php endif; ?>
+
 		<?php if ($params['PS_MODE']):?>
 			params.IncCurrLabel = "<?= CUtil::JSEscape($params['PS_MODE']) ?>";
 		<?php endif; ?>

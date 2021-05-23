@@ -5,6 +5,7 @@ namespace Sale\Handlers\Delivery\YandexTaxi\Api\Transport;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\Json;
 use Sale\Handlers\Delivery\YandexTaxi\Common\Logger;
+use Sale\Handlers\Delivery\YandexTaxi\Common\ReferralSourceBuilder;
 
 /**
  * Class Client
@@ -20,6 +21,9 @@ final class Client
 
 	/** @var Logger */
 	private $logger;
+
+	/** @var ReferralSourceBuilder */
+	private $referralSourceBuilder;
 
 	/** @var int */
 	private $socketTimeOut = 30;
@@ -37,11 +41,13 @@ final class Client
 	 * Client constructor.
 	 * @param OauthTokenProvider $oauthTokenProvider
 	 * @param Logger $logger
+	 * @param ReferralSourceBuilder $referralSourceBuilder
 	 */
-	public function __construct(OauthTokenProvider $oauthTokenProvider, Logger $logger)
+	public function __construct(OauthTokenProvider $oauthTokenProvider, Logger $logger, ReferralSourceBuilder $referralSourceBuilder)
 	{
 		$this->oauthTokenProvider = $oauthTokenProvider;
 		$this->logger = $logger;
+		$this->referralSourceBuilder = $referralSourceBuilder;
 	}
 
 	/**
@@ -129,7 +135,10 @@ final class Client
 			->setHeader('Authorization', sprintf('Bearer %s', (string)$this->oauthTokenProvider->getToken()))
 			->setHeader('Accept-Language', 'ru')
 			->setHeader('Content-Type', 'application/json')
-			->setHeader('User-Agent', 'api_1c-bitrix');
+			->setHeader(
+				'User-Agent',
+				$this->referralSourceBuilder->getReferralSourceValue()
+			);
 
 		return $result;
 	}
@@ -160,6 +169,14 @@ final class Client
 		$this->isTestEnvironment = $isTestEnvironment;
 
 		return $this;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isTestEnvironment(): bool
+	{
+		return $this->isTestEnvironment;
 	}
 
 	/**

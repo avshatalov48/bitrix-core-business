@@ -23,6 +23,7 @@ class PostingTable extends Entity\DataManager
 	const STATUS_SENT = 'S';
 	const STATUS_SENT_WITH_ERRORS = 'E';
 	const STATUS_ABORT = 'A';
+	const STATUS_WAIT = 'W';
 
 	/**
 	 * @return string
@@ -228,11 +229,9 @@ class PostingTable extends Entity\DataManager
 	 *
 	 * @return bool
 	 */
-	public static function initGroupRecipients($postingId, $checkDuplicate = true, $prepareFields = true)
+	public static function initGroupRecipients($postingId, $checkDuplicate = true)
 	{
-		PostingBuilder::create()->run($postingId, $checkDuplicate, $prepareFields);
-
-		return true;
+		return PostingBuilder::create()->run($postingId, $checkDuplicate);
 	}
 
 	/**

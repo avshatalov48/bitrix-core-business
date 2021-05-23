@@ -1,4 +1,4 @@
-	(function() {
+(function() {
 
 	"use strict";
 
@@ -25,6 +25,7 @@
 		this.targetElement = options.targetElement;
 		this.CurrentItem = null;
 
+		this.id = BX.prop.getString(options, "id", BX.Text.getRandom());
 		this.searchAction = BX.prop.getString(options, "searchAction", "");
 		this.searchOptions = BX.prop.getObject(options, "searchOptions", {});
 
@@ -89,7 +90,7 @@
 							return;
 						}
 
-						this.getPopupWindow().show();
+						this.showPopupWindow();
 
 					}.bind(this));
 				}.bind(this), 100);
@@ -117,7 +118,7 @@
 					{
 						BX.PreventDefault(e);
 					}
-					this.getPopupWindow().show();
+					this.showPopupWindow();
 				}.bind(this), true);
 
 				setTimeout(function() {
@@ -128,7 +129,7 @@
 							return;
 						}
 
-						this.getPopupWindow().show();
+						this.showPopupWindow();
 
 						if(!this.popupAlertContainer)
 						{
@@ -161,7 +162,7 @@
 
 								if (this.targetElement.value !== '' && !this.popupWindow)
 								{
-									this.getPopupWindow().show();
+									this.showPopupWindow();
 								}
 								else {
 									BX.PreventDefault(e);
@@ -221,19 +222,19 @@
 
 					if(this.targetElement.value !== '' && !this.popupWindow)
 					{
-						this.getPopupWindow().show();
+						this.showPopupWindow();
 						return;
 					}
 
 					if(e.keyCode === 9 && !this.popupWindow)
 					{
-						this.getPopupWindow().show();
+						this.showPopupWindow();
 						return;
 					}
 
 					if(e.keyCode === 9 && this.targetElement.value === '' && !this.popupWindow)
 					{
-						this.getPopupWindow().show();
+						this.showPopupWindow();
 					}
 
 					if(!this.enableCreation) {
@@ -265,12 +266,12 @@
 
 					if (e.keyCode === 9 && !this.popupWindow)
 					{
-						this.getPopupWindow().show();
+						this.showPopupWindow();
 						return;
 					}
 					if (e.keyCode === 9 && this.targetElement.value === '' && !this.popupWindow)
 					{
-						this.getPopupWindow().show();
+						this.showPopupWindow();
 						return;
 					}
 
@@ -391,6 +392,7 @@
 							this.setItems(items);
 							loader.classList.remove('ui-dropdown-loader-active');
 
+							this.showPopupWindow();
 						}.bind(this)
 				);
 			},
@@ -416,11 +418,19 @@
 					this.footerItems = items;
 				}
 			},
+			showPopupWindow: function()
+			{
+				var popupAlertContainer = this.getPopupAlertContainer();
+				if (this.getItems().length || this.footerItems || (popupAlertContainer && popupAlertContainer.textContent.trim().length))
+				{
+					this.getPopupWindow().show();
+				}
+			},
 			getPopupWindow: function()
 			{
 				if (!this.popupWindow)
 				{
-					this.popupWindow = new BX.PopupWindow("dropdown", this.targetElement, {
+					this.popupWindow = new BX.PopupWindow("dropdown_" + this.id, this.targetElement, {
 						autoHide: true,
 						content : this.popupConatiner ? this.popupContainer : this.getPopupContainer(),
 						contentColor : "white",
@@ -544,9 +554,6 @@
 						props: {
 							className: 'ui-dropdown-alert'
 						},
-						events: {
-							click: this.onEmptyValueEvent.bind(this)
-						},
 						children: [
 							this.alertContainerValue = BX.create('div', {
 								attrs: { className: 'ui-dropdown-alert-name' },
@@ -554,11 +561,14 @@
 							}),
 							BX.create('div', {
 								attrs: { className: 'ui-dropdown-alert-text' },
-								text: BX.prop.getString(this.messages, this.enableCreation ? "creationLegend" : "notFound", "")
+								text: BX.prop.getString(this.messages, this.enableCreation ? "creationLegend" : "notFound", ""),
+								events: {
+									click: this.onEmptyValueEvent.bind(this)
+								}
 							})
 						]
 					});
-
+					BX.onCustomEvent(this, "BX.UI.Dropdown:onGetNewAlertContainer", [this, this.newAlertContainer]);
 					this.targetElement.addEventListener("input", function()
 					{
 						this.alertContainerValue.textContent = this.targetElement.value;
@@ -616,20 +626,29 @@
 				{
 					var attrs = BX.prop.getObject(item, "attributes", {});
 
+					var icon = BX.prop.getObject(attrs, "icon", null);
 					var phones = BX.prop.getArray(attrs, "phone", []);
 					var emails = BX.prop.getArray(attrs, "email", []);
 					var webs = BX.prop.getArray(attrs, "web", []);
 
+					var iconSrc = (icon !== null && BX.type.isNotEmptyString(icon.src) ? icon.src : '');
 					var phone = phones.length > 0 ? phones[0].value : "";
 					var email = emails.length > 0 ? emails[0].value : "";
 					var web = (webs.length > 0 ? webs[0].value : '');
 
 					item.node = BX.create('div', {
 						attrs: {
-							className: 'ui-dropdown-item'
+							className: 'ui-dropdown-item' + (iconSrc !== '' ? ' ui-dropdown-item-node-with-icon' : '')
 						},
 						events: { click: this.handleItemClick.bind(this, item) },
 						children: [
+							iconSrc !== '' ? BX.create('span', {
+								attrs: {
+									className: 'ui-dropdown-item-icon',
+									style: 'background-image: url(\'' + BX.util.htmlspecialchars(iconSrc) + '\')'
+								},
+								text: ''
+							}) : null,
 							BX.create('div', {
 								attrs: {
 									className: 'ui-dropdown-item-name'

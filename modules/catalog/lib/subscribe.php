@@ -589,7 +589,7 @@ class SubscribeTable extends Entity\DataManager
 		$notifyOption = Option::get('sale', 'subscribe_prod');
 		$notify = array();
 		if($notifyOption <> '')
-			$notify = unserialize($notifyOption);
+			$notify = unserialize($notifyOption, ['allowed_classes' => false]);
 		if(is_array($notify))
 		{
 			$listSiteId = array();

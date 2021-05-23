@@ -14,9 +14,12 @@ Loc::loadMessages(__FILE__);
 		) ?></p>
 	<div class="d-flex align-items-center mb-3">
 		<div class="col-auto pl-0">
-			<form action="<?=$params['URL']?>" method="post" class="mb-4">
+			<form action="<?=$params['URL']?>" method="post" class="mb-4" style="display: inline-block">
 				<input type="hidden" name="MerchantLogin" value="<?=htmlspecialcharsbx($params['ROBOXCHANGE_SHOPLOGIN']);?>">
 				<input type="hidden" name="OutSum" value="<?=htmlspecialcharsbx($params['SUM']);?>">
+				<?php if (!empty($params['OUT_SUM_CURRENCY'])):?>
+					<input type="hidden" name="OutSumCurrency" value="<?=htmlspecialcharsbx($params['OUT_SUM_CURRENCY']);?>">
+				<?php endif;?>
 				<input type="hidden" name="InvId" value="<?=htmlspecialcharsbx($params['PAYMENT_ID']);?>">
 				<input type="hidden" name="Description" value="<?=htmlspecialcharsbx($params['ROBOXCHANGE_ORDERDESCR']);?>">
 				<input type="hidden" name="SignatureValue" value="<?=$params['SIGNATURE_VALUE'];?>">

@@ -68,7 +68,10 @@
 
 		_onHeaderUpdated: function()
 		{
-			this.fixedTable = this.parent.getPinHeader().getFixedTable();
+			if (this.parent.getParam('ALLOW_PIN_HEADER'))
+			{
+				this.fixedTable = this.parent.getPinHeader().getFixedTable();
+			}
 		},
 
 		_onMouseoverLeft: function(event)

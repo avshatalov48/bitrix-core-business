@@ -40,6 +40,8 @@ class SectionDictionary
 				PermissionDictionary::ADS_LOOK_ALIKE_FB_EDIT,
 				PermissionDictionary::ADS_PAUSE_START_STOP,
 				PermissionDictionary::ADS_CLIENT_VIEW,
+				PermissionDictionary::ADS_MARKETING_FB_EDIT,
+				PermissionDictionary::ADS_MARKETING_INSTAGRAM_EDIT,
 			],
 			self::SEGMENT   => [
 				PermissionDictionary::SEGMENT_EDIT,

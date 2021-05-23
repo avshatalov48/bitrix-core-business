@@ -71,7 +71,7 @@ if ($userMailboxesLimit >= 0 && $arResult['USER_OWNED_MAILBOXES_COUNT'] >= $user
 
 		$licenseConnectedMailboxesInfo = Loc::getMessage('MAIL_MAILBOX_LICENSE_CONNECTED_MAILBOXES_LIMIT_BODY', array('#LIMIT#' => $userMailboxesLimit));
 		$addMailboxMenuItem = array(
-			'text' => '<div onclick="' . "BX.Mail.Client.Message.List['" . CUtil::JSEscape($component->getComponentId()) . "'].showLicensePopup('connectedMailboxes')\">" .
+			'html' => '<div onclick="' . "BX.Mail.Client.Message.List['" . CUtil::JSEscape($component->getComponentId()) . "'].showLicensePopup('connectedMailboxes')\">" .
 				'<span class="mail-connect-lock-text">' . Loc::getMessage('MAIL_CLIENT_MAILBOX_ADD') . '</span>' .
 				'<span class="mail-connect-lock-icon"></span>' .
 			'</div>',
@@ -108,10 +108,10 @@ $settingsMenu = [
 		'text' => Loc::getMessage('MAIL_MESSAGE_LIST_SIGNATURE_LINK'),
 		'href' => htmlspecialcharsbx($arParams['PATH_TO_MAIL_SIGNATURES']),
 	],
-    [
-        'text' => Loc::getMessage('MAIL_MESSAGE_LIST_ADDRESSBOOK_LINK'),
-        'href' => htmlspecialcharsbx($arParams['PATH_TO_MAIL_ADDRESSBOOK']),
-    ],
+	[
+		'text' => Loc::getMessage('MAIL_MESSAGE_LIST_ADDRESSBOOK_LINK'),
+		'href' => htmlspecialcharsbx($arParams['PATH_TO_MAIL_ADDRESSBOOK']),
+	],
 	[
 		'text' => Loc::getMessage('MAIL_MESSAGE_LIST_BLACKLIST_LINK'),
 		'className' => '',
@@ -158,7 +158,7 @@ if (SITE_TEMPLATE_ID == 'bitrix24')
 			data-role="mailbox-current-title"
 			data-mailbox-id="<?=intval($arResult['MAILBOX']['ID']) ?>">
 			<span style="display: inline-block; width: 100%; overflow: hidden; text-overflow: ellipsis; ">
-				<?=($arResult['MAILBOX']['NAME']) ?>
+				<?=htmlspecialcharsbx($arResult['MAILBOX']['NAME']) ?>
 				<i class="ui-btn-counter <?=($unseenCount > 0 ? '' : 'main-ui-hide') ?>"
 					data-role="unseen-total"><?=intval($unseenCount) ?></i>
 			</span>
@@ -211,7 +211,7 @@ else
 			data-role="mailbox-current-title"
 			data-mailbox-id="<?=intval($arResult['MAILBOX']['ID']) ?>">
 			<span style="display: inline-block; width: 100%; overflow: hidden; text-overflow: ellipsis; ">
-				<?=($arResult['MAILBOX']['NAME']) ?>
+				<?=htmlspecialcharsbx($arResult['MAILBOX']['NAME']) ?>
 				<i class="ui-btn-counter <?=($unseenCount > 0 ? '' : 'main-ui-hide') ?>"
 					data-role="unseen-total"><?=intval($unseenCount) ?></i>
 			</span>

@@ -195,7 +195,7 @@ if (!$fCriticalError)
 		}
 
 		// Product custom "types of prices" filter (set report setting to helper)
-		$arRepSetting = unserialize($arRepParams['SETTINGS']);
+		$arRepSetting = unserialize($arRepParams['SETTINGS'], ['allowed_classes' => false]);
 		if ($arRepSetting['helper_spec']['ucspt'] === true)
 		{
 			call_user_func(array($arParams['REPORT_HELPER_CLASS'], 'enablePriceTypesColumns'), true);

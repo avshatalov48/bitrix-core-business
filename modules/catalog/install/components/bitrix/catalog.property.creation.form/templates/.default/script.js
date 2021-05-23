@@ -129,6 +129,7 @@
 	        NAME: fields.label,
 	        MULTIPLE: fields.multiple ? 'Y' : 'N',
 	        IS_REQUIRED: fields.mandatory ? 'Y' : 'N',
+	        IS_PUBLIC: fields.isPublic ? 'Y' : 'N',
 	        PROPERTY_TYPE: 'S'
 	      };
 

@@ -44,7 +44,7 @@ final class SessionConfigurationResolver
 			$this->session = new Session($generalHandler);
 			$this->kernelSession = new KernelSessionProxy($this->session);
 		}
-		elseif($sessionConfig['mode'] === self::MODE_SEPARATED)
+		elseif ($sessionConfig['mode'] === self::MODE_SEPARATED)
 		{
 			if (empty($sessionConfig['handlers']['kernel']))
 			{
@@ -71,6 +71,11 @@ final class SessionConfigurationResolver
 				$debugger->setMode($sessionConfig['debug']);
 				$debugger->storeConfig($sessionConfig);
 			}
+		}
+
+		if (isset($sessionConfig['ignoreSessionStartErrors']) && $sessionConfig['ignoreSessionStartErrors'] === true)
+		{
+			$this->session->enableIgnoringSessionStartErrors();
 		}
 	}
 

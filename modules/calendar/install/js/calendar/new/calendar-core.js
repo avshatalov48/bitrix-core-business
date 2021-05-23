@@ -38,7 +38,7 @@
 		// build basic dom structure
 		this.build();
 
-		if (!this.externalMode)
+		if (!this.isExternalMode())
 		{
 			if (config.startupEvent)
 			{
@@ -135,15 +135,15 @@
 
 				if (this.util.userIsOwner())
 				{
-					this.syncInterface = new BX.Calendar.Sync.Interface.SyncInterfaceManager({
+					this.syncInterface = new BX.Calendar.Sync.Manager.Manager({
 						wrapper: document.getElementById(this.id + '-sync-container'),
-						syncInfo: this.syncSlider.syncInfo,
+						syncInfo: this.util.config.syncInfo,
 						userId: this.currentUser.id,
-						syncLinks: this.syncSlider.config.syncLinks,
-						isSetSyncCaldavSettings: this.syncSlider.config.isSetSyncCaldavSettings,
+						syncLinks: this.util.config.syncLinks,
+						isSetSyncCaldavSettings: this.util.config.isSetSyncCaldavSettings,
 						sections: this.sectionController.sections,
-						portalAddress: this.syncSlider.config.caldav_link_all,
-						isRuZone: this.syncSlider.config.isRuZone,
+						portalAddress: this.util.config.caldav_link_all,
+						isRuZone: this.util.config.isRuZone,
 						calendar: this,
 					});
 					this.syncInterface.showSyncButton();
@@ -197,7 +197,6 @@
 					this.refresh();
 				}.bind(this));
 			}
-
 			if (this.util.config.displayMobileBanner)
 			{
 				new BX.Calendar.Sync.Interface.MobileSyncBanner().showInPopup();
@@ -242,7 +241,7 @@
 					this.views.forEach(function(view){
 						if (view.getHotkey() && BX.Calendar.Util.getKeyCode(view.getHotkey()) === params.keyCode)
 						{
-							BX.Calendar.Util.sendAnalyticLabel({viewMode:'hotkey', viewType:view.getName()});
+							BX.Calendar.Util.sendAnalyticLabel({calendarAction: 'viewChange', viewMode:'hotkey', viewType:view.getName()});
 							this.setView(view.getName(), {animation: true});
 						}
 					}, this);
@@ -361,7 +360,7 @@
 					if (data.type === 'base')
 					{
 						this.setView(data.name, {animation: true});
-						BX.Calendar.Util.sendAnalyticLabel({viewMode:'selector',viewType:data.name});
+						BX.Calendar.Util.sendAnalyticLabel({calendarAction: 'viewChange', viewMode:'selector',viewType:data.name});
 					}
 					else if (data.type === 'additional')
 					{
@@ -390,7 +389,7 @@
 						if (data.type === 'base')
 						{
 							this.setView(data.name, {animation: true});
-							BX.Calendar.Util.sendAnalyticLabel({viewMode:'topmenu', viewType:data.name});
+							BX.Calendar.Util.sendAnalyticLabel({calendarAction: 'viewChange', viewMode:'topmenu', viewType:data.name});
 						}
 					}
 				}.bind(this));
@@ -802,14 +801,6 @@
 					calendar: this,
 					button: this.sectionButton
 				});
-
-				if (this.util.userIsOwner())
-				{
-					this.syncSlider = new window.BXEventCalendar.SyncSlider({
-						calendar: this,
-						button: this.syncButton
-					});
-				}
 
 				if (this.util.userIsOwner() || this.util.config.TYPE_ACCESS)
 				{

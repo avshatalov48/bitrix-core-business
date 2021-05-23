@@ -21,6 +21,8 @@ class Session implements SessionInterface, \ArrayAccess
 	protected $debug = false;
 	/** @var Debugger */
 	protected $debugger;
+	/** @var bool */
+	protected $ignoringSessionStartErrors = false;
 
 	/**
 	 * Session constructor.
@@ -61,6 +63,20 @@ class Session implements SessionInterface, \ArrayAccess
 	public function disableDebug(): self
 	{
 		$this->debug = false;
+
+		return $this;
+	}
+
+	public function enableIgnoringSessionStartErrors(): self
+	{
+		$this->ignoringSessionStartErrors = true;
+
+		return $this;
+	}
+
+	public function disableIgnoringSessionStartErrors(): self
+	{
+		$this->ignoringSessionStartErrors = false;
 
 		return $this;
 	}
@@ -125,7 +141,7 @@ class Session implements SessionInterface, \ArrayAccess
 		try
 		{
 			$this->applySessionStartIniSettings($this->getSessionStartOptions());
-			if (!session_start())
+			if (!session_start() && !$this->ignoringSessionStartErrors)
 			{
 				throw new \RuntimeException('Could not start session by PHP.');
 			}
@@ -138,7 +154,10 @@ class Session implements SessionInterface, \ArrayAccess
 				Application::getInstance()->getExceptionHandler()->writeToLog($error->getPrevious());
 			}
 
-			throw $error->getPrevious() ?: $error;
+			if (!$this->ignoringSessionStartErrors)
+			{
+				throw $error->getPrevious() ?: $error;
+			}
 		}
 		$this->debug('Session started at');
 

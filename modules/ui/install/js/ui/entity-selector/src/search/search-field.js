@@ -7,6 +7,7 @@ export default class SearchField
 	type: string = 'string';
 	searchable: boolean = true;
 	system: boolean = false;
+	sort: ?number = null;
 
 	constructor(fieldOptions: SearchFieldOptions)
 	{
@@ -20,7 +21,8 @@ export default class SearchField
 		this.name = options.name;
 		this.setType(options.type);
 		this.setSystem(options.system);
-		this.setSeachable(options.searchable);
+		this.setSort(options.sort);
+		this.setSearchable(options.searchable);
 	}
 
 	getName(): string
@@ -33,7 +35,7 @@ export default class SearchField
 		return this.type;
 	}
 
-	setType(type: string)
+	setType(type: string): void
 	{
 		if (Type.isStringFilled(type))
 		{
@@ -41,29 +43,38 @@ export default class SearchField
 		}
 	}
 
-	setSeachable(flag: boolean): this
+	getSort(): ?number
+	{
+		return this.sort;
+	}
+
+	setSort(sort: ?number): void
+	{
+		if (Type.isNumber(sort) || sort === null)
+		{
+			this.sort = sort;
+		}
+	}
+
+	setSearchable(flag: boolean): void
 	{
 		if (Type.isBoolean(flag))
 		{
 			this.searchable = flag;
 		}
-
-		return this;
 	}
 
-	isSeachable(): boolean
+	isSearchable(): boolean
 	{
 		return this.searchable;
 	}
 
-	setSystem(flag: boolean): this
+	setSystem(flag: boolean)
 	{
 		if (Type.isBoolean(flag))
 		{
 			this.system = flag;
 		}
-
-		return this;
 	}
 
 	isCustom(): boolean

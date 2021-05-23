@@ -952,22 +952,21 @@ final class GoogleApiSync
 	}
 
 	/**
-	 * Get owner of the channel
-	 * @param string $channelId
-	 * @return number or null
+	 * @param string|null $channelId
+	 * @return int|null
 	 */
-	public static function getChannelOwner($channelId = null)
+	public static function getChannelOwner(string $channelId = null): ?int
 	{
-		$userId = null;
+		if (empty($channelId))
+			return null;
+
 		$matches = [];
-		if ($channelId
-			&& preg_match('/('.self::CONNECTION_CHANNEL_TYPE.'|'.self::SECTION_CHANNEL_TYPE.')_(\d+)_.+/', $channelId, $matches)
-			&& $matches
-			&& intval($matches[2]) > 0)
-		{
-			$userId = intval($matches[2]);
-		}
-		return $userId;
+		preg_match('/(' . self::CONNECTION_CHANNEL_TYPE . '|' . self::SECTION_CHANNEL_TYPE . ')_(\d+)_.+/', $channelId, $matches);
+
+		return !empty($matches) && intval($matches[2]) > 0
+			? intval($matches[2])
+			: null
+		;
 	}
 
 	public function hasMoreEvents()
@@ -976,13 +975,21 @@ final class GoogleApiSync
 	}
 
 	/**
+	 * @return bool
+	 */
+	private function hasExpiredSyncTokenError(): bool
+	{
+		return !empty($this->getExpiredSyncTokenError());
+	}
+
+	/**
 	 * @return array
 	 */
-	private function hasExpiredSyncTokenError(): array
+	private function getExpiredSyncTokenError(): array
 	{
 		return array_filter($this->syncTransport->getErrors(), function ($error) {
-				preg_match("/^\[(410)\][a-z0-9 _]*/i", $error['message']);
-			});
+			return preg_match("/^\[(410)\][a-z0-9 _]*/i", $error['message']);
+		});
 	}
 
 	/**
@@ -1040,7 +1047,7 @@ final class GoogleApiSync
 	}
 
 	/**
-	 * @param iterable|null $items
+	 * @param iterable|null $events
 	 * @return array[]
 	 */
 	private function getEventsList(iterable $events = null): array
@@ -1059,7 +1066,7 @@ final class GoogleApiSync
 	}
 
 	/**
-	 * @param array|null $result
+	 * @param array|null $response
 	 */
 	private function setSyncSettings(array $response = null): void
 	{

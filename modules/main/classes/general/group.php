@@ -6,7 +6,10 @@
  * @copyright 2001-2020 Bitrix
  */
 
-class CGroup
+/**
+ * @deprecated Use CGroup
+ */
+class CAllGroup
 {
 	var $LAST_ERROR;
 
@@ -822,11 +825,11 @@ class CGroup
 				$aPrevPolicy = array();
 				$res = $DB->Query("SELECT SECURITY_POLICY FROM b_group WHERE ID=".$ID);
 				if(($res_arr = $res->Fetch()) && $res_arr["SECURITY_POLICY"] <> '')
-					$aPrevPolicy = unserialize($res_arr["SECURITY_POLICY"]);
+					$aPrevPolicy = unserialize($res_arr["SECURITY_POLICY"], ['allowed_classes' => false]);
 				//compare with new one
 				$aNewPolicy = array();
 				if($arFields["SECURITY_POLICY"] <> '')
-					$aNewPolicy = unserialize($arFields["SECURITY_POLICY"]);
+					$aNewPolicy = unserialize($arFields["SECURITY_POLICY"], ['allowed_classes' => false]);
 				$aDiff = array_diff_assoc($aNewPolicy, $aPrevPolicy);
 				if(empty($aDiff))
 					$aDiff = array_diff_assoc($aPrevPolicy, $aNewPolicy);
@@ -944,7 +947,7 @@ class CGroup
 		{
 			if(ExecuteModuleEventEx($arEvent, array($ID))===false)
 			{
-				$err = GetMessage("MAIN_BEFORE_DEL_ERR").' '.$arEvent['TO_NAME'];
+				$err = GetMessage("MAIN_BEFORE_DEL_ERR1").' '.$arEvent['TO_NAME'];
 				if($ex = $APPLICATION->GetException())
 					$err .= ': '.$ex->GetString();
 				$APPLICATION->throwException($err);
@@ -1371,4 +1374,8 @@ class CGroup
 
 		return false;
 	}
+}
+
+class CGroup extends CAllGroup
+{
 }

@@ -35,4 +35,4 @@ $MESS["SENDER_LETTER_LIST_BTN_COPY_TITLE"] = "Копировать";
 $MESS["SENDER_LETTER_LIST_SPEED_TITLE"] = "Достигнуто максимальное количество отправок за день. Отправка продолжится завтра.";
 $MESS["SENDER_LETTER_LIST_ROW_STATS_VIEWS"] = "просмотры: #COUNT#";
 $MESS["SENDER_LETTER_LIST_ROW_STATS_CLICKS"] = "переходы: #COUNT#";
-?>
+$MESS["SENDER_DISPATCH_STATE_M"] = "Идет подготовка сегмента";

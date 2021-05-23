@@ -8,11 +8,10 @@
 
 namespace Bitrix\Sender\Integration\Seo\Ads;
 
-use Bitrix\Seo\Retargeting;
-
 use Bitrix\Sender\Message;
-use Bitrix\Sender\Transport;
 use Bitrix\Sender\Recipient;
+use Bitrix\Sender\Transport;
+use Bitrix\Seo\Retargeting;
 
 /**
  * Class TransportBase
@@ -177,15 +176,18 @@ class TransportBase implements Transport\iBase
 			}
 
 			$contacts[$adsContactType] = array($message->getRecipientCode());
-
-
-			$service = Retargeting\AdsAudience::getService();
-			$service->setClientId($clientId);
-			Retargeting\AdsAudience::useQueue();
-			$isSuccess = Retargeting\AdsAudience::addToAudience($this->adsConfig, $contacts);
+			static::addToAudience($clientId, $contacts);
 		}
 
 		return $isSuccess;
+	}
+
+	protected function addToAudience($clientId, $contacts)
+	{
+		$service = Retargeting\AdsAudience::getService();
+		$service->setClientId($clientId);
+		Retargeting\AdsAudience::useQueue();
+		return Retargeting\AdsAudience::addToAudience($this->adsConfig, $contacts);
 	}
 
 	public function end()

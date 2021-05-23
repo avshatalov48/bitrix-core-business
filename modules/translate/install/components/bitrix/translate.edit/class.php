@@ -33,7 +33,7 @@ class TranslateEditComponent extends Translate\ComponentBase
 	private $viewMode;
 
 	/** @var array */
-	private $langSettings = array();
+	private $langSettings = [];
 
 	/** @var string */
 	private $highlightPhraseId;
@@ -183,10 +183,10 @@ class TranslateEditComponent extends Translate\ComponentBase
 
 		// settings
 		$settingsFile = Translate\Settings::instantiateByPath($documentRoot. '/'. $this->filePath);
-		if (($settingsFile instanceof Translate\Settings) && $settingsFile->isExists() && $settingsFile->load())
+		if (($settingsFile instanceof Translate\Settings) && $settingsFile->load())
 		{
 			$this->langSettings = $settingsFile->getOptions($this->filePath);
-			$this->arResult['LANG_SETTINGS'] = $this->langSettings;
+			$this->arResult['LANG_SETTINGS'] = $settingsFile->getOption($this->filePath, Translate\Settings::OPTION_LANGUAGES);
 		}
 
 		if ($this->viewMode === self::VIEW_MODE_SOURCE_VIEW || $this->viewMode === self::VIEW_MODE_SOURCE_EDIT)
@@ -276,10 +276,10 @@ class TranslateEditComponent extends Translate\ComponentBase
 	 */
 	private function mergeLangFiles($fullLangFilePaths, $languages, $encodingOut = null, $collectUntranslated = false)
 	{
-		$mergedContent = array();
-		$langCodes = array();
+		$mergedContent = [];
+		$langCodes = [];
 
-		$rowLang0 = array();
+		$rowLang0 = [];
 		foreach ($languages as $langId)
 		{
 			$rowLang0[$langId] = '';
@@ -301,12 +301,15 @@ class TranslateEditComponent extends Translate\ComponentBase
 				$langFile->setOperatingEncoding($encodingOut);
 			}
 
-			if (!$langFile->load())
+			if (!$langFile->loadTokens())
 			{
-				continue;
+				if (!$langFile->load())
+				{
+					continue;
+				}
 			}
 
-			$langCodes[$langId] = array();
+			$langCodes[$langId] = [];
 			foreach ($langFile as $code => $phrase)
 			{
 				if (!isset($mergedContent[$code]))
@@ -325,9 +328,9 @@ class TranslateEditComponent extends Translate\ComponentBase
 				foreach ($row as $langId => $phr)
 				{
 					$isObligatory = true;
-					if (!empty($this->langSettings['languages']))
+					if (!empty($this->langSettings[Translate\Settings::OPTION_LANGUAGES]))
 					{
-						$isObligatory = in_array($langId, $this->langSettings['languages'], true);
+						$isObligatory = in_array($langId, $this->langSettings[Translate\Settings::OPTION_LANGUAGES], true);
 					}
 					if (!isset($phr) || !is_string($phr) || (empty($phr) && $phr !== '0'))
 					{
@@ -342,15 +345,15 @@ class TranslateEditComponent extends Translate\ComponentBase
 		}
 
 		// calculate the sum and difference of files
-		$differences = array();
+		$differences = [];
 		$currentLang = Loc::getCurrentLang();
 		$ethalonCodes = $langCodes[$currentLang] ?: [];
 		foreach ($languages as $langId)
 		{
 			$isObligatory = true;
-			if (!empty($this->langSettings['languages']))
+			if (!empty($this->langSettings[Translate\Settings::OPTION_LANGUAGES]))
 			{
-				$isObligatory = in_array($langId, $this->langSettings['languages'], true);
+				$isObligatory = in_array($langId, $this->langSettings[Translate\Settings::OPTION_LANGUAGES], true);
 			}
 
 			if ($langId === $currentLang)

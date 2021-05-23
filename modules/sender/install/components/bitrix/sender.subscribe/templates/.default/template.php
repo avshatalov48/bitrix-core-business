@@ -118,7 +118,7 @@ $frame = $this->createFrame("sender-subscribe", false)->begin();
 			<?endforeach;?>
 		</div>
 
-		<?if ($arParams['USER_CONSENT'] == 'Y'):?>
+		<?if ($arParams['USER_CONSENT'] == 'Y'  && $arParams['AJAX_MODE'] <> 'Y'):?>
 		<div class="bx_subscribe_checkbox_container bx-sender-subscribe-agreement">
 			<?$APPLICATION->IncludeComponent(
 				"bitrix:main.userconsent.request",
@@ -247,7 +247,7 @@ $frame->beginStub();
 			<?endforeach;?>
 		</div>
 
-		<?if ($arParams['USER_CONSENT_USE'] == 'Y'):?>
+		<?if ($arParams['USER_CONSENT_USE'] == 'Y' && $arParams['AJAX_MODE'] <> 'Y'):?>
 		<div class="bx_subscribe_checkbox_container bx-sender-subscribe-agreement">
 			<?$APPLICATION->IncludeComponent(
 				"bitrix:main.userconsent.request",

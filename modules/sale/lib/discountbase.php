@@ -898,7 +898,7 @@ abstract class DiscountBase
 			'USER_GROUPS' => $this->context->getUserGroups(),
 			'SITE_ID' => $siteId,
 			'LID' => $siteId,  // compatibility only
-			'ORDER_PRICE' => $basket->getPrice(),
+			'ORDER_PRICE' => $basket->getBasePrice(),
 			'ORDER_WEIGHT' => $basket->getWeight(),
 			'CURRENCY' => $this->getCurrency(),
 			'PERSON_TYPE_ID' => 0,
@@ -913,7 +913,7 @@ abstract class DiscountBase
 
 			$this->orderData['ID'] = $order->getId();
 			$this->orderData['USER_ID'] = $order->getUserId();
-			$this->orderData['ORDER_PRICE'] = $order->getPrice();
+			$this->orderData['ORDER_PRICE'] = $order->getBasePrice();
 			$this->orderData['PERSON_TYPE_ID'] = $order->getPersonTypeId();
 			$this->orderData['RECURRING_ID'] = $order->getField('RECURRING_ID');
 
@@ -1515,6 +1515,8 @@ abstract class DiscountBase
 		$storageClassName = $this->getOrderDiscountClassName();
 		/** @var DiscountCouponsManager $couponClassName */
 		$couponClassName = $this->getDiscountCouponClassName();
+		/** @var EntityMarker $entityMarkerClassName */
+		$entityMarkerClassName = $this->getEntityMarkerClassName();
 
 		if (!Compatible\DiscountCompatibility::isUsed() || !Compatible\DiscountCompatibility::isInited())
 		{
@@ -1529,7 +1531,29 @@ abstract class DiscountBase
 		if ($process)
 		{
 			$couponClassName::finalApply();
-			$couponClassName::saveApplied();
+			$couponsResult = $couponClassName::saveApplied();
+			if (!$couponsResult->isSuccess())
+			{
+				$process = false;
+				$error = new Main\Error(
+					$this->prepareCouponsResult($couponsResult)
+				);
+				$result->addError($error);
+				$markerResult = new Result();
+				$markerResult->addWarning($error);
+				$markerResult->addWarning(new Main\Error(
+					Loc::getMessage('BX_SALE_DISCOUNT_ERR_BAD_PRICES')
+				));
+				$entityMarkerClassName::addMarker(
+					$this->getOrder(),
+					$this->getOrder(),
+					$markerResult
+				);
+				unset($markerResult, $error);
+			}
+		}
+		if ($process)
+		{
 			$couponsResult = $this->saveCoupons();
 			if (!$couponsResult->isSuccess())
 			{
@@ -1620,6 +1644,22 @@ abstract class DiscountBase
 		}
 
 		return $result;
+	}
+
+	protected function prepareCouponsResult(Main\Result $couponsResult): string
+	{
+		$commonList = [];
+		$errorList = $couponsResult->getErrors();
+		$error = reset($errorList);
+
+		/** @var array $list */
+		$list = $error->getCustomData();
+		foreach (array_keys($list) as $coupon)
+		{
+			$commonList[] = $coupon.' - '.$list[$coupon];
+		}
+		return $error->getMessage().': '.implode(', ', $commonList);
+
 	}
 
 	/**
@@ -4541,6 +4581,7 @@ abstract class DiscountBase
 	protected function resetOrderState()
 	{
 		$this->resetPrices();
+		$this->resetOrderPrice();
 		$this->resetDiscountAppliedFlag();
 	}
 
@@ -4552,6 +4593,27 @@ abstract class DiscountBase
 	protected function resetPrices()
 	{
 		$this->resetBasketPrices();
+	}
+
+	/**
+	 * Fill base entity price.
+	 *
+	 * @return void
+	 */
+	protected function resetOrderPrice(): void
+	{
+		if ($this->isOrderExists())
+		{
+			$order = $this->getOrder();
+			$this->orderData['ORDER_PRICE'] = $order->getBasePrice();
+			unset($order);
+		}
+		else
+		{
+			$basket = $this->getBasket();
+			$this->orderData['ORDER_PRICE'] = $basket->getBasePrice();
+			unset($basket);
+		}
 	}
 
 	/**
@@ -5564,6 +5626,18 @@ abstract class DiscountBase
 	{
 		$registry = Registry::getInstance(static::getRegistryType());
 		return $registry->getShipmentClassName();
+	}
+
+	/**
+	 * @return string
+	 *
+	 * @throws Main\ArgumentException
+	 * @throws Main\NotImplementedException
+	 */
+	protected function getEntityMarkerClassName(): string
+	{
+		$registry = Registry::getInstance(static::getRegistryType());
+		return $registry->getEntityMarkerClassName();
 	}
 
 	private function showAdminError()

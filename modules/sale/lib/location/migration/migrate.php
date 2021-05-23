@@ -72,7 +72,7 @@ class CUpdaterLocationPro extends \CUpdater implements \Serializable
 	{
 		global $DBType;
 		$this->Init($curPath = "", $DBType, $updaterName = "", $curDir = "", self::MODULE_ID, "DB");
-		$this->data = unserialize($data);
+		$this->data = unserialize($data, ['allowed_classes' => false]);
 	}
 
 	public static function updateDBSchemaRestoreLegacyIndexes()

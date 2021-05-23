@@ -86,7 +86,12 @@ Vue.component('bx-im-component-conference-create',
 		{
 			generateLink()
 			{
-				Ajax.runAction('im.conference.prepare', {json: {}})
+				Ajax.runAction('im.conference.prepare', {
+					json: {},
+					analyticsLabel: {
+						creationType: 'chat'
+					}
+				})
 				.then((response) => {
 					this.aliasData = response.data['ALIAS_DATA'];
 					this.defaultTitle = response.data['DEFAULT_TITLE'];
@@ -120,14 +125,20 @@ Vue.component('bx-im-component-conference-create',
 
 					this.clearErrors();
 					Ajax.runAction('im.conference.create', {
-							json: { fields: fieldsToSubmit, aliasData: this.aliasData }
-						})
-						.then((response) => {
-							this.onSuccessfulSubmit(response);
-						})
-						.catch((response) => {
-							this.onFailedSubmit(response);
-						});
+						json: {
+							fields: fieldsToSubmit,
+							aliasData: this.aliasData
+						},
+						analyticsLabel: {
+							creationType: 'chat'
+						}
+					})
+					.then((response) => {
+						this.onSuccessfulSubmit(response);
+					})
+					.catch((response) => {
+						this.onFailedSubmit(response);
+					});
 				}
 			},
 			cancelCreation()

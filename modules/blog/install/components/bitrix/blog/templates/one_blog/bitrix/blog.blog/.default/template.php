@@ -66,7 +66,7 @@ if(!empty($arResult["ERROR_MESSAGE"]))
 	<?
 }
 
-if(count($arResult["POST"])>0)
+if(is_array($arResult["POST"]) && count($arResult["POST"])>0)
 {
 	foreach($arResult["POST"] as $ind => $CurPost)
 	{

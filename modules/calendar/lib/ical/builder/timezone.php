@@ -8,13 +8,14 @@ use Bitrix\Calendar\ICal\Basic\BasicComponent;
 use Bitrix\Calendar\ICal\Basic\Content;
 use Bitrix\Calendar\ICal\Basic\Observance;
 use Bitrix\Calendar\Util;
+use DateTimeZone;
 
 class Timezone extends BasicComponent implements BuilderComponent
 {
 	private $id;
 	private $observances = [];
 
-	public static function getInstance(): Timezone
+	public static function createInstance(): Timezone
 	{
 		return new self();
 	}
@@ -35,16 +36,13 @@ class Timezone extends BasicComponent implements BuilderComponent
 		];
 	}
 
-	public function setTimezoneId(string $id = null): Timezone
+	/**
+	 * @param DateTimeZone $tz
+	 * @return $this
+	 */
+	public function setTimezoneId(DateTimeZone $tz): Timezone
 	{
-		if ($id)
-		{
-			$this->id = $id;
-		}
-		else
-		{
-			$this->id = Util::prepareTimezone()->getName();
-		}
+		$this->id = $tz->getName();
 
 		return $this;
 	}

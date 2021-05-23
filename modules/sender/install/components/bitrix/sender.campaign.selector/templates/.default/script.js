@@ -58,6 +58,11 @@
 	};
 	Selector.prototype.initTester = function ()
 	{
+		if(!BX.Sender.Message)
+		{
+			return;
+		}
+
 		var tester = BX.Sender.Message.Tester;
 		if (!tester)
 		{

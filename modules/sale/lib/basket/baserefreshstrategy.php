@@ -266,9 +266,9 @@ abstract class BaseRefreshStrategy
 		{
 			if (isset($settableFields[$key]))
 			{
-				if ($key === 'PRICE' && $item->isCustomPrice())
+				if ($item->isMarkedFieldCustom($key))
 				{
-					$value = $item->getPrice();
+					$value = $item->getField($key);
 				}
 
 				if (isset($roundFields[$key]))

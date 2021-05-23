@@ -367,7 +367,13 @@ Vue.component('bx-im-component-conference-edit',
 			if (this.isFormViewMode || this.linkGenerated)
 			{
 				Ajax.runAction('im.conference.create', {
-					json: { fields: fieldsToSubmit, aliasData: this.aliasData }
+					json: {
+						fields: fieldsToSubmit,
+						aliasData: this.aliasData
+					},
+					analyticsLabel: {
+						creationType: 'section'
+					}
 				})
 				.then((response) => {
 					this.onSuccessfulSubmit();
@@ -419,15 +425,20 @@ Vue.component('bx-im-component-conference-edit',
 		},
 		generateLink()
 		{
-			Ajax.runAction('im.conference.prepare', {json: {}})
-				.then((response) => {
-					this.aliasData = response.data['ALIAS_DATA'];
-					this.title.defaultValue = response.data['DEFAULT_TITLE'];
-					this.linkGenerated = true;
-				})
-				.catch((response) => {
-					Logger.warn('error', response["errors"][0].message);
-				});
+			Ajax.runAction('im.conference.prepare', {
+				json: {},
+				analyticsLabel: {
+					creationType: 'section'
+				}
+			})
+			.then((response) => {
+				this.aliasData = response.data['ALIAS_DATA'];
+				this.title.defaultValue = response.data['DEFAULT_TITLE'];
+				this.linkGenerated = true;
+			})
+			.catch((response) => {
+				Logger.warn('error', response["errors"][0].message);
+			});
 		},
 		addError(errorText)
 		{

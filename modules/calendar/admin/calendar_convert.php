@@ -839,7 +839,7 @@ class CCalendarConvert
 				if ($value == '')
 					$value = $default;
 			}
-			$value = unserialize($value);
+			$value = unserialize($value, ['allowed_classes' => false]);
 			return $value;
 		}
 	}

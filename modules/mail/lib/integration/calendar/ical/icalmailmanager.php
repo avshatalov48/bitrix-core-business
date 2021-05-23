@@ -4,28 +4,38 @@
 namespace Bitrix\Mail\Integration\Calendar\ICal;
 
 use Bitrix\Calendar\ICal\IncomingEventManager;
+use Bitrix\Calendar\ICal\MailInvitation\InboxManager;
+use Bitrix\Calendar\ICal\MailInvitation\IncomingInvitationReplyHandler;
+use Bitrix\Calendar\ICal\Parser\Calendar;
 use Bitrix\Main\Loader;
 
 Loader::includeModule('calendar');
 
 class ICalMailManager
 {
-	const CONTENT_TYPES = ['application/ics', 'text/calendar'];
+	public const CONTENT_TYPES = ['application/ics', 'text/calendar'];
 
-	public static function manageRequest($params)
+	public static function manageRequest($params): void
 	{
 		IncomingEventManager::handleRequest($params);
 	}
 
-	public static function manageReply($data): array
+	public static function handleReply(Calendar $icalComponent): bool
 	{
-		IncomingEventManager::handleReply($data);
-		return [];
+		return IncomingInvitationReplyHandler::createInstance($icalComponent)
+			->handle()
+			->isSuccess();
 	}
 
-	public static function parseRequest($data): array
+	/**
+	 * @param string $content
+	 * @return Calendar
+	 */
+	public static function parseRequest(string $content): Calendar
 	{
-		return IncomingEventManager::getDataInfo($data);
+		return InboxManager::createInstance($content)
+			->parseContent()
+			->getComponent();
 	}
 
 	public static function parseFile($fileId)
@@ -43,10 +53,9 @@ class ICalMailManager
 	public static function getFileContent($fileId)
 	{
 		$fileArray = \CFile::makeFileArray($fileId);
-
 		if (!empty($fileArray))
 		{
-			return file_get_contents($fileArray['tmp_name']);
+			return \Bitrix\Main\IO\File::getFileContents($fileArray['tmp_name']);
 		}
 
 		return null;

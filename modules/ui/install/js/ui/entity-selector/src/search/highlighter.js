@@ -1,10 +1,10 @@
 import { Type, Text } from 'main.core';
 import type MatchIndex from './match-index';
-import ItemCollection from '../item/item-collection';
+import type { OrderedArray } from 'main.core.collections';
 
 export default class Highlighter
 {
-	static mark(text: string, matches: ItemCollection<MatchIndex>)
+	static mark(text: string, matches: OrderedArray<MatchIndex>)
 	{
 		if (!Type.isStringFilled(text) || !matches || matches.count() === 0)
 		{

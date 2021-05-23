@@ -126,7 +126,7 @@ class CAllSaleDelivery
 		{
 			if (!is_array($arBasketItem["DIMENSIONS"]))
 			{
-				$arDim = unserialize($arBasketItem["~DIMENSIONS"]);
+				$arDim = unserialize($arBasketItem["~DIMENSIONS"], ['allowed_classes' => false]);
 				$arBasketItem["DIMENSIONS"] = $arDim;
 				unset($arBasketItem["~DIMENSIONS"]);
 			}
@@ -592,7 +592,7 @@ class CAllSaleDelivery
 
 		if(isset($arFields["STORE"]))
 		{
-			$stores = unserialize($arFields["STORE"]);
+			$stores = unserialize($arFields["STORE"], ['allowed_classes' => false]);
 
 			if($stores)
 				\Bitrix\Sale\Delivery\ExtraServices\Manager::saveStores($newId, $stores);
@@ -1198,7 +1198,7 @@ class CAllSaleDelivery
 
 		if(isset($arFields["STORE"]))
 		{
-			$stores = unserialize($arFields["STORE"]);
+			$stores = unserialize($arFields["STORE"], ['allowed_classes' => false]);
 
 			if($stores)
 				\Bitrix\Sale\Delivery\ExtraServices\Manager::saveStores($newId, $stores);
@@ -1480,7 +1480,7 @@ class CAllSaleDelivery
 			$itemFieldValues["QUANTITY"] = $shipmentItem->getField("QUANTITY");
 
 			if(!empty($itemFieldValues["DIMENSIONS"]) && is_string($itemFieldValues["DIMENSIONS"]))
-				$itemFieldValues["DIMENSIONS"] = unserialize($itemFieldValues["DIMENSIONS"]);
+				$itemFieldValues["DIMENSIONS"] = unserialize($itemFieldValues["DIMENSIONS"], ['allowed_classes' => false]);
 
 			unset($itemFieldValues['DATE_INSERT'], $itemFieldValues['DATE_UPDATE']);
 			$oldOrder["ITEMS"][] = $itemFieldValues;
@@ -1581,7 +1581,7 @@ class CAllSaleDelivery
 
 			if($shipmentItem->getField("DIMENSIONS") <> '')
 			{
-				$shipmentItem->setField("DIMENSIONS", unserialize($shipmentItem->getField("DIMENSIONS")));
+				$shipmentItem->setField("DIMENSIONS", unserialize($shipmentItem->getField("DIMENSIONS"), ['allowed_classes' => false]));
 			}
 		}
 

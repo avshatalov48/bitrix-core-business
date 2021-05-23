@@ -921,6 +921,7 @@ var mobileNames = {};
 				}
 			}
 
+			var removedFile = this.file;
 			this.file = null;
 			delete this.file;
 
@@ -928,7 +929,7 @@ var mobileNames = {};
 			this.canvas = null;
 			delete this.canvas;
 
-			BX.onCustomEvent(this.caller, "onFileIsDeleted", [this.id, this, this.caller]);
+			BX.onCustomEvent(this.caller, "onFileIsDeleted", [this.id, this, this.caller, removedFile]);
 			BX.onCustomEvent(this, "onFileIsDeleted", [this, this.caller]);
 		}
 	};

@@ -1,9 +1,18 @@
-import {Loc, Tag} from "main.core";
+// @flow
+'use strict';
+
+import {Dom, Loc, Tag, Cache} from "main.core";
 import StatusBlock from "./controls/statusblock";
-import {ConnectionItem} from "./connectionproviders/connectionitem";
+import {ConnectionItem} from "calendar.sync.manager";
 
 export default class SyncPanel
 {
+	MAIN_SYNC_SLIDER_NAME = 'calendar:sync-slider';
+	SLIDER_WIDTH = 684;
+	LOADER_NAME = "calendar:loader";
+
+	cache = new Cache.MemoryCache();
+
 	constructor(options)
 	{
 		this.status = options.status;
@@ -12,52 +21,108 @@ export default class SyncPanel
 
 		this.statusBlockEnterTimeout = null;
 		this.statusBlockLeaveTimeout = null;
+
 	}
 
-	showContent()
+	openSlider()
+	{
+		BX.SidePanel.Instance.open(this.MAIN_SYNC_SLIDER_NAME, {
+			contentCallback: (slider) => {
+				return new Promise((resolve, reject) => {
+					resolve(this.getContent());
+				});
+			},
+			allowChangeHistory:false,
+			events: {
+				onLoad: () => {
+					this.setGridContent();
+				},
+				// onMessage: (event) => {
+				// 	if (event.getEventId() === 'refreshSliderGrid')
+				// 	{
+				// 		this.refreshData();
+				// 	}
+				// },
+				// onClose: (event) => {
+				// 	BX.SidePanel.Instance.postMessageTop(window.top.BX.SidePanel.Instance.getTopSlider(), "refreshCalendarGrid", {});
+				// },
+			},
+			cacheable: false,
+			width: this.SLIDER_WIDTH,
+			loader: this.LOADER_NAME,
+		});
+	}
+
+	getContent()
 	{
 		const mainHeader = Tag.render`
 			<span class="calendar-sync-header-text">${Loc.getMessage('SYNC_CALENDAR_HEADER')}</span>
 		`;
 
-		const connections = this.getConnections();
-
-		this.blockStatus = StatusBlock.createInstance({
-			status: this.status,
-			connections: connections,
-			withStatus: true,
-			popupWithUpdateButton: true,
-			popupId: 'calendar-syncPanel-status',
-		}).getContentStatusBlock();
-
-		const webHeader = Tag.render `
-			<div class="calendar-sync-title">${Loc.getMessage('SYNC_WEB_HEADER')}</div>
-		`;
-
-		const mobileHeader = Tag.render `
-			<div class="calendar-sync-title">${Loc.getMessage('SYNC_MOBILE_HEADER')}</div>
-		`;
-
-		const webContentBlock = Tag.render `
-			<div id="calendar-sync-web" class="calendar-sync-web"></div>
-		`;
-
-		const mobileContentBlock = Tag.render `
-			<div id="calendar-sync-mobile" class="calendar-sync-mobile"></div>
-		`;
+		this.blockStatusContent = this.getStatusBlockContent(this.getConnections());
 
 		return Tag.render`
 			<div class="calendar-sync-wrap">
 				<div class="calendar-sync-header">
 					${mainHeader}
-					${this.blockStatus}
+					${this.blockStatusContent}
 				</div>
-				${mobileHeader}
-				${mobileContentBlock}
-				${webHeader}
-				${webContentBlock}
+				${this.getMobileHeader()}
+				${this.getMobileContentWrapper()}
+				${this.getWebHeader()}
+				${this.getWebContentWrapper()}
 			</div>
 		`;
+	}
+
+	getMobileContentWrapper()
+	{
+		return this.cache.remember('calendar-syncPanel-mobileContentWrapper', () => {
+			return Tag.render`
+			<div id="calendar-sync-mobile" class="calendar-sync-mobile"></div>
+		`;
+		});
+
+	}
+
+	getWebContentWrapper()
+	{
+		return this.cache.remember('calendar-syncPanel-webContentWrapper', () => {
+			return Tag.render`
+				<div id="calendar-sync-web" class="calendar-sync-web"></div>
+			`;
+		});
+	}
+
+	getMobileHeader()
+	{
+		return this.cache.remember('calendar-syncPanel-mobileHeader', () => {
+			return Tag.render`
+				<div class="calendar-sync-title">${Loc.getMessage('SYNC_MOBILE_HEADER')}</div>
+			`;
+		});
+	}
+
+	getWebHeader()
+	{
+		return this.cache.remember('calendar-syncPanel-webHeader', () => {
+			return Tag.render`
+				<div class="calendar-sync-title">${Loc.getMessage('SYNC_WEB_HEADER')}</div>
+		`;
+		});
+	}
+
+	getStatusBlockContent(connections)
+	{
+		this.statusBlock = StatusBlock.createInstance({
+			status: this.status,
+			connections: connections,
+			withStatusLabel: true,
+			popupWithUpdateButton: true,
+			popupId: 'calendar-syncPanel-status',
+		});
+
+		return this.statusBlock.getContent();
 	}
 
 	getConnections()
@@ -69,17 +134,13 @@ export default class SyncPanel
 			const itemConnections = item.getConnections();
 			if (itemConnections.length > 0)
 			{
-				itemConnections.forEach(connection =>
+				itemConnections.forEach(connection => {
+
+					if (ConnectionItem.isConnectionItem(connection) && connection.getConnectStatus() === true)
 					{
-						if (connection instanceof ConnectionItem)
-						{
-							if (connection.getConnectStatus() === true)
-							{
-								connections.push(connection);
-							}
-						}
+						connections.push(connection);
 					}
-				)
+				})
 			}
 		});
 
@@ -105,7 +166,7 @@ export default class SyncPanel
 		const grid = new BX.TileGrid.Grid({
 			id: 'calendar_sync',
 			items: items,
-			container: document.getElementById('calendar-sync-web'),
+			container: this.getWebContentWrapper(),
 			sizeRatio: "55%",
 			itemMinWidth: 180,
 			tileMargin: 7,
@@ -121,7 +182,7 @@ export default class SyncPanel
 		const grid = new BX.TileGrid.Grid({
 			id: 'calendar_sync',
 			items:  items,
-			container:  document.getElementById('calendar-sync-mobile'),
+			container:  this.getMobileContentWrapper(),
 			sizeRatio:  "55%",
 			itemMinWidth:  180,
 			tileMargin:  7,
@@ -135,5 +196,7 @@ export default class SyncPanel
 	{
 		this.status = status;
 		this.connectionsProviders = connectionsProviders;
+		this.blockStatusContent = this.statusBlock.refresh(status, this.getConnections()).getContent();
+		Dom.replace(document.querySelector('#calendar-sync-status-block'), this.blockStatusContent);
 	}
 }

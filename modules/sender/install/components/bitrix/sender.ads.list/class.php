@@ -28,20 +28,25 @@ Loc::loadMessages(__FILE__);
 
 class SenderAdsListComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 {
+	private const ADS_MANAGER_URL = 'https://www.facebook.com/adsmanager/manage/campaigns';
 	protected function initParams()
 	{
-		$this->arParams['GRID_ID'] = isset($this->arParams['GRID_ID']) ? $this->arParams['GRID_ID'] : 'SENDER_ADS_GRID';
+		$this->arParams['GRID_ID'] = isset($this->arParams['GRID_ID']) ?
+			$this->arParams['GRID_ID'] : 'SENDER_ADS_GRID';
 		parent::initParams();
 
-		$this->arParams['CAN_PAUSE_START_STOP'] = $this->arParams['CAN_PAUSE_STOP_START'] ?? $this->getAccessController()
-												->check(ActionDictionary::ACTION_ADS_PAUSE_START_STOP);
+		$this->arParams['CAN_PAUSE_START_STOP'] = $this->arParams['CAN_PAUSE_STOP_START'] ??
+			$this->getAccessController()->check(ActionDictionary::ACTION_ADS_PAUSE_START_STOP);
+
 		$this->arParams['CAN_EDIT_ADV'] = $this->arParams['CAN_EDIT_ADV'] ?? $this->getEditList();
 
-		$this->arParams['CAN_VIEW_CLIENT'] = $this->arParams['CAN_VIEW_CLIENT'] ?? $this->getAccessController()
-													->check(ActionDictionary::ACTION_ADS_CLIENT_VIEW);
+		$this->arParams['CAN_VIEW_CLIENT'] = $this->arParams['CAN_VIEW_CLIENT'] ??
+			$this->getAccessController()->check(ActionDictionary::ACTION_ADS_CLIENT_VIEW);
 
-		$this->arParams['CAN_CONNECT_CABINET'] = $this->arParams['CAN_CONNECT_CABINET'] ?? $this->getAccessController()
-													->check(ActionDictionary::ACTION_ADS_CONNECT_CABINET);
+		$this->arParams['CAN_CONNECT_CABINET'] = $this->arParams['CAN_CONNECT_CABINET'] ??
+			$this->getAccessController()->check(
+			ActionDictionary::ACTION_ADS_CONNECT_CABINET
+			);
 
 	}
 	private function getEditList(): array
@@ -60,7 +65,7 @@ class SenderAdsListComponent extends Bitrix\Sender\Internals\CommonSenderCompone
 	protected function getSenderMessages()
 	{
 		$list = array();
-		$messages = Message\Factory::getAdsMessages();
+		$messages = array_merge(Message\Factory::getAdsMessages(), Message\Factory::getMarketingMessages());
 		$pathToAdd = $this->arParams['PATH_TO_ADD'];
 		$uri = new Uri($pathToAdd);
 		$uri->addParams(array('code' => '#code#'));
@@ -138,7 +143,6 @@ class SenderAdsListComponent extends Bitrix\Sender\Internals\CommonSenderCompone
 		{
 			$this->preparePost();
 		}
-
 
 		// set ui filter
 		$this->setUiFilter();
@@ -227,7 +231,13 @@ class SenderAdsListComponent extends Bitrix\Sender\Internals\CommonSenderCompone
 			);
 
 			$item['URLS'] = array(
-				'EDIT' => str_replace('#id#', $item['ID'], $this->arParams['PATH_TO_EDIT']),
+				'EDIT' => in_array(
+					$letter->getMessage()->getCode(),
+					['facebook', 'instagram']
+				) ? [
+						'EXTERNAL' => self::ADS_MANAGER_URL
+					] :
+					str_replace('#id#', $item['ID'], $this->arParams['PATH_TO_EDIT']),
 				'STAT' => str_replace('#id#', $item['ID'], $this->arParams['PATH_TO_STAT']),
 				'RECIPIENT' => str_replace('#id#', $item['ID'], $this->arParams['PATH_TO_RECIPIENT']),
 			);

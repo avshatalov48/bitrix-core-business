@@ -540,7 +540,7 @@ class OrderBuyer
 				$result[$key] = array();
 				foreach ($item as $property)
 				{
-					if (isset($property['RELATION']))
+					if (!empty($property['RELATION']))
 					{
 						if ($property['TYPE'] === 'ENUM' && is_array($property['OPTIONS']))
 						{
@@ -579,7 +579,7 @@ class OrderBuyer
 				$result[$key] = array();
 				foreach ($item as $property)
 				{
-					if (!isset($property['RELATION']))
+					if (empty($property['RELATION']))
 					{
 						$result[$key][] = $property;
 						$groups[$property['PROPS_GROUP_ID']] = true;

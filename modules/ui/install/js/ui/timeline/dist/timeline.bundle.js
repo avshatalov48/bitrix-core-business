@@ -158,7 +158,6 @@ this.BX = this.BX || {};
 	    }
 
 	    this.layout = {};
-	    this.offset = 0;
 	    this.timeFormat = 'H:M';
 	    this.nameFormat = '';
 	    this.users = new Map();
@@ -205,15 +204,6 @@ this.BX = this.BX || {};
 	      return this;
 	    }
 	  }, {
-	    key: "setDateTimeOffset",
-	    value: function setDateTimeOffset(offset) {
-	      if (main_core.Type.isInteger(offset)) {
-	        this.offset = offset;
-	      }
-
-	      return this;
-	    }
-	  }, {
 	    key: "setTimeFormat",
 	    value: function setTimeFormat(timeFormat) {
 	      if (main_core.Type.isString(timeFormat)) {
@@ -246,7 +236,7 @@ this.BX = this.BX || {};
 	    value: function getCreatedTime() {
 	      if (this.createdTimestamp > 0) {
 	        this.createdTimestamp = main_core.Text.toInteger(this.createdTimestamp);
-	        return new Date(this.createdTimestamp + 1000 * this.offset);
+	        return new Date(this.createdTimestamp);
 	      }
 
 	      return null;
@@ -2629,7 +2619,7 @@ this.BX = this.BX || {};
 	      var item = new itemClassName(data);
 
 	      if (item instanceof Item) {
-	        return item.setUserData(this.users).setDateTimeOffset(this.getUserTimeZoneOffset()).setTimeFormat(this.getTimeFormat()).setNameFormat(this.nameFormat);
+	        return item.setUserData(this.users).setTimeFormat(this.getTimeFormat()).setNameFormat(this.nameFormat);
 	      }
 
 	      return null;
@@ -2960,15 +2950,6 @@ this.BX = this.BX || {};
 	        container: this.layout.editorsContent
 	      })).run();
 	      return this;
-	    }
-	  }, {
-	    key: "getUserTimeZoneOffset",
-	    value: function getUserTimeZoneOffset() {
-	      if (!this.userTimeZoneOffset) {
-	        this.userTimeZoneOffset = main_core.Text.toInteger(main_core.Loc.getMessage('USER_TZ_OFFSET'));
-	      }
-
-	      return this.userTimeZoneOffset;
 	    }
 	  }, {
 	    key: "getTimeFormat",

@@ -1,0 +1,129 @@
+.catalog-product-selector-container {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+}
+
+.catalog-product-edit {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	-webkit-box-pack: end;
+	    -ms-flex-pack: end;
+	        justify-content: flex-end;
+	-webkit-box-orient: horizontal;
+	-webkit-box-direction: reverse;
+	    -ms-flex-direction: row-reverse;
+	        flex-direction: row-reverse;
+	-ms-flex-wrap: wrap;
+	    flex-wrap: wrap;
+}
+
+.catalog-product-view .catalog-product-img {
+	max-width: 100px;
+	float: left;
+	display: block;
+	position: relative;
+	margin: -16px 15px 10px 0;
+	-webkit-box-sizing: border-box;
+	        box-sizing: border-box;
+}
+
+.catalog-product-edit .catalog-product-img {
+	max-width: 39px;
+	float: none;
+	display: block;
+	position: relative;
+	margin: 0 0 0 15px;
+	-webkit-box-sizing: border-box;
+	        box-sizing: border-box;
+}
+
+.catalog-product-edit .adm-fileinput-drag-area,
+.catalog-product-edit .adm-fileinput-wrapper-single .adm-fileinput-drag-area {
+	background: #fff url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2215%22%20height%3D%2215%22%3E%3Cpath%20fill%3D%22%23A8ADB4%22%20fill-rule%3D%22evenodd%22%20d%3D%22M1.765%200h11.47C14.21%200%2015%20.79%2015%201.765v11.47C15%2014.21%2014.21%2015%2013.235%2015H1.765C.79%2015%200%2014.21%200%2013.235V1.765C0%20.79.79%200%201.765%200zm0%2013.235h11.47v-.882l-3.058-3.53-1.53%201.765-3.824-4.412-3.058%203.53v3.53zm9.264-7.94a1.324%201.324%200%20100-2.648%201.324%201.324%200%20000%202.647z%22%20opacity%3D%22.761%22/%3E%3C/svg%3E) no-repeat center;
+}
+
+.catalog-product-edit div.adm-fileinput-item div.adm-fileinput-item-preview {
+	width: 39px;
+	height: 39px;
+}
+
+.catalog-product-edit div.adm-fileinput-drag-area {
+	height: 39px;
+	width: 39px;
+	/*cursor: pointer;*/
+	-webkit-box-sizing: border-box;
+	        box-sizing: border-box;
+	/*background-color: #fff;*/
+}
+
+.catalog-product-view .ui-image-input-container,
+.catalog-product-view .ui-image-input-img-block {
+	position: relative;
+	z-index: 50;
+	display: block;
+}
+
+.catalog-product-view .ui-image-input-img-block-inner {
+	width: 100px;
+	margin: 0;
+	display: block;
+}
+
+.catalog-product-view .catalog-product-field-inner {
+	display: block;
+	width: 100%;
+}
+
+.catalog-product-view  .catalog-product-field-input {
+	margin-left: 140px;
+	width: calc(100% - 140px);
+}
+
+.adm-fileinput-wrapper-single .adm-fileinput-drag-area {
+	background-size: 17px;
+}
+
+span.ui-image-input-img-add {
+	position: absolute;
+	right: -24px;
+	top: 50%;
+	-webkit-transform: translateY(-50%);
+	    -ms-transform: translateY(-50%);
+	        transform: translateY(-50%);
+	background-color: #fff;
+	border: 1px solid rgba(82, 92, 105, 0.23);
+	opacity: 0.8;
+	width: 17px;
+	height: 17px;
+	background-size: 7px;
+}
+
+.catalog-product-field-inner {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+}
+
+.catalog-product-field .ui-ctl-tag {
+	right: 6px;
+}
+
+.catalog-product-field-input {
+	width: 100%;
+}
+
+.catalog-product-field-input button.ui-ctl-after:focus,
+.catalog-product-field-input button.ui-ctl-after:active {
+	background-color: #fff;
+}

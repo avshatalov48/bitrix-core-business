@@ -299,7 +299,7 @@ final class Manager
 		$checkProductInBasket = $this->checkProductInBasket($product, $pseudoBasket);
 		if($checkProductInBasket)
 		{
-			$this->deleteProductFromBasket($pseudoBasket, $product);
+			$this->deleteProductFromBasket($pseudoBasket, $product, false);
 		}
 		else
 		{
@@ -444,7 +444,10 @@ final class Manager
 		{
 			return null;
 		}
-		$calcResults = $order->getDiscount()->getApplyResult(true);
+		$discount = $order->getDiscount();
+		$discount->calculate();
+		$calcResults = $discount->getApplyResult(true);
+		unset($discount);
 
 		$appliedDiscounts = array();
 		foreach($calcResults['DISCOUNT_LIST'] as $discountData)
@@ -514,10 +517,10 @@ final class Manager
 		}
 	}
 
-	private function deleteProductFromBasket(Basket $basket, array $product)
+	private function deleteProductFromBasket(Basket $basket, array $product, bool $checkQuantity = true)
 	{
 		$item = $this->getItemFromBasket($product, $basket);
-		if($item && $item->getQuantity() == $product['QUANTITY'])
+		if($item && (!$checkQuantity || $item->getQuantity() == $product['QUANTITY']))
 		{
 			$item->delete();
 		}

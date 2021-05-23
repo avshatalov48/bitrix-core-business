@@ -134,7 +134,7 @@ final class VoteUserType
 	 */
 	public static function prepareSettings($userField)
 	{
-		$userField["SETTINGS"] = (is_array($userField["SETTINGS"]) ? $userField["SETTINGS"] : @unserialize($userField["SETTINGS"]));
+		$userField["SETTINGS"] = (is_array($userField["SETTINGS"]) ? $userField["SETTINGS"] : @unserialize($userField["SETTINGS"], ["allowed_classes" => false]));
 		$userField["SETTINGS"] = (is_array($userField["SETTINGS"]) ? $userField["SETTINGS"] : array());
 		$tmp = array("CHANNEL_ID" => intval($userField["SETTINGS"]["CHANNEL_ID"]));
 
@@ -169,7 +169,7 @@ final class VoteUserType
 	 */
 	public static function checkSettings(&$params)
 	{
-		$settings = (is_array($params["SETTINGS"]) ? $params["SETTINGS"] : @unserialize($params["SETTINGS"]));
+		$settings = (is_array($params["SETTINGS"]) ? $params["SETTINGS"] : @unserialize($params["SETTINGS"], ["allowed_classes" => false]));
 		$settings = is_array($settings) ? $settings : array($settings);
 		if (array_key_exists("CHANNEL_ID", $settings))
 		{

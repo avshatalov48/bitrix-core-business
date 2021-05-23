@@ -200,7 +200,7 @@ class Calculator
 			$dimensions = $basketItem->getField('DIMENSIONS');
 
 			if(!is_array($dimensions) && $dimensions <> '')
-				$dimensions = unserialize($dimensions);
+				$dimensions = unserialize($dimensions, ['allowed_classes' => false]);
 
 			if(!empty($dimensions['WIDTH']) && !empty($dimensions['HEIGHT']) && !empty($dimensions['LENGTH']))
 			{

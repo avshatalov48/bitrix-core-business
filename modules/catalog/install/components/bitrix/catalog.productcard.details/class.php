@@ -10,6 +10,7 @@ use Bitrix\Catalog\v2\IoC\ServiceContainer;
 use Bitrix\Catalog\v2\Product\BaseProduct;
 use Bitrix\Currency\Integration\IblockMoneyProperty;
 use Bitrix\Iblock\PropertyTable;
+use Bitrix\Iblock\Model\PropertyFeature;
 use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Entity\AddResult;
 use Bitrix\Main\Error;
@@ -242,6 +243,14 @@ class CatalogProductDetailsComponent
 				$product->getPropertyCollection()->setValues($propertyValues);
 			}
 		}
+		else
+		{
+			$iblockSectionId = $this->request->get('IBLOCK_SECTION_ID');
+			if (!empty($iblockSectionId))
+			{
+				$product->getSectionCollection()->setValues([$iblockSectionId]);
+			}
+		}
 
 		return $product;
 	}
@@ -392,14 +401,15 @@ class CatalogProductDetailsComponent
 
 			$propertyPrefix = GridVariationForm::preparePropertyName();
 			$morePhotoName = GridVariationForm::preparePropertyName(BaseForm::MORE_PHOTO);
-			$morePhotoNameCustom = "{$morePhotoName}_custom";
 
 			foreach ($sku as $name => $value)
 			{
 				if (
-					$name !== $morePhotoName
-					&& $name !== $morePhotoNameCustom
-					&& mb_strpos($name, $propertyPrefix) === 0)
+					!empty($value)
+					&& $name !== $morePhotoName
+					&& mb_substr($name, -7) !== '_custom'
+					&& mb_strpos($name, $propertyPrefix) === 0
+				)
 				{
 					return true;
 				}
@@ -501,9 +511,19 @@ class CatalogProductDetailsComponent
 					$field = $this->prepareFilePropertyFromEditor($fields[$name], $descriptions, $deleted);
 					unset($fields[$name.'_descr']);
 				}
-				elseif (isset($field['AMOUNT'], $field['CURRENCY']) && Loader::includeModule('currency'))
+				elseif (Loader::includeModule('currency'))
 				{
-					$field = $field['AMOUNT'].IblockMoneyProperty::SEPARATOR.$field['CURRENCY'];
+					if (isset($field['AMOUNT'], $field['CURRENCY']))
+					{
+						$field = IblockMoneyProperty::getUnitedValue($field['AMOUNT'], $field['CURRENCY']);
+					}
+					elseif (isset($field['PRICE']['VALUE'], $field['CURRENCY']['VALUE']))
+					{
+						$field = IblockMoneyProperty::getUnitedValue(
+							$field['PRICE']['VALUE'],
+							$field['CURRENCY']['VALUE']
+						);
+					}
 				}
 
 				$index = mb_substr($name, $prefixLength);
@@ -522,11 +542,25 @@ class CatalogProductDetailsComponent
 
 		foreach ($descriptionFieldNames as $name)
 		{
-			if (isset($fields[$name]))
+			if (isset($fields[$name]) && is_string($fields[$name]))
 			{
+				$fields[$name] = $this->sanitize(htmlspecialchars_decode($fields[$name]));
 				$fields[$name.'_TYPE'] = 'html';
 			}
 		}
+	}
+
+	private function sanitize(string $html): string
+	{
+		static $sanitizer = null;
+
+		if ($sanitizer === null)
+		{
+			$sanitizer = new \CBXSanitizer;
+			$sanitizer->setLevel(\CBXSanitizer::SECURE_LEVEL_LOW);
+		}
+
+		return $sanitizer->sanitizeHtml($html);
 	}
 
 	private function preparePictureFields(&$fields): void
@@ -730,9 +764,29 @@ class CatalogProductDetailsComponent
 		return $measureRatio;
 	}
 
+	private function prepareFileFields(&$fields)
+	{
+		$files = $_FILES['data'];
+		if (!empty($files))
+		{
+			CFile::ConvertFilesToPost($files, $fields);
+			foreach ($fields as $key => $field)
+			{
+				if (is_array($field) && array_key_exists('FILE', $field))
+				{
+					$fields[$key] = [
+						$fields[$key],
+					];
+				}
+			}
+		}
+	}
+
 	public function saveAction()
 	{
 		$fields = $this->request->get('data') ?: [];
+
+		$this->prepareFileFields($fields);
 
 		if (empty($fields))
 		{
@@ -848,6 +902,16 @@ class CatalogProductDetailsComponent
 
 						if (!empty($skuField))
 						{
+							if (isset($skuField['NAME']) && $skuField['NAME'] === '')
+							{
+								$skuField['NAME'] = $product->getName();
+							}
+
+							if (isset($skuField['PURCHASING_PRICE']) && $skuField['PURCHASING_PRICE'] === '')
+							{
+								$skuField['PURCHASING_PRICE'] = null;
+							}
+
 							$sku->setFields($skuField);
 						}
 
@@ -880,10 +944,15 @@ class CatalogProductDetailsComponent
 					}
 				}
 
+				global $DB;
+				$DB->StartTransaction();
+
 				$result = $product->save();
 
 				if ($result->isSuccess())
 				{
+					$DB->Commit();
+
 					$redirect = !$this->hasProductId();
 					$this->setProductId($product->getId());
 
@@ -902,6 +971,7 @@ class CatalogProductDetailsComponent
 					return $response;
 				}
 
+				$DB->Rollback();
 				$this->errorCollection->add($result->getErrors());
 			}
 		}
@@ -1055,6 +1125,24 @@ class CatalogProductDetailsComponent
 			$updateFields['IS_REQUIRED'] = ($fields['IS_REQUIRED'] === 'Y') ? 'Y' : 'N';
 		}
 
+		if (!empty($fields['IS_PUBLIC']))
+		{
+			$features = [
+				[
+					'MODULE_ID' => 'iblock',
+					'FEATURE_ID' => PropertyFeature::FEATURE_ID_LIST_PAGE_SHOW,
+					'IS_ENABLED' => ($fields['IS_PUBLIC'] === 'Y') ? 'Y' : 'N',
+				],
+				[
+					'MODULE_ID' => 'iblock',
+					'FEATURE_ID' => PropertyFeature::FEATURE_ID_DETAIL_PAGE_SHOW,
+					'IS_ENABLED' => ($fields['IS_PUBLIC'] === 'Y') ? 'Y' : 'N',
+				],
+			];
+
+			\Bitrix\Iblock\Model\PropertyFeature::updateFeatures($id, $features);
+		}
+
 		if ($fields['USER_TYPE'] === 'Date' || $fields['USER_TYPE'] === 'DateTime')
 		{
 			$updateFields['USER_TYPE'] = $fields['USER_TYPE'];
@@ -1179,7 +1267,7 @@ class CatalogProductDetailsComponent
 					$addFields['UF_XML_ID'] = !empty($item['XML_ID']) ? $item['XML_ID'] : md5(mt_rand());
 					if (empty($addFields['UF_NAME']))
 					{
-						$addFields['UF_NAME'] = $addFields['UF_XML_ID'];
+						$addFields['UF_NAME'] = Loc::getMessage('CPD_NEW_LIST_ELEMENT_EMPTY_NAME');
 					}
 					$entityClass::add($addFields);
 				}
@@ -1300,6 +1388,21 @@ class CatalogProductDetailsComponent
 			$propertyFields['FEATURES'] = $fields['FEATURES'];
 		}
 
+		if (!empty($fields['IS_PUBLIC']))
+		{
+			$propertyFields['FEATURES'] = $propertyFields['FEATURES'] ?? [];
+			$propertyFields['FEATURES'][] = [
+				'MODULE_ID' => 'iblock',
+				'FEATURE_ID' => PropertyFeature::FEATURE_ID_DETAIL_PAGE_SHOW,
+				'IS_ENABLED' => ($fields['IS_PUBLIC'] === 'Y') ? 'Y' : 'N',
+			];
+			$propertyFields['FEATURES'][] = [
+				'MODULE_ID' => 'iblock',
+				'FEATURE_ID' => PropertyFeature::FEATURE_ID_LIST_PAGE_SHOW,
+				'IS_ENABLED' => ($fields['IS_PUBLIC'] === 'Y') ? 'Y' : 'N',
+			];
+		}
+
 		$newId = (int)($iblockProperty->Add($propertyFields));
 		if ($newId === 0)
 		{
@@ -1372,7 +1475,7 @@ class CatalogProductDetailsComponent
 			$newFields['UF_XML_ID'] = !empty($item['XML_ID']) ? $item['XML_ID'] : md5(mt_rand());
 			if (empty($newFields['UF_NAME']))
 			{
-				$newFields['UF_NAME'] = $newFields['UF_XML_ID'];
+				$newFields['UF_NAME'] = Loc::getMessage('CPD_NEW_LIST_ELEMENT_EMPTY_NAME');
 			}
 
 			$dictionaryItems[] = $newFields;

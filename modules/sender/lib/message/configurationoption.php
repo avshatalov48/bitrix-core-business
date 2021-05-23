@@ -21,6 +21,7 @@ class ConfigurationOption
 	const TYPE_HTML = 'html';
 	const TYPE_TEXT = 'text';
 	const TYPE_FILE = 'file';
+	const TYPE_TITLE= 'title';
 	const TYPE_TEMPLATE_TYPE = 'template-type';
 	const TYPE_TEMPLATE_ID = 'template-id';
 	const TYPE_MAIL_EDITOR = 'mail-editor';

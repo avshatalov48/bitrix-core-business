@@ -83,7 +83,7 @@ $APPLICATION->IncludeComponent(
 			'openDialog'  => 'function(){}',
 			'closeDialog' => 'function(){}',
 		],
-		'OPTIONS'        => [
+		'OPTIONS' => [
 			'eventInit'                => $initPopupEvent,
 			'eventOpen'                => $openPopupEvent,
 			'useContainer'             => 'Y',
@@ -96,9 +96,9 @@ $APPLICATION->IncludeComponent(
 			'enableAll'                => 'N',
 			'enableUsers'              => 'Y',
 			'enableDepartments'        => 'Y',
-			'enableGroups'             => 'N',
+			'enableGroups'             => 'Y',
 			'departmentSelectDisable'  => 'N',
-			'allowAddUser'             => 'N',
+			'allowAddUser'             => 'Y',
 			'allowAddCrmContact'       => 'N',
 			'allowAddSocNetGroup'      => 'N',
 			'allowSearchEmailUsers'    => 'N',
@@ -106,7 +106,7 @@ $APPLICATION->IncludeComponent(
 			'allowSearchNetworkUsers'  => 'N',
 			'useNewCallback'           => 'Y',
 			'multiple'                 => 'Y',
-			'enableSonetgroups'        => 'N',
+			'enableSonetgroups'        => 'Y',
 			'showVacations'            => 'Y',
 		]
 	],

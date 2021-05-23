@@ -470,11 +470,6 @@ class Event
 		$result = Array();
 		foreach ($users as $userId)
 		{
-			if ($userId === 0 && $type == \CPullChannel::TYPE_PRIVATE)
-			{
-				$channelType = \CPullChannel::TYPE_SHARED;
-			}
-
 			$data = \CPullChannel::Get($userId, true, false, $type);
 			if ($data)
 			{
@@ -658,6 +653,7 @@ class Event
 
 			unset($paramsWithoutTime['extra']['server_time']);
 			unset($paramsWithoutTime['extra']['server_time_unix']);
+			unset($paramsWithoutTime['advanced_params']['filterCallback']);
 
 			return serialize($paramsWithoutTime);
 		}

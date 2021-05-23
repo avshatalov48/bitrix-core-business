@@ -1,10 +1,3 @@
-/*region Debugger*/
-.dbg1 {outline: 1px dashed #f00;}
-
-.dbg2 {outline: 1px dashed #ff0;}
-
-/*endregion*/
-
 .ui-entity-wrap { position: relative; }
 
 .ui-entity-editor-column-wrapper {
@@ -173,7 +166,7 @@ input.ui-entity-editor-header-title-text {
 	justify-content: space-between;
 }
 
-.ui-entity-editor-section-edit .ui-entity-editor-header-actions ,
+.ui-entity-editor-section-edit .ui-entity-editor-header-actions,
 .ui-entity-editor-section:hover .ui-entity-editor-header-actions { opacity: 1; }
 
 .ui-entity-editor-header-edit-lnk {
@@ -191,7 +184,7 @@ input.ui-entity-editor-header-title-text {
 	opacity: .5;
 	cursor: pointer;
 	transition: 300ms all ease;
-	order:2;
+	order: 2;
 }
 
 .ui-entity-editor-header-edit-lnk:hover {
@@ -237,14 +230,14 @@ input.ui-entity-editor-header-title-text {
 }
 
 .ui-entity-editor-sub-section-content {
-	border: 1px solid #EAECF1;
+	border: 1px solid #eaecf1;
 	position: relative;
 	padding: 15px 20px;
 	transition: 250ms linear padding, 250ms linear height;
 }
 
 .ui-entity-editor-sub-section-content .ui-entity-editor-sub-section-content {
-	background: #F6F6F7;
+	background: #f6f6f7;
 	border: none;
 }
 
@@ -460,6 +453,10 @@ input.ui-entity-editor-header-title-text {
 .ui-entity-editor-content-block-new-fields .ui-entity-editor-block-title,
 .ui-entity-editor-content-block-new-fields .ui-entity-editor-content-block {padding-right: 0; }
 
+.ui-entity-editor-content-block-new-fields .ui-ctl + .ui-ctl {
+	margin-left: 0;
+}
+
 .ui-entity-editor-content-block-click-empty .ui-entity-editor-content-block { opacity: .5; }
 
 .ui-entity-editor-content-block-click-editable .ui-entity-editor-content-block { cursor: text; }
@@ -540,7 +537,9 @@ input.ui-entity-editor-header-title-text {
 .ui-entity-editor-content-remove-lnk-disabled { color: #c0c0c0; }
 
 .ui-entity-editor-content-remove-lnk-disabled:hover { color: #333; }
+
 .ui-entity-editor-content-block-add-field { }
+
 /*endregion*/
 
 /*region Editor*/
@@ -684,9 +683,18 @@ input.ui-entity-editor-header-title-text {
 	transition: 200ms padding-top linear;
 }
 
-.ui-entity-editor-content-block-field-html-collapsed .ui-entity-editor-content-block-field-html-expand-btn-container { height: 20px; }
+.ui-entity-editor-content-block-field-html-collapsed .ui-entity-editor-content-block-field-html-expand-btn-container {
+	height: 20px;
+}
 
-.ui-entity-editor-content-block-field-html-expand .ui-entity-editor-content-block-field-html-expand-btn-container { padding-top: 0; }
+.ui-entity-editor-content-block-field-html-expand {
+	padding-bottom: 1px;
+}
+
+.ui-entity-editor-content-block-field-html-expand .ui-entity-editor-content-block-field-html-expand-btn-container {
+	padding-top: 0;
+	bottom: -10px;
+}
 
 .ui-entity-editor-content-block-field-html-expand-btn {
 	display: inline-block;
@@ -910,6 +918,7 @@ input.ui-entity-editor-header-title-text {
 .field-item.datetime input:focus,
 .field-item.enumeration select:hover,
 .field-item.enumeration select:focus { border-color: #64a6f3; }
+
 /**/
 .ui-entity-editor-field-error .bx-html-editor,
 .ui-entity-editor-field-error input[type=checkbox],
@@ -929,6 +938,7 @@ input.ui-entity-editor-header-title-text {
 	color: #d0011b;
 	font: 400 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
+
 /**/
 .field-item.date input,
 .field-item.datetime input { background: #fff url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2217%22%20height%3D%2215%22%20viewBox%3D%220%200%2017%2015%22%3E%20%20%3Cpath%20fill%3D%22%23A1A1A1%22%20d%3D%22M19.2203068%2C227.579302%20C19.4159762%2C227.579302%2019.6036161%2C227.503694%2019.7418756%2C227.369138%20C19.8801351%2C227.234582%2019.9576669%2C227.052123%2019.957385%2C226.861969%20L19.957385%2C225.786486%20C19.957385%2C225.390884%2019.6273838%2C225.070185%2019.2203068%2C225.070185%20C18.8132298%2C225.070185%2018.4832287%2C225.390884%2018.4832287%2C225.786486%20L18.4832287%2C226.861969%20C18.4829467%2C227.052123%2018.5604785%2C227.234582%2018.698738%2C227.369138%20C18.8369975%2C227.503694%2019.0246374%2C227.579302%2019.2203068%2C227.579302%20L19.2203068%2C227.579302%20Z%20M11.7858009%2C227.652584%20C12.2169272%2C227.652584%2012.566424%2C227.312939%2012.566424%2C226.893965%20L12.566424%2C225.758618%20C12.566424%2C225.339645%2012.2169272%2C225%2011.7858009%2C225%20C11.3546747%2C225%2011.0051778%2C225.339645%2011.0051778%2C225.758618%20L11.0051778%2C226.893965%20C11.0051778%2C227.095164%2011.0874218%2C227.288121%2011.233817%2C227.43039%20C11.3802123%2C227.572658%2011.5787668%2C227.652584%2011.7858009%2C227.652584%20L11.7858009%2C227.652584%20Z%20M22.0369225%2C226.582261%20L20.8134152%2C226.582261%20L20.8134152%2C227.098328%20C20.8134152%2C227.953376%2020.1001563%2C228.646529%2019.2203068%2C228.646529%20C18.3404574%2C228.646529%2017.6271984%2C227.953376%2017.6271984%2C227.098328%20L17.6271984%2C226.582261%20L13.3789093%2C226.582261%20L13.3789093%2C227.098328%20C13.3789093%2C227.953376%2012.6656504%2C228.646529%2011.7858009%2C228.646529%20C10.9059515%2C228.646529%2010.1926925%2C227.953376%2010.1926925%2C227.098328%20L10.1926925%2C226.582261%20L8.96918531%2C226.582261%20C8.41963391%2C226.58108%207.89468921%2C226.803615%207.52173741%2C227.195865%20C7.14878561%2C227.588115%206.96191611%2C228.114226%207.00647571%2C228.646529%20L7.00647571%2C238.967866%20C7.00647571%2C239.537898%207.48198171%2C240%208.06854801%2C240%20L22.9375597%2C240%20C23.524126%2C240%2023.999632%2C239.537898%2023.999632%2C238.967866%20L23.999632%2C228.646529%20C24.020459%2C227.558434%2023.1547325%2C226.647912%2022.0369225%2C226.582261%20Z%20M22%2C238%20L9.00000001%2C238%20L9.00000001%2C231%20L22%2C231%20L22%2C238%20Z%20M12.6705071%2C234.641161%20C12.2449609%2C234.998271%2011.8674281%2C235.406081%2011.5468347%2C235.854951%20C11.3616803%2C236.149457%2011.2456369%2C236.48002%2011.2069715%2C236.823092%20L14.7064997%2C236.823092%20L14.7064997%2C235.922039%20L12.7236107%2C235.922039%20C12.7820647%2C235.825793%2012.850385%2C235.735538%2012.9275286%2C235.652653%20C13.0110783%2C235.560449%2013.2107479%2C235.373976%2013.5265374%2C235.093236%20C13.7608069%2C234.894272%2013.9791618%2C234.678277%2014.1797118%2C234.44712%20C14.344479%2C234.251596%2014.479337%2C234.03398%2014.5801131%2C233.801005%20C14.6639123%2C233.59354%2014.7067873%2C233.372603%2014.7064997%2C233.149728%20C14.7148934%2C232.768765%2014.5538791%2C232.402777%2014.2646776%2C232.145462%20C13.9312208%2C231.861749%2013.4963595%2C231.716804%2013.0539152%2C231.741898%20C12.6354439%2C231.727784%2012.2241582%2C231.850236%2011.8856357%2C232.089727%20C11.5433086%2C232.380948%2011.3412673%2C232.797575%2011.3280478%2C233.239524%20L12.3168371%2C233.336544%20C12.3118734%2C233.115932%2012.3870846%2C232.900679%2012.5292515%2C232.728618%20C12.8124615%2C232.488233%2013.2338215%2C232.484726%2013.521227%2C232.720361%20C13.6488467%2C232.855654%2013.7140671%2C233.035733%2013.7017793%2C233.218881%20C13.6937327%2C233.432916%2013.6197322%2C233.63967%2013.4893648%2C233.812358%20C13.2408452%2C234.112072%2012.9669355%2C234.391035%2012.6705071%2C234.646322%20L12.6705071%2C234.641161%20Z%20M17.6696813%2C236.823092%20L18.635105%2C236.823092%20L18.635105%2C235.804376%20L19.2829691%2C235.804376%20L19.2829691%2C234.955962%20L18.635105%2C234.955962%20L18.635105%2C231.746026%20L17.79713%2C231.746026%20L15.5381023%2C234.960091%20L15.5381023%2C235.808505%20L17.6696813%2C235.808505%20L17.6696813%2C236.827221%20L17.6696813%2C236.823092%20Z%20M16.4727258%2C234.951834%20L17.6696813%2C233.221978%20L17.6696813%2C234.955962%20L16.4727258%2C234.955962%20L16.4727258%2C234.951834%20Z%22%20transform%3D%22translate%28-7%20-225%29%22/%3E%3C/svg%3E) no-repeat 95% center; }
@@ -1158,6 +1168,7 @@ input.ui-entity-editor-header-title-text {
 .fields.money .main-ui-control.main-ui-select .main-ui-select-name {
 	width: 100%;
 }
+
 /*endregion*/
 
 /*region Editor - User*/
@@ -1678,29 +1689,26 @@ input.ui-entity-editor-header-title-text {
 }
 
 .address-ctl-icon-company {
-	/*position: relative;*/
-	/*border-right: 1px solid #d00;*/
-	background-size:20px 20px;
+	background-size: 20px 20px;
 	background-repeat: no-repeat;
 	background-position: center;
-	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2018%2018%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Ccircle%20cx%3D%229%22%20cy%3D%229%22%20r%3D%229%22%20fill%3D%22%23828B95%22%20opacity%3D%221%22/%3E%3Cg%20fill%3D%22%23FFF%22%20fill-rule%3D%22nonzero%22%3E%3Cpath%20d%3D%22M11.575%207.291V4.04a.5.5%200%200%200-.5-.5H5.189a.5.5%200%200%200-.5.5v9.656a.5.5%200%200%200%20.504.5l8.107-.068a.5.5%200%200%200%20.496-.5V7.791a.5.5%200%200%200-.5-.5h-1.721zm-1.262%205.493h-.938v-1.741h-2.67v1.741h-.937V4.813h4.612l-.067%207.971zm2.411-.335h-1.34v-1.34h1.34v1.34zm0-2.612h-1.34v-1.34h1.34v1.34z%22/%3E%3Cpath%20d%3D%22M6.906%205.818h2.437v1.339H6.906zM6.906%208.43h2.457v1.34H6.906z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E) ;
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2018%2018%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Ccircle%20cx%3D%229%22%20cy%3D%229%22%20r%3D%229%22%20fill%3D%22%23828B95%22%20opacity%3D%221%22/%3E%3Cg%20fill%3D%22%23FFF%22%20fill-rule%3D%22nonzero%22%3E%3Cpath%20d%3D%22M11.575%207.291V4.04a.5.5%200%200%200-.5-.5H5.189a.5.5%200%200%200-.5.5v9.656a.5.5%200%200%200%20.504.5l8.107-.068a.5.5%200%200%200%20.496-.5V7.791a.5.5%200%200%200-.5-.5h-1.721zm-1.262%205.493h-.938v-1.741h-2.67v1.741h-.937V4.813h4.612l-.067%207.971zm2.411-.335h-1.34v-1.34h1.34v1.34zm0-2.612h-1.34v-1.34h1.34v1.34z%22/%3E%3Cpath%20d%3D%22M6.906%205.818h2.437v1.339H6.906zM6.906%208.43h2.457v1.34H6.906z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E);
 }
 
 .ui-ctl-before.address-ctl-icon-company:after {
 	content: '';
 	right: 0;
 	width: 1px;
-	background: #EDEEF2;
+	background: #edeef2;
 	height: 20px;
 	top: 50%;
 	margin-top: -10px;
 	position: absolute;
 
 }
+
 .address-ctl-icon-contact {
-	/*position: relative;*/
-	/*border-right: 1px solid #d00;*/
-	background-size:20px 20px;
+	background-size: 20px 20px;
 	background-repeat: no-repeat;
 	background-position: center;
 	background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg width='50px' height='50px' viewBox='0 0 50 50' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Ccircle fill='%23828B95' cx='25' cy='25' r='25'%3E%3C/circle%3E%3Cpath d='M37.0009684,31.3372956 C37.0009684,30.1698446 35.4462257,28.8362856 32.3845787,28.0591588 C31.3473035,27.7751734 30.3612491,27.3347978 29.4616625,26.7537737 C29.2649277,26.6434264 29.2948266,25.6238877 29.2948266,25.6238877 L28.308761,25.4765623 C28.308761,25.3938018 28.2244461,24.1711771 28.2244461,24.1711771 C29.4042566,23.7820268 29.2828671,21.4864506 29.2828671,21.4864506 C30.0321334,21.8943835 30.5200834,20.0777616 30.5200834,20.0777616 C31.4062868,17.5538605 30.0787757,17.7064684 30.0787757,17.7064684 C30.3110185,16.165688 30.3110185,14.599749 30.0787757,13.0589686 C29.4885715,7.94777523 20.6026193,9.33533391 21.6562564,11.0046304 C19.0592382,10.5350674 19.6518343,16.3353445 19.6518343,16.3353445 L20.2151296,17.8373591 C19.1088704,18.5417036 19.87787,19.3933735 19.9161406,20.3735863 C19.9705566,21.8210143 20.8729053,21.5210809 20.8729053,21.5210809 C20.9285172,23.9099827 22.128659,24.2210682 22.128659,24.2210682 C22.3540967,25.721322 22.2135718,25.4659971 22.2135718,25.4659971 L21.1455832,25.5927791 C21.1600407,25.9339529 21.1317235,26.2755775 21.0612683,26.60997 C19.8055147,27.1593587 19.5352286,27.4815963 18.2872487,28.018659 C15.8762016,29.0558063 13.2558623,30.4046261 12.7900374,32.220661 C12.3242126,34.0366959 11.8912357,37.9916471 11.8912357,37.9916471 L38.3075701,37.9916471 L37.0009684,31.3372956 Z' fill='%23FFFFFF'%3E%3C/path%3E%3C/svg%3E");
@@ -1710,7 +1718,7 @@ input.ui-entity-editor-header-title-text {
 	content: '';
 	right: 0;
 	width: 1px;
-	background: #EDEEF2;
+	background: #edeef2;
 	height: 20px;
 	top: 50%;
 	margin-top: -10px;
@@ -1720,7 +1728,7 @@ input.ui-entity-editor-header-title-text {
 
 .ui-entity-editor-block-title-link,
 .ui-entity-editor-block-title-link:hover {
-	font:12px/14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12px/14px "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .ui-entity-editor-detail-btn {
@@ -1742,7 +1750,7 @@ input.ui-entity-editor-header-title-text {
 
 .ui-entity-editor-section-content-padding-right .crm-entity-widget-content-block-field-money.ui-entity-editor-content-block-edit,
 .ui-entity-editor-section-edit .ui-entity-editor-section-content-padding-right .crm-entity-widget-content-block-field-money {
-	padding-right: 24px;
+	padding-right: 16px;
 }
 
 /*region user scopes popup custom css */
@@ -1755,7 +1763,7 @@ input.ui-entity-editor-header-title-text {
 .ui-entity-editor-content-user-scope-popup .ui-ctl-element:-ms-input-placeholder,
 .ui-entity-editor-content-user-scope-popup .ui-ctl-element::-ms-input-placeholder,
 .ui-entity-editor-content-user-scope-popup .ui-ctl-element::placeholder {
-	color: rgba(51,51,51,.3);
+	color: rgba(51, 51, 51, .3);
 }
 
 .ui-entity-editor-content-user-scope-popup--alert .popup-window-content {

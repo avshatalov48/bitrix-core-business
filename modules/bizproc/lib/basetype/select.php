@@ -1,10 +1,9 @@
 <?php
+
 namespace Bitrix\Bizproc\BaseType;
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Bizproc\FieldType;
-
-Loc::loadMessages(__FILE__);
 
 /**
  * Class Select
@@ -12,7 +11,6 @@ Loc::loadMessages(__FILE__);
  */
 class Select extends Base
 {
-
 	/**
 	 * @return string
 	 */
@@ -491,5 +489,19 @@ class Select extends Base
 		}
 
 		return parent::externalizeValue($fieldType, $context, $value);
+	}
+
+	public static function mergeValue(FieldType $fieldType, array $baseValue, $appendValue): array
+	{
+		if (\CBPHelper::isAssociativeArray($baseValue))
+		{
+			$baseValue = array_keys($baseValue);
+		}
+		if (\CBPHelper::isAssociativeArray($appendValue))
+		{
+			$appendValue = array_keys($appendValue);
+		}
+
+		return parent::mergeValue($fieldType, $baseValue, $appendValue);
 	}
 }

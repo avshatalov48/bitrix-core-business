@@ -19,10 +19,10 @@ class VariationCard extends EntityCard
 	{
 		const [, eventData] = event.getCompatData();
 
-		/*if (eventData.id === 'catalog_parameters')
+		if (eventData.id === 'catalog_parameters')
 		{
 			eventData.visible = this.isCardSettingEnabled('CATALOG_PARAMETERS');
-		}*/
+		}
 	}
 }
 

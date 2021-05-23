@@ -2,8 +2,8 @@
 
 namespace Bitrix\Seo\LeadAds\Services;
 
-use Bitrix\Seo\LeadAds\Account;
 use Bitrix\Seo\LeadAds;
+use Bitrix\Seo\LeadAds\Account;
 
 /**
  * Class AccountVkontakte
@@ -61,7 +61,8 @@ class AccountVkontakte extends Account
 			)
 		));
 		$items = $response->getData();
-		$items = empty($items['items']) ? [] : is_array($items['items']) ? $items['items'] : [];
+		$items = (!empty($items['items']) && is_array($items['items'])) ? $items['items'] : [];
+
 		$response->setData($items);
 
 		return $response;

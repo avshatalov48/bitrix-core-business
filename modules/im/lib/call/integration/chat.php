@@ -283,8 +283,10 @@ class Chat extends AbstractEntity
 			'FROM_USER_ID' => $this->getCall()->getInitiatorId(),
 			'MESSAGE' => $message,
 			'SYSTEM' => 'Y',
-			'INCREMENT_COUNTER' => $muted? 'N': 'Y',
-			'PUSH' => 'N'
+			'PUSH' => 'N',
+			'PARAMS' => [
+				'NOTIFY' => $muted? 'N': 'Y',
+			]
 		]);
 	}
 

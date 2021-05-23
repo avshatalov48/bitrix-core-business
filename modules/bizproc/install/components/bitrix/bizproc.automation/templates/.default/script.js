@@ -43,6 +43,18 @@
 		});
 	};
 
+	var toJsonString = function(data)
+	{
+		return JSON.stringify(data, function (i, v)
+		{
+			if (typeof(v) == 'boolean')
+			{
+				return v ? '1' : '0';
+			}
+			return v;
+		});
+	}
+
 	var getResponsibleUserExpression = function(fields)
 	{
 		var exp;
@@ -62,6 +74,8 @@
 		}
 		return exp;
 	};
+
+	var systemExpressionPattern = '\\{=\\s*(?<object>[a-z0-9_]+)\\s*\\:\\s*(?<field>[a-z0-9_\\.]+)(\\s*>\\s*(?<mod1>[a-z0-9_\\:]+)(\\s*,\\s*(?<mod2>[a-z0-9_]+))?)?\\s*\\}';
 
 	Component.prototype =
 	{
@@ -86,13 +100,16 @@
 			this.setTitle();
 			this.fixTitleColors();
 
-			window.onbeforeunload = function()
+			if (!this.embeddedMode)
 			{
-				if (me.templateManager.needSave() || me.triggerManager.needSave())
+				window.onbeforeunload = function()
 				{
-					return BX.message('BIZPROC_AUTOMATION_CMP_NEED_SAVE');
-				}
-			};
+					if (me.templateManager.needSave() || me.triggerManager.needSave())
+					{
+						return BX.message('BIZPROC_AUTOMATION_CMP_NEED_SAVE');
+					}
+				};
+			}
 		},
 		initData: function()
 		{
@@ -119,6 +136,7 @@
 				this.userOptions = this.data.USER_OPTIONS;
 			}
 			this.frameMode = BX.type.isBoolean(this.data.FRAME_MODE) ? this.data.FRAME_MODE : false;
+			this.embeddedMode = (this.data.IS_EMBEDDED === true);
 		},
 		setDocumentStatus: function(status)
 		{
@@ -192,9 +210,9 @@
 				{
 					BX.hide(buttonsNode);
 				}
+				this.bindSaveButton();
+				this.bindCancelButton();
 			}
-			this.bindSaveButton();
-			this.bindCancelButton();
 			this.bindChangeViewButton();
 		},
 		initButtonsPosition: function()
@@ -321,7 +339,6 @@
 		{
 			return getAjaxUrl(this.data.AJAX_URL);
 		},
-
 		getLimits: function()
 		{
 			var limit = this.data['ROBOTS_LIMIT'];
@@ -335,7 +352,6 @@
 
 			return (triggersCnt + robotsCnt > limit) ? [limit, triggersCnt, robotsCnt] : false;
 		},
-
 		saveAutomation: function(callback)
 		{
 			if (this.savingAutomation)
@@ -370,8 +386,8 @@
 			var me = this, data = {
 				ajax_action: 'save_automation',
 				document_signed: this.documentSigned,
-				triggers: this.triggerManager.serialize(),
-				templates: this.templateManager.serialize(),
+				triggers_json: toJsonString(this.triggerManager.serialize()),
+				templates_json: toJsonString(this.templateManager.serialize())
 			};
 
 			this.savingAutomation = true;
@@ -647,6 +663,14 @@
 			if (BX.type.isPlainObject(data))
 			{
 				this.data = data;
+				if (!BX.type.isPlainObject(this.data.CONSTANTS))
+				{
+					this.data.CONSTANTS = {};
+				}
+				if (!BX.type.isPlainObject(this.data.PARAMETERS))
+				{
+					this.data.PARAMETERS = {};
+				}
 			}
 
 			this.modified = false;
@@ -1212,7 +1236,7 @@
 					document_signed: this.component ? this.component.documentSigned : this.data['DOCUMENT_SIGNED'],
 					document_status: this.component ? this.component.documentStatus : this.data['DOCUMENT_STATUS'],
 					context: context,
-					robot: robot.serialize(),
+					robot_json: toJsonString(robot.serialize()),
 					form_name: formName
 				},
 				onsuccess: function(html)
@@ -1357,7 +1381,7 @@
 
 			if (role === 'user-selector')
 			{
-				control = BX.Bizproc.UserSelector.decorateNode(controlNode);
+				control = new UserSelector(robot, controlNode, this.data);
 			}
 			else if (role === 'file-selector')
 			{
@@ -1651,8 +1675,9 @@
 				data: {
 					ajax_action: 'save_robot_settings',
 					document_signed: documentSigned,
-					robot: robot.serialize(),
-					form_data: formData['data']
+					robot_json: toJsonString(robot.serialize()),
+					form_data_json: toJsonString(formData['data']),
+					form_data: formData['data'] /** @bug 0135641 */
 				},
 				onsuccess: function(response)
 				{
@@ -1713,17 +1738,14 @@
 		},
 		getConstants: function()
 		{
-			if (!this.data.CONSTANTS)
-			{
-				return [];
-			}
 			var constants = [];
 			Object.keys(this.data.CONSTANTS).forEach(function(id)
 			{
 				var constant = BX.clone(this.data.CONSTANTS[id]);
 				constant.Id = id;
 				constant.ObjectId = 'Constant';
-				constant.SystemExpression = constant.Expression = '{=Constant:' + id + '}';
+				constant.SystemExpression = '{=Constant:' + id + '}';
+				constant.Expression = '{{~&:' + id + '}}';
 				constants.push(constant);
 			}, this);
 			return constants;
@@ -1740,6 +1762,162 @@
 			}
 
 			return null;
+		},
+		addConstant: function(property)
+		{
+			var id = property.Id || this.generatePropertyId('Constant', this.data.CONSTANTS);
+
+			if (this.data.CONSTANTS[id])
+			{
+				throw 'Constant with id "'+id+'" is already exists';
+			}
+
+			this.data.CONSTANTS[id] = property;
+
+			if (this.component)
+			{
+				BX.onCustomEvent(this.component, 'onTemplateConstantAdd', [this, this.getConstant(id)]);
+			}
+
+			return this.getConstant(id);
+		},
+		updateConstant: function(id, property)
+		{
+			if (!this.data.CONSTANTS[id])
+			{
+				throw 'Constant with id "'+id+'" does not exists';
+			}
+
+			//TODO: only Description yet.
+			this.data.CONSTANTS[id].Description = property.Description;
+
+			if (this.component)
+			{
+				BX.onCustomEvent(this.component, 'onTemplateConstantUpdate', [this, this.getConstant(id)]);
+			}
+
+			return this.getConstant(id);
+		},
+		deleteConstant: function(id)
+		{
+			delete this.data.CONSTANTS[id];
+			return true;
+		},
+		setConstantValue: function(id, value)
+		{
+			if (this.data.CONSTANTS[id])
+			{
+				this.data.CONSTANTS[id]['Default'] = value;
+				return true;
+			}
+			return false;
+		},
+		getParameters: function()
+		{
+			var params = [];
+			Object.keys(this.data.PARAMETERS).forEach(function(id)
+			{
+				var param = BX.clone(this.data.PARAMETERS[id]);
+				param.Id = id;
+				param.ObjectId = 'Template';
+				param.SystemExpression = '{=Template:' + id + '}';
+				param.Expression = '{{~*:' + id + '}}';
+				params.push(param);
+			}, this);
+			return params;
+		},
+		getParameter: function(id)
+		{
+			var params = this.getParameters();
+			for (var i = 0; i < params.length; ++i)
+			{
+				if (params[i].Id === id)
+				{
+					return params[i];
+				}
+			}
+
+			return null;
+		},
+		addParameter: function(property)
+		{
+			var id = property.Id || this.generatePropertyId('Parameter', this.data.PARAMETERS);
+
+			if (this.data.PARAMETERS[id])
+			{
+				throw 'Parameter with id "'+id+'" is already exists';
+			}
+
+			this.data.PARAMETERS[id] = property;
+
+			if (this.component)
+			{
+				BX.onCustomEvent(this.component, 'onTemplateParameterAdd', [this, this.getParameter(id)]);
+			}
+
+			return this.getParameter(id);
+		},
+		updateParameter: function(id, property)
+		{
+			if (!this.data.PARAMETERS[id])
+			{
+				throw 'Parameter with id "'+id+'" does not exists';
+			}
+
+			//TODO: only Description yet.
+			this.data.PARAMETERS[id].Description = property.Description;
+
+			if (this.component)
+			{
+				BX.onCustomEvent(this.component, 'onTemplateParameterUpdate', [this, this.getParameter(id)]);
+			}
+
+			return this.getParameter(id);
+		},
+		deleteParameter: function(id)
+		{
+			delete this.data.PARAMETERS[id];
+			return true;
+		},
+		setParameterValue: function(id, value)
+		{
+			if (this.data.PARAMETERS[id])
+			{
+				this.data.PARAMETERS[id]['Default'] = value;
+				return true;
+			}
+			return false;
+		},
+		generatePropertyId: function(prefix, existsList)
+		{
+			for(var index = 1; index <= 1000; ++index)
+			{
+				if (!existsList[prefix + index])
+				{
+					break; //found
+				}
+			}
+
+			return prefix + index;
+		},
+		collectUsages: function()
+		{
+			var usages = {Document: new Set(), Constant: new Set(), Parameter: new Set()};
+
+			this.robots.forEach(function(robot) {
+				var robotUsages = robot.collectUsages();
+
+				Object.keys(usages).forEach(function(key) {
+					robotUsages[key].forEach(function(usage) {
+						if (!usages[key].has(usage))
+						{
+							usages[key].add(usage);
+						}
+					}, this);
+				}, this);
+			}, this);
+
+			return usages;
 		}
 	};
 
@@ -1797,14 +1975,17 @@
 			if (node.parentNode)
 				node.parentNode.replaceChild(this.node, node);
 		},
+		getProperties: function()
+		{
+			if (this.data && BX.Type.isPlainObject(this.data.Properties))
+			{
+				return this.data.Properties;
+			}
+			return {};
+		},
 		getProperty: function(name)
 		{
-			if (!this.data || !this.data.Properties)
-			{
-				return null;
-			}
-
-			return this.data.Properties[name] || null;
+			return this.getProperties()[name] || null;
 		},
 		setProperty: function(name, value)
 		{
@@ -1880,9 +2061,13 @@
 
 			if (BX.type.isPlainObject(this.data.viewData) && this.data.viewData.responsibleLabel)
 			{
-				var labelText = this.data.viewData.responsibleLabel
-					.replace('{=Document:ASSIGNED_BY_ID}', BX.message('BIZPROC_AUTOMATION_CMP_RESPONSIBLE'))
-					.replace('author', BX.message('BIZPROC_AUTOMATION_CMP_RESPONSIBLE'));
+				var labelText =
+					this.data.viewData.responsibleLabel
+						.replace('{=Document:ASSIGNED_BY_ID}', BX.message('BIZPROC_AUTOMATION_CMP_RESPONSIBLE'))
+						.replace('author', BX.message('BIZPROC_AUTOMATION_CMP_RESPONSIBLE'))
+						.replace(/\{=Constant\:Constant[0-9]+\}/, BX.message('BIZPROC_AUTOMATION_ASK_CONSTANT'))
+						.replace(/\{=Template\:Parameter[0-9]+\}/, BX.message('BIZPROC_AUTOMATION_ASK_PARAMETER'))
+				;
 
 				if (labelText.indexOf('{=Document') >= 0 && BX.type.isArray(this.component.data['DOCUMENT_FIELDS']))
 				{
@@ -2210,37 +2395,6 @@
 		{
 			var result = BX.clone(this.data);
 			delete result['viewData'];
-
-			var fixData = function(data)
-			{
-				for (var key in data)
-				{
-					if (data.hasOwnProperty(key))
-					{
-						if (typeof(data[key]) === "boolean")
-						{
-							data[key] = data[key] ? 1 : 0;
-						}
-						else if (data[key] === null)
-						{
-							data[key] = '';
-						}
-						else if (BX.type.isPlainObject(data[key]))
-						{
-							fixData(data[key]);
-						}
-						else if (BX.type.isArray(data[key]) && !data[key].length)
-						{
-							data[key] = '';
-						}
-					}
-				}
-			};
-
-			if (BX.type.isPlainObject(result.Properties))
-			{
-				fixData(result.Properties);
-			}
 			result.Delay = this.delay.serialize();
 			result.Condition = this.condition.serialize();
 			return result;
@@ -2549,6 +2703,52 @@
 				}
 			}
 			return null;
+		},
+		collectUsages: function()
+		{
+			var properties = this.getProperties();
+			var usages = {Document: new Set(), Constant: new Set(), Parameter: new Set()};
+
+			Object.keys(properties).forEach(function(propertyId) {
+				var property = properties[propertyId];
+				this.collectExpressions(property, usages);
+			}, this);
+
+			return usages;
+		},
+
+		collectExpressions: function(value, usages)
+		{
+			if (BX.Type.isArray(value))
+			{
+				value.forEach(function(v) {
+					this.collectExpressions(v, usages);
+				}, this);
+			}
+			else if (BX.Type.isPlainObject(value))
+			{
+				Object.keys(value).forEach(function(k) {
+					this.collectExpressions(value[k], usages);
+				}, this);
+			}
+			else if (BX.Type.isStringFilled(value))
+			{
+				var found, systemExpressionRegExp = new RegExp(systemExpressionPattern, 'ig');
+				while ((found = systemExpressionRegExp.exec(value)) !== null) {
+					switch (found.groups.object)
+					{
+						case 'Document':
+							usages.Document.add(found.groups.field);
+							break;
+						case 'Constant':
+							usages.Constant.add(found.groups.field);
+							break;
+						case 'Template':
+							usages.Parameter.add(found.groups.field);
+							break;
+					}
+				}
+			}
 		}
 	};
 
@@ -4226,7 +4426,6 @@
 				addButtonNode,
 				menuItems,
 				{
-					zIndex: 200,
 					autoHide: true,
 					offsetLeft: (BX.pos(addButtonNode)['width'] / 2),
 					angle: { position: 'top', offset: 0 }
@@ -4327,6 +4526,9 @@
 		this.robot = robot;
 		this.component = robot.component;
 		this.documentFields = this.component ? this.component.data['DOCUMENT_FIELDS'] : data['DOCUMENT_FIELDS'];
+		this.showTemplatePropertiesMenuOnSelecting = (
+			this.component ? this.component.data['SHOW_TEMPLATE_PROPERTIES_MENU_ON_SELECTING'] === true : false
+		);
 		this.targetInput = BX.clone(targetInput);
 		this.menuButton = BX.create('span', {
 			attrs: {className: 'bizproc-automation-popup-select-dotted'},
@@ -4350,6 +4552,16 @@
 			me.onKeyDown(this, e);
 		});
 		this.targetInput.setAttribute('autocomplete', 'off');
+
+		this.fieldProperty = JSON.parse(this.targetInput.getAttribute('data-property'));
+		if (this.fieldProperty)
+		{
+			delete this.fieldProperty.Default;
+		}
+		if (!this.fieldProperty || !this.robot)
+		{
+			this.showTemplatePropertiesMenuOnSelecting = false;
+		}
 
 		this.fieldType = this.targetInput.getAttribute('data-selector-type');
 		if (this.fieldType === 'date' || this.fieldType === 'datetime')
@@ -4376,8 +4588,13 @@
 				e.preventDefault();
 			}
 		},
-		openMenu: function(e)
+		openMenu: function(e, skipPropertiesSwitcher)
 		{
+			if (!skipPropertiesSwitcher && this.showTemplatePropertiesMenuOnSelecting && !this.targetInput.value)
+			{
+				return this.openPropertiesSwitcherMenu();
+			}
+
 			if (this.dialog)
 			{
 				this.dialog.show();
@@ -4536,7 +4753,7 @@
 				}
 
 				//CONSTANTS GROUP
-				if (tpl && tpl.data.CONSTANTS)
+				if (tpl && tpl.data.CONSTANTS && !this.showTemplatePropertiesMenuOnSelecting)
 				{
 					var constantList = [];
 					tpl.getConstants().forEach(function(constant)
@@ -4627,8 +4844,8 @@
 				multiple: false,
 				dropdownMode: true,
 				enableSearch: true,
-				items: menuItems,
-				zIndex: this.dialogZindex,
+				items: this.injectDialogMenuTitles(menuItems),
+				showAvatars: false,
 				events: {
 					'Item:onBeforeSelect': function(event)
 					{
@@ -4640,6 +4857,79 @@
 
 			this.dialog.show();
 		},
+		openPropertiesSwitcherMenu: function()
+		{
+			var me = this;
+			BX.PopupMenu.show(
+				Component.generateUniqueId(),
+				this.menuButton,
+				[
+					{
+						text: BX.message('BIZPROC_AUTOMATION_ASK_CONSTANT'),
+						onclick: function(e) {
+							this.popupWindow.close();
+							me.onFieldSelect(
+								me.robot.template.addConstant(me.fieldProperty)
+							);
+						}
+					},
+					{
+						text: BX.message('BIZPROC_AUTOMATION_ASK_PARAMETER'),
+						onclick: function(e) {
+							this.popupWindow.close();
+							me.onFieldSelect(
+								me.robot.template.addParameter(me.fieldProperty)
+							);
+						}
+					},
+					{
+						text: BX.message('BIZPROC_AUTOMATION_ASK_MANUAL'),
+						onclick: function(e) {
+							this.popupWindow.close();
+							me.openMenu(e, true);
+						}
+					}
+				],
+				{
+					autoHide: true,
+					offsetLeft: 20,
+					angle: { position: 'top'},
+					events: {
+						onPopupClose: function ()
+						{
+							this.destroy();
+						}
+					}
+				}
+			);
+			this.switcherDialog = BX.PopupMenu.currentItem;
+
+			return true;
+		},
+
+		injectDialogMenuTitles: function(items)
+		{
+			items.forEach(function(parent) {
+				if (BX.type.isArray(parent.children))
+				{
+					parent.searchable = false;
+					this.injectDialogMenuSupertitles(parent.title, parent.children);
+				}
+			}, this);
+			return items;
+		},
+		injectDialogMenuSupertitles: function(title, children)
+		{
+			children.forEach(function(child) {
+				child.supertitle = title;
+				if (BX.type.isArray(child.children))
+				{
+					child.searchable = false;
+					this.injectDialogMenuSupertitles(child.title, child.children);
+				}
+			}, this);
+		},
+
 		prepareFilesMenu: function(fileFields)
 		{
 			var menu = [];
@@ -4669,6 +4959,10 @@
 		},
 		onFieldSelect: function(field)
 		{
+			if (!field)
+			{
+				return;
+			}
 			if (this.replaceOnWrite)
 			{
 				this.targetInput.value = field['Expression'];
@@ -4691,6 +4985,10 @@
 			if (this.dialog)
 			{
 				this.dialog.destroy();
+			}
+			if (this.switcherDialog)
+			{
+				this.switcherDialog.destroy();
 			}
 		},
 		initDateTimeControl: function()
@@ -4844,7 +5142,6 @@
 		this.documentFields = fields;
 		this.menuButton = menuButton;
 		this.appendPropertyMods = false;
-		this.dialogZindex = 1101;
 		this.selectCallback = function(item)
 		{
 			cb(item.getCustomData().get('property'));
@@ -4858,6 +5155,70 @@
 	};
 	BX.extend(InlineSelectorCondition, InlineSelector);
 	// <- InlineSelectorCondition
+	// -> UserSelector
+	var UserSelector = function(robot, targetInput, data)
+	{
+		this.targetInput = this.menuButton = targetInput;
+		this.userSelector = BX.Bizproc.UserSelector.decorateNode(targetInput);
+
+		this.robot = robot;
+		this.component = robot.component;
+		this.documentFields = this.component ? this.component.data['DOCUMENT_FIELDS'] : data['DOCUMENT_FIELDS'];
+		this.showTemplatePropertiesMenuOnSelecting = (
+			this.component ? this.component.data['SHOW_TEMPLATE_PROPERTIES_MENU_ON_SELECTING'] === true : false
+		);
+
+		this.fieldProperty = JSON.parse(targetInput.getAttribute('data-property'));
+		if (this.fieldProperty)
+		{
+			delete this.fieldProperty.Default;
+		}
+		if (!this.fieldProperty || !this.robot)
+		{
+			this.showTemplatePropertiesMenuOnSelecting = false;
+		}
+
+		if (this.showTemplatePropertiesMenuOnSelecting)
+		{
+			this.userSelector.handleOpenDialog = this.onBeforeOpenDialog.bind(this);
+		}
+	};
+	BX.extend(UserSelector, InlineSelector);
+	UserSelector.prototype.onBeforeOpenDialog = function(dialog)
+	{
+		if (!this.userSelector.getValue() || this.fieldProperty.Required)
+		{
+			this.openPropertiesSwitcherMenu();
+			return false;
+		}
+	}
+	UserSelector.prototype.openMenu = function()
+	{
+		this.userSelector.handleOpenDialog = null;
+		this.userSelector.openDialog();
+	}
+	UserSelector.prototype.onFieldSelect = function(field)
+	{
+		this.userSelector.addItem({
+			id: field['SystemExpression'],
+			entityId: field['SystemExpression'],
+			name: BX.Text.encode(field['Expression']),
+			entityType: 'bpuserroles'
+		}, 'bpuserroles');
+	}
+	UserSelector.prototype.destroy = function()
+	{
+		if (this.userSelector)
+		{
+			this.userSelector.destroy();
+			this.userSelector = null;
+		}
+		if (this.switcherDialog)
+		{
+			this.switcherDialog.destroy();
+		}
+	};
+	// <- UserSelector
 	// -> InlineSelectorHtml
 	var InlineSelectorHtml = function(robot, targetNode)
 	{
@@ -5006,8 +5367,7 @@
 				this.clockInstance = new BX.CClockSelector({
 					start_time: this.unFormatTime(this.targetInput.value),
 					node: this.targetInput,
-					callback: BX.delegate(this.onTimeSelect, this),
-					zIndex: 200
+					callback: BX.delegate(this.onTimeSelect, this)
 				});
 			}
 			this.clockInstance.Show();
@@ -5228,7 +5588,6 @@
 				closeByEsc: true,
 				closeIcon: false,
 				titleBar: false,
-				zIndex: 0,
 				angle: true,
 				offsetLeft: 20,
 				content: form,
@@ -5670,7 +6029,6 @@
 					autoHide: true,
 					offsetLeft: 25,
 					angle: { position: 'top'},
-					zIndex: 200,
 					events: {
 						onPopupClose: function ()
 						{
@@ -5747,7 +6105,6 @@
 				labelNode,
 				menuItems,
 				{
-					zIndex: 200,
 					autoHide: true,
 					offsetLeft: (BX.pos(labelNode)['width'] / 2),
 					angle: { position: 'top', offset: 0 },
@@ -6880,6 +7237,7 @@
 					|| type == 'UF:money'
 					|| type == 'UF:crm'
 					|| type == 'UF:resourcebooking'
+					|| type == 'UF:url'
 				)
 				{
 					filtered.push(this.fields[i]);
@@ -7085,7 +7443,6 @@
 				offsetLeft: 0,
 				offsetTop: 2,
 				bindOptions: {position: "top"},
-				zIndex: 1100,
 				events : {
 					onPopupClose : function() {this.destroy()}
 				},

@@ -79,7 +79,7 @@ class CAllSaleBasket
 		$arSubscribeProd = array();
 		$subscribeProd = COption::GetOptionString("sale", "subscribe_prod", "");
 		if ($subscribeProd != '')
-			$arSubscribeProd = unserialize($subscribeProd);
+			$arSubscribeProd = unserialize($subscribeProd, ['allowed_classes' => false]);
 
 		$rsItemsBasket = CSaleBasket::GetList(
 			array("USER_ID" => "DESC", "LID" => "ASC"),
@@ -507,7 +507,7 @@ class CAllSaleBasket
 
 				$arShoppingCartItem["QUANTITY"] = floatval($arShoppingCartItem["QUANTITY"]);
 				$arShoppingCartItem["WEIGHT"] = floatval($arShoppingCartItem["WEIGHT"]);
-				$arShoppingCartItem["DIMENSIONS"] = unserialize($arShoppingCartItem["DIMENSIONS"]);
+				$arShoppingCartItem["DIMENSIONS"] = unserialize($arShoppingCartItem["DIMENSIONS"], ['allowed_classes' => false]);
 				$arShoppingCartItem["VAT_RATE"] = floatval($arShoppingCartItem["VAT_RATE"]);
 				$arShoppingCartItem["DISCOUNT_PRICE"] = roundEx($arShoppingCartItem["DISCOUNT_PRICE"], SALE_VALUE_PRECISION);
 
@@ -3709,20 +3709,7 @@ class CAllSaleUser
 			}
 		}
 
-		$arPolicy = CUser::GetGroupPolicy($groups);
-
-		$passwordMinLength = intval($arPolicy["PASSWORD_LENGTH"]);
-		if ($passwordMinLength <= 0)
-			$passwordMinLength = 6;
-		$passwordChars = array(
-			"abcdefghijklnmopqrstuvwxyz",
-			"ABCDEFGHIJKLNMOPQRSTUVWXYZ",
-			"0123456789",
-		);
-		if ($arPolicy["PASSWORD_PUNCTUATION"] === "Y")
-			$passwordChars[] = ",.<>/?;:'\"[]{}\|`~!@#\$%^&*()-_+=";
-
-		$autoPassword = randString($passwordMinLength + 2, $passwordChars);
+		$autoPassword = \CUser::GeneratePasswordByPolicy($groups);
 
 		$arFields = array(
 			"LOGIN" => $autoLogin,

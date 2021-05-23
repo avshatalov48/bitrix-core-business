@@ -75,7 +75,7 @@ class ByMaxSize extends Restrictions\Base
 				$dimensions = $basketItem->getField("DIMENSIONS");
 
 				if(is_string($dimensions))
-					$dimensions = unserialize($dimensions);
+					$dimensions = unserialize($dimensions, ['allowed_classes' => false]);
 
 				$result[] = $dimensions;
 			}

@@ -14,9 +14,6 @@ if (!$USER->CanDoOperation('fileman_view_file_structure') || !$USER->CanDoOperat
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/include.php");
 
-if(CModule::IncludeModule("compression"))
-	CCompress::Disable2048Spaces();
-
 $action = isset($_REQUEST['action']) ? $_REQUEST['action'] : false;
 
 if (!check_bitrix_sessid())

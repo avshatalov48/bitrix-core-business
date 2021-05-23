@@ -91,7 +91,7 @@ else
 			</td>
 		</tr>
 		<?
-		if(count($arResult["GROUP"]) > 1)
+		if(is_array($arResult["GROUP"]) && count($arResult["GROUP"]) > 1)
 		{
 			?>
 			<tr>

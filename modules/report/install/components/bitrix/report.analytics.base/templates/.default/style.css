@@ -170,3 +170,7 @@
 	background-color: rgba(94, 102, 117, .76);
 	color: #fff;
 }
+
+.ui-sidepanel-title {
+	font-size: 20px !important;
+}

@@ -259,9 +259,12 @@ abstract class ExportAction
 				$file->setOperatingEncoding(Main\Localization\Translation::getSourceEncoding($langId));
 			}
 
-			if (!$file->load())
+			if (!$file->loadTokens())
 			{
-				continue;
+				if (!$file->load())
+				{
+					continue;
+				}
 			}
 
 			foreach ($file as $code => $phrase)
@@ -287,10 +290,10 @@ abstract class ExportAction
 			$hasObligatorySetting = false;
 			if ($settingsFile = Translate\Settings::instantiateByPath(self::$documentRoot. '/'. $langFilePath))
 			{
-				if ($settingsFile->isExists() && $settingsFile->load())
+				if ($settingsFile->load())
 				{
 					$langSettings = $settingsFile->getOptions($langFilePath);
-					$hasObligatorySetting = !empty($langSettings['languages']);
+					$hasObligatorySetting = !empty($langSettings[Translate\Settings::OPTION_LANGUAGES]);
 				}
 			}
 
@@ -305,7 +308,7 @@ abstract class ExportAction
 					$isObligatory = true;
 					if ($hasObligatorySetting)
 					{
-						$isObligatory = in_array($langId, $langSettings['languages']);
+						$isObligatory = in_array($langId, $langSettings[Translate\Settings::OPTION_LANGUAGES]);
 					}
 					if (empty($phr) && ($phr !== '0') && $isObligatory)
 					{

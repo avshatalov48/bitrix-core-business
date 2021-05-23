@@ -415,10 +415,6 @@ Thanks!
 				->setLicence("SIL Open Font License, Version 1.1")
 				->setLicenceUrl("http://scripts.sil.org/OFL"),
 
-			(new static("Aurigma Image Uploader"))
-				->setCopyright("Copyright(c) Aurigma Inc. 2002-2009")
-				->setLicence(static::LICENCE_COMMERCIAL),
-
 			(new static("Bootstrap v3.3"))
 				->setProductUrl("https://getbootstrap.com/")
 				->setCopyright("Copyright 2011-2016 Twitter, Inc.")

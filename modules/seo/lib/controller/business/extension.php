@@ -11,6 +11,14 @@ use Bitrix\Seo\BusinessSuite\Configuration\Facebook;
 
 final class Extension extends Main\Engine\Controller
 {
+	/**
+	 * Install fbe action
+	 * @param $engineCode
+	 * @param $setup
+	 * @param $config
+	 *
+	 * @return AjaxJson
+	 */
 	public function installAction($engineCode, $setup, $config): AjaxJson
 	{
 		$response = null;
@@ -18,10 +26,15 @@ final class Extension extends Main\Engine\Controller
 		{
 			if (is_string($engineCode) && is_array($setup) && is_array($config))
 			{
+				$meta = BusinessSuite\ServiceMetaData::create()
+					->setService($service = Utils\ServiceFactory::getServiceByEngineCode($engineCode))
+					->setEngineCode($engineCode)
+					->setType($service::getTypeByEngine($engineCode));
+
+				$serviceContainer = ServiceAdapter::createServiceWrapperContainer()->setMeta($meta);
+
 				$response = AjaxJson::createSuccess([
-						'authUrl' => ServiceAdapter::createServiceWrapperContainer()
-							->setService($service = Utils\ServiceFactory::getServiceByEngineCode($engineCode))
-							->getAuthAdapter($service::getTypeByEngine($engineCode))
+						'authUrl' => $serviceContainer->getAuthAdapter($meta->getType())
 							->setConfig($config = Facebook\Config::loadFromArray($config))
 							->setSetup($setup = Facebook\Setup::loadFromArray($setup))
 							->setInstalls(Facebook\Installs::load())
@@ -42,21 +55,6 @@ final class Extension extends Main\Engine\Controller
 		finally
 		{
 			return $response;
-		}
-	}
-	public function uninstallAction($type)
-	{
-		$response = null;
-		try
-		{
-			if(ServiceAdapter::load($type)->getExtension()->uninstall()->isSuccess())
-			{
-				$response = AjaxJson::createSuccess();
-			}
-		}
-		finally
-		{
-			return $response ?? AjaxJson::createError();
 		}
 	}
 }

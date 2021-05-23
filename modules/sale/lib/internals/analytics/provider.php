@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Sale\Internals\Analytics;
 
+use Bitrix\Main\Loader;
 use Bitrix\Main\Type\DateTime;
 
 /**
@@ -44,6 +45,14 @@ abstract class Provider
 	/**
 	 * @param array $data
 	 * @return string
+	 * @throws \Bitrix\Main\LoaderException
 	 */
-	abstract protected function getHash(array $data): string;
+	protected function getHash(array $data): string
+	{
+		$uniqParam = Loader::includeModule('bitrix24')
+			? BX24_HOST_NAME
+			: LICENSE_KEY;
+
+		return md5(serialize($data).$uniqParam);
+	}
 }

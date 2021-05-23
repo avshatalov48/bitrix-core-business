@@ -55,7 +55,6 @@ $MESS["PERFMON_PANEL_MAIL_UNITS"] = "E-mail Message Sending Time (sec)";
 $MESS["PERFMON_PANEL_SESSION"] = "Session Start Time";
 $MESS["PERFMON_PANEL_SESSION_UNITS"] = "sec";
 $MESS["PERFMON_PANEL_SESSION_ERR"] = "unknown";
-$MESS["PERFMON_PANEL_SESSION_NOTE"] = "Session start time duration cannot be determined because session data is stored in Security Module database.";
 $MESS["PERFMON_PANEL_PHP"] = "PHP Configuration";
 $MESS["PERFMON_PANEL_PHP_REC"] = "Recommendation";
 $MESS["PERFMON_PANEL_COMPONENT_CACHE"] = "Component Cache";

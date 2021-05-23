@@ -4,9 +4,10 @@ namespace Bitrix\Calendar\ICal\Builder;
 
 use Bitrix\Calendar\ICal\Basic\BasicComponent;
 use Bitrix\Calendar\ICal\Basic\Content;
-use Bitrix\Calendar\ICal\Basic\ICalUtil;
 use Bitrix\Calendar\ICal\Basic\LengthPropertyType;
 use Bitrix\Calendar\ICal\Basic\Parameter;
+use Bitrix\Calendar\ICal\MailInvitation\Helper;
+use DateInterval;
 
 class Calendar extends BasicComponent implements BuilderComponent
 {
@@ -19,21 +20,35 @@ class Calendar extends BasicComponent implements BuilderComponent
 	private $productIdentifier;
 	private $method;
 
-	public static function getInstance(string $name = null): Calendar
+	/**
+	 * @param string|null $name
+	 * @return Calendar
+	 */
+	public static function createInstance(string $name = null): Calendar
 	{
 		return new self($name);
 	}
 
+	/**
+	 * Calendar constructor.
+	 * @param string|null $name
+	 */
 	public function __construct(string $name = null)
 	{
 		$this->name = $name;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getType(): string
 	{
 		return 'VCALENDAR';
 	}
 
+	/**
+	 * @return string[]
+	 */
 	public function getProperties(): array
 	{
 		return [
@@ -42,13 +57,21 @@ class Calendar extends BasicComponent implements BuilderComponent
 		];
 	}
 
-	public function setMethod($method): Calendar
+	/**
+	 * @param string $method
+	 * @return $this
+	 */
+	public function setMethod(string $method): Calendar
 	{
 		$this->method = $method;
 
 		return $this;
 	}
 
+	/**
+	 * @param string $name
+	 * @return $this
+	 */
 	public function setName(string $name): Calendar
 	{
 		$this->name = $name;
@@ -56,6 +79,10 @@ class Calendar extends BasicComponent implements BuilderComponent
 		return $this;
 	}
 
+	/**
+	 * @param string $description
+	 * @return $this
+	 */
 	public function setDescription(string $description): Calendar
 	{
 		$this->description = $description;
@@ -63,6 +90,10 @@ class Calendar extends BasicComponent implements BuilderComponent
 		return $this;
 	}
 
+	/**
+	 * @param string $identifier
+	 * @return $this
+	 */
 	public function setIdentifier(string $identifier): Calendar
 	{
 		$this->productIdentifier = $identifier;
@@ -70,9 +101,14 @@ class Calendar extends BasicComponent implements BuilderComponent
 		return $this;
 	}
 
-	public function setEvent($event): Calendar
+	/**
+	 * @param $event
+	 * @return $this
+	 */
+	public function addEvent($event): Calendar
 	{
-		if (is_null($event)) {
+		if (is_null($event))
+		{
 			return $this;
 		}
 
@@ -80,7 +116,7 @@ class Calendar extends BasicComponent implements BuilderComponent
 			if (! is_callable($eventToResolve)) {
 				return $eventToResolve;
 			}
-			$newEvent = new Event(ICalUtil::getUniqId());
+			$newEvent = new Event(Helper::getUniqId());
 
 			$eventToResolve($newEvent);
 
@@ -92,6 +128,10 @@ class Calendar extends BasicComponent implements BuilderComponent
 		return $this;
 	}
 
+	/**
+	 * @param $timezone
+	 * @return $this
+	 */
 	public function setTimezones($timezone): Calendar
 	{
 		if (is_null($timezone)) {
@@ -115,6 +155,9 @@ class Calendar extends BasicComponent implements BuilderComponent
 		return $this;
 	}
 
+	/**
+	 * @return $this
+	 */
 	public function setWithTimezone(): Calendar
 	{
 		$this->withTimezone = true;
@@ -122,18 +165,28 @@ class Calendar extends BasicComponent implements BuilderComponent
 		return $this;
 	}
 
+	/**
+	 * @param int $min
+	 * @return $this
+	 */
 	public function refreshInterval(int $min): Calendar
 	{
-		$this->refreshInterval = new \DateInterval("PT{$min}M");
+		$this->refreshInterval = new DateInterval("PT{$min}M");
 
 		return $this;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function get(): string
 	{
 		return $this->toString();
 	}
 
+	/**
+	 * @return Content
+	 */
 	public function setContent(): Content
 	{
 		$events = $this->events;

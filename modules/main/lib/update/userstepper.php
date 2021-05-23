@@ -19,7 +19,7 @@ final class UserStepper extends Stepper
 		$return = false;
 
 		$params = Option::get(self::$moduleId, self::OPTION_NAME, "");
-		$params = ($params !== "" ? @unserialize($params) : array());
+		$params = ($params !== "" ? @unserialize($params, ['allowed_classes' => false]) : array());
 		$params = (is_array($params) ? $params : array());
 		if (empty($params))
 		{

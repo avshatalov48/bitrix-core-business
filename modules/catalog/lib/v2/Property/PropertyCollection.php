@@ -3,8 +3,6 @@
 namespace Bitrix\Catalog\v2\Property;
 
 use Bitrix\Catalog\v2\BaseCollection;
-use Bitrix\Catalog\v2\BaseEntity;
-use Bitrix\Main\InvalidOperationException;
 use Bitrix\Main\Result;
 
 /**
@@ -23,30 +21,6 @@ class PropertyCollection extends BaseCollection
 	public function __construct(PropertyRepositoryContract $repository)
 	{
 		$this->repository = $repository;
-	}
-
-	/**
-	 * @param \Bitrix\Catalog\v2\BaseEntity|\Bitrix\Catalog\v2\Property\HasPropertyCollection|null $parent
-	 * @return \Bitrix\Catalog\v2\BaseCollection
-	 */
-	public function setParent(?BaseEntity $parent): BaseCollection
-	{
-		parent::setParent($parent);
-
-		if ($parent)
-		{
-			if (!($parent instanceof HasPropertyCollection))
-			{
-				throw new InvalidOperationException(sprintf(
-					'Parent entity must implement {%s} interface',
-					HasPropertyCollection::class
-				));
-			}
-
-			$parent->setPropertyCollection($this);
-		}
-
-		return $this;
 	}
 
 	public function findBySetting(string $field, $value): ?Property

@@ -281,7 +281,7 @@ if ($this->startResultCache())
 					if ($field['MULTIPLE'] == 'Y')
 					{
 						if (!is_array($value))
-							$value = unserialize($value);
+							$value = unserialize($value, ['allowed_classes' => false]);
 						if (empty($value))
 							continue;
 					}

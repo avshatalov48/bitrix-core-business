@@ -585,7 +585,7 @@ class CsvFile
 				elseif (preg_match("#[\"\n\r]+#".BX_UTF_PCRE_MODIFIER, $fields[$i]))
 				{
 					$fields[$i] = str_replace("\"", "\"\"", $fields[$i]);
-					$fields[$i] = str_replace("\\", "\\\\", $fields[$i]);
+					//$fields[$i] = str_replace("\\", "\\\\", $fields[$i]);
 				}
 				$content .= "\"";
 				$content .= $fields[$i];

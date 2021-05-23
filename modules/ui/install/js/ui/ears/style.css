@@ -1,4 +1,5 @@
 .ui-ears-wrapper {
+	/*display: inline-block;*/
 	overflow: hidden;
 	position: relative;
 }

@@ -3,15 +3,10 @@
 
 import 'ui.tilegrid';
 import 'ui.forms';
-import {Loc, Reflection, Tag, Type} from "main.core";
-import {Menu} from "main.popup";
+import {Tag} from "main.core";
 
 export default class GridUnit extends BX.TileGrid.Item
 {
-	static MENU_WIDTH = 200;
-	static MENU_PADDING = 7;
-	static MENU_INDEX = 3020;
-
 	constructor(item)
 	{
 		super({

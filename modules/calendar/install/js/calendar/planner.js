@@ -1,5 +1,4 @@
 // # # #  #  #  # Planner for Event Calendar  # # #  #  #  #
-
 ;(function(window) {
 function CalendarPlanner(params, initialUpdateParams)
 {
@@ -1231,28 +1230,37 @@ CalendarPlanner.prototype =
 
 	getEntryAvatarNode: function(entry)
 	{
+		var imageNode;
 		var img = entry.avatar;
-
-		var imageNode = BX.create("div", {
-			attrs: {
-				'bx-tooltip-user-id': entry.id,
-				'bx-tooltip-classname': "calendar-planner-user-tooltip",
-
-			},
-			props: {
-				className: 'ui-icon calendar-planner-user-image-icon',
-				title: BX.Text.encode(entry.name),
-			},
-			html: '<i></i>'
-		});
 
 		if (!img || img === "/bitrix/images/1.gif")
 		{
-			BX.addClass(imageNode, entry.emailUser ? 'ui-icon-common-user-mail' : 'ui-icon-common-user');
+			imageNode = BX.create("DIV", {
+				props: {
+					className: 'ui-icon calendar-planner-user-image-icon '
+					+ (entry.emailUser ? 'ui-icon-common-user-mail' : 'ui-icon-common-user')
+				},
+				attrs: {
+					'bx-tooltip-user-id': entry.id,
+					'bx-tooltip-classname': 'calendar-planner-user-tooltip',
+					'title': BX.Text.encode(entry.name)
+				},
+				html: '<i></i>'
+			});
 		}
 		else
 		{
-			imageNode.innerHTML = '<i style="background-image: url('+ entry.avatar + ')"></i>';
+			imageNode = BX.create("DIV", {
+				props: {
+					className: 'ui-icon calendar-planner-user-image-icon'
+				},
+				attrs: {
+					'bx-tooltip-user-id': entry.id,
+					'bx-tooltip-classname': 'calendar-planner-user-tooltip',
+					'title': BX.Text.encode(entry.name)
+				},
+				html: '<i style="background-image: url(\'' + (entry.avatar) + '\')"></i>'
+			});
 		}
 		return imageNode;
 	},

@@ -1,8 +1,10 @@
 <?
 error_reporting(E_COMPILE_ERROR|E_ERROR|E_CORE_ERROR|E_PARSE);
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/bx_root.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/lib/loader.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/tools.php");
+
+require_once(__DIR__."/../bx_root.php");
+require_once(__DIR__."/../lib/loader.php");
+require_once(__DIR__."/autoload.php");
+require_once(__DIR__."/../tools.php");
 
 $bSkipRewriteChecking = false;
 
@@ -51,7 +53,6 @@ if(!defined("BX_UTF") && CUtil::DetectUTF8($_SERVER["REQUEST_URI"]))
 
 $requestUri = $requestPage.$requestParams;
 
-include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/virtual_io.php");
 $io = CBXVirtualIo::GetInstance();
 
 $arUrlRewrite = array();

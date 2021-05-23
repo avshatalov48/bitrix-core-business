@@ -37,6 +37,7 @@ class Filter
 	{
 		return array(
 			"FILTER_ID" => $this->filterId,
+			"COMMON_PRESETS_ID" => $this->filterId . "_presets",
 			"FILTER" => static::getFieldsList(),
 			"DISABLE_SEARCH" => true,
 			"FILTER_PRESETS" => static::getPresetsList(),

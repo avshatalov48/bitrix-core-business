@@ -639,6 +639,7 @@
 				}
 			});
 
+
 			if (startArrow)
 			{
 				partWrap.appendChild(startArrow);
@@ -666,7 +667,22 @@
 				// first part
 				if (params.part.partIndex == 0)
 				{
-					timeNode = innerNode.appendChild(BX.create('SPAN', {props: {className: 'calendar-event-line-time'}, text: this.calendar.util.formatTime(entry.from.getHours(), entry.from.getMinutes())}));
+					if (this.util.getDayCode(entry.from) !== this.util.getDayCode(from.date))
+					{
+						timeNode = innerNode.appendChild(
+							BX.create('SPAN', {
+								props: {className: 'calendar-event-line-time'},
+								text: this.calendar.util.formatTime(entry.to.getHours(), entry.to.getMinutes())
+							}));
+					}
+					else
+					{
+						timeNode = innerNode.appendChild(
+							BX.create('SPAN', {
+								props: {className: 'calendar-event-line-time'},
+								text: this.calendar.util.formatTime(entry.from.getHours(), entry.from.getMinutes())
+							}));
+					}
 					innerNode.style.width = 'calc(100% / ' + daysCount + ' - 3px)';
 				}
 
@@ -678,10 +694,12 @@
 						innerNode.style.width = 'calc(' + (daysCount - 1) + '00% / ' + daysCount + ' - 3px)';
 					}
 
-					if (!params.popupMode)
+					if (!params.popupMode && daysCount > 1)
 					{
 						endTimeNode = innerNode.appendChild(BX.create('SPAN', {
-							props: {className: (entry.parts.length > 1 && daysCount == 1) ? 'calendar-event-line-time' : 'calendar-event-line-expired-time'},
+							props: {className: (entry.parts.length > 1 && daysCount == 1)
+									? 'calendar-event-line-time'
+									: 'calendar-event-line-expired-time'},
 							text: this.calendar.util.formatTime(entry.to.getHours(), entry.to.getMinutes())
 						}));
 					}

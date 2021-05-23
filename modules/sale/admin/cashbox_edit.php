@@ -335,16 +335,25 @@ $tabControl->BeginCustomField('HANDLER', GetMessage("SALE_CASHBOX_HANDLER"));
 			<?if ($cashboxObject instanceof Cashbox\ITestConnection):?>
 				<input type="button" id="TEST_BUTTON" value="<?=Loc::getMessage('SALE_CASHBOX_CONNECTION')?>" onclick="BX.Sale.Cashbox.testConnection(<?=$id?>)">
 			<?endif;?>
-			<?php if (!$isCloud && $zone !== 'ua'): ?>
-			<span id="hint_cashbox_ua_wrapper">
-				<span id="hint_CASHBOX_UA"></span>
-				<?php if ($cashbox['HANDLER'] === '\Bitrix\Sale\Cashbox\CashboxCheckbox'): ?>
-				<script>
-				BX.hint_replace(BX('hint_CASHBOX_UA'), '<?=Loc::getMessage('SALE_CASHBOX_UA_HINT');?>');
-				</script>
-				<?php endif; ?>
+			<span id="hint_handler_wrapper">
+
+				<span id="hint_HANDLER">
+					<?php
+					if ($cashboxObject)
+					{
+						$handlerHint = Loc::getMessage('SALE_CASHBOX_'.ToUpper($cashboxObject::getCode()).'_HINT');
+						if ($handlerHint)
+						{
+						?>
+							<script>
+								BX.hint_replace(BX('hint_HANDLER'), "<?=$handlerHint;?>");
+							</script>
+						<?
+						}
+					}
+					?>
+				</span>
 			</span>
-			<?php endif; ?>
 		</td>
 	</tr>
 <?
@@ -438,9 +447,11 @@ $tabControl->BeginCustomField('NUMBER_KKM', GetMessage("SALE_CASHBOX_EXTERNAL_UU
 
 		</td>
 	</tr>
+	<?php if ($zone !== 'ua'): ?>
 	<script>
 		BX.hint_replace(BX('hint_NUMBER_KKM'), '<?=Loc::getMessage('SALE_CASHBOX_EXTERNAL_UUID_HINT_V2');?>');
 	</script>
+	<?php endif; ?>
 <?
 $tabControl->EndCustomField('NUMBER_KKM', '');
 
@@ -520,7 +531,8 @@ $tabControl->Show();
 		CASHBOX_CHECK_CONNECTION_TITLE_POPUP_CLOSE: '<?=Loc::getMessage("CASHBOX_CHECK_CONNECTION_TITLE_POPUP_CLOSE")?>',
 		SALE_RDL_RESTRICTION: '<?=Loc::getMessage("SALE_CASHBOX_RDL_RESTRICTION")?>',
 		SALE_RDL_SAVE: '<?=Loc::getMessage("SALE_CASHBOX_RDL_SAVE")?>',
-		SALE_CASHBOX_UA_HINT: '<?=Loc::getMessage("SALE_CASHBOX_UA_HINT")?>'
+		SALE_CASHBOX_CASHBOXCHECKBOX_HINT: '<?=Loc::getMessage("SALE_CASHBOX_CASHBOXCHECKBOX_HINT")?>',
+		SALE_CASHBOX_CASHBOXBUSINESSRU_HINT: '<?=GetMessageJS("SALE_CASHBOX_CASHBOXBUSINESSRU_HINT")?>'
 	});
 </script>
 <?

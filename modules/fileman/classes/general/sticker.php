@@ -222,7 +222,7 @@ class CSticker
 					$arRes['AUTHOR'] = CSticker::GetUserName($arRes['CREATED_BY']);
 					$arRes['INFO'] = CSticker::GetStickerInfo($arRes['CREATED_BY'], $arRes['DATE_CREATE2'], $arRes['MODIFIED_BY'], $arRes['DATE_UPDATE2']);
 					$arRes['HTML_CONTENT'] = CSticker::BBParseToHTML($arRes['CONTENT']);
-					$arRes['MARKER_ADJUST'] = unserialize($arRes['MARKER_ADJUST']);
+					$arRes['MARKER_ADJUST'] = unserialize($arRes['MARKER_ADJUST'], ['allowed_classes' => false]);
 				}
 
 				$arResult[] = $arRes;
@@ -766,7 +766,7 @@ class CSticker
 		$res = CUserOptions::GetOption('fileman', "stickers_list_filter", false);
 		if ($res !== false && CheckSerializedData($res))
 		{
-			$Filter = unserialize($res);
+			$Filter = unserialize($res, ['allowed_classes' => false]);
 			if (is_array($Filter))
 			{
 				if ($Filter['type'])

@@ -114,7 +114,7 @@ if ($arOrder)
 	if ($order)
 	{
 		$guestStatuses = Main\Config\Option::get("sale", "allow_guest_order_view_status", "");
-		$guestStatuses = ($guestStatuses <> '') ?  unserialize($guestStatuses) : array();
+		$guestStatuses = ($guestStatuses <> '') ?  unserialize($guestStatuses, ['allowed_classes' => false]) : [];
 
 		if (
 			!Sale\OrderStatus::isAllowPay($order->getField('STATUS_ID'))

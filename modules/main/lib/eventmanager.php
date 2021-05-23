@@ -247,7 +247,7 @@ class EventManager
 				$ar["~MESSAGE_ID"] = mb_strtoupper($ar["MESSAGE_ID"]);
 				if ($ar["TO_METHOD_ARG"] <> '')
 				{
-					$ar["TO_METHOD_ARG"] = unserialize($ar["TO_METHOD_ARG"]);
+					$ar["TO_METHOD_ARG"] = unserialize($ar["TO_METHOD_ARG"], ['allowed_classes' => false]);
 				}
 				else
 				{

@@ -12,7 +12,6 @@ return [
 		'./dist/body.bundle.css',
 	],
 	'rel' => [
-		'main.polyfill.core',
 		'im.view.element.media',
 		'im.view.element.attach',
 		'im.view.element.keyboard',
@@ -23,6 +22,7 @@ return [
 		'im.model',
 		'im.const',
 		'im.lib.utils',
+		'main.core',
 	],
-	'skip_core' => true,
+	'skip_core' => false,
 ];

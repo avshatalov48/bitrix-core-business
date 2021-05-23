@@ -1,4 +1,5 @@
-<?
+<?php
+
 use Bitrix\Socialnetwork\ComponentHelper;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
@@ -6,8 +7,10 @@ use Bitrix\Rest\RestException;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Socialnetwork\UserToGroupTable;
 
-if(!CModule::IncludeModule('rest'))
+if(!Loader::includeModule('rest'))
+{
 	return;
+}
 
 class CSocNetLogRestService extends IRestService
 {
@@ -2398,7 +2401,7 @@ class CSocNetLogRestService extends IRestService
 		$groupId = $arFields['GROUP_ID'];
 		$userIdList = $arFields['USER_ID'];
 
-		if(intval($groupId) <= 0)
+		if((int)$groupId <= 0)
 		{
 			throw new Exception('Wrong group ID');
 		}
@@ -2459,28 +2462,86 @@ class CSocNetLogRestService extends IRestService
 	{
 		global $USER;
 
-		$dbRes = CSocNetUserToGroup::GetList(
-			array('ID' => 'ASC'),
-			array(
+		$res = \CSocNetUserToGroup::getList(
+			[ 'ID' => 'ASC' ],
+			[
 				'USER_ID' => $USER->GetID(),
 				'<=ROLE' => SONET_ROLES_USER
-			), false, false, array('GROUP_ID', 'GROUP_NAME', 'ROLE')
+			],
+			false,
+			false,
+			[ 'GROUP_ID', 'GROUP_NAME', 'ROLE', 'GROUP_IMAGE_ID' ]
 		);
 
-		$res = array();
-		while ($arRes = $dbRes->Fetch())
+		$result = [];
+		$files = [];
+		while ($groupFields = $res->fetch())
 		{
-			$res[] = $arRes;
+			$groupFields['GROUP_IMAGE'] = '';
+			$result[] = $groupFields;
+
+			if($groupFields['GROUP_IMAGE_ID'] > 0)
+			{
+				$files[] = (int)$groupFields['GROUP_IMAGE_ID'];
+			}
 		}
 
-		return $res;
+		if (
+			!empty($result)
+			&& Loader::includeModule('extranet')
+			&& ($extranetSiteId = \CExtranet::getExtranetSiteId())
+		)
+		{
+			$extranetWorkgroupIdList = [];
+			$workgroupIdList = array_map(function($item) { return $item['GROUP_ID']; }, $result);
+			$res = \Bitrix\Socialnetwork\WorkgroupSiteTable::getList([
+				'filter' => [
+					'GROUP_ID' => $workgroupIdList,
+					'SITE_ID' => $extranetSiteId
+				],
+				'select' => [ 'GROUP_ID' ]
+			]);
+			while ($workgroupSiteFields = $res->fetch())
+			{
+				$extranetWorkgroupIdList[] = (int)$workgroupSiteFields['GROUP_ID'];
+			}
+
+			if (!empty($extranetWorkgroupIdList))
+			{
+				foreach ($result as $key => $groupFields)
+				{
+					if (in_array((int)$groupFields['GROUP_ID'], $extranetWorkgroupIdList))
+					{
+						$result[$key]['IS_EXTRANET'] = 'Y';
+					}
+				}
+			}
+		}
+
+		if (!empty($files))
+		{
+			$files = \CRestUtil::getFile($files, [
+				'width' => 150,
+				'height' => 150,
+			]);
+
+			foreach ($result as $key => $groupFields)
+			{
+				if($groupFields['GROUP_IMAGE_ID'] > 0)
+				{
+					$result[$key]['GROUP_IMAGE'] = $files[$groupFields['GROUP_IMAGE_ID']];
+				}
+			}
+		}
+
+		return $result;
 	}
 
 	public static function getGroupFeatureAccess($arFields)
 	{
 		$arSocNetFeaturesSettings = CSocNetAllowed::GetAllowedFeatures();
 
-		$groupID = intval($arFields["GROUP_ID"]);
+		$groupID = (int)$arFields["GROUP_ID"];
 		$feature = trim($arFields["FEATURE"]);
 		$operation = trim($arFields["OPERATION"]);
 

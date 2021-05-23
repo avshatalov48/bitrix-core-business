@@ -420,6 +420,7 @@ this.BX.Seo = this.BX.Seo || {};
 
 	        switch (provider.TYPE) {
 	          case "facebook":
+	          case "instagram":
 	            loginObject = FacebookLogin;
 	            break;
 

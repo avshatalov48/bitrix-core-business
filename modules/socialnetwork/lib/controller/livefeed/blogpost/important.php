@@ -26,6 +26,7 @@ class Important extends \Bitrix\Socialnetwork\Controller\Base
 		$pathToUser = (isset($params['PATH_TO_USER']) && $params['PATH_TO_USER'] <> '' ? $params['PATH_TO_USER'] : SITE_DIR.'company/personal/user/#USER_ID#/');
 		$nameTemplate = (isset($params['NAME_TEMPLATE']) && $params['NAME_TEMPLATE'] <> '' ? $params['NAME_TEMPLATE'] :  \CSite::getNameFormat(false));
 		$pageNumber = (isset($params['PAGE_NUMBER']) && intval($params['PAGE_NUMBER']) > 0 ? intval($params['PAGE_NUMBER']) : 1);
+		$avatarSize = (isset($params['AVATAR_SIZE']) && (int)$params['AVATAR_SIZE'] > 0 ? (int)$params['AVATAR_SIZE'] : 21);
 
 		if ($postId <= 0)
 		{
@@ -43,7 +44,8 @@ class Important extends \Bitrix\Socialnetwork\Controller\Base
 			$pageNumber,
 			$propertyValue,
 			$nameTemplate,
-			$pathToUser
+			$pathToUser,
+			$avatarSize
 		]);
 
 		$cachePath = $CACHE_MANAGER->getCompCachePath(\CComponentEngine::makeComponentPath('socialnetwork.blog.blog')).'/'.$postId;
@@ -131,7 +133,7 @@ class Important extends \Bitrix\Socialnetwork\Controller\Base
 						{
 							$fileFields = \CFile::resizeImageGet(
 								$userOptionFields['USER_PERSONAL_PHOTO'],
-								[ 'width' => 21, 'height' => 21 ],
+								[ 'width' => $avatarSize, 'height' => $avatarSize ],
 								BX_RESIZE_IMAGE_EXACT,
 								false
 							);

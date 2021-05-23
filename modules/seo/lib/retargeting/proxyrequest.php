@@ -3,7 +3,7 @@
 namespace Bitrix\Seo\Retargeting;
 
 use Bitrix\Main\InvalidOperationException;
-use Bitrix\Seo\Engine\Bitrix as EngineBitrix;
+use Bitrix\Seo\Engine;
 
 class ProxyRequest extends Request
 {
@@ -25,7 +25,7 @@ class ProxyRequest extends Request
 
 		$methodName = static::REST_METHOD_PREFIX . '.' . $params['methodName'];
 		$parameters = $params['parameters'];
-		$engine = new EngineBitrix();
+		$engine = new Engine\Bitrix();
 		if (!$engine->isRegistered())
 		{
 			return false;

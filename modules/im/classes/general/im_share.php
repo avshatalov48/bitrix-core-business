@@ -290,7 +290,7 @@ class CIMShare
 			" ",
 			CTextParser::clearAllTags($message['MESSAGE'])
 		));
-		$title = $title? $title: CTextParser::clearAllTags(GetMessage('IM_SHARE_CHAT_POST', Array('#LINK#' => '')));
+		$title = $title? $title: CTextParser::clearAllTags(GetMessage('IM_SHARE_CHAT_POST_2', Array('#LINK#' => '')));
 
 		$messagePost = $this->PrepareText($message)."\n".GetMessage('IM_SHARE_POST_WELCOME');
 
@@ -376,7 +376,7 @@ class CIMShare
 		$link = str_replace(array("#post_id#", "#user_id#"), Array($postFields["ID"], $this->user_id), $pathToPost);
 		$processed = CSocNetLogTools::ProcessPath(array("BLOG" => $link), $this->user_id, SITE_ID);
 
-		$this->SendMessage('', GetMessage('IM_SHARE_CHAT_POST', Array('#LINK#' => $processed["URLS"]["BLOG"])), $message, $messageParams);
+		$this->SendMessage('', GetMessage('IM_SHARE_CHAT_POST_2', Array('#LINK#' => $processed["URLS"]["BLOG"])), $message, $messageParams);
 
 		return true;
 	}

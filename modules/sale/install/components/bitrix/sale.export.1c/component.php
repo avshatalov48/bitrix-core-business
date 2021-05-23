@@ -344,7 +344,7 @@ else
 			if($crmSiteUrl <> '')
 			{
 				$opt = COption::GetOptionString("sale", "~crm_integration", "");
-				$opt = unserialize($opt);
+				$opt = unserialize($opt, ['allowed_classes' => false]);
 				if (!is_array($opt))
 					$opt = array();
 				if (!array_key_exists($crmSiteUrl, $opt))

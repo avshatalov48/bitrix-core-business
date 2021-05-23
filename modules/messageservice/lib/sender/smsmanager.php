@@ -31,6 +31,10 @@ class SmsManager
 			{
 				self::$senders[] = new Sms\Twilio();
 			}
+			if (Sms\Twilio2::isSupported())
+			{
+				self::$senders[] = new Sms\Twilio2();
+			}
 			if (Sms\SmsLineBy::isSupported())
 			{
 				self::$senders[] = new Sms\SmsLineBy();
@@ -42,6 +46,10 @@ class SmsManager
 			if (Sms\Rest::isSupported())
 			{
 				self::$senders[] = new Sms\Rest();
+			}
+			if (Sms\SmscUa::isSupported())
+			{
+				self::$senders[] = new Sms\SmscUa();
 			}
 
 			self::fireSendersEvent();

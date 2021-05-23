@@ -239,6 +239,38 @@ class Landing extends Sale\TradingPlatform\Platform
 		return $this->site;
 	}
 
+	public function getAnalyticCode()
+	{
+		$data = $this->getInfo();
+		if (!isset($data['XML_ID']) || !$data['XML_ID'])
+		{
+			return parent::getAnalyticCode();
+		}
+
+		if (mb_strpos($data['XML_ID'], 'clothes') !== false)
+		{
+			return 'clothes';
+		}
+		elseif (mb_strpos($data['XML_ID'], 'instagram') !== false)
+		{
+			return 'instagram';
+		}
+		elseif (mb_strpos($data['XML_ID'], 'chats') !== false)
+		{
+			return 'chats';
+		}
+		elseif (mb_strpos($data['XML_ID'], 'mini-one-element') !== false)
+		{
+			return 'mini-one-element';
+		}
+		elseif (mb_strpos($data['XML_ID'], 'mini-catalog') !== false)
+		{
+			return 'mini-catalog';
+		}
+
+		return $data['XML_ID'];
+	}
+
 	/**
 	 * @param $type
 	 * @param Sale\Order $order

@@ -56,7 +56,7 @@ abstract class CBaseSaleReportHelper extends CReportHelper
 				$titleMsg = GetMessage('SALE_REPORT_DEFAULT_MOST_EXPECTED_GOODS');
 				if ($title === $titleMsg && is_string($row['SETTINGS']) && $row['SETTINGS'] <> '')
 				{
-					$settings = unserialize($row['SETTINGS']);
+					$settings = unserialize($row['SETTINGS'], ['allowed_classes' => false]);
 					if (is_array($settings))
 					{
 						$needUpdate = false;

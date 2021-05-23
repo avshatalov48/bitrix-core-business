@@ -491,7 +491,8 @@ export class Util
 		{
 			for (let i = 0, length = PopupManager._popups.length; i < length; i++)
 			{
-				if (PopupManager._popups[i].isShown())
+				if (PopupManager._popups[i]
+					&& PopupManager._popups[i].isShown())
 				{
 					PopupManager._popups[i].close();
 				}

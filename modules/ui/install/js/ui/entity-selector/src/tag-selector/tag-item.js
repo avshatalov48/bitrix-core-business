@@ -1,15 +1,19 @@
-import { Cache, Tag, Type, Dom, Event } from 'main.core';
+import { Cache, Tag, Type, Dom } from 'main.core';
 import Entity from '../entity/entity';
-import Animation from '../util/animation';
+import TextNode from '../common/text-node';
+import Animation from '../common/animation';
+import TypeUtils from '../common/type-utils';
+
 import type TagSelector from './tag-selector';
 import type { TagItemOptions } from './tag-item-options';
+import type { TextNodeOptions } from '../common/text-node-options';
 
 export default class TagItem
 {
 	id: string | number = null;
 	entityId: string = null;
 	entityType: string = null;
-	title: string = '';
+	title: ?TextNode = null;
 
 	avatar: ?string = null;
 	maxWidth: ?number = null;
@@ -41,11 +45,9 @@ export default class TagItem
 		}
 
 		this.id = options.id;
-		this.entityId = options.entityId;
+		this.entityId = options.entityId.toLowerCase();
 		this.entityType = Type.isStringFilled(options.entityType) ? options.entityType : 'default';
-		this.customData =
-			Type.isPlainObject(options.customData) ? new Map(Object.entries(options.customData)) : new Map()
-		;
+		this.customData = TypeUtils.createMapFromOptions(options.customData);
 
 		this.onclick = Type.isFunction(options.onclick) ? options.onclick : null;
 		this.link = Type.isStringFilled(options.link) ? options.link : null;
@@ -87,17 +89,20 @@ export default class TagItem
 
 	getTitle(): string
 	{
+		return this.getTitleNode() && !this.getTitleNode().isNullable() ? this.getTitleNode().getText() : '';
+	}
+
+	getTitleNode(): ?TextNode
+	{
 		return this.title;
 	}
 
-	setTitle(title: string): this
+	setTitle(title: string | TextNodeOptions): void
 	{
-		if (Type.isStringFilled(title))
+		if (Type.isStringFilled(title) || Type.isPlainObject(title) || title === null)
 		{
-			this.title = title;
+			this.title = title === null ? null : new TextNode(title);
 		}
-
-		return this;
 	}
 
 	getAvatar(): ?string
@@ -118,14 +123,12 @@ export default class TagItem
 		return this.getEntityItemOption('avatar');
 	}
 
-	setAvatar(avatar: ?string): this
+	setAvatar(avatar: ?string): void
 	{
 		if (Type.isString(avatar) || avatar === null)
 		{
 			this.avatar = avatar;
 		}
-
-		return this;
 	}
 
 	getTextColor(): ?string
@@ -142,14 +145,12 @@ export default class TagItem
 		return this.getEntityTagOption('textColor');
 	}
 
-	setTextColor(textColor: ?string): this
+	setTextColor(textColor: ?string): void
 	{
 		if (Type.isString(textColor) || textColor === null)
 		{
 			this.textColor = textColor;
 		}
-
-		return this;
 	}
 
 	getBgColor(): ?string
@@ -166,14 +167,12 @@ export default class TagItem
 		return this.getEntityTagOption('bgColor');
 	}
 
-	setBgColor(bgColor: ?string): this
+	setBgColor(bgColor: ?string): void
 	{
 		if (Type.isString(bgColor) || bgColor === null)
 		{
 			this.bgColor = bgColor;
 		}
-
-		return this;
 	}
 
 	getFontWeight(): ?string
@@ -190,14 +189,12 @@ export default class TagItem
 		return this.getEntityTagOption('fontWeight');
 	}
 
-	setFontWeight(fontWeight: ?string): this
+	setFontWeight(fontWeight: ?string): void
 	{
 		if (Type.isString(fontWeight) || fontWeight === null)
 		{
 			this.fontWeight = fontWeight;
 		}
-
-		return this;
 	}
 
 	getMaxWidth(): ?number
@@ -214,7 +211,7 @@ export default class TagItem
 		return this.getEntityTagOption('maxWidth');
 	}
 
-	setMaxWidth(width: ?number)
+	setMaxWidth(width: ?number): void
 	{
 		if ((Type.isNumber(width) && width >= 0) || width === null)
 		{
@@ -222,19 +219,22 @@ export default class TagItem
 		}
 	}
 
-	setDeselectable(flag: boolean): this
+	setDeselectable(flag: boolean): void
 	{
 		if (Type.isBoolean(flag))
 		{
 			this.deselectable = flag;
 		}
-
-		return this;
 	}
 
 	isDeselectable(): boolean
 	{
 		return this.deselectable !== null ? this.deselectable : this.getSelector().isDeselectable();
+	}
+
+	getCustomData(): Map<string, any>
+	{
+		return this.customData;
 	}
 
 	getLink(): ?string
@@ -247,10 +247,20 @@ export default class TagItem
 		return this.onclick;
 	}
 
-	render()
+	render(): void
 	{
-		this.getTitleContainer().textContent = this.getTitle();
-		Dom.attr(this.getContentContainer(), 'title', this.getTitle());
+		const titleNode = this.getTitleNode();
+		if (titleNode)
+		{
+			titleNode.renderTo(this.getTitleContainer());
+
+			//Dom.attr(this.getContentContainer(), 'title', this.getTitle());
+		}
+		else
+		{
+			this.getTitleContainer().textContent = '';
+			Dom.attr(this.getContentContainer(), 'title', '');
+		}
 
 		const avatar = this.getAvatar();
 		if (Type.isStringFilled(avatar))
@@ -302,7 +312,7 @@ export default class TagItem
 		});
 	}
 
-	getContentContainer()
+	getContentContainer(): HTMLElement
 	{
 		return this.cache.remember('content-container', () => {
 			if (Type.isStringFilled(this.getLink()))
@@ -336,7 +346,7 @@ export default class TagItem
 		});
 	}
 
-	getAvatarContainer()
+	getAvatarContainer(): HTMLElement
 	{
 		return this.cache.remember('avatar', () => {
 			return Tag.render`
@@ -373,7 +383,7 @@ export default class TagItem
 		return Entity.getItemOption(this.getEntityId(), option, this.getEntityType());
 	}
 
-	isRendered()
+	isRendered(): boolean
 	{
 		return this.rendered && this.getSelector() && this.getSelector().isRendered();
 	}
@@ -407,7 +417,7 @@ export default class TagItem
 		});
 	}
 
-	handleContainerClick()
+	handleContainerClick(): void
 	{
 		const fn = this.getOnclick();
 		if (Type.isFunction(fn))
@@ -416,7 +426,7 @@ export default class TagItem
 		}
 	}
 
-	handleRemoveIconClick(event: MouseEvent)
+	handleRemoveIconClick(event: MouseEvent): void
 	{
 		event.stopPropagation();
 		if (this.isDeselectable())

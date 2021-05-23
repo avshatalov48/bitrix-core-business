@@ -1,6 +1,6 @@
 <?
 define("B_EPILOG_INCLUDED", true);
-define("START_EXEC_EPILOG_AFTER_1", microtime());
+define("START_EXEC_EPILOG_AFTER_1", microtime(true));
 $GLOBALS["BX_STATE"] = "EA";
 
 if(!isset($USER)) {global $USER;}

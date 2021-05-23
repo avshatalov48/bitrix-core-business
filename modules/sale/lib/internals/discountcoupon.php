@@ -570,6 +570,7 @@ class DiscountCouponTable extends Main\Entity\DataManager
 		if (empty($coupons))
 			return false;
 
+		$errorList = [];
 		$deactivateCoupons = array();
 		$incrementalCoupons = array();
 		$limitedCoupons = array();
@@ -579,35 +580,65 @@ class DiscountCouponTable extends Main\Entity\DataManager
 				'DISCOUNT_ACTIVE' => 'DISCOUNT.ACTIVE',
 				'DISCOUNT_ACTIVE_FROM' => 'DISCOUNT.ACTIVE_FROM', 'DISCOUNT_ACTIVE_TO' => 'DISCOUNT.ACTIVE_TO'
 			),
-			'filter' => array('@ID' => $coupons, '=ACTIVE' => 'Y'),
+			'filter' => array('@ID' => $coupons),
 			'order' => array('ID' => 'ASC')
 		));
 		while ($existCoupon = $couponIterator->fetch())
 		{
+			$couponCode = $existCoupon['COUPON'];
 			if ($existCoupon['DISCOUNT_ACTIVE'] != 'Y')
+			{
+				$errorList[$couponCode] = Loc::getMessage('DISCOUNT_COUPON_SAVE_ERROR_DISCOUNT_INACTIVE');
 				continue;
+			}
 			if (
 				($existCoupon['DISCOUNT_ACTIVE_FROM'] instanceof Main\Type\DateTime && $existCoupon['DISCOUNT_ACTIVE_FROM']->getTimestamp() > $currentTimestamp)
 				||
 				($existCoupon['DISCOUNT_ACTIVE_TO'] instanceof Main\Type\DateTime && $existCoupon['DISCOUNT_ACTIVE_TO']->getTimestamp() < $currentTimestamp)
 			)
+			{
+				$errorList[$couponCode] = Loc::getMessage('DISCOUNT_COUPON_SAVE_ERROR_DISCOUNT_WRONG_ACTIVE_PERIOD');
 				continue;
+			}
 
 			$existCoupon['USER_ID'] = (int)$existCoupon['USER_ID'];
 			if ($existCoupon['USER_ID'] > 0 && $existCoupon['USER_ID'] != $userId)
+			{
+				$errorList[$couponCode] = Loc::getMessage('DISCOUNT_COUPON_SAVE_ERROR_WRONG_USER_COUPON');
 				continue;
+			}
 			if (
 				($existCoupon['ACTIVE_FROM'] instanceof Main\Type\DateTime && $existCoupon['ACTIVE_FROM']->getTimestamp() > $currentTimestamp)
 				||
 				($existCoupon['ACTIVE_TO'] instanceof Main\Type\DateTime && $existCoupon['ACTIVE_TO']->getTimestamp() < $currentTimestamp)
 			)
+			{
+				$errorList[$couponCode] = Loc::getMessage('DISCOUNT_COUPON_SAVE_ERROR_COUPON_WRONG_ACTIVE_PERIOD');
 				continue;
+			}
+			if ($existCoupon['ACTIVE'] != 'Y')
+			{
+				switch ($existCoupon['TYPE'])
+				{
+					case self::TYPE_BASKET_ROW:
+						$errorList[$couponCode] = Loc::getMessage('DISCOUNT_COUPON_SAVE_ERROR_COUPON_BASKET_ROW_INACTIVE');
+						break;
+					case self::TYPE_ONE_ORDER:
+						$errorList[$couponCode] = Loc::getMessage('DISCOUNT_COUPON_SAVE_ERROR_COUPON_ONE_ORDER_INACTIVE');
+						break;
+					default:
+						$errorList[$couponCode] = Loc::getMessage('DISCOUNT_COUPON_SAVE_ERROR_COUPON_INACTIVE');
+						break;
+				}
+				continue;
+			}
+
 			if (
 				$existCoupon['TYPE'] == self::TYPE_BASKET_ROW
 				|| $existCoupon['TYPE'] == self::TYPE_ONE_ORDER
 			)
 			{
-				$deactivateCoupons[$existCoupon['COUPON']] = $existCoupon['ID'];
+				$deactivateCoupons[$couponCode] = $existCoupon['ID'];
 			}
 			elseif ($existCoupon['TYPE'] == self::TYPE_MULTI_ORDER)
 			{
@@ -615,7 +646,10 @@ class DiscountCouponTable extends Main\Entity\DataManager
 				$existCoupon['USE_COUNT'] = (int)$existCoupon['USE_COUNT'];
 
 				if ($existCoupon['MAX_USE'] > 0 && $existCoupon['USE_COUNT'] >= $existCoupon['MAX_USE'])
+				{
+					$errorList[$couponCode] = Loc::getMessage('DISCOUNT_COUPON_SAVE_ERROR_COUPON_MAX_USE_LIMIT');
 					continue;
+				}
 				if ($existCoupon['MAX_USE'] > 0 && $existCoupon['USE_COUNT'] >= ($existCoupon['MAX_USE'] - 1))
 				{
 					$limitedCoupons[$existCoupon['COUPON']] = $existCoupon['ID'];
@@ -627,7 +661,17 @@ class DiscountCouponTable extends Main\Entity\DataManager
 			}
 
 		}
-		unset($existCoupon, $couponIterator, $coupons);
+		unset($existCoupon, $couponIterator);
+		if (!empty($errorList))
+		{
+			return [
+				'STATUS' => false,
+				'ERROR' => $errorList,
+				'DEACTIVATE' => 0,
+				'LIMITED' => 0,
+				'INCREMENT' => 0
+			];
+		}
 		if (!empty($deactivateCoupons) || !empty($limitedCoupons) || !empty($incrementalCoupons))
 		{
 			$conn = Application::getConnection();
@@ -658,11 +702,13 @@ class DiscountCouponTable extends Main\Entity\DataManager
 			}
 			unset($tableName, $helper);
 		}
-		return array(
+		return [
+			'STATUS' => true,
+			'ERROR_LIST' => [],
 			'DEACTIVATE' => $deactivateCoupons,
 			'LIMITED' => $limitedCoupons,
 			'INCREMENT' => $incrementalCoupons
-		);
+		];
 	}
 
 	/**

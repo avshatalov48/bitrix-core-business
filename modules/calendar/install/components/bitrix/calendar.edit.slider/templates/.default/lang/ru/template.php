@@ -66,4 +66,6 @@ $MESS["EC_EDIT_SLIDER_MORE"] = "Еще";
 $MESS["EC_EDIT_SLIDER_ALLOW_INVITE_LABEL"] = "Разрешать участникам приглашать других";
 $MESS["EC_EDIT_SLIDER_NOTIFY_STATUS_LABEL"] = "Оповещать о подтверждении/отказе участников";
 $MESS["EC_EDIT_SLIDER_REINVITE_LABEL"] = "Запросить повторное подтверждение участия";
+$MESS["EC_EDIT_SLIDER_HIDE_GUEST_NAMES"] = "Скрывать список участников от гостей";
+$MESS["EC_EDIT_SLIDER_HIDE_GUEST_NAMES_HINT"] = "Вы можете скрыть от гостей список участников события. Гостю придет персональное приглашение с информацией о встрече без указания участников.";
 ?>

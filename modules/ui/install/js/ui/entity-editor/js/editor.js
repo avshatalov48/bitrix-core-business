@@ -84,6 +84,8 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		this._closeConfirmationHandler = BX.delegate(this.onCloseConfirmButtonClick, this);
 		this._cancelConfirmationHandler = BX.delegate(this.onCancelConfirmButtonClick, this);
 
+		this._windowResizeHandler = BX.debounce(BX.delegate(this.onResize, this), 50);
+
 		this._sliderOpenHandler = BX.delegate(this.onSliderOpen, this);
 		this._sliderCloseHandler = BX.delegate(this.onSliderClose, this);
 
@@ -375,13 +377,15 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		},
 		attachToEvents: function()
 		{
-			BX.bind(window, "resize", BX.debounce(BX.delegate(this.onResize, this), 50));
+			BX.bind(window, "resize", this._windowResizeHandler);
 
 			BX.addCustomEvent("SidePanel.Slider:onOpenComplete", this._sliderOpenHandler);
 			BX.addCustomEvent("SidePanel.Slider:onClose", this._sliderCloseHandler);
 		},
 		deattachFromEvents: function()
 		{
+			BX.unbind(window, "resize", this._windowResizeHandler);
+
 			BX.removeCustomEvent("SidePanel.Slider:onOpenComplete", this._sliderOpenHandler);
 			BX.removeCustomEvent("SidePanel.Slider:onClose", this._sliderCloseHandler);
 		},
@@ -1674,7 +1678,10 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			}
 			for(var i = 0, length = this._controllers.length; i < length; i++)
 			{
-				data = this._controllers[i].onBeforesSaveControl(data);
+				if (BX.Type.isFunction(this._controllers[i].onBeforesSaveControl))
+				{
+					data = this._controllers[i].onBeforesSaveControl(data);
+				}
 			}
 			return data;
 		},
@@ -2144,6 +2151,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			var result = this._config.save(false);
 			if(result)
 			{
+				this._areAvailableSchemeElementsChanged = false;
 				this.processSchemeChange();
 			}
 			return result;
@@ -2954,7 +2962,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		{
 			var hasContent = field.hasContentToDisplay();
 			var result = { isNeedToDisplay: (hasContent || this._showEmptyFields) };
-			if(this._enableExternalLayoutResolvers)
+			if(this.isExternalLayoutResolversEnabled())
 			{
 				var eventArgs =
 					{
@@ -2972,6 +2980,10 @@ if(typeof BX.UI.EntityEditor === "undefined")
 				);
 			}
 			return result;
+		},
+		isExternalLayoutResolversEnabled: function()
+		{
+			return !!this._enableExternalLayoutResolvers;
 		}
 	};
 	BX.UI.EntityEditor.defaultInstance = null;

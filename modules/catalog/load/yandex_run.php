@@ -488,7 +488,7 @@ $arRunErrors = array();
 if (isset($XML_DATA))
 {
 	if (is_string($XML_DATA) && CheckSerializedData($XML_DATA))
-		$XML_DATA = unserialize(stripslashes($XML_DATA));
+		$XML_DATA = unserialize(stripslashes($XML_DATA), ['allowed_classes' => false]);
 }
 if (!isset($XML_DATA) || !is_array($XML_DATA))
 	$arRunErrors[] = GetMessage('YANDEX_ERR_BAD_XML_DATA');

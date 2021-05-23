@@ -68,7 +68,7 @@ class InfoHelper
 			'filter' => defined('SITE_ID') ? array('=LID' => SITE_ID) : array(),
 			'order'  => array('ACTIVE' => 'DESC', 'DEF' => 'DESC', 'SORT' => 'ASC'),
 			'select' => array('SERVER_NAME'),
-			'cache'	 => array('ttl' => 3600)
+			'cache'	 => array('ttl' => 86400)
 		))->fetch();
 
 		return $site['SERVER_NAME'] ?: Option::get('main', 'server_name', '');

@@ -491,6 +491,21 @@ else
 										'URL' => $postUrl
 									);
 
+									if ($arFields['TAGS'] !== '')
+									{
+										$arSoFields['TAG'] = [];
+										$tagsList = explode(',', $arFields['TAGS']);
+										foreach($tagsList as $tag)
+										{
+											$tag = trim($tag);
+											if ($tag === '')
+											{
+												continue;
+											}
+											$arSoFields['TAG'][] = $tag;
+										}
+									}
+
 									$logID = CSocNetLog::Update($arLog['ID'], $arSoFields);
 									if (intval($logID) > 0)
 									{
@@ -543,6 +558,21 @@ else
 									'RATING_TYPE_ID' => 'IBLOCK_ELEMENT',
 									'RATING_ENTITY_ID' => intval($arParams['ELEMENT_ID'])
 								);
+
+								if ($arFields['TAGS'] !== '')
+								{
+									$arSoFields['TAG'] = [];
+									$tagsList = explode(',', $arFields['TAGS']);
+									foreach($tagsList as $tag)
+									{
+										$tag = trim($tag);
+										if ($tag === '')
+										{
+											continue;
+										}
+										$arSoFields['TAG'][] = $tag;
+									}
+								}
 
 								$logID = CSocNetLog::Add($arSoFields, false);
 

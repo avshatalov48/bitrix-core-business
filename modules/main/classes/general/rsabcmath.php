@@ -3,7 +3,7 @@ class CRsaBcmathProvider extends CRsaProvider
 {
 	public function LoadKeys()
 	{
-		$arKeys = unserialize(COption::GetOptionString("main", "~rsa_keys_bcmath", ""));
+		$arKeys = unserialize(COption::GetOptionString("main", "~rsa_keys_bcmath", ""), ['allowed_classes' => false]);
 		if(!is_array($arKeys))
 			return false;
 		return $arKeys;

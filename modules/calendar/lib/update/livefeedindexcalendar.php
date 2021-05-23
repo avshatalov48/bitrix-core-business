@@ -36,7 +36,7 @@ final class LivefeedIndexCalendar extends Stepper
 
 		$params = Option::get("calendar", "livefeedindexcalendar", "");
 
-		$params = ($params !== "" ? @unserialize($params) : array());
+		$params = ($params !== "" ? @unserialize($params, ['allowed_classes' => false]) : array());
 		$params = (is_array($params) ? $params : array());
 		if (empty($params))
 		{
@@ -101,7 +101,7 @@ final class LivefeedIndexCalendar extends Stepper
 	public static function run()
 	{
 		$params = Option::get("calendar", "livefeedindexcalendar", false);
-		$params = ($params !== "" ? @unserialize($params) : array());
+		$params = ($params !== "" ? @unserialize($params, ['allowed_classes' => false]) : array());
 
 		$found = false;
 

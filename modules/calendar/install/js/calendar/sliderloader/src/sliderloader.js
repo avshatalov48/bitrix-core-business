@@ -14,7 +14,7 @@ export class SliderLoader
 
 		this.entry = options.entry || null;
 		this.formDataValue = options.formDataValue || null;
-		this.entryDateFrom = Type.isDate(options.entryDateFrom) ? options.entryDateFrom : null;
+		this.entryDateFrom = Type.isDate(options.entryDateFrom) ? options.entryDateFrom : null
 		this.timezoneOffset = options.timezoneOffset;
 		this.type = options.type;
 		this.ownerId = options.ownerId;

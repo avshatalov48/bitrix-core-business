@@ -14,6 +14,7 @@
 			layout: '',
 			node: '',
 			list: [],
+			extendedList: new Map(),
 			ajaxUrl: location.href
 		};
 
@@ -26,11 +27,20 @@
 
 		setParameters: function(param)
 		{
-			for(var i in param)
+			for (var i in param)
 			{
-				if(param.hasOwnProperty(i))
+				if (param.hasOwnProperty(i))
 				{
-					this.param[i] = param[i];
+					if (i === 'extendedList')
+					{
+						param['extendedList'].forEach(function(item) {
+							this.param['extendedList'].set(item['id'], item);
+						}.bind(this));
+					}
+					else
+					{
+						this.param[i] = param[i];
+					}
 				}
 			}
 		},

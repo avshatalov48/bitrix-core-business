@@ -318,7 +318,7 @@ final class CrmEntityCreator
 		{
 			if (\CheckSerializedData($arRes["DATA"]))
 			{
-				$data = unserialize($arRes["DATA"]);
+				$data = unserialize($arRes["DATA"], ['allowed_classes' => false]);
 				if ($arRes["TYPE"] === "ORDER_STATUS_CHANGED")
 				{
 					$result[] = [
@@ -485,9 +485,12 @@ final class CrmEntityCreatorStepper extends Stepper
 	private function initParams()
 	{
 		$params = Option::get(self::$moduleId, self::STEPPER_PARAMS, "");
-		$params = ($params !== "" ? @unserialize($params) : []);
-		$this->params = (is_array($params) ? $params : []);
+		if ($params !== "" && \CheckSerializedData($params))
+		{
+			$params = unserialize($params, ['allowed_classes' => false]);
+		}
 
+		$this->params = (\is_array($params) ? $params : []);
 		if (empty($this->params))
 		{
 			$this->params = [

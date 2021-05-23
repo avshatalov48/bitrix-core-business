@@ -23,7 +23,7 @@ else if ($_SERVER["REQUEST_METHOD"] == "GET")
 }
 else
 {
-	$receiver = new \Bitrix\Main\UI\FileInputReceiver($_POST, $_POST["signature"]);
+	$receiver = new \Bitrix\Main\UI\FileInputReceiver($_POST["signature"]);
 	$receiver->exec();
 }
 

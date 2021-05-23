@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,main_core,main_core_events,main_popup) {
+(function (exports,main_core_events,main_popup,main_core,ui_buttons) {
 	'use strict';
 
 	var Utils = /*#__PURE__*/function () {
@@ -1167,6 +1167,74 @@ this.BX = this.BX || {};
 	  return PinnedPanel;
 	}();
 
+	function _templateObject$1() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div>", "</div>"]);
+
+	  _templateObject$1 = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	var Post = /*#__PURE__*/function () {
+	  function Post() {
+	    babelHelpers.classCallCheck(this, Post);
+	  }
+
+	  babelHelpers.createClass(Post, [{
+	    key: "showBackgroundWarning",
+	    value: function showBackgroundWarning(_ref) {
+	      var urlToEdit = _ref.urlToEdit,
+	          menuPopupWindow = _ref.menuPopupWindow;
+	      var content = main_core.Tag.render(_templateObject$1(), main_core.Loc.getMessage('SONET_EXT_LIVEFEED_POST_BACKGROUND_EDIT_WARNING_DESCRIPTION'));
+	      var dialog = new main_popup.Popup('create id here', null, {
+	        autoHide: true,
+	        closeByEsc: true,
+	        offsetLeft: 0,
+	        offsetTop: 0,
+	        draggable: true,
+	        bindOnResize: false,
+	        titleBar: main_core.Loc.getMessage('SONET_EXT_LIVEFEED_POST_BACKGROUND_EDIT_WARNING_TITLE'),
+	        closeIcon: true,
+	        className: 'sonet-livefeed-popup-warning',
+	        content: content,
+	        events: {},
+	        cacheable: false,
+	        buttons: [new ui_buttons.Button({
+	          text: main_core.Loc.getMessage('SONET_EXT_LIVEFEED_POST_BACKGROUND_EDIT_WARNING_BUTTON_SUBMIT'),
+	          className: 'ui-btn ui-btn-primary',
+	          events: {
+	            click: function click() {
+	              window.location = urlToEdit;
+	              dialog.close();
+
+	              if (menuPopupWindow) {
+	                menuPopupWindow.close();
+	              }
+	            }
+	          }
+	        }), new ui_buttons.Button({
+	          text: main_core.Loc.getMessage('SONET_EXT_LIVEFEED_POST_BACKGROUND_EDIT_WARNING_BUTTON_CANCEL'),
+	          className: 'ui-btn ui-btn-light',
+	          events: {
+	            click: function click() {
+	              dialog.close();
+
+	              if (menuPopupWindow) {
+	                menuPopupWindow.close();
+	              }
+	            }
+	          }
+	        })]
+	      });
+	      dialog.show();
+	      return false;
+	    }
+	  }]);
+	  return Post;
+	}();
+
 	var Feed = /*#__PURE__*/function () {
 	  function Feed() {
 	    babelHelpers.classCallCheck(this, Feed);
@@ -1357,10 +1425,12 @@ this.BX = this.BX || {};
 
 	exports.FeedInstance = null;
 	exports.PinnedPanelInstance = null;
+	exports.PostInstance = null;
 	main_core.Event.ready(function () {
 	  exports.FeedInstance = new Feed();
 	  exports.PinnedPanelInstance = new PinnedPanel();
+	  exports.PostInstance = new Post();
 	});
 
-}((this.BX.Livefeed = this.BX.Livefeed || {}),BX,BX.Event,BX.Main));
+}((this.BX.Livefeed = this.BX.Livefeed || {}),BX.Event,BX.Main,BX,BX.UI));
 //# sourceMappingURL=livefeed.bundle.js.map

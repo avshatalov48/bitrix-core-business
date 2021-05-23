@@ -1,5 +1,4 @@
-import { Dom, Event, Type } from 'main.core';
-import { BaseEvent } from 'main.core.events';
+import { Event } from 'main.core';
 import type ItemNode from '../item/item-node';
 import type Tab from './tabs/tab';
 import type Dialog from './dialog';
@@ -10,13 +9,14 @@ export default class Navigation
 	lockedTab: Tab = null;
 	enabled: boolean = false;
 
-	static keyMap: Object<string, string> = { // IE/Edge
+	// IE/Edge compatible event names
+	static keyMap: Object<string, string> = {
 		'Down': 'ArrowDown',
 		'Up': 'ArrowUp',
 		'Left': 'ArrowLeft',
 		'Right': 'ArrowRight',
 		'Spacebar': 'Space',
-		' ': 'Space' // All
+		' ': 'Space' // For all browsers
 	};
 
 	constructor(dialog: Dialog)
@@ -250,8 +250,7 @@ export default class Navigation
 		}
 
 		const keyName = this.constructor.keyMap[event.key] || event.key;
-		const query = this.getDialog().getTagSelectorQuery();
-		if (Type.isStringFilled(query) && ['ArrowLeft', 'ArrowRight'].includes(keyName))
+		if (activeTab === this.getDialog().getSearchTab() && ['ArrowLeft', 'ArrowRight'].includes(keyName))
 		{
 			return;
 		}

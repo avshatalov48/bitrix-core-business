@@ -18,12 +18,14 @@ use Bitrix\Main\Type\DateTime;
  * !!! This API is in alpha stage and is not stable. This is subject to change at any time without notice.
  * @internal
  */
-abstract class BaseIblockElementRepository implements RepositoryContract
+abstract class BaseIblockElementRepository implements IblockElementRepositoryContract
 {
 	/** @var \Bitrix\Catalog\v2\BaseIblockElementFactory */
 	protected $factory;
 	/** @var \Bitrix\Catalog\v2\Iblock\IblockInfo */
 	protected $iblockInfo;
+	/** @var string */
+	private $detailUrlTemplate;
 
 	/**
 	 * BaseIblockElementRepository constructor.
@@ -147,14 +149,28 @@ abstract class BaseIblockElementRepository implements RepositoryContract
 		return $result;
 	}
 
+	public function setDetailUrlTemplate(?string $template): self
+	{
+		$this->detailUrlTemplate = $template;
+
+		return $this;
+	}
+
+	public function getDetailUrlTemplate(): ?string
+	{
+		return $this->detailUrlTemplate;
+	}
+
 	protected function getList(array $params): array
 	{
 		$filter = $params['filter'] ?? [];
 		$order = $params['order'] ?? [];
 
-		$iblockElements = [];
 		\CTimeZone::Disable();
-		$elements = \CIBlockElement::GetList(
+
+		$iblockElements = [];
+
+		$elementsIterator = \CIBlockElement::GetList(
 			$order,
 			array_merge(
 				[
@@ -168,12 +184,17 @@ abstract class BaseIblockElementRepository implements RepositoryContract
 			false,
 			['*']
 		);
-
-		while ($element = $elements->fetch())
+		if ($detailUrlTemplate = $this->getDetailUrlTemplate())
 		{
-			$iblockElements[$element['ID']] = $element;
+			$elementsIterator->SetUrlTemplates($detailUrlTemplate);
 		}
+		while ($element = $elementsIterator->getNext())
+		{
+			$iblockElements[$element['ID']] = $this->replaceRawFromTilda($element);
+		}
+
 		\CTimeZone::Enable();
+
 		$result = array_fill_keys(array_keys($iblockElements), false);
 
 		if (!empty($iblockElements))
@@ -225,15 +246,12 @@ abstract class BaseIblockElementRepository implements RepositoryContract
 	{
 		$entity = $this->makeEntity($fields);
 
-		if (!empty($fields))
-		{
-			$entity->initFields($fields);
-		}
+		$entity->initFields($fields);
 
 		return $entity;
 	}
 
-	abstract protected function makeEntity(array $fields): BaseIblockElementEntity;
+	abstract protected function makeEntity(array $fields = []): BaseIblockElementEntity;
 
 	protected function addInternal(array $fields): Result
 	{
@@ -368,5 +386,21 @@ abstract class BaseIblockElementRepository implements RepositoryContract
 		}
 
 		return $catalogFields;
+	}
+
+	private function replaceRawFromTilda(array $element): array
+	{
+		$newElement = [];
+
+		foreach ($element as $key => $value)
+		{
+			$tildaKey = "~{$key}";
+			if (isset($element[$tildaKey]))
+			{
+				$newElement[$key] = $element[$tildaKey];
+			}
+		}
+
+		return $newElement;
 	}
 }

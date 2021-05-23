@@ -418,8 +418,11 @@ class CBPMailActivity extends CBPActivity
 
 	public static function CheckEmailUserValue($user)
 	{
-		if (check_email($user))
+		$address = new Main\Mail\Address($user);
+		if ($address->validate())
+		{
 			return $user;
+		}
 
 		return null;
 	}

@@ -77,6 +77,7 @@
 	{
 		this.sendChangeStateAction('resume', letterId);
 	};
+
 	LetterList.prototype.sendChangeStateAction = function (actionName, letterId, callback)
 	{
 		var gridId = this.gridId;

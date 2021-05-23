@@ -588,6 +588,7 @@ function getProductProps($arElementId, $arSelect)
 
 				if (isset($arProductData[$id][$key])
 					&& !is_array($arProductData[$id][$key])
+					&& $value !== $arProductData[$id][$key]
 					&& !in_array($value, explode(", ", $arProductData[$id][$key]))
 				) // if we have multiple property value
 				{

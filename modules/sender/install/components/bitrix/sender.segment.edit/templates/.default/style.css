@@ -440,6 +440,12 @@ div.sender-group-address-counter .sender-group-address-counter-cnttext{
 .loading .sender-segment-edit-loader {
 	display: inline-block;
 }
+.loading-partial .sender-segment-edit-count {
+	display: inline-block;
+}
+.loading-partial .sender-segment-edit-loader {
+	display: inline-block;
+}
 
 
 /********* LOADER *************/

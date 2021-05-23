@@ -83,7 +83,7 @@ $MESS["SALE_HPS_BILL_DE_LOGO_DPI_600"] = "16% (600 dpi)";
 $MESS["SALE_HPS_BILL_DE_HEADER"] = "Invoice title";
 $MESS["SALE_HPS_BILL_DE_HEADER_SHOW"] = "Show invoice header";
 $MESS["SALE_HPS_BILL_DE_TOTAL_SHOW"] = "Show summary";
-$MESS["SALE_HPS_BILL_DE_COLUMN_TITLE"] = "Column title";
+$MESS["SALE_HPS_BILL_DE_COLUMN_TITLE"] = "Column title ";
 $MESS["SALE_HPS_BILL_DE_COLUMN_SHOW"] = "Active";
 $MESS["SALE_HPS_BILL_DE_COLUMN_SORT"] = "Sort";
 ?>

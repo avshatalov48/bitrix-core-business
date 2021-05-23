@@ -8,7 +8,7 @@ if(!CModule::IncludeModule('sale'))
 $dbSite = CSite::GetByID(WIZARD_SITE_ID);
 if($arSite = $dbSite -> Fetch())
 	$lang = $arSite["LANGUAGE_ID"];
-if(strlen($lang) <= 0)
+if($lang == '')
 	$lang = "ru";
 $bRus = false;
 if($lang == "ru")
@@ -75,7 +75,7 @@ if(COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SITE_ID) !=
 				);
 		}
 		//Location group
-		if(IntVal($locationGroupID) > 0)
+		if(intval($locationGroupID) > 0)
 			$arLocation4Delivery[] = Array("LOCATION_ID" => $locationGroupID, "LOCATION_TYPE"=>"G");
 	}
 
@@ -435,7 +435,7 @@ if(CModule::IncludeModule('subscribe'))
 			"DAYS_OF_MONTH"	=> "",
 			"DAYS_OF_WEEK"	=> "1,2,3,4,5,6,7",  
 			"TIMES_OF_DAY"	=> "05:00",
-			"TEMPLATE"	=> substr($template, strlen($_SERVER["DOCUMENT_ROOT"]."/")),
+			"TEMPLATE"	=> mb_substr($template, mb_strlen($_SERVER["DOCUMENT_ROOT"]."/")),
 			"VISIBLE"	=> "Y",
 			"FROM_FIELD"	=> COption::GetOptionString("main", "email_from", "info@ourtestsite.com"),
 			"LAST_EXECUTED"	=> ConvertTimeStamp(false, "FULL"), 
@@ -454,7 +454,7 @@ COption::SetOptionString('main', 'captcha_registration', 'Y');
 COption::SetOptionString('main', 'site_name', $siteName);
 COption::SetOptionInt("search", "suggest_save_days", 250);
 
-if(strlen(COption::GetOptionString('main', 'CAPTCHA_presets', '')) <= 0)
+if(COption::GetOptionString('main', 'CAPTCHA_presets', '') == '')
 {
 	COption::SetOptionString('main', 'CAPTCHA_transparentTextPercent', '0');
 	COption::SetOptionString('main', 'CAPTCHA_arBGColor_1', 'FFFFFF');
@@ -548,7 +548,7 @@ else
 	$userGroupID = $group->Add($arFields);
 }
 
-if(IntVal($userGroupID) > 0)
+if(intval($userGroupID) > 0)
 {
 	WizardServices::SetFilePermission(Array($siteID, "/bitrix/admin"), Array($userGroupID => "R"));
 	WizardServices::SetFilePermission(Array($siteID, "/bitrix/admin"), Array($userGroupID => "R"));
@@ -635,9 +635,9 @@ else
 		"STRING_ID"      => "content_editor",
 		);
 	$userGroupID = $group->Add($arFields);
-	$DB->Query("INSERT INTO b_sticker_group_task(GROUP_ID, TASK_ID)	SELECT ".intVal($userGroupID).", ID FROM b_task WHERE NAME='stickers_edit' AND MODULE_ID='fileman'", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+	$DB->Query("INSERT INTO b_sticker_group_task(GROUP_ID, TASK_ID)	SELECT ".intval($userGroupID).", ID FROM b_task WHERE NAME='stickers_edit' AND MODULE_ID='fileman'", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 }
-if(IntVal($userGroupID) > 0)
+if(intval($userGroupID) > 0)
 {
 	WizardServices::SetFilePermission(Array($siteID, "/bitrix/admin"), Array($userGroupID => "R"));
 	

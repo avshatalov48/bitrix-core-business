@@ -79,7 +79,7 @@ class MailingTriggerTable extends Entity\DataManager
 
 		if(is_string($data['fields']['ENDPOINT']))
 		{
-			$data['fields']['ENDPOINT'] = unserialize($data['fields']['ENDPOINT']);
+			$data['fields']['ENDPOINT'] = unserialize($data['fields']['ENDPOINT'], ['allowed_classes' => false]);
 		}
 		if(!is_array($data['fields']['ENDPOINT']))
 		{

@@ -9,12 +9,12 @@ PaySystem\Manager::includeHandler('Roboxchange');
 
 $isAvailable = PaySystem\Manager::HANDLER_AVAILABLE_TRUE;
 
-$licensePrefix = Loader::includeModule('bitrix24') ? \CBitrix24::getLicensePrefix() : "";
-$portalZone = Loader::includeModule('intranet') ? CIntranetUtils::getPortalZone() : "";
+$licensePrefix = Loader::includeModule('bitrix24') ? \CBitrix24::getLicensePrefix() : '';
+$portalZone = Loader::includeModule('intranet') ? CIntranetUtils::getPortalZone() : '';
 
-if (Loader::includeModule("bitrix24"))
+if (Loader::includeModule('bitrix24'))
 {
-	if ($licensePrefix !== 'ru')
+	if (!in_array($licensePrefix, ['ru', 'kz'], true))
 	{
 		$isAvailable = PaySystem\Manager::HANDLER_AVAILABLE_FALSE;
 	}
@@ -61,7 +61,7 @@ $data = [
 		],
 		'ROBOXCHANGE_TEMPLATE_TYPE' => [
 			'NAME' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_TEMPLATE_TYPE'),
-			'SORT' => 650,
+			'SORT' => 700,
 			'GROUP' => 'CONNECT_SETTINGS_ROBOXCHANGE',
 			'INPUT' => [
 				'TYPE' => 'ENUM',
@@ -75,9 +75,26 @@ $data = [
 				'PROVIDER_VALUE' => Sale\Handlers\PaySystem\RoboxchangeHandler::TEMPLATE_TYPE_CHECKOUT
 			]
 		],
+		'ROBOXCHANGE_COUNTRY_CODE' => [
+			'NAME' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_COUNTRY_CODE'),
+			'DESCRIPTION' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_COUNTRY_CODE_DESC'),
+			'SORT' => 800,
+			'GROUP' => 'CONNECT_SETTINGS_ROBOXCHANGE',
+			'INPUT' => [
+				'TYPE' => 'ENUM',
+				'OPTIONS' => [
+					'RU' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_COUNTRY_CODE_OPTION_RU'),
+					'KZ' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_COUNTRY_CODE_OPTION_KZ'),
+				]
+			],
+			'DEFAULT' => [
+				'PROVIDER_KEY' => 'INPUT',
+				'PROVIDER_VALUE' => ($licensePrefix ?: $portalZone) === 'kz' ? 'KZ' : 'RU',
+			]
+		],
 		'PAYMENT_ID' => [
 			'NAME' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_PAYMENT_ID'),
-			'SORT' => 700,
+			'SORT' => 900,
 			'GROUP' => 'PAYMENT',
 			'DEFAULT' => [
 				'PROVIDER_VALUE' => 'ID',
@@ -86,7 +103,7 @@ $data = [
 		],
 		'BUYER_PERSON_EMAIL' => [
 			'NAME' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_EMAIL_USER'),
-			'SORT' => 1100,
+			'SORT' => 1000,
 			'GROUP' => 'BUYER_PERSON',
 			'DEFAULT' => [
 				'PROVIDER_VALUE' => 'EMAIL',
@@ -95,21 +112,21 @@ $data = [
 		],
 		'PS_CHANGE_STATUS_PAY' => [
 			'NAME' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_CHANGE_STATUS_PAY'),
-			'SORT' => 1200,
+			'SORT' => 1100,
 			'GROUP' => 'GENERAL_SETTINGS',
-			"INPUT" => [
+			'INPUT' => [
 				'TYPE' => 'Y/N'
 			],
 			'DEFAULT' => [
-				"PROVIDER_KEY" => "INPUT",
-				"PROVIDER_VALUE" => "Y",
+				'PROVIDER_KEY' => 'INPUT',
+				'PROVIDER_VALUE' => 'Y',
 			]
 		],
 		'PS_IS_TEST' => [
 			'NAME' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_TEST'),
-			'SORT' => 1300,
+			'SORT' => 1200,
 			'GROUP' => 'GENERAL_SETTINGS',
-			"INPUT" => [
+			'INPUT' => [
 				'TYPE' => 'Y/N'
 			]
 		],

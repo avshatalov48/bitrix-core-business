@@ -20,7 +20,7 @@ if (
 	|| !CModule::IncludeModule("messageservice")
 )
 {
-	\Bitrix\Main\Application::terminate();
+	\Bitrix\Main\Application::getInstance()->terminate();
 }
 
 $messageId = $messageFields['id_message'];
@@ -28,7 +28,7 @@ $messageStatus = \Bitrix\MessageService\Sender\Sms\SmsLineBy::resolveStatus($mes
 
 if ($messageStatus === null)
 {
-	\Bitrix\Main\Application::terminate();
+	\Bitrix\Main\Application::getInstance()->terminate();
 }
 
 $message = \Bitrix\MessageService\Internal\Entity\MessageTable::getList(array(
@@ -45,4 +45,4 @@ if ($message)
 	$message['STATUS_ID'] = $messageStatus;
 	\Bitrix\MessageService\Integration\Pull::onMessagesUpdate(array($message));
 }
-\Bitrix\Main\Application::terminate();
+\Bitrix\Main\Application::getInstance()->terminate();

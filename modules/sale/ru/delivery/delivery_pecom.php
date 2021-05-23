@@ -356,7 +356,7 @@ class CDeliveryPecom
 
 	function getSettings($strSettings)
 	{
-		return unserialize($strSettings);
+		return unserialize($strSettings, ['allowed_classes' => false]);
 	}
 
 	function setSettings($arSettings)

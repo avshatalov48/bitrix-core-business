@@ -101,7 +101,8 @@ class CVoteAdminQuestions extends \CBitrixComponent
 			}
 			else if ($request->getPost("action_button_" . $this->gridId) === 'edit')
 			{
-				CAllFile::ConvertFilesToPost(($request->getFile("FIELDS") ?: []), $rawFiles);
+				$rawFiles = [];
+				\CFile::ConvertFilesToPost(($request->getFile("FIELDS") ?: []), $rawFiles);
 				foreach ($request->getPost("FIELDS") as $id => $fields)
 				{
 					$this->updateQuestion($id, $fields, $rawFiles[$id]);

@@ -2,6 +2,7 @@
 
 namespace Bitrix\Catalog\v2\Price;
 
+use Bitrix\Catalog\GroupTable;
 use Bitrix\Catalog\Model\Price;
 use Bitrix\Catalog\PriceTable;
 use Bitrix\Catalog\v2\BaseEntity;
@@ -76,6 +77,25 @@ class PriceRepository implements PriceRepositoryContract
 		/** @var \Bitrix\Catalog\v2\Price\BasePrice $entity */
 		foreach ($entities as $entity)
 		{
+			if (!$entity->hasPrice())
+			{
+				if (!$entity->isNew())
+				{
+					$res = $this->deleteInternal($entity->getId());
+
+					if ($res->isSuccess())
+					{
+						$entity->setField('ID', null);
+					}
+					else
+					{
+						$result->addErrors($res->getErrors());
+					}
+				}
+
+				continue;
+			}
+
 			if (!$entity->getProductId())
 			{
 				$productId = $this->getProductId($entity);
@@ -143,12 +163,12 @@ class PriceRepository implements PriceRepositoryContract
 	{
 		if ($sku->isNew())
 		{
-			return $this->createCollection([], $sku);
+			return $this->createCollection();
 		}
 
 		$result = $this->getByProductId($sku->getId());
 
-		return $this->createCollection($result, $sku);
+		return $this->createCollection($result);
 	}
 
 	protected function getByProductId(int $skuId): array
@@ -162,12 +182,12 @@ class PriceRepository implements PriceRepositoryContract
 
 	protected function getList(array $params): array
 	{
-		return PriceTable::getList($params)
-			->fetchAll()
-			;
+		$prices = PriceTable::getList($params)->fetchAll();
+
+		return array_column($prices, null, 'CATALOG_GROUP_ID');
 	}
 
-	protected function createEntity(array $fields): BaseEntity
+	protected function createEntity(array $fields = []): BasePrice
 	{
 		$entity = $this->factory->createEntity();
 
@@ -176,16 +196,18 @@ class PriceRepository implements PriceRepositoryContract
 		return $entity;
 	}
 
-	protected function createCollection(array $entityFields, BaseSku $sku): PriceCollection
+	protected function createCollection(array $entityFields = []): PriceCollection
 	{
-		/** @var \Bitrix\Catalog\v2\Price\PriceCollection $collection */
-		$collection = $this->factory->createCollection($sku);
+		$collection = $this->factory->createCollection();
 
-		foreach ($entityFields as $fields)
+		foreach ($this->getPriceSettings() as $settings)
 		{
-			// ToDo make all collections with factories?
-			/** @var \Bitrix\Catalog\v2\Price\BasePrice $price */
+			$fields = $entityFields[$settings['ID']]
+				?? [
+					'CATALOG_GROUP_ID' => $settings['ID'],
+				];
 			$price = $this->createEntity($fields);
+			$price->setSettings($settings);
 			$collection->add($price);
 		}
 
@@ -254,5 +276,17 @@ class PriceRepository implements PriceRepositoryContract
 		}
 
 		return $result;
+	}
+
+	private function getPriceSettings(): array
+	{
+		static $priceSettings = null;
+
+		if ($priceSettings === null)
+		{
+			$priceSettings = GroupTable::getList()->fetchAll();
+		}
+
+		return $priceSettings;
 	}
 }

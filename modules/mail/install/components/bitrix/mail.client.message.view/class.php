@@ -2,6 +2,7 @@
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
+use Bitrix\Calendar\ICal\Parser\Calendar as CalendarIcalComponent;
 use Bitrix\Mail;
 use Bitrix\Mail\Integration\Calendar\ICal\ICalMailManager;
 use Bitrix\Mail\Internals\MessageAccessTable;
@@ -137,7 +138,7 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 			))->fetchAll();
 		}
 
-		$this->prepareICal($message);
+//		$this->prepareICal($message);
 		$this->prepareMessage($message);
 
 		$message['SENDER_EMAIL'] = $this->getEmailFromFieldFrom($message['FIELD_FROM']);
@@ -574,11 +575,12 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 			return;
 		}
 
-		list($event, $method) = ICalMailManager::parseRequest($message['OPTIONS']['iCal']);
+		$icalComponent = ICalMailManager::parseRequest($message['OPTIONS']['iCal']);
 
-		if (isset($method) && $method === 'REQUEST')
+		if ($icalComponent->getMethod() === \Bitrix\Calendar\ICal\Parser\Dictionary::METHOD['request']
+			&& $icalComponent->hasOneEvent())
 		{
-			$this->arResult['iCalEvent'] = $event;
+			$this->arResult['iCalEvent'] = $icalComponent->getEvent();
 		}
 	}
 

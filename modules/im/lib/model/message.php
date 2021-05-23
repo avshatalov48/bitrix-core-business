@@ -146,6 +146,10 @@ class MessageTable extends Main\Entity\DataManager
 				'data_type' => 'Bitrix\Main\User',
 				'reference' => array('=this.AUTHOR_ID' => 'ref.ID'),
 			),
+			'STATUS' => array(
+				'data_type' => 'Bitrix\Im\Model\StatusTable',
+				'reference' => array('=this.AUTHOR_ID' => 'ref.USER_ID'),
+			),
 			'RELATION' => array(
 				'data_type' => 'Bitrix\Im\Model\RelationTable',
 				'reference' => array('=this.CHAT_ID' => 'ref.CHAT_ID'),

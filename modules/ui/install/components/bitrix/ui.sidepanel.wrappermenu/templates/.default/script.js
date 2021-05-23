@@ -37,6 +37,11 @@
 				{
 					item.activeItem = true;
 				}
+
+				if (item.container.querySelector('.ui-sidepanel-menu-notice-icon'))
+				{
+					item.noticeItem = true;
+				}
 			}
 
 			this.loadData();
@@ -78,12 +83,15 @@
 		}
 	};
 
+	var itemsMap = new WeakMap();
+
 	BX.UI.DropdownMenuItem = function(options)
 	{
 		this.container = options.container;
 		this.link = options.link;
 		this.button = null;
 		this.activeItem = options.activeItem ? options.activeItem : null;
+		this.noticeItem = options.noticeItem ? options.noticeItem : null;
 		this.operativeItem = options.operativeItem ? options.operativeItem : null;
 		this.submenu = null;
 		this.subItems = [];
@@ -93,6 +101,21 @@
 		this.addItem = null;
 
 		this.init();
+		itemsMap.set(this.container, this);
+	};
+
+	/**
+	 * @param {HTMLElement} node
+	 * @returns {BX.UI.DropdownMenuItem} | undefined
+	 */
+	BX.UI.DropdownMenuItem.getItemByNode = function(node)
+	{
+		if (BX.Dom.hasClass(node, 'ui-sidepanel-menu-link'))
+		{
+			return itemsMap.get(node.parentNode);
+		}
+
+		return itemsMap.get(node);
 	};
 
 	BX.UI.DropdownMenuItem.prototype = {
@@ -111,7 +134,7 @@
 				// this.link.appendChild(this.counter);
 			}
 
-			var subItems = this.container.querySelectorAll('.ui-sidepanel-submenu-item'), 
+			var subItems = this.container.querySelectorAll('.ui-sidepanel-submenu-item'),
 				submenuVisibilityStateVisible = false;
 
 			for(var i = 0; i < subItems.length; i++)
@@ -181,6 +204,33 @@
 			this.container.classList.remove('ui-sidepanel-menu-active');
 		},
 
+		addNoticeIcon: function()
+		{
+			this.noticeItem = true;
+			if (!this.container.querySelector('.ui-sidepanel-menu-notice-icon'))
+			{
+				this.container.children[0].appendChild(this.getNoticeIcon());
+			}
+		},
+
+		removeNoticeIcon: function()
+		{
+			this.noticeItem = null;
+
+			if (this.container.querySelector('.ui-sidepanel-menu-notice-icon'))
+			{
+				this.container.querySelector('.ui-sidepanel-menu-notice-icon').remove();
+			}
+		},
+
+		getNoticeIcon: function()
+		{
+			this.noticeIcon = document.createElement('span');
+			this.noticeIcon.className = 'ui-sidepanel-menu-notice-icon';
+
+			return this.noticeIcon;
+		},
+
 		showSubmenu: function()
 		{
 			this.submenuOpen = true;
@@ -207,45 +257,48 @@
 
 		addEvents: function()
 		{
-			this.link.addEventListener('click', function(e) {
-				this.menu.resetItems();
-				this.activate();
+			this.link.addEventListener('click', this.setActiveHandler.bind(this))
+		},
 
-				if (this.link.getAttribute('bx-operative') !== 'Y')
+		setActiveHandler: function(e)
+		{
+			this.menu.resetItems();
+			this.activate();
+
+			if (this.link.getAttribute('bx-operative') !== 'Y')
+			{
+				this.link.classList.add('ui-sidepanel-menu-disable-active-state');
+			}
+			else
+			{
+				this.link.classList.remove('ui-sidepanel-menu-disable-active-state');
+			}
+
+			if (this.isSubmenuExist())
+			{
+				if (!this.submenuOpen)
 				{
-					this.link.classList.add('ui-sidepanel-menu-disable-active-state');
+					this.showSubmenu();
+					this.setNewToggleButtonName();
+					this.menu.resetSubItems();
+					e && e.preventDefault();
 				}
 				else
+				{
+					this.hideSubmenu();
+					this.setDefaultToggleButtonName();
+					this.menu.resetSubItems();
+					e && e.preventDefault();
+				}
+			}
+			else
+			{
+				if (this.link.classList.contains('ui-sidepanel-menu-disable-active-state'))
 				{
 					this.link.classList.remove('ui-sidepanel-menu-disable-active-state');
 				}
-
-				if (this.isSubmenuExist())
-				{
-					if (!this.submenuOpen)
-					{
-						this.showSubmenu();
-						this.setNewToggleButtonName();
-						this.menu.resetSubItems();
-						e.preventDefault();
-					}
-					else
-					{
-						this.hideSubmenu();
-						this.setDefaultToggleButtonName();
-						this.menu.resetSubItems();
-						e.preventDefault();
-					}
-				}
-				else
-				{
-					if (this.link.classList.contains('ui-sidepanel-menu-disable-active-state'))
-					{
-						this.link.classList.remove('ui-sidepanel-menu-disable-active-state');
-					}
-					this.menu.resetSubItems();
-				}
-			}.bind(this))
+				this.menu.resetSubItems();
+			}
 		},
 
 		isSubmenuExist: function()

@@ -261,14 +261,7 @@ class ImportCsv
 
 					if (!empty($this->encodingIn) && $this->encodingIn !== $encodingOut)
 					{
-						$errorMessage = '';
-						$phrase = Main\Text\Encoding::convertEncoding($phrase, $this->encodingIn, $encodingOut, $errorMessage);
-
-						if (!$phrase && !empty($errorMessage))
-						{
-							$rowErrors[] = $errorMessage;
-							continue;
-						}
+						$phrase = Main\Text\Encoding::convertEncoding($phrase, $this->encodingIn, $encodingOut);
 					}
 
 					$checked = true;
@@ -355,10 +348,13 @@ class ImportCsv
 					$langFile->setLangId($languageId);
 					$langFile->setOperatingEncoding(self::$sourceEncoding[$languageId]);
 
-					if (!$langFile->load() && $langFile->hasErrors())
+					if (!$langFile->loadTokens())
 					{
-						$this->addErrors($langFile->getErrors());
-						continue;
+						if (!$langFile->load() && $langFile->hasErrors())
+						{
+							$this->addErrors($langFile->getErrors());
+							continue;
+						}
 					}
 
 					$hasDataToUpdate = false;

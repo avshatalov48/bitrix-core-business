@@ -171,7 +171,7 @@ class VariationGrid
 
 		items.push({
 			'action': 'create-new',
-			'text': `
+			'html': `
 				<li data-role="createItem" class="catalog-productcard-popup-select-item catalog-productcard-popup-select-item-new">
 					<label class="catalog-productcard-popup-select-label main-dropdown-item" data-pseudo="true">
 						<span class="catalog-productcard-popup-select-add"></span>

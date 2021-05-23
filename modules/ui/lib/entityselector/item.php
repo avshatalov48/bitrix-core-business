@@ -11,15 +11,32 @@ class Item implements \JsonSerializable
 	protected $entityType;
 	protected $tabs = [];
 
-	protected $title = '';
+	/** @var TextNode */
+	protected $title;
+
+	/** @var TextNode */
 	protected $subtitle;
+
+	/** @var TextNode */
 	protected $supertitle;
+
+	/** @var TextNode */
 	protected $caption;
+
+	/** @var string */
 	protected $avatar;
+
+	/** @var string */
+	protected $textColor;
+
+	/** @var string */
 	protected $link;
+
+	/** @var TextNode */
 	protected $linkTitle;
 	protected $badges;
 
+	protected $selected = false;
 	protected $searchable = true;
 	protected $saveable = true;
 	protected $deselectable = true;
@@ -29,6 +46,8 @@ class Item implements \JsonSerializable
 	protected $nodeOptions;
 	protected $tagOptions;
 	protected $customData;
+	protected $captionOptions;
+	protected $badgesOptions;
 
 	protected $sort;
 	protected $contextSort;
@@ -56,24 +75,14 @@ class Item implements \JsonSerializable
 
 		$this->addTab($options['tabs'] ?? null);
 
-		if (isset($options['title']) && is_string($options['title']))
-		{
-			$this->setTitle($options['title']);
-		}
+		$this->setTitle($options['title'] ?? null);
+		$this->setSubtitle($options['subtitle'] ?? null);
+		$this->setSupertitle($options['supertitle'] ?? null);
+		$this->setCaption($options['caption'] ?? null);
 
-		if (isset($options['subtitle']) && is_string($options['subtitle']))
+		if (isset($options['captionOptions']) && is_array($options['captionOptions']))
 		{
-			$this->setSubtitle($options['subtitle']);
-		}
-
-		if (isset($options['supertitle']) && is_string($options['supertitle']))
-		{
-			$this->setSupertitle($options['supertitle']);
-		}
-
-		if (isset($options['caption']) && is_string($options['caption']))
-		{
-			$this->setCaption($options['caption']);
+			$this->setCaptionOptions($options['captionOptions']);
 		}
 
 		if (isset($options['avatar']) && is_string($options['avatar']))
@@ -81,24 +90,36 @@ class Item implements \JsonSerializable
 			$this->setAvatar($options['avatar']);
 		}
 
+		if (isset($options['textColor']) && is_string($options['textColor']))
+		{
+			$this->setTextColor($options['textColor']);
+		}
+
 		if (isset($options['link']) && is_string($options['link']))
 		{
 			$this->setLink($options['link']);
 		}
 
-		if (isset($options['linkTitle']) && is_string($options['linkTitle']))
-		{
-			$this->setLinkTitle($options['linkTitle']);
-		}
+		$this->setLinkTitle($options['linkTitle'] ?? null);
 
 		if (isset($options['badges']) && is_array($options['badges']))
 		{
 			$this->addBadges($options['badges']);
 		}
 
+		if (isset($options['badgesOptions']) && is_array($options['badgesOptions']))
+		{
+			$this->setBadgesOptions($options['badgesOptions']);
+		}
+
 		if (isset($options['searchable']) && is_bool($options['searchable']))
 		{
 			$this->setSearchable($options['searchable']);
+		}
+
+		if (isset($options['selected']) && is_bool($options['selected']))
+		{
+			$this->setSelected($options['selected']);
 		}
 
 		if (isset($options['saveable']) && is_bool($options['saveable']))
@@ -174,14 +195,19 @@ class Item implements \JsonSerializable
 
 	public function getTitle(): string
 	{
+		return $this->getTitleNode() && !$this->getTitleNode()->isNullable() ? $this->getTitleNode()->getText() : '';
+	}
+
+	public function getTitleNode(): ?TextNode
+	{
 		return $this->title;
 	}
 
-	public function setTitle(string $title): self
+	public function setTitle($title): self
 	{
-		if (is_string($title))
+		if (is_string($title) || is_array($title) || $title === null)
 		{
-			$this->title = $title;
+			$this->title = $title === null ? null : new TextNode($title);
 		}
 
 		return $this;
@@ -189,14 +215,19 @@ class Item implements \JsonSerializable
 
 	public function getSubtitle(): ?string
 	{
+		return $this->getSubtitleNode() ? $this->getSubtitleNode()->getText() : null;
+	}
+
+	public function getSubtitleNode(): ?TextNode
+	{
 		return $this->subtitle;
 	}
 
-	public function setSubtitle(?string $subtitle): self
+	public function setSubtitle($subtitle): self
 	{
-		if (is_string($subtitle) || $subtitle === null)
+		if (is_string($subtitle) || is_array($subtitle) || $subtitle === null)
 		{
-			$this->subtitle = $subtitle;
+			$this->subtitle = $subtitle === null ? null : new TextNode($subtitle);
 		}
 
 		return $this;
@@ -204,14 +235,19 @@ class Item implements \JsonSerializable
 
 	public function getSupertitle(): ?string
 	{
+		return $this->getSupertitleNode() ? $this->getSupertitleNode()->getText() : null;
+	}
+
+	public function getSupertitleNode(): ?TextNode
+	{
 		return $this->supertitle;
 	}
 
-	public function setSupertitle(?string $supertitle): self
+	public function setSupertitle($supertitle): self
 	{
-		if (is_string($supertitle) || $supertitle === null)
+		if (is_string($supertitle) || is_array($supertitle) || $supertitle === null)
 		{
-			$this->supertitle = $supertitle;
+			$this->supertitle = $supertitle === null ? null : new TextNode($supertitle);
 		}
 
 		return $this;
@@ -219,17 +255,42 @@ class Item implements \JsonSerializable
 
 	public function getCaption(): ?string
 	{
+		return $this->getCaptionNode() ? $this->getCaptionNode()->getText() : null;
+	}
+
+	public function getCaptionNode(): ?TextNode
+	{
 		return $this->caption;
 	}
 
-	public function setCaption(?string $caption): self
+	public function setCaption($caption): self
 	{
-		if (is_string($caption) || $caption === null)
+		if (is_string($caption) || is_array($caption) || $caption === null)
 		{
-			$this->caption = $caption;
+			$this->caption = $caption === null ? null : new TextNode($caption);
 		}
 
 		return $this;
+	}
+
+	public function setCaptionOptions(array $captionOptions): self
+	{
+		$this->getCaptionOptions()->setValues($captionOptions);
+
+		return $this;
+	}
+
+	/**
+	 * @return Dictionary
+	 */
+	public function getCaptionOptions(): Dictionary
+	{
+		if ($this->captionOptions === null)
+		{
+			$this->captionOptions = new Dictionary();
+		}
+
+		return $this->captionOptions;
 	}
 
 	public function getAvatar(): ?string
@@ -242,6 +303,21 @@ class Item implements \JsonSerializable
 		if (is_string($avatar) || $avatar === null)
 		{
 			$this->avatar = $avatar;
+		}
+
+		return $this;
+	}
+
+	public function getTextColor(): ?string
+	{
+		return $this->textColor;
+	}
+
+	public function setTextColor(?string $textColor): self
+	{
+		if (is_string($textColor) || $textColor === null)
+		{
+			$this->textColor = $textColor;
 		}
 
 		return $this;
@@ -264,14 +340,19 @@ class Item implements \JsonSerializable
 
 	public function getLinkTitle(): ?string
 	{
+		return $this->getLinkTitleNode() ? $this->getLinkTitleNode()->getText() : null;
+	}
+
+	public function getLinkTitleNode(): ?TextNode
+	{
 		return $this->linkTitle;
 	}
 
-	public function setLinkTitle(?string $linkTitle): self
+	public function setLinkTitle($linkTitle): self
 	{
-		if (is_string($linkTitle) || $linkTitle === null)
+		if (is_string($linkTitle) || is_array($linkTitle) || $linkTitle === null)
 		{
-			$this->linkTitle = $linkTitle;
+			$this->linkTitle = $linkTitle === null ? null : new TextNode($linkTitle);
 		}
 
 		return $this;
@@ -303,6 +384,26 @@ class Item implements \JsonSerializable
 		return $this;
 	}
 
+	public function setBadgesOptions(array $badgesOptions): self
+	{
+		$this->getBadgesOptions()->setValues($badgesOptions);
+
+		return $this;
+	}
+
+	/**
+	 * @return Dictionary
+	 */
+	public function getBadgesOptions(): Dictionary
+	{
+		if ($this->badgesOptions === null)
+		{
+			$this->badgesOptions = new Dictionary();
+		}
+
+		return $this->badgesOptions;
+	}
+
 	public function getTabs(): array
 	{
 		return $this->tabs;
@@ -332,7 +433,7 @@ class Item implements \JsonSerializable
 		return $this->children;
 	}
 
-	public function addChildren(array $children)
+	public function addChildren(array $children): self
 	{
 		foreach ($children as $childOptions)
 		{
@@ -341,23 +442,29 @@ class Item implements \JsonSerializable
 			$child = new Item($childOptions);
 			$this->addChild($child);
 		}
+
+		return $this;
 	}
 
-	public function addChild(Item $item)
+	public function addChild(Item $item): self
 	{
 		$success = $this->getChildren()->add($item);
 		if ($success && $this->getDialog())
 		{
 			$this->getDialog()->handleItemAdd($item);
 		}
+
+		return $this;
 	}
 
-	public function setNodeOptions(array $nodeOptions)
+	public function setNodeOptions(array $nodeOptions): self
 	{
 		$this->getNodeOptions()->setValues($nodeOptions);
+
+		return $this;
 	}
 
-	public function getNodeOptions()
+	public function getNodeOptions(): Dictionary
 	{
 		if ($this->nodeOptions === null)
 		{
@@ -367,12 +474,14 @@ class Item implements \JsonSerializable
 		return $this->nodeOptions;
 	}
 
-	public function setTagOptions(array $nodeOptions)
+	public function setTagOptions(array $nodeOptions): self
 	{
 		$this->getTagOptions()->setValues($nodeOptions);
+
+		return $this;
 	}
 
-	public function getTagOptions()
+	public function getTagOptions(): Dictionary
 	{
 		if ($this->tagOptions === null)
 		{
@@ -380,6 +489,18 @@ class Item implements \JsonSerializable
 		}
 
 		return $this->tagOptions;
+	}
+
+	public function isSelected(): bool
+	{
+		return $this->selected;
+	}
+
+	public function setSelected(bool $flag = true): self
+	{
+		$this->selected = $flag;
+
+		return $this;
 	}
 
 	public function isSearchable(): bool
@@ -442,9 +563,11 @@ class Item implements \JsonSerializable
 		return $this;
 	}
 
-	public function setCustomData(array $customData)
+	public function setCustomData(array $customData): self
 	{
 		$this->getCustomData()->setValues($customData);
+
+		return $this;
 	}
 
 	/**
@@ -460,9 +583,11 @@ class Item implements \JsonSerializable
 		return $this->customData;
 	}
 
-	public function setSort(?int $sort)
+	public function setSort(?int $sort): self
 	{
 		$this->sort = $sort;
+
+		return $this;
 	}
 
 	public function getSort(): ?int
@@ -470,9 +595,11 @@ class Item implements \JsonSerializable
 		return $this->sort;
 	}
 
-	public function setContextSort(?int $sort)
+	public function setContextSort(?int $sort): self
 	{
 		$this->contextSort = $sort;
+
+		return $this;
 	}
 
 	public function getContextSort(): ?int
@@ -480,9 +607,11 @@ class Item implements \JsonSerializable
 		return $this->contextSort;
 	}
 
-	public function setGlobalSort(?int $sort)
+	public function setGlobalSort(?int $sort): self
 	{
 		$this->globalSort = $sort;
+
+		return $this;
 	}
 
 	public function getGlobalSort(): ?int
@@ -490,9 +619,11 @@ class Item implements \JsonSerializable
 		return $this->globalSort;
 	}
 
-	public function setDialog(Dialog $dialog)
+	public function setDialog(Dialog $dialog): self
 	{
 		$this->dialog = $dialog;
+
+		return $this;
 	}
 
 	public function getDialog(): ?Dialog
@@ -500,13 +631,61 @@ class Item implements \JsonSerializable
 		return $this->dialog;
 	}
 
+	public function toArray(): array
+	{
+		return $this->serializeRecursive($this);
+	}
+
+	private function serializeRecursive($data)
+	{
+		if ($data instanceof \JsonSerializable)
+		{
+			$data = $data->jsonSerialize();
+		}
+
+		if (is_array($data) || $data instanceof \Traversable)
+		{
+			foreach ($data as $key => $item)
+			{
+				$data[$key] = $this->serializeRecursive($item);
+			}
+		}
+
+		return $data;
+	}
+
 	public function jsonSerialize()
 	{
 		$json = [
 			'id' => $this->getId(),
 			'entityId' => $this->getEntityId(),
-			'title' => $this->getTitle(),
+			'title' => $this->getTitleNode()->jsonSerialize(),
 		];
+
+		if ($this->getSubtitleNode() !== null)
+		{
+			$json['subtitle'] = $this->getSubtitleNode()->jsonSerialize();
+		}
+
+		if ($this->getSupertitleNode() !== null)
+		{
+			$json['supertitle'] = $this->getSupertitleNode()->jsonSerialize();
+		}
+
+		if ($this->getCaptionNode() !== null)
+		{
+			$json['caption'] = $this->getCaptionNode()->jsonSerialize();
+		}
+
+		if ($this->getLinkTitleNode() !== null)
+		{
+			$json['linkTitle'] = $this->getLinkTitleNode()->jsonSerialize();
+		}
+
+		if ($this->isSelected())
+		{
+			$json['selected'] = true;
+		}
 
 		if (!$this->isSearchable())
 		{
@@ -526,6 +705,16 @@ class Item implements \JsonSerializable
 		if ($this->isHidden())
 		{
 			$json['hidden'] = true;
+		}
+
+		if ($this->captionOptions !== null && $this->getCaptionOptions()->count() > 0)
+		{
+			$json['captionOptions'] = $this->getCaptionOptions()->getValues();
+		}
+
+		if ($this->badgesOptions !== null && $this->getBadgesOptions()->count() > 0)
+		{
+			$json['badgesOptions'] = $this->getBadgesOptions()->getValues();
 		}
 
 		if ($this->customData !== null && $this->getCustomData()->count() > 0)
@@ -561,11 +750,8 @@ class Item implements \JsonSerializable
 		foreach ([
 			'entityType',
 			'avatar',
-			'subtitle',
-			'supertitle',
-			'caption',
+			'textColor',
 			'link',
-			'linkTitle',
 			'contextSort',
 			'globalSort',
 			'sort'

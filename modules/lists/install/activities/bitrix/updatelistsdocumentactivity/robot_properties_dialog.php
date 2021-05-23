@@ -186,7 +186,8 @@ $docType = $dialog->getMap()['DocumentType'];
 					autoHide: true,
 					offsetLeft: (BX.pos(this)['width'] / 2),
 					angle: { position: 'top', offset: 0 },
-					maxHeight: 500
+					maxHeight: 500,
+					overlay: { backgroundColor: 'transparent' },
 				}
 			);
 		});

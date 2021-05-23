@@ -4463,7 +4463,7 @@ class CGlobalCondTree
 					}
 					else
 					{
-						$arConditions = unserialize($arConditions);
+						$arConditions = unserialize($arConditions, ['allowed_classes' => false]);
 						if (!is_array($arConditions))
 						{
 							$this->boolError = true;

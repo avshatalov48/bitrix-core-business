@@ -25,7 +25,8 @@ class PropertyCreator
 			{
 				return "{$name}:";
 			}
-			elseif ($value === '')
+
+			if ($value === '')
 			{
 				if ($name === 'RRULE')
 				{

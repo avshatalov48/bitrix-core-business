@@ -680,7 +680,7 @@
 }
 
 .calendar-sync-slider-qr {
-	width: 170px;
+	width: 204px;
 	position: absolute;
 	overflow: hidden;
 	left: 15%;
@@ -709,7 +709,7 @@
 }
 
 .calendar-sync-slider-section .calendar-sync-slider-qr {
-	left: 16%;
+	left: 12.7%;
 }
 
 .calendar-sync-slider-section .calendar-sync-slider-instruction-notice:after {
@@ -752,13 +752,13 @@
 }
 
 .calendar-sync-slider-qr-container {
-	width: 170px;
-	height: 170px;
+	width: 204px;
+	height: 204px;
 	background: #fff;
-	border-radius: 5px;
-	padding: 21px;
+	border-radius: 6px;
+	padding: 9px;
 	position: absolute;
-	top: 87px;
+	top: 77px;
 	left: 50%;
 	-webkit-box-sizing: border-box;
 	        box-sizing: border-box;
@@ -794,7 +794,7 @@
 }
 
 .calendar-sync-qr-popup .calendar-sync-slider-qr {
-	left: 15%;
+	left: 12%;
 }
 
 .calendar-sync-qr-popup .calendar-sync-slider-content {
@@ -825,7 +825,7 @@
 }
 
 .calendar-sync-qr-popup .calendar-sync-slider-qr-container {
-	top: 72px;
+	top: 56px;
 }
 
 .calendar-sync-wrap-detail .calendar-sync-header {
@@ -969,4 +969,25 @@
 	position: relative;
 	top: 2px;
 	z-index: 1;
+}
+
+.calendar-ical-popup-wrapper {
+	padding: 0 7px;
+	border-bottom: 1px solid #EDEEF0;
+}
+
+.calendar-ical-popup-wrapper h3 {
+	margin: 7px 0 12px;
+}
+
+.calendar-ical-popup-label-text {
+	font: 13px/17px"Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #828B95;
+	margin-bottom: 12px;
+}
+
+.calendar-ical-popup-link-block {
+	word-wrap: break-word;
+	margin-bottom: 28px;
+	font: 14px/17px"Helvetica Neue", Helvetica, Arial, sans-serif;
 }

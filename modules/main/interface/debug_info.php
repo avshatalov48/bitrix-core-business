@@ -35,46 +35,52 @@ $DOCUMENT_ROOT_LEN = mb_strlen($_SERVER["DOCUMENT_ROOT"]);
 
 if($bShowExtTime)
 {
-	$START_EXEC_CURRENT_TIME = microtime();
+	$CURRENT_TIME = microtime(true);
 
-	list($usec, $sec) = explode(" ", START_EXEC_PROLOG_AFTER_2);
-	$PROLOG_AFTER_2 = (float)$sec + (float)$usec;
-	list($usec, $sec) = explode(" ", START_EXEC_PROLOG_AFTER_1);
-	$PROLOG_AFTER_1 = (float)$sec + (float)$usec;
+	$PROLOG_AFTER_2 = (float)START_EXEC_PROLOG_AFTER_2;
+	$PROLOG_AFTER_1 = (float)START_EXEC_PROLOG_AFTER_1;
 	$PROLOG_AFTER = $PROLOG_AFTER_2 - $PROLOG_AFTER_1;
 
 	$AGENTS = 0;
 	if(defined("START_EXEC_AGENTS_1") && defined("START_EXEC_AGENTS_2"))
 	{
-		list($usec, $sec) = explode(" ", START_EXEC_AGENTS_2);
-		$AGENTS_2 = (float)$sec + (float)$usec;
-		list($usec, $sec) = explode(" ", START_EXEC_AGENTS_1);
-		$AGENTS_1 = (float)$sec + (float)$usec;
+		$AGENTS_2 = (float)START_EXEC_AGENTS_2;
+		$AGENTS_1 = (float)START_EXEC_AGENTS_1;
 		$AGENTS = $AGENTS_2 - $AGENTS_1;
 	}
 
-	list($usec, $sec) = explode(" ", START_EXEC_PROLOG_BEFORE_1);
-	$PROLOG_BEFORE_1 = (float)$sec + (float)$usec;
+	$PROLOG_BEFORE_1 = (float)START_EXEC_PROLOG_BEFORE_1;
 	$PROLOG_BEFORE = $PROLOG_AFTER_1 - $PROLOG_BEFORE_1 - $AGENTS;
 
 	$PROLOG = $PROLOG_AFTER_2 - $PROLOG_BEFORE_1;
 
-	list($usec, $sec) = explode(" ", START_EXEC_EPILOG_BEFORE_1);
-	$EPILOG_BEFORE_1 = (float)$sec + (float)$usec;
+	if (defined("START_EXEC_EPILOG_BEFORE_1"))
+	{
+		$EPILOG_BEFORE_1 = (float)START_EXEC_EPILOG_BEFORE_1;
 
-	$WORK_AREA = $EPILOG_BEFORE_1 - $PROLOG_AFTER_2;
+		$WORK_AREA = $EPILOG_BEFORE_1 - $PROLOG_AFTER_2;
 
-	list($usec, $sec) = explode(" ", START_EXEC_EPILOG_AFTER_1);
-	$EPILOG_AFTER_1 = (float)$sec + (float)$usec;
+		if (defined("START_EXEC_EPILOG_AFTER_1"))
+		{
+			$EPILOG_AFTER_1 = (float)START_EXEC_EPILOG_AFTER_1;
+			$EPILOG_BEFORE = $EPILOG_AFTER_1 - $EPILOG_BEFORE_1;
+			$EPILOG_AFTER = $CURRENT_TIME - $EPILOG_AFTER_1;
+		}
+		else
+		{
+			$EPILOG_BEFORE = 0;
+			$EPILOG_AFTER = 0;
+		}
 
-	$EPILOG_BEFORE = $EPILOG_AFTER_1 - $EPILOG_BEFORE_1;
-
-	list($usec, $sec) = explode(" ", $START_EXEC_CURRENT_TIME);
-	$CURRENT_TIME = (float)$sec + (float)$usec;
-
-	$EPILOG_AFTER = $CURRENT_TIME - $EPILOG_AFTER_1;
-
-	$EPILOG = $CURRENT_TIME - $EPILOG_BEFORE_1;
+		$EPILOG = $CURRENT_TIME - $EPILOG_BEFORE_1;
+	}
+	else
+	{
+		$WORK_AREA = $CURRENT_TIME - $PROLOG_AFTER_2;
+		$EPILOG_BEFORE = 0;
+		$EPILOG_AFTER = 0;
+		$EPILOG = 0;
+	}
 
 	$PAGE = $CURRENT_TIME - $PROLOG_BEFORE_1;
 

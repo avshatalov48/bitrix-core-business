@@ -14,6 +14,7 @@ use Bitrix\Im\Bot;
 use Bitrix\Rest\Preset\Data\Webhook;
 use Bitrix\Rest\Preset\Data\Rest;
 use Bitrix\Rest\Preset\Data\Placement;
+use Bitrix\Rest\Engine\ScopeManager;
 
 class RestIntegrationSelectComponent extends CBitrixComponent implements Controllerable
 {
@@ -178,18 +179,15 @@ class RestIntegrationSelectComponent extends CBitrixComponent implements Control
 	public function getScopeAction()
 	{
 		$result = [];
-		$data = Rest::getScope();
-		if (!empty($data))
+		$data = ScopeManager::getInstance()->getList();
+		if ($data)
 		{
-			$langScope = Application::getDocumentRoot().BX_ROOT. '/modules/rest/scope.php';
-			Loc::loadMessages($langScope);
 			$items = [];
-			foreach ($data as $val)
+			foreach ($data as $scope)
 			{
-				$name = Loc::getMessage('REST_SCOPE_' . mb_strtoupper($val));
 				$items[] = [
-					'id' => $val,
-					'name' => (!empty($name)) ? $name . ' (' . $val . ')' : $val
+					'id' => $scope['code'],
+					'name' => $scope['title'],
 				];
 			}
 			$result['list'][] = [

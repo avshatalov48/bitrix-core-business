@@ -7,15 +7,14 @@
  */
 namespace Bitrix\Sender\Entity;
 
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ErrorCollection;
-use Bitrix\Main\Error;
-use Bitrix\Main\SystemException;
 use Bitrix\Main\Entity\Base as MainEntityBase;
 use Bitrix\Main\Entity\DataManager as MainDataManager;
-
-use Bitrix\Sender\Security;
+use Bitrix\Main\Error;
+use Bitrix\Main\ErrorCollection;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\SystemException;
 use Bitrix\Sender\Search;
+use Bitrix\Sender\Security;
 
 Loc::loadMessages(__FILE__);
 

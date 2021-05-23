@@ -134,13 +134,7 @@ class Directory
 
 					if ($convertEncoding)
 					{
-						$errorMessage = '';
-						$content = \Bitrix\Main\Text\Encoding::convertEncoding($content, $sourceEncoding, $targetEncoding, $errorMessage);
-						if (!$content && !empty($errorMessage))
-						{
-							$retFlag = false;
-							$this->addError(new Main\Error($errorMessage));
-						}
+						$content = \Bitrix\Main\Text\Encoding::convertEncoding($content, $sourceEncoding, $targetEncoding);
 					}
 
 					$file->putContents($content);

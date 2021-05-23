@@ -925,7 +925,7 @@ if(!$bFullForm)
 	$arProperty['PROPINFO'] = base64_decode($arProperty['PROPINFO']);
 	if (CheckSerializedData($arProperty['PROPINFO']))
 	{
-		$arTempo = unserialize($arProperty['PROPINFO']);
+		$arTempo = unserialize($arProperty['PROPINFO'], ['allowed_classes' => false]);
 		if (is_array($arTempo))
 		{
 			foreach ($arTempo as $k => $v)

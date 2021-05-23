@@ -97,7 +97,7 @@ if($serCount > 0)
 else
 	$report = COption::GetOptionString("sale", "reports");
 		
-$arOptions = unserialize($report);
+$arOptions = unserialize($report, ['allowed_classes' => false]);
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 

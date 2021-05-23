@@ -93,35 +93,69 @@ if($request->isPost() && check_bitrix_sessid() && \Bitrix\Main\Loader::includeMo
 
 				if (\Bitrix\Rest\OAuthService::getEngine()->isRegistered())
 				{
-					$host = '';
-					if (defined('BX24_HOST_NAME'))
+					$queryField = [];
+					$loadedBitrix24 = \Bitrix\Main\Loader::includeModule('bitrix24');
+					if ($loadedBitrix24)
 					{
-						$host = BX24_HOST_NAME;
-					}
-					else
-					{
-						$server = \Bitrix\Main\Context::getCurrent()->getServer();
-						$host = $server->getHttpHost();
-					}
-
-					$queryField = [
-						'DEMO' => 'subscription',
-						'SITE' => $host
-					];
-
-					$httpClient = new \Bitrix\Main\Web\HttpClient();
-					if ($response = $httpClient->post('https://www.1c-bitrix.ru/buy_tmp/b24_coupon.php', $queryField))
-					{
-						if (mb_strpos($response, 'OK') === false)
+						$host = '';
+						if (defined('BX24_HOST_NAME'))
 						{
-							$result = [
-								'error' => Loc::getMessage('REST_MP_CONFIG_ACTIVATE_ERROR'),
-								'error_code' => 2
-							];
+							$host = BX24_HOST_NAME;
 						}
 						else
 						{
-							$result = ['result' => true];
+							$server = \Bitrix\Main\Context::getCurrent()->getServer();
+							$host = $server->getHttpHost();
+						}
+
+						$queryField = [
+							'DEMO' => 'subscription',
+							'SITE' => $host
+						];
+
+						if (function_exists('bx_sign'))
+						{
+							$queryField['hash'] = bx_sign(md5(implode('|', $queryField)));
+						}
+					}
+					else
+					{
+						include $_SERVER['DOCUMENT_ROOT'] . '/bitrix/license_key.php';
+
+						if (!empty($LICENSE_KEY))
+						{
+							$queryField = [
+								'DEMO' => 'subscription',
+								'SITE' => 'cp',
+								'key' => md5($LICENSE_KEY),
+								'hash' => md5('cp'. '|' . 'subscription' . '|' . md5($LICENSE_KEY))
+							];
+						}
+					}
+
+					if ($queryField)
+					{
+						$httpClient = new \Bitrix\Main\Web\HttpClient();
+						if ($response = $httpClient->post('https://www.1c-bitrix.ru/buy_tmp/b24_coupon.php', $queryField))
+						{
+							if (mb_strpos($response, 'OK') === false)
+							{
+								$result = [
+									'error' => Loc::getMessage('REST_MP_CONFIG_ACTIVATE_ERROR'),
+									'error_code' => 2,
+								];
+							}
+							else
+							{
+								$result = ['result' => true];
+							}
+
+							if (!$loadedBitrix24)
+							{
+								require_once( $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/classes/general/update_client.php');
+								$errorMessage = '';
+								CUpdateClient::GetUpdatesList($errorMessage, LANG);
+							}
 						}
 					}
 				}
@@ -129,13 +163,13 @@ if($request->isPost() && check_bitrix_sessid() && \Bitrix\Main\Loader::includeMo
 				{
 					$result = [
 						'error' => Loc::getMessage('REST_MP_CONFIG_ACTIVATE_ERROR'),
-						'error_code' => 1
+						'error_code' => 1,
 					];
 				}
 			}
 			else
 			{
-				$result = ['error' => Loc::getMessage('RMP_ACCESS_DENIED')];
+				$result = ['error' => Loc::getMessage('REST_ACTIVATE_DEMO_ACCESS_DENIED')];
 			}
 
 			break;

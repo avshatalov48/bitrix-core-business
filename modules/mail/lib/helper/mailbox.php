@@ -132,10 +132,19 @@ abstract class Mailbox
 	protected function __construct($mailbox)
 	{
 		$this->startTime = time();
-		if (defined('START_EXEC_PROLOG_BEFORE_1') && preg_match('/ (\d+)$/', START_EXEC_PROLOG_BEFORE_1, $matches))
+		if (defined('START_EXEC_PROLOG_BEFORE_1'))
 		{
-			$startTime = $matches[1];
-			if ($startTime > 0 && $this->startTime >= $startTime)
+			$startTime = 0;
+			if (is_float(START_EXEC_PROLOG_BEFORE_1))
+			{
+				$startTime = START_EXEC_PROLOG_BEFORE_1;
+			}
+			elseif (preg_match('/ (\d+)$/', START_EXEC_PROLOG_BEFORE_1, $matches))
+			{
+				$startTime = $matches[1];
+			}
+
+			if ($startTime > 0 && $this->startTime > $startTime)
 			{
 				$this->startTime = $startTime;
 			}

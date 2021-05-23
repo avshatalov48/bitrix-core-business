@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2020 Bitrix
  */
 
 use Bitrix\Main;
@@ -23,6 +23,11 @@ $BX_CACHE_DOCROOT = array();
 global $MODULE_PERMISSIONS;
 $MODULE_PERMISSIONS = array();
 
+IncludeModuleLangFile(__FILE__);
+
+/**
+ * @deprecated
+ */
 abstract class CAllMain
 {
 	var $ma, $mapos;
@@ -967,9 +972,12 @@ abstract class CAllMain
 	{
 		if(mb_substr($rel_path, 0, 1) != "/")
 		{
-			$path = getLocalPath("templates/".SITE_TEMPLATE_ID."/".$rel_path, BX_PERSONAL_ROOT);
-			if($path !== false)
-				return $path;
+			if(defined("SITE_TEMPLATE_ID"))
+			{
+				$path = getLocalPath("templates/".SITE_TEMPLATE_ID."/".$rel_path, BX_PERSONAL_ROOT);
+				if($path !== false)
+					return $path;
+			}
 
 			$path = getLocalPath("templates/.default/".$rel_path, BX_PERSONAL_ROOT);
 			if($path !== false)
@@ -3155,8 +3163,11 @@ abstract class CAllMain
 	{
 		
 
+		$res = null;
+
 		if(!$this->buffered)
-			return null;
+			return $res;
+
 		$content = ob_get_contents();
 		$this->buffer_man = true;
 		ob_end_clean();
@@ -3169,6 +3180,7 @@ abstract class CAllMain
 
 		$this->buffer_content_type = array();
 		$this->buffer_content = array();
+
 		return $res;
 	}
 
@@ -3552,15 +3564,14 @@ abstract class CAllMain
 	}
 }
 
-global $MAIN_LANGS_CACHE;
-$MAIN_LANGS_CACHE = array();
-
-global $MAIN_LANGS_ADMIN_CACHE;
-$MAIN_LANGS_ADMIN_CACHE = array();
-
-
+/**
+ * @deprecated 
+ */
 class CAllSite
 {
+	public static $MAIN_LANGS_CACHE = [];
+	public static $MAIN_LANGS_ADMIN_CACHE = [];
+
 	var $LAST_ERROR;
 
 	public static function InDir($strDir)
@@ -3597,36 +3608,34 @@ class CAllSite
 		{
 			if (!defined("ADMIN_SECTION") || ADMIN_SECTION !== true)
 			{
-				global $MAIN_LANGS_CACHE;
-				if(!is_set($MAIN_LANGS_CACHE, SITE_ID))
+				if(!is_set(static::$MAIN_LANGS_CACHE, SITE_ID))
 				{
 					$res = CLang::GetByID(SITE_ID);
 					if ($res = $res->Fetch())
 					{
-						$MAIN_LANGS_CACHE[$res["LID"]] = $res;
+						static::$MAIN_LANGS_CACHE[$res["LID"]] = $res;
 					}
 				}
 
-				if (is_set($MAIN_LANGS_CACHE, SITE_ID))
+				if (is_set(static::$MAIN_LANGS_CACHE, SITE_ID))
 				{
-					$weekStart = $MAIN_LANGS_CACHE[SITE_ID]['WEEK_START'];
+					$weekStart = static::$MAIN_LANGS_CACHE[SITE_ID]['WEEK_START'];
 				}
 			}
 			else
 			{
-				global $MAIN_LANGS_ADMIN_CACHE;
-				if(!is_set($MAIN_LANGS_ADMIN_CACHE, LANGUAGE_ID))
+				if(!is_set(static::$MAIN_LANGS_ADMIN_CACHE, LANGUAGE_ID))
 				{
 					$res = CLanguage::GetByID(LANGUAGE_ID);
 					if($res = $res->Fetch())
 					{
-						$MAIN_LANGS_ADMIN_CACHE[$res["LID"]] = $res;
+						static::$MAIN_LANGS_ADMIN_CACHE[$res["LID"]] = $res;
 					}
 				}
 
-				if (is_set($MAIN_LANGS_ADMIN_CACHE, LANGUAGE_ID))
+				if (is_set(static::$MAIN_LANGS_ADMIN_CACHE, LANGUAGE_ID))
 				{
-					$weekStart = $MAIN_LANGS_ADMIN_CACHE[LANGUAGE_ID]['WEEK_START'];
+					$weekStart = static::$MAIN_LANGS_ADMIN_CACHE[LANGUAGE_ID]['WEEK_START'];
 				}
 			}
 
@@ -3656,42 +3665,40 @@ class CAllSite
 
 		if(!$bSearchInSitesOnly && defined("ADMIN_SECTION") && ADMIN_SECTION===true)
 		{
-			global $MAIN_LANGS_ADMIN_CACHE;
-			if(!is_set($MAIN_LANGS_ADMIN_CACHE, $lang))
+			if(!is_set(static::$MAIN_LANGS_ADMIN_CACHE, $lang))
 			{
 				$res = CLanguage::GetByID($lang);
 				if($res = $res->Fetch())
-					$MAIN_LANGS_ADMIN_CACHE[$res["LID"]] = $res;
+					static::$MAIN_LANGS_ADMIN_CACHE[$res["LID"]] = $res;
 			}
 
-			if(is_set($MAIN_LANGS_ADMIN_CACHE, $lang))
+			if(is_set(static::$MAIN_LANGS_ADMIN_CACHE, $lang))
 			{
 				if($bFullFormat)
-					return mb_strtoupper($MAIN_LANGS_ADMIN_CACHE[$lang]["FORMAT_DATETIME"]);
-				return mb_strtoupper($MAIN_LANGS_ADMIN_CACHE[$lang]["FORMAT_DATE"]);
+					return mb_strtoupper(static::$MAIN_LANGS_ADMIN_CACHE[$lang]["FORMAT_DATETIME"]);
+				return mb_strtoupper(static::$MAIN_LANGS_ADMIN_CACHE[$lang]["FORMAT_DATE"]);
 			}
 		}
 
 		// if LANG is not found in LangAdmin:
-		global $MAIN_LANGS_CACHE;
-		if(!is_set($MAIN_LANGS_CACHE, $lang))
+		if(!is_set(static::$MAIN_LANGS_CACHE, $lang))
 		{
 			$res = CLang::GetByID($lang);
 			$res = $res->Fetch();
-			$MAIN_LANGS_CACHE[$res["LID"]] = $res;
+			static::$MAIN_LANGS_CACHE[$res["LID"]] = $res;
 			if(defined("ADMIN_SECTION") && ADMIN_SECTION === true)
-				$MAIN_LANGS_ADMIN_CACHE[$res["LID"]] = $res;
+				static::$MAIN_LANGS_ADMIN_CACHE[$res["LID"]] = $res;
 		}
 
 		if($bFullFormat)
 		{
-			$format = mb_strtoupper($MAIN_LANGS_CACHE[$lang]["FORMAT_DATETIME"]);
+			$format = mb_strtoupper(static::$MAIN_LANGS_CACHE[$lang]["FORMAT_DATETIME"]);
 			if($format == '')
 				$format = "DD.MM.YYYY HH:MI:SS";
 		}
 		else
 		{
-			$format = mb_strtoupper($MAIN_LANGS_CACHE[$lang]["FORMAT_DATE"]);
+			$format = mb_strtoupper(static::$MAIN_LANGS_CACHE[$lang]["FORMAT_DATE"]);
 			if($format == '')
 				$format = "DD.MM.YYYY";
 		}
@@ -3880,9 +3887,6 @@ class CAllSite
 		if(!$this->CheckFields($arFields))
 			return false;
 
-		if(CACHED_b_lang!==false)
-			$CACHE_MANAGER->CleanDir("b_lang");
-
 		if(isset($arFields["ACTIVE"]) && $arFields["ACTIVE"]!="Y")
 			$arFields["ACTIVE"]="N";
 
@@ -3902,6 +3906,9 @@ class CAllSite
 
 		$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 
+		if(CACHED_b_lang!==false)
+			$CACHE_MANAGER->CleanDir("b_lang");
+
 		if(isset($arFields["DIR"]))
 			CheckDirPath($DOCUMENT_ROOT.$arFields["DIR"]);
 
@@ -3910,9 +3917,6 @@ class CAllSite
 
 		if(isset($arFields["TEMPLATE"]))
 		{
-			if(CACHED_b_site_template!==false)
-				$CACHE_MANAGER->Clean("b_site_template");
-
 			foreach($arFields["TEMPLATE"] as $arTemplate)
 			{
 				if(trim($arTemplate["TEMPLATE"]) <> '')
@@ -3922,6 +3926,9 @@ class CAllSite
 						"VALUES('".$DB->ForSQL($arFields["LID"])."', '".$DB->ForSQL(trim($arTemplate["CONDITION"]), 255)."', ".intval($arTemplate["SORT"]).", '".$DB->ForSQL(trim($arTemplate["TEMPLATE"]), 255)."')");
 				}
 			}
+
+			if(CACHED_b_site_template!==false)
+				$CACHE_MANAGER->Clean("b_site_template");
 		}
 
 		SiteTable::getEntity()->cleanCache();
@@ -3931,16 +3938,13 @@ class CAllSite
 
 	public function Update($ID, $arFields)
 	{
-		global $DB, $MAIN_LANGS_CACHE, $MAIN_LANGS_ADMIN_CACHE, $CACHE_MANAGER;
+		global $DB, $CACHE_MANAGER;
 
-		unset($MAIN_LANGS_CACHE[$ID]);
-		unset($MAIN_LANGS_ADMIN_CACHE[$ID]);
+		unset(static::$MAIN_LANGS_CACHE[$ID]);
+		unset(static::$MAIN_LANGS_ADMIN_CACHE[$ID]);
 
 		if(!$this->CheckFields($arFields, $ID))
 			return false;
-
-		if(CACHED_b_lang!==false)
-			$CACHE_MANAGER->CleanDir("b_lang");
 
 		if(isset($arFields["ACTIVE"]) && $arFields["ACTIVE"]!="Y")
 			$arFields["ACTIVE"]="N";
@@ -3960,6 +3964,9 @@ class CAllSite
 			$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 		}
 
+		if(CACHED_b_lang!==false)
+			$CACHE_MANAGER->CleanDir("b_lang");
+
 		global $BX_CACHE_DOCROOT;
 		unset($BX_CACHE_DOCROOT[$ID]);
 
@@ -3971,9 +3978,6 @@ class CAllSite
 
 		if(isset($arFields["TEMPLATE"]))
 		{
-			if(CACHED_b_site_template!==false)
-				$CACHE_MANAGER->Clean("b_site_template");
-
 			$DB->Query("DELETE FROM b_site_template WHERE SITE_ID='".$DB->ForSQL($ID)."'");
 
 			foreach($arFields["TEMPLATE"] as $arTemplate)
@@ -3985,6 +3989,9 @@ class CAllSite
 						"VALUES('".$DB->ForSQL($ID)."', '".$DB->ForSQL(trim($arTemplate["CONDITION"]), 255)."', ".intval($arTemplate["SORT"]).", '".$DB->ForSQL(trim($arTemplate["TEMPLATE"]), 255)."')");
 				}
 			}
+
+			if(CACHED_b_site_template!==false)
+				$CACHE_MANAGER->Clean("b_site_template");
 		}
 
 		SiteTable::getEntity()->cleanCache();
@@ -4003,7 +4010,7 @@ class CAllSite
 		{
 			if(ExecuteModuleEventEx($arEvent, array($ID))===false)
 			{
-				$err = GetMessage("MAIN_BEFORE_DEL_ERR").' '.$arEvent['TO_NAME'];
+				$err = GetMessage("MAIN_BEFORE_DEL_ERR1").' '.$arEvent['TO_NAME'];
 				if($ex = $APPLICATION->GetException())
 					$err .= ': '.$ex->GetString();
 				$APPLICATION->throwException($err);
@@ -4015,7 +4022,7 @@ class CAllSite
 		{
 			if(ExecuteModuleEventEx($arEvent, array($ID))===false)
 			{
-				$err = GetMessage("MAIN_BEFORE_DEL_ERR").' '.$arEvent['TO_NAME'];
+				$err = GetMessage("MAIN_BEFORE_DEL_ERR1").' '.$arEvent['TO_NAME'];
 				if($ex = $APPLICATION->GetException())
 					$err .= ': '.$ex->GetString();
 				$APPLICATION->throwException($err);
@@ -4047,12 +4054,14 @@ class CAllSite
 		if(CACHED_b_site_template!==false)
 			$CACHE_MANAGER->Clean("b_site_template");
 
+		$result = $DB->Query("DELETE FROM b_lang WHERE LID='".$DB->ForSQL($ID, 2)."'", true);
+
 		if(CACHED_b_lang!==false)
 			$CACHE_MANAGER->CleanDir("b_lang");
 
 		SiteTable::getEntity()->cleanCache();
 
-		return $DB->Query("DELETE FROM b_lang WHERE LID='".$DB->ForSQL($ID, 2)."'", true);
+		return $result;
 	}
 
 	public static function GetTemplateList($site_id)
@@ -4370,7 +4379,7 @@ class CAllSite
 	* If there is no value for language - returns pre-defined value @see CSite::GetDefaultNameFormat
 	* FORMAT_NAME constant can be set in dbconn.php
 	*
-	* @param $dummy Unused
+	* @param null $dummy Unused
 	* @param string $site_id - use to get value for the specific site
 	* @return string ex: #LAST_NAME# #NAME#
 	*/
@@ -4410,26 +4419,25 @@ class CAllSite
 		//if not found - trying to get value for the language
 		if ($format == "")
 		{
-			global $MAIN_LANGS_ADMIN_CACHE;
-			if(!isset($MAIN_LANGS_ADMIN_CACHE[$site_id]))
+			if(!isset(static::$MAIN_LANGS_ADMIN_CACHE[$site_id]))
 			{
 				$db_res = CLanguage::GetByID(LANGUAGE_ID);
 				if ($res = $db_res->Fetch())
 				{
-					$MAIN_LANGS_ADMIN_CACHE[$res["LID"]] = $res;
+					static::$MAIN_LANGS_ADMIN_CACHE[$res["LID"]] = $res;
 				}
 			}
 
-			if(isset($MAIN_LANGS_ADMIN_CACHE[LANGUAGE_ID]))
+			if(isset(static::$MAIN_LANGS_ADMIN_CACHE[LANGUAGE_ID]))
 			{
-				$format = mb_strtoupper($MAIN_LANGS_ADMIN_CACHE[LANGUAGE_ID]["FORMAT_NAME"]);
+				$format = mb_strtoupper(static::$MAIN_LANGS_ADMIN_CACHE[LANGUAGE_ID]["FORMAT_NAME"]);
 			}
 		}
 
 		//if not found - trying to get default values
 		if ($format == "")
 		{
-			$format = self::GetDefaultNameFormat(empty($res["LANGUAGE_ID"])? "" : $res["LANGUAGE_ID"]);
+			$format = self::GetDefaultNameFormat();
 		}
 
 		$format = str_replace(array("#NOBR#","#/NOBR#"), "", $format);
@@ -4561,822 +4569,7 @@ class CAllSite
 	}
 }
 
-class _CLangDBResult extends CDBResult
-{
-	public function __construct($res)
-	{
-		parent::__construct($res);
-	}
-
-	function Fetch()
-	{
-		if($res = parent::Fetch())
-		{
-			global $DB, $CACHE_MANAGER;
-			static $arCache;
-			if(!is_array($arCache))
-				$arCache = array();
-			if(is_set($arCache, $res["LID"]))
-				$res["DOMAINS"] = $arCache[$res["LID"]];
-			else
-			{
-				if(CACHED_b_lang_domain===false)
-				{
-					$res["DOMAINS"] = "";
-					$db_res = $DB->Query("SELECT * FROM b_lang_domain WHERE LID='".$res["LID"]."'");
-					while($ar_res = $db_res->Fetch())
-					{
-						$domain = $ar_res["DOMAIN"];
-						$arErrorsTmp = array();
-						if ($domainTmp = CBXPunycode::ToUnicode($ar_res["DOMAIN"], $arErrorsTmp))
-							$domain = $domainTmp;
-						$res["DOMAINS"] .= $domain."\r\n";
-					}
-				}
-				else
-				{
-					if($CACHE_MANAGER->Read(CACHED_b_lang_domain, "b_lang_domain", "b_lang_domain"))
-					{
-						$arLangDomain = $CACHE_MANAGER->Get("b_lang_domain");
-					}
-					else
-					{
-						$arLangDomain = array("DOMAIN"=>array(), "LID"=>array());
-						$rs = $DB->Query("SELECT * FROM b_lang_domain ORDER BY ".$DB->Length("DOMAIN"));
-						while($ar = $rs->Fetch())
-						{
-							$arLangDomain["DOMAIN"][]=$ar;
-							$arLangDomain["LID"][$ar["LID"]][]=$ar;
-						}
-						$CACHE_MANAGER->Set("b_lang_domain", $arLangDomain);
-					}
-					$res["DOMAINS"] = "";
-					if(is_array($arLangDomain["LID"][$res["LID"]]))
-						foreach($arLangDomain["LID"][$res["LID"]] as $ar_res)
-						{
-							$domain = $ar_res["DOMAIN"];
-							$arErrorsTmp = array();
-							if ($domainTmp = CBXPunycode::ToUnicode($ar_res["DOMAIN"], $arErrorsTmp))
-								$domain = $domainTmp;
-							$res["DOMAINS"] .= $domain."\r\n";
-
-						}
-				}
-				$res["DOMAINS"] = trim($res["DOMAINS"]);
-				$arCache[$res["LID"]] = $res["DOMAINS"];
-			}
-
-			if(trim($res["DOC_ROOT"])=="")
-				$res["ABS_DOC_ROOT"] = $_SERVER["DOCUMENT_ROOT"];
-			else
-				$res["ABS_DOC_ROOT"] = Rel2Abs($_SERVER["DOCUMENT_ROOT"], $res["DOC_ROOT"]);
-
-			if($res["ABS_DOC_ROOT"]!==$_SERVER["DOCUMENT_ROOT"])
-				$res["SITE_URL"] = (CMain::IsHTTPS() ? "https://" : "http://").$res["SERVER_NAME"];
-		}
-		return $res;
-	}
-
-}
-
-class CAllLanguage
-{
-	var $LAST_ERROR;
-
-	public static function GetList(&$by, &$order, $arFilter=array())
-	{
-		global $DB;
-		$arSqlSearch = array();
-
-		if (is_array($arFilter))
-		{
-			foreach ($arFilter as $key => $val)
-			{
-				if ((string)$val <> '')
-				{
-					switch(mb_strtoupper($key))
-					{
-						case "ACTIVE":
-							if($val == "Y" || $val == "N")
-							{
-								$arSqlSearch[] = "L.ACTIVE='".$DB->ForSql($val)."'";
-							}
-							break;
-
-						case "NAME":
-							$arSqlSearch[] = "UPPER(L.NAME) LIKE UPPER('".$DB->ForSql($val)."')";
-							break;
-
-						case "ID":
-						case "LID":
-							$arSqlSearch[] = "L.LID='".$DB->ForSql($val)."'";
-							break;
-					}
-				}
-			}
-		}
-
-		$strSqlSearch = "";
-		foreach($arSqlSearch as $condition)
-		{
-			$strSqlSearch .= " AND (".$condition.") ";
-		}
-
-		$strSql =
-			"SELECT L.*, L.LID as ID, L.LID as LANGUAGE_ID, ".
-			"	C.FORMAT_DATE, C.FORMAT_DATETIME, C.FORMAT_NAME, C.WEEK_START, C.CHARSET, C.DIRECTION ".
-			"FROM b_language L, b_culture C ".
-			"WHERE C.ID = L.CULTURE_ID ".
-			$strSqlSearch;
-
-		if($by == "lid" || $by=="id") $strSqlOrder = " ORDER BY L.LID ";
-		elseif($by == "active") $strSqlOrder = " ORDER BY L.ACTIVE ";
-		elseif($by == "name") $strSqlOrder = " ORDER BY L.NAME ";
-		elseif($by == "def") $strSqlOrder = " ORDER BY L.DEF ";
-		else
-		{
-			$strSqlOrder = " ORDER BY L.SORT ";
-			$by = "sort";
-		}
-
-		if($order=="desc")
-			$strSqlOrder .= " desc ";
-		else
-			$order = "asc";
-
-		$strSql .= $strSqlOrder;
-
-		$res = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
-
-		return $res;
-	}
-
-	public static function GetByID($ID)
-	{
-		return CLanguage::GetList($o, $b, array("LID"=>$ID));
-	}
-
-	public function CheckFields($arFields, $ID = false)
-	{
-		/** @global CMain $APPLICATION */
-		global $APPLICATION, $DB;
-
-		$this->LAST_ERROR = "";
-		$arMsg = array();
-
-		if(($ID === false || isset($arFields["LID"])) && mb_strlen($arFields["LID"]) <> 2)
-		{
-			$this->LAST_ERROR .= GetMessage("BAD_LANG_LID")." ";
-			$arMsg[] = array("id"=>"LID", "text"=> GetMessage("BAD_LANG_LID"));
-		}
-		if($ID === false && !isset($arFields["CULTURE_ID"]))
-		{
-			$this->LAST_ERROR .= GetMessage("lang_check_culture_not_set")." ";
-			$arMsg[] = array("id"=>"CULTURE_ID", "text"=> GetMessage("lang_check_culture_not_set"));
-		}
-		if(isset($arFields["CULTURE_ID"]))
-		{
-			if(CultureTable::getRowById($arFields["CULTURE_ID"]) === null)
-			{
-				$this->LAST_ERROR .= GetMessage("lang_check_culture_incorrect")." ";
-				$arMsg[] = array("id"=>"CULTURE_ID", "text"=> GetMessage("lang_check_culture_incorrect"));
-			}
-		}
-		if(isset($arFields["NAME"]) && mb_strlen($arFields["NAME"]) < 2)
-		{
-			$this->LAST_ERROR .= GetMessage("BAD_LANG_NAME")." ";
-			$arMsg[] = array("id"=>"NAME", "text"=> GetMessage("BAD_LANG_NAME"));
-		}
-		if(isset($arFields["SORT"]) && intval($arFields["SORT"]) <= 0)
-		{
-			$this->LAST_ERROR .= GetMessage("BAD_LANG_SORT")." ";
-			$arMsg[] = array("id"=>"SORT", "text"=> GetMessage("BAD_LANG_SORT"));
-		}
-
-		if(!empty($arMsg))
-		{
-			$e = new CAdminException($arMsg);
-			$APPLICATION->ThrowException($e);
-		}
-
-		if($this->LAST_ERROR <> "")
-			return false;
-
-		if($ID === false)
-		{
-			$r = $DB->Query("SELECT 'x' FROM b_language WHERE LID='".$DB->ForSQL($arFields["LID"], 2)."'");
-			if($r->Fetch())
-			{
-				$this->LAST_ERROR .= GetMessage("BAD_LANG_DUP")." ";
-				$e = new CAdminException(array(array("id"=>"LID", "text" =>GetMessage("BAD_LANG_DUP"))));
-				$APPLICATION->ThrowException($e);
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	public function Add($arFields)
-	{
-		global $DB;
-
-		if(!$this->CheckFields($arFields))
-			return false;
-
-		if(is_set($arFields, "ACTIVE") && $arFields["ACTIVE"]!="Y")
-			$arFields["ACTIVE"]="N";
-
-		$arInsert = $DB->PrepareInsert("b_language", $arFields);
-
-		if(is_set($arFields, "DEF"))
-		{
-			if($arFields["DEF"]=="Y")
-				$DB->Query("UPDATE b_language SET DEF='N' WHERE DEF='Y'");
-			else
-				$arFields["DEF"]="N";
-		}
-
-		$strSql =
-			"INSERT INTO b_language(".$arInsert[0].") ".
-			"VALUES(".$arInsert[1].")";
-		$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
-		return $arFields["LID"];
-	}
-
-
-	public function Update($ID, $arFields)
-	{
-		global $DB, $MAIN_LANGS_CACHE, $MAIN_LANGS_ADMIN_CACHE;
-
-		unset($MAIN_LANGS_CACHE[$ID]);
-		unset($MAIN_LANGS_ADMIN_CACHE[$ID]);
-
-		if(!$this->CheckFields($arFields, $ID))
-			return false;
-
-		if(is_set($arFields, "ACTIVE") && $arFields["ACTIVE"]!="Y")
-			$arFields["ACTIVE"]="N";
-
-		if(is_set($arFields, "DEF"))
-		{
-			if($arFields["DEF"]=="Y")
-				$DB->Query("UPDATE b_language SET DEF='N' WHERE DEF='Y'");
-			else
-				$arFields["DEF"]="N";
-		}
-
-		$strUpdate = $DB->PrepareUpdate("b_language", $arFields);
-		$strSql = "UPDATE b_language SET ".$strUpdate." WHERE LID='".$DB->ForSql($ID, 2)."'";
-		$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
-
-		return true;
-	}
-
-	public static function Delete($ID)
-	{
-		/** @global CMain $APPLICATION */
-		global $APPLICATION, $DB;
-
-		$b = "";
-		$o = "";
-		$db_res = CLang::GetList($b, $o, array("LANGUAGE_ID" => $ID));
-		if($db_res->Fetch())
-			return false;
-
-		foreach(GetModuleEvents("main", "OnBeforeLanguageDelete", true) as $arEvent)
-		{
-			if(ExecuteModuleEventEx($arEvent, array($ID))===false)
-			{
-				$err = GetMessage("MAIN_BEFORE_DEL_ERR").' '.$arEvent['TO_NAME'];
-				if($ex = $APPLICATION->GetException())
-					$err .= ': '.$ex->GetString();
-				$APPLICATION->throwException($err);
-				return false;
-			}
-		}
-
-		foreach(GetModuleEvents("main", "OnLanguageDelete", true) as $arEvent)
-			ExecuteModuleEventEx($arEvent, array($ID));
-
-		return $DB->Query("DELETE FROM b_language WHERE LID='".$DB->ForSQL($ID, 2)."'", true);
-	}
-
-	public static function SelectBox($sFieldName, $sValue, $sDefaultValue="", $sFuncName="", $field="class=\"typeselect\"")
-	{
-		$by = "sort";
-		$order = "asc";
-		$l = CLanguage::GetList($by, $order);
-		$s = '<select name="'.$sFieldName.'" '.$field;
-		$s1 = '';
-		if($sFuncName <> '') $s .= ' OnChange="'.$sFuncName.'"';
-		$s .= '>'."\n";
-		$found = false;
-		while(($l_arr = $l->Fetch()))
-		{
-			$found = ($l_arr["LID"] == $sValue);
-			$s1 .= '<option value="'.$l_arr["LID"].'"'.($found ? ' selected':'').'>['.htmlspecialcharsex($l_arr["LID"]).']&nbsp;'.htmlspecialcharsex($l_arr["NAME"]).'</option>'."\n";
-		}
-		if($sDefaultValue <> '')
-			$s .= "<option value='' ".($found ? "" : "selected").">".htmlspecialcharsex($sDefaultValue)."</option>";
-		return $s.$s1.'</select>';
-	}
-
-	public static function GetLangSwitcherArray()
-	{
-		/** @global CMain $APPLICATION */
-		global $APPLICATION;
-
-		$result = array();
-		$db_res = \Bitrix\Main\Localization\LanguageTable::getList(array('filter'=>array('ACTIVE'=>'Y'), 'order'=>array('SORT'=>'ASC')));
-		while($ar = $db_res->fetch())
-		{
-			$ar["NAME"] = htmlspecialcharsbx($ar["NAME"]);
-			$ar["SELECTED"] = ($ar["LID"]==LANG);
-
-			global $QUERY_STRING;
-			$p = rtrim(str_replace("&#", "#", preg_replace("/lang=[^&#]*&*/", "", $QUERY_STRING)), "&");
-			$ar["PATH"] = $APPLICATION->GetCurPage()."?lang=".$ar["LID"].($p <> ''? '&amp;'.htmlspecialcharsbx($p) : '');
-
-			$result[] = $ar;
-		}
-		return $result;
-	}
-}
-
-class CLanguage extends CAllLanguage
-{
-}
-
-class CLangAdmin extends CLanguage
-{
-}
-
-$SHOWIMAGEFIRST=false;
-
-function ShowImage($PICTURE_ID, $iMaxW=0, $iMaxH=0, $sParams=false, $strImageUrl="", $bPopup=false, $strPopupTitle=false,$iSizeWHTTP=0, $iSizeHHTTP=0)
-{
-	return CFile::ShowImage($PICTURE_ID, $iMaxW, $iMaxH, $sParams, $strImageUrl, $bPopup, $strPopupTitle,$iSizeWHTTP, $iSizeHHTTP);
-}
-
-abstract class CAllFilterQuery
-{
-	var $cnt = 0;
-	var $m_query;
-	var $m_words;
-	var $m_fields;
-	var $m_kav;
-	var $default_query_type;
-	var $rus_bool_lang;
-	var $error;
-	var $procent;
-	var $ex_sep;
-	var $clob;
-	var $div_fields;
-	var $clob_upper;
-	var $errorno;
-
-	/*
-	$default_query_type - logic for spaces
-	$rus_bool_lang - use russian logic words
-	$ex_sep - array with exceptions for delimiters
-	*/
-	public function __construct($default_query_type = "and", $rus_bool_lang = "yes", $procent="Y", $ex_sep = array(), $clob="N", $div_fields="Y", $clob_upper="N")
-	{
-		$this->m_query  = "";
-		$this->m_fields = "";
-		$this->default_query_type = $default_query_type;
-		$this->rus_bool_lang = $rus_bool_lang;
-		$this->m_kav = array();
-		$this->error = "";
-		$this->procent = $procent;
-		$this->ex_sep = $ex_sep;
-		$this->clob = $clob;
-		$this->clob_upper = $clob_upper;
-		$this->div_fields = $div_fields;
-	}
-
-	abstract public function BuildWhereClause($word);
-
-	public function GetQueryString($fields, $query)
-	{
-		$this->m_words = array();
-		if($this->div_fields=="Y")
-			$this->m_fields = explode(",", $fields);
-		else
-			$this->m_fields = $fields;
-		if(!is_array($this->m_fields))
-			$this->m_fields=array($this->m_fields);
-
-		$query = $this->CutKav($query);
-		$query = $this->ParseQ($query);
-		if($query == "( )" || $query == '')
-		{
-			$this->error=GetMessage("FILTER_ERROR3");
-			$this->errorno=3;
-			return false;
-		}
-		$query = $this->PrepareQuery($query);
-
-		return $query;
-	}
-
-	public function CutKav($query)
-	{
-		$bdcnt = 0;
-		while (preg_match("/\"([^\"]*)\"/",$query,$pt))
-		{
-			$res = $pt[1];
-			if(trim($pt[1]) <> '')
-			{
-				$trimpt = $bdcnt."cut5";
-				$this->m_kav[$trimpt] = $res;
-				$query = str_replace("\"".$pt[1]."\"", " ".$trimpt." ", $query);
-			}
-			else
-			{
-				$query = str_replace("\"".$pt[1]."\"", " ", $query);
-			}
-			$bdcnt++;
-			if($bdcnt>100) break;
-		}
-
-		$bdcnt = 0;
-		while (preg_match("/'([^']*)'/",$query,$pt))
-		{
-			$res = $pt[1];
-			if(trim($pt[1]) <> '')
-			{
-				$trimpt = $bdcnt."cut6";
-				$this->m_kav[$trimpt] = $res;
-				$query = str_replace("'".$pt[1]."'", " ".$trimpt." ", $query);
-			}
-			else
-			{
-				$query = str_replace("'".$pt[1]."'", " ", $query);
-			}
-			$bdcnt++;
-			if($bdcnt>100) break;
-		}
-		return $query;
-	}
-
-	public function ParseQ($q)
-	{
-		$q = trim($q);
-		if($q == '')
-			return '';
-
-		$q=$this->ParseStr($q);
-
-		$q = str_replace(
-			array("&"   , "|"   , "~"  , "("  , ")"),
-			array(" && ", " || ", " ! ", " ( ", " ) "),
-			$q
-		);
-		$q="( $q )";
-		$q = preg_replace("/\\s+/".BX_UTF_PCRE_MODIFIER, " ", $q);
-
-		return $q;
-	}
-
-	public function ParseStr($qwe)
-	{
-		$qwe=trim($qwe);
-
-		$qwe=preg_replace("/ {0,}\\+ {0,}/", "&", $qwe);
-
-		$qwe=preg_replace("/ {0,}([()|~]) {0,}/", "\\1", $qwe);
-
-		// default query type is and
-		if(mb_strtolower($this->default_query_type) == 'or')
-			$default_op = "|";
-		else
-			$default_op = "&";
-
-		$qwe=preg_replace("/( {1,}|\\&\\|{1,}|\\|\\&{1,})/", $default_op, $qwe);
-
-		// remove unnesessary boolean operators
-		$qwe=preg_replace("/\\|+/", "|", $qwe);
-		$qwe=preg_replace("/\\&+/", "&", $qwe);
-		$qwe=preg_replace("/\\~+/", "~", $qwe);
-		$qwe=preg_replace("/\\|\\&\\|/", "&", $qwe);
-		$qwe=preg_replace("/[|&~]+$/", "", $qwe);
-		$qwe=preg_replace("/^[|&]+/", "", $qwe);
-
-		// transform "w1 ~w2" -> "w1 default_op ~ w2"
-		// ") ~w" -> ") default_op ~w"
-		// "w ~ (" -> "w default_op ~("
-		// ") w" -> ") default_op w"
-		// "w (" -> "w default_op ("
-		// ")(" -> ") default_op ("
-
-		$qwe=preg_replace("/([^&~|()]+)~([^&~|()]+)/", "\\1".$default_op."~\\2", $qwe);
-		$qwe=preg_replace("/\\)~{1,}/", ")".$default_op."~", $qwe);
-		$qwe=preg_replace("/~{1,}\\(/", ($default_op=="|"? "~|(": "&~("), $qwe);
-		$qwe=preg_replace("/\\)([^&~|()]+)/", ")".$default_op."\\1", $qwe);
-		$qwe=preg_replace("/([^&~|()]+)\\(/", "\\1".$default_op."(", $qwe);
-		$qwe=preg_replace("/\\) *\\(/", ")".$default_op."(", $qwe);
-
-		// remove unnesessary boolean operators
-		$qwe=preg_replace("/\\|+/", "|", $qwe);
-		$qwe=preg_replace("/\\&+/", "&", $qwe);
-
-		// remove errornous format of query - ie: '(&', '&)', '(|', '|)', '~&', '~|', '~)'
-		$qwe=preg_replace("/\\(\\&{1,}/", "(", $qwe);
-		$qwe=preg_replace("/\\&{1,}\\)/", ")", $qwe);
-		$qwe=preg_replace("/\\~{1,}\\)/", ")", $qwe);
-		$qwe=preg_replace("/\\(\\|{1,}/", "(", $qwe);
-		$qwe=preg_replace("/\\|{1,}\\)/", ")", $qwe);
-		$qwe=preg_replace("/\\~{1,}\\&{1,}/", "&", $qwe);
-		$qwe=preg_replace("/\\~{1,}\\|{1,}/", "|", $qwe);
-
-		$qwe=preg_replace("/\\(\\)/", "", $qwe);
-		$qwe=preg_replace("/^[|&]{1,}/", "", $qwe);
-		$qwe=preg_replace("/[|&~]{1,}\$/", "", $qwe);
-		$qwe=preg_replace("/\\|\\&/", "&", $qwe);
-		$qwe=preg_replace("/\\&\\|/", "|", $qwe);
-
-		// remove unnesessary boolean operators
-		$qwe=preg_replace("/\\|+/", "|", $qwe);
-		$qwe=preg_replace("/\\&+/", "&", $qwe);
-
-		return($qwe);
-	}
-
-	public function PrepareQuery($q)
-	{
-		$state = 0;
-		$qu = "";
-		$n = 0;
-		$this->error = "";
-
-		$t=strtok($q," ");
-
-		while (($t!="") && ($this->error==""))
-		{
-			switch ($state)
-			{
-			case 0:
-				if(($t=="||") || ($t=="&&") || ($t==")"))
-				{
-					$this->error=GetMessage("FILTER_ERROR2")." ".$t;
-					$this->errorno=2;
-				}
-				elseif($t=="!")
-				{
-					$state=0;
-					$qu="$qu NOT ";
-					break;
-				}
-				elseif($t=="(")
-				{
-					$n++;
-					$state=0;
-					$qu="$qu(";
-				}
-				else
-				{
-					$state=1;
-					$qu="$qu ".$this->BuildWhereClause($t)." ";
-				}
-				break;
-
-			case 1:
-				if(($t=="||") || ($t=="&&"))
-				{
-					$state=0;
-					if($t=='||') $qu="$qu OR ";
-					else $qu="$qu AND ";
-				}
-				elseif($t==")")
-				{
-					$n--;
-					$state=1;
-					$qu="$qu)";
-				}
-				else
-				{
-					$this->error=GetMessage("FILTER_ERROR2")." ".$t;
-					$this->errorno=2;
-				}
-				break;
-			}
-			$t=strtok(" ");
-		}
-
-		if(($this->error=="") && ($n != 0))
-		{
-			$this->error=GetMessage("FILTER_ERROR1");
-			$this->errorno=1;
-		}
-		if($this->error!="") return 0;
-
-		return $qu;
-	}
-}
-
 class CAllLang extends CAllSite
 {
 }
 
-class CApplicationException
-{
-	var $msg, $id;
-	public function __construct($msg, $id = false)
-	{
-		$this->msg = $msg;
-		$this->id = $id;
-	}
-
-	/** @deprecated */
-	public function CApplicationException($msg, $id = false)
-	{
-		self::__construct($msg, $id);
-	}
-
-	public function GetString()
-	{
-		return $this->msg;
-	}
-
-	public function GetID()
-	{
-		return $this->id;
-	}
-
-	public function __toString()
-	{
-		return $this->GetString();
-	}
-}
-
-class CAdminException extends CApplicationException
-{
-	var $messages;
-
-	public function __construct($messages, $id = false)
-	{
-		//array("id"=>"", "text"=>""), array(...), ...
-		$this->messages = $messages;
-		$s = "";
-		foreach($this->messages as $msg)
-			$s .= $msg["text"]."<br>";
-		parent::__construct($s, $id);
-	}
-
-	public function GetMessages()
-	{
-		return $this->messages;
-	}
-
-	public function AddMessage($message)
-	{
-		$this->messages[]=$message;
-		$this->msg.=$message["text"]."<br>";
-	}
-}
-
-class CCaptchaAgent
-{
-	public static function DeleteOldCaptcha($sec = 3600)
-	{
-		global $DB;
-
-		$sec = intval($sec);
-
-		$time = $DB->CharToDateFunction(GetTime(time()-$sec,"FULL"));
-		if (!$DB->Query("DELETE FROM b_captcha WHERE DATE_CREATE <= ".$time))
-			return false;
-
-		return "CCaptchaAgent::DeleteOldCaptcha(".$sec.");";
-	}
-}
-
-class CDebugInfo
-{
-	var $start_time;
-	/** @var \Bitrix\Main\Diag\SqlTracker */
-	var $savedTracker = null;
-	var $cache_size = 0;
-	var $arCacheDebugSave;
-	var $arResult;
-	static $level = 0;
-	var $is_comp = true;
-	var $index = 0;
-
-	public function __construct($is_comp = true)
-	{
-		$this->is_comp = $is_comp;
-	}
-
-	public function Start()
-	{
-		/** @global CMain $APPLICATION */
-		global $APPLICATION;
-		/** @global CDatabase $DB */
-		global $DB;
-		/** @global int $CACHE_STAT_BYTES */
-		global $CACHE_STAT_BYTES;
-
-		if($this->is_comp)
-			self::$level++;
-
-		$this->start_time = getmicrotime();
-		if($DB->ShowSqlStat)
-		{
-			$application = \Bitrix\Main\Application::getInstance();
-			$connection  = $application->getConnection();
-			$this->savedTracker = $application->getConnection()->getTracker();
-			$connection->setTracker(null);
-			$connection->startTracker();
-			$DB->sqlTracker = $connection->getTracker();
-		}
-
-		if(\Bitrix\Main\Data\Cache::getShowCacheStat())
-		{
-			$this->arCacheDebugSave = \Bitrix\Main\Diag\CacheTracker::getCacheTracking();
-			\Bitrix\Main\Diag\CacheTracker::setCacheTracking(array());
-			$this->cache_size = \Bitrix\Main\Diag\CacheTracker::getCacheStatBytes();
-			\Bitrix\Main\Diag\CacheTracker::setCacheStatBytes($CACHE_STAT_BYTES = 0);
-		}
-		$this->arResult = array();
-		$this->index = count($APPLICATION->arIncludeDebug);
-		$APPLICATION->arIncludeDebug[$this->index] = &$this->arResult;
-	}
-
-	public function Stop($rel_path="", $path="", $cache_type="")
-	{
-		/** @global CMain $APPLICATION */
-		global $APPLICATION;
-		/** @global CDatabase $DB */
-		global $DB;
-		/** @global int $CACHE_STAT_BYTES */
-		global $CACHE_STAT_BYTES;
-
-		if($this->is_comp)
-			self::$level--;
-
-		$this->arResult = array(
-			"PATH" => $path,
-			"REL_PATH" => $rel_path,
-			"QUERY_COUNT" => 0,
-			"QUERY_TIME" => 0,
-			"QUERIES" => array(),
-			"TIME" => (getmicrotime() - $this->start_time),
-			"BX_STATE" => $GLOBALS["BX_STATE"],
-			"CACHE_TYPE" => $cache_type,
-			"CACHE_SIZE" => \Bitrix\Main\Data\Cache::getShowCacheStat() ? \Bitrix\Main\Diag\CacheTracker::getCacheStatBytes() : 0,
-			"LEVEL" => self::$level,
-		);
-
-		if($this->savedTracker)
-		{
-			$application = \Bitrix\Main\Application::getInstance();
-			$connection  = $application->getConnection();
-			$sqlTracker  = $connection->getTracker();
-
-			if($sqlTracker->getCounter() > 0)
-			{
-				$this->arResult["QUERY_COUNT"] = $sqlTracker->getCounter();
-				$this->arResult["QUERY_TIME"] = $sqlTracker->getTime();
-				$this->arResult["QUERIES"] = $sqlTracker->getQueries();
-			}
-
-			$connection->setTracker($this->savedTracker);
-			$DB->sqlTracker = $connection->getTracker();
-			$this->savedTracker = null;
-		}
-
-		if(\Bitrix\Main\Data\Cache::getShowCacheStat())
-		{
-			$this->arResult["CACHE"] = \Bitrix\Main\Diag\CacheTracker::getCacheTracking();
-			\Bitrix\Main\Diag\CacheTracker::setCacheTracking($this->arCacheDebugSave);
-			\Bitrix\Main\Diag\CacheTracker::setCacheStatBytes($CACHE_STAT_BYTES = $this->cache_size);
-		}
-	}
-
-	public function Output($rel_path="", $path="", $cache_type="")
-	{
-		$this->Stop($rel_path, $path, $cache_type);
-		$result = "";
-
-		$result .= '<div class="bx-component-debug">';
-		$result .= ($rel_path<>""? $rel_path.": ":"")."<nobr>".round($this->arResult["TIME"], 4)." ".GetMessage("main_incl_file_sec")."</nobr>";
-
-		if($this->arResult["QUERY_COUNT"])
-		{
-			$result .= '; <a title="'.GetMessage("main_incl_file_sql_stat").'" href="javascript:BX_DEBUG_INFO_'.$this->index.'.Show(); BX_DEBUG_INFO_'.$this->index.'.ShowDetails(\'BX_DEBUG_INFO_'.$this->index.'_1\'); ">'.GetMessage("main_incl_file_sql").' '.($this->arResult["QUERY_COUNT"]).' ('.round($this->arResult["QUERY_TIME"], 4).' '.GetMessage("main_incl_file_sec").')</a>';
-		}
-		if($this->arResult["CACHE_SIZE"])
-		{
-			if ($this->arResult["CACHE"] && !empty($this->arResult["CACHE"]))
-				$result .= '<nobr>; <a href="javascript:BX_DEBUG_INFO_CACHE_'.$this->index.'.Show(); BX_DEBUG_INFO_CACHE_'.$this->index.'.ShowDetails(\'BX_DEBUG_INFO_CACHE_'.$this->index.'_0\');">'.GetMessage("main_incl_cache_stat").'</a> '.CFile::FormatSize($this->arResult["CACHE_SIZE"], 0).'</nobr>';
-			else
-				$result .= "<nobr>; ".GetMessage("main_incl_cache_stat")." ".CFile::FormatSize($this->arResult["CACHE_SIZE"], 0)."</nobr>";
-		}
-		$result .= "</div>";
-
-		return $result;
-	}
-}

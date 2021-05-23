@@ -23,16 +23,16 @@ let nodeFile = (function ()
 		},
 		show: function ()
 		{
-			let url = this.node.getAttribute('data-url');
+			const url = this.node.getAttribute('data-url');
+			const description = this.node.textContent.trim();
 
 			if (this.isImage)
 			{
-				let description = this.node.textContent.trim();
 				BXMobileApp.UI.Photo.show({
-					'photos': [
+					photos: [
 						{
-							'url': url,
-							'description': description
+							url: url,
+							description: description
 						}
 					]
 				});
@@ -40,7 +40,8 @@ let nodeFile = (function ()
 			else
 			{
 				BXMobileApp.UI.Document.open({
-					'url': url
+					url: url,
+					filename: description
 				});
 
 			}

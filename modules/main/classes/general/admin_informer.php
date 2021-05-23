@@ -234,7 +234,7 @@ class CAdminInformer
 			$cModules = COption::GetOptionString("main", "mp_modules_date", "");
 			$arModules = array();
 			if($cModules <> '')
-				$arModules = unserialize($cModules);
+				$arModules = unserialize($cModules, ['allowed_classes' => false]);
 
 			$mCnt = count($arModules);
 			if($mCnt > 0)

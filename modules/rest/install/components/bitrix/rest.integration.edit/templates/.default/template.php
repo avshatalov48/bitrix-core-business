@@ -22,11 +22,13 @@ Loc::loadMessages(__FILE__);
 				<div class="integration-description-text">
 					<p><?=($arResult['DESCRIPTION_FULL']) ? : $arResult['DESCRIPTION'];?></p>
 				</div>
-				<? if ($arResult['ERROR_MESSAGE']): ?>
-					<div class="ui-alert ui-alert-danger">
-						<span class="ui-alert-message"><?=$arResult['ERROR_MESSAGE']?></span>
-					</div>
-				<? endif; ?>
+				<?php foreach ($arResult['ERROR_MESSAGE'] as $error):?>
+					<?php if ($error):?>
+						<div class="ui-alert ui-alert-danger">
+							<span class="ui-alert-message"><?=$error?></span>
+						</div>
+					<?php endif?>
+				<?php endforeach?>
 				<div id="rest-integration-form-error"></div>
 				<? if (in_array('INCOMING', $arResult['BLOCK_LIST'])): ?>
 					<div class="integration-row">

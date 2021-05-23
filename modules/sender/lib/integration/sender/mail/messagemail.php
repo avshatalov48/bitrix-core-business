@@ -495,7 +495,7 @@ class MessageMail implements Message\iBase, Message\iMailable
 			$headerList = array();
 			// add headers from module options
 			$optionHeaders = Option::get('sender', 'mail_headers', '');
-			$optionHeaders = !empty($optionHeaders) ? unserialize($optionHeaders) : array();
+			$optionHeaders = !empty($optionHeaders) ? unserialize($optionHeaders, ['allowed_classes' => false]) : array();
 			foreach ($optionHeaders as $optionHeader)
 			{
 				$optionHeader = trim($optionHeader);

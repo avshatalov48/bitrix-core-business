@@ -7,4 +7,5 @@ $MESS ['CT_BLL_TOOLBAR_ADD_NEW'] = "Создать новый";
 $MESS ['CT_BLL_TOOLBAR_SHOW_LIVE_FEED'] = "Показать в Живой ленте";
 $MESS ['CT_BLL_TOOLBAR_ADD_DEFAULT'] = "Создать стандартные процессы";
 $MESS ['CT_BLL_TOOLBAR_TRANSITION_PROCESSES'] = "Каталог Бизнес процессов";
+$MESS ['CT_BLL_TOOLBAR_SHOW_LIVE_FEED_NEW'] = "Показать в Новостях";
 ?>

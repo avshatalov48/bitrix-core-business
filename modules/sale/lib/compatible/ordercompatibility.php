@@ -2476,24 +2476,29 @@ class OrderCompatibility extends Internals\EntityCompatibility
 			return $result;
 		}
 
-		/** @var Sale\PaymentCollection $paymentCollection */
-		if ($paymentCollection = $order->getPaymentCollection())
+		/** @var Sale\Payment $payment */
+		foreach ($order->getPaymentCollection() as $payment)
 		{
-			/** @var Sale\Payment $payment */
-			foreach ($paymentCollection as $payment)
+			if ($payment->isPaid())
 			{
-				if ($payment->isPaid())
-				{
-					$payment->setPaid('N');
-				}
+				$payment->setPaid('N');
 			}
-			/** @var Sale\Result $r */
-			$r = $order->save();
-			if (!$r->isSuccess())
+		}
+
+		/** @var Sale\Shipment $shipment */
+		foreach ($order->getShipmentCollection() as $shipment)
+		{
+			if ($shipment->isShipped())
 			{
-				$result->addErrors($r->getErrors());
-				return $result;
+				$shipment->setField('DEDUCTED', 'N');
 			}
+		}
+
+		$r = $order->save();
+		if (!$r->isSuccess())
+		{
+			$result->addErrors($r->getErrors());
+			return $result;
 		}
 
 		try

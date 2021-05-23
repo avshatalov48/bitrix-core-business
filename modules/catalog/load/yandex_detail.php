@@ -513,7 +513,7 @@ HTML form
 		{
 			$xmlData = base64_decode($_REQUEST['XML_DATA']);
 			if (CheckSerializedData($xmlData))
-				$arXmlData = unserialize($xmlData);
+				$arXmlData = unserialize($xmlData, ['allowed_classes' => false]);
 			unset($xmlData);
 		}
 

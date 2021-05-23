@@ -10,6 +10,12 @@ $arActivityDescription = array(
 	"CATEGORY" => array(
 		"ID" => "other",
 	),
+	'FILTER' => array(
+		'EXCLUDE' => array(
+			['crm', 'Bitrix\Crm\Integration\BizProc\Document\Dynamic'],
+			['crm', 'Bitrix\Crm\Integration\BizProc\Document\Quote'],
+		),
+	),
 	"ROBOT_SETTINGS" => array(
 		'CATEGORY' => 'other'
 	),

@@ -49,7 +49,7 @@ class CCalendarLiveFeed
 
 		if ($arFields['~PARAMS'] != "")
 		{
-			$arFields['~PARAMS'] = unserialize($arFields['~PARAMS']);
+			$arFields['~PARAMS'] = unserialize($arFields['~PARAMS'], ['allowed_classes' => false]);
 			if (!is_array($arFields['~PARAMS']))
 				$arFields['~PARAMS'] = [];
 		}
@@ -166,7 +166,7 @@ class CCalendarLiveFeed
 		{
 			if ($arLog['PARAMS'] != "")
 			{
-				$arLog['PARAMS'] = unserialize($arLog['PARAMS']);
+				$arLog['PARAMS'] = unserialize($arLog['PARAMS'], ['allowed_classes' => false]);
 				if (!is_array($arLog['PARAMS']))
 					$arLog['PARAMS'] = [];
 			}
@@ -376,7 +376,7 @@ class CCalendarLiveFeed
 			{
 				if($arRes['PARAMS'] != "")
 				{
-					$arRes['PARAMS'] = unserialize($arRes['PARAMS']);
+					$arRes['PARAMS'] = unserialize($arRes['PARAMS'], ['allowed_classes' => false]);
 					if(!is_array($arRes['PARAMS']))
 						$arRes['PARAMS'] = [];
 				}
@@ -794,7 +794,7 @@ class CCalendarLiveFeed
 				{
 					if(!isset($arFields['~RELATIONS']) || !is_array($arFields['~RELATIONS']))
 					{
-						$arFields['~RELATIONS'] = unserialize($arFields['RELATIONS']);
+						$arFields['~RELATIONS'] = unserialize($arFields['RELATIONS'], ['allowed_classes' => false]);
 					}
 					if (is_array($arFields['~RELATIONS']) && array_key_exists('COMMENT_XML_ID', $arFields['~RELATIONS']) && $arFields['~RELATIONS']['COMMENT_XML_ID'])
 					{
@@ -823,7 +823,7 @@ class CCalendarLiveFeed
 				{
 					if ($arRes['PARAMS'] != "")
 					{
-						$arRes['PARAMS'] = unserialize($arRes['PARAMS']);
+						$arRes['PARAMS'] = unserialize($arRes['PARAMS'], ['allowed_classes' => false]);
 						if (!is_array($arRes['PARAMS']))
 							$arRes['PARAMS'] = [];
 					}

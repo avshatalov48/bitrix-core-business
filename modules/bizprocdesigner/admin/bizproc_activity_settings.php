@@ -140,13 +140,7 @@ if ($_POST["save"] == "Y" && check_bitrix_sessid())
 
 function PHPToHiddens($ob, $name)
 {
-	global $APPLICATION;
-	if (mb_strtolower(LANG_CHARSET) != 'utf-8')
-	{
-		$ob = $APPLICATION->ConvertCharsetArray($ob, LANG_CHARSET, 'utf-8');
-		$ob = CBPHelper::decodeArrayKeys($ob, true);
-	}
-	$ob = json_encode($ob);
+	$ob = \Bitrix\Main\Web\Json::encode($ob);
 	return '<input type="hidden" name="'.htmlspecialcharsbx($name).'" value="'.htmlspecialcharsbx($ob).'">';
 }
 

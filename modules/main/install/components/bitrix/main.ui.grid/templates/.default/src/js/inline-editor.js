@@ -144,12 +144,15 @@ import {EventEmitter} from "main.core.events";
 			const priceObject = value.PRICE || {};
 			fieldChildren.push(this.createMoneyPrice(priceObject));
 
-			const currencyObject = value.CURRENCY || {};
-			currencyObject.DATA = {
-				ITEMS: editObject.CURRENCY_LIST
-			};
-			currencyObject.HTML_ENTITY = editObject.HTML_ENTITY || false;
-			fieldChildren.push(this.createMoneyCurrency(currencyObject));
+			if ((BX.type.isArray(editObject.CURRENCY_LIST) && editObject.CURRENCY_LIST.length > 0))
+			{
+				const currencyObject = value.CURRENCY || {};
+				currencyObject.DATA = {
+					ITEMS: editObject.CURRENCY_LIST
+				};
+				currencyObject.HTML_ENTITY = editObject.HTML_ENTITY || false;
+				fieldChildren.push(this.createMoneyCurrency(currencyObject));
+			}
 
 			if (BX.type.isNotEmptyObject(value.HIDDEN))
 			{
@@ -463,7 +466,6 @@ import {EventEmitter} from "main.core.events";
 		{
 			if (event.code === 'Enter')
 			{
-				event.stopPropagation();
 				event.preventDefault();
 
 				var saveButton = BX.Grid.Utils.getBySelector(this.parent.getContainer(), '#grid_save_button > button', true);

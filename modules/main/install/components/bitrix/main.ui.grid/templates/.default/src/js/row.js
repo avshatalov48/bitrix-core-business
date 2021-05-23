@@ -801,6 +801,16 @@
 			return BX.data(this.getCellByIndex(index), 'name');
 		},
 
+		resetEditData: function()
+		{
+			this.editData = null;
+		},
+
+		setEditData: function(editData)
+		{
+			this.editData = editData;
+		},
+
 		getEditData: function()
 		{
 			if (this.editData === null)
@@ -1166,6 +1176,11 @@
 		prependTo: function(target)
 		{
 			BX.Dom.prepend(this.getNode(), target);
+		},
+
+		appendTo: function(target)
+		{
+			BX.Dom.append(this.getNode(), target);
 		},
 
 		setId: function(id)

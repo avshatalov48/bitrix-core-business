@@ -59,7 +59,7 @@ abstract class Base implements IErrorable
 	{
 		if ($this->isAvailableFilter($key))
 		{
-			$this->filters[$key] = $this->normaliseFilterValue($value);
+			$this->filters[$key][] = $this->normaliseFilterValue($value);
 			return true;
 		}
 		else
@@ -107,27 +107,42 @@ abstract class Base implements IErrorable
 		$filters = $this->getFilters();
 		if (!empty($filters))
 		{
-			foreach ($entities as $key => $entity)
-			{
-				if (in_array($key, $filteredEntityIds))
-				{
-					$this->processAvailableRelations($entity);
-					$result[] = $entity;
-				}
-			}
+			$result = $this->applyFilters($entities, $filteredEntityIds);
 		}
-		else 
+		else
 		{
 			foreach ($entities as $key => $entity)
 			{
-					$this->processAvailableRelations($entity);
-					$result[] = $entity;
+				$this->processAvailableRelations($entity);
+				$result[] = $entity;
 			}
 		}
 		$this->sortResults($result);
 		$this->setResults($result);
 
 		return $this;
+	}
+
+	/**
+	 * @param array $entities
+	 * @param array $filteredEntityIds
+	 *
+	 * @return array
+	 */
+	protected function applyFilters($entities, $filteredEntityIds)
+	{
+		$result = [];
+
+		foreach ($entities as $key => $entity)
+		{
+			if (in_array($key, $filteredEntityIds))
+			{
+				$this->processAvailableRelations($entity);
+				$result[] = $entity;
+			}
+		}
+
+		return $result;
 	}
 
 	protected function sortResults(&$result)
@@ -147,11 +162,14 @@ abstract class Base implements IErrorable
 			if ($filterType !== 'primary')
 			{
 				$newFilterEntityIds = array();
-				foreach ($filterValues as $filterValue)
+				foreach ($filterValues as $filterKey)
 				{
-					if (isset($indices[$filterType][$filterValue]))
+					foreach ($filterKey as $filterValue)
 					{
-						$newFilterEntityIds = array_merge($newFilterEntityIds, $indices[$filterType][$filterValue]);
+						if (isset($indices[$filterType][$filterValue]))
+						{
+							$newFilterEntityIds = array_merge($newFilterEntityIds, $indices[$filterType][$filterValue]);
+						}
 					}
 				}
 				if (!empty($filteredEntityIds))
@@ -167,17 +185,16 @@ abstract class Base implements IErrorable
 			{
 				if (!empty($filteredEntityIds))
 				{
-					$filteredEntityIds = array_intersect($filteredEntityIds, $filterValues);
+					$filteredEntityIds = array_intersect($filteredEntityIds, $filterValues[0]);
 				}
 				else
 				{
-					$filteredEntityIds = $filterValues;
+					$filteredEntityIds = $filterValues[0];
 				}
 			}
 		}
 		return array_unique($filteredEntityIds);
 	}
-
 
 	/**
 	 * @return array

@@ -142,6 +142,30 @@ if(typeof(BX.UI.ComponentAjax) === "undefined")
 			this._getParameters = BX.merge(this._getParameters, params);
 		}
 	};
+	BX.UI.ComponentAjax.prototype._prepareFormData = function(data, formData, parent)
+	{
+		for (var dataElement in data)
+		{
+			var dataElementParent = (parent !== '') ? parent + '[' + dataElement + ']' : dataElement;
+
+			if (BX.type.isPlainObject(data[dataElement]))
+			{
+				this._prepareFormData(data[dataElement], formData, dataElementParent);
+			}
+			else
+			{
+				formData.append(dataElementParent, data[dataElement]);
+			}
+		}
+	}
+	BX.UI.ComponentAjax.prototype.makeFormData = function(data)
+	{
+		var formData = new FormData();
+
+		this._prepareFormData(data, formData, '');
+
+		return formData;
+	};
 	BX.UI.ComponentAjax.prototype.doSubmit = function(options)
 	{
 		var formData = BX.ajax.prepareForm(this._elementNode);
@@ -157,13 +181,15 @@ if(typeof(BX.UI.ComponentAjax) === "undefined")
 			}
 		}
 
+		var resultData = formData.filesCount > 0 ? this.makeFormData(formData) : formData;
+
 		BX.ajax.runComponentAction(
 			this._className,
 			this._actionName,
 			{
 				mode: "class",
 				signedParameters: this._signedParameters,
-				data: formData,
+				data: resultData,
 				getParameters: this._getParameters
 			}
 		).then(

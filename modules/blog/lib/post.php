@@ -102,6 +102,9 @@ class PostTable extends Entity\DataManager
 			'CATEGORY_ID' => array(
 				'data_type' => 'string',
 			),
+			'BACKGROUND_CODE' => [
+				'data_type' => 'string'
+			],
 		);
 
 		return $fieldsMap;

@@ -266,9 +266,9 @@ class PathIndexCollection
 								if ($langSettings instanceof Translate\Settings)
 								{
 									$settings = $langSettings->getOptions($relPath);
-									if (!empty($settings['languages']))
+									if (!empty($settings[Translate\Settings::OPTION_LANGUAGES]))
 									{
-										$nodeData['OBLIGATORY_LANGS'] = implode(',', $settings['languages']);
+										$nodeData['OBLIGATORY_LANGS'] = implode(',', $settings[Translate\Settings::OPTION_LANGUAGES]);
 									}
 								}
 
@@ -401,9 +401,9 @@ class PathIndexCollection
 							if ($langSettings instanceof Translate\Settings)
 							{
 								$settings = $langSettings->getOptions($relPath);
-								if (!empty($settings['languages']))
+								if (!empty($settings[Translate\Settings::OPTION_LANGUAGES]))
 								{
-									$nodeData['OBLIGATORY_LANGS'] = implode(',', $settings['languages']);
+									$nodeData['OBLIGATORY_LANGS'] = implode(',', $settings[Translate\Settings::OPTION_LANGUAGES]);
 								}
 							}
 
@@ -440,10 +440,10 @@ class PathIndexCollection
 		{
 			/** @var Translate\Settings $langSettings */
 			$settings = $langSettings->getOptions('*');
-			if (!empty($settings) && !empty($settings['languages']))
+			if (!empty($settings) && !empty($settings[Translate\Settings::OPTION_LANGUAGES]))
 			{
 				Index\Internals\PathIndexTable::bulkUpdate(
-					['OBLIGATORY_LANGS' => implode(',', $settings['languages'])],
+					['OBLIGATORY_LANGS' => implode(',', $settings[Translate\Settings::OPTION_LANGUAGES])],
 					[
 						'LOGIC' => 'OR',
 						'=PATH' => $relPath,
@@ -453,11 +453,11 @@ class PathIndexCollection
 			}
 			foreach ($langSettings as $settingPath => $settings)
 			{
-				if (mb_strpos($settingPath, '*') !== false && $settingPath !== '*' && !empty($settings['languages']))
+				if (strpos($settingPath, '*') !== false && $settingPath !== '*' && !empty($settings['languages']))
 				{
 					$settingPath = str_replace('*', '', $settingPath);
 					Index\Internals\PathIndexTable::bulkUpdate(
-						['OBLIGATORY_LANGS' => implode(',', $settings['languages'])],
+						['OBLIGATORY_LANGS' => implode(',', $settings[Translate\Settings::OPTION_LANGUAGES])],
 						[
 							'LOGIC' => 'OR',
 							'=PATH' => $relPath .'/#LANG_ID#/'. $settingPath,
@@ -468,10 +468,10 @@ class PathIndexCollection
 			}
 			foreach ($langSettings as $settingPath => $settings)
 			{
-				if (mb_substr($settingPath, -4) === '.php' && !empty($settings['languages']))
+				if (mb_substr($settingPath, -4) === '.php' && !empty($settings[Translate\Settings::OPTION_LANGUAGES]))
 				{
 					Index\Internals\PathIndexTable::bulkUpdate(
-						['OBLIGATORY_LANGS' => implode(',', $settings['languages'])],
+						['OBLIGATORY_LANGS' => implode(',', $settings[Translate\Settings::OPTION_LANGUAGES])],
 						['=PATH' => $relPath .'/#LANG_ID#/'. $settingPath]
 					);
 				}

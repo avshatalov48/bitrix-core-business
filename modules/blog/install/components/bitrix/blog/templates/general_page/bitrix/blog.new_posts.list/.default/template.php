@@ -7,7 +7,7 @@ endif;
 ?>
 <div id="blog-new-posts-content">
 <?
-if(count($arResult["POSTS"])>0)
+if(is_array($arResult["POSTS"]) && count($arResult["POSTS"])>0)
 {
 	foreach($arResult["POSTS"] as $ind => $CurPost)
 	{

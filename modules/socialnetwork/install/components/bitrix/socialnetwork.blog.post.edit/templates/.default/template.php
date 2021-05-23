@@ -601,7 +601,7 @@ HTML;
 				if (
 					isset($arParams["PAGE_ID"])
 					&& $arParams["PAGE_ID"] == "user_blog_post_edit_profile"
-					&& $arResult["perms"] = BLOG_PERMS_FULL
+					&& $arResult["perms"] === BLOG_PERMS_FULL
 				)
 				{
 					?><input type="hidden" name="DEST_CODES[]" value="UP<?=intval($arParams['USER_ID'])?>" /><?

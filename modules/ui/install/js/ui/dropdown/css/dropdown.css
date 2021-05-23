@@ -243,7 +243,21 @@
 	transition: background .3s;
 	cursor: pointer;
 }
-
+.ui-dropdown-item-node-with-icon {
+	padding-left: 55px;
+	position: relative;
+}
+.ui-dropdown-item-icon {
+	width: 24px;
+	height: 24px;
+	display: inline-block;
+	position: absolute;
+	border-radius: 50%;
+	left: 22px;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: contain;
+}
 .ui-dropdown-alert-name {
 	display: block;
 	margin: 0 0 15px 0;

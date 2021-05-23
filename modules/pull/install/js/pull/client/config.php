@@ -6,7 +6,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 
 return array(
 	'js' => Array(
-		'/bitrix/js/pull/client/pull.client.js',
+		'./pull.client.js',
 	),
 	'skip_core' => true,
 	'oninit' => function()
@@ -33,7 +33,6 @@ return array(
 				)
 			);
 		}
-
 	},
 	'rel' => array('pull.protobuf', 'rest.client', 'promise')
 );

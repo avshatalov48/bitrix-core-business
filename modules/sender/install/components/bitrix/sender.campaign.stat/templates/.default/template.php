@@ -17,8 +17,8 @@ use Bitrix\Main\Web\Json;
 			'chainId' => $arResult['CHAIN_ID'],
 			'postingId' => $arResult['POSTING_ID'],
 			'posting' => $arResult['DATA']['posting'],
-			'chainList' => $arResult['CHAIN_LIST'],
-			'clickList' => $arResult['DATA']['clickList'],
+			'chainList' => $arResult['CHAIN_LIST'] ?? [],
+			'clickList' => $arResult['DATA']['clickList'] ?? [],
 			'mess' => array(
 				'allPostings' => Loc::getMessage('SENDER_MAILING_STATS_POSTINGS_ALL'),
 				'readByTimeBalloon' => Loc::getMessage('SENDER_MAILING_STATS_READ_BY_TIME_CHART_BALLOON'),

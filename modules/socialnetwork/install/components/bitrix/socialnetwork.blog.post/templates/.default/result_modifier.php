@@ -103,3 +103,9 @@ elseif (
 		$arResult['TOP_RATING_DATA'] = $ratingData[$arParams["LOG_ID"]];
 	}
 }
+
+if (!empty($arResult['Post']['BACKGROUND_CODE']))
+{
+	$arResult['Post']['IS_IMPORTANT'] = false;
+	$arResult['GRATITUDE'] = [];
+}

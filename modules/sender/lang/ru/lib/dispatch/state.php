@@ -6,6 +6,7 @@ $MESS["SENDER_DISPATCH_STATE_S"] = "Отправляется";
 $MESS["SENDER_DISPATCH_STATE1_W"] = "В работе";
 $MESS["SENDER_DISPATCH_STATE_P"] = "На паузе";
 $MESS["SENDER_DISPATCH_STATE_Y"] = "Отправлена";
+$MESS["SENDER_DISPATCH_STATE_M"] = "Идет подготовка сегмента";
 $MESS["SENDER_DISPATCH_STATE_X"] = "Отменена";
 $MESS["SENDER_DISPATCH_STATE_T"] = "Запланирована";
 $MESS["SENDER_DISPATCH_STATE_H"] = "Приостановлена";

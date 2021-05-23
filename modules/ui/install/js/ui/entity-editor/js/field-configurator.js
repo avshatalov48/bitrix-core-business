@@ -34,7 +34,16 @@ if(typeof BX.UI.EntityConfigurationManager === "undefined")
 			},
 			openCreationPageUrl: function(typeId)
 			{
-				window.open(this.getCreationPageUrl(typeId));
+				var event = new BX.Event.BaseEvent({
+					data: {
+						isCanceled: false
+					}
+				});
+				BX.Event.EventEmitter.emit('BX.UI.EntityConfigurationManager:onCreateClick', event);
+				if (!event.getData().isCanceled)
+				{
+					window.open(this.getCreationPageUrl(typeId));
+				}
 			},
 			hasExternalForm: function(typeId)
 			{

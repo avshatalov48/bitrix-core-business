@@ -6,7 +6,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 
 return [
 	'js' => [
-		'/bitrix/js/ui/vue/router/dist/vue.router.bitrix.bundle.js',
+		'./dist/router.bundle.js',
 	],
 	'rel' => [
 		'main.polyfill.core',

@@ -8,7 +8,7 @@
 
 namespace Bitrix\Im\Call;
 
-use Bitrix\ImOpenLines\BasicError;
+use Bitrix\Im\BasicError;
 use Bitrix\Main\Localization\Loc;
 
 class User
@@ -102,7 +102,7 @@ class User
 			self::setError(
 				__METHOD__,
 				'USER_REGISTER_ERROR',
-				Loc::getMessage('IMOL_WIDGET_USER_ERROR_CREATE'),
+				Loc::getMessage('IM_CALL_USER_ERROR_CREATE'),
 				['CODE' => $errorCode, 'MSG' => $errorMessage]
 			);
 
@@ -166,11 +166,6 @@ class User
 			'GENDER' => $userData['PERSONAL_GENDER'],
 			'POSITION' => $userData['WORK_POSITION'],
 		];
-	}
-
-	public static function getDefaultName()
-	{
-		return Loc::getMessage('IMOL_WIDGET_USER_NAME');
 	}
 
 	public static function getPersonalPhoto($avatarUrl = '')

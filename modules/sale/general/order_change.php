@@ -300,9 +300,9 @@ class CAllSaleOrderChange
 			{
 				if (isset($arInfo["FUNCTION"]) && is_callable(array("CSaleOrderChangeFormat", $arInfo["FUNCTION"])))
 				{
-					$dataFields = $data;
+					$dataFields = unserialize($data, ['allowed_classes' => [DateTime::class, \Bitrix\Main\Type\DateTime::class, \Bitrix\Main\Type\Date::class]]);
 
-					if (!(CheckSerializedData($data) && ($dataFields = unserialize($data)) !== false))
+					if ($dataFields === false)
 					{
 						$dataFields = $data;
 					}

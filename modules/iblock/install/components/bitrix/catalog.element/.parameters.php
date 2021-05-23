@@ -11,7 +11,6 @@ use Bitrix\Main\Config\Option,
 if (!Loader::includeModule('iblock'))
 	return;
 $catalogIncluded = Loader::includeModule('catalog');
-$bitrix24Mode = ModuleManager::isModuleInstalled('bitrix24');
 
 $usePropertyFeatures = Iblock\Model\PropertyFeature::isEnabledFeatures();
 
@@ -646,7 +645,10 @@ $arComponentParameters = array(
 		)
 	),
 );
-if ($bitrix24Mode)
+if (
+	ModuleManager::isModuleInstalled('bitrix24')
+	|| (isset($arCurrentValues['LANDING_MODE']) && $arCurrentValues['LANDING_MODE'] === 'Y')
+)
 {
 	unset($arComponentParameters['PARAMETERS']['SET_TITLE']);
 	unset($arComponentParameters['PARAMETERS']['SET_BROWSER_TITLE']);

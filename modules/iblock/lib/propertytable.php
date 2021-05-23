@@ -354,10 +354,19 @@ class PropertyTable extends ORM\Data\DataManager
 	{
 		if (!isset($data['USER_TYPE_SETTINGS_LIST']) && isset($data['USER_TYPE_SETTINGS']))
 		{
-			$result['USER_TYPE_SETTINGS_LIST'] = (is_array($data['USER_TYPE_SETTINGS'])
-				? $data['USER_TYPE_SETTINGS']
-				: unserialize($data['USER_TYPE_SETTINGS'])
-			);
+			$settings = $data['USER_TYPE_SETTINGS'];
+			if (
+				is_string($settings)
+				&& $settings !== ''
+			)
+			{
+				$settings = unserialize($settings, ['allowed_classes' => false]);
+			}
+			if (is_array($settings))
+			{
+				$result['USER_TYPE_SETTINGS_LIST'] = $settings;
+			}
+			unset($settings);
 		}
 	}
 }

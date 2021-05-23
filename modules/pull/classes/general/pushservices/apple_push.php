@@ -243,7 +243,7 @@ class CApplePush extends CPushService
 	public static function shouldBeSent($messageRowData)
 	{
 		$params = $messageRowData["ADVANCED_PARAMS"];
-		return !($params && !$params["senderName"] && $params["senderMessage"]);
+		return !($params && !$params["senderName"] && mb_strlen($params["senderMessage"]) > 0);
 	}
 }
 

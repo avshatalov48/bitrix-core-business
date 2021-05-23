@@ -160,7 +160,7 @@ class Log
 				}
 				if (!empty($tagList))
 				{
-					$content .= ' '.join(' ', $tagList);
+					$content .= ' '.implode(' ', $tagList);
 				}
 			}
 		}

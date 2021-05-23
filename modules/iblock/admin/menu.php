@@ -194,7 +194,7 @@ function _get_sections_menu($arType, $arIBlock, $DEPTH_LEVEL, $SECTION_ID, $arSe
 	while($arSection = $rsSections->Fetch())
 	{
 		$urlElementAdminPage = CIBlock::GetAdminElementListLink($arIBlock["ID"], array("menu" => null, "skip_public" => true));
-		$arSections[0]["more_url"][] = $urlElementAdminPage;
+		$arSections[0]["more_url"][] = $urlElementAdminPage."&find_section_section=".$arSection["ID"]."&SECTION_ID=".$arSection["ID"]."&apply_filter=Y";
 	}
 
 	return $arSections;

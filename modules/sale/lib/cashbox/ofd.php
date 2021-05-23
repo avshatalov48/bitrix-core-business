@@ -14,6 +14,7 @@ use Bitrix\Main;
 abstract class Ofd
 {
 	protected const EVENT_ON_GET_CUSTOM_OFD_HANDLERS = 'OnGetCustomOfdHandlers';
+	private const BX_OFD_PREFIX = 'bx_';
 
 	/**
 	 * @return array
@@ -21,15 +22,7 @@ abstract class Ofd
 	 */
 	public static function getHandlerList()
 	{
-		$handlerList = [
-			'\Bitrix\Sale\Cashbox\FirstOfd' => FirstOfd::getName(),
-			'\Bitrix\Sale\Cashbox\PlatformaOfd' => PlatformaOfd::getName(),
-			'\Bitrix\Sale\Cashbox\YarusOfd' => YarusOfd::getName(),
-			'\Bitrix\Sale\Cashbox\TaxcomOfd' => TaxcomOfd::getName(),
-			'\Bitrix\Sale\Cashbox\OfdruOfd' => OfdruOfd::getName(),
-			'\Bitrix\Sale\Cashbox\TenzorOfd' => TenzorOfd::getName(),
-			'\Bitrix\Sale\Cashbox\ConturOfd' => ConturOfd::getName(),
-		];
+		$handlerList = self::getSystemHandlerList();
 
 		$event = new Main\Event('sale', static::EVENT_ON_GET_CUSTOM_OFD_HANDLERS);
 		$event->send();
@@ -53,6 +46,37 @@ abstract class Ofd
 
 		return $handlerList;
 	}
+	
+	/**
+	 * @return array
+	 */
+	private static function getSystemHandlerList()
+	{
+		return [
+			'\Bitrix\Sale\Cashbox\FirstOfd' => FirstOfd::getName(),
+			'\Bitrix\Sale\Cashbox\PlatformaOfd' => PlatformaOfd::getName(),
+			'\Bitrix\Sale\Cashbox\YarusOfd' => YarusOfd::getName(),
+			'\Bitrix\Sale\Cashbox\TaxcomOfd' => TaxcomOfd::getName(),
+			'\Bitrix\Sale\Cashbox\OfdruOfd' => OfdruOfd::getName(),
+			'\Bitrix\Sale\Cashbox\TenzorOfd' => TenzorOfd::getName(),
+			'\Bitrix\Sale\Cashbox\ConturOfd' => ConturOfd::getName(),
+		];
+	}
+
+	/**
+	 * @return string
+	 */
+	final public static function getCode(): string
+	{
+		$reflectionOfdClass = new \ReflectionClass(static::class);
+		$code = $reflectionOfdClass->getShortName();
+		$systemHandlers = array_keys(self::getSystemHandlerList());
+		if (in_array('\\' . static::class, $systemHandlers))
+		{
+			$code = self::BX_OFD_PREFIX . $code;
+		}
+		return mb_strtolower($code);
+	}
 
 	/**
 	 * @param Cashbox $cashbox
@@ -62,7 +86,9 @@ abstract class Ofd
 	{
 		$handler = $cashbox->getField('OFD');
 		if (class_exists($handler))
+		{
 			return new $handler($cashbox);
+		}
 
 		return null;
 	}

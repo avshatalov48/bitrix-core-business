@@ -14,7 +14,6 @@ import {MobileSyncBanner} from 'calendar.sync.interface';
 export class EventEditForm
 {
 	DOM = {};
-	planner = null;
 	uid = null;
 	sliderId = "calendar:edit-entry-slider";
 	zIndex = 3100;
@@ -430,7 +429,20 @@ export class EventEditForm
 						this.lastUsedSection = params.lastSection;
 						this.formSettings = this.getSettings(params.formSettings || []);
 
-						this.setUserSelectorEntityList(this.formDataValue.attendeesEntityList || params.attendeesEntityList || []);
+						let attendeesEntityList = this.formDataValue.attendeesEntityList
+							|| params.attendeesEntityList
+							|| [];
+
+						if (Type.isArray(attendeesEntityList))
+						{
+							attendeesEntityList.forEach((item) => {
+							if (item.entityId === 'user' && params.userIndex[item.id])
+							{
+								item.entityType = params.userIndex[item.id].EMAIL_USER ? 'email' : 'employee';
+							}
+							});
+						}
+						this.setUserSelectorEntityList(attendeesEntityList);
 
 						this.attendeesPreselectedItems = this.getUserSelectorEntityList().map((item) => {return [item.entityId, item.id]});
 						this.setUserSettings(params.userSettings);
@@ -612,6 +624,22 @@ export class EventEditForm
 			}
 		}
 
+		if (this.DOM.form.hide_guests)
+		{
+			if (this.formDataValue.hideGuests !== undefined)
+			{
+				this.DOM.form.hide_guests.checked = this.formDataValue.hideGuests;
+			}
+			if (this.entry.data && this.entry.data.MEETING)
+			{
+				this.DOM.form.hide_guests.checked = this.entry.data.MEETING.HIDE_GUESTS;
+			}
+			else
+			{
+				this.DOM.form.hide_guests.checked = true; // default value
+			}
+		}
+
 		if (this.DOM.form.allow_invite)
 		{
 			if (this.entry.data)
@@ -630,6 +658,15 @@ export class EventEditForm
 			to: Util.formatDate(entry.to.getTime() + Util.getDayLength() * 10),
 			timezone: entry.getTimezoneFrom(),
 			location: this.locationSelector.getTextValue()
+		}).then(()=>{
+			if (this.hasExternalEmailUsers())
+			{
+				this.showHideGuestsOption();
+			}
+			else
+			{
+				this.hideHideGuestsOption();
+			}
 		});
 	}
 
@@ -942,9 +979,7 @@ export class EventEditForm
 		});
 
 		this.userTagSelector.renderTo(this.DOM.userSelectorWrap);
-		//this.DOM.moreOuterWrap = BX(this.id + '_more_outer_wrap');
-		//this.DOM.moreLink = BX.adjust(BX(this.id + '_more'), {events: {click: BX.delegate(function(){BX.toggleClass(this.DOM.moreWrap, 'collapse');}, this)}});
-		//this.DOM.moreWrap = BX(this.id + '_more_wrap');
+		this.DOM.hideGuestsWrap = this.DOM.content.querySelector('.calendar-hide-members-wrap');
 	}
 
 	handleUserSelectorChanges()
@@ -954,7 +989,8 @@ export class EventEditForm
 			this.planner.show();
 			this.planner.showLoader();
 
-			this.setUserSelectorEntityList(this.userTagSelector.getTags().map((item) => {
+			const selectedItems = this.userTagSelector.getDialog().getSelectedItems();
+			this.setUserSelectorEntityList(selectedItems.map((item) => {
 				return {
 					entityId: item.entityId,
 					id: item.id,
@@ -969,6 +1005,26 @@ export class EventEditForm
 		return !!this.getUserSelectorEntityList().find((item) => {return item.entityType === 'email';});
 	}
 
+	showHideGuestsOption()
+	{
+		this.DOM.hideGuestsWrap.style.display = '';
+		const hideGuestsHint = this.DOM.hideGuestsWrap.querySelector('.calendar-hide-members-helper');
+		if (Type.isElementNode(hideGuestsHint))
+		{
+			BX.UI.Hint.initNode(hideGuestsHint);
+		}
+	}
+
+	hideHideGuestsOption()
+	{
+		this.DOM.hideGuestsWrap.style.display = 'none';
+	}
+
+	setHideGuestsValue(hideGuests = true)
+	{
+		this.hideGuests = hideGuests;
+	}
+
 	initPlanner(uid)
 	{
 		this.DOM.plannerOuterWrap = this.DOM.content.querySelector(`#${uid}_planner_outer_wrap`);
@@ -979,6 +1035,7 @@ export class EventEditForm
 		});
 
 		this.planner.subscribe('onDateChange', this.handlePlannerSelectorChanges.bind(this));
+		this.planner.subscribe('onExpandTimeline', this.handleExpandPlannerTimeline.bind(this));
 
 		this.planner.show();
 		this.planner.showLoader();
@@ -1019,7 +1076,6 @@ export class EventEditForm
 								}
 							});
 						}
-
 						let dateTime = this.dateTimeControl.getValue();
 						this.planner.update(
 							response.data.entries,
@@ -1027,6 +1083,14 @@ export class EventEditForm
 						);
 						this.planner.updateSelector(dateTime.from, dateTime.to, dateTime.fullDay);
 
+						if (this.hasExternalEmailUsers())
+						{
+							this.showHideGuestsOption();
+						}
+						else
+						{
+							this.hideHideGuestsOption();
+						}
 						resolve(response);
 					},
 					(response) => {resolve(response);}
@@ -1458,6 +1522,26 @@ export class EventEditForm
 				to: data.dateTo
 			});
 			//this.checkLocationAccessibility();
+		}
+	}
+
+	handleExpandPlannerTimeline(event)
+	{
+		if (event instanceof BaseEvent)
+		{
+			let data = event.getData();
+			if (data.reload)
+			{
+				//this.refreshPlanner();
+				let dateTime = this.dateTimeControl.getValue();
+				this.loadPlannerData({
+					entityList: this.getUserSelectorEntityList(),
+					from: Util.formatDate(data.dateFrom),
+					to: Util.formatDate(data.dateTo),
+					timezone: dateTime.timezoneFrom,
+					location: this.locationSelector.getTextValue()
+				});
+			}
 		}
 	}
 

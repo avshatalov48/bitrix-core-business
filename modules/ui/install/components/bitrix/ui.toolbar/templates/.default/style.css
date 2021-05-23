@@ -78,11 +78,10 @@
 
 .pagetitle-toolbar-field-view .ui-toolbar-star {
 	background-size: 20px auto;
-	margin-bottom: 0;
+	margin-bottom: -3px;
 	width: 20px;
 	min-width: 20px;
 	max-width: 20px;
-	/*margin-right: 20px;*/
 }
 
 .ui-toolbar-star:hover {

@@ -47,6 +47,7 @@ $MESS["IBEL_A_F_MODIFIED_WHEN"] = "Дата изменения";
 $MESS["IBEL_A_F_CREATED_BY"] = "Кто создал";
 $MESS["IBEL_A_F_CREATED_WHEN"] = "Дата создания";
 $MESS["IBEL_A_F_STATUS"] = "Статус в документообороте";
+$MESS["IBEL_A_F_LAST_STATUS"] = "Промежуточный статус в документообороте";
 $MESS["IBEL_A_F_ACT"] = "Активность";
 $MESS["IBEL_A_F_NAME"] = "Название";
 $MESS["IBEL_A_F_DESC"] = "Описание";
@@ -139,4 +140,6 @@ $MESS["IBEL_CATALOG_SKU_PRICE"] = "от #PRICE#";
 $MESS["IBEL_CATALOG_EMPTY_VALUE"] = "не выбрано";
 $MESS["IBEL_CATALOG_DEFAULT"] = "(по умолчанию)";
 $MESS["IBEL_ERR_BUILDER_ADSENT"] = "Не найден генератор ссылок.";
+$MESS["IBEL_A_CATALOG_PRODUCT"] = "Товар";
+$MESS["IBEL_A_CATALOG_PRODUCT_TITLE"] = "Товар";
 ?>

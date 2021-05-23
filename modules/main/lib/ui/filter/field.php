@@ -2,10 +2,9 @@
 
 namespace Bitrix\Main\UI\Filter;
 
-use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\Type\Date;
-
 
 Loc::loadMessages(__FILE__);
 
@@ -153,6 +152,7 @@ class Field
 		if (empty($values))
 		{
 			$values = array(
+				"_allow_year" => "",
 				"_from" => "",
 				"_to" => "",
 				"_days" => "",

@@ -16,11 +16,9 @@ import type { SearchOptions } from '../search-options';
 export default class SearchTab extends Tab
 {
 	lastSearchQuery: ?SearchQuery = null;
-	loadWithDebounce = Runtime.debounce(this.load, 500, this);
 	queryCache = new Set();
 	queryXhr = null;
 	searchLoader: SearchLoader = new SearchLoader(this);
-
 	allowCreateItem: boolean = false;
 
 	constructor(dialog: Dialog, tabOptions: TabOptions, searchOptions: SearchOptions)
@@ -44,6 +42,10 @@ export default class SearchTab extends Tab
 
 		searchOptions = Type.isPlainObject(searchOptions) ? searchOptions : {};
 		this.setAllowCreateItem(searchOptions.allowCreateItem, searchOptions.footerOptions);
+
+		this.loadWithDebounce = Runtime.debounce(() => {
+			this.load(this.getLastSearchQuery());
+		}, 500);
 	}
 
 	search(query: string)
@@ -61,13 +63,8 @@ export default class SearchTab extends Tab
 
 		this.lastSearchQuery = searchQuery;
 
-		let matchResults = [];
-		this.getDialog().getItems().forEach(items => {
-			matchResults = matchResults.concat(SearchEngine.matchItems(items, searchQuery));
-		});
-
+		const matchResults = SearchEngine.matchItems(this.getDialog().getItems(), searchQuery);
 		this.clearResults();
-
 		this.appendResults(matchResults);
 
 		if (this.getDialog().shouldFocusOnFirst())
@@ -77,7 +74,7 @@ export default class SearchTab extends Tab
 
 		if (this.shouldLoad(searchQuery))
 		{
-			this.loadWithDebounce(searchQuery);
+			this.loadWithDebounce();
 			if (!this.isEmptyResult())
 			{
 				this.getStub().hide();
@@ -122,6 +119,23 @@ export default class SearchTab extends Tab
 	appendResults(matchResults: MatchResult[]): void
 	{
 		matchResults.sort((a: MatchResult, b: MatchResult) => {
+
+			const matchSortA = a.getSort();
+			const matchSortB = b.getSort();
+
+			if (matchSortA !== null && matchSortB !== null)
+			{
+				return matchSortA - matchSortB;
+			}
+			if (matchSortA !== null && matchSortB === null)
+			{
+				return -1;
+			}
+			else if (matchSortA === null && matchSortB !== null)
+			{
+				return 1;
+			}
+
 			const contextSortA = a.getItem().getContextSort();
 			const contextSortB = b.getItem().getContextSort();
 
@@ -171,7 +185,7 @@ export default class SearchTab extends Tab
 		});
 
 		this.getRootNode().enableRender();
-		this.render();
+		this.getRootNode().render(true);
 	}
 
 	getDynamicEntities(searchQuery: SearchQuery): string[]
@@ -259,8 +273,8 @@ export default class SearchTab extends Tab
 
 		Ajax.runAction('ui.entityselector.doSearch', {
 				json: {
-					dialog: this.getDialog(),
-					searchQuery
+					dialog: this.getDialog().getAjaxJson(),
+					searchQuery: searchQuery.getAjaxJson()
 				},
 				onrequeststart: (xhr) => {
 					this.queryXhr = xhr;
@@ -298,7 +312,10 @@ export default class SearchTab extends Tab
 
 					const isTabEmpty = this.isEmptyResult();
 
-					const matchResults = SearchEngine.matchItems(items, this.getLastSearchQuery());
+					const matchResults = SearchEngine.matchItems(
+						Array.from(items.values()),
+						this.getLastSearchQuery()
+					);
 					this.appendResults(matchResults);
 
 					if (isTabEmpty && this.getDialog().shouldFocusOnFirst())

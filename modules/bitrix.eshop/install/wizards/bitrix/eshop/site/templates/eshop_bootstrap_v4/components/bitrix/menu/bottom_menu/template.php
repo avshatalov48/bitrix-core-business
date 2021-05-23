@@ -21,7 +21,7 @@ if (empty($arResult))
 		<?foreach($arResult as $itemIdex => $arItem):?>
 			<?if ($arItem["DEPTH_LEVEL"] == "1"):?>
 				<li class="nav-item">
-					<a href="<?=htmlspecialcharsbx($arItem["LINK"])?>" class="text-white nav-link"><?=htmlspecialcharsbx($arItem["TEXT"])?></a>
+					<a href="<?=htmlspecialcharsbx($arItem["LINK"])?>" class="text-white nav-link"><?=htmlspecialcharsbx($arItem["TEXT"], ENT_COMPAT, false)?></a>
 				</li>
 			<?endif?>
 		<?endforeach;?>

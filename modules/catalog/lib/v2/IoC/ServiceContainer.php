@@ -2,10 +2,10 @@
 
 namespace Bitrix\Catalog\v2\IoC;
 
+use Bitrix\Catalog\v2\Facade\Repository;
 use Bitrix\Catalog\v2\Iblock\IblockInfo;
 use Bitrix\Catalog\v2\Product\ProductFactory;
 use Bitrix\Catalog\v2\Product\ProductRepositoryContract;
-use Bitrix\Catalog\v2\Sku\SkuFactory;
 use Bitrix\Catalog\v2\Sku\SkuRepositoryContract;
 use Bitrix\Main\ObjectNotFoundException;
 
@@ -40,6 +40,11 @@ final class ServiceContainer
 	public static function get($id, array $args = [])
 	{
 		return static::getContainer()->get($id, $args);
+	}
+
+	public static function make($id, array $args = [])
+	{
+		return static::getContainer()->make($id, $args);
 	}
 
 	/**
@@ -79,6 +84,14 @@ final class ServiceContainer
 	}
 
 	/**
+	 * @return \Bitrix\Catalog\v2\Facade\Repository
+	 */
+	public static function getRepositoryFacade(): Repository
+	{
+		return static::make(Dependency::REPOSITORY_FACADE);
+	}
+
+	/**
 	 * @param int $iblockId
 	 * @return \Bitrix\Catalog\v2\Product\ProductRepositoryContract|null
 	 */
@@ -90,25 +103,7 @@ final class ServiceContainer
 		{
 			$iblockId = $iblockInfo->getProductIblockId();
 
-			return static::get(Dependency::PRODUCT_REPOSITORY, compact('iblockId'));
-		}
-
-		return null;
-	}
-
-	/**
-	 * @param int $iblockId
-	 * @return \Bitrix\Catalog\v2\Sku\SkuFactory|null
-	 */
-	public static function getSkuFactory(int $iblockId): ?SkuFactory
-	{
-		$iblockInfo = static::getIblockInfo($iblockId);
-
-		if ($iblockInfo)
-		{
-			$iblockId = $iblockInfo->getProductIblockId();
-
-			return static::get(Dependency::SKU_FACTORY, compact('iblockId'));
+			return static::make(Dependency::PRODUCT_REPOSITORY, compact('iblockId'));
 		}
 
 		return null;
@@ -126,7 +121,7 @@ final class ServiceContainer
 		{
 			$iblockId = $iblockInfo->getProductIblockId();
 
-			return static::get(Dependency::SKU_REPOSITORY, compact('iblockId'));
+			return static::make(Dependency::SKU_REPOSITORY, compact('iblockId'));
 		}
 
 		return null;

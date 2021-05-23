@@ -558,7 +558,7 @@
 							cancelname: BX.message("MPFButtonCancel"),
 							multiple: "NO",
 							alphabet_index: "YES",
-							url: BX.message('MobileSiteDir') + 'mobile/index.php?mobile_action=get_user_list'
+							url: BX.message('MobileSiteDir') + 'mobile/index.php?mobile_action=get_user_list&use_name_format=Y'
 						}
 					},
 					smileButton: {},
@@ -651,9 +651,14 @@
 					this.stopCheckWriting();
 				},
 				show : function(text, attachments) {
+
+					var textArea = document.createElement('textarea');
+					textArea.innerHTML = text;
 					this.formSettings.message = {
-						text: text
+						text: textArea.value
 					};
+					textArea.remove();
+
 					this.formSettings.attachedFiles = [];
 					this.formSettings.extraData = {};
 					if (attachments)

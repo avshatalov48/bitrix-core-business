@@ -10,6 +10,7 @@ use Bitrix\Sale\Payment;
 use Bitrix\Sale\PriceMaths;
 use Bitrix\Sale\Registry;
 use Bitrix\Sale\Result;
+use Bitrix\Sale\Helpers\Admin;
 use Bitrix\Sale\Shipment;
 use Bitrix\Sale\ShipmentItem;
 
@@ -24,6 +25,20 @@ abstract class Check extends AbstractCheck
 	public const PAYMENT_OBJECT_JOB = 'job';
 	public const PAYMENT_OBJECT_SERVICE = 'service';
 	public const PAYMENT_OBJECT_PAYMENT = 'payment';
+	public const PAYMENT_OBJECT_GAMBLING_BET = 'gambling_bet';
+	public const PAYMENT_OBJECT_GAMBLING_PRIZE = 'gambling_prize';
+	public const PAYMENT_OBJECT_LOTTERY = 'lottery';
+	public const PAYMENT_OBJECT_LOTTERY_PRIZE = 'lottery_prize';
+	public const PAYMENT_OBJECT_INTELLECTUAL_ACTIVITY = 'intellectual_activity';
+	public const PAYMENT_OBJECT_AGENT_COMMISSION = 'agent_commission';
+	public const PAYMENT_OBJECT_COMPOSITE = 'composite';
+	public const PAYMENT_OBJECT_ANOTHER = 'another';
+	public const PAYMENT_OBJECT_PROPERTY_RIGHT = 'property_right';
+	public const PAYMENT_OBJECT_NON_OPERATING_GAIN = 'non-operating_gain';
+	public const PAYMENT_OBJECT_SALES_TAX = 'sales_tax';
+	public const PAYMENT_OBJECT_RESORT_FEE = 'resort_fee';
+
+	private const MARKING_TYPE_CODE = '444D';
 
 	/** @var array $relatedEntities */
 	private $relatedEntities = array();
@@ -252,6 +267,7 @@ abstract class Check extends AbstractCheck
 						'quantity' => $product['QUANTITY'],
 						'vat' => $product['VAT'],
 						'payment_object' => $product['PAYMENT_OBJECT'],
+						'properties' => $product['PROPERTIES'],
 					];
 
 					if (isset($product['NOMENCLATURE_CODE']))
@@ -269,6 +285,15 @@ abstract class Check extends AbstractCheck
 						$item['discount'] = [
 							'discount' => $product['DISCOUNT']['PRICE'],
 							'discount_type' => $product['DISCOUNT']['TYPE'],
+						];
+					}
+
+					if (isset($product['SUPPLIER_INFO']))
+					{
+						$item['supplier_info'] = [
+							'phones' => $product['SUPPLIER_INFO']['PHONES'] ?? [],
+							'name' => $product['SUPPLIER_INFO']['NAME'] ?? '',
+							'inn' => $product['SUPPLIER_INFO']['INN'] ?? '',
 						];
 					}
 
@@ -407,6 +432,18 @@ abstract class Check extends AbstractCheck
 						'PAYMENT_OBJECT' => static::PAYMENT_OBJECT_COMMODITY
 					);
 
+					if ($order)
+					{
+						$siteId = $order->getSiteId();
+						$propertiesCodes = ['ARTNUMBER'];
+						$itemProperties = self::getCatalogPropertiesForItem($basketItem->getProductId(), $propertiesCodes, $siteId);
+						$item['PROPERTIES'] = $itemProperties;
+					}
+					else
+					{
+						$item['PROPERTIES'] = [];
+					}
+
 					if ($basketItem->isCustomPrice())
 					{
 						$item['BASE_PRICE'] = $basketItem->getPriceWithVat();
@@ -526,16 +563,51 @@ abstract class Check extends AbstractCheck
 	}
 
 	/**
+	 * @param $itemId
+	 * @param $itemPropertiesCodes
+	 * @param $siteId
+	 * @return array
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\LoaderException
+	 */
+	private static function getCatalogPropertiesForItem($itemId, $itemPropertiesCodes, $siteId): array
+	{
+		$propertiesFieldNames = [];
+		foreach ($itemPropertiesCodes as $propertyCode)
+		{
+			$propertiesFieldNames[] = 'PROPERTY_' . $propertyCode;
+		}
+
+		$result = [];
+		$catalogData = Admin\Product::getData([$itemId], $siteId, $propertiesFieldNames);
+		foreach ($catalogData as $id => $item)
+		{
+			foreach ($itemPropertiesCodes as $propertyCode)
+			{
+				if (
+					isset($item['PRODUCT_PROPS_VALUES']['PROPERTY_' .  $propertyCode . '_VALUE'])
+					&& $item['PRODUCT_PROPS_VALUES']['PROPERTY_' . $propertyCode . '_VALUE'] !== '&nbsp'
+				)
+				{
+					$result[$propertyCode] = $item['PRODUCT_PROPS_VALUES']['PROPERTY_' .  $propertyCode . '_VALUE'];
+				}
+			}
+		}
+
+		return $result;
+	}
+
+	/**
 	 * @param string $markingCode
 	 * @param string $markingCodeGroup
 	 * @return string
 	 */
 	protected function buildTag1162(string $markingCode, string $markingCodeGroup) : string
 	{
-		[$gtin, $serial, ] = $this->parseMarkingCode($markingCode);
+		[$gtin, $serial] = $this->parseMarkingCode($markingCode, $markingCodeGroup);
 
 		$hex =
-			$this->convertToBinaryFormat($markingCodeGroup, 2).
+			self::MARKING_TYPE_CODE.
 			$this->convertToBinaryFormat($gtin, 6).
 			$this->convertCharsToHex($serial)
 		;
@@ -544,16 +616,30 @@ abstract class Check extends AbstractCheck
 	}
 
 	/**
-	 * @param $code
+	 * @param string $code
+	 * @param string $group
 	 * @return array
 	 */
-	private function parseMarkingCode(string $code) : array
+	private function parseMarkingCode(string $code, string $group) : array
 	{
 		$gtin = mb_substr($code, 2, 14);
-		$serial = mb_substr($code, 18, 13);
-		$reserve = mb_substr($code, 27);
+		$serial = mb_substr($code, 18, $this->getSnLength($group));
 
-		return [$gtin, $serial, $reserve];
+		return [$gtin, $serial];
+	}
+
+	/**
+	 * @param string $group
+	 * @return int
+	 */
+	private function getSnLength(string $group) : int
+	{
+		if ((string)$group === '9840')
+		{
+			return 20;
+		}
+
+		return 13;
 	}
 
 	/**

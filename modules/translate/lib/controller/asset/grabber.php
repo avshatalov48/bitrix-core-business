@@ -27,7 +27,7 @@ class Grabber
 	const ACTION_FINALIZE = 'finalize';
 	const ACTION_PURGE = 'purge';
 	const ACTION_CANCEL = 'cancel';
-
+	const ACTION_CLEAR = 'clear';
 
 	/** @var string */
 	private $archiveFilePath;
@@ -99,6 +99,11 @@ class Grabber
 			),
 		);
 		$configureActions[self::ACTION_CANCEL] = array(
+			'+prefilters' => array(
+				$permission
+			),
+		);
+		$configureActions[self::ACTION_CLEAR] = array(
 			'+prefilters' => array(
 				$permission
 			),
@@ -251,6 +256,17 @@ class Grabber
 		return array(
 			'STATUS' => Translate\Controller\STATUS_COMPLETED
 		);
+	}
+
+
+	/**
+	 * Deletes generated file.
+	 *
+	 * @return array
+	 */
+	public function clearAction()
+	{
+		return $this->purgeAction();
 	}
 
 

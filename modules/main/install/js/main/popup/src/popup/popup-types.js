@@ -36,6 +36,7 @@ export type PopupOptions = {
 	darkMode?: boolean,
 	compatibleMode?: boolean,
 	bindOnResize?: boolean,
+	targetContainer?: HTMLElement,
 
 	//Compatibility
 	noAllPaddings?: boolean,

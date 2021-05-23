@@ -4,7 +4,6 @@ namespace Bitrix\Catalog\v2\PropertyValue;
 
 use Bitrix\Catalog\v2\BaseCollection;
 use Bitrix\Catalog\v2\BaseEntity;
-use Bitrix\Main\InvalidOperationException;
 
 /**
  * Class PropertyValueCollection
@@ -22,30 +21,6 @@ class PropertyValueCollection extends BaseCollection
 	public function __construct(PropertyValueFactory $propertyValueFactory)
 	{
 		$this->propertyValueFactory = $propertyValueFactory;
-	}
-
-	/**
-	 * @param \Bitrix\Catalog\v2\BaseEntity|\Bitrix\Catalog\v2\PropertyValue\HasPropertyValueCollection|null $parent
-	 * @return \Bitrix\Catalog\v2\BaseCollection
-	 */
-	public function setParent(?BaseEntity $parent): BaseCollection
-	{
-		parent::setParent($parent);
-
-		if ($parent)
-		{
-			if (!($parent instanceof HasPropertyValueCollection))
-			{
-				throw new InvalidOperationException(sprintf(
-					'Parent entity must implement {%s} interface',
-					HasPropertyValueCollection::class
-				));
-			}
-
-			$parent->setPropertyValueCollection($this);
-		}
-
-		return $this;
 	}
 
 	/**
@@ -70,7 +45,7 @@ class PropertyValueCollection extends BaseCollection
 	}
 
 	/**
-	 * @param array $values
+	 * @param mixed $values
 	 * @return $this
 	 *
 	 * @internal
@@ -81,7 +56,6 @@ class PropertyValueCollection extends BaseCollection
 
 		foreach ($this->prepareValues($values) as $index => $fields)
 		{
-			/** @var \Bitrix\Catalog\v2\PropertyValue\PropertyValue $entity */
 			$entity = $this->propertyValueFactory->createEntity();
 
 			$fieldsToInitialize = [
@@ -185,7 +159,7 @@ class PropertyValueCollection extends BaseCollection
 		{
 			if ($entity->isNew() || !in_array($entity->getValue(), $valuesToSave, true))
 			{
-				$this->remove($entity);
+				$entity->remove();
 			}
 		}
 	}
@@ -208,7 +182,6 @@ class PropertyValueCollection extends BaseCollection
 
 		if ($entity === null)
 		{
-			/** @var \Bitrix\Catalog\v2\PropertyValue\PropertyValue $entity */
 			$entity = $this->propertyValueFactory->createEntity();
 			$this->add($entity);
 		}

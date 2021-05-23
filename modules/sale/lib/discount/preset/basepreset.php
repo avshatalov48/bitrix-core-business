@@ -120,11 +120,11 @@ abstract class BasePreset
 	{
 		return State::createFromRequest($this->request);
 	}
-	
+
 	public function getView()
 	{
 		return
-			$this->beginForm($this->stepResultState) . 
+			$this->beginForm($this->stepResultState) .
 			$this->stepResult .
 			$this->endForm($this->stepResultState)
 		;
@@ -176,9 +176,9 @@ abstract class BasePreset
 		{
 			throw new SystemException("Could not find product id");
 		}
-		if(empty($quantity))
+		if (empty($quantity))
 		{
-			throw new SystemException("Could not find quantity");
+			$quantity = 1;
 		}
 
 		$productDetails = OrderBasket::getProductDetails($productId, $quantity, $userId, $siteId);
@@ -314,7 +314,7 @@ abstract class BasePreset
 		{
 			$methodName = 'processSave' . $actionName;
 		}
-		
+
 		if(!$methodName)
 		{
 			throw new SystemException("Unknown mode {$mode}");
@@ -563,43 +563,43 @@ abstract class BasePreset
 		{
 			$discountFields['CONDITIONS_LIST'] = $discountFields['CONDITIONS'];
 		}
-		
+
 		if(isset($discountFields['CONDITIONS_LIST']) && is_string($discountFields['CONDITIONS_LIST']))
 		{
-			$discountFields['CONDITIONS_LIST'] = unserialize($discountFields['CONDITIONS_LIST']);
+			$discountFields['CONDITIONS_LIST'] = unserialize($discountFields['CONDITIONS_LIST'], ['allowed_classes' => false]);
 		}
 
 		if(isset($discountFields['CONDITIONS_LIST']) && is_array($discountFields['CONDITIONS_LIST']))
 		{
 			$discountFields['CONDITIONS'] = $discountFields['CONDITIONS_LIST'];
 		}
-		
-		
+
+
 		if(isset($discountFields['ACTIONS']) && is_array($discountFields['ACTIONS']))
 		{
 			$discountFields['ACTIONS_LIST'] = $discountFields['ACTIONS'];
 		}
-		
+
 		if(isset($discountFields['ACTIONS_LIST']) && is_string($discountFields['ACTIONS_LIST']))
 		{
-			$discountFields['ACTIONS_LIST'] = unserialize($discountFields['ACTIONS_LIST']);
+			$discountFields['ACTIONS_LIST'] = unserialize($discountFields['ACTIONS_LIST'], ['allowed_classes' => false]);
 		}
 
 		if(isset($discountFields['ACTIONS_LIST']) && is_array($discountFields['ACTIONS_LIST']))
 		{
 			$discountFields['ACTIONS'] = $discountFields['ACTIONS_LIST'];
 		}
-		
+
 		if(isset($discountFields['PREDICTIONS_LIST']) && is_string($discountFields['PREDICTIONS_LIST']))
 		{
-			$discountFields['PREDICTIONS_LIST'] = unserialize($discountFields['PREDICTIONS_LIST']);
+			$discountFields['PREDICTIONS_LIST'] = unserialize($discountFields['PREDICTIONS_LIST'], ['allowed_classes' => false]);
 		}
 
 		if(isset($discountFields['PREDICTIONS_LIST']) && is_array($discountFields['PREDICTIONS_LIST']))
 		{
 			$discountFields['PREDICTIONS'] = $discountFields['PREDICTIONS_LIST'];
 		}
-		
+
 		return $discountFields;
 	}
 
@@ -647,7 +647,7 @@ abstract class BasePreset
 			'#NAME#' => htmlspecialcharsbx($state->get('discount_name'))
 		));
 	}
-	
+
 	protected function getUserGroupsByDiscount($discountId)
 	{
 		$groups = array();
@@ -659,7 +659,7 @@ abstract class BasePreset
 		{
 			$groups[] = $groupDiscount['GROUP_ID'];
 		}
-		
+
 		return $groups;
 	}
 

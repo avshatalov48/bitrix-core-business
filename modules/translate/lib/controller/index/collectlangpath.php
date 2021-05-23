@@ -116,16 +116,12 @@ class CollectLangPath
 			}
 
 			$languages = $this->controller->getRequest()->get('languages');
-			if (!empty($languages) && $this->languages !== 'all')
+			if (is_array($languages) && !in_array('all', $languages))
 			{
-				$languages = explode(',', $languages);
-				if (is_array($languages))
+				$languages = array_intersect($languages, Translate\Config::getEnabledLanguages());
+				if (!empty($languages))
 				{
-					$languages = array_intersect($languages, Translate\Config::getEnabledLanguages());
-					if (!empty($languages))
-					{
-						$this->languages = $languages;
-					}
+					$this->languages = $languages;
 				}
 			}
 

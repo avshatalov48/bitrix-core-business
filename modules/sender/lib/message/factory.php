@@ -60,6 +60,27 @@ class Factory extends CodeBasedFactory
 	 *
 	 * @return iBase[]
 	 */
+	public static function getMarketingMessages()
+	{
+		$list = array();
+		foreach (static::getMessages() as $message)
+		{
+			if (!($message instanceof iMarketing))
+			{
+				continue;
+			}
+
+			$list[] = $message;
+		}
+
+		return $list;
+	}
+
+	/**
+	 * Get ads message instances.
+	 *
+	 * @return iBase[]
+	 */
 	public static function getTolokaMessages()
 	{
 		$list = array();
@@ -132,6 +153,23 @@ class Factory extends CodeBasedFactory
 				return $message->getCode();
 			},
 			static::getAdsMessages()
+		);
+	}
+
+	/**
+	 * Get marketing message instances.
+	 *
+	 * @return iBase[]
+	 */
+	public static function getMarketingMessageCodes()
+	{
+		return array_map(
+			function ($message)
+			{
+				/** @var iBase $message */
+				return $message->getCode();
+			},
+			static::getMarketingMessages()
 		);
 	}
 

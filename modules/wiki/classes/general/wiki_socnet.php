@@ -1,4 +1,6 @@
 <?
+use \Bitrix\Main\Localization\Loc;
+
 IncludeModuleLangFile(__FILE__);
 
 class CWikiSocnet
@@ -310,10 +312,12 @@ class CWikiSocnet
 			$title_tmp = ($bMail ? GetMessage('WIKI_SOCNET_LOG_TITLE_MAIL') : GetMessage('WIKI_SOCNET_LOG_TITLE'));
 			$title_tmp_24 = GetMessage("WIKI_SOCNET_LOG_TITLE_24");
 		}
-		elseif ($arFields['EVENT_ID'] == 'wiki_del')
+		elseif ($arFields['EVENT_ID'] === 'wiki_del')
 		{
-			$title_tmp = ($bMail ? GetMessage('WIKI_DEL_SOCNET_LOG_TITLE_MAIL') : GetMessage('WIKI_DEL_SOCNET_LOG_TITLE'));
-			$title_tmp_24 = GetMessage("WIKI_DEL_SOCNET_LOG_TITLE_24");
+			$title_tmp = ($bMail ? Loc::getMessage('WIKI_DEL_SOCNET_LOG_TITLE_MAIL') : Loc::getMessage('WIKI_DEL_SOCNET_LOG_TITLE'));
+			$title_tmp_24 = Loc::getMessage("WIKI_DEL_SOCNET_LOG_TITLE_24", [
+				'#TITLE#' => $arFields['~TITLE']
+			]);
 		}
 
 		$title = str_replace(
@@ -580,7 +584,10 @@ class CWikiSocnet
 
 				$dbMessage = CForumMessage::GetList(
 					array(),
-					array('PARAM2' => $arElement['ID'])
+					array(
+						'FORUM_ID' => $FORUM_ID,
+						'PARAM2' => $arElement['ID']
+					)
 				);
 
 				if (!$arMessage = $dbMessage->Fetch())

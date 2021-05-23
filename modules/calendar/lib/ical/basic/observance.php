@@ -4,9 +4,9 @@
 namespace Bitrix\Calendar\ICal\Basic;
 
 
+use Bitrix\Calendar\ICal\MailInvitation\Helper;
 use Bitrix\Calendar\Util;
-use Bitrix\Main\Type\DateTime;
-use Bitrix\Main\Type\Date;
+use DateTimeZone;
 
 abstract class Observance extends BasicComponent
 {
@@ -15,7 +15,7 @@ abstract class Observance extends BasicComponent
 	protected $offsetTo;
 	protected $timezone;
 
-	public static function getInstance(): Observance
+	public static function createInstance(): Observance
 	{
 		return new static();
 	}
@@ -29,16 +29,24 @@ abstract class Observance extends BasicComponent
 		];
 	}
 
+	/**
+	 * @param null $start
+	 * @return $this
+	 */
 	public function setDTStart($start = null): Observance
 	{
-		$this->start = $start ? $start : ICalUtil::getIcalDateTimeShort('19700101');
+		$this->start = $start ? $start : Helper::getIcalDateTimeShort('19700101T000000');
 
 		return $this;
 	}
 
-	public function setOffsetFrom($tz): Observance
+	/**
+	 * @param DateTimeZone $tz
+	 * @return $this
+	 */
+	public function setOffsetFrom(DateTimeZone $tz): Observance
 	{
-		$time = Util::getDateObject(null, false, $tz);
+		$time = Util::getDateObject(null, false, $tz->getName());
 		$this->offsetFrom = $time->format('O');
 
 		return $this;
@@ -50,9 +58,13 @@ abstract class Observance extends BasicComponent
 		return $this;
 	}
 
-	public function setOffsetTo($tz): Observance
+	/**
+	 * @param DateTimeZone $tz
+	 * @return $this
+	 */
+	public function setOffsetTo(DateTimeZone $tz): Observance
 	{
-		$time = Util::getDateObject(null, false, $tz);
+		$time = Util::getDateObject(null, false, $tz->getName());
 		$this->offsetTo = $time->format('O');
 		return $this;
 	}
@@ -66,7 +78,7 @@ abstract class Observance extends BasicComponent
 	public function setAbbrTimezone($tz): Observance
 	{
 		$exp = (new \DateTime($tz))->format('T');
-		$this->timezone = (new \DateTime())->setTimeZone(new \DateTimeZone($tz))->format('T');
+		$this->timezone = (new \DateTime())->setTimeZone(new DateTimeZone($tz))->format('T');
 		return $this;
 	}
 

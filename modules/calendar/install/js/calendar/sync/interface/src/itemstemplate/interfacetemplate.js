@@ -60,14 +60,14 @@ export class InterfaceTemplate extends EventEmitter
 		const statusBlock = StatusBlock.createInstance({
 			status: "not_connected",
 			connections: [this.connection],
-			withStatus: false,
+			withStatusLabel: false,
 			popupWithUpdateButton: this.popupWithUpdateButton,
 			popupId: 'calendar-interfaceTemplate-status',
 		})
 		return Tag.render`
 			<div class="calendar-sync-header">
 				<span class="calendar-sync-header-text">${this.getHeaderTitle()}</span>
-				${statusBlock.getContentStatusBlock()}
+				${statusBlock.getContent()}
 			</div>
 		`;
 	}
@@ -84,14 +84,14 @@ export class InterfaceTemplate extends EventEmitter
 		const statusBlock = StatusBlock.createInstance({
 			status: this.connection.getStatus(),
 			connections: [this.connection],
-			withStatus: false,
+			withStatusLabel: false,
 			popupWithUpdateButton: this.popupWithUpdateButton,
 			popupId: 'calendar-interfaceTemplate-status',
 		})
 		return Tag.render`
 			<div class="calendar-sync-header">
 				<span class="calendar-sync-header-text">${this.getHeaderTitle()}</span>
-				${statusBlock.getContentStatusBlock()}
+				${statusBlock.getContent()}
 			</div>
 		`;
 	}

@@ -232,7 +232,7 @@
 				BX.create("div", {
 					props: {className: "bx-messenger-call-window-background"},
 					style: {
-						backgroundImage: 'url(' + backgroundImage + ')'
+						backgroundImage: "url('" + backgroundImage + "')"
 					},
 				}),
 				BX.create("div", {

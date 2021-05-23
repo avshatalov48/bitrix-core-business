@@ -117,8 +117,16 @@
 }
 
 .bx-messenger-dark .bx-messenger-recent-group-title::after {
-	background-color: #7f8c8d !important;
+	background-color: #7f8c8d;
 }
+
+.bx-messenger-dark .bx-messenger-recent-category-title-new { color: #f75e5e; font-style: normal; }
+.bx-messenger-dark .bx-messenger-recent-category-title-new:after { background-color: #ff4949; }
+.bx-messenger-dark .bx-messenger-recent-category-title-work { color: #00bcf7; font-style: normal; }
+.bx-messenger-dark .bx-messenger-recent-category-title-work:after { background-color: #0c8bb3; }
+.bx-messenger-dark .bx-messenger-recent-category-title-answered { color: #26bd63; font-style: normal; }
+.bx-messenger-dark .bx-messenger-recent-category-title-answered:after { background-color: #258a4e; }
+
 
 .bx-messenger-dark .bx-messenger-panel-title {
 	text-shadow: none;
@@ -1295,7 +1303,7 @@
 }
 
 .bx-messenger-dark .bx-messenger-file-image-src {
-	background-color: #313131 !important;
+	background-color: #212020 !important;
 }
 
 .bx-messenger-dark .bx-messenger-content-item-params {
@@ -1502,4 +1510,17 @@
 
 .bx-messenger-dark .bx-messenger-content-item-vote-comment-add {
 	color: #929292;
+}
+
+.bx-messenger-dark .bx-messenger-input-search-create {
+	border: 1px solid #333333;
+	background-color: #333333;
+	color: #c1c1c1;
+}
+.bx-messenger-dark .bx-messenger-input-search-create:after {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%227%22%20height%3D%224%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M0%200h7L3.5%204z%22%20fill%3D%22%23A2A2A2%22%20fill-rule%3D%22evenodd%22%20opacity%3D%22.5%22/%3E%3C/svg%3E');
+}
+.bx-messenger-dark .bx-messenger-input-search-create:hover {
+	background-color: #585858;
+	border: 1px solid #e5e8eb;
 }

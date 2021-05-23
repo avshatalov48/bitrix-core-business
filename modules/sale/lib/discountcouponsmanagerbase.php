@@ -925,18 +925,19 @@ class DiscountCouponsManagerBase
 	/**
 	 * Save applied coupons.
 	 *
-	 * @return void
+	 * @return Main\Result
 	 */
-	public static function saveApplied()
+	public static function saveApplied(): Main\Result
 	{
+		$commonResult = new Main\Result();
 		if (
 			self::$useMode == self::MODE_SYSTEM
-			||
-			!self::isEntered()
-			||
-			!self::$allowedSave
+			|| !self::isEntered()
+			|| !self::$allowedSave
 		)
-			return;
+		{
+			return $commonResult;
+		}
 
 		$result = array();
 		$currentTime = new Main\Type\DateTime();
@@ -960,10 +961,22 @@ class DiscountCouponsManagerBase
 			}
 			else
 			{
-				$result['sale']['DEACTIVATE'] = $saveResult['DEACTIVATE'];
-				$result['sale']['LIMITED'] = $saveResult['LIMITED'];
-				$result['sale']['INCREMENT'] = $saveResult['INCREMENT'];
-				self::eraseAppliedCoupons($result['sale']);
+				if ($saveResult['STATUS'])
+				{
+					$result['sale']['DEACTIVATE'] = $saveResult['DEACTIVATE'];
+					$result['sale']['LIMITED'] = $saveResult['LIMITED'];
+					$result['sale']['INCREMENT'] = $saveResult['INCREMENT'];
+					self::eraseAppliedCoupons($result['sale']);
+				}
+				else
+				{
+					$commonResult->addError(new Main\Error(
+						Loc::getMessage('BX_SALE_DCM_ERR_SAVE_APPLIED'),
+						'sale',
+						$saveResult['ERROR']
+					));
+					return $commonResult;
+				}
 			}
 		}
 		if (!self::$onlySaleDiscount && !empty(self::$couponProviders))
@@ -993,10 +1006,22 @@ class DiscountCouponsManagerBase
 				}
 				else
 				{
-					$result[$provider['module']]['DEACTIVATE'] = (isset($saveResult['DEACTIVATE']) ? $saveResult['DEACTIVATE'] : array());
-					$result[$provider['module']]['LIMITED'] = (isset($saveResult['LIMITED']) ? $saveResult['LIMITED'] : array());
-					$result[$provider['module']]['INCREMENT'] = (isset($saveResult['INCREMENT']) ? $saveResult['INCREMENT'] : array());
-					self::eraseAppliedCoupons($result[$provider['module']]);
+					if (!isset($saveResult['STATUS']) || $saveResult['STATUS'])
+					{
+						$result[$provider['module']]['DEACTIVATE'] = (isset($saveResult['DEACTIVATE']) ? $saveResult['DEACTIVATE'] : array());
+						$result[$provider['module']]['LIMITED'] = (isset($saveResult['LIMITED']) ? $saveResult['LIMITED'] : array());
+						$result[$provider['module']]['INCREMENT'] = (isset($saveResult['INCREMENT']) ? $saveResult['INCREMENT'] : array());
+						self::eraseAppliedCoupons($result[$provider['module']]);
+					}
+					else
+					{
+						$commonResult->addError(new Main\Error(
+							Loc::getMessage('BX_SALE_DCM_ERR_SAVE_APPLIED'),
+							$provider['module'],
+							$saveResult['ERROR']
+						));
+						return $commonResult;
+					}
 				}
 			}
 		}
@@ -1004,6 +1029,8 @@ class DiscountCouponsManagerBase
 		self::$allowedSave = false;
 		$event = new Main\Event('sale', self::EVENT_ON_SAVE_APPLIED_COUPONS, $result);
 		$event->send();
+
+		return $commonResult;
 	}
 
 	/**

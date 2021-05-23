@@ -17,7 +17,7 @@ class CSaleBasket extends CAllSaleBasket
 		global $DB;
 
 		$subProp = COption::GetOptionString("sale", "subscribe_prod", "");
-		$arSubProp = unserialize($subProp);
+		$arSubProp = unserialize($subProp, ['allowed_classes' => false]);
 
 		$dayDelete = intval($arSubProp[$LID]["del_after"]);
 

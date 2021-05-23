@@ -112,7 +112,7 @@ class Proxy
 			$hosts = Option::get('main', 'imageeditor_proxy_white_list', []);
 			if (is_string($hosts))
 			{
-				$hosts = unserialize($hosts);
+				$hosts = unserialize($hosts, ['allowed_classes' => false]);
 			}
 		}
 

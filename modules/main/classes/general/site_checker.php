@@ -978,7 +978,7 @@ class CSiteCheckerTest
 		{
 			if (!CheckSerializedData($this->arTestVars['last_value']))
 				return false;
-			list($last_success, $max, $step) = unserialize($this->arTestVars['last_value']);
+			list($last_success, $max, $step) = unserialize($this->arTestVars['last_value'], ['allowed_classes' => false]);
 		}
 
 		$strRequest = "GET "."/bitrix/admin/site_checker.php?test_type=memory_test&unique_id=".checker_get_unique_id()."&max=".($max - 1)." HTTP/1.1\r\n";
@@ -2996,12 +2996,8 @@ function getCharsetByCollation($collation)
 
 function InitPureDB()
 {
-	if (!function_exists('SendError'))
-	{
-		function SendError($str)
-		{
-		}
-	}
+	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/tools.php");
+
 	if (!function_exists('IsModuleInstalled'))
 	{
 		function IsModuleInstalled($module)
@@ -3011,28 +3007,11 @@ function InitPureDB()
 			return false;
 		}
 	}
-	if (!function_exists('GetMessageJS'))
-	{
-		function GetMessageJS($name, $aReplace=false)
-		{
-			return GetMessage($name, $aReplace);
-		}
-	}
-	if (!function_exists('bx_accelerator_reset'))
-	{
-		function bx_accelerator_reset()
-		{
-			if(function_exists("accelerator_reset"))
-				accelerator_reset();
-			elseif(function_exists("wincache_refresh_if_changed"))
-				wincache_refresh_if_changed();
-		}
-	}
-	global $DB, $DBType, $DBDebug, $DBDebugToFile, $DBHost, $DBName, $DBLogin, $DBPassword;
+
+	global $DB, $DBDebug, $DBDebugToFile, $DBHost, $DBName, $DBLogin, $DBPassword;
 
 	/**
 	 * Defined in dbconn.php
-	 * @var $DBType
 	 * @var $DBDebug
 	 * @var $DBDebugToFile
 	 * @var $DBHost
@@ -3041,16 +3020,19 @@ function InitPureDB()
 	 * @var $DBPassword
 	 */
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/php_interface/dbconn.php");
+
 	if(defined('BX_UTF'))
 		define('BX_UTF_PCRE_MODIFIER', 'u');
 	else
 		define('BX_UTF_PCRE_MODIFIER', '');
 
-	include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/lib/loader.php");
+	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/lib/loader.php");
+	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/autoload.php");
+
 	$application = \Bitrix\Main\HttpApplication::getInstance();
 	$application->initializeBasicKernel();
 
-	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/".$DBType."/database.php");
+	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/mysql/database.php");
 
 	$DB = new CDatabase;
 	$DB->debug = $DBDebug;
@@ -3061,10 +3043,6 @@ function InitPureDB()
 		CDatabase::showConnectionError();
 		die();
 	}
-	if (file_exists($fname = $_SERVER["DOCUMENT_ROOT"]."/bitrix/php_interface/after_connect.php"))
-		require_once($fname);
-	if (file_exists($fname = $_SERVER["DOCUMENT_ROOT"]."/bitrix/php_interface/after_connect_d7.php"))
-		require_once($fname);
 }
 
 function TableFieldConstruct($f0)

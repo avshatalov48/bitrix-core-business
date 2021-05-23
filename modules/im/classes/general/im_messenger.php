@@ -98,6 +98,7 @@ class CIMMessenger
 		}
 
 		$incrementCounter = true;
+		/*
 		if (isset($arFields['INCREMENT_COUNTER']) && $arFields['INCREMENT_COUNTER'] != 'Y')
 		{
 			if ($arFields['INCREMENT_COUNTER'] == 'N')
@@ -111,6 +112,7 @@ class CIMMessenger
 				$arFields['PARAMS']['NOTIFY'] = empty($incrementCounter)? 'N': $incrementCounter;
 			}
 		}
+		*/
 
 		if (!isset($arFields['MESSAGE_TYPE']))
 			$arFields['MESSAGE_TYPE'] = "";
@@ -288,12 +290,23 @@ class CIMMessenger
 			{
 				$chatId = $arFields['TO_CHAT_ID'];
 				$relations = CIMChat::GetRelationById($chatId);
+
+				$arFields['TO_USER_ID'] = $arFields['FROM_USER_ID'];
 				foreach ($relations as $rel)
 				{
-					if ($rel['USER_ID'] == $arFields['FROM_USER_ID'])
+					if (
+						$arFields['TO_USER_ID']
+						&& $rel['USER_ID'] == $arFields['FROM_USER_ID']
+					)
+					{
 						continue;
+					}
 
 					$arFields['TO_USER_ID'] = $rel['USER_ID'];
+				}
+				if ($arFields['FROM_USER_ID'] == $arFields['TO_USER_ID'])
+				{
+					$isSelfChat = true;
 				}
 
 				if (!IsModuleInstalled('intranet'))
@@ -338,7 +351,6 @@ class CIMMessenger
 			if ($chatId > 0)
 			{
 				$chatData = IM\Model\ChatTable::getById($chatId)->fetch();
-
 				$prevMessageId = intval($chatData['PREV_MESSAGE_ID']);
 
 				$arFields['CHAT_ID'] = $chatId;
@@ -1002,7 +1014,9 @@ class CIMMessenger
 				{
 					if ($arRes['CHAT_TYPE'] == IM_MESSAGE_OPEN || $arRes['CHAT_TYPE'] == IM_MESSAGE_OPEN_LINE)
 					{
-						CPullWatch::AddToStack('IM_PUBLIC_'.$chatId, $pullMessage);
+						$watchPullMessage = $pullMessage;
+						$watchPullMessage['params']['message']['params']['NOTIFY'] = 'N';
+						CPullWatch::AddToStack('IM_PUBLIC_'.$chatId, $watchPullMessage);
 					}
 
 					$groups = self::GetEventByCounterGroup($events);
@@ -1236,6 +1250,7 @@ class CIMMessenger
 						CIMMessageParam::Set($messageID, $arFields['PARAMS']);
 
 					IM\Model\ChatTable::update($chatId, Array(
+						'MESSAGE_COUNT' => new \Bitrix\Main\DB\SqlExpression('?# + 1', 'MESSAGE_COUNT'),
 						'PREV_MESSAGE_ID' => new \Bitrix\Main\DB\SqlExpression('?#', 'LAST_MESSAGE_ID'),
 						'LAST_MESSAGE_ID' => $messageID,
 						'LAST_MESSAGE_STATUS' => IM_MESSAGE_STATUS_RECEIVED
@@ -2994,6 +3009,7 @@ class CIMMessenger
 		$phoneEnabled = false;
 		$chatExtendShowHistory = \COption::GetOptionInt('im', 'chat_extend_show_history');
 		$contactListLoad = \COption::GetOptionInt('im', 'contact_list_load');
+		$contactListBirthday = \COption::GetOptionString('im', 'contact_list_birthday');
 		$isFullTextEnabled = \Bitrix\Im\Model\MessageIndexTable::getEntity()->fullTextIndexEnabled("SEARCH_CONTENT");
 		$fullTextMinSizeToken = \Bitrix\Main\ORM\Query\Filter\Helper::getMinTokenSize();
 		$phoneCanInterceptCall = self::CanInterceptCall();
@@ -3008,6 +3024,8 @@ class CIMMessenger
 				$phoneCanCallUserNumber = self::CanUserCallUserNumber();
 			}
 		}
+
+		$counters = \Bitrix\Im\Counter::get();
 
 		$crmPath = Array();
 		$olConfig = Array();
@@ -3039,10 +3057,18 @@ class CIMMessenger
 		}
 
 		$bitrix24blocked = false;
-		if (CIMMessenger::IsBitrix24UserRestricted())
+		$bitrix24Enabled = false;
+		$bitrixPaid = true;
+		if (\Bitrix\Main\Loader::includeModule('bitrix24'))
 		{
-			$bitrix24blocked = \Bitrix\Bitrix24\Limits\User::getUserRestrictedHelperCode();
+			$bitrixPaid = CBitrix24::IsLicensePaid();
+			if (CIMMessenger::IsBitrix24UserRestricted())
+			{
+				$bitrix24blocked = \Bitrix\Bitrix24\Limits\User::getUserRestrictedHelperCode();
+			}
 		}
+
+		$userBirthday = \Bitrix\Im\Integration\Intranet\User::getBirthdayForToday();
 
 		$pathToIm = isset($arTemplate['PATH_TO_IM']) ? $arTemplate['PATH_TO_IM'] : '';
 		$pathToCall = isset($arTemplate['PATH_TO_CALL']) ? $arTemplate['PATH_TO_CALL'] : '';
@@ -3058,14 +3084,11 @@ class CIMMessenger
 			BX.ready(function() {
 				BXIM = new BX.IM(BX('bx-notifier-panel'), {
 					'init': ".($arTemplate['INIT'] == 'Y'? 'true': 'false').",
-
 					'context': '".$arTemplate["CONTEXT"]."',
 					'design': '".$arTemplate["DESIGN"]."',
 					'colors': ".(IM\Color::isEnabled()? \Bitrix\Im\Common::objectEncode(IM\Color::getSafeColorNames()): 'false').",
 					'colorsHex': ".\Bitrix\Im\Common::objectEncode(IM\Color::getSafeColors()).",
-					'mailCount': ".$arTemplate["MAIL_COUNTER"].",
-					'notifyCount': ".$arTemplate["NOTIFY_COUNTER"].",
-					'messageCount': ".$arTemplate["MESSAGE_COUNTER"].",
+					'chatCounters': {notify: ".intval($counters['TYPE']['NOTIFY']).", dialog: ".intval($counters['TYPE']['DIALOG']).", chat: ".intval($counters['TYPE']['CHAT']).", lines: ".intval($counters['TYPE']['LINES']).", mail: ".intval($arTemplate["MAIL_COUNTER"])."},
 					'counters': ".(empty($arTemplate['COUNTERS'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['COUNTERS'])).",
 					'ppStatus': ".$ppStatus.",
 					'ppServerStatus': ".$ppServerStatus.",
@@ -3076,9 +3099,10 @@ class CIMMessenger
 					'isUtfMode': ".(\Bitrix\Main\Application::getInstance()->isUtfMode()? 'true': 'false').",
 					'bitrixNetwork': ".(CIMMessenger::CheckNetwork()? 'true': 'false').",
 					'bitrixNetwork2': ".(CIMMessenger::CheckNetwork2()? 'true': 'false').",
-					'bitrix24': ".(IsModuleInstalled('bitrix24')? 'true': 'false').",
+					'bitrix24': ".($bitrix24Enabled? 'true': 'false').",
 					'bitrix24blocked': ".($bitrix24blocked? $bitrix24blocked: 'false').",
 					'bitrix24net': ".(IsModuleInstalled('b24network')? 'true': 'false').",
+					'bitrixPaid': ".($bitrixPaid? 'true': 'false').",
 					'bitrixIntranet': ".(IsModuleInstalled('intranet')? 'true': 'false').",
 					'bitrixXmpp': ".(IsModuleInstalled('xmpp')? 'true': 'false').",
 					'bitrixMobile': ".(IsModuleInstalled('mobile')? 'true': 'false').",
@@ -3100,27 +3124,10 @@ class CIMMessenger
 					'settings': ".\Bitrix\Im\Common::objectEncode($arTemplate['SETTINGS']).",
 					'settingsNotifyBlocked': ".(empty($arTemplate['SETTINGS_NOTIFY_BLOCKED'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['SETTINGS_NOTIFY_BLOCKED'])).",
 
-					'notify': ".(empty($arTemplate['NOTIFY']['notify'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['NOTIFY']['notify'])).",
-					'unreadNotify' : ".(empty($arTemplate['NOTIFY']['unreadNotify'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['NOTIFY']['unreadNotify'])).",
-					'flashNotify' : ".(empty($arTemplate['NOTIFY']['flashNotify'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['NOTIFY']['flashNotify'])).",
-					'countNotify' : ".intval($arTemplate['NOTIFY']['countNotify']).",
-					'loadNotify' : ".($arTemplate['NOTIFY']['loadNotify']? 'true': 'false').",
-
-					'recent': ".(empty($arTemplate['RECENT']) && $arTemplate['RECENT'] !== false? '[]': \Bitrix\Im\Common::objectEncode($arTemplate['RECENT'])).",
-					'users': ".(empty($arTemplate['CONTACT_LIST']['users'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['CONTACT_LIST']['users'])).",
-					'businessUsers': ".($businessUsers === false? false: empty($businessUsers)? '{}': \Bitrix\Im\Common::objectEncode($businessUsers)).",
-					'groups': ".(empty($arTemplate['CONTACT_LIST']['groups'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['CONTACT_LIST']['groups'])).",
-					'userInGroup': ".(empty($arTemplate['CONTACT_LIST']['userInGroup'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['CONTACT_LIST']['userInGroup'])).",
-					'chat': ".(empty($arTemplate['CHAT']['chat'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['CHAT']['chat'])).",
-					'userInChat': ".(empty($arTemplate['CHAT']['userInChat'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['CHAT']['userInChat'])).",
-					'userChatBlockStatus': ".(empty($arTemplate['CHAT']['userChatBlockStatus'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['CHAT']['userChatBlockStatus'])).",
+					'recent': ".(empty($arTemplate['RECENT']) && $arTemplate['RECENT'] !== false? '[]': \Bitrix\Im\Common::objectEncode($arTemplate['RECENT'], true)).",
+					'businessUsers': ".($businessUsers === false? 'false': (empty($businessUsers)? '{}': \Bitrix\Im\Common::objectEncode($businessUsers))).",
 					'userChatOptions': ".\Bitrix\Im\Common::objectEncode(CIMChat::GetChatOptions()).",
-					'message' : ".(empty($arTemplate['MESSAGE']['message'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['MESSAGE']['message'])).",
-					'files' : ".(empty($arTemplate['MESSAGE']['files'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['MESSAGE']['files'])).",
-					'showMessage' : ".(empty($arTemplate['MESSAGE']['usersMessage'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['MESSAGE']['usersMessage'])).",
-					'unreadMessage' : ".(empty($arTemplate['MESSAGE']['unreadMessage'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['MESSAGE']['unreadMessage'])).",
-					'flashMessage' : ".(empty($arTemplate['MESSAGE']['flashMessage'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['MESSAGE']['flashMessage'])).",
-					'history' : ".\Bitrix\Im\Common::objectEncode(['fullTextEnabled' => $isFullTextEnabled, 'ftMinSizeToken' => $fullTextMinSizeToken]).",
+					'historyOptions' : ".\Bitrix\Im\Common::objectEncode(['fullTextEnabled' => $isFullTextEnabled, 'ftMinSizeToken' => $fullTextMinSizeToken]).",
 					'openMessenger' : ".(isset($_REQUEST['IM_DIALOG'])? "'".CUtil::JSEscape(htmlspecialcharsbx($_REQUEST['IM_DIALOG']))."'": 'false').",
 					'openHistory' : ".(isset($_REQUEST['IM_HISTORY'])? "'".CUtil::JSEscape(htmlspecialcharsbx($_REQUEST['IM_HISTORY']))."'": 'false').",
 					'openNotify' : ".(isset($_GET['IM_NOTIFY']) && $_GET['IM_NOTIFY'] == 'Y'? 'true': 'false').",
@@ -3135,6 +3142,8 @@ class CIMMessenger
 					'userColor': '".IM\Color::getCode($userColor)."',
 					'userGender': '".IM\User::getInstance()->getGender()."',
 					'userExtranet': ".(IM\User::getInstance()->isExtranet()? 'true': 'false').",
+					'user': ".($arTemplate['CURRENT_USER']? \Bitrix\Im\Common::objectEncode($arTemplate['CURRENT_USER']): '{}').",
+					'userBirthday': ".(!empty($userBirthday)? \Bitrix\Im\Common::objectEncode($userBirthday): '[]').",
 					'webrtc': {
 						'turnServer' : '".CUtil::JSEscape($arTemplate['TURN_SERVER'])."', 
 						'turnServerFirefox' : '".CUtil::JSEscape($arTemplate['TURN_SERVER_FIREFOX'])."', 
@@ -3152,154 +3161,10 @@ class CIMMessenger
 						'formatRecordDate': '".\Bitrix\Main\Context::getCurrent()->getCulture()->getShortDateFormat()."'						
 					},
 					'openlines': ".\Bitrix\Im\Common::objectEncode($olConfig).",
-					'options': {'contactListLoad' : ".($contactListLoad? 'true': 'false').", 'chatExtendShowHistory' : ".($chatExtendShowHistory? 'true': 'false').", 'frameMode': ".($_REQUEST['IFRAME'] == 'Y'? 'true': 'false').", 'frameType': '".($_REQUEST['IFRAME_TYPE'] == 'SIDE_SLIDER'? 'SIDE_SLIDER': 'NONE')."', 'showRecent': ".($_REQUEST['IM_RECENT'] == 'N'? 'false': 'true').", 'showMenu': ".($_REQUEST['IM_MENU'] == 'N'? 'false': 'true')."},
+					'options': {'contactListLoad' : ".($contactListLoad? 'true': 'false').", 'contactListBirthday' : '".$contactListBirthday."', 'chatExtendShowHistory' : ".($chatExtendShowHistory? 'true': 'false').", 'frameMode': ".($_REQUEST['IFRAME'] == 'Y'? 'true': 'false').", 'frameType': '".($_REQUEST['IFRAME_TYPE'] == 'SIDE_SLIDER'? 'SIDE_SLIDER': 'NONE')."', 'showRecent': ".($_REQUEST['IM_RECENT'] == 'N'? 'false': 'true').", 'showMenu': ".($_REQUEST['IM_MENU'] == 'N'? 'false': 'true')."},
 					'disk': {'enable' : ".($diskStatus? 'true': 'false').", 'external' : ".($diskExternalLinkStatus? 'true': 'false')."},
 					'zoomStatus': {'active' : ".(Zoom::isActive()? 'true': 'false').", 'enabled' : ".(Zoom::isAvailable()? 'true': 'false').", 'connected' : ".(Zoom::isConnected($USER->GetID())? 'true': 'false')."},
 					'path' : {'lf' : '".CUtil::JSEscape($pathToLf)."', 'profile' : '".CUtil::JSEscape($arTemplate['PATH_TO_USER_PROFILE'])."', 'profileTemplate' : '".CUtil::JSEscape($arTemplate['PATH_TO_USER_PROFILE_TEMPLATE'])."', 'mail' : '".CUtil::JSEscape($arTemplate['PATH_TO_USER_MAIL'])."', 'im': '".CUtil::JSEscape($pathToIm)."', 'call': '".CUtil::JSEscape($pathToCall)."', 'file': '".CUtil::JSEscape($pathToFile)."', 'crm' : ".\Bitrix\Im\Common::objectEncode($crmPath).", 'disk' : ".\Bitrix\Im\Common::objectEncode($pathToDisk)."}
-				});
-			});
-		";
-
-		return $sJS;
-	}
-
-	public static function GetMobileTemplateJS($arParams, $arTemplate)
-	{
-		global $USER;
-
-		$ppStatus = 'false';
-		$ppServerStatus = 'false';
-		$updateStateInterval = 'auto';
-		if (CModule::IncludeModule("pull"))
-		{
-			$ppStatus = CPullOptions::ModuleEnable()? 'true': 'false';
-			$ppServerStatus = CPullOptions::GetNginxStatus()? 'true': 'false';
-			$updateStateInterval = CPullOptions::GetNginxStatus()? self::GetSessionLifeTime(): 80;
-			if ($updateStateInterval > 100)
-			{
-				if ($updateStateInterval > 3600)
-					$updateStateInterval = 3600;
-
-				$updateStateInterval = $updateStateInterval-60;
-			}
-		}
-
-		$diskStatus = CIMDisk::Enabled();
-		$diskExternalLinkStatus = CIMDisk::EnabledExternalLink();
-
-		$phoneDeviceActive = false;
-
-		$chatExtendShowHistory = \COption::GetOptionInt('im', 'chat_extend_show_history');
-
-		$phoneEnabled = self::CheckPhoneStatus() && CModule::IncludeModule('mobileapp') && \Bitrix\MobileApp\Mobile::getInstance()->isWebRtcSupported();
-		if ($phoneEnabled && CModule::IncludeModule('voximplant'))
-		{
-			$phoneDeviceActive = CVoxImplantUser::GetPhoneActive($USER->GetId());
-		}
-
-		$olConfig = Array();
-		$crmPath = Array();
-
-		if (\Bitrix\Main\Loader::includeModule('crm'))
-		{
-			$crmPath['LEAD'] = \Bitrix\Im\Integration\Crm\Common::getLink('LEAD');
-			$crmPath['CONTACT'] = \Bitrix\Im\Integration\Crm\Common::getLink('CONTACT');
-			$crmPath['COMPANY'] = \Bitrix\Im\Integration\Crm\Common::getLink('COMPANY');
-			$crmPath['DEAL'] = \Bitrix\Im\Integration\Crm\Common::getLink('DEAL');
-		}
-
-		if (CModule::IncludeModule('imopenlines'))
-		{
-			$olConfig['canDeleteMessage'] = str_replace('.', '_', \Bitrix\Imopenlines\Connector::getListCanDeleteMessage());
-			$olConfig['canDeleteOwnMessage'] = str_replace('.', '_', \Bitrix\Imopenlines\Connector::getListCanDeleteOwnMessage());
-			$olConfig['canUpdateOwnMessage'] = str_replace('.', '_', \Bitrix\Imopenlines\Connector::getListCanUpdateOwnMessage());
-			$olConfig['queue'] = Array();
-			foreach (\Bitrix\ImOpenLines\Config::getQueueList($USER->GetID()) as $config)
-			{
-				$olConfig['queue'][] = array_change_key_case($config, CASE_LOWER);
-			}
-		}
-
-		$mobileAction = isset($arTemplate["ACTION"])? $arTemplate["ACTION"]: 'none';
-		$mobileCallMethod = isset($arTemplate["CALL_METHOD"])? $arTemplate["CALL_METHOD"]: 'device';
-
-		$userColor = isset($arTemplate['CONTACT_LIST']['users'][$USER->GetID()]['color']) ? $arTemplate['CONTACT_LIST']['users'][$USER->GetID()]['color']: '';
-
-		$sJS = "
-			BX.ready(function() {
-				BXIM = new BX.ImMobile({
-					'mobileAction': '".$mobileAction."',
-					'mobileCallMethod': '".$mobileCallMethod."',
-
-					'colors': ".(IM\Color::isEnabled()? \Bitrix\Im\Common::objectEncode(IM\Color::getSafeColorNames()): 'false').",
-					'mailCount': ".intval($arTemplate["MAIL_COUNTER"]).",
-					'notifyCount': ".intval($arTemplate["NOTIFY_COUNTER"]).",
-					'messageCount': ".intval($arTemplate["MESSAGE_COUNTER"]).",
-					'counters': ".(empty($arTemplate['COUNTERS'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['COUNTERS'])).",
-					'ppStatus': ".$ppStatus.",
-					'ppServerStatus': ".$ppServerStatus.",
-					'updateStateInterval': '".$updateStateInterval."',
-					'openChatEnable': ".(CIMMessenger::CheckEnableOpenChat()? 'true': 'false').",
-					'xmppStatus': ".(CIMMessenger::CheckXmppStatusOnline()? 'true': 'false').",
-					'isAdmin': ".(self::IsAdmin()? 'true': 'false').",
-					'bitrixNetwork': ".(CIMMessenger::CheckNetwork()? 'true': 'false').",
-					'bitrixNetwork2': ".(CIMMessenger::CheckNetwork2()? 'true': 'false').",
-					'bitrix24': ".(IsModuleInstalled('bitrix24')? 'true': 'false').",
-					'bitrix24net': ".(IsModuleInstalled('b24network')? 'true': 'false').",
-					'bitrixIntranet': ".(IsModuleInstalled('intranet')? 'true': 'false').",
-					'bitrixXmpp': ".(IsModuleInstalled('xmpp')? 'true': 'false').",
-					'bitrixMobile': ".(IsModuleInstalled('mobile')? 'true': 'false').",
-					'bitrixOpenLines': ".(IsModuleInstalled('imopenlines')? 'true': 'false').",
-					'desktopStatus': ".(CIMMessenger::CheckDesktopStatusOnline()? 'true': 'false').",
-					'desktopVersion': ".CIMMessenger::GetDesktopVersion().",
-					'language': '".LANGUAGE_ID."',
-
-					'bot': ".(empty($arTemplate['BOT'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate["BOT"])).",
-					'command': ".(empty($arTemplate['COMMAND'])? '[]': \Bitrix\Im\Common::objectEncode($arTemplate["COMMAND"])).",
-					'textareaIcon': ".(empty($arTemplate['TEXTAREA_ICON'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate["TEXTAREA_ICON"])).",
-					
-					'smile': ".(empty($arTemplate['SMILE'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate["SMILE"])).",
-					'smileSet': ".(empty($arTemplate['SMILE_SET'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate["SMILE_SET"])).",
-					'settings': ".(empty($arTemplate['SETTINGS'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['SETTINGS'])).",
-					'settingsNotifyBlocked': ".(empty($arTemplate['SETTINGS_NOTIFY_BLOCKED'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['SETTINGS_NOTIFY_BLOCKED'])).",
-
-					'notify': ".(empty($arTemplate['NOTIFY']['notify'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['NOTIFY']['notify'])).",
-					'unreadNotify' : ".(empty($arTemplate['NOTIFY']['unreadNotify'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['NOTIFY']['unreadNotify'])).",
-					'flashNotify' : ".(empty($arTemplate['NOTIFY']['flashNotify'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['NOTIFY']['flashNotify'])).",
-					'countNotify' : ".intval($arTemplate['NOTIFY']['countNotify']).",
-					'loadNotify' : ".($arTemplate['NOTIFY']['loadNotify']? 'true': 'false').",
-
-					'recent': ".(empty($arTemplate['RECENT']) && $arTemplate['RECENT'] !== false? '[]': \Bitrix\Im\Common::objectEncode($arTemplate['RECENT'])).",
-					'users': ".(empty($arTemplate['CONTACT_LIST']['users'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['CONTACT_LIST']['users'])).",
-					'groups': ".(empty($arTemplate['CONTACT_LIST']['groups'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['CONTACT_LIST']['groups'])).",
-					'userInGroup': ".(empty($arTemplate['CONTACT_LIST']['userInGroup'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['CONTACT_LIST']['userInGroup'])).",
-					'chat': ".(empty($arTemplate['CHAT']['chat'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['CHAT']['chat'])).",
-					'userInChat': ".(empty($arTemplate['CHAT']['userInChat'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['CHAT']['userInChat'])).",
-					'userChatBlockStatus': ".(empty($arTemplate['CHAT']['userChatBlockStatus'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['CHAT']['userChatBlockStatus'])).",
-					'userChatOptions': ".\Bitrix\Im\Common::objectEncode(CIMChat::GetChatOptions()).",
-					'message' : ".(empty($arTemplate['MESSAGE']['message'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['MESSAGE']['message'])).",
-					'files' : ".(empty($arTemplate['MESSAGE']['files'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['MESSAGE']['files'])).",
-					'showMessage' : ".(empty($arTemplate['MESSAGE']['usersMessage'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['MESSAGE']['usersMessage'])).",
-					'unreadMessage' : ".(empty($arTemplate['MESSAGE']['unreadMessage'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['MESSAGE']['unreadMessage'])).",
-					'flashMessage' : ".(empty($arTemplate['MESSAGE']['flashMessage'])? '{}': \Bitrix\Im\Common::objectEncode($arTemplate['MESSAGE']['flashMessage'])).",
-					'history' : {},
-					'openMessenger' : ".(isset($_GET['IM_DIALOG'])? "'".CUtil::JSEscape(htmlspecialcharsbx($_GET['IM_DIALOG']))."'": 'false').",
-					'openHistory' : ".(isset($_GET['IM_HISTORY'])? "'".CUtil::JSEscape(htmlspecialcharsbx($_GET['IM_HISTORY']))."'": 'false').",
-					'openNotify' : ".(isset($_GET['IM_NOTIFY']) && $_GET['IM_NOTIFY'] == 'Y'? 'true': 'false').",
-					'openSettings' : ".(isset($_GET['IM_SETTINGS'])? $_GET['IM_SETTINGS'] == 'Y'? "'true'": "'".CUtil::JSEscape(htmlspecialcharsbx($_GET['IM_SETTINGS']))."'": 'false').",
-
-					'generalChatId': ".CIMChat::GetGeneralChatId().",
-					'canSendMessageGeneralChat': ".(CIMChat::CanSendMessageToGeneralChat($USER->GetID())? 'true': 'false').",
-					'userId': ".$USER->GetID().",
-					'userEmail': '".CUtil::JSEscape($USER->GetEmail())."',
-					'userColor': '".IM\Color::getCode($userColor)."',
-					'userGender': '".IM\User::getInstance()->getGender()."',
-					'userExtranet': ".(IM\User::getInstance()->isExtranet()? 'true': 'false').",
-					'webrtc': {'turnServer' : '".(empty($arTemplate['TURN_SERVER'])? '': CUtil::JSEscape($arTemplate['TURN_SERVER']))."', 'turnServerLogin' : '".(empty($arTemplate['TURN_SERVER_LOGIN'])? '': CUtil::JSEscape($arTemplate['TURN_SERVER_LOGIN']))."', 'turnServerPassword' : '".(empty($arTemplate['TURN_SERVER_PASSWORD'])? '': CUtil::JSEscape($arTemplate['TURN_SERVER_PASSWORD']))."', 'mobileSupport': ".($arTemplate['WEBRTC_MOBILE_SUPPORT']? 'true': 'false').", 'phoneEnabled': ".($phoneEnabled? 'true': 'false')."},
-					'openlines': ".\Bitrix\Im\Common::objectEncode($olConfig).",
-					'options': {'chatExtendShowHistory' : ".($chatExtendShowHistory? 'true': 'false')."},
-					'disk': {'enable' : ".($diskStatus? 'true': 'false').", 'external' : ".($diskExternalLinkStatus? 'true': 'false')."},
-					'path' : {'lf' : '".(empty($arTemplate['PATH_TO_LF'])? '/': CUtil::JSEscape($arTemplate['PATH_TO_LF']))."', 'profile' : '".(empty($arTemplate['PATH_TO_USER_PROFILE'])? '': CUtil::JSEscape($arTemplate['PATH_TO_USER_PROFILE']))."', 'profileTemplate' : '".(empty($arTemplate['PATH_TO_USER_PROFILE_TEMPLATE'])? '': CUtil::JSEscape($arTemplate['PATH_TO_USER_PROFILE_TEMPLATE']))."', 'mail' : '".(empty($arTemplate['PATH_TO_USER_MAIL'])? '': CUtil::JSEscape($arTemplate['PATH_TO_USER_MAIL']))."', 'crm' : ".\Bitrix\Im\Common::objectEncode($crmPath)."}
 				});
 			});
 		";
@@ -3330,7 +3195,6 @@ class CIMMessenger
 
 		$diskStatus = CIMDisk::Enabled();
 		$diskExternalLinkStatus = CIMDisk::EnabledExternalLink();
-
 
 		$chatExtendShowHistory = \COption::GetOptionInt('im', 'chat_extend_show_history');
 
@@ -3363,15 +3227,11 @@ class CIMMessenger
 		$mobileAction = isset($arTemplate["ACTION"])? $arTemplate["ACTION"]: 'none';
 		$mobileCallMethod = isset($arTemplate["CALL_METHOD"])? $arTemplate["CALL_METHOD"]: 'device';
 
-		$userColor = isset($arTemplate['CONTACT_LIST']['users'][$USER->GetID()]['color']) ? $arTemplate['CONTACT_LIST']['users'][$USER->GetID()]['color']: '';
-
 		$initConfig = [
 			'mobileAction' => $mobileAction,
 			'mobileCallMethod' => $mobileCallMethod,
 			'colors' => \Bitrix\Im\Color::isEnabled()? \Bitrix\Im\Color::getSafeColorNames(): false,
-			'mailCount' => (int)$arTemplate["MAIL_COUNTER"],
-			'notifyCount' => (int)$arTemplate["NOTIFY_COUNTER"],
-			'messageCount' => (int)$arTemplate["MESSAGE_COUNTER"],
+			'chatCounters' => ['notify' => intval($counters['TYPE']['NOTIFY']), 'dialog' => intval($counters['TYPE']['DIALOG']), 'chat' => intval($counters['TYPE']['CHAT']), 'lines' => intval($counters['TYPE']['LINES']), 'mail' => intval($arTemplate["MAIL_COUNTER"])],
 			'counters' => empty($arTemplate['COUNTERS'])? false: $arTemplate['COUNTERS'],
 			'ppStatus' => $ppStatus,
 			'ppServerStatus' => $ppServerStatus,
@@ -3400,26 +3260,9 @@ class CIMMessenger
 			'settings' => empty($arTemplate['SETTINGS'])? false: $arTemplate['SETTINGS'],
 			'settingsNotifyBlocked' => empty($arTemplate['SETTINGS_NOTIFY_BLOCKED'])? false: $arTemplate['SETTINGS_NOTIFY_BLOCKED'],
 
-			'notify' => empty($arTemplate['NOTIFY']['notify'])? false: $arTemplate['NOTIFY']['notify'],
-			'unreadNotify' => empty($arTemplate['NOTIFY']['unreadNotify'])? false: $arTemplate['NOTIFY']['unreadNotify'],
-			'flashNotify' => empty($arTemplate['NOTIFY']['flashNotify'])? false: $arTemplate['NOTIFY']['flashNotify'],
-			'countNotify' => (int)$arTemplate['NOTIFY']['countNotify'],
-			'loadNotify' => (bool)$arTemplate['NOTIFY']['loadNotify'],
-
-			'recent' => empty($arTemplate['RECENT']) && $arTemplate['RECENT'] !== false? false: $arTemplate['RECENT'],
-			'users' => empty($arTemplate['CONTACT_LIST']['users'])? false: $arTemplate['CONTACT_LIST']['users'],
+			'recent' => false,
 			'businessUsers' => $businessUsers === false? false: empty($businessUsers)? null: $businessUsers,
-			'groups' => empty($arTemplate['CONTACT_LIST']['groups'])? false: $arTemplate['CONTACT_LIST']['groups'],
-			'userInGroup' => empty($arTemplate['CONTACT_LIST']['userInGroup'])? false: $arTemplate['CONTACT_LIST']['userInGroup'],
-			'chat' => empty($arTemplate['CHAT']['chat'])? false: $arTemplate['CHAT']['chat'],
-			'userInChat' => empty($arTemplate['CHAT']['userInChat'])? false: $arTemplate['CHAT']['userInChat'],
-			'userChatBlockStatus' => empty($arTemplate['CHAT']['userChatBlockStatus'])? false: $arTemplate['CHAT']['userChatBlockStatus'],
 			'userChatOptions' => CIMChat::GetChatOptions(),
-			'message' => empty($arTemplate['MESSAGE']['message'])? false: $arTemplate['MESSAGE']['message'],
-			'files' => empty($arTemplate['MESSAGE']['files'])? false: $arTemplate['MESSAGE']['files'],
-			'showMessage' => empty($arTemplate['MESSAGE']['usersMessage'])? false: $arTemplate['MESSAGE']['usersMessage'],
-			'unreadMessage' => empty($arTemplate['MESSAGE']['unreadMessage'])? false: $arTemplate['MESSAGE']['unreadMessage'],
-			'flashMessage' => empty($arTemplate['MESSAGE']['flashMessage'])? false: $arTemplate['MESSAGE']['flashMessage'],
 			'history' => false,
 			'openMessenger' => false,
 			'openHistory' => false,
@@ -3430,7 +3273,7 @@ class CIMMessenger
 			'canSendMessageGeneralChat' => (bool)CIMChat::CanSendMessageToGeneralChat($USER->GetID()),
 			'userId' => $USER->GetID(),
 			'userEmail' => $USER->GetEmail(),
-			'userColor' => \Bitrix\Im\Color::getCode($userColor),
+			'userColor' => \Bitrix\Im\Color::getCode(\Bitrix\Im\User::getInstance()->getColor()),
 			'userGender' => \Bitrix\Im\User::getInstance()->getGender(),
 			'userExtranet' => (bool)\Bitrix\Im\User::getInstance()->isExtranet(),
 			'webrtc' => [

@@ -10,7 +10,6 @@ const aliases = {
 
 const reEscape = /[<>'"]/g;
 const escapeEntities = {
-	'&': '&amp;',
 	'<': '&lt;',
 	'>': '&gt;',
 	"'": '&#39;',
@@ -42,10 +41,11 @@ export default class MenuItem extends EventEmitter
 		this.id = options.id || Text.getRandom();
 
 		this.text = '';
-		this.allowHtml = true;
+		this.allowHtml = false;
 		if (Type.isStringFilled(options.html))
 		{
 			this.text = options.html;
+			this.allowHtml = true;
 		}
 		else if (Type.isStringFilled(options.text))
 		{
@@ -94,7 +94,7 @@ export default class MenuItem extends EventEmitter
 
 		/**
 		 *
-		 * @type {{item: Element, text: Element}}
+		 * @type {{item: HTMLElement, text: HTMLElement}}
 		 */
 		this.layout = {
 			item: null,
@@ -265,6 +265,7 @@ export default class MenuItem extends EventEmitter
 		options.autoHide = false;
 		options.menuShowDelay = this.menuShowDelay;
 		options.cacheable = this.isCacheable();
+		options.targetContainer = this.getMenuWindow().getPopupWindow().getTargetContainer();
 		options.bindOptions = {
 			forceTop: true,
 			forceLeft: true,
@@ -362,7 +363,7 @@ export default class MenuItem extends EventEmitter
 		}
 
 		const popupWindow = this.subMenuWindow.getPopupWindow();
-		const itemRect = this.layout.item.getBoundingClientRect();
+		const itemRect = this.getBoundingClientRect();
 
 		let offsetLeft = itemRect.width + this.subMenuOffsetX;
 		let offsetTop = itemRect.height + this.getPopupPadding();
@@ -373,8 +374,10 @@ export default class MenuItem extends EventEmitter
 		const popupHeight = popupWindow.getPopupContainer().offsetHeight;
 		const popupBottom = itemRect.top + popupHeight;
 
-		const clientWidth = document.documentElement.clientWidth;
-		const clientHeight = document.documentElement.clientHeight;
+		const targetContainer = this.getMenuWindow().getPopupWindow().getTargetContainer();
+		const isGlobalContext = this.getMenuWindow().getPopupWindow().isTargetDocumentBody();
+		const clientWidth = isGlobalContext ? document.documentElement.clientWidth : targetContainer.offsetWidth;
+		const clientHeight = isGlobalContext ? document.documentElement.clientHeight : targetContainer.offsetHeight;
 
 		// let's try to fit a submenu to the browser viewport
 		const exceeded = popupBottom - clientHeight;
@@ -411,6 +414,27 @@ export default class MenuItem extends EventEmitter
 		popupWindow.setOffset({ offsetLeft: offsetLeft, offsetTop: -offsetTop });
 		popupWindow.setAngle({ position: anglePosition, offset: angleOffset });
 		popupWindow.adjustPosition();
+	}
+
+	getBoundingClientRect(): DOMRect
+	{
+		const popup = this.getMenuWindow().getPopupWindow();
+		if (popup.isTargetDocumentBody())
+		{
+			return this.layout.item.getBoundingClientRect();
+		}
+		else
+		{
+			const rect = popup.getPositionRelativeToTarget(this.layout.item);
+			const targetContainer = this.getMenuWindow().getPopupWindow().getTargetContainer();
+
+			return new DOMRect(
+				rect.left - targetContainer.scrollLeft,
+				rect.top - targetContainer.scrollTop,
+				rect.width,
+				rect.height
+			);
+		}
 	}
 
 	getPopupPadding(): number

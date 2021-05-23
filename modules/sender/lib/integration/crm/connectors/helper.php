@@ -233,7 +233,12 @@ class Helper
 	 * @param integer $dataTypeId Data type ID.
 	 * @return Entity\Query
 	 */
-	public static function prepareQuery(Entity\Query $query, $dataTypeId = null)
+	public static function prepareQuery(
+		Entity\Query $query,
+		$dataTypeId = null,
+		$entityDbName = null,
+		$entityName = null
+	)
 	{
 		$map = array(
 			Recipient\Type::EMAIL => [
@@ -263,7 +268,7 @@ class Helper
 			],
 		);
 
-		$entityName = mb_strtoupper($query->getEntity()->getName());
+		$entityName = $entityName ?? mb_strtoupper($query->getEntity()->getName());
 
 		if ($dataTypeId)
 		{
@@ -287,7 +292,7 @@ class Helper
 			$query->where($field['name'], $field['operator'], $field['value']);
 			if ($dataTypeId === Recipient\Type::IM)
 			{
-				$query->whereExists(self::getImSqlExpression($query));
+				$query->whereExists(self::getImSqlExpression($query, $entityDbName, $entityName));
 			}
 		}
 		else if (!in_array($entityName, ['CONTACT', 'COMPANY']))
@@ -304,7 +309,7 @@ class Helper
 					$filter->where(
 						Entity\Query::filter()
 							->where($field['name'], $field['operator'], $field['value'])
-							->whereExists(self::getImSqlExpression($query))
+							->whereExists(self::getImSqlExpression($query, $entityDbName, $entityName))
 					);
 				}
 				else
@@ -324,7 +329,11 @@ class Helper
 		return $query;
 	}
 
-	protected static function getImSqlExpression(Entity\Query $query)
+	protected static function getImSqlExpression(
+		Entity\Query $query,
+		$entityDbName = null,
+		$entityName = null
+	)
 	{
 		$codes = Integration\Im\Service::getExcludedChannelCodes();
 		if (empty($codes))
@@ -332,10 +341,12 @@ class Helper
 			$codes = array('livechat', 'network');
 		}
 
-		$entityTypeName = mb_strtoupper($query->getEntity()->getName());
+		$column = $entityDbName ? 'CRM_ENTITY_ID' : 'ID';
+
+		$entityTypeName = $entityName ?? mb_strtoupper($query->getEntity()->getName());
 		$filterImolSql = "SELECT FM.VALUE " .
 			"FROM b_crm_field_multi FM " .
-			"WHERE FM.ENTITY_ID = '$entityTypeName' AND FM.ELEMENT_ID = ?#.ID " .
+			"WHERE FM.ENTITY_ID = '$entityTypeName' AND FM.ELEMENT_ID = ?#.{$column} " .
 			"AND FM.TYPE_ID = 'IM' " .
 			"AND FM.VALUE NOT REGEXP '^imol\\\\|(" . implode('|', $codes) . ")' " .
 			"ORDER BY FM.ID LIMIT 1";

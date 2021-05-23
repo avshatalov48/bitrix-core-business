@@ -169,7 +169,7 @@ class CDeliveryRusPostFirst
 
 	function GetSettings($strSettings)
 	{
-		$result = unserialize($strSettings);
+		$result = unserialize($strSettings, ['allowed_classes' => false]);
 
 		if(isset($result['RESET_TARIF_SETTINGS']))
 			unset($result['RESET_TARIF_SETTINGS']);

@@ -223,10 +223,7 @@ class Client
 			$queryFields['INSTALL_HASH'] = $applicationSettings["INSTALL_HASH"];
 		}
 
-		if (
-			$applicationSettings['BY_SUBSCRIPTION'] === 'Y'
-			&& \Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24')
-		)
+		if ($applicationSettings['BY_SUBSCRIPTION'] === 'Y')
 		{
 			$method = static::METHOD_APPLICATION_INSTALL_SUBSCRIPTION;
 		}

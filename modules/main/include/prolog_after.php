@@ -17,7 +17,7 @@ use Bitrix\Main;
 
 global $USER, $APPLICATION;
 
-define("START_EXEC_PROLOG_AFTER_1", microtime());
+define("START_EXEC_PROLOG_AFTER_1", microtime(true));
 $GLOBALS["BX_STATE"] = "PA";
 
 if(!headers_sent())
@@ -141,7 +141,7 @@ if($APPLICATION->GetShowIncludeAreas())
 		}
 	}
 }
-define("START_EXEC_PROLOG_AFTER_2", microtime());
+define("START_EXEC_PROLOG_AFTER_2", microtime(true));
 $GLOBALS["BX_STATE"] = "WA";
 $APPLICATION->RestartWorkarea(true);
 

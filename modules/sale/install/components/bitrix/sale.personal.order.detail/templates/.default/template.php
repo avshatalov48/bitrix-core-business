@@ -247,7 +247,7 @@ else
 															&& $property['TYPE'] !== 'FILE'
 															&& $property['TYPE'] !== 'LOCATION')
 														{
-															$propertyList = unserialize($property["VALUE"]);
+															$propertyList = unserialize($property["VALUE"], ['allowed_classes' => false]);
 															foreach ($propertyList as $propertyElement)
 															{
 																echo $propertyElement . '</br>';

@@ -25,8 +25,16 @@ use Bitrix\Main\Text\HtmlFilter;
 			}
 
 			$src = \CComponentEngine::MakePathFromTemplate(
-				'/bitrix/components/bitrix/crm.deal.show/show_file.php?ownerId=#owner_id#&fieldName=#field_name#&fileId=#file_id#',
+				'/bitrix/components/bitrix/#component_name#/show_file.php?ownerId=#owner_id#&fieldName=#field_name#&fileId=#file_id#',
 				[
+					// @todo leave only assignment $arResult['additionalParameters']['componentName'] in other revision,
+					// no component 'crm.deal.show' selection.
+					// This condition only for backward compatibility now.
+					'component_name' => (
+						empty($arResult['additionalParameters']['componentName'])
+							? 'crm.deal.show'
+							: $arResult['additionalParameters']['componentName']
+					),
 					'file_id' => $fileInfo['ID'],
 					'field_name' => $arResult['userField']['FIELD_NAME'],
 					'owner_id' => $arResult['userField']['ENTITY_VALUE_ID']

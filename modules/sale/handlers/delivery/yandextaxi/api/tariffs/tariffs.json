@@ -1,0 +1,104 @@
+{
+    "available_tariffs": [
+        {
+            "name": "courier",
+            "title": "Courier",
+            "text": "For small items and documents",
+            "minimal_price": 149.0,
+            "supported_requirements": [
+                {
+                    "name": "cargo_options",
+                    "title": "Extra options",
+                    "text": "Extra options",
+                    "type": "multi_select",
+                    "required": false,
+                    "options": [
+                        {
+                            "title": "Thermal delivery box",
+                            "text": "Thermal delivery box required",
+                            "value": "thermobag"
+                        },
+                        {
+                            "title": "Only by car",
+                            "text": "Only by car",
+                            "value": "auto_courier"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "express",
+            "title": "Delivery",
+            "text": "For anything that fits in the trunk",
+            "minimal_price": 149.0,
+            "supported_requirements": [
+                {
+                    "name": "cargo_options",
+                    "title": "Extra options",
+                    "text": "Extra options",
+                    "type": "multi_select",
+                    "required": false,
+                    "options": [
+                        {
+                            "title": "Thermal delivery box",
+                            "text": "Thermal delivery box required",
+                            "value": "thermobag"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "cargo",
+            "title": "Cargo",
+            "text": "When you need a bigger car",
+            "minimal_price": 699.0,
+            "supported_requirements": [
+                {
+                    "name": "cargo_type",
+                    "title": "Cargo area type",
+                    "text": "Cargo area type",
+                    "type": "select",
+                    "required": true,
+                    "options": [
+                        {
+                            "title": "Small cargo area",
+                            "text": "170 x 100 x 90 cm",
+                            "value": "van"
+                        },
+                        {
+                            "title": "Medium cargo area",
+                            "text": "260 x 160 x 150 cm",
+                            "value": "lcv_m"
+                        },
+                        {
+                            "title": "Large cargo area",
+                            "text": "400 x 190 x 200 cm",
+                            "value": "lcv_l"
+                        }
+                    ]
+                },
+                {
+                    "name": "cargo_loaders",
+                    "title": "Number of loaders",
+                    "text": "Number of loaders",
+                    "type": "select",
+                    "required": false,
+                    "options": [
+                        {
+                            "title": "1 loader",
+                            "text": "1 loader",
+                            "value": 1
+                        },
+                        {
+                            "title": "2 loaders",
+                            "text": "2 loaders",
+                            "value": 2
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

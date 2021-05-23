@@ -108,6 +108,11 @@ class NoRelationPermission
 
 	public static function cleaningAgent()
 	{
+		if (!IsModuleInstalled('disk'))
+		{
+			return '\Bitrix\Im\Disk\NoRelationPermission::cleaningAgent();';
+		}
+
 		$relation = array();
 
 		$raw = NoRelationPermissionDiskTable::getList(array(

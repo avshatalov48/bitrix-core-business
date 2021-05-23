@@ -1,10 +1,12 @@
-<?
+<?php
 $MESS["ADS_CLIENT_VIEW"] = "View ad recipients";
 $MESS["ADS_CONNECT_CABINET"] = "Connect ad accounts";
 $MESS["ADS_FB_INSTAGRAM_EDIT"] = "Manage Facebook+Instagram Ads";
 $MESS["ADS_GOOGLE_EDIT"] = "Manage Google AdWords";
 $MESS["ADS_LOOK_ALIKE_FB_EDIT"] = "Manage Facebook+Instagram Look-alike Ads";
 $MESS["ADS_LOOK_ALIKE_VK_EDIT"] = "Manage VK Look-alike Ads";
+$MESS["ADS_MARKETING_FB_EDIT"] = "Manage Facebook Ads";
+$MESS["ADS_MARKETING_INSTAGRAM_EDIT"] = "Manage Instagram Ads";
 $MESS["ADS_PAUSE_START_STOP"] = "Run, stop and pause ads";
 $MESS["ADS_VIEW"] = "View ad campaigns";
 $MESS["ADS_VK_EDIT"] = "Manage VK Ads";
@@ -34,4 +36,3 @@ $MESS["SETTINGS_VIEW"] = "View settings";
 $MESS["START_VIEW"] = "View start page";
 $MESS["TEMPLATE_EDIT"] = "Edit templates";
 $MESS["TEMPLATE_VIEW"] = "View templates";
-?>

@@ -477,7 +477,7 @@ class CPullChannel
 		$nginx_error = COption::GetOptionString("pull", "nginx_error", "N");
 		if ($nginx_error != "N")
 		{
-			$nginx_error = unserialize($nginx_error);
+			$nginx_error = unserialize($nginx_error, ["allowed_classes" => false]);
 			if (intval($nginx_error['date'])+120 < time())
 			{
 				COption::SetOptionString("pull", "nginx_error", "N");

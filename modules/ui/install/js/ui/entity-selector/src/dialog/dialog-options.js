@@ -39,10 +39,11 @@ export type DialogOptions = {
 	hideByEsc?: boolean,
 	offsetTop?: number,
 	offsetLeft?: number,
-	zIndex?: number,
 	cacheable?: boolean,
 	focusOnFirst?: boolean,
 	footer?: FooterContent,
 	footerOptions?: FooterOptions,
-	clearUnavailableItems?: boolean
+	clearUnavailableItems?: boolean,
+	showAvatars?: boolean,
+	compactView?: boolean
 };

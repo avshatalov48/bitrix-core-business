@@ -1,4 +1,4 @@
-<?
+<?php
 /** @global \CMain $APPLICATION */
 define('STOP_STATISTICS', true);
 define('PUBLIC_AJAX_MODE', true);
@@ -33,6 +33,6 @@ catch (\Bitrix\Main\Security\Sign\BadSignatureException $e)
 $APPLICATION->IncludeComponent(
 	'bitrix:sale.products.gift.basket',
 	$template,
-	unserialize(base64_decode($parameters)),
+	unserialize(base64_decode($parameters), ['allowed_classes' => false]),
 	false
 );

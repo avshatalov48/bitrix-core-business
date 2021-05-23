@@ -17,7 +17,8 @@ class CCalendarSceleton
 			'calendar.calendarsection',
 			'calendar.controls',
 			'calendar.sliderloader',
-			'calendar.sync.interface'
+//			'calendar.sync.interface',
+			'calendar.sync.manager',
 		]);
 
 		if(\Bitrix\Main\Loader::includeModule('rest'))
@@ -245,6 +246,26 @@ class CCalendarSceleton
 			?></div><?
 		}
 		return $result;
+	}
+
+	/**
+	 * @param string $title
+	 * @param string $content
+	 * @return bool
+	 */
+	public static function showCalendarGridError(string $title, string $content = ''): bool
+	{
+		global $APPLICATION;
+		$APPLICATION->IncludeComponent(
+			"bitrix:calendar.grid.error",
+			"",
+			[
+				'TITLE' => $title,
+				'CONTENT' => $content,
+			]
+		);
+
+		return true;
 	}
 }
 ?>

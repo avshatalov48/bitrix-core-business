@@ -33,7 +33,7 @@ if($arResult["FATAL_ERROR"] <> '')
 	<span class='errortext'><?=$arResult["FATAL_ERROR"]?></span><br /><br />
 	<?
 }
-elseif(count($arResult["POST"])>0)
+elseif(is_array($arResult["POST"]) && count($arResult["POST"])>0)
 {
 	foreach($arResult["POST"] as $CurPost)
 	{

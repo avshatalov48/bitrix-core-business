@@ -417,13 +417,18 @@
 }
 
 .bx-messenger-cl-search {
-	display: block;
+	display: flex;
 	height: 48px;
-	margin: 0 14px;
+	margin: 0 10px 0 12px;
 	position: relative;
 	z-index: 2;
 }
-.bx-messenger-cl-search-wrap { margin: 0 18px 0 28px; border: 0;  position: relative;  }
+.bx-messenger-cl-search-wrap {
+	margin: 0 0 0 28px;
+	border: 0;
+	position: relative;
+	flex: 1;
+}
 .bx-messenger-cl-search-wrap:before {
 	background: url("./../images/im-sprite-v37.png") -34px -558px;
 	content:"";
@@ -447,18 +452,47 @@
 .bx-messenger-cl-search-wrap .bx-messenger-input-close:hover { background-position: 5px -63px; }
 
 .bx-messenger-input-search-create {
-	position: absolute; right: -2px; height: 25px; width: 21px;
+	display: block;
+	margin-top: 12px;
+	cursor: pointer;
+	height: 24px;
+	border: 1px solid #ECF0F2;
+	background-color: #ECF0F2;
+	border-radius: 18px;
+	padding: 0 25px 0 11px;
+	font: 12px/24px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #525C69;
+	user-select: none;
+}
+.bx-messenger-input-search-create:after {
+	content: '';
+	position: absolute;
+	height: 4px;
+	width: 7px;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%227%22%20height%3D%224%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M0%200h7L3.5%204z%22%20fill%3D%22%23525C69%22%20fill-rule%3D%22evenodd%22%20opacity%3D%22.5%22/%3E%3C/svg%3E');
+	background-repeat: no-repeat;
+	margin-top: 11px;
+    margin-left: 9px;
+}
+.bx-messenger-input-search-create:hover {
+	border-color: #e5e8eb;
+	background-color: #e5e8eb;
+}
+.bx-messenger-input-search-create-short {
+	height: 25px;
+	width: 21px;
 	cursor: pointer;
 	background: url("./../images/im-sprite-v37.png") no-repeat scroll 0 -558px;
 	margin-top: 12px;
+	display: none;
 }
-.bx-messenger-input-search-create:hover { background-position: 0 -587px; }
+.bx-messenger-input-search-create-short:hover { background-position: 0 -587px; }
 
 .bx-messenger-cl {
 	height: 333px; overflow:auto; overflow-x: hidden; clear: both; margin: -1px 0;
 }
 .bx-messenger-cl-wrap { overflow: hidden; margin: 9px 0 9px 0;}
-.bx-messenger-cl-item-empty { font: 13px/20px "Helvetica Neue",Helvetica,Arial,sans-serif; color: #606162; height: 21px; text-align: center; padding-top: 127px; }
+.bx-messenger-cl-item-empty { font: 13px/20px "Helvetica Neue",Helvetica,Arial,sans-serif; color: #606162; text-align: center; padding: 127px 30px 0; }
 .bx-messenger-cl-item-load, .bx-messenger-cl-item-search {
 	font: 13px/24px "Helvetica Neue",Helvetica,Arial,sans-serif; color:#606162;
 	text-align: center;
@@ -544,7 +578,17 @@
 	-webkit-animation: imOpacityFrom05To1 .4s 1; animation: imOpacityFrom05To1 .4s 1;
 	z-index: 12;
 }
-.bx-messenger-cl-count-digit { padding: 2px 6px;display: inline-block;}
+.bx-messenger-cl-status-muted .bx-messenger-cl-count {
+	background-color: #a7a7a7;
+}
+.bx-messenger-dark .bx-messenger-cl-status-muted .bx-messenger-cl-count {
+	background-color: transparent;
+}
+.bx-messenger-dark .bx-messenger-cl-status-muted .bx-messenger-cl-count-digit {
+	border: 1px solid #777676;
+	border-radius: 12px;
+}
+.bx-messenger-cl-count-digit { padding: 2px 6px;display: inline-block; min-width: 6px; min-height: 11px; }
 .bx-messenger-cl-group-title {
 	cursor: pointer;
 	color: #656667;
@@ -719,7 +763,6 @@
 	margin: 2px 8px;
 	position: relative;
 }
-.bx-messenger-recent-group:first-child { display: none; }
 .bx-messenger-recent-group-pinned:first-child { display: block; margin-top: -4px }
 .bx-messenger-recent-group-calls:first-child { display: block; margin-top: -4px }
 .bx-messenger-recent-lines-wrap .bx-messenger-recent-group:first-child { display: block; }
@@ -793,15 +836,15 @@
 	width: 400px;
 	background-color: #e5e6e9;
 	margin-left: 10px;
-    margin-top: 10px;
+    margin-top: 9px;
 }
 
-.bx-messenger-recent-category-title-red { color: #d93132; font-style: normal; }
-.bx-messenger-recent-category-title-red:after { background-color: #fdeaea; }
-.bx-messenger-recent-category-title-red-2 { color: #d93132; font-style: normal; }
-.bx-messenger-recent-category-title-red-2:after { background-color: #fdbebe; }
-.bx-messenger-recent-category-title-green { color: #85a425; font-style: normal; }
-.bx-messenger-recent-category-title-green:after { background-color: #f1f5e8; }
+.bx-messenger-recent-category-title-new { color: #df532d; font-style: normal; }
+.bx-messenger-recent-category-title-new:after { background-color: #ef9393; }
+.bx-messenger-recent-category-title-work { color: #0c8bb3; font-style: normal; }
+.bx-messenger-recent-category-title-work:after { background-color: #68cfef; }
+.bx-messenger-recent-category-title-answered { color: #258a4e; font-style: normal; }
+.bx-messenger-recent-category-title-answered:after { background-color: #61c59e; }
 
 .bx-messenger-chatlist-group-title {
 	display: block;
@@ -2728,6 +2771,7 @@
 	border-radius: 50%;
 	padding: 2px;
 	position: relative;
+	box-sizing: content-box;
 }
 .bx-notifier-popup-avatar-img { width: inherit; height: inherit; border: 0; border-radius: 50%; background: #fff;}
 .bx-notifier-popup-avatar-img-default {   background: url("./../images/im-sprite-v37.png") repeat scroll -1px -1990px #77828e; }
@@ -3499,6 +3543,7 @@ span.bx-notifier-popup-avatar-extranet { color:#ca7b00!important; }
 	padding: 6px 0 0 6px;
 	height: auto;
 	margin-bottom: 14px;
+	box-sizing: content-box;
 }
 
 .bx-messenger-videoconf-create-box {
@@ -3866,7 +3911,7 @@ span.bx-notifier-popup-avatar-extranet { color:#ca7b00!important; }
 .bx-messenger-settings-table-style-privacy > tr > td { width: auto }
 .bx-messenger-settings-notify-type {background-color: #e6ecee;
 	line-height: 43px;padding-left: 7px;margin: -8px -7px 16px;}
-.bx-messenger-settings-notify-type label { padding-right: 10px }
+.bx-messenger-settings-notify-type label { padding-right: 10px; font-weight: normal }
 .bx-messenger-settings-notify-important { margin-bottom: 10px}
 .bx-messenger-settings-notify-clients-title { margin-bottom: 10px;padding-left: 5px;}
 .bx-messenger-settings-notify-clients-item {margin-bottom: 5px;}

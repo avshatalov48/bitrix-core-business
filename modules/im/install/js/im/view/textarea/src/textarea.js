@@ -288,8 +288,10 @@ Vue.component('bx-im-view-textarea',
 			this.textChangeEvent();
 		},
 
-		sendMessage()
+		sendMessage(event)
 		{
+			event.preventDefault();
+
 			this.$emit('send', {text: this.currentMessage.trim()});
 
 			let textarea = this.$refs.textarea;
@@ -452,21 +454,18 @@ Vue.component('bx-im-view-textarea',
 					}
 					else
 					{
-						this.sendMessage();
-						event.preventDefault();
+						this.sendMessage(event);
 					}
 				}
 				else
 				{
 					if (event.ctrlKey == true)
 					{
-						this.sendMessage();
-						event.preventDefault();
+						this.sendMessage(event);
 					}
 					else if (isMac && (event.metaKey == true || event.altKey == true))
 					{
-						this.sendMessage();
-						event.preventDefault();
+						this.sendMessage(event);
 					}
 				}
 			}
@@ -543,18 +542,39 @@ Vue.component('bx-im-view-textarea',
 				fileInput: event.target
 			});
 		},
+		log(text, skip, event)
+		{
+			console.warn(text);
+			if (skip == 1)
+			{
+				event.preventDefault();
+			}
+		},
+		preventDefault(event)
+		{
+			event.preventDefault();
+		}
 	},
 	template: `
 		<div :class="textareaClassName">
 			<div class="bx-im-textarea-box">
 				<textarea ref="textarea" class="bx-im-textarea-input" @keydown="onKeyDown" @keyup="onKeyUp" @paste="onPaste" @input="onInput" @focus="onFocus" @blur="onBlur" v-bx-im-focus="autoFocus" :placeholder="localize.BX_MESSENGER_TEXTAREA_PLACEHOLDER">{{placeholderMessage}}</textarea>
 				<transition enter-active-class="bx-im-textarea-send-button-show" leave-active-class="bx-im-textarea-send-button-hide">
-					<button v-if="currentMessage" :class="buttonStyle.button.className" :style="buttonStyle.button.style" @click="sendMessage" :title="localize.BX_MESSENGER_TEXTAREA_BUTTON_SEND"></button>
+					<button 
+						v-if="currentMessage" 
+						:class="buttonStyle.button.className" 
+						:style="buttonStyle.button.style" 
+						:title="localize.BX_MESSENGER_TEXTAREA_BUTTON_SEND"
+						@click="sendMessage" 
+						@touchend="sendMessage" 
+						@mousedown="preventDefault" 
+						@touchstart="preventDefault" 
+					/>
 				</transition>
 			</div>
 			<div class="bx-im-textarea-app-box">
 				<label v-if="enableFile && !isIE11" class="bx-im-textarea-app-button bx-im-textarea-app-file" :title="localize.BX_MESSENGER_TEXTAREA_FILE">
-					<input type="file" @click="onFileClick($event)" @change="onFileSelect($event)">
+					<input type="file" @click="onFileClick($event)" @change="onFileSelect($event)" multiple>
 				</label>
 				<button class="bx-im-textarea-app-button bx-im-textarea-app-smile" :title="localize.BX_MESSENGER_TEXTAREA_SMILE" @click="onAppButtonClick('smile', $event)"></button>
 				<button v-if="false" class="bx-im-textarea-app-button bx-im-textarea-app-gif" :title="localize.BX_MESSENGER_TEXTAREA_GIPHY" @click="onAppButtonClick('giphy', $event)"></button>

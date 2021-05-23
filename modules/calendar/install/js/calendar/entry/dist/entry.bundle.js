@@ -697,6 +697,11 @@ this.BX = this.BX || {};
 	      return this.data.MEETING.NOTIFY;
 	    }
 	  }, {
+	    key: "getHideGuests",
+	    value: function getHideGuests() {
+	      return this.data.MEETING && BX.Type.isBoolean(this.data.MEETING.HIDE_GUESTS) ? this.data.MEETING.HIDE_GUESTS : true;
+	    }
+	  }, {
 	    key: "getRrule",
 	    value: function getRrule() {
 	      return this.data.RRULE;

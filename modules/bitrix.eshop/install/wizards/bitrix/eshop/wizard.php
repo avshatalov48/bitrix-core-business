@@ -237,7 +237,7 @@ class SiteSettingsStep extends CSiteSettingsWizardStep
 			'.$this->ShowInputField('textarea', 'siteCopy', array("rows"=>"3", "id" => "siteCopy", "class" => "wizard-field")).'
 		</div>';
 
-		$firstStep = COption::GetOptionString("main", "wizard_first" . substr($wizard->GetID(), 7)  . "_" . $wizard->GetVar("siteID"), false, $wizard->GetVar("siteID"));
+		$firstStep = COption::GetOptionString("main", "wizard_first".mb_substr($wizard->GetID(), 7)  . "_" . $wizard->GetVar("siteID"), false, $wizard->GetVar("siteID"));
 		$styleMeta = 'style="display:block"';
 		if($firstStep == "Y") $styleMeta = 'style="display:none"';
 
@@ -440,7 +440,7 @@ class ShopSettings extends CWizardStep
 	{
 		$wizard =& $this->GetWizard();
 		$siteStamp = $wizard->GetVar("siteStamp", true);
-		$firstStep = COption::GetOptionString("main", "wizard_first" . substr($wizard->GetID(), 7)  . "_" . $wizard->GetVar("siteID"), false, $wizard->GetVar("siteID"));
+		$firstStep = COption::GetOptionString("main", "wizard_first".mb_substr($wizard->GetID(), 7)  . "_" . $wizard->GetVar("siteID"), false, $wizard->GetVar("siteID"));
 
 		if (!CModule::IncludeModule("catalog"))
 		{

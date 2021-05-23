@@ -454,7 +454,7 @@ class CBPHistoryResult extends CDBResult
 			if ($this->useGZipCompression)
 				$value = gzuncompress($value);
 
-			$value = unserialize($value);
+			$value = unserialize($value, ['allowed_classes' => false]);
 			if (!is_array($value))
 				$value = array();
 		}

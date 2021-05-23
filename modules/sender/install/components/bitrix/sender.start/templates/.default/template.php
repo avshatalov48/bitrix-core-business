@@ -32,11 +32,23 @@ $containerId = 'sender-start-container';
 	<?if (!empty($arResult['MESSAGES']['ADS']['TILES'])):?>
 		<div class="sender-start-block">
 			<div class="sender-start-title">
+				<?=Loc::getMessage('SENDER_START_CREATE_AUDIENCE')?>
+			</div>
+			<?$APPLICATION->IncludeComponent("bitrix:ui.tile.list", "", [
+				'ID' => 'sender-start-ads',
+				'LIST' => $arResult['MESSAGES']['ADS']['TILES'],
+			]);?>
+		</div>
+	<?endif;?>
+
+	<?if (!empty($arResult['MESSAGES']['MARKETING']['TILES'])):?>
+		<div class="sender-start-block">
+			<div class="sender-start-title">
 				<?=Loc::getMessage('SENDER_START_CREATE_AD')?>
 			</div>
 			<?$APPLICATION->IncludeComponent("bitrix:ui.tile.list", "", [
-				'ID' => 'sender-start-ad',
-				'LIST' => $arResult['MESSAGES']['ADS']['TILES'],
+				'ID' => 'sender-start-marketing',
+				'LIST' => $arResult['MESSAGES']['MARKETING']['TILES'],
 			]);?>
 		</div>
 	<?endif;?>

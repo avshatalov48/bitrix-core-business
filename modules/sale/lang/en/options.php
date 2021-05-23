@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["ARCHIVE_BLOCKED_ORDER_ACCEPT"] = "Allow archiving of locked orders";
 $MESS["BX_SALE_SETTINGS_OPTION_DISCOUNT_APPLY_MODE"] = "Cart rule behavior if other modules also have discounts";
 $MESS["BX_SALE_SETTINGS_OPTION_PERCENT_FROM_BASE_PRICE"] = "Use full product price to calculate percent based discount/markup";
@@ -15,26 +15,6 @@ $MESS["F_DELIVERY"] = "\"Delivered\" flag";
 $MESS["F_OUT"] = "\"Shipped\" flag";
 $MESS["F_PAY"] = "\"Paid\" flag";
 $MESS["NUMERATOR_NOT_USE_CHECKBOX_TITLE"] = "Don't use";
-$MESS["SALE_ACCOUNT_NUMBER_DATE"] = "Period:";
-$MESS["SALE_ACCOUNT_NUMBER_DATE_1"] = "Within day";
-$MESS["SALE_ACCOUNT_NUMBER_DATE_2"] = "Within month";
-$MESS["SALE_ACCOUNT_NUMBER_DATE_3"] = "Within year";
-$MESS["SALE_ACCOUNT_NUMBER_NUMBER"] = "Initial number:";
-$MESS["SALE_ACCOUNT_NUMBER_NUMBER_DESC"] = "1 to 7 characters. The new value must be greater than the previous one.";
-$MESS["SALE_ACCOUNT_NUMBER_NUMBER_WARNING"] = "The initial order number \"#NUMBER#\" is invalid.";
-$MESS["SALE_ACCOUNT_NUMBER_PREFIX"] = "Prefix:";
-$MESS["SALE_ACCOUNT_NUMBER_PREFIX_DESC"] = "1 to 7 characters (Latin letters, numbers, hyphens, underscores). Example: TEST1234";
-$MESS["SALE_ACCOUNT_NUMBER_PREFIX_WARNING"] = "The order prefix \"#PREFIX#\" is invalid.";
-$MESS["SALE_ACCOUNT_NUMBER_RANDOM"] = "Number of characters:";
-$MESS["SALE_ACCOUNT_NUMBER_TEMPLATE"] = "Order number template:";
-$MESS["SALE_ACCOUNT_NUMBER_TEMPLATE_0"] = "Unused";
-$MESS["SALE_ACCOUNT_NUMBER_TEMPLATE_1"] = "Start numbering from";
-$MESS["SALE_ACCOUNT_NUMBER_TEMPLATE_2"] = "Use prefix";
-$MESS["SALE_ACCOUNT_NUMBER_TEMPLATE_3"] = "Random number";
-$MESS["SALE_ACCOUNT_NUMBER_TEMPLATE_4"] = "User and order ID's";
-$MESS["SALE_ACCOUNT_NUMBER_TEMPLATE_5"] = "Restart numbering periodically";
-$MESS["SALE_ACCOUNT_NUMBER_TEMPLATE_EXAMPLE"] = "Example:";
-$MESS["SALE_ACCOUNT_NUMBER_WARNING"] = "Prefix:";
 $MESS["SALE_ADDRESS_POST"] = "Value 1";
 $MESS["SALE_ADMIN_NEW_PRODUCT"] = "New items can be added directly in the order edit form:";
 $MESS["SALE_ADMIN_USE_CARDS"] = "Use credit cards";
@@ -247,4 +227,3 @@ $MESS["SMO_VALUE_PRECISION_2"] = ".00";
 $MESS["SMO_VALUE_PRECISION_3"] = ".000";
 $MESS["SMO_VALUE_PRECISION_4"] = ".0000";
 $MESS["SMO_VALUE_PRECISION_TITLE"] = "Rounding precision";
-?>

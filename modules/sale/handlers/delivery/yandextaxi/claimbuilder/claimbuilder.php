@@ -23,8 +23,11 @@ use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\RoutePoint;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\RoutePoints;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\ShippingItem;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\TransportClassification;
+use Sale\Handlers\Delivery\YandexTaxi\Api\Tariffs\Repository;
 use Sale\Handlers\Delivery\YandexTaxi\Common\OrderEntitiesCodeDictionary;
+use Sale\Handlers\Delivery\YandexTaxi\Common\ReferralSourceBuilder;
 use Sale\Handlers\Delivery\YandexTaxi\Common\ShipmentDataExtractor;
+use Bitrix\Main\PhoneNumber;
 
 /**
  * Class ClaimBuilder
@@ -38,16 +41,30 @@ final class ClaimBuilder
 	/** @var ShipmentDataExtractor */
 	protected $extractor;
 
+	/** @var Repository */
+	protected $tariffsRepository;
+
+	/** @var ReferralSourceBuilder */
+	protected $referralSourceBuilder;
+
 	/** @var Result */
 	protected $result;
 
 	/**
 	 * ClaimBuilder constructor.
 	 * @param ShipmentDataExtractor $extractor
+	 * @param Repository $tariffsRepository
+	 * @param ReferralSourceBuilder $referralSourceBuilder
 	 */
-	public function __construct(ShipmentDataExtractor $extractor)
+	public function __construct(
+		ShipmentDataExtractor $extractor,
+		Repository $tariffsRepository,
+		ReferralSourceBuilder $referralSourceBuilder
+	)
 	{
 		$this->extractor = $extractor;
+		$this->tariffsRepository = $tariffsRepository;
+		$this->referralSourceBuilder = $referralSourceBuilder;
 	}
 
 	/**
@@ -132,15 +149,12 @@ final class ClaimBuilder
 			$claim->setComment($commentForDriver);
 		}
 
-		/**
-		 * Taxi class
-		 */
-		$vehicleType = $this->getVehicleType($shipment);
-
-		if (!$vehicleType)
+		$buildClientReqResult = $this->buildClientRequirements($shipment);
+		if (!$buildClientReqResult->isSuccess())
 		{
-			return $this->result->addError(new Error(Loc::getMessage('SALE_YANDEX_TAXI_AUTO_CLASS_NOT_SPECIFIED')));
+			return $this->result->addErrors($buildClientReqResult->getErrors());
 		}
+		$clientRequirements = $buildClientReqResult->getData()['REQUIREMENTS'];
 
 		/**
 		 * Door Delivery
@@ -152,7 +166,7 @@ final class ClaimBuilder
 
 		$claim
 			->setEmergencyContact($contactFrom)
-			->setClientRequirements((new TransportClassification())->setTaxiClass($vehicleType))
+			->setClientRequirements($clientRequirements)
 			->setRoutePoints(
 				(new RoutePoints())
 					->setSource(
@@ -168,7 +182,9 @@ final class ClaimBuilder
 							->setSkipConfirmation(true)
 					)
 			)
-			->setReferralSource('api_1c-bitrix');
+			->setReferralSource(
+				$this->referralSourceBuilder->getReferralSourceValue()
+			);
 
 		$shippingItemCollection = $this->getShippingItemCollection($shipment);
 		$validationResult = $shippingItemCollection->isValid();
@@ -227,11 +243,6 @@ final class ClaimBuilder
 	{
 		$result = [];
 
-		/**
-		 * @TODO needs to be revisit
-		 * Maybe we should move this logic to order builder
-		 * and initialize extra service values with their default values
-		 */
 		$extraServicesValues = is_array($shipment->getExtraServices()) ? $shipment->getExtraServices() : [];
 
 		$services = Manager::getExtraServicesList($shipment->getDeliveryId());
@@ -241,7 +252,10 @@ final class ClaimBuilder
 
 			$value = isset($extraServicesValues[$serviceId]) ? $extraServicesValues[$serviceId] : $initValue;
 
-			$result[$serviceItem['CODE']] = $value;
+			$result[$serviceItem['CODE']] = [
+				'VALUE' => $value,
+				'SERVICE' => $serviceItem,
+			];
 		}
 
 		return $result;
@@ -256,14 +270,14 @@ final class ClaimBuilder
 	{
 		$extraServiceValues = $this->getExtraServiceValues($shipment);
 
-		foreach ($extraServiceValues as $code => $value)
+		foreach ($extraServiceValues as $code => $item)
 		{
 			if ($code != OrderEntitiesCodeDictionary::DOOR_DELIVERY_EXTRA_SERVICE_CODE)
 			{
 				continue;
 			}
 
-			return ($value == 'Y');
+			return ($item['VALUE'] === 'Y');
 		}
 
 		return false;
@@ -271,24 +285,95 @@ final class ClaimBuilder
 
 	/**
 	 * @param Shipment $shipment
-	 * @return bool|string
+	 * @return Result
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	public function getVehicleType(Shipment $shipment)
+	public function buildClientRequirements(Shipment $shipment): Result
 	{
-		$extraServiceValues = $this->getExtraServiceValues($shipment);
+		$requirements = new TransportClassification();
+		$result = new Result();
 
-		foreach ($extraServiceValues as $code => $value)
+		$deliveryService = $shipment->getDelivery();
+		if (!$deliveryService)
 		{
-			if ($code != OrderEntitiesCodeDictionary::VEHICLE_TYPE_EXTRA_SERVICE_CODE)
-			{
-				continue;
-			}
-
-			return (string)$value;
+			return $result->addError(
+				new Error(Loc::getMessage('SALE_YANDEX_TAXI_DELIVERY_SERVICE_NOT_FOUND'))
+			);
 		}
 
-		return false;
+		$deliveryServiceConfig = $deliveryService->getConfig();
+		if (!isset($deliveryServiceConfig['MAIN']['ITEMS']['PROFILE_TYPE']['VALUE']))
+		{
+			return $result->addError(
+				new Error(Loc::getMessage('SALE_YANDEX_TAXI_TARIFF_IS_NOT_SPECIFIED'))
+			);
+		}
+		$tariffCode = $deliveryServiceConfig['MAIN']['ITEMS']['PROFILE_TYPE']['VALUE'];
+
+		$tariff = null;
+		$availableTariffs = $this->tariffsRepository->getTariffs();
+		foreach ($availableTariffs as $availableTariff)
+		{
+			if ($availableTariff['name'] === $tariffCode)
+			{
+				$tariff = $availableTariff;
+				break;
+			}
+		}
+
+		if (is_null($tariff))
+		{
+			return $result->addError(
+				new Error(Loc::getMessage('SALE_YANDEX_TAXI_TARIFF_HAS_NOT_BEEN_FOUND'))
+			);
+		}
+		$requirements->setTaxiClass($tariffCode);
+
+		$extraServiceValues = $this->getExtraServiceValues($shipment);
+		$options = [];
+		foreach ($tariff['supported_requirements'] as $supportedRequirement)
+		{
+			if ($supportedRequirement['type'] === 'multi_select')
+			{
+				foreach ($supportedRequirement['options'] as $srOption)
+				{
+					if (isset($extraServiceValues[$srOption['value']])
+						&& $extraServiceValues[$srOption['value']]['VALUE'] === 'Y'
+					)
+					{
+						if (!is_array($options[$supportedRequirement['name']]))
+						{
+							$options[$supportedRequirement['name']] = [];
+						}
+						$options[$supportedRequirement['name']][] = $srOption['value'];
+					}
+				}
+			}
+			elseif ($supportedRequirement['type'] === 'select')
+			{
+				if (isset($extraServiceValues[$supportedRequirement['name']])
+					&& !empty($extraServiceValues[$supportedRequirement['name']]['VALUE'])
+				)
+				{
+					foreach ($supportedRequirement['options'] as $srOption)
+					{
+						/**
+						 * Non-strict comparison is required
+						 */
+						if ($srOption['value'] == $extraServiceValues[$supportedRequirement['name']]['VALUE'])
+						{
+							$options[$supportedRequirement['name']] = $srOption['value'];
+							break;
+						}
+					}
+				}
+			}
+		}
+		$requirements->setOptions($options);
+
+		$result->setData(['REQUIREMENTS' => $requirements]);
+
+		return $result;
 	}
 
 	/**
@@ -322,6 +407,22 @@ final class ClaimBuilder
 			$this->result->addError(new Error(Loc::getMessage('SALE_YANDEX_TAXI_RESPONSIBLE_PHONE_NOT_SPECIFIED')));
 			return null;
 		}
+
+		$oResponsibleUserPhone = PhoneNumber\Parser::getInstance()->parse($responsibleUserPhone);
+		if (!$oResponsibleUserPhone->isValid())
+		{
+			$this->result->addError(
+				new Error(
+					sprintf(
+						'%s: %s',
+						Loc::getMessage('SALE_YANDEX_TAXI_RESPONSIBLE_PHONE_NOT_VALID'),
+						(string)$oResponsibleUserPhone->format()
+					)
+				)
+			);
+			return null;
+		}
+
 		if (!$responsibleUserEmail)
 		{
 			$this->result->addError(new Error(Loc::getMessage('SALE_YANDEX_TAXI_RESPONSIBLE_EMAIL_NOT_SPECIFIED')));
@@ -330,7 +431,9 @@ final class ClaimBuilder
 
 		return (new Contact())
 			->setName($responsibleUserName)
-			->setPhone($responsibleUserPhone)
+			->setPhone(
+				PhoneNumber\Formatter::format($oResponsibleUserPhone, PhoneNumber\Format::E164)
+			)
 			->setEmail($responsibleUserEmail);
 	}
 
@@ -410,11 +513,13 @@ final class ClaimBuilder
 
 		if (!Loader::includeModule('location'))
 		{
-			return $result->addError(new Error('Location module is not installed'));
+			return $result->addError(
+				new Error(Loc::getMessage('SALE_YANDEX_TAXI_LOCATION_MODULE_REQUIRED'))
+			);
 		}
 
 		$addressArray = $this->getPropertyValue($shipment, $propertyCode);
-		if (!$addressArray)
+		if (!is_array($addressArray) || empty($addressArray))
 		{
 			return $result->addError(
 				new Error(

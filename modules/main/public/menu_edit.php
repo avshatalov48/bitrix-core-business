@@ -61,7 +61,7 @@ if($_REQUEST["action"] == "delete" && check_bitrix_sessid())
 		if(COption::GetOptionString($module_id, "log_menu", "Y")=="Y")
 		{
 			$mt = COption::GetOptionString("fileman", "menutypes", "", $site);
-			$mt = unserialize(str_replace("\\", "", $mt));
+			$mt = unserialize(str_replace("\\", "", $mt), ['allowed_classes' => false]);
 			$res_log['menu_name'] = $mt[$name];
 			$res_log['path'] = mb_substr($path, 1);
 			CEventLog::Log(
@@ -134,7 +134,7 @@ else
 			$arAdditionalParams = array(array(), array());
 			if (check_bitrix_sessid() && $arValues['additional_params_'.$num] && CheckSerializedData($arValues['additional_params_'.$num]))
 			{
-				$arAdditionalParams = @unserialize($arValues['additional_params_'.$num]);
+				$arAdditionalParams = @unserialize($arValues['additional_params_'.$num], ['allowed_classes' => false]);
 			}
 
 			$aMenuItem = array_merge($aMenuItem, $arAdditionalParams);
@@ -194,7 +194,7 @@ else
 			if(COption::GetOptionString($module_id, "log_menu", "Y")=="Y")
 			{
 				$mt = COption::GetOptionString("fileman", "menutypes", false, $site);
-				$mt = unserialize(str_replace("\\", "", $mt));
+				$mt = unserialize(str_replace("\\", "", $mt), ['allowed_classes' => false]);
 				$res_log['menu_name'] = $mt[$name];
 				$res_log['path'] = mb_substr($path, 1);
 				if ($bEdit)

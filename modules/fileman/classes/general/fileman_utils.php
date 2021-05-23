@@ -1462,7 +1462,7 @@ class CFilemanSearch
 		$arConfig = array();
 		$strAr = CUserOptions::GetOption("fileman", "file_search_config", false);
 		if ($strAr && CheckSerializedData($strAr))
-			$arConfig = unserialize($strAr);
+			$arConfig = unserialize($strAr, ['allowed_classes' => false]);
 		return $arConfig;
 	}
 }
@@ -1875,7 +1875,7 @@ class CFilemanCopy
 		$arConfig = array();
 		$strAr = CUserOptions::GetOption("fileman", "file_copy_move_config", false);
 		if ($strAr && CheckSerializedData($strAr))
-			$arConfig = unserialize($strAr);
+			$arConfig = unserialize($strAr, ['allowed_classes' => false]);
 
 		return $arConfig;
 	}

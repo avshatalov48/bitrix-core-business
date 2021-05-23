@@ -1,9 +1,17 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
-?>
-<tr>
-	<td align="right" width="40%" valign="top"><?= GetMessage("BPTA1_PD_STATE_TITLE") ?>:</td>
-	<td width="60%">
-		<?=CBPDocument::ShowParameterField("string", 'state_title', $arCurrentValues['state_title'], array('size'=>'50'))?>
-	</td>
-</tr>
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+/** @var \Bitrix\Bizproc\Activity\PropertiesDialog $dialog */
+
+foreach ($dialog->getMap() as $fieldId => $field): ?>
+	<tr>
+		<td align="right" width="40%"><?= htmlspecialcharsbx($field['Name']) ?>:</td>
+		<td width="60%">
+			<?= $dialog->renderFieldControl($field, null, true, 1) ?>
+		</td>
+	</tr>
+<?php endforeach;

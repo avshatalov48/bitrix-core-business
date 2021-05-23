@@ -20,7 +20,7 @@ $languageIterator = LanguageTable::getList(array(
 	'filter' => array('=ACTIVE' => 'Y')
 ));
 while ($existLanguage = $languageIterator->fetch())
-	$languages[$existLanguage['ID']] = strtoupper($existLanguage['ID']);
+	$languages[$existLanguage['ID']] = mb_strtoupper($existLanguage['ID']);
 unset($existLanguage, $languageIterator);
 $whiteList = [
 	'FULL_NAME' => true,

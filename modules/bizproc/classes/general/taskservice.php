@@ -3,6 +3,9 @@ IncludeModuleLangFile(__FILE__);
 
 include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizproc/classes/general/runtimeservice.php");
 
+use Bitrix\Main;
+use Bitrix\Bizproc;
+
 class CBPAllTaskService
 	extends CBPRuntimeService
 {
@@ -738,10 +741,15 @@ class CBPAllTaskService
 
 class CBPTaskResult extends CDBResult
 {
-	public function __construct($res)
-	{
-		parent::CDBResult($res);
-	}
+	private static $classesList = [
+		Bizproc\BaseType\Value\Date::class,
+		Bizproc\BaseType\Value\DateTime::class,
+		Main\Type\Date::class,
+		Main\Type\DateTime::class,
+		\DateTime::class,
+		\DateTimeZone::class,
+		Main\Web\Uri::class
+	];
 
 	function Fetch()
 	{
@@ -750,7 +758,9 @@ class CBPTaskResult extends CDBResult
 		if ($res)
 		{
 			if ($res["PARAMETERS"] <> '')
-				$res["PARAMETERS"] = unserialize($res["PARAMETERS"]);
+			{
+				$res["PARAMETERS"] = unserialize($res["PARAMETERS"], ['allowed_classes' => self::$classesList]);
+			}
 		}
 
 		return $res;

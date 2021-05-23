@@ -3,6 +3,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
 class ReportAnalyticsBase extends CBitrixComponent
 {
+
+	private $reportGroups = [];
+
 	public function executeComponent()
 	{
 		if (!\Bitrix\Main\Loader::includeModule('report'))
@@ -10,6 +13,9 @@ class ReportAnalyticsBase extends CBitrixComponent
 			$this->showError('Module report isn\'t installed');
 			return;
 		}
+
+		$this->reportGroups = $this->arParams['REPORT_GROUPS'];
+
 		$this->arResult['VIEW_MODE'] = \Bitrix\Main\Application::getInstance()->getContext()->getRequest()->get('mode');
 		$this->arResult['LEFT_MENU_ITEMS'] = $this->getLeftMenuItemsCollection();
 		$this->arResult['MENU_ITEMS'] = $this->getLeftMenuItems();
@@ -157,6 +163,12 @@ HTML;
 		{
 			$defaultBoardProvider->addFilter("boardBatchKey", $boardBatchKey);
 		}
+
+		foreach ($this->reportGroups as $group)
+		{
+			$defaultBoardProvider->addFilter('group', $group);
+		}
+
 		return $defaultBoardProvider->execute()->getResults();
 	}
 
@@ -180,6 +192,12 @@ HTML;
 		if(is_null($result))
 		{
 			$batchProvider = new \Bitrix\Report\VisualConstructor\RuntimeProvider\AnalyticBoardBatchProvider();
+
+			foreach ($this->reportGroups as $group)
+			{
+				$batchProvider->addFilter('group', $group);
+			}
+
 			$list = $batchProvider->execute()->getResults();
 			$result = $list;
 		}

@@ -271,6 +271,15 @@ class IblockMoneyProperty
 		);
 	}
 
+	public static function getUnitedValue($amount, string $currency): string
+	{
+		return
+			($amount === '')
+				? ''
+				: $amount.self::SEPARATOR.$currency
+		;
+	}
+
 	/**
 	 * Add values in filter.
 	 *

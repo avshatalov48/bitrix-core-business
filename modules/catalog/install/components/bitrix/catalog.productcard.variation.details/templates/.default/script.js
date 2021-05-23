@@ -27,11 +27,10 @@
 	      var _event$getCompatData = event.getCompatData(),
 	          _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 2),
 	          eventData = _event$getCompatData2[1];
-	      /*if (eventData.id === 'catalog_parameters')
-	      {
-	      	eventData.visible = this.isCardSettingEnabled('CATALOG_PARAMETERS');
-	      }*/
 
+	      if (eventData.id === 'catalog_parameters') {
+	        eventData.visible = this.isCardSettingEnabled('CATALOG_PARAMETERS');
+	      }
 	    }
 	  }]);
 	  return VariationCard;

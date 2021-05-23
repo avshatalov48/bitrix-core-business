@@ -25,7 +25,7 @@ $portalZone = Loader::includeModule('intranet') ? CIntranetUtils::getPortalZone(
 
 if (Loader::includeModule('bitrix24'))
 {
-	if (!in_array($licensePrefix, ['ru', 'by'], true))
+	if ($licensePrefix !== 'ru')
 	{
 		$isAvailable = PaySystem\Manager::HANDLER_AVAILABLE_FALSE;
 	}
@@ -42,6 +42,12 @@ $data = [
 	'SORT' => 500,
 	'IS_AVAILABLE' => $isAvailable,
 	'CODES' => [
+		'YANDEX_CHECKOUT_SHOP_ARTICLE_ID' => [
+			'NAME' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SHOP_ARTICLE_ID'),
+			'DESCRIPTION' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SHOP_ARTICLE_ID_DESC'),
+			'SORT' => 230,
+			'GROUP' => 'CONNECT_SETTINGS_YANDEX',
+		],
 		'YANDEX_CHECKOUT_DESCRIPTION' => [
 			'NAME' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_PAYMENT_DESCRIPTION'),
 			'DESCRIPTION' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_PAYMENT_DESCRIPTION_DESC'),
@@ -90,14 +96,7 @@ if (Option::get('sale', 'YANDEX_CHECKOUT_OAUTH', false) == false)
 		'GROUP' => 'CONNECT_SETTINGS_YANDEX'
 	];
 
-	$data['CODES']['YANDEX_CHECKOUT_SHOP_ARTICLE_ID'] = [
-		'NAME' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SHOP_ARTICLE_ID'),
-		'DESCRIPTION' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SHOP_ARTICLE_ID_DESC'),
-		'SORT' => 250,
-		'GROUP' => 'CONNECT_SETTINGS_YANDEX'
-	];
-
-	if (Loader::includeModule('bitrix24'))
+	if (Loader::includeModule('crm'))
 	{
 		$data['CODES']['YANDEX_CHECKOUT_RECURRING'] = [
 			'NAME' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_RECURRING'),

@@ -42,7 +42,7 @@ class RecentCollection implements \IteratorAggregate, \JsonSerializable
 		return $this->itemsByEntity[$item->getEntityId()][$item->getId()] ?? null;
 	}
 
-	public function getAll()
+	public function getAll(): array
 	{
 		return $this->items;
 	}
@@ -64,7 +64,7 @@ class RecentCollection implements \IteratorAggregate, \JsonSerializable
 		}));
 	}
 
-	public function getIterator()
+	public function getIterator(): \ArrayIterator
 	{
 		return new \ArrayIterator($this->items);
 	}

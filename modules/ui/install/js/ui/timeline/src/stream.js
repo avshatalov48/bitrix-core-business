@@ -151,7 +151,6 @@ export class Stream
 		{
 			return item
 				.setUserData(this.users)
-				.setDateTimeOffset(this.getUserTimeZoneOffset())
 				.setTimeFormat(this.getTimeFormat())
 				.setNameFormat(this.nameFormat);
 		}
@@ -576,16 +575,6 @@ export class Stream
 		})).run();
 
 		return this;
-	}
-
-	getUserTimeZoneOffset(): number
-	{
-		if(!this.userTimeZoneOffset)
-		{
-			this.userTimeZoneOffset = Text.toInteger(Loc.getMessage('USER_TZ_OFFSET'));
-		}
-
-		return this.userTimeZoneOffset;
 	}
 
 	getTimeFormat(): string

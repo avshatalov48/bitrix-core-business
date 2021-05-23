@@ -304,7 +304,7 @@ if($REQUEST_METHOD == "POST" && $Update <> '' && $USER->CanDoOperation('fileman_
 	}
 	$addError = false;
 
-	$siteList_ID = unserialize($mSiteList);
+	$siteList_ID = unserialize($mSiteList, ['allowed_classes' => false]);
 
 	if(isset($dif_settings))
 	{

@@ -192,7 +192,7 @@ class Helper
 
 		if (
 			isset($params['IMPORTANT'])
-			&& $params['IMPORTANT'] == 'Y'
+			&& $params['IMPORTANT'] === 'Y'
 		)
 		{
 			$postFields['UF_BLOG_POST_IMPRTNT'] = true;
@@ -208,8 +208,37 @@ class Helper
 		}
 
 		if (
+			isset($params['GRATITUDE_MEDAL'])
+			&& isset($params['GRATITUDE_EMPLOYEES'])
+		)
+		{
+			$gratitudeElementId = \Bitrix\Socialnetwork\Helper\Gratitude::create([
+				'medal' => $params['GRATITUDE_MEDAL'],
+				'employees' => $params['GRATITUDE_EMPLOYEES']
+			]);
+			if ($gratitudeElementId)
+			{
+				$postFields['UF_GRATITUDE'] = $gratitudeElementId;
+			}
+		}
+
+		if (
+			!empty($params['UF_BLOG_POST_VOTE'])
+			&& !empty($params['UF_BLOG_POST_VOTE_'.$params['UF_BLOG_POST_VOTE'].'_DATA'])
+		)
+		{
+			$postFields['UF_BLOG_POST_VOTE'] = $params['UF_BLOG_POST_VOTE'];
+			$GLOBALS['UF_BLOG_POST_VOTE_'.$params['UF_BLOG_POST_VOTE'].'_DATA'] = $params['UF_BLOG_POST_VOTE_'.$params['UF_BLOG_POST_VOTE'].'_DATA'];
+		}
+
+		if (!empty($params['BACKGROUND_CODE']))
+		{
+			$postFields['BACKGROUND_CODE'] = $params['BACKGROUND_CODE'];
+		}
+
+		if (
 			isset($params['PARSE_PREVIEW'])
-			&& $params['PARSE_PREVIEW'] == 'Y'
+			&& $params['PARSE_PREVIEW'] === 'Y'
 			&& !empty($postFields['DETAIL_TEXT'])
 			&& ($urlPreviewValue = ComponentHelper::getUrlPreviewValue($postFields['DETAIL_TEXT']))
 		)
@@ -227,7 +256,7 @@ class Helper
 
 		if (
 			isset($params['IMPORTANT'])
-			&& $params['IMPORTANT'] == "Y"
+			&& $params['IMPORTANT'] === "Y"
 		)
 		{
 			\CBlogUserOptions::setOption($result, 'BLOG_POST_IMPRTNT', 'Y', $authorId);
@@ -238,7 +267,7 @@ class Helper
 			}
 		}
 
-		$inlineTagsList = \Bitrix\Socialnetwork\Util::detectTags($postFields, ($postFields['MICRO'] == 'Y' ? [ 'DETAIL_TEXT' ] : [ 'DETAIL_TEXT', 'TITLE' ]));
+		$inlineTagsList = \Bitrix\Socialnetwork\Util::detectTags($postFields, ($postFields['MICRO'] === 'Y' ? [ 'DETAIL_TEXT' ] : [ 'DETAIL_TEXT', 'TITLE' ]));
 		if (!empty($inlineTagsList))
 		{
 			$inlineTagsList = array_unique(array_map('ToLower', $inlineTagsList));
@@ -364,12 +393,14 @@ class Helper
 		];
 
 		$logId = \CBlogPost::notify($postFields, $blog, $paramsNotify);
-
 		if ($logId)
 		{
 			if ($post = \Bitrix\Blog\Item\Post::getById($result))
 			{
-				\CSocNetLog::update(intval($logId), [
+				\CSocNetLog::update((int)$logId, [
+					'EVENT_ID' => self::getBlogPostEventId([
+						'postId' => $post->getId()
+					]),
 					'SOURCE_ID' => $result, // table column field
 					'TAG' => $post->getTags()
 				]);
@@ -435,7 +466,7 @@ class Helper
 	{
 		global $USER, $USER_FIELD_MANAGER, $APPLICATION;
 
-		$postId = intval($params['POST_ID']);
+		$postId = (int)$params['POST_ID'];
 
 		if($postId <= 0)
 		{
@@ -451,7 +482,7 @@ class Helper
 
 		$currentUserId = (
 			isset($params['USER_ID'])
-			&& intval($params['USER_ID']) > 0
+			&& (int)$params['USER_ID'] > 0
 			&& Livefeed::isAdmin()
 				? $params['USER_ID']
 				: $USER->getId()
@@ -498,20 +529,24 @@ class Helper
 			'PUBLISH_STATUS' => $postFields['PUBLISH_STATUS']
 		];
 
+		$updateFields['TITLE'] = '';
+		$updateFields["MICRO"] = 'N';
+
 		if (isset($params['POST_TITLE']))
 		{
 			$updateFields['TITLE'] = $params['POST_TITLE'];
-			$updateFields["MICRO"] = 'N';
-			if (
-				$updateFields['TITLE'] == ''
-				&& isset($params['POST_MESSAGE'])
-			)
-			{
-				$updateFields['MICRO'] = "Y";
-				$updateFields['TITLE'] = preg_replace([ "/\n+/is".BX_UTF_PCRE_MODIFIER, "/\s+/is".BX_UTF_PCRE_MODIFIER ], " ", \blogTextParser::killAllTags($params["POST_MESSAGE"]));
-				$updateFields['TITLE'] = trim($updateFields['TITLE'], " \t\n\r\0\x0B\xA0");
-			}
 		}
+
+		if (
+			$updateFields['TITLE'] == ''
+			&& isset($params['POST_MESSAGE'])
+		)
+		{
+			$updateFields['MICRO'] = "Y";
+			$updateFields['TITLE'] = preg_replace([ "/\n+/is".BX_UTF_PCRE_MODIFIER, "/\s+/is".BX_UTF_PCRE_MODIFIER ], " ", \blogTextParser::killAllTags($params["POST_MESSAGE"]));
+			$updateFields['TITLE'] = trim($updateFields['TITLE'], " \t\n\r\0\x0B\xA0");
+		}
+
 		if ($params['POST_MESSAGE'] <> '')
 		{
 			$updateFields['DETAIL_TEXT'] = $params['POST_MESSAGE'];
@@ -552,14 +587,82 @@ class Helper
 			}
 		}
 
+		if (isset($params['IMPORTANT']))
+		{
+			if ($params['IMPORTANT'] === 'Y')
+			{
+				$updateFields['UF_BLOG_POST_IMPRTNT'] = true;
+
+				if (!empty($params['IMPORTANT_DATE_END']))
+				{
+					$endDate = \CRestUtil::unConvertDate($params['IMPORTANT_DATE_END']);
+					if ($endDate)
+					{
+						$updateFields['UF_IMPRTANT_DATE_END'] = \Bitrix\Main\Type\DateTime::createFromUserTime($endDate);
+					}
+				}
+			}
+			else
+			{
+				$updateFields['UF_BLOG_POST_IMPRTNT'] = false;
+				$updateFields['UF_IMPRTANT_DATE_END'] = false;
+			}
+		}
+
+		if (isset($params['GRATITUDE_MEDAL']))
+		{
+			if (
+				!empty($params['GRATITUDE_MEDAL'])
+				&& isset($params['GRATITUDE_EMPLOYEES'])
+			)
+			{
+				$gratitudeElementId = \Bitrix\Socialnetwork\Helper\Gratitude::create([
+					'medal' => $params['GRATITUDE_MEDAL'],
+					'employees' => $params['GRATITUDE_EMPLOYEES']
+				]);
+				if ($gratitudeElementId)
+				{
+					$updateFields['UF_GRATITUDE'] = $gratitudeElementId;
+					$updateFields['HAS_PROPS'] = 'Y';
+				}
+			}
+			else
+			{
+				$updateFields['UF_GRATITUDE'] = false;
+			}
+		}
+
+		if (isset($params['UF_BLOG_POST_VOTE']))
+		{
+			if (
+				!empty($params['UF_BLOG_POST_VOTE'])
+				&& !empty($params['UF_BLOG_POST_VOTE_'.$params['UF_BLOG_POST_VOTE'].'_DATA'])
+			)
+			{
+				$updateFields['UF_BLOG_POST_VOTE'] = $params['UF_BLOG_POST_VOTE'];
+				$GLOBALS['UF_BLOG_POST_VOTE_'.$params['UF_BLOG_POST_VOTE'].'_DATA'] = $params['UF_BLOG_POST_VOTE_'.$params['UF_BLOG_POST_VOTE'].'_DATA'];
+				$updateFields['HAS_PROPS'] = 'Y';
+			}
+			else
+			{
+				$updateFields['UF_BLOG_POST_VOTE'] = false;
+			}
+		}
+
+		if (isset($params['BACKGROUND_CODE']))
+		{
+			$updateFields['BACKGROUND_CODE'] = (!empty($params['BACKGROUND_CODE']) ? $params['BACKGROUND_CODE'] : false);
+		}
+
 		if (
 			isset($params['PARSE_PREVIEW'])
-			&& $params['PARSE_PREVIEW'] == 'Y'
+			&& $params['PARSE_PREVIEW'] === 'Y'
 			&& !empty($updateFields['DETAIL_TEXT'])
 			&& ($urlPreviewValue = ComponentHelper::getUrlPreviewValue($updateFields['DETAIL_TEXT']))
 		)
 		{
 			$updateFields['UF_BLOG_POST_URL_PRV'] = $urlPreviewValue;
+			$updateFields['HAS_PROPS'] = 'Y';
 		}
 
 		if($result = \CBlogPost::update($postId, $updateFields))
@@ -713,8 +816,8 @@ class Helper
 				\CBlogPost::deleteLog($postId);
 			}
 			elseif (
-				$updateFields['PUBLISH_STATUS'] == BLOG_PUBLISH_STATUS_PUBLISH
-				&& $postFields['PUBLISH_STATUS'] == BLOG_PUBLISH_STATUS_PUBLISH
+				$updateFields['PUBLISH_STATUS'] === BLOG_PUBLISH_STATUS_PUBLISH
+				&& $postFields['PUBLISH_STATUS'] === BLOG_PUBLISH_STATUS_PUBLISH
 			)
 			{
 				\CBlogPost::updateLog($postId, $updateFields, $blog, [
@@ -815,6 +918,49 @@ class Helper
 		return $postFields;
 	}
 
+	public static function getBlogPostEventId(array $params = [])
+	{
+		global $USER_FIELD_MANAGER;
 
+		if (!Loader::includeModule('blog'))
+		{
+			throw new \Bitrix\Main\SystemException('No blog module installed', 'SONET_CONTROLLER_LIVEFEED_BLOGPOST_MODULE_BLOG_NOT_INSTALLED');
+		}
 
+		$postId = (isset($params['postId']) && (int)$params['postId'] > 0 ? (int)$params['postId'] : 0);
+		if ($postId <= 0)
+		{
+			throw new \Bitrix\Main\SystemException('Empty post ID', 'SONET_CONTROLLER_LIVEFEED_BLOGPOST_EMPTY_POST_ID');
+		}
+
+		$eventId = \Bitrix\Blog\Integration\Socialnetwork\Log::EVENT_ID_POST;
+		$postUserFields = $USER_FIELD_MANAGER->getUserFields('BLOG_POST', $postId, LANGUAGE_ID);
+
+		if (
+			isset($postUserFields['UF_BLOG_POST_IMPRTNT'])
+			&& isset($postUserFields['UF_BLOG_POST_IMPRTNT']['VALUE'])
+			&& (int)$postUserFields['UF_BLOG_POST_IMPRTNT']['VALUE'] > 0
+		)
+		{
+			$eventId = \Bitrix\Blog\Integration\Socialnetwork\Log::EVENT_ID_POST_IMPORTANT;
+		}
+		elseif (
+			isset($postUserFields['UF_BLOG_POST_VOTE'])
+			&& isset($postUserFields['UF_BLOG_POST_VOTE']['VALUE'])
+			&& (int)$postUserFields['UF_BLOG_POST_VOTE']['VALUE'] > 0
+		)
+		{
+			$eventId = \Bitrix\Blog\Integration\Socialnetwork\Log::EVENT_ID_POST_VOTE;
+		}
+		elseif (
+			isset($postUserFields['UF_GRATITUDE'])
+			&& isset($postUserFields['UF_GRATITUDE']['VALUE'])
+			&& (int)$postUserFields['UF_GRATITUDE']['VALUE'] > 0
+		)
+		{
+			$eventId = \Bitrix\Blog\Integration\Socialnetwork\Log::EVENT_ID_POST_GRAT;
+		}
+
+		return $eventId;
+	}
 }

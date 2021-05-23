@@ -1,5 +1,5 @@
-import type SearchField from '../search/search-field';
 import type { ItemBadgeOptions } from '../item/item-badge-options';
+import type { SearchFieldOptions } from '../search/search-field-options';
 
 export type EntityOptions = {
 	id: string,
@@ -8,8 +8,8 @@ export type EntityOptions = {
 	tagOptions?: { [key: string]: any },
 	badgeOptions?: ItemBadgeOptions[],
 	searchable?: boolean,
-	searchFields?: SearchField[],
-	searchCacheLimits?: [],
+	searchFields?: SearchFieldOptions[],
+	searchCacheLimits?: string[],
 	dynamicLoad?: boolean,
 	dynamicSearch?: boolean
 };

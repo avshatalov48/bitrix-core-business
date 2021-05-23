@@ -120,7 +120,7 @@ class CCalendarUserSettings
 
 		if ($str !== false && CheckSerializedData($str))
 		{
-			$ids = unserialize($str);
+			$ids = unserialize($str, ['allowed_classes' => false]);
 			if (is_array($ids) && count($ids) > 0)
 			{
 				foreach($ids as $id)
@@ -177,7 +177,7 @@ class CCalendarUserSettings
 
 		if ($str !== false && CheckSerializedData($str))
 		{
-			$ids = unserialize($str);
+			$ids = unserialize($str, ['allowed_classes' => false]);
 			if (is_array($ids) && count($ids) > 0)
 			{
 				foreach($ids as $id)

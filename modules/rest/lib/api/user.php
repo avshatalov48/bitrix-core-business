@@ -357,7 +357,7 @@ class User extends \IRestService
 
 		if(array_key_exists("HAS_DEPARTAMENT", $filter))
 		{
-			if($filter["HAS_DEPARTAMENT"] == "Y")
+			if ($filter["HAS_DEPARTAMENT"] === "Y")
 			{
 				$filter[] = [
 					'LOGIC' => 'AND',

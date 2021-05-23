@@ -9,8 +9,10 @@ use Bitrix\Sender\Access\Service\RoleDealCategoryService;
 use Bitrix\Sender\Connector;
 use Bitrix\Sender\ContactListTable;
 use Bitrix\Sender\Entity;
+use Bitrix\Sender\GroupTable;
 use Bitrix\Sender\Integration\Crm;
 use Bitrix\Sender\ListTable;
+use Bitrix\Sender\Posting\SegmentDataBuilder;
 use Bitrix\Sender\Security;
 use Bitrix\Sender\Segment;
 
@@ -34,12 +36,21 @@ class SenderSegmentEditComponent extends Bitrix\Sender\Internals\CommonSenderCom
 	 */
 	private $entitySegment;
 
+	/**
+	 * @var array
+	 */
+	private $usedConnectors;
+
 	protected function initParams()
 	{
 		$request = Context::getCurrent()->getRequest();
 
 		$this->arParams['ID'] = isset($this->arParams['ID']) ? (int) $this->arParams['ID'] : 0;
 		$this->arParams['ID'] = $this->arParams['ID'] ? $this->arParams['ID'] : (int) $this->request->get('ID');
+		$this->arParams['IS_NEW'] = $this->arParams['IS_NEW'] ?? 'N';
+
+
+		$this->arParams['USER_ID'] = $this->arParams['USER_ID'] ?? $this->userId;
 
 		if (!isset($this->arParams['DATA_TYPE_ID']))
 		{
@@ -104,17 +115,30 @@ class SenderSegmentEditComponent extends Bitrix\Sender\Internals\CommonSenderCom
 
 		if ($this->errors->isEmpty())
 		{
-			$path = str_replace('#id#', $this->entitySegment->getId(), $this->arParams['PATH_TO_EDIT']);
-			$uri = new Uri($path);
-			if ($this->request->get('IFRAME') == 'Y')
+			$this->redirectToLocal();
+		}
+	}
+
+	private function redirectToLocal($viewContinue = false)
+	{
+		$path = str_replace('#id#', $this->entitySegment->getId(), $this->arParams['PATH_TO_EDIT']);
+		$uri = new Uri($path);
+		if ($this->request->get('IFRAME') == 'Y')
+		{
+			$uri->addParams(array('IFRAME' => 'Y'));
+			if(!$viewContinue)
 			{
-				$uri->addParams(array('IFRAME' => 'Y'));
 				$uri->addParams(array('IS_SAVED' => 'Y'));
 			}
-			$path = $uri->getLocator();
-
-			LocalRedirect($path);
 		}
+
+		if ($this->arParams['IS_NEW'] === 'Y')
+		{
+			$uri->addParams(array('IS_NEW' => 'Y'));
+		}
+		$path = $uri->getLocator();
+
+		LocalRedirect($path);
 	}
 
 	protected function prepareResult()
@@ -141,9 +165,31 @@ class SenderSegmentEditComponent extends Bitrix\Sender\Internals\CommonSenderCom
 
 		$this->entitySegment = new Entity\Segment($this->arParams['ID']);
 		$this->entitySegment->setFilterOnlyMode($this->arParams['ONLY_CONNECTOR_FILTERS']);
+
+
+		if ($this->arParams['ID'] === 0)
+		{
+			$this->entitySegment->mergeData([
+				'NAME' => Loc::getMessage('SENDER_SEGMENT_EDIT_TMPL_PATTERN_TITLE', [
+					'%date%' => \FormatDate('j F', (new \Bitrix\Main\Type\DateTime())),
+				])
+			])->save();
+
+			$this->arParams['IS_NEW'] = 'Y';
+
+			$this->redirectToLocal(true);
+		}
+
+		$this->arResult['PREPARED'] = in_array($this->entitySegment->getData()['STATUS'], [
+			GroupTable::STATUS_NEW,
+			GroupTable::STATUS_DONE,
+			GroupTable::STATUS_READY_TO_USE,
+		]);
+
 		$this->arResult['ROW'] = $this->entitySegment->getData();
-		$this->arResult['CAN_ADD_PERSONAL_CONTACTS'] = $this->accessController->check
-		(ActionDictionary::ACTION_SEGMENT_CLIENT_PERSONAL_EDIT);
+		$this->arResult['CAN_ADD_PERSONAL_CONTACTS'] = $this
+			->accessController
+			->check(ActionDictionary::ACTION_SEGMENT_CLIENT_PERSONAL_EDIT);
 
 		$connectors = Connector\Manager::getConnectorList();
 		$initialEndpoints = [];
@@ -157,12 +203,13 @@ class SenderSegmentEditComponent extends Bitrix\Sender\Internals\CommonSenderCom
 				$initialEndpoints[] = [
 					'CODE' => $connector->getCode(),
 					'FIELDS' => [],
-					'MODULE_ID' => $connector->getModuleId()
+					'MODULE_ID' => $connector->getModuleId(),
 				];
 			}
 		}
 
 		$this->arResult['CONNECTOR'] = array();
+		$this->arResult['IS_NEW'] = $this->request->get('IS_NEW') === 'Y';
 		$this->prepareAvailableConnectors($connectors);
 
 		if ($this->request->isPost() && check_bitrix_sessid() && $this->arParams['CAN_EDIT'])
@@ -183,8 +230,14 @@ class SenderSegmentEditComponent extends Bitrix\Sender\Internals\CommonSenderCom
 
 
 		$this->arResult['SEGMENT_TILE'] = Segment\TileView::create()->getTile($this->arParams['ID']);
-		$this->arResult['IS_SAVED'] = $this->request->get('IS_SAVED') == 'Y';
+		$this->arResult['IS_SAVED'] = $this->request->get('IS_SAVED') === 'Y';
 		$this->arResult['HIDDEN'] = $this->request->get('hidden') === 'Y';
+
+		if (Bitrix\Main\Loader::includeModule('pull'))
+		{
+			\CPullWatch::Add($this->userId, SegmentDataBuilder::FILTER_COUNTER_TAG);
+		}
+
 
 		return true;
 	}
@@ -295,7 +348,15 @@ class SenderSegmentEditComponent extends Bitrix\Sender\Internals\CommonSenderCom
 
 				$connectorData = $this->prepareConnectorData($connector);
 
-				$connectorData['FILTER_ID'] = preg_replace('/--filter--([^-]+)--/', '%CONNECTOR_NUM%', $connectorData['FILTER_ID']);
+				if($connectorData['SAVED_FILTER_ID'])
+				{
+					$connectorData['FILTER_ID'] = $connectorData['SAVED_FILTER_ID'];
+				}
+				else
+				{
+					$connectorData['FILTER_ID'] = preg_replace('/--filter--([^-]+)--/', '%CONNECTOR_NUM%', $connectorData['FILTER_ID']);
+				}
+
 				if (preg_match('/--filter--([^-]+)--/', $connectorData['FORM'], $matches))
 				{
 					$namedCounter = $matches[1];
@@ -307,7 +368,9 @@ class SenderSegmentEditComponent extends Bitrix\Sender\Internals\CommonSenderCom
 					{
 						$existedNamedCounters[] = $namedCounter;
 					}
-					$namedCounter = '--filter--'.$namedCounter.'--';
+
+
+					$namedCounter = $connectorData['NAMED_CONNECTOR'] ?? '--filter--'.$namedCounter.'--';
 					$connectorData['NUM'] = $namedCounter;
 					$connectorData['FORM'] = preg_replace('/--filter--([^-]+)--/', $namedCounter, $connectorData['FORM']);
 				}
@@ -319,6 +382,7 @@ class SenderSegmentEditComponent extends Bitrix\Sender\Internals\CommonSenderCom
 
 				$addressCounter += $connectorData['COUNT']['summary'];
 
+				$this->prepareConnectorDataCounter($connectorData, $connector, true);
 				$connectorData['COUNTER'] = Json::encode($connectorData['COUNT']);
 				$connectorData['COUNT'] = $connectorData['COUNT']['summary'];
 
@@ -332,6 +396,31 @@ class SenderSegmentEditComponent extends Bitrix\Sender\Internals\CommonSenderCom
 		$this->arResult['CONNECTOR']['EXISTED'] = $result;
 		$this->arResult['CONNECTOR']['EXISTED_ADDRESS_COUNT'] = $addressCounter;
 		Entity\Segment::updateAddressCounters($this->entitySegment->getId(), $dataCounters);
+	}
+
+	private function prepareConnectorDataCounter(&$connectorData, $connector, $calcCount = false)
+	{
+		$isIncrementally = $connector instanceof Connector\IncrementallyConnector;
+
+		if ($isIncrementally && $connectorData['SAVED_FILTER_ID'])
+		{
+			$segmentBuilder = new SegmentDataBuilder(
+				$this->arParams['ID'],
+				$connectorData['SAVED_FILTER_ID']
+			);
+		}
+
+		$dataCounter = $calcCount
+			? (
+			$segmentBuilder
+				? $segmentBuilder->calculateCurrentFilterCount()
+				: $connector->getDataCounter()
+			)
+			: new Connector\DataCounter([]);
+
+		$dataCounterCloned = clone $dataCounter;
+		$connectorData['COUNT'] = $dataCounterCloned->leave($this->arParams['DATA_TYPE_ID'])->getArray();
+		$connectorData['DATA_COUNTER'] = $dataCounter;
 	}
 
 	/**
@@ -372,7 +461,8 @@ class SenderSegmentEditComponent extends Bitrix\Sender\Internals\CommonSenderCom
 			);
 
 	}
-	protected function prepareConnectorData(Connector\Base $connector, $calcCount = true)
+
+	protected function prepareConnectorData(Connector\Base $connector, $checkFilter = true)
 	{
 		$filters = $connector instanceof Connector\BaseFilter ? $connector::getUiFilterFields() : [];
 		$fieldValues = $connector->getFieldValues();
@@ -384,9 +474,6 @@ class SenderSegmentEditComponent extends Bitrix\Sender\Internals\CommonSenderCom
 
 		$connector->setFieldValues($fieldValues);
 
-		$dataCounter = $calcCount ? $connector->getDataCounter() : new Connector\DataCounter([]);
-		$dataCounterCloned = clone $dataCounter;
-
 		$connectorData = array(
 			'ID' => $connector->getId(),
 			'NAME' => $connector->getName(),
@@ -395,8 +482,6 @@ class SenderSegmentEditComponent extends Bitrix\Sender\Internals\CommonSenderCom
 			'FORM' => method_exists($connector, 'getCustomForm')
 				? $connector->getCustomForm(['filter' => $filters])
 				: $connector->getForm(),
-			'COUNT' => $dataCounterCloned->leave($this->arParams['DATA_TYPE_ID'])->getArray(),
-			'DATA_COUNTER' => $dataCounter,
 			'IS_FILTER' => $connector instanceof Connector\BaseFilter,
 			'IS_RESULT_VIEWABLE' => $connector->isResultViewable() ? 'Y' : 'N',
 			'FILTER_ID' => '',
@@ -414,6 +499,34 @@ class SenderSegmentEditComponent extends Bitrix\Sender\Internals\CommonSenderCom
 		if ($connector instanceof Connector\BaseFilter)
 		{
 			$connectorData['FILTER_ID'] = $connector->getUiFilterId();
+		}
+
+		if($checkFilter)
+		{
+			$endpoints = $this->entitySegment->getData()['ENDPOINTS'];
+
+			$this->usedConnectors = $this->usedConnectors ?? [];
+
+			foreach($endpoints as $endpoint)
+			{
+				if(
+					$endpoint['CODE'] === $connector->getCode()
+					&& $endpoint['FILTER_ID']
+					&& !in_array($endpoint['FILTER_ID'], $this->usedConnectors)
+				)
+				{
+					$connectorData['SAVED_FILTER_ID'] = htmlspecialcharsbx($endpoint['FILTER_ID']);
+					$connectorData['NAMED_CONNECTOR'] = htmlspecialcharsbx(
+						str_replace(
+							"{$endpoint['MODULE_ID']}_{$endpoint['CODE']}_",
+							"",
+							$endpoint['FILTER_ID']
+						)
+					);
+					$this->usedConnectors[] = $endpoint['FILTER_ID'];
+					break;
+				}
+			}
 		}
 
 		$hiddenName = $connector->getFieldName('bx_aux_hidden_field');

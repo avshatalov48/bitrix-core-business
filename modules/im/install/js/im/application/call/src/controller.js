@@ -41,6 +41,7 @@ import { VuexBuilder } from "ui.vue.vuex";
 import {Loc} from "main.core";
 import "promise";
 import 'main.date';
+import { Menu } from 'main.popup'
 
 // pull and rest
 import { PullClient } from "pull.client";
@@ -106,6 +107,7 @@ class CallApplication
 		this.waitingForCallStatusTimeout = null;
 		this.callEventReceived = false;
 		this.callRecordState = BX.Call.View.RecordState.Stopped;
+		this.callRecordType = BX.Call.View.RecordType.None;
 
 		this.desktop = null;
 		this.floatingScreenShareWindow = null;
@@ -163,6 +165,11 @@ class CallApplication
 			window.addEventListener('blur', () => {
 				this.onWindowBlur();
 			});
+		}
+
+		if (this.desktop.isReady() && !(opener||top).BX.desktop)
+		{
+			BXDesktopSystem.CloseTab(location.href);
 		}
 
 		return new Promise((resolve, reject) => resolve());
@@ -939,6 +946,11 @@ class CallApplication
 			BXDesktopSystem.CallRecordStop();
 		}
 		this.callRecordState = BX.Call.View.RecordState.Stopped;
+		this.callRecordType = BX.Call.View.RecordType.None;
+		if (this.callRecordMenu)
+		{
+			this.callRecordMenu.close();
+		}
 
 		if (Utils.platform.isBitrixDesktop())
 		{
@@ -1264,6 +1276,7 @@ class CallApplication
 		}
 		else
 		{
+			this.restClient.callMethod("im.call.onShareScreen", {callId: this.currentCall.id});
 			this.currentCall.startScreenSharing();
 		}
 	}
@@ -1285,6 +1298,46 @@ class CallApplication
 
 			if (this.canRecord())
 			{
+				if (Utils.platform.isBitrixDesktop() && Utils.platform.getDesktopVersion() >= 55)
+				{
+					if (!this.callRecordMenu)
+					{
+						this.callRecordMenu = new Menu({
+							bindElement: event.data.node,
+							items: [
+								{
+									text: BX.message('IM_M_CALL_MENU_RECORD_VIDEO'),
+									onclick: (event, item) => {
+										this.onCallViewRecordMenuClick(BX.Call.View.RecordType.Video);
+										item.getMenuWindow().close();
+									}
+								},
+								{
+									text: BX.message('IM_M_CALL_MENU_RECORD_AUDIO'),
+									onclick: (event, item) => {
+										this.onCallViewRecordMenuClick(BX.Call.View.RecordType.Audio);
+										item.getMenuWindow().close();
+									}
+								}
+							],
+							angle: {position: "top", offset: 80},
+							offsetTop: 0,
+							offsetLeft: -25,
+							events : {
+								onPopupClose : function () {
+									this.callRecordMenu.destroy();
+								}.bind(this),
+								onPopupDestroy : function () {
+									this.callRecordMenu = null;
+								}.bind(this),
+							}
+						});
+					}
+					this.callRecordMenu.toggle();
+
+					return;
+				}
+
 				this.callView.setButtonActive('record', true);
 			}
 			else
@@ -1322,6 +1375,19 @@ class CallApplication
 		});
 
 		this.callRecordState = event.data.recordState;
+	}
+
+	onCallViewRecordMenuClick(type)
+	{
+		this.callView.setButtonActive('record', true);
+		this.callRecordType = type;
+
+		this.currentCall.sendRecordState({
+			action: BX.Call.View.RecordState.Started,
+			date: new Date()
+		});
+
+		this.callRecordState = BX.Call.View.RecordState.Started;
 	}
 
 	onCallViewToggleVideoButtonClick(event)
@@ -1627,6 +1693,8 @@ class CallApplication
 				fileName = "call_record_"+this.currentCall.id;
 			}
 
+			BX.CallEngine.getRestClient().callMethod("im.call.onStartRecord", {callId: this.currentCall.id});
+
 			BXDesktopSystem.CallRecordStart({
 				windowId,
 				fileName,
@@ -1634,6 +1702,7 @@ class CallApplication
 				callDate,
 				dialogId,
 				dialogName,
+				video: this.callRecordType !== BX.Call.View.RecordType.Audio,
 				muted: this.currentCall.isMuted(),
 				cropTop: 72,
 				cropBottom: 73,

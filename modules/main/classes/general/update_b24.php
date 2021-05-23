@@ -190,7 +190,7 @@ class CB24Updater
 			$val = $arResult["VALUE"];
 			if ($val <> '')
 			{
-				$arDBVersions = unserialize($val);
+				$arDBVersions = unserialize($val, ['allowed_classes' => false]);
 				if (!is_array($arDBVersions))
 					$arDBVersions = array();
 			}

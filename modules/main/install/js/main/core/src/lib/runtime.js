@@ -83,7 +83,14 @@ export default class Runtime
 		{
 			if (params.htmlFirst || (!externalJs.length && !externalCss.length))
 			{
-				node.innerHTML = parsedHtml.HTML;
+				if (params.useAdjacentHTML)
+				{
+					node.insertAdjacentHTML('beforeend', parsedHtml.HTML);
+				}
+				else
+				{
+					node.innerHTML = parsedHtml.HTML;
+				}
 			}
 		}
 
@@ -95,7 +102,14 @@ export default class Runtime
 			.then(() => {
 				if (Type.isDomNode(node) && (externalJs.length > 0 || externalCss.length > 0))
 				{
-					node.innerHTML = parsedHtml.HTML;
+					if (params.useAdjacentHTML)
+					{
+						node.insertAdjacentHTML('beforeend', parsedHtml.HTML);
+					}
+					else
+					{
+						node.innerHTML = parsedHtml.HTML;
+					}
 				}
 
 				// eslint-disable-next-line

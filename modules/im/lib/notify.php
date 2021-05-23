@@ -79,4 +79,26 @@ class Notify
 
 		return $result;
 	}
+
+	public static function cleanNotifyAgent()
+	{
+		$dayCount = 90;
+		$step = 1000;
+
+		$result = \Bitrix\Im\Model\MessageTable::getList(array(
+			'select' => ['ID'],
+			'filter' => [
+				'=NOTIFY_TYPE' => [IM_NOTIFY_CONFIRM, IM_NOTIFY_FROM, IM_NOTIFY_SYSTEM],
+				'<DATE_CREATE' => ConvertTimeStamp((time() - 86400 * $dayCount), 'FULL')
+			],
+			'limit' => $step
+		));
+		while ($row = $result->fetch())
+		{
+			\Bitrix\Im\Model\MessageTable::delete($row['ID']);
+			\CIMMessageParam::DeleteAll($row['ID'], true);
+		}
+
+		return '\Bitrix\Im\Notify::cleanNotifyAgent();';
+	}
 }

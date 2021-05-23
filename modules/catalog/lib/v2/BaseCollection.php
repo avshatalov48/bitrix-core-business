@@ -168,6 +168,31 @@ abstract class BaseCollection implements \IteratorAggregate, \Countable
 		return null;
 	}
 
+	public function getFirst(callable $callback = null): ?BaseEntity
+	{
+		if ((empty($this->items) || $callback) && !$this->isLoaded())
+		{
+			$this->loadItems();
+		}
+
+		if ($callback)
+		{
+			foreach ($this->getIterator() as $item)
+			{
+				if ($callback($item))
+				{
+					return $item;
+				}
+			}
+		}
+		else
+		{
+			return reset($this->items) ?: null;
+		}
+
+		return null;
+	}
+
 	public function toArray(): array
 	{
 		$result = [];

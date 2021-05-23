@@ -279,8 +279,8 @@ class CRatingRule
 		$arConfigs = $ratingRule->Fetch();
 		if ($arConfigs['ACTIVE'] == 'Y')
 		{
-			$arConfigs['CONDITION_CONFIG'] = unserialize(htmlspecialcharsback($arConfigs['CONDITION_CONFIG']));
-			$arConfigs['ACTION_CONFIG']	 = unserialize(htmlspecialcharsback($arConfigs['ACTION_CONFIG']));
+			$arConfigs['CONDITION_CONFIG'] = unserialize(htmlspecialcharsback($arConfigs['CONDITION_CONFIG']), ['allowed_classes' => false]);
+			$arConfigs['ACTION_CONFIG']	 = unserialize(htmlspecialcharsback($arConfigs['ACTION_CONFIG']), ['allowed_classes' => false]);
 			
 			$arConfigs['CONDITION_MODULE'] = isset($arConfigs['CONDITION_MODULE']) && $arConfigs['CONDITION_MODULE'] <> ''? $arConfigs['CONDITION_MODULE']: 'main';
 			if(CModule::IncludeModule(mb_strtolower($arConfigs['CONDITION_MODULE']))) {

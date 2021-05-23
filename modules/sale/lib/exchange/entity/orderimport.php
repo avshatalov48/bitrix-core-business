@@ -334,7 +334,7 @@ class OrderImport extends EntityImport
                 "PRODUCT_ID" => $product["ID"],
                 "NAME" => $product["NAME"],
                 "MODULE" => "catalog",
-                "PRODUCT_PROVIDER_CLASS" => "CCatalogProductProvider",
+                "PRODUCT_PROVIDER_CLASS" => '\Bitrix\Catalog\Product\CatalogProvider',
                 "CATALOG_XML_ID" => $product["IBLOCK_XML_ID"],
                 "DETAIL_PAGE_URL" => $product["DETAIL_PAGE_URL"],
                 "WEIGHT" => $product["WEIGHT"],

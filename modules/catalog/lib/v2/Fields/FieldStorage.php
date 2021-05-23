@@ -74,6 +74,11 @@ class FieldStorage implements \ArrayAccess, \Iterator, \Countable
 		return $this;
 	}
 
+	public function hasField($name): bool
+	{
+		return isset($this->fields[$name]);
+	}
+
 	public function getField($name)
 	{
 		return $this->fields[$name] ?? null;

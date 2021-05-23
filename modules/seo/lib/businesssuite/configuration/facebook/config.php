@@ -116,7 +116,7 @@ final class Config implements IConfig
 	{
 		try
 		{
-			if($adapter = ServiceAdapter::load(Service::FACEBOOK_TYPE))
+			if($adapter = ServiceAdapter::loadFacebookService())
 			{
 				return $adapter->getConfig()->set($this)->isSuccess();
 			}
@@ -173,6 +173,7 @@ final class Config implements IConfig
 	/**
 	 * @return IConfig
 	 * @throws Exception\ConfigLoadException
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	public static function load(): IConfig
 	{
@@ -184,12 +185,11 @@ final class Config implements IConfig
 				self::$current = self::create();
 				self::$current->value = $cache->get(self::FACEBOOK_BUSINESS_CONFIG_CACHE_ID);
 			}
-			elseif
-			(
-				($adapter = ServiceAdapter::load(Service::FACEBOOK_TYPE)) &&
-				($response = $adapter->getConfig()->get()) &&
-				$response->isSuccess() &&
-				$data = $response->fetch()
+			elseif (
+				($adapter = ServiceAdapter::loadFacebookService())
+				&& ($response = $adapter->getConfig()->get())
+				&& $response->isSuccess()
+				&& $data = $response->fetch()
 			)
 			{
 				self::$current = array_reduce(

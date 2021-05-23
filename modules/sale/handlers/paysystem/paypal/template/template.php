@@ -1,8 +1,9 @@
 <?php
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) 
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Sale\PriceMaths;
 
 Loc::loadMessages(__FILE__);
 
@@ -21,7 +22,7 @@ if ($params["PAYED"] != "Y")
 					<input type="hidden" name="business" value="<?= htmlspecialcharsbx($params["PAYPAL_BUSINESS"]) ?>">
 					<input type="hidden" name="item_name" value="<?=htmlspecialcharsbx($itemName)?>">
 					<input type="hidden" name="currency_code" value="<?=htmlspecialcharsbx($params["PAYMENT_CURRENCY"])?>">
-					<input type="hidden" name="amount" value="<?=round($params["PAYMENT_SHOULD_PAY"], 2);?>">
+					<input type="hidden" name="amount" value="<?=PriceMaths::roundPrecision($params["PAYMENT_SHOULD_PAY"]);?>">
 					<input type="hidden" name="custom" value="<?=htmlspecialcharsbx($params["PAYMENT_ID"])?>">
 
 					<?if ($params["PAYPAL_ON0"] != ''):?>
@@ -48,7 +49,7 @@ if ($params["PAYED"] != "Y")
 
 					<? $buttonSrc = ($params["PAYPAL_BUTTON_SRC"] <> '') ? $params["PAYPAL_BUTTON_SRC"] : "http://www.paypal.com/en_US/i/btn/x-click-but6.gif";?>
 
-					<input type="image" class="w-100" src="<?=$buttonSrc?>" name="submit">
+					<input type="image" class="mw-100" src="<?=$buttonSrc?>" name="submit">
 				</form>
 			</td>
 		</tr>

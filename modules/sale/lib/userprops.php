@@ -164,7 +164,7 @@ class OrderUserProperties
 		{
 			if (($propValue['MULTIPLE'] === 'Y' || $propValue['TYPE'] === 'FILE')
 				&& CheckSerializedData($propValue['VALUE'])
-				&& ($serialisedValue = @unserialize($propValue['VALUE'])) !== false)
+				&& ($serialisedValue = @unserialize($propValue['VALUE'], ['allowed_classes' => false])) !== false)
 			{
 				$propValue['VALUE'] = $serialisedValue;
 			}

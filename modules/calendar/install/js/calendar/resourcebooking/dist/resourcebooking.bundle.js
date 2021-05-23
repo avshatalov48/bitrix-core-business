@@ -2673,6 +2673,7 @@ this.BX = this.BX || {};
 	    _this.timezoneOffsetLabel = null;
 	    _this.userFieldParams = null;
 	    _this.loadedDates = [];
+	    _this.externalSiteContext = main_core.Type.isFunction(params.actionAgent);
 	    _this.accessibility = {
 	      user: {},
 	      resource: {}
@@ -2761,6 +2762,12 @@ this.BX = this.BX || {};
 	        this.statusControl.refresh({});
 	        this.statusControl.setError('[UF_NOT_FOUND] ' + main_core.Loc.getMessage('WEBF_RES_BOOKING_UF_WARNING'));
 	      } else {
+	        if (this.externalSiteContext && BX.ZIndexManager) {
+	          var stack = BX.ZIndexManager.getOrAddStack(document.body);
+	          stack.baseIndex = 100000;
+	          stack.sort();
+	        }
+
 	        this.preparaAutoSelectValues();
 	        this.displayUsersControl();
 	        this.displayResourcesControl();
@@ -3661,11 +3668,11 @@ this.BX = this.BX || {};
 
 	      if (main_core.Type.isDate(params.date)) {
 	        if (this.getFieldParams().ALLOW_OVERBOOKING !== "Y" && (this.isUserSelectorInAutoMode() || this.isResourceSelectorInAutoMode())) {
+	          var fieldParams = this.getFieldParams();
 	          var freeSlot,
 	              i,
 	              j,
 	              time,
-	              settingsData = this.getSettingsData(),
 	              slotGap = 1,
 	              todayNowTime = 0,
 	              timeSlots = this.getTimeSlots(),
@@ -3675,7 +3682,8 @@ this.BX = this.BX || {};
 
 	          if (this.checkIsTodayDate(dateKey)) {
 	            var today = new Date();
-	            todayNowTime = today.getHours() * 60 + today.getMinutes();
+	            var deltaOffset = fieldParams.USE_USER_TIMEZONE === 'N' ? today.getTimezoneOffset() * 60 + this.timezoneOffset : 0;
+	            todayNowTime = today.getHours() * 60 + today.getMinutes() + deltaOffset / 60;
 	          } // Prefill slotIndex
 
 
@@ -3745,19 +3753,20 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getAvailableSlotIndex",
 	    value: function getAvailableSlotIndex(params) {
+	      var todayNowTime = 0;
+	      var fieldParams = this.getFieldParams();
 	      var dateKey,
 	          loadedDate,
 	          i,
 	          j,
 	          time,
-	          todayNowTime = 0,
 	          slotGap,
 	          userKey = params.user ? 'user' + params.user : null,
 	          slotsAmount = Math.ceil(params.duration / this.scale),
 	          userIsFree,
 	          resourcesAreFree,
 	          timeSlots = this.getTimeSlots(),
-	          allowOverbooking = this.getFieldParams().ALLOW_OVERBOOKING === "Y",
+	          allowOverbooking = fieldParams.ALLOW_OVERBOOKING === "Y",
 	          slotIndex = {}; // Prefill slotIndex
 
 	      timeSlots.forEach(function (slot) {
@@ -3771,7 +3780,8 @@ this.BX = this.BX || {};
 
 	        if (this.checkIsTodayDate(dateKey)) {
 	          var today = new Date();
-	          todayNowTime = today.getHours() * 60 + today.getMinutes();
+	          var deltaOffset = fieldParams.USE_USER_TIMEZONE === 'N' ? today.getTimezoneOffset() * 60 + this.timezoneOffset : 0;
+	          todayNowTime = today.getHours() * 60 + today.getMinutes() + deltaOffset / 60;
 	        }
 
 	        for (i = timeSlots.length; i--; i >= 0) {

@@ -127,8 +127,6 @@ class Limit
 
 	public static function incrementCounter(string $code)
 	{
-		return true;
-
 		if ($code === self::COUNTER_CALL_SUCCESS)
 		{
 			static::$isActiveCallExtension = null;

@@ -4,7 +4,9 @@
 namespace Bitrix\Calendar\ICal\Parser;
 
 
-interface ParserComponent
+use Bitrix\Calendar\ICal\Basic\BasicComponent;
+
+abstract class ParserComponent extends BasicComponent
 {
-	public function getContent();
+
 }

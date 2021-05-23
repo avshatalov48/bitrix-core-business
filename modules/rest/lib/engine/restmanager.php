@@ -17,6 +17,7 @@ use Bitrix\Main\Type\Date;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\UI\PageNavigation;
 use Bitrix\Main\Web\Uri;
+use Bitrix\Rest\Engine\ScopeManager;
 use Bitrix\Rest\RestException;
 
 class RestManager extends \IRestService
@@ -29,10 +30,11 @@ class RestManager extends \IRestService
 	public static function onFindMethodDescription($potentialAction)
 	{
 		$restManager = new static();
+		$potentialActionData = ScopeManager::getInstance()->getMethodInfo($potentialAction);
 
 		$request = new \Bitrix\Main\HttpRequest(
 			Context::getCurrent()->getServer(),
-			['action' => $potentialAction],
+			['action' => $potentialActionData['method']],
 			[], [], []
 		);
 
@@ -51,7 +53,7 @@ class RestManager extends \IRestService
 		}
 
 		return [
-			'scope' => static::getModuleScopeAlias($router->getModule()),
+			'scope' => static::getModuleScopeAlias($potentialActionData['scope']),
 			'callback' => [
 				$restManager, 'processMethodRequest'
 			]
@@ -85,10 +87,11 @@ class RestManager extends \IRestService
 
 		$errorCollection = new ErrorCollection();
 		$method = $restServer->getMethod();
+		$methodData = ScopeManager::getInstance()->getMethodInfo($method);
 
 		$request = new \Bitrix\Main\HttpRequest(
 			Context::getCurrent()->getServer(),
-			['action' => $method],
+			['action' => $methodData['method']],
 			[], [], []
 		);
 		$router = new Engine\Router($request);

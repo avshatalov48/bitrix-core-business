@@ -93,7 +93,7 @@ class CashOnDeliveryCalcHandler extends PaySystem\BaseServiceHandler implements 
 	private static function extractFromField($params)
 	{
 		$result = array();
-		$tarifs = unserialize($params);
+		$tarifs = unserialize($params, ['allowed_classes' => false]);
 
 		if (!is_array($tarifs))
 			$tarifs = array();

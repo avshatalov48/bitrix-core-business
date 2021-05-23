@@ -154,10 +154,10 @@ $formatDeficiencyExcessRounded = static function ($deficiency, $excess, $isOblig
 			<div class="title"><?= Loc::getMessage('TR_TOTAL_MESSAGES')?></div>
 			<div class="value read"><?= $arResult['DIFFERENCES'][$arParams['CURRENT_LANG']]['TOTAL'] ?></div>
 		</div>
-		<? if (!empty($arResult['LANG_SETTINGS']['languages'])): ?>
+		<? if (!empty($arResult['LANG_SETTINGS'])): ?>
 			<div class="translate-edit-row">
 				<div class="title"><?= Loc::getMessage('TR_OBLIGATORY_LANGS')?></div>
-				<div class="value read"><?= implode(', ', $arResult['LANG_SETTINGS']['languages']) ?></div>
+				<div class="value read"><?= implode(', ', $arResult['LANG_SETTINGS']) ?></div>
 			</div>
 		<? endif ?>
 		<div class="translate-edit-row">
@@ -180,9 +180,9 @@ $formatDeficiencyExcessRounded = static function ($deficiency, $excess, $isOblig
 						foreach ($arResult['DIFFERENCES'] as $langId => $diff)
 						{
 							$isObligatory = true;
-							if (!empty($arResult['LANG_SETTINGS']['languages']))
+							if (!empty($arResult['LANG_SETTINGS']))
 							{
-								$isObligatory = in_array($langId, $arResult['LANG_SETTINGS']['languages'], true);
+								$isObligatory = in_array($langId, $arResult['LANG_SETTINGS'], true);
 							}
 
 							?>
@@ -244,9 +244,9 @@ $formatDeficiencyExcessRounded = static function ($deficiency, $excess, $isOblig
 				foreach ($arResult['DIFFERENCES'] as $langId => $differences)
 				{
 					$isObligatory = true;
-					if (!empty($arResult['LANG_SETTINGS']['languages']))
+					if (!empty($arResult['LANG_SETTINGS']))
 					{
-						$isObligatory = in_array($langId, $arResult['LANG_SETTINGS']['languages'], true);
+						$isObligatory = in_array($langId, $arResult['LANG_SETTINGS'], true);
 					}
 
 					if (!in_array($phraseId, $differences['CODES'], true))
@@ -297,7 +297,7 @@ $formatDeficiencyExcessRounded = static function ($deficiency, $excess, $isOblig
 
 				?>
 				<div class="translate-edit-row phrase" rel="<?= $phraseId ?>">
-					<div class="title">[<?= $langId ?>]&nbsp;<?= $arResult['LANGUAGES_TITLE'][$langId] ?>:</div>
+					<div class="title">[<?= $langId ?>]&nbsp;<?= Translate\Text\StringHelper::htmlSpecialChars($arResult['LANGUAGES_TITLE'][$langId]) ?>:</div>
 					<?
 					if ($hasPermissionEdit && $isCompatible)
 					{
@@ -415,7 +415,7 @@ if (!$isAjax)
 					[
 						'id' => 'translate-export-csv',
 						'text' => Loc::getMessage('TR_EDIT_EXPORT_CSV'),
-						'onclick' => "BX.Translate.ProcessManager.getInstance('export').showDialog();"
+						'onclick' => "BX.UI.StepProcessing.ProcessManager.get('export').showDialog();"
 					]
 				],
 				'deleteMenu' => [
@@ -441,7 +441,7 @@ if (!$isAjax)
 			if ($hasPermissionEdit)
 			{
 				?>
-				BX.Translate.ProcessManager.create(<?=Json::encode([
+				BX.UI.StepProcessing.ProcessManager.create(<?=Json::encode([
 					'id' => 'export',
 					'controller' => 'bitrix:translate.controller.export.csv',
 					'messages' => [
@@ -450,8 +450,6 @@ if (!$isAjax)
 						'DialogStartButton' => Loc::getMessage('TR_EXPORT_CSV_DLG_BTN_START'),
 						'DialogStopButton' => Loc::getMessage('TR_DLG_BTN_STOP'),
 						'DialogCloseButton' => Loc::getMessage('TR_DLG_BTN_CLOSE'),
-						'AuthError' => Loc::getMessage('main_include_decode_pass_sess'),
-						'RequestError' => Loc::getMessage('TR_DLG_REQUEST_ERR'),
 						'RequestCanceling' => Loc::getMessage('TR_DLG_REQUEST_CANCEL'),
 						'RequestCanceled' => Loc::getMessage('TR_EXPORT_CSV_DLG_CANCELED'),
 						'RequestCompleted' => Loc::getMessage('TR_EXPORT_CSV_DLG_COMPLETED'),
@@ -468,7 +466,6 @@ if (!$isAjax)
 					'params' => [
 						'path' => $arResult['FILE_PATH'],
 					],
-					'sToken' => 's'. time(),
 					'optionsFields' => [
 						'collectUntranslated' => [
 							'name' => 'collectUntranslated',
@@ -485,7 +482,7 @@ if (!$isAjax)
 						'languages' => [
 							'name' => 'languages',
 							'type' => 'select',
-							'multiple' => 'Y',
+							'multiple' => true,
 							'size' => (count($arResult['LANGUAGES_TITLE']) >= 15 ? '15' : count($arResult['LANGUAGES_TITLE']) + 1),
 							'title' => Loc::getMessage('TR_EXPORT_CSV_PARAM_LANGUAGES'),
 							'list' => array_merge(['all' => Loc::getMessage('TR_EXPORT_CSV_PARAM_LANGUAGES_ALL')], $arResult['LANGUAGES_TITLE']),

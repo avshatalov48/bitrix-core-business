@@ -64,7 +64,7 @@ class CUndo
 		}
 
 		// Get params for Escaping
-		$arParams = unserialize($arUndo['CONTENT']);
+		$arParams = unserialize($arUndo['CONTENT'], ['allowed_classes' => false]);
 
 		// Check and call Undo handler
 		$p = mb_strpos($arUndo['UNDO_HANDLER'], "::");

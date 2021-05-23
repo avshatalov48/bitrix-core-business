@@ -979,8 +979,7 @@ class Actions
 
 		foreach ($applyBasket as $basketCode => $basketRow)
 		{
-			$basketRow['DISCOUNT_PRICE'] = $basketRow['BASE_PRICE'];
-			$basketRow['PRICE'] = 0;
+			self::fillDiscountPrice($basketRow, 0, $basketRow['PRICE']);
 
 			$order['BASKET_ITEMS'][$basketCode] = $basketRow;
 
@@ -1295,7 +1294,7 @@ class Actions
 			{
 				if (CheckSerializedData($discount['ACTIONS']))
 				{
-					$actionStructure = unserialize($discount['ACTIONS']);
+					$actionStructure = unserialize($discount['ACTIONS'], ['allowed_classes' => false]);
 				}
 			}
 			else

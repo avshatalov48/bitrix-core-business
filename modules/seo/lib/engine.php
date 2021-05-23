@@ -39,7 +39,7 @@ class Engine
 		{
 			if($this->engine['SETTINGS'] <> '')
 			{
-				$this->engineSettings = unserialize($this->engine['SETTINGS']);
+				$this->engineSettings = unserialize($this->engine['SETTINGS'], ['allowed_classes' => false]);
 			}
 		}
 	}

@@ -20,7 +20,10 @@ class CallUser
 	protected $callId;
 	protected $state;
 	protected $lastSeen;
+	protected $firstJoined;
 	protected $isMobile;
+	protected $sharedScreen;
+	protected $recorded;
 
 	public static function create(array $fields)
 	{
@@ -81,6 +84,28 @@ class CallUser
 		$this->update(['LAST_SEEN' => $lastSeen]);
 	}
 
+	public function getFirstJoined() : ?DateTime
+	{
+		return $this->firstJoined;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function wasScreenShared()
+	{
+		return $this->sharedScreen;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function wasRecorded()
+	{
+		return $this->recorded;
+	}
+
+
 	/**
 	 * Returns true if the user is an active participant of the call and false otherwise.
 	 *
@@ -111,10 +136,10 @@ class CallUser
 		$this->callId = array_key_exists('CALL_ID', $fields) ? $fields['CALL_ID'] : $this->callId;
 		$this->state = array_key_exists('STATE', $fields) ? $fields['STATE'] : $this->state;
 		$this->lastSeen = array_key_exists('LAST_SEEN', $fields) ? $fields['LAST_SEEN'] : $this->lastSeen;
-		if(array_key_exists('IS_MOBILE', $fields))
-		{
-			$this->isMobile = $fields['IS_MOBILE'] === 'Y';
-		}
+		$this->firstJoined = array_key_exists('FIRST_JOINED', $fields) ? $fields['FIRST_JOINED'] : $this->firstJoined;
+		$this->isMobile = array_key_exists('IS_MOBILE', $fields) ? $fields['IS_MOBILE'] === 'Y' : $this->isMobile;
+		$this->sharedScreen = array_key_exists('SHARED_SCREEN', $fields) ? $fields['SHARED_SCREEN'] === 'Y' : $this->sharedScreen;
+		$this->recorded = array_key_exists('RECORDED', $fields) ? $fields['RECORDED'] === 'Y' : $this->recorded;
 	}
 
 	public function save()
@@ -124,7 +149,10 @@ class CallUser
 			'CALL_ID' => $this->callId,
 			'STATE' => $this->state,
 			'LAST_SEEN' => $this->lastSeen,
-			'IS_MOBILE' => is_bool($this->isMobile) ? $this->isMobile : null
+			'FIRST_JOINED' => $this->firstJoined,
+			'IS_MOBILE' => is_bool($this->isMobile) ? $this->isMobile : null,
+			'SHARED_SCREEN' => is_bool($this->sharedScreen) ? $this->sharedScreen : null,
+			'RECORDED' => is_bool($this->recorded) ? $this->recorded : null
 		]);
 	}
 

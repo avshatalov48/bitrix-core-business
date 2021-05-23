@@ -131,7 +131,7 @@ class UserSettings
 
 		if ($str !== false && CheckSerializedData($str))
 		{
-			$ids = unserialize($str);
+			$ids = unserialize($str, ['allowed_classes' => false]);
 			if (is_array($ids) && count($ids) > 0)
 			{
 				foreach($ids as $id)
@@ -188,7 +188,7 @@ class UserSettings
 
 		if ($str !== false && CheckSerializedData($str))
 		{
-			$ids = unserialize($str);
+			$ids = unserialize($str, ['allowed_classes' => false]);
 			if (is_array($ids) && count($ids) > 0)
 			{
 				foreach($ids as $id)
@@ -253,7 +253,7 @@ class UserSettings
 		$str = \CUserOptions::getOption("calendar", "section_customization", false, $userId);
 		if ($str !== false && CheckSerializedData($str))
 		{
-			$result = unserialize($str);
+			$result = unserialize($str, ['allowed_classes' => false]);
 		}
 
 		return $result;
@@ -293,7 +293,7 @@ class UserSettings
 			$str = \CUserOptions::GetOption("calendar", "superpose_displayed", false, $userId);
 			if (CheckSerializedData($str))
 			{
-				$idList = unserialize($str);
+				$idList = unserialize($str, ['allowed_classes' => false]);
 				if (is_array($idList))
 				{
 					foreach($idList as $id)

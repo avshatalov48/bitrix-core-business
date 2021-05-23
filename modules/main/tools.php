@@ -3,15 +3,23 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2014 Bitrix
+ * @copyright 2001-2020 Bitrix
  */
 
 use Bitrix\Main;
+use Bitrix\Main\Text;
 use Bitrix\Main\Application;
 use Bitrix\Main\Context;
-use Bitrix\Main\Page\Asset;
-use Bitrix\Main\Page\AssetLocation;
-use Bitrix\Main\UI\Extension;
+use Bitrix\Main\Security;
+
+/**
+ * @deprecated Use microtime(true)
+ * @return float
+ */
+function getmicrotime()
+{
+	return microtime(true);
+}
 
 /**
  * HTML form elements
@@ -1418,82 +1426,100 @@ function FormatDateEx($strDate, $format=false, $new_format=false)
 		if($arParsedDate["MM"]<1 || $arParsedDate["MM"]>12)
 			$arParsedDate["MM"] = 1;
 		$new_format_l = mb_strlen($new_format);
+		$dontChange = false;
+
 		for ($i = 0; $i < $new_format_l; $i++)
 		{
 			$simbol = mb_substr($new_format, $i, 1);
-			switch ($simbol)
-			{
-				case "F":
-				case "f":
-					$match = str_pad($arParsedDate["MM"], 2, "0", STR_PAD_LEFT);
-					if (intval($arParsedDate["MM"]) > 0)
-						$match=GetMessage("MONTH_".intval($arParsedDate["MM"]).($simbol == 'F' ? '_S' : ''));
-					break;
-				case "M":
-					$match = str_pad($arParsedDate["MM"], 2, "0", STR_PAD_LEFT);
-					if (intval($arParsedDate["MM"]) > 0)
-						$match=GetMessage("MON_".intval($arParsedDate["MM"]));
-					break;
-				case "l":
-					$match = str_pad($arParsedDate["DD"], 2, "0", STR_PAD_LEFT);
-					if (intval($arParsedDate["DD"]) > 0)
-						$match = GetMessage("DAY_OF_WEEK_".intval($arParsedDate["DD"]));
-					break;
-				case "D":
-					$match = str_pad($arParsedDate["DD"], 2, "0", STR_PAD_LEFT);
-					if (intval($arParsedDate["DD"]) > 0)
-						$match = GetMessage("DOW_".intval($arParsedDate["DD"]));
-					break;
-				case "d":
-					$match = str_pad($arParsedDate["DD"], 2, "0", STR_PAD_LEFT);
-					break;
-				case "m":
-					$match = str_pad($arParsedDate["MM"], 2, "0", STR_PAD_LEFT);
-					break;
-				case "j":
-					$match = intval($arParsedDate["DD"]);
-					$dayPattern = GetMessage("DOM_PATTERN");
-					if ($dayPattern)
-					{
-						$match = str_replace("#DAY#", $match, $dayPattern);
-					}
-					break;
-				case "Y":
-					$match = str_pad($arParsedDate["YY"], 4, "0", STR_PAD_LEFT);
-					break;
-				case "y":
-					$match = mb_substr($arParsedDate["YY"], 2);
-					break;
-				case "H":
-					$match = str_pad($arParsedDate["HH"], 2, "0", STR_PAD_LEFT);
-					break;
-				case "i":
-					$match = str_pad($arParsedDate["MI"], 2, "0", STR_PAD_LEFT);
-					break;
-				case "s":
-					$match = str_pad($arParsedDate["SS"], 2, "0", STR_PAD_LEFT);
-					break;
-				case "g":
-					$match = intval($arParsedDate["HH"]);
-					if ($match > 12)
-						$match = $match-12;
-					break;
-				case "a":
-				case "A":
-					$match = intval($arParsedDate["HH"]);
-					if ($match > 12)
-						$match = ($match-12)." PM";
-					else
-						$match .= " AM";
 
-					if (mb_substr($new_format, $i, 1) == "a")
-						$match = mb_strtolower($match);
-					break;
-				default:
-					$match = mb_substr($new_format, $i, 1);
-					break;
+			if (!$dontChange && $simbol === "\\")
+			{
+				$dontChange = true;
+				continue;
 			}
+
+			if ($dontChange)
+			{
+				$match = $simbol;
+			}
+			else
+			{
+				switch ($simbol)
+				{
+					case "F":
+					case "f":
+						$match = str_pad($arParsedDate["MM"], 2, "0", STR_PAD_LEFT);
+						if (intval($arParsedDate["MM"]) > 0)
+							$match=GetMessage("MONTH_".intval($arParsedDate["MM"]).($simbol == 'F' ? '_S' : ''));
+						break;
+					case "M":
+						$match = str_pad($arParsedDate["MM"], 2, "0", STR_PAD_LEFT);
+						if (intval($arParsedDate["MM"]) > 0)
+							$match=GetMessage("MON_".intval($arParsedDate["MM"]));
+						break;
+					case "l":
+						$match = str_pad($arParsedDate["DD"], 2, "0", STR_PAD_LEFT);
+						if (intval($arParsedDate["DD"]) > 0)
+							$match = GetMessage("DAY_OF_WEEK_".intval($arParsedDate["DD"]));
+						break;
+					case "D":
+						$match = str_pad($arParsedDate["DD"], 2, "0", STR_PAD_LEFT);
+						if (intval($arParsedDate["DD"]) > 0)
+							$match = GetMessage("DOW_".intval($arParsedDate["DD"]));
+						break;
+					case "d":
+						$match = str_pad($arParsedDate["DD"], 2, "0", STR_PAD_LEFT);
+						break;
+					case "m":
+						$match = str_pad($arParsedDate["MM"], 2, "0", STR_PAD_LEFT);
+						break;
+					case "j":
+						$match = intval($arParsedDate["DD"]);
+						$dayPattern = GetMessage("DOM_PATTERN");
+						if ($dayPattern)
+						{
+							$match = str_replace("#DAY#", $match, $dayPattern);
+						}
+						break;
+					case "Y":
+						$match = str_pad($arParsedDate["YY"], 4, "0", STR_PAD_LEFT);
+						break;
+					case "y":
+						$match = mb_substr($arParsedDate["YY"], 2);
+						break;
+					case "H":
+						$match = str_pad($arParsedDate["HH"], 2, "0", STR_PAD_LEFT);
+						break;
+					case "i":
+						$match = str_pad($arParsedDate["MI"], 2, "0", STR_PAD_LEFT);
+						break;
+					case "s":
+						$match = str_pad($arParsedDate["SS"], 2, "0", STR_PAD_LEFT);
+						break;
+					case "g":
+						$match = intval($arParsedDate["HH"]);
+						if ($match > 12)
+							$match = $match-12;
+						break;
+					case "a":
+					case "A":
+						$match = intval($arParsedDate["HH"]);
+						if ($match > 12)
+							$match = ($match-12)." PM";
+						else
+							$match .= " AM";
+
+						if (mb_substr($new_format, $i, 1) == "a")
+							$match = mb_strtolower($match);
+						break;
+					default:
+						$match = mb_substr($new_format, $i, 1);
+						break;
+				}
+			}
+
 			$strResult .= $match;
+			$dontChange = false;
 		}
 	}
 	return $strResult;
@@ -1730,38 +1756,22 @@ function is_set(&$a, $k=false)
  */
 function randString($pass_len=10, $pass_chars=false)
 {
-	static $allchars = "abcdefghijklnmopqrstuvwxyzABCDEFGHIJKLNMOPQRSTUVWXYZ0123456789";
-	$string = "";
 	if(is_array($pass_chars))
 	{
-		while(mb_strlen($string) < $pass_len)
-		{
-            shuffle($pass_chars);
-			foreach($pass_chars as $chars)
-			{
-				$n = mb_strlen($chars) - 1;
-				$string .= $chars[mt_rand(0, $n)];
-			}
-		}
-		if(mb_strlen($string) > count($pass_chars))
-			$string = mb_substr($string, 0, $pass_len);
+		return Security\Random::getStringByArray($pass_len, $pass_chars);
 	}
 	else
 	{
 		if($pass_chars !== false)
 		{
-			$chars = $pass_chars;
-			$n = mb_strlen($pass_chars) - 1;
+			return Security\Random::getStringByCharsets($pass_len, $pass_chars);
 		}
 		else
 		{
-			$chars = $allchars;
-			$n = 61; //strlen($allchars)-1;
+			// Random::ALPHABET_NUM | Random::ALPHABET_ALPHALOWER | Random::ALPHABET_ALPHAUPPER
+			return Security\Random::getString($pass_len, true);
 		}
-		for ($i = 0; $i < $pass_len; $i++)
-			$string .= $chars[mt_rand(0, $n)];
 	}
-	return $string;
 }
 
 /**
@@ -1897,198 +1907,6 @@ function ToLower($str, $lang = false)
 		$func = BX_CUSTOM_TO_LOWER_FUNC;
 		return $func($str);
 	}
-}
-
-/**********************************
-Конвертация текста для EMail
-**********************************/
-class CConvertorsPregReplaceHelper
-{
-	private $codeMessage = "";
-	function __construct($codeMessage = "")
-	{
-		$this->codeMessage = $codeMessage;
-	}
-
-	public function convertCodeTagForEmail($match)
-	{
-		$text = is_array($match)? $match[2]: $match;
-		if ($text == '')
-			return '';
-
-		$text = str_replace(array("<",">"), array("&lt;","&gt;"), $text);
-		$text = preg_replace("#^(.*?)$#", "   \\1", $text);
-
-		$s1 = "--------------- ".$this->codeMessage." -------------------";
-		$s2 = str_repeat("-", mb_strlen($s1));
-		$text = "\n\n>".$s1."\n".$text."\n>".$s2."\n\n";
-
-		return $text;
-	}
-
-	private $quoteOpened = 0;
-	private $quoteClosed = 0;
-	private $quoteError  = 0;
-	public function checkQuoteError()
-	{
-		return (($this->quoteOpened == $this->quoteClosed) && ($this->quoteError == 0));
-	}
-
-	private $quoteTableClass = "";
-	private $quoteHeadClass  = "";
-	private $quoteBodyClass  = "";
-	public function setQuoteClasses($tableClass, $headClass, $bodyClass)
-	{
-		$this->quoteTableClass = $tableClass;
-		$this->quoteHeadClass  = $headClass;
-		$this->quoteBodyClass  = $bodyClass;
-	}
-
-	public function convertOpenQuoteTag($match)
-	{
-		$this->quoteOpened++;
-		return "<table class='".$this->quoteTableClass."' width='95%' border='0' cellpadding='3' cellspacing='1'><tr><td class='".$this->quoteHeadClass."'>".GetMessage("MAIN_QUOTE")."</td></tr><tr><td class='".$this->quoteBodyClass."'>";
-	}
-
-	public function convertCloseQuoteTag()
-	{
-		if ($this->quoteOpened == 0)
-		{
-			$this->quoteError++;
-			return '';
-		}
-		$this->quoteClosed++;
-		return "</td></tr></table>";
-	}
-
-	public function convertQuoteTag($match)
-	{
-		$this->quoteOpened = 0;
-		$this->quoteClosed = 0;
-		$this->quoteError  = 0;
-
-		$str = $match[0];
-		$str = preg_replace_callback("#\\[quote\\]#i",  array($this, "convertOpenQuoteTag"),  $str);
-		$str = preg_replace_callback("#\\[/quote\\]#i", array($this, "convertCloseQuoteTag"), $str);
-
-		if ($this->checkQuoteError())
-			return $str;
-		else
-			return $match[0];
-	}
-
-	public static function extractUrl($match)
-	{
-		return extract_url(str_replace('@', chr(11), $match[1]));
-	}
-
-	private $linkClass  = "";
-	public function setLinkClass($linkClass)
-	{
-		$this->linkClass = $linkClass;
-	}
-
-	private $linkTarget  = "_self";
-	public function setLinkTarget($linkTarget)
-	{
-		$this->linkTarget = $linkTarget;
-	}
-
-	private $event1 = "";
-	private $event2 = "";
-	private $event3 = "";
-	public function setEvents($event1="", $event2="", $event3="")
-	{
-		$this->event1 = $event1;
-		$this->event2 = $event2;
-		$this->event3 = $event3;
-	}
-
-	private $script  = "/bitrix/redirect.php";
-	public function setScript($script)
-	{
-		$this->script = $script;
-	}
-
-	function convertToMailTo($match)
-	{
-		$s = $match[1];
-		$s = "<a class=\"".$this->linkClass."\" href=\"mailto:".delete_special_symbols($s)."\" title=\"".GetMessage("MAIN_MAILTO")."\">".$s."</a>";
-		return $s;
-	}
-
-	function convertToHref($match)
-	{
-		$url = $match[1];
-		$goto = $url;
-		if ($this->event1 != "" || $this->event2 != "")
-		{
-			$goto = $this->script.
-				"?event1=".urlencode($this->event1).
-				"&event2=".urlencode($this->event2).
-				"&event3=".urlencode($this->event3).
-				"&goto=".urlencode($this->goto);
-		}
-		$target = $this->linkTarget == '_self'? '': ' target="'.$this->linkTarget.'"';
-
-		$s = "<a class=\"".$this->linkClass."\" href=\"".delete_special_symbols($goto)."\"".$target.">".$url."</a>";
-		return $s;
-	}
-
-	private $codeTableClass = "";
-	private $codeHeadClass  = "";
-	private $codeBodyClass  = "";
-	private $codeTextClass  = "";
-	public function setCodeClasses($tableClass, $headClass, $bodyClass, $textAreaClass)
-	{
-		$this->codeTableClass = $tableClass;
-		$this->codeHeadClass  = $headClass;
-		$this->codeBodyClass  = $bodyClass;
-		$this->codeTextClass  = $textAreaClass;
-	}
-
-	function convertCodeTagForHtmlBefore($text = "")
-	{
-		if (is_array($text))
-			$text = $text[2];
-		if ($text == '')
-			return '';
-
-		$text = str_replace(chr(2), "", $text);
-		$text = str_replace("\n", chr(4), $text);
-		$text = str_replace("\r", chr(5), $text);
-		$text = str_replace(" ", chr(6), $text);
-		$text = str_replace("\t", chr(7), $text);
-		$text = str_replace("http", "!http!", $text);
-		$text = str_replace("https", "!https!", $text);
-		$text = str_replace("ftp", "!ftp!", $text);
-		$text = str_replace("@", "!@!", $text);
-
-		$text = str_replace(Array("[","]"), array(chr(16), chr(17)), $text);
-
-		$return = "[code]".$text."[/code]";
-
-		return $return;
-	}
-
-	function convertCodeTagForHtmlAfter($text = "")
-	{
-		if (is_array($text))
-			$text = $text[1];
-		if ($text == '')
-			return '';
-
-		$code_mess = GetMessage("MAIN_CODE");
-		$text = str_replace("!http!", "http", $text);
-		$text = str_replace("!https!", "https", $text);
-		$text = str_replace("!ftp!", "ftp", $text);
-		$text = str_replace("!@!", "@", $text);
-
-		$return = "<table class='".$this->codeTableClass."'><tr><td class='".$this->codeHeadClass."'>$code_mess</td></tr><tr><td class='".$this->codeBodyClass."'><textarea class='".$this->codeTextClass."' contentEditable=false cols=60 rows=15 wrap=virtual>$text</textarea></td></tr></table>";
-
-		return $return;
-	}
-
 }
 
 function convert_code_tag_for_email($text="", $arMsg=array())
@@ -4393,7 +4211,9 @@ function check_email($email, $bStrict=false)
 	{
 		$email = trim($email);
 		if(preg_match("#.*?[<\\[\\(](.*?)[>\\]\\)].*#i", $email, $arr) && $arr[1] <> '')
+		{
 			$email = $arr[1];
+		}
 	}
 
 	//http://tools.ietf.org/html/rfc2821#section-4.5.3.1
@@ -4403,13 +4223,26 @@ function check_email($email, $bStrict=false)
 		return false;
 	}
 
+	//convert to UTF to use extended regular expressions
+	static $encoding = null;
+	if($encoding === null)
+	{
+		$encoding = strtolower(Context::getCurrent()->getCulture()->getCharset());
+	}
+	if($encoding <> "utf-8")
+	{
+		$email = Text\Encoding::convertEncoding($email, $encoding, "UTF-8");
+	}
+
 	//http://tools.ietf.org/html/rfc2822#section-3.2.4
 	//3.2.4. Atom
-	static $atom = "=_0-9a-z+~'!\$&*^`|\\#%/?{}-";
+	//added \p{L} for international symbols
+	static $atom = "\\p{L}=_0-9a-z+~'!\$&*^`|\\#%/?{}-";
+	static $domain = "\\p{L}a-z0-9-";
 
 	//"." can't be in the beginning or in the end of local-part
 	//dot-atom-text = 1*atext *("." 1*atext)
-	if(preg_match("#^[".$atom."]+(\\.[".$atom."]+)*@(([-0-9a-z]+\\.)+)([a-z0-9-]{2,20})$#i", $email))
+	if(preg_match("#^[{$atom}]+(\\.[{$atom}]+)*@(([{$domain}]+\\.)+)([{$domain}]{2,20})$#ui", $email))
 	{
 		return true;
 	}
@@ -4519,749 +4352,6 @@ function IncludeAJAX()
 
 	$APPLICATION->AddHeadString('<script type="text/javascript">var ajaxMessages = {wait:"'.CUtil::JSEscape(GetMessage('AJAX_WAIT')).'"}</script>', true);
 	$APPLICATION->AddHeadScript('/bitrix/js/main/cphttprequest.js', true);
-}
-
-class CJSCore
-{
-	const USE_ADMIN = 'admin';
-	const USE_PUBLIC = 'public';
-
-	private static $arRegisteredExt = array();
-	private static $arCurrentlyLoadedExt = array();
-
-	private static $bInited = false;
-	private static $compositeMode = false;
-
-	/*
-	ex: CJSCore::RegisterExt('timeman', array(
-		'js' => '/bitrix/js/timeman/core_timeman.js',
-		'css' => '/bitrix/js/timeman/css/core_timeman.css',
-		'lang' => '/bitrix/modules/timeman/js_core_timeman.php',
-		'rel' => array(needed extensions for automatic inclusion),
-		'use' => CJSCore::USE_ADMIN|CJSCore::USE_PUBLIC
-	));
-	*/
-	public static function RegisterExt($name, $arPaths)
-	{
-		if(isset($arPaths['use']))
-		{
-			switch($arPaths['use'])
-			{
-				case CJSCore::USE_PUBLIC:
-					if(defined("ADMIN_SECTION") && ADMIN_SECTION === true)
-						return;
-
-				break;
-				case CJSCore::USE_ADMIN:
-					if(!defined("ADMIN_SECTION") || ADMIN_SECTION !== true)
-						return;
-
-				break;
-			}
-		}
-
-		//An old path format required a language id.
-		if (isset($arPaths['lang']))
-		{
-			if (is_array($arPaths['lang']))
-			{
-				foreach ($arPaths['lang'] as $key => $lang)
-				{
-					$arPaths['lang'][$key] = str_replace('/lang/'.LANGUAGE_ID.'/', '/', $lang);
-				}
-			}
-			else
-			{
-				$arPaths['lang'] = str_replace('/lang/'.LANGUAGE_ID.'/', '/', $arPaths['lang']);
-			}
-		}
-
-		self::$arRegisteredExt[$name] = $arPaths;
-	}
-
-	public static function Init($arExt = array(), $bReturn = false)
-	{
-		if (!self::$bInited)
-		{
-			self::_RegisterStandardExt();
-			self::$bInited = true;
-		}
-
-		if (!is_array($arExt) && $arExt <> '')
-			$arExt = array($arExt);
-
-		$bReturn = ($bReturn === true); // prevent syntax mistake
-
-		$bNeedCore = false;
-		if (count($arExt) > 0)
-		{
-			foreach ($arExt as $ext)
-			{
-				if (
-					isset(self::$arRegisteredExt[$ext])
-					&& (
-						!isset(self::$arRegisteredExt[$ext]['skip_core'])
-						|| !self::$arRegisteredExt[$ext]['skip_core']
-					)
-				)
-				{
-					$bNeedCore = true;
-					break;
-				}
-			}
-		}
-		else
-		{
-			$bNeedCore = true;
-		}
-
-		$ret = '';
-
-		if ($bNeedCore && !self::isCoreLoaded())
-		{
-			$config = self::getCoreConfig();
-
-			self::markExtensionLoaded('core');
-			self::markExtensionLoaded('main.core');
-
-			$includes = '';
-			if (is_array($config['includes']))
-            {
-                foreach ($config['includes'] as $key => $item)
-                {
-					self::markExtensionLoaded($item);
-                }
-
-				$assets = Extension::getAssets($config['includes']);
-                $includes .= static::registerAssetsAsLoaded($assets);
-            }
-
-			$relativities = '';
-
-			if (is_array($config['rel']))
-            {
-                $return = true;
-                $relativities .= self::init($config['rel'], $return);
-            }
-
-			$coreLang = self::_loadLang($config['lang'], true);
-			$coreSettings = self::loadSettings('main.core', $config['settings'], true);
-            $coreJs = self::_loadJS($config['js'], true);
-			$coreCss = self::_loadCSS($config['css'], true);
-
-			if ($bReturn)
-			{
-			    $ret .= $coreLang;
-			    $ret .= $coreSettings;
-				$ret .= $relativities;
-			    $ret .= $coreJs;
-			    $ret .= $coreCss;
-			    $ret .= $includes;
-            }
-
-			$asset = Asset::getInstance();
-			$asset->addString($coreLang, true, AssetLocation::AFTER_CSS);
-			$asset->addString($coreSettings, true, AssetLocation::AFTER_CSS);
-            $asset->addString($relativities, true, AssetLocation::AFTER_CSS);
-            $asset->addString($coreJs, true, AssetLocation::AFTER_CSS);
-            $asset->addString($includes, true, AssetLocation::AFTER_CSS);
-
-			// Asset addString before_css doesn't works in admin section
-            if (!defined('ADMIN_SECTION') || ADMIN_SECTION !== true)
-			{
-				$asset->addString($coreCss, true, AssetLocation::BEFORE_CSS);
-			}
-            else
-			{
-				self::_loadCSS($config['css'], false);
-			}
-		}
-
-		for ($i = 0, $len = count($arExt); $i < $len; $i++)
-		{
-			$ret .= self::_loadExt($arExt[$i], $bReturn);
-		}
-
-		if (!defined('PUBLIC_MODE') && defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1)
-			echo $ret;
-
-		return $bReturn ? $ret : true;
-	}
-
-	protected static function registerAssetsAsLoaded($assets)
-    {
-        if (is_array($assets))
-        {
-            $result = '';
-
-            if (isset($assets['js']) && is_array($assets['js']) && !empty($assets['js']))
-            {
-                $result .= "BX.setJSList(".\CUtil::phpToJSObject($assets['js']).");\n";
-            }
-
-			if (isset($assets['css']) && is_array($assets['css']) && !empty($assets['css']))
-			{
-				$result .= "BX.setCSSList(".\CUtil::phpToJSObject($assets['css']).");";
-			}
-
-            return '<script>'.$result.'</script>';
-        }
-
-        return '';
-    }
-
-	/**
-	 * @param $code - name of extension
-	 */
-	public static function markExtensionLoaded($code)
-	{
-		self::$arCurrentlyLoadedExt[$code] = true;
-	}
-
-	/**
-	 * Returns true if Core JS was inited
-	 * @return bool
-	 */
-	public static function IsCoreLoaded()
-	{
-		return (
-			self::isExtensionLoaded("core")
-			|| self::isExtensionLoaded("main.core")
-        );
-	}
-
-	/**
-	 * Returns true if JS extension was loaded.
-	 * @param string $code Code of JS extension.
-	 * @return bool
-	 */
-	public static function isExtensionLoaded($code)
-	{
-		return isset(self::$arCurrentlyLoadedExt[$code]) && self::$arCurrentlyLoadedExt[$code];
-	}
-
-	public static function GetCoreMessagesScript($compositeMode = false)
-	{
-		if (!self::IsCoreLoaded())
-		{
-			return "";
-		}
-
-		return self::_loadLang("", true, self::GetCoreMessages($compositeMode));
-	}
-
-	public static function GetCoreMessages($compositeMode = false)
-	{
-		$arMessages = array(
-			"LANGUAGE_ID" => LANGUAGE_ID,
-			"FORMAT_DATE" => FORMAT_DATE,
-			"FORMAT_DATETIME" => FORMAT_DATETIME,
-			"COOKIE_PREFIX" => COption::GetOptionString("main", "cookie_name", "BITRIX_SM"),
-			"SERVER_TZ_OFFSET" => date("Z"),
-		);
-
-		if (!defined("ADMIN_SECTION") || ADMIN_SECTION !== true)
-		{
-			$arMessages["SITE_ID"] = SITE_ID;
-			$arMessages["SITE_DIR"] = SITE_DIR;
-		}
-
-		if (!$compositeMode)
-		{
-			global $USER;
-			$userId = "";
-			$autoTimeZone = "N";
-			if (is_object($USER))
-			{
-				$autoTimeZone = trim($USER->GetParam("AUTO_TIME_ZONE"));
-				if ($USER->GetID() > 0)
-				{
-					$userId = $USER->GetID();
-				}
-			}
-
-			$arMessages["USER_ID"] = $userId;
-			$arMessages["SERVER_TIME"] = time();
-			$arMessages["USER_TZ_OFFSET"] = CTimeZone::GetOffset();
-			$arMessages["USER_TZ_AUTO"] = $autoTimeZone == "N" ? "N": "Y";
-			$arMessages["bitrix_sessid"] = bitrix_sessid();
-		}
-
-		return $arMessages;
-	}
-
-	public static function GetHTML($arExt)
-	{
-		$tmp = self::$arCurrentlyLoadedExt;
-		self::$arCurrentlyLoadedExt = array();
-		$res = self::Init($arExt, true);
-		self::$arCurrentlyLoadedExt = $tmp;
-		return $res;
-	}
-
-	/**
-	 *
-	 * When all of scripts are moved to the body, we need this code to add special classes (bx-chrome, bx-ie...) to <html> tag.
-	 * @return string
-	 */
-	public static function GetInlineCoreJs()
-	{
-		$js = <<<JS
-		(function(w, d, n) {
-
-			var cl = "bx-core";
-			var ht = d.documentElement;
-			var htc = ht ? ht.className : undefined;
-			if (htc === undefined || htc.indexOf(cl) !== -1)
-			{
-				return;
-			}
-
-			var ua = n.userAgent;
-			if (/(iPad;)|(iPhone;)/i.test(ua))
-			{
-				cl += " bx-ios";
-			}
-			else if (/Android/i.test(ua))
-			{
-				cl += " bx-android";
-			}
-
-			cl += (/(ipad|iphone|android|mobile|touch)/i.test(ua) ? " bx-touch" : " bx-no-touch");
-
-			cl += w.devicePixelRatio && w.devicePixelRatio >= 2
-				? " bx-retina"
-				: " bx-no-retina";
-
-			var ieVersion = -1;
-			if (/AppleWebKit/.test(ua))
-			{
-				cl += " bx-chrome";
-			}
-			else if ((ieVersion = getIeVersion()) > 0)
-			{
-				cl += " bx-ie bx-ie" + ieVersion;
-				if (ieVersion > 7 && ieVersion < 10 && !isDoctype())
-				{
-					cl += " bx-quirks";
-				}
-			}
-			else if (/Opera/.test(ua))
-			{
-				cl += " bx-opera";
-			}
-			else if (/Gecko/.test(ua))
-			{
-				cl += " bx-firefox";
-			}
-
-			if (/Macintosh/i.test(ua))
-			{
-				cl += " bx-mac";
-			}
-
-			ht.className = htc ? htc + " " + cl : cl;
-
-			function isDoctype()
-			{
-				if (d.compatMode)
-				{
-					return d.compatMode == "CSS1Compat";
-				}
-
-				return d.documentElement && d.documentElement.clientHeight;
-			}
-
-			function getIeVersion()
-			{
-				if (/Opera/i.test(ua) || /Webkit/i.test(ua) || /Firefox/i.test(ua) || /Chrome/i.test(ua))
-				{
-					return -1;
-				}
-
-				var rv = -1;
-				if (!!(w.MSStream) && !(w.ActiveXObject) && ("ActiveXObject" in w))
-				{
-					rv = 11;
-				}
-				else if (!!d.documentMode && d.documentMode >= 10)
-				{
-					rv = 10;
-				}
-				else if (!!d.documentMode && d.documentMode >= 9)
-				{
-					rv = 9;
-				}
-				else if (d.attachEvent && !/Opera/.test(ua))
-				{
-					rv = 8;
-				}
-
-				if (rv == -1 || rv == 8)
-				{
-					var re;
-					if (n.appName == "Microsoft Internet Explorer")
-					{
-						re = new RegExp("MSIE ([0-9]+[\.0-9]*)");
-						if (re.exec(ua) != null)
-						{
-							rv = parseFloat(RegExp.$1);
-						}
-					}
-					else if (n.appName == "Netscape")
-					{
-						rv = 11;
-						re = new RegExp("Trident/.*rv:([0-9]+[\.0-9]*)");
-						if (re.exec(ua) != null)
-						{
-							rv = parseFloat(RegExp.$1);
-						}
-					}
-				}
-
-				return rv;
-			}
-
-		})(window, document, navigator);
-JS;
-		return '<script type="text/javascript" data-skip-moving="true">'.str_replace(array("\n", "\t"), "", $js)."</script>";
-	}
-
-	public static function GetScriptsList()
-	{
-		$scriptsList = array();
-		foreach(self::$arCurrentlyLoadedExt as $ext=>$q)
-		{
-			if($ext!='core' && isset(self::$arRegisteredExt[$ext]['js']))
-			{
-				if(is_array(self::$arRegisteredExt[$ext]['js']))
-				{
-					$scriptsList = array_merge($scriptsList, self::$arRegisteredExt[$ext]['js']);
-				}
-				else
-				{
-					$scriptsList[] = self::$arRegisteredExt[$ext]['js'];
-				}
-			}
-		}
-		return $scriptsList;
-	}
-
-	public static function GetCoreConfig()
-	{
-		return Extension::getConfig('main.core');
-	}
-
-	private static function _loadExt($ext, $bReturn)
-	{
-		$ret = '';
-
-		if (preg_match("/^((?P<MODULE_ID>[\w\.]+):)?(?P<EXT_NAME>[\w\.\-]+)$/", $ext, $matches))
-		{
-			if ($matches['MODULE_ID'] <> '' && $matches['MODULE_ID'] !== 'main')
-			{
-				\Bitrix\Main\Loader::includeModule($matches['MODULE_ID']);
-			}
-			$ext = $matches['EXT_NAME'];
-		}
-		else
-		{
-			$ext = preg_replace('/[^a-z0-9_\.\-]/i', '', $ext);
-		}
-
-		if (!self::IsExtRegistered($ext))
-		{
-			$success = Extension::register($ext);
-			if (!$success)
-			{
-				return "";
-			}
-		}
-
-		if (self::isExtensionLoaded($ext))
-		{
-			return "";
-		}
-
-		if(isset(self::$arRegisteredExt[$ext]['oninit']) && is_callable(self::$arRegisteredExt[$ext]['oninit']))
-		{
-			$callbackResult = call_user_func_array(
-				self::$arRegisteredExt[$ext]['oninit'],
-				array(self::$arRegisteredExt[$ext])
-			);
-
-			if(is_array($callbackResult))
-			{
-				foreach($callbackResult as $key => $value)
-				{
-					if(!is_array($value))
-					{
-						$value = array($value);
-					}
-
-					if(!isset(self::$arRegisteredExt[$ext][$key]))
-					{
-						self::$arRegisteredExt[$ext][$key] = array();
-					}
-					elseif(!is_array(self::$arRegisteredExt[$ext][$key]))
-					{
-						self::$arRegisteredExt[$ext][$key] = array(self::$arRegisteredExt[$ext][$key]);
-					}
-
-					self::$arRegisteredExt[$ext][$key] = array_merge(self::$arRegisteredExt[$ext][$key], $value);
-				}
-			}
-
-			unset(self::$arRegisteredExt[$ext]['oninit']);
-		}
-
-		self::markExtensionLoaded($ext);
-
-		if (isset(self::$arRegisteredExt[$ext]['rel']) && is_array(self::$arRegisteredExt[$ext]['rel']))
-		{
-			foreach (self::$arRegisteredExt[$ext]['rel'] as $rel_ext)
-			{
-				$ret .= self::_loadExt($rel_ext, $bReturn);
-			}
-		}
-
-		if (!empty(self::$arRegisteredExt[$ext]['css']))
-		{
-			if (!empty(self::$arRegisteredExt[$ext]['bundle_css']))
-			{
-				self::registerCssBundle(
-					self::$arRegisteredExt[$ext]['bundle_css'],
-					self::$arRegisteredExt[$ext]['css']
-				);
-			}
-
-			$ret .= self::_loadCSS(self::$arRegisteredExt[$ext]['css'], $bReturn);
-		}
-
-		if (isset(self::$arRegisteredExt[$ext]['js']))
-		{
-			if (!empty(self::$arRegisteredExt[$ext]['bundle_js']))
-			{
-				self::registerJsBundle(
-					self::$arRegisteredExt[$ext]['bundle_js'],
-					self::$arRegisteredExt[$ext]['js']
-				);
-			}
-
-			$ret .= self::_loadJS(self::$arRegisteredExt[$ext]['js'], $bReturn);
-		}
-
-		if (isset(self::$arRegisteredExt[$ext]['lang']) || isset(self::$arRegisteredExt[$ext]['lang_additional']))
-		{
-			$ret .= self::_loadLang(
-				isset(self::$arRegisteredExt[$ext]['lang']) ? self::$arRegisteredExt[$ext]['lang'] : null,
-				$bReturn,
-				!empty(self::$arRegisteredExt[$ext]['lang_additional'])? self::$arRegisteredExt[$ext]['lang_additional']: false
-			);
-		}
-
-		if (isset(self::$arRegisteredExt[$ext]['settings']))
-		{
-			$ret .= self::loadSettings($ext, self::$arRegisteredExt[$ext]['settings'], $bReturn);
-		}
-
-		if (isset(self::$arRegisteredExt[$ext]['post_rel']) && is_array(self::$arRegisteredExt[$ext]['post_rel']))
-		{
-			foreach (self::$arRegisteredExt[$ext]['post_rel'] as $rel_ext)
-			{
-				$ret .= self::_loadExt($rel_ext, $bReturn);
-			}
-		}
-
-		return $ret;
-	}
-
-	public static function ShowTimer($params)
-	{
-		$id = $params['id'] ? $params['id'] : 'timer_'.RandString(7);
-
-		self::Init(array('timer'));
-
-		$arJSParams = array();
-		if ($params['from'])
-			$arJSParams['from'] = MakeTimeStamp($params['from']).'000';
-		elseif ($params['to'])
-			$arJSParams['to'] = MakeTimeStamp($params['to']).'000';
-
-		if ($params['accuracy'])
-			$arJSParams['accuracy'] = intval($params['accuracy']).'000';
-
-		$res = '<span id="'.htmlspecialcharsbx($id).'"></span>';
-		$res .= '<script type="text/javascript">BX.timer(\''.CUtil::JSEscape($id).'\', '.CUtil::PhpToJSObject($arJSParams).')</script>';
-
-		return $res;
-	}
-
-	public static function IsExtRegistered($ext)
-	{
-		$ext = preg_replace('/[^a-z0-9_\.\-]/i', '', $ext);
-		return isset(self::$arRegisteredExt[$ext]) && is_array(self::$arRegisteredExt[$ext]);
-	}
-
-	public static function getExtInfo($ext)
-	{
-		return self::$arRegisteredExt[$ext];
-	}
-
-	private static function _RegisterStandardExt()
-	{
-		require_once($_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/modules/main/jscore.php');
-	}
-
-	private static function _loadJS($js, $bReturn)
-	{
-		/** @global CMain $APPLICATION */
-		global $APPLICATION;
-
-		$js = (is_array($js) ? $js : array($js));
-		if ($bReturn)
-		{
-			$res = '';
-			foreach ($js as $val)
-			{
-				$fullPath = Asset::getInstance()->getFullAssetPath($val);
-
-				if ($fullPath)
-				{
-					$res .= '<script type="text/javascript" src="'.$fullPath.'"></script>'."\r\n";
-				}
-			}
-			return $res;
-		}
-		else
-		{
-			foreach ($js as $val)
-			{
-				$APPLICATION->AddHeadScript($val);
-			}
-		}
-		return '';
-	}
-
-	private static function _loadLang($lang, $bReturn, $arAdditionalMess = false)
-	{
-		/** @global CMain $APPLICATION */
-		global $APPLICATION;
-		$jsMsg = '';
-
-		if (!is_array($lang))
-		{
-			$lang = [$lang];
-		}
-
-		foreach ($lang as $path)
-		{
-			if (is_string($path))
-			{
-				$messLang = \Bitrix\Main\Localization\Loc::loadLanguageFile($_SERVER['DOCUMENT_ROOT'].$path);
-				if (!empty($messLang))
-				{
-					$jsMsg .= '(window.BX||top.BX).message('.CUtil::PhpToJSObject($messLang, false).');';
-				}
-			}
-		}
-
-		if (is_array($arAdditionalMess))
-		{
-			$jsMsg = '(window.BX||top.BX).message('.CUtil::PhpToJSObject($arAdditionalMess, false).');'.$jsMsg;
-		}
-
-		if ($jsMsg !== '')
-		{
-			$jsMsg = '<script type="text/javascript">'.$jsMsg.'</script>';
-			if ($bReturn)
-			{
-				return $jsMsg."\r\n";
-			}
-			else
-			{
-				$APPLICATION->AddLangJS($jsMsg);
-			}
-		}
-
-		return $jsMsg;
-	}
-
-	private static function _loadCSS($css, $bReturn)
-	{
-		/** @global CMain $APPLICATION */
-		global $APPLICATION;
-
-		if (is_array($css))
-		{
-			$ret = '';
-			foreach ($css as $css_file)
-				$ret .= self::_loadCSS($css_file, $bReturn);
-			return $ret;
-		}
-
-		$css_filename = $_SERVER['DOCUMENT_ROOT'].$css;
-
-		if (!file_exists($css_filename))
-			return '';
-
-		if ($bReturn)
-		{
-			$fullPath = Asset::getInstance()->getFullAssetPath($css);
-
-			if ($fullPath)
-			{
-				return '<link href="'.$fullPath.'" type="text/css" rel="stylesheet" />'."\r\n";
-			}
-
-			return '';
-		}
-
-		$APPLICATION->SetAdditionalCSS($css);
-
-		return '';
-	}
-
-	/**
-	 * @param string $extension Extension name
-	 * @param array $settings Extension settings
-	 * @param bool $bReturn
-	 * @return string
-	 * @throws Main\ArgumentException
-	 */
-	private static function loadSettings($extension, $settings, $bReturn = false)
-	{
-		if (is_array($settings) && count($settings) > 0)
-		{
-			$encodedSettings = Main\Web\Json::encode($settings);
-			$result = '<script type="extension/settings" data-extension="'.$extension.'">';
-			$result .= $encodedSettings;
-			$result .= '</script>';
-
-			if ($bReturn)
-			{
-				return $result;
-			}
-
-			Asset::getInstance()->addString($result, true, AssetLocation::AFTER_CSS);
-		}
-
-		return '';
-	}
-
-	private static function registerJsBundle($bundleName, $files)
-	{
-		$files = is_array($files) ? $files : array($files);
-
-		Asset::getInstance()->addJsKernelInfo($bundleName, $files);
-	}
-
-	private static function registerCssBundle($bundleName, $files)
-	{
-		$files = is_array($files) ? $files : array($files);
-
-		Asset::getInstance()->addCssKernelInfo($bundleName, $files);
-	}
 }
 
 class CUtil
@@ -6730,7 +5820,7 @@ function GetMenuTypes($site=false, $default_value=false)
 	if (!$mt)
 		return Array();
 
-	$armt_ = unserialize(stripslashes($mt));
+	$armt_ = unserialize(stripslashes($mt), ['allowed_classes' => false]);
 	$armt = Array();
 	if (is_array($armt_))
 	{
@@ -6984,14 +6074,14 @@ function NormalizePhone($number, $minLength = 10)
 	return $number;
 }
 
-function bxmail($to, $subject, $message, $additional_headers="", $additional_parameters="", \Bitrix\Main\Mail\Context $context=null)
+function bxmail($to, $subject, $message, $additional_headers="", $additional_parameters="", Main\Mail\Context $context = null)
 {
 	if (empty($context))
 	{
-		$context = new \Bitrix\Main\Mail\Context();
+		$context = new Main\Mail\Context();
 	}
 
-	$event = new \Bitrix\Main\Event(
+	$event = new Main\Event(
 		'main',
 		'OnBeforePhpMail',
 		array(
@@ -7008,10 +6098,14 @@ function bxmail($to, $subject, $message, $additional_headers="", $additional_par
 	$event->send();
 
 	if(function_exists("custom_mail"))
+	{
 		return custom_mail($to, $subject, $message, $additional_headers, $additional_parameters, $context);
+	}
 
 	if($additional_parameters!="")
+	{
 		return @mail($to, $subject, $message, $additional_headers, $additional_parameters);
+	}
 
 	return @mail($to, $subject, $message, $additional_headers);
 }
@@ -7024,149 +6118,6 @@ function bx_accelerator_reset()
 		accelerator_reset();
 	elseif(function_exists("wincache_refresh_if_changed"))
 		wincache_refresh_if_changed();
-}
-
-class UpdateTools
-{
-	public static function CheckUpdates()
-	{
-		global $USER;
-
-		if(LICENSE_KEY == "DEMO")
-			return;
-
-		$days_check = intval(COption::GetOptionString('main', 'update_autocheck'));
-		if($days_check > 0)
-		{
-			CUtil::SetPopupOptions('update_tooltip', array('display'=>'on'));
-
-			$update_res = unserialize(COption::GetOptionString('main', '~update_autocheck_result'));
-			if(!is_array($update_res))
-				$update_res = array("check_date"=>0, "result"=>false);
-
-			if(time() > $update_res["check_date"]+$days_check*86400)
-			{
-				if($USER->CanDoOperation('install_updates'))
-				{
-					require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/update_client.php");
-
-					$result = CUpdateClient::IsUpdateAvailable($arModules, $strError);
-
-					$modules = array();
-					foreach($arModules as $module)
-						$modules[] = $module["@"]["ID"];
-
-					if($strError <> '' && COption::GetOptionString('main', 'update_stop_autocheck', 'N') == 'Y')
-						COption::SetOptionString('main', 'update_autocheck', '');
-
-					COption::SetOptionString('main', '~update_autocheck_result', serialize(array(
-						"check_date"=>time(),
-						"result"=>$result,
-						"error"=>$strError,
-						"modules"=>$modules,
-					)));
-				}
-			}
-		}
-	}
-
-	public static function SetUpdateResult()
-	{
-		COption::SetOptionString('main', '~update_autocheck_result', serialize(array(
-			"check_date"=>time(),
-			"result"=>false,
-			"error"=>"",
-			"modules"=>array(),
-		)));
-	}
-
-	public static function SetUpdateError($strError)
-	{
-		$update_res = unserialize(COption::GetOptionString('main', '~update_autocheck_result'));
-		if(!is_array($update_res))
-			$update_res = array("check_date"=>0, "result"=>false);
-
-		if($strError <> '')
-			$update_res["result"] = false;
-		$update_res["error"] = $strError;
-
-		COption::SetOptionString('main', '~update_autocheck_result', serialize($update_res));
-	}
-
-	public static function GetUpdateResult()
-	{
-		$update_res = false;
-		if(intval(COption::GetOptionString('main', 'update_autocheck')) > 0)
-			$update_res = unserialize(COption::GetOptionString('main', '~update_autocheck_result'));
-		if(!is_array($update_res))
-			$update_res = array("result"=>false, "error"=>"", "modules"=>array());
-
-		$update_res['tooltip'] = '';
-		if($update_res["result"] == true || $update_res["error"] <> '')
-		{
-			$updOptions = CUtil::GetPopupOptions('update_tooltip');
-			if($updOptions['display'] <> 'off')
-			{
-				if($update_res["result"] == true)
-					$update_res['tooltip'] = GetMessage("top_panel_updates").(($n = count($update_res["modules"])) > 0? GetMessage("top_panel_updates_modules", array("#MODULE_COUNT#"=>$n)) : '');
-				elseif($update_res["error"] <> '')
-					$update_res['tooltip'] = GetMessage("top_panel_updates_err").' '.$update_res["error"].'<br><a href="/bitrix/admin/settings.php?lang='.LANGUAGE_ID.'&amp;mid=main&amp;tabControl_active_tab=edit5">'.GetMessage("top_panel_updates_settings").'</a>';
-			}
-		}
-
-		return $update_res;
-	}
-
-	public static function clearUpdatesCacheAgent()
-    {
-		try {
-			$v = 'bitrix';
-			require_once($_SERVER["DOCUMENT_ROOT"]."/".$v."/modules/main/classes/general/update_client.php");
-			$data = [];
-			$data['sk'] = 'jbk28JS92a216ff1';
-			$data['update_server_url'] = Main\Config\Option::get("main", "update_site", "");
-			$data['license_key'] = \CUpdateClient::GetLicenseKey();
-			$data['main_module_version'] = defined('SM_VERSION') ? SM_VERSION : '';
-			$data['is_demo'] = ((defined("DEMO") && DEMO === "Y") ? "Y" : "N");
-			$data['local_address'] = $_SERVER['SERVER_ADDR'] ?? null;
-			$data['public_url'] = Main\Engine\UrlManager::getInstance()->getHostUrl();
-			$data['site_name'] = Main\Config\Option::get("main", "site_name", "");
-
-            $client = new Main\Web\HttpClient([
-				"socketTimeout" => 10,
-				"streamTimeout" => 10,
-				"waitResponse" => true,
-            ]);
-
-            $client->post('https://www.'.(0+1).'c-'.$v.'.ru/'.$v.'/updates/bxvc.php', $data);
-		}
-		catch (\TypeError $exception) {}
-		catch (\ErrorException $exception) {}
-
-		return '';
-    }
-}
-
-class CSpacer
-{
-	var $iMaxChar;
-	var $symbol;
-
-	function __construct($iMaxChar, $symbol)
-	{
-		$this->iMaxChar = $iMaxChar;
-		$this->symbol = $symbol;
-	}
-
-	function InsertSpaces($string)
-	{
-		return preg_replace_callback('/(^|>)([^<>]+)(<|$)/', array($this, "__InsertSpacesCallback"), $string);
-	}
-
-	function __InsertSpacesCallback($arMatch)
-	{
-		return $arMatch[1].preg_replace("/([^() \\n\\r\\t%!?{}\\][-]{".$this->iMaxChar."})/".BX_UTF_PCRE_MODIFIER,"\\1".$this->symbol, $arMatch[2]).$arMatch[3];
-	}
 }
 
 function ini_get_bool($param)
@@ -7231,4 +6182,11 @@ function setSessionExpired($pIsExpired = true)
 function isSessionExpired()
 {
 	return \Bitrix\Main\Application::getInstance()->getKernelSession()->get("IS_EXPIRED") === true;
+}
+
+$SHOWIMAGEFIRST = false;
+
+function ShowImage($PICTURE_ID, $iMaxW=0, $iMaxH=0, $sParams=false, $strImageUrl="", $bPopup=false, $strPopupTitle=false,$iSizeWHTTP=0, $iSizeHHTTP=0)
+{
+	return CFile::ShowImage($PICTURE_ID, $iMaxW, $iMaxH, $sParams, $strImageUrl, $bPopup, $strPopupTitle,$iSizeWHTTP, $iSizeHHTTP);
 }

@@ -6,7 +6,6 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /** @var array $arParams*/
 
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Sender\Security;
 
 Loc::loadMessages(__FILE__);
 
@@ -34,7 +33,8 @@ $componentParameters = array(
 		'SENDER_SEGMENT_SELECTOR_RECIPIENT_COUNT_HINT' => Loc::getMessage('SENDER_RC_SEGMENT_SELECTOR_RECIPIENT_COUNT_HINT'),
 		'SENDER_SEGMENT_SELECTOR_RECIPIENT_COUNT_EXACT_HINT1' => Loc::getMessage('SENDER_RC_SEGMENT_SELECTOR_RECIPIENT_COUNT_EXACT_HINT1'),
 	],
-	'MESSAGE_CODE_LIST' => \Bitrix\Sender\Message\Factory::getAdsMessageCodes(),
+	'MESSAGE_CODE_LIST' => array_merge(\Bitrix\Sender\Message\Factory::getAdsMessageCodes(),
+		\Bitrix\Sender\Message\Factory::getMarketingMessageCodes()) ,
 );
 if ($_REQUEST['IFRAME'] == 'Y')
 {

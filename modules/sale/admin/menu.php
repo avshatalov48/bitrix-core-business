@@ -410,6 +410,16 @@ if ($APPLICATION->GetGroupRight("sale") == "W" || $discountView || $bViewAll)
 	{
 		if ($APPLICATION->GetGroupRight('sale') > 'D')
 		{
+			if ($APPLICATION->GetGroupRight('sale') >= 'W')
+			{
+				$arMenu["items"][] = array(
+					"text" => GetMessage("SALE_MENU_DISCOUNT_PRESETS_NEW"),
+					"title" => GetMessage("SALE_MENU_DISCOUNT_PRESETS_NEW"),
+					"url" => "sale_discount_preset_list.php?lang=".LANGUAGE_ID,
+					"more_url" => array("sale_discount_preset_detail.php"),
+					"items_id" => "sale_discount_preset_list",
+				);
+			}
 			$arMenu["items"][] = array(
 				"text" => GetMessage("SALE_MENU_DISCOUNT"),
 				"title" => GetMessage("SALE_MENU_DISCOUNT_TITLE"),

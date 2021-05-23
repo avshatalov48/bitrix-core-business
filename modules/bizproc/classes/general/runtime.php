@@ -387,6 +387,14 @@ class CBPRuntime
 		$workflow = $runtime->GetWorkflow($workflowId);
 		if ($workflow)
 		{
+			//check if state exists
+			$stateExists = CBPStateService::exists($workflowId);
+			if (!$stateExists)
+			{
+				$workflow->Terminate();
+				return false;
+			}
+
 			$workflow->SendExternalEvent($eventName, $arEventParameters);
 		}
 	}
@@ -687,6 +695,46 @@ class CBPRuntime
 		return $result;
 	}
 
+	public function unserializeWorkflowStream(string $stream)
+	{
+		$pos = mb_strpos($stream, ";");
+		$usedActivities = mb_substr($stream, 0, $pos);
+		$stream = mb_substr($stream, $pos + 1);
+
+		foreach (explode(',', $usedActivities) as $activityCode)
+		{
+			$this->IncludeActivityFile($activityCode);
+		}
+
+		$classesList = array_map(
+			function ($name)
+			{
+				return 'cbp'.$name;
+			},
+			$this->loadedActivities
+		);
+
+		/** @bug 0135642 */
+		if (in_array('cbpstateactivity', $classesList))
+		{
+			$classesList[] = CBPStateEventActivitySubscriber::class;
+		}
+		if (in_array('cbplistenactivity', $classesList))
+		{
+			$classesList[] = CBPListenEventActivitySubscriber::class;
+		}
+
+		$classesList[] = \CBPWorkflow::class;
+		$classesList[] = Bizproc\BaseType\Value\Date::class;
+		$classesList[] = Bizproc\BaseType\Value\DateTime::class;
+		$classesList[] = Main\Type\Date::class;
+		$classesList[] = Main\Type\DateTime::class;
+		$classesList[] = Main\Web\Uri::class;
+		$classesList[] = \DateTime::class;
+		$classesList[] = \DateTimeZone::class;
+
+		return unserialize($stream, ['allowed_classes' => $classesList]);
+	}
 
 	private function makeRestActivityDescription($activity, $lang = false, $documentType = null)
 	{

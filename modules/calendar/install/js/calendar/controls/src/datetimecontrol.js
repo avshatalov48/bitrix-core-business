@@ -8,6 +8,7 @@ export class DateTimeControl extends EventEmitter
 {
 	DATE_INPUT_WIDTH = 110;
 	TIME_INPUT_WIDTH = 70;
+	MODIFIED_TIME_INPUT_WIDTH = 80;
 	zIndex = 4200;
 
 	constructor(uid, options = {showTimezone: true})
@@ -56,7 +57,7 @@ export class DateTimeControl extends EventEmitter
 				this.DOM.fromTimeText = this.DOM.leftInnerWrap.appendChild(Tag.render`<span class="calendar-field-value calendar-field-value-time"></span>`);
 			}
 
-			this.DOM.outerWrap.appendChild(Tag.render`<div class="calendar-field-block calendar-field-block-between" />`);
+			this.DOM.betweenSpacer = this.DOM.outerWrap.appendChild(Tag.render`<div class="calendar-field-block calendar-field-block-between" />`);
 
 			this.DOM.rightInnerWrap = this.DOM.outerWrap.appendChild(Tag.render`<div class="calendar-field-block calendar-field-block-right"></div>`);
 
@@ -132,8 +133,31 @@ export class DateTimeControl extends EventEmitter
 
 			// Hide right part if it's the same date
 			this.DOM.toDateText.style.display = this.DOM.fromDate.value === this.DOM.toDate.value ? 'none' : '';
-			this.DOM.fromTimeText.innerHTML = this.DOM.fromTime.value;
-			this.DOM.toTimeText.innerHTML = this.DOM.toTime.value;
+
+			if (value.fullDay)
+			{
+				if (this.DOM.fromDate.value === this.DOM.toDate.value)
+				{
+					this.DOM.toTimeText.innerHTML = Loc.getMessage('EC_ALL_DAY');
+					this.DOM.toTimeText.style.display = '';
+					this.DOM.fromTimeText.style.display = 'none';
+					this.DOM.fromTimeText.innerHTML = '';
+				}
+				else
+				{
+					this.DOM.betweenSpacer.style.display = '';
+					this.DOM.fromTimeText.style.display = 'none';
+					this.DOM.toTimeText.style.display = 'none';
+				}
+			}
+			else
+			{
+				this.DOM.fromTimeText.innerHTML = this.DOM.fromTime.value;
+				this.DOM.toTimeText.innerHTML = this.DOM.toTime.value;
+				this.DOM.betweenSpacer.style.display = '';
+				this.DOM.fromTimeText.style.display = '';
+				this.DOM.toTimeText.style.display = '';
+			}
 		}
 
 		if (value.fullDay !== undefined)

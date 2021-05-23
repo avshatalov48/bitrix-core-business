@@ -35,14 +35,21 @@ class Usages
 		return isset($this->list[$sourceType]) ? array_values($this->list[$sourceType]) : [];
 	}
 
+	public function getValuesBySourceType($sourceType): array
+	{
+		$result = $this->getBySourceType($sourceType);
+		$result = array_column($result, 1);
+		return array_unique($result);
+	}
+
 	public function getByOwner($ownerId)
 	{
 		$list = [];
 		foreach ($this->list as $sourceType => $items)
 		{
-			foreach ($items as list($oId, $value))
+			foreach ($items as list($id, $value))
 			{
-				if ($ownerId === $oId)
+				if ($ownerId === $id)
 				{
 					$list[] = [$sourceType, $value];
 				}

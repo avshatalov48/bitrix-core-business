@@ -144,11 +144,13 @@ class CultureTable extends Data\DataManager
 	public static function update($primary, array $data)
 	{
 		$result = parent::update($primary, $data);
+
 		if(CACHED_b_lang !== false && $result->isSuccess())
 		{
 			$cache = \Bitrix\Main\Application::getInstance()->getManagedCache();
 			$cache->cleanDir("b_lang");
 		}
+
 		return $result;
 	}
 

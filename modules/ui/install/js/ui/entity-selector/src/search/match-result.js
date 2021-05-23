@@ -9,6 +9,7 @@ export default class MatchResult
 	item: Item = null;
 	queryWords: string[] = null;
 	matchFields: Map<SearchField, MatchField> = new Map();
+	sort: ?number = null;
 
 	constructor(item: Item, queryWords: string[], matchIndexes: MatchIndex[] = [])
 	{
@@ -22,7 +23,7 @@ export default class MatchResult
 		return this.item;
 	}
 
-	getQueryWords()
+	getQueryWords(): string[]
 	{
 		return this.queryWords;
 	}
@@ -32,19 +33,30 @@ export default class MatchResult
 		return this.matchFields;
 	}
 
-	addIndex(matchIndex: MatchIndex)
+	getSort(): ?number
+	{
+		return this.sort;
+	}
+
+	addIndex(matchIndex: MatchIndex): void
 	{
 		let matchField = this.matchFields.get(matchIndex.getField());
 		if (!matchField)
 		{
 			matchField = new MatchField(matchIndex.getField());
 			this.matchFields.set(matchIndex.getField(), matchField);
+
+			const fieldSort = matchIndex.getField().getSort();
+			if (fieldSort !== null)
+			{
+				this.sort = this.sort === null ? fieldSort : Math.min(this.sort, fieldSort);
+			}
 		}
 
 		matchField.addIndex(matchIndex);
 	}
 
-	addIndexes(matchIndexes: MatchIndex[])
+	addIndexes(matchIndexes: MatchIndex[]): void
 	{
 		matchIndexes.forEach(matchIndex => {
 			this.addIndex(matchIndex);

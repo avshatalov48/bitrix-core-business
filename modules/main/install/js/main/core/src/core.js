@@ -16,6 +16,7 @@ import Cache from './lib/cache';
 import BaseError from './lib/base-error';
 import Extension from './lib/extension/extension';
 import ZIndexManager from './lib/z-index/z-index-manager';
+import Collections from './lib/collections';
 
 export {
 	Type,
@@ -33,7 +34,8 @@ export {
 	Cache,
 	BaseError,
 	Extension,
-	ZIndexManager
+	ZIndexManager,
+	Collections
 };
 
 export * from './core-compatibility';

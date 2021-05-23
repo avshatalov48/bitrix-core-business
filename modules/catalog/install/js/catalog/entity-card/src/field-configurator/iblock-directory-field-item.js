@@ -92,11 +92,6 @@ export default class IblockDirectoryFieldItem extends BX.UI.EntityEditorUserFiel
 		const textValue = this._labelInput ? BX.util.trim(this._labelInput.value) : '';
 		const fileValue = (this._fileInput && this._fileInput.files && this._fileInput.files[0]) ? this._fileInput.files[0] : {};
 
-		if (textValue === '' && !this.isFileChanged())
-		{
-			return;
-		}
-
 		const data = {
 			'VALUE': {
 				value: textValue,

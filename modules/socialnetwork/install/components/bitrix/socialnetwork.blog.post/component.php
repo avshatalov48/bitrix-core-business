@@ -1159,7 +1159,37 @@ if(
 				}
 
 				$p->LAZYLOAD = (isset($arParams["LAZYLOAD"]) && $arParams["LAZYLOAD"] == "Y" ? "Y" : "N");
-				$arResult["Post"]["textFormated"] = $p->convert($arPost["~DETAIL_TEXT"], ($arParams["USE_CUT"] == "Y" ? true : false), $arImages, $arAllow, $arParserParams);
+				
+				$detailText = $arPost['~DETAIL_TEXT'];
+				if (!empty($arPost['BACKGROUND_CODE']))
+				{
+					$detailText = preg_replace('/\[DISK\s+FILE\s+ID\s*\=\s*[n]?[0-9]+\]/is'.BX_UTF_PCRE_MODIFIER, '', $detailText);
+					$detailText = preg_replace('/\[\/*QUOTE\]/is'.BX_UTF_PCRE_MODIFIER, '', $detailText);
+					$detailText = preg_replace('/\[\/*CODE\]/is'.BX_UTF_PCRE_MODIFIER, '', $detailText);
+					$detailText = preg_replace('/\[\/*LEFT\]/is'.BX_UTF_PCRE_MODIFIER, '', $detailText);
+					$detailText = preg_replace('/\[\/*RIGHT\]/is'.BX_UTF_PCRE_MODIFIER, '', $detailText);
+					$detailText = preg_replace('/\[\/*CENTER\]/is'.BX_UTF_PCRE_MODIFIER, '', $detailText);
+					$detailText = preg_replace('/\[\/*JUSTIFY\]/is'.BX_UTF_PCRE_MODIFIER, '', $detailText);
+					$detailText = preg_replace('/\[COLOR\s*=\s*[^\]]+\](.+?)\[\/COLOR\]/is'.BX_UTF_PCRE_MODIFIER, '\\1', $detailText);
+					$detailText = preg_replace('/\[FONT\s+[^\]]+\](.+?)\[\/FONT\]/is'.BX_UTF_PCRE_MODIFIER, '\\1', $detailText);
+					$detailText = preg_replace('/\[SIZE\s+[^\]]+\](.+?)\[\/SIZE\]/is'.BX_UTF_PCRE_MODIFIER, '\\1', $detailText);
+					$detailText = preg_replace('/\[IMG[^\]]*\]/is'.BX_UTF_PCRE_MODIFIER, '', $detailText);
+					$detailText = preg_replace('/\[LIST[^\]]*\](.+?)\[\/LIST\]/is'.BX_UTF_PCRE_MODIFIER, '\\1', $detailText);
+					$detailText = preg_replace('/\[\*\]/is'.BX_UTF_PCRE_MODIFIER, '', $detailText);
+					$detailText = preg_replace('/\[\/*VIDEO\]/is'.BX_UTF_PCRE_MODIFIER, '', $detailText);
+					$detailText = preg_replace(
+						[
+							'/\[B\](.+?)\[\/B\]/is'.BX_UTF_PCRE_MODIFIER,
+							'/\[I\](.+?)\[\/I\]/is'.BX_UTF_PCRE_MODIFIER,
+							'/\[U\](.+?)\[\/U\]/is'.BX_UTF_PCRE_MODIFIER,
+							'/\[S\](.+?)\[\/S\]/is'.BX_UTF_PCRE_MODIFIER,
+						],
+						'\\1',
+						$detailText
+					);
+				}
+
+				$arResult["Post"]["textFormated"] = $p->convert($detailText, ($arParams["USE_CUT"] == "Y" ? true : false), $arImages, $arAllow, $arParserParams);
 
 				if ($arAllow["VIDEO"] == "Y")
 				{

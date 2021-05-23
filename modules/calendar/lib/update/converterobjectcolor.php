@@ -131,7 +131,7 @@ final class ConverterObjectColor extends Stepper
 	private function loadCurrentStatus()
 	{
 		$status = Option::get('calendar', 'changecolor', 'default');
-		$status = ($status !== 'default' ? @unserialize($status) : array());
+		$status = ($status !== 'default' ? @unserialize($status, ['allowed_classes' => false]) : array());
 		$status = (is_array($status) ? $status : array());
 
 		if (empty($status))

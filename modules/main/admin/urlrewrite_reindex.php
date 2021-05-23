@@ -24,7 +24,7 @@ if($Reindex <> '' && check_bitrix_sessid())
 			$NS["SITE_ID"] = $site_id;
 	}
 	else
-		$NS = unserialize($_REQUEST['NS']);
+		$NS = unserialize($_REQUEST['NS'], ['allowed_classes' => false]);
 
 	$res = \Bitrix\Main\UrlRewriter::reindexAll(($NS["stepped"]=="Y"? $NS["max_execution_time"]:0), $NS);
 

@@ -355,14 +355,11 @@ abstract class Base
 	 */
 	public abstract function getData();
 
-	/**
-	 * @param array $selectList
-	 *
-	 * @return array|\Bitrix\Main\DB\Result|\CAllDBResult
-	 */
-	public function getDataWithCustomSelect($selectList = [])
+
+
+	public function buildData()
 	{
-		return static::getData();
+		return null;
 	}
 
 	/**

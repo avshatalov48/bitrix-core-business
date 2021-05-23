@@ -14,6 +14,7 @@ global $APPLICATION, $USER;
 if (!$USER->IsAuthorized())
 {
 	$APPLICATION->AuthForm(GetMessage("SALE_ACCESS_DENIED"), false, false, 'N', false);
+	return;
 }
 
 $id = urldecode(urldecode($arParams["ID"]));
@@ -61,7 +62,7 @@ if (!$order)
 	$order = $orderClass::load($id);
 }
 
-if (!$order)
+if (!$order || $order->getField('USER_ID') !== $USER->GetID())
 {
 	$arResult["ERROR_MESSAGE"] = str_replace("#ID#", $id, GetMessage("SPOC_NO_ORDER"));
 }

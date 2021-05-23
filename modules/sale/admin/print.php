@@ -205,7 +205,7 @@ if (CModule::IncludeModule("sale"))
 		else
 			$report = COption::GetOptionString("sale", "reports");
 
-		$arOptions = unserialize($report);
+		$arOptions = unserialize($report, ['allowed_classes' => false]);
 
 		if(!empty($arOptions))
 		{

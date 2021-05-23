@@ -285,16 +285,16 @@ class CCalendarEventHandlers
 	protected static function plannerActionAdd($arParams)
 	{
 		global $USER;
-
 		$today = ConvertTimeStamp(time()+CTimeZone::GetOffset(), 'SHORT');
-
-		$data = array(
+		$userId = $USER->GetID();
+		$data = [
 			'CAL_TYPE' => 'user',
 			'OWNER_ID' => $USER->GetID(),
 			'NAME' => $arParams['NAME'],
 			'DT_FROM' => self::MakeDateTime($today, $arParams['FROM']),
 			'DT_TO' => self::MakeDateTime($today, $arParams['TO']),
-		);
+			'SECTIONS' => CCalendar::GetMeetingSection($userId, true)
+		];
 
 		if ($arParams['ABSENCE'] == 'Y')
 		{
@@ -303,9 +303,7 @@ class CCalendarEventHandlers
 
 		CCalendar::SaveEvent(array(
 			'arFields' => $data,
-			'userId' => $USER->GetID(),
-			'autoDetectSection' => true,
-			'autoCreateSection' => true
+			'userId' => $userId
 		));
 	}
 

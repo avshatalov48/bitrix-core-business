@@ -21,7 +21,7 @@ class SitePatcher
 	public static function unsetG2GroupFromHidePanel()
 	{
 		$hidePanelForUsers = Main\Config\Option::get("main", self::HIDE_PANEL_FOR_USERS);
-		if (CheckSerializedData($hidePanelForUsers) && $hidePanelForUsers = unserialize($hidePanelForUsers))
+		if (CheckSerializedData($hidePanelForUsers) && $hidePanelForUsers = unserialize($hidePanelForUsers, ['allowed_classes' => false]))
 		{
 			$hidePanelForUsers = array_filter($hidePanelForUsers, function($group) {
 				return $group !== self::ALL_USERS_ACCESS_CODE;

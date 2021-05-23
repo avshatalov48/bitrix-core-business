@@ -242,34 +242,11 @@ class CIMNotify
 
 			$counters = self::GetCounters($arChatId);
 
-			if ($bGetOnlyFlash)
+			foreach ($arNotify['notify'] as $id => $value)
 			{
-				$notifyFlash = \Bitrix\Im\NotifyFlash::getInstance();
-
-				foreach ($arNotify['notify'] as $id => $value)
-				{
-					if ($notifyFlash->exists(\Bitrix\Im\NotifyFlash::TYPE_NOTIFY, $id))
-					{
-						unset($arNotify['notify'][$id]);
-						unset($arNotify['original_notify'][$id]);
-						$arNotify['loadNotify'] = true;
-					}
-					else
-					{
-						$value['FROM_USER_DATA'] = $arGetUsers;
-						$value['COUNTER'] = $counters[$value['CHAT_ID']];
-						$arNotify['notify'][$id] = self::GetFormatNotify($value);
-					}
-				}
-			}
-			else
-			{
-				foreach ($arNotify['notify'] as $id => $value)
-				{
-					$value['FROM_USER_DATA'] = $arGetUsers;
-					$value['COUNTER'] = $counters[$value['CHAT_ID']];
-					$arNotify['notify'][$id] = self::GetFormatNotify($value);
-				}
+				$value['FROM_USER_DATA'] = $arGetUsers;
+				$value['COUNTER'] = $counters[$value['CHAT_ID']];
+				$arNotify['notify'][$id] = self::GetFormatNotify($value);
 			}
 
 			$arNotify['result'] = true;
@@ -359,30 +336,6 @@ class CIMNotify
 		CTimeZone::Enable();
 
 		return $arNotify;
-	}
-
-	public static function GetFlashNotify($unreadNotify)
-	{
-		$flashed = Array();
-
-		$notifyFlash = \Bitrix\Im\NotifyFlash::getInstance();
-
-		foreach ($unreadNotify as $id)
-		{
-			if ($notifyFlash->exists(\Bitrix\Im\NotifyFlash::TYPE_NOTIFY, $id))
-			{
-				$flashed[$id] = false;
-			}
-			else
-			{
-				$notifyFlash->set(\Bitrix\Im\NotifyFlash::TYPE_NOTIFY, $id);
-				$flashed[$id] = true;
-			}
-		}
-
-		$notifyFlash->commit();
-
-		return $flashed;
 	}
 
 	public function GetNotify($ID)
@@ -972,6 +925,10 @@ class CIMNotify
 
 		CIMMessageParam::DeleteAll($ID, true);
 		\Bitrix\Im\Model\MessageTable::delete($ID);
+
+		IM\Model\ChatTable::update($arRes['CHAT_ID'], Array(
+			'MESSAGE_COUNT' => new \Bitrix\Main\DB\SqlExpression('?# - 1', 'MESSAGE_COUNT'),
+		));
 
 		$counter = \CIMNotify::GetRealCounter($arRes['CHAT_ID']);
 		$DB->Query("UPDATE b_im_relation SET COUNTER = {$counter} WHERE CHAT_ID = ".intval($arRes['CHAT_ID']));

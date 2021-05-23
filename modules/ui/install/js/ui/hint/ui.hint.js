@@ -203,7 +203,8 @@
 					};
 					*/
 				}
-				if (typeof parameters.content  === "undefined")
+
+				if (typeof parameters.content === "undefined")
 				{
 					parameters.content = this.content;
 				}

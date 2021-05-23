@@ -6,9 +6,11 @@ use Bitrix\Main;
 use Bitrix\Rest\AccessException;
 use Bitrix\Rest\RestException;
 use Bitrix\Sale\Cashbox\Cashbox;
+use Bitrix\Sale\Cashbox\CashboxRest;
 use Bitrix\Sale\Cashbox\Manager;
 use Bitrix\Sale\Cashbox\Ofd;
 use Bitrix\Sale\Helpers;
+use Bitrix\Sale\Internals\CashboxRestHandlerTable;
 
 if (!Main\Loader::includeModule('rest'))
 {
@@ -28,7 +30,6 @@ class CashboxService extends RestService
 
 	/**
 	 * @param $params
-	 * @throws Main\NotImplementedException
 	 * @throws RestException
 	 */
 	private static function checkParamsBeforeAddCashbox($params)
@@ -38,14 +39,20 @@ class CashboxService extends RestService
 			throw new RestException('Parameter NAME is not defined', self::ERROR_CHECK_FAILURE);
 		}
 
-		if (empty($params['HANDLER']))
+		if (empty($params['REST_CODE']))
 		{
-			throw new RestException('Parameter HANDLER is not defined', self::ERROR_CHECK_FAILURE);
+			throw new RestException('Parameter REST_CODE is not defined', self::ERROR_CHECK_FAILURE);
 		}
-		$cashboxHandlerList = Cashbox::getHandlerList();
-		if (!isset($cashboxHandlerList[$params['HANDLER']]))
+
+		$restHandler = CashboxRestHandlerTable::getList(['filter' => ['=CODE' => $params['REST_CODE']]])->fetch();
+		if (!$restHandler)
 		{
-			throw new RestException('Cashbox handler not found', self::ERROR_CHECK_FAILURE);
+			throw new RestException("Rest handler with code {$params['REST_CODE']} not found", self::ERROR_CHECK_FAILURE);
+		}
+
+		if ($params['APP_ID'] && !empty($restHandler['APP_ID']) && $restHandler['APP_ID'] !== $params['APP_ID'])
+		{
+			throw new RestException('Access denied', self::ERROR_CHECK_FAILURE);
 		}
 
 		if (empty($params['EMAIL']))
@@ -55,8 +62,8 @@ class CashboxService extends RestService
 
 		if (!empty($params['OFD']))
 		{
-			$ofdHandlerList = Ofd::getHandlerList();
-			if (!isset($ofdHandlerList[$params['OFD']]))
+			$ofdHandlerClass = self::getOfdHandlerClassByCode($params['OFD']);
+			if (is_null($ofdHandlerClass))
 			{
 				throw new RestException('Ofd handler not found', self::ERROR_CHECK_FAILURE);
 			}
@@ -65,7 +72,6 @@ class CashboxService extends RestService
 
 	/**
 	 * @param $params
-	 * @throws Main\NotImplementedException
 	 * @throws RestException
 	 */
 	private static function checkParamsBeforeUpdateCashbox($params)
@@ -81,33 +87,60 @@ class CashboxService extends RestService
 			throw new RestException('Cashbox not found', self::ERROR_CASHBOX_NOT_FOUND);
 		}
 
+		$restHandlerCode = $cashbox->getValueFromSettings('REST', 'REST_CODE');
+		$isRestCashbox = isset($restHandlerCode);
+		if (!$isRestCashbox)
+		{
+			throw new RestException('Access denied', self::ERROR_CHECK_FAILURE);
+		}
+
+		$restHandler = CashboxRestHandlerTable::getList([
+			'filter' => [
+				'CODE' => $restHandlerCode,
+			]
+		])->fetch();
+		if ($params['APP_ID'] && !empty($restHandler['APP_ID']) && $restHandler['APP_ID'] !== $params['APP_ID'])
+		{
+			throw new RestException('Access denied', self::ERROR_CHECK_FAILURE);
+		}
+
 		if (empty($params['FIELDS']) || !is_array($params['FIELDS']))
 		{
 			throw new RestException('Parameter FIELDS is not defined', self::ERROR_CHECK_FAILURE);
 		}
 
-		if (isset($params['FIELDS']['HANDLER']))
-		{
-			$cashboxHandlerList = Cashbox::getHandlerList();
-			if (!isset($cashboxHandlerList[$params['FIELDS']['HANDLER']]))
-			{
-				throw new RestException('Cashbox handler not found', self::ERROR_CHECK_FAILURE);
-			}
-		}
-
-		if (isset($params['FIELDS']['EMAIL']) && $params['FIELDS']['EMAIL'] == false)
+		if (isset($params['FIELDS']['EMAIL']) && empty($params['FIELDS']['EMAIL']))
 		{
 			throw new RestException('Parameter EMAIL cannot be empty', self::ERROR_CHECK_FAILURE);
 		}
 
 		if (!empty($params['FIELDS']['OFD']))
 		{
-			$ofdHandlerList = Ofd::getHandlerList();
-			if (!isset($ofdHandlerList[$params['FIELDS']['OFD']]))
+			$ofdHandlerClass = self::getOfdHandlerClassByCode($params['FIELDS']['OFD']);
+			if (is_null($ofdHandlerClass))
 			{
 				throw new RestException('Ofd handler not found', self::ERROR_CHECK_FAILURE);
 			}
 		}
+	}
+
+	/**
+	 * @param $ofdCode
+	 * @return string|null
+	 */
+	private static function getOfdHandlerClassByCode($ofdCode): ?string
+	{
+		$ofdHandlers = Ofd::getHandlerList();
+		foreach ($ofdHandlers as $handler => $name)
+		{
+			$currentHandlerCode = $handler::getCode();
+			if ($currentHandlerCode === $ofdCode)
+			{
+				return $handler;
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -121,31 +154,48 @@ class CashboxService extends RestService
 			throw new RestException('Parameter ID is not defined', self::ERROR_CHECK_FAILURE);
 		}
 
-		$handler = Manager::getObjectById($params['ID']);
-		if (!$handler)
+		$cashbox = Manager::getObjectById($params['ID']);
+		if (!$cashbox)
 		{
 			throw new RestException('Cashbox not found', self::ERROR_CASHBOX_NOT_FOUND);
+		}
+
+		$restHandlerCode = $cashbox->getValueFromSettings('REST', 'REST_CODE');
+		$isRestCashbox = isset($restHandlerCode);
+		if (!$isRestCashbox)
+		{
+			throw new RestException('Access denied', self::ERROR_CHECK_FAILURE);
+		}
+
+		$restHandler = CashboxRestHandlerTable::getList([
+			'filter' => [
+				'CODE' => $restHandlerCode,
+			]
+		])->fetch();
+		if ($params['APP_ID'] && !empty($restHandler['APP_ID']) && $restHandler['APP_ID'] !== $params['APP_ID'])
+		{
+			throw new RestException('Access denied', self::ERROR_CHECK_FAILURE);
 		}
 	}
 
 	/**
 	 * @param $params
 	 * @return array|int
-	 * @throws AccessException
-	 * @throws Main\LoaderException
-	 * @throws Main\NotImplementedException
 	 * @throws RestException
 	 */
-	public static function addCashbox($params)
+	public static function addCashbox($params, $page, $server)
 	{
 		Helpers\Rest\AccessChecker::checkAccessPermission();
-		$params = self::prepareParams($params);
+		$params = self::prepareHandlerParams($params, $server);
 		self::checkParamsBeforeAddCashbox($params);
+
+		$settings = $params['SETTINGS'] ?: [];
+		$settings['REST']['REST_CODE'] = $params['REST_CODE'];
 
 		$cashboxFields = [
 			'NAME' => $params['NAME'],
-			'HANDLER' => $params['HANDLER'],
-			'OFD' => empty($params['OFD']) ? '' : $params['OFD'],
+			'HANDLER' => '\\' . CashboxRest::class,
+			'OFD' => empty($params['OFD']) ? '' : self::getOfdHandlerClassByCode($params['OFD']),
 			'OFD_SETTINGS' => $params['OFD_SETTINGS'] ?: [],
 			'EMAIL' => $params['EMAIL'],
 			'NUMBER_KKM' => empty($params['NUMBER_KKM']) ? '' : $params['NUMBER_KKM'],
@@ -153,8 +203,8 @@ class CashboxService extends RestService
 			'ACTIVE' => ($params['ACTIVE'] == 'Y') ? 'Y' : 'N',
 			'SORT' => is_numeric($params['SORT']) ? (int)$params['SORT'] : 100,
 			'USE_OFFLINE' => ($params['USE_OFFLINE'] == 'Y') ? 'Y' : 'N',
-			'ENABLED' => ($params['ENABLED'] == 'Y') ? 'Y' : 'N',
-			'SETTINGS' => $params['SETTINGS'] ?: [],
+			'ENABLED' => 'Y',
+			'SETTINGS' => $settings,
 		];
 
 		$result = Manager::add($cashboxFields);
@@ -170,25 +220,27 @@ class CashboxService extends RestService
 	/**
 	 * @param $params
 	 * @return bool
-	 * @throws AccessException
-	 * @throws Main\LoaderException
-	 * @throws Main\NotImplementedException
 	 * @throws RestException
 	 */
-	public static function updateCashbox($params)
+	public static function updateCashbox($params, $page, \CRestServer $server)
 	{
 		Helpers\Rest\AccessChecker::checkAccessPermission();
-		$params = self::prepareParams($params);
+		$params = self::prepareHandlerParams($params, $server);
 		self::checkParamsBeforeUpdateCashbox($params);
 
 		$allowedFields = [
-			'NAME', 'HANDLER', 'OFD', 'OFD_SETTINGS', 'EMAIL',
+			'NAME', 'OFD', 'OFD_SETTINGS', 'EMAIL',
 			'NUMBER_KKM', 'KKM_ID', 'ACTIVE', 'SORT',
 			'USE_OFFLINE', 'ENABLED', 'SETTINGS',
 		];
 
 		// remove non-whitelisted keys using $allowedFields values as keys
 		$cashboxFields = array_intersect_key($params['FIELDS'], array_flip($allowedFields));
+
+		if (isset($cashboxFields['OFD']))
+		{
+			$cashboxFields['OFD'] = self::getOfdHandlerClassByCode($cashboxFields['OFD']);
+		}
 
 		$result = Manager::update($params['ID'], $cashboxFields);
 		if ($result->isSuccess())
@@ -203,14 +255,12 @@ class CashboxService extends RestService
 	/**
 	 * @param $params
 	 * @return bool
-	 * @throws AccessException
 	 * @throws RestException
-	 * @throws \Bitrix\Main\LoaderException
 	 */
-	public static function deleteCashbox($params)
+	public static function deleteCashbox($params, $page, $server)
 	{
 		Helpers\Rest\AccessChecker::checkAccessPermission();
-		$params = self::prepareParams($params);
+		$params = self::prepareHandlerParams($params, $server);
 		self::checkParamsBeforeDeleteCashbox($params);
 
 		$result = Manager::delete($params['ID']);
@@ -226,19 +276,14 @@ class CashboxService extends RestService
 	/**
 	 * @param $params
 	 * @return array
-	 * @throws AccessException
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\LoaderException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
 	 */
-	public static function getCashboxList($params)
+	public static function getCashboxList($params, $page, \CRestServer $server)
 	{
 		Helpers\Rest\AccessChecker::checkAccessPermission();
-		$params = self::prepareParams($params);
+		$params = self::prepareHandlerParams($params, $server);
 
 		$allowedFields = [
-			'ID', 'NAME', 'HANDLER', 'OFD', 'OFD_SETTINGS', 'EMAIL',
+			'ID', 'NAME', 'OFD', 'OFD_SETTINGS', 'EMAIL',
 			'DATE_CREATE', 'DATE_LAST_CHECK', 'NUMBER_KKM', 'KKM_ID',
 			'ACTIVE', 'SORT', 'USE_OFFLINE', 'ENABLED', 'SETTINGS',
 		];
@@ -266,6 +311,18 @@ class CashboxService extends RestService
 				}
 			}
 		}
+		$filter['=HANDLER'] = '\\' . CashboxRest::class;
+
+		$appId = $params['APP_ID'];
+		$allowedHandlers = [];
+		if ($appId)
+		{
+			$handlers = Manager::getRestHandlersList();
+			$filterByAppID = static function ($handler) use ($appId) {
+				return $handler['APP_ID'] === $appId;
+			};
+			$allowedHandlers = array_keys(array_filter($handlers, $filterByAppID));
+		}
 
 		$isOrderSpecified = isset($params['ORDER']) && is_array($params['ORDER']);
 		$order = [];
@@ -282,7 +339,11 @@ class CashboxService extends RestService
 		]);
 		while ($cashbox = $cashboxListResult->fetch())
 		{
-			$result[] = $cashbox;
+			$restHandler = $cashbox['SETTINGS']['REST']['REST_CODE'];
+			if ($appId && in_array($restHandler, $allowedHandlers))
+			{
+				$result[] = $cashbox;
+			}
 		}
 
 		return $result;

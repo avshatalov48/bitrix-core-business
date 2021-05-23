@@ -1,12 +1,15 @@
-<?
-include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizproc/classes/general/runtimeservice.php");
+<?php
+
+use Bitrix\Main;
 
 class CBPAllTrackingService
 	extends CBPRuntimeService
 {
-	protected $skipTypes = array();
-	protected $forcedModeWorkflows = array();
-	protected static $userGroupsCache = array();
+	protected $skipTypes = [];
+	protected $forcedModeWorkflows = [];
+	protected static $userGroupsCache = [];
+
+	private $cutQueue = [];
 
 	public function Start(CBPRuntime $runtime = null)
 	{
@@ -14,7 +17,9 @@ class CBPAllTrackingService
 
 		$skipTypes = \Bitrix\Main\Config\Option::get("bizproc", "log_skip_types", CBPTrackingType::ExecuteActivity.','.CBPTrackingType::CloseActivity);
 		if ($skipTypes !== '')
+		{
 			$this->skipTypes = explode(',', $skipTypes);
+		}
 	}
 
 	public function DeleteAllWorkflowTracking($workflowId)
@@ -233,6 +238,11 @@ class CBPAllTrackingService
 			"INSERT INTO b_bp_tracking(WORKFLOW_ID, TYPE, MODIFIED, ACTION_NAME, ACTION_TITLE, EXECUTION_STATUS, EXECUTION_RESULT, ACTION_NOTE, MODIFIED_BY) ".
 			"VALUES('".$DB->ForSql($workflowId, 32)."', ".intval($type).", ".$DB->CurrentTimeFunction().", '".$DB->ForSql($actionName, 128)."', '".$DB->ForSql($actionTitle, 255)."', ".intval($executionStatus).", ".intval($executionResult).", ".($actionNote <> '' ? "'".$DB->ForSql($actionNote)."'" : "NULL").", ".($modifiedBy > 0 ? $modifiedBy : "NULL").")"
 		);
+
+		if (self::getLogSizeLimit() && !$this->isForcedMode($workflowId))
+		{
+			$this->cutLogSizeDeferred($workflowId);
+		}
 	}
 
 	public static function GetList($arOrder = array("ID" => "DESC"), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
@@ -336,13 +346,103 @@ class CBPAllTrackingService
 			$days = 90;
 		}
 
+		$completed = self::shouldClearCompletedTracksOnly() ? "= 'Y'" : "IN ('N', 'Y')";
+
 		$strSql = "DELETE t FROM b_bp_tracking t".
-			" WHERE t.COMPLETED = 'Y' ".
+			" WHERE t.COMPLETED {$completed} ".
 			" AND t.MODIFIED < DATE_SUB(NOW(), INTERVAL ".$days." DAY)".
 			" AND t.TYPE IN (0,1,2,3,4,5,7,8,9)";
 		$bSuccess = $DB->Query($strSql, true);
 
 		return $bSuccess;
+	}
+
+	private function cutLogSize(string $workflowId, int $size): bool
+	{
+		global $DB;
+
+		$queryResult = $DB->Query(
+			sprintf(
+				"SELECT ID FROM b_bp_tracking"
+				. " WHERE WORKFLOW_ID = '%s' AND `TYPE` IN (0,1,2,3,4,5,7,8,9) ORDER BY ID DESC LIMIT %d,100",
+				$DB->ForSql($workflowId),
+				$size
+			)
+		);
+
+		$ids = [];
+		while ($row = $queryResult->fetch())
+		{
+			$ids[] = $row['ID'];
+		}
+
+		if ($ids)
+		{
+			$DB->Query(
+				sprintf(
+					'DELETE FROM b_bp_tracking WHERE ID IN (%s)',
+					implode(',', $ids)
+				),
+				true
+			);
+		}
+
+		return true;
+	}
+
+	private function cutLogSizeDeferred(string $workflowId)
+	{
+		$this->cutQueue[$workflowId] = true;
+		$this->setCutJob();
+	}
+
+	private function setCutJob()
+	{
+		static $inserted = false;
+
+		if (!$inserted)
+		{
+			Main\Application::getInstance()->addBackgroundJob(
+				[$this, 'doBackgroundCut'],
+				[],
+				Main\Application::JOB_PRIORITY_LOW - 10
+			);
+			$inserted = true;
+		}
+	}
+
+	public function doBackgroundCut()
+	{
+		$size = self::getLogSizeLimit();
+		$list = array_keys($this->cutQueue);
+		$this->cutQueue = [];//clear
+
+		foreach ($list as $workflowId)
+		{
+			$this->cutLogSize($workflowId, $size);
+		}
+	}
+
+	private static function getLogSizeLimit(): int
+	{
+		static $limit;
+		if ($limit === null)
+		{
+			$limit = Main\ModuleManager::isModuleInstalled('bitrix24') ? 50 : 0;
+		}
+
+		return $limit;
+	}
+
+	private static function shouldClearCompletedTracksOnly(): bool
+	{
+		if (Main\ModuleManager::isModuleInstalled('bitrix24'))
+		{
+			//more logic later
+			return false;
+		}
+
+		return true;
 	}
 }
 

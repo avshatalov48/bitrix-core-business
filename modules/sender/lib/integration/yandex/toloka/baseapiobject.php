@@ -109,7 +109,6 @@ abstract class BaseApiObject
 	{
 		$scope = static::getScope().$data['methodName']??'';
 
-		$this->registerOnCloudAdv();
 		$httpResult =  $this
 			->query($scope, $data['parameters']??[])
 			->getResult();

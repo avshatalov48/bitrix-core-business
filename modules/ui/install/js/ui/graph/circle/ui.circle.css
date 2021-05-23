@@ -1,8 +1,38 @@
 .ui-graph-circle-wrapper {
 	display: inline-block;
-	overflow: hidden;
 	position: relative;
+	width: 187px;
+	height: 187px;
+	border: 5px solid #fff;
+	border-radius: 50%;
 	font-size: 0;
+	box-shadow: 0 0 0 7px #2fc6f6;
+	overflow: hidden;
+	z-index: 2;
+}
+
+.ui-graph-circle-canvas {
+	position: absolute;
+	left: 0;
+	width: 187px;
+	height: 187px;
+	animation: ui-graph-circle-canvas-animate 1s linear forwards;
+	image-rendering: optimizeSpeed;
+	image-rendering: -moz-crisp-edges;
+	image-rendering: -webkit-optimize-contrast;
+	image-rendering: -o-crisp-edges;
+	image-rendering: optimize-contrast;
+	-ms-interpolation-mode: nearest-neighbor;
+	box-sizing: border-box;
+}
+
+@keyframes ui-graph-circle-canvas-animate {
+	0% {
+		top: 100%;
+	}
+	100% {
+		top: 0;
+	}
 }
 
 .ui-graph-circle-number {

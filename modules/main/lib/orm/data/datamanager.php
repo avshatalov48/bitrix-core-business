@@ -1866,7 +1866,7 @@ abstract class DataManager
 		$optionString = Main\Config\Option::get("main", "~crypto_".$table);
 		if($optionString <> '')
 		{
-			$options = unserialize($optionString);
+			$options = unserialize($optionString, ['allowed_classes' => false]);
 		}
 		$options[strtoupper($field)] = $mode;
 		Main\Config\Option::set("main", "~crypto_".$table, serialize($options));
@@ -1892,7 +1892,7 @@ abstract class DataManager
 		if($optionString <> '')
 		{
 			$field = strtoupper($field);
-			$options = unserialize($optionString);
+			$options = unserialize($optionString, ['allowed_classes' => false]);
 			if(isset($options[$field]) && $options[$field] === true)
 			{
 				return true;

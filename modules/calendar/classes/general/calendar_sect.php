@@ -620,6 +620,16 @@ class CCalendarSect
 			}
 		}
 
+		$pullUserId = (int)$sectionFields['CREATED_BY'] > 0 ? (int)$sectionFields['CREATED_BY'] : $userId;
+		\Bitrix\Calendar\Util::addPullEvent(
+			'edit_section',
+			$pullUserId,
+			[
+				'fields' => $sectionFields,
+				'newSection' => $isNewSection
+			]
+		);
+
 		return $id;
 	}
 
@@ -630,6 +640,8 @@ class CCalendarSect
 			return CCalendar::ThrowError('EC_ACCESS_DENIED');
 
 		$id = intval($id);
+
+		$sectionFields = CCalendarSect::GetById($id);
 		$meetingIds = [];
 		if (\Bitrix\Calendar\Util::isSectionStructureConverted())
 		{
@@ -681,6 +693,12 @@ class CCalendarSect
 		{
 			ExecuteModuleEventEx($event, array($id));
 		}
+
+		\Bitrix\Calendar\Util::addPullEvent('delete_section',
+											$sectionFields['CREATED_BY'],
+											[
+												'fields' => $sectionFields
+											]);
 
 		return true;
 	}
@@ -924,28 +942,6 @@ class CCalendarSect
 	{
 		return (md5($userId."||".$sectId."||".self::GetUniqCalendarId()) == $sign);
 	}
-
-//	public static function Hidden($userId, $ar = false)
-//	{
-//		if (!$userId && $ar === false)
-//			return array();
-//
-//		$res = array();
-//		if (class_exists('CUserOptions') && $userId > 0)
-//		{
-//			if ($ar === false) // Get
-//			{
-//				$str = CUserOptions::GetOption("calendar", "hidden_sections", false, $userId);
-//				if ($str !== false && CheckSerializedData($str))
-//					$res = unserialize($str);
-//			}
-//			elseif(is_array($ar)) // Set
-//			{
-//				$res = CUserOptions::SetOption("calendar", "hidden_sections", serialize($ar));
-//			}
-//		}
-//		return $res;
-//	}
 
 	// * * * * EXPORT TO ICAL  * * * *
 	public static function ReturnICal($Params)

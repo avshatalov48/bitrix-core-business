@@ -39,7 +39,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 <tr id="tr_time_type_selector_delay">
 	<td align="right" width="40%"><?= GetMessage("CPAD_DP_TIME") ?>:</td>
 	<td width="60%">
-		<?=CBPDocument::ShowParameterField('int', 'delay_time', $arCurrentValues["delay_time"], array('size' => 20))?>
+		<?= CBPDocument::ShowParameterField('int', 'delay_time', $arCurrentValues["delay_time"], array('size' => 20)) ?>
 		<select name="delay_type">
 			<option value="s"<?= ($arCurrentValues["delay_type"] == "s") ? " selected" : "" ?>><?= GetMessage("CPAD_DP_TIME_S") ?></option>
 			<option value="m"<?= ($arCurrentValues["delay_type"] == "m") ? " selected" : "" ?>><?= GetMessage("CPAD_DP_TIME_M") ?></option>
@@ -48,12 +48,9 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 		</select>
 		<?
 		$delayMinLimit = CBPSchedulerService::getDelayMinLimit();
-		if ($delayMinLimit):
-			?>
+		if ($delayMinLimit): ?>
 			<p style="color: red;">* <?= GetMessage("CPAD_PD_TIMEOUT_LIMIT") ?>: <?=CBPHelper::FormatTimePeriod($delayMinLimit)?></p>
-			<?
-		endif;
-		?>
+		<?php endif; ?>
 	</td>
 </tr>
 <tr id="tr_time_type_selector_time">
@@ -63,7 +60,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 		<br>
 		<label><input type="radio" name="delay_date_is_local" value="N"
-			<?=($arCurrentValues["delay_date_is_local"] === 'N') ? ' checked' : ''?>
+			<?=($arCurrentValues["delay_date_is_local"] !== 'Y') ? ' checked' : ''?>
 		>
 			<?=GetMessage('CPAD_DP_TIME_SERVER')?>
 		</label>
@@ -75,6 +72,17 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 		</label>
 	</td>
 </tr>
+<tr>
+	<td align="right" width="40%"></td>
+	<td width="60%">
+		<label><input
+					type="checkbox"
+					name="delay_write_to_log"
+					value="Y"
+					<?= ($arCurrentValues['delay_write_to_log'] === 'Y') ? ' checked' : '' ?>
+		><?= GetMessage('CPAD_DP_WRITE_TO_LOG') ?></label>
+	</td>
+</tr>
 <script type="text/javascript">
-	SetDelayMode(<?= (!array_key_exists("delay_date", $arCurrentValues)) ? "true" : "false" ?>);
+	SetDelayMode(<?= (empty($arCurrentValues['delay_date'])) ? 'true' : 'false' ?>);
 </script>

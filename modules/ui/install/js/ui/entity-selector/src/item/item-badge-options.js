@@ -1,6 +1,7 @@
+import type { TextNodeOptions } from '../common/text-node-options';
+
 export type ItemBadgeOptions = {
-	title: string,
+	title: string | TextNodeOptions,
 	textColor?: string,
-	bgColor?: string,
-	conditions?: { [key: string]: any }
+	bgColor?: string
 };

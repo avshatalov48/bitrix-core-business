@@ -4,7 +4,8 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 
 use Bitrix\Main\Localization\Loc;
 
-Loc::loadMessages(__FILE__);
+$billLang = 'la';
+Loc::loadLanguageFile(__FILE__, $billLang);
 
 if (!CSalePdf::isPdfAvailable())
 	die();
@@ -129,7 +130,7 @@ if ($params["SELLER_COMPANY_ADDRESS"])
 if ($params["SELLER_COMPANY_PHONE"])
 {
 	$pdf->Ln();
-	$text = CSalePdf::prepareToPdf(sprintf(Loc::getMessage('SALE_HPS_BILLLA_COMPANY_PHONE').".: %s", $params["SELLER_COMPANY_PHONE"]));
+	$text = CSalePdf::prepareToPdf(sprintf(Loc::getMessage('SALE_HPS_BILLLA_COMPANY_PHONE', null, $billLang).".: %s", $params["SELLER_COMPANY_PHONE"]));
 	$textWidth = $width - $logoWidth;
 	while ($pdf->GetStringWidth($text))
 	{
@@ -156,7 +157,7 @@ $pdf->SetFont($fontFamily, 'B', $fontSize);
 
 if ($params["BUYER_PERSON_COMPANY_NAME"])
 {
-	$pdf->Write(15, CSalePdf::prepareToPdf(Loc::getMessage('SALE_HPS_BILLLA_FOR')));
+	$pdf->Write(15, CSalePdf::prepareToPdf(Loc::getMessage('SALE_HPS_BILLLA_FOR', null, $billLang)));
 }
 
 $pdf->SetFont($fontFamily, '', $fontSize);
@@ -201,7 +202,7 @@ if ($params['BILLLA_PAYER_SHOW'] === 'Y')
 
 	$pdf->SetFont($fontFamily, 'B', $fontSize);
 
-	$title = CSalePdf::prepareToPdf(Loc::getMessage('SALE_HPS_BILLLA_DATE_INSERT').': ');
+	$title = CSalePdf::prepareToPdf(Loc::getMessage('SALE_HPS_BILLLA_DATE_INSERT', null, $billLang).': ');
 	$titleWidth = $pdf->GetStringWidth($title);
 	$pdf->SetX($pdf->GetX() - $invoiceInfoWidth - $titleWidth - 6);
 	$pdf->Write(15, $title, 0, 0, 'R');
@@ -250,7 +251,7 @@ if ($params["DATE_PAY_BEFORE"])
 
 	$pdf->SetFont($fontFamily, 'B', $fontSize);
 
-	$title = CSalePdf::prepareToPdf(Loc::getMessage('SALE_HPS_BILLLA_DATE_PAY_BEFORE').': ');
+	$title = CSalePdf::prepareToPdf(Loc::getMessage('SALE_HPS_BILLLA_DATE_PAY_BEFORE', null, $billLang).': ');
 	$titleWidth = $pdf->GetStringWidth($title);
 	$pdf->SetX($pdf->GetX() - $invoiceInfoWidth - $titleWidth - 6);
 	$pdf->Write(15, $title, 0, 0, 'R');
@@ -312,9 +313,9 @@ if ($params['BASKET_ITEMS'])
 
 		$productName = $basketItem["NAME"];
 		if ($productName == "OrderDelivery")
-			$productName = Loc::getMessage('SALE_HPS_BILLLA_DELIVERY');
+			$productName = Loc::getMessage('SALE_HPS_BILLLA_DELIVERY', null, $billLang);
 		else if ($productName == "OrderDiscount")
-			$productName = Loc::getMessage('SALE_HPS_BILLLA_DISCOUNT');
+			$productName = Loc::getMessage('SALE_HPS_BILLLA_DISCOUNT', null, $billLang);
 
 		$arCells[++$n] = array();
 		foreach ($arCols as $columnId => $col)
@@ -335,7 +336,7 @@ if ($params['BASKET_ITEMS'])
 					$arCols[$columnId]['IS_DIGIT'] = true;
 					break;
 				case 'MEASURE':
-					$data = CSalePdf::prepareToPdf($basketItem["MEASURE_NAME"] ? $basketItem["MEASURE_NAME"] : Loc::getMessage('SALE_HPS_BILLLA_MEASURE'));
+					$data = CSalePdf::prepareToPdf($basketItem["MEASURE_NAME"] ? $basketItem["MEASURE_NAME"] : Loc::getMessage('SALE_HPS_BILLLA_MEASURE', null, $billLang));
 					$arCols[$columnId]['IS_DIGIT'] = true;
 					break;
 				case 'PRICE':
@@ -402,7 +403,7 @@ if ($params['BASKET_ITEMS'])
 
 	if ($params['DELIVERY_PRICE'] > 0)
 	{
-		$sDeliveryItem = Loc::getMessage('SALE_HPS_BILLLA_DELIVERY');
+		$sDeliveryItem = Loc::getMessage('SALE_HPS_BILLLA_DELIVERY', null, $billLang);
 		if ($params['DELIVERY_NAME'])
 			$sDeliveryItem .= sprintf(" (%s)", $params['DELIVERY_NAME']);
 
@@ -463,7 +464,7 @@ if ($params['BASKET_ITEMS'])
 			for ($i = 0; $i < $columnCount; $i++)
 				$arCells[$n][$arColumnKeys[$i]] = null;
 
-			$arCells[$n][$arColumnKeys[$columnCount-2]] = CSalePdf::prepareToPdf(Loc::getMessage('SALE_HPS_BILLLA_SUB_TOTAL').":");
+			$arCells[$n][$arColumnKeys[$columnCount-2]] = CSalePdf::prepareToPdf(Loc::getMessage('SALE_HPS_BILLLA_SUB_TOTAL', null, $billLang).":");
 			$arCells[$n][$arColumnKeys[$columnCount-1]] = CSalePdf::prepareToPdf(SaleFormatCurrency($sum, $params['CURRENCY'], false));
 		}
 
@@ -500,7 +501,7 @@ if ($params['BASKET_ITEMS'])
 					$arCells[$n][$arColumnKeys[$i]] = null;
 
 				$arCells[$n][$arColumnKeys[$columnCount-2]] = CSalePdf::prepareToPdf(sprintf(
-					Loc::getMessage('SALE_HPS_BILLLA_TAX')." (%s%%):",
+					Loc::getMessage('SALE_HPS_BILLLA_TAX', null, $billLang)." (%s%%):",
 					roundEx($vatRate * 100, SALE_VALUE_PRECISION)
 				));
 				$arCells[$n][$arColumnKeys[$columnCount-1]] = CSalePdf::prepareToPdf(SaleFormatCurrency(
@@ -522,7 +523,7 @@ if ($params['BASKET_ITEMS'])
 
 					$arCells[$n][$arColumnKeys[$columnCount-2]] = CSalePdf::prepareToPdf(sprintf(
 						"%s%s%s:",
-						($tax["IS_IN_PRICE"] == "Y") ? Loc::getMessage('SALE_HPS_BILLLA_TAX_IN') : "",
+						($tax["IS_IN_PRICE"] == "Y") ? Loc::getMessage('SALE_HPS_BILLLA_TAX_IN', null, $billLang) : "",
 						$tax["TAX_NAME"],
 						sprintf(' (%s%%)', roundEx($tax["VALUE"], SALE_VALUE_PRECISION))
 					));
@@ -537,7 +538,7 @@ if ($params['BASKET_ITEMS'])
 			for ($i = 0; $i < $columnCount; $i++)
 				$arCells[$n][$arColumnKeys[$i]] = null;
 
-			$arCells[$n][$arColumnKeys[$columnCount-2]] = CSalePdf::prepareToPdf(Loc::getMessage('SALE_HPS_BILLLA_SUM_PAID').":");
+			$arCells[$n][$arColumnKeys[$columnCount-2]] = CSalePdf::prepareToPdf(Loc::getMessage('SALE_HPS_BILLLA_SUM_PAID', null, $billLang).":");
 			$arCells[$n][$arColumnKeys[$columnCount-1]] = CSalePdf::prepareToPdf(SaleFormatCurrency($params['SUM_PAID'], $params['CURRENCY'], false));
 		}
 
@@ -547,7 +548,7 @@ if ($params['BASKET_ITEMS'])
 			for ($i = 0; $i < $columnCount; $i++)
 				$arCells[$n][$arColumnKeys[$i]] = null;
 
-			$arCells[$n][$arColumnKeys[$columnCount-2]] = CSalePdf::prepareToPdf(Loc::getMessage('SALE_HPS_BILLLA_DISCOUNT').":");
+			$arCells[$n][$arColumnKeys[$columnCount-2]] = CSalePdf::prepareToPdf(Loc::getMessage('SALE_HPS_BILLLA_DISCOUNT', null, $billLang).":");
 			$arCells[$n][$arColumnKeys[$columnCount-1]] = CSalePdf::prepareToPdf(SaleFormatCurrency($params['DISCOUNT_PRICE'], $params['CURRENCY'], false));
 		}
 
@@ -555,7 +556,7 @@ if ($params['BASKET_ITEMS'])
 		for ($i = 0; $i < $columnCount; $i++)
 			$arCells[$n][$arColumnKeys[$i]] = null;
 
-		$arCells[$n][$arColumnKeys[$columnCount-2]] = CSalePdf::prepareToPdf(Loc::getMessage('SALE_HPS_BILLLA_TOTAL').":");
+		$arCells[$n][$arColumnKeys[$columnCount-2]] = CSalePdf::prepareToPdf(Loc::getMessage('SALE_HPS_BILLLA_TOTAL', null, $billLang).":");
 		$arCells[$n][$arColumnKeys[$columnCount-1]] = CSalePdf::prepareToPdf(SaleFormatCurrency($params['SUM'], $params['CURRENCY'], false));
 	}
 
@@ -734,7 +735,7 @@ $pdf->SetFont($fontFamily, 'B', $fontSize);
 
 if ($params["BILLLA_COMMENT1"] || $params["BILLLA_COMMENT2"])
 {
-	$pdf->Write(15, CSalePdf::prepareToPdf(Loc::getMessage('SALE_HPS_BILLLA_COMMENT')));
+	$pdf->Write(15, CSalePdf::prepareToPdf(Loc::getMessage('SALE_HPS_BILLLA_COMMENT', null, $billLang)));
 	$pdf->Ln();
 
 	$pdf->SetFont($fontFamily, '', $fontSize);
@@ -797,7 +798,7 @@ if ($bankAccNo && $bankRouteNo && $bankSwift)
 {
 	$pdf->SetFont($fontFamily, 'B', $fontSize);
 
-	$pdf->Write(15, CSalePdf::prepareToPdf(Loc::getMessage('SALE_HPS_BILLLA_COMPANY_BANK_DETAIL')));
+	$pdf->Write(15, CSalePdf::prepareToPdf(Loc::getMessage('SALE_HPS_BILLLA_COMPANY_BANK_DETAIL', null, $billLang)));
 	$pdf->Ln();
 
 	$pdf->SetFont($fontFamily, '', $fontSize);
@@ -807,12 +808,12 @@ if ($bankAccNo && $bankRouteNo && $bankSwift)
 	if ($params["SELLER_COMPANY_NAME"])
 	{
 		$bankDetails .= CSalePdf::prepareToPdf(sprintf(
-				Loc::getMessage('SALE_HPS_BILLLA_COMPANY_NAME').": %s\n",
+				Loc::getMessage('SALE_HPS_BILLLA_COMPANY_NAME', null, $billLang).": %s\n",
 				$params["SELLER_COMPANY_NAME"]
 		));
 	}
 
-	$bankDetails .= CSalePdf::prepareToPdf(sprintf("# ".Loc::getMessage('SALE_HPS_BILLLA_COMPANY_BANK').": %s\n", $bankAccNo));
+	$bankDetails .= CSalePdf::prepareToPdf(sprintf("# ".Loc::getMessage('SALE_HPS_BILLLA_COMPANY_BANK', null, $billLang).": %s\n", $bankAccNo));
 
 	$bank = $params["SELLER_COMPANY_BANK_NAME"];
 	$bankAddr = $params["SELLER_COMPANY_BANK_ADDR"];
@@ -820,7 +821,7 @@ if ($bankAccNo && $bankRouteNo && $bankSwift)
 
 	if ($bank || $bankAddr || $bankPhone)
 	{
-		$bankDetails .= CSalePdf::prepareToPdf(Loc::getMessage('SALE_HPS_BILLLA_COMPANY_BANK_2').": ");
+		$bankDetails .= CSalePdf::prepareToPdf(Loc::getMessage('SALE_HPS_BILLLA_COMPANY_BANK_2', null, $billLang).": ");
 		if ($bank)
 			$bankDetails .= CSalePdf::prepareToPdf($bank);
 		$bankDetails .= CSalePdf::prepareToPdf("\n");
@@ -834,8 +835,8 @@ if ($bankAccNo && $bankRouteNo && $bankSwift)
 		}
 	}
 
-	$bankDetails .= CSalePdf::prepareToPdf(sprintf(Loc::getMessage('SALE_HPS_BILLLA_COMPANY_BANK_ROUTE_NO').": %s\n", $bankRouteNo));
-	$bankDetails .= CSalePdf::prepareToPdf(sprintf(Loc::getMessage('SALE_HPS_BILLLA_COMPANY_BANK_SWIFT').": %s\n", $bankSwift));
+	$bankDetails .= CSalePdf::prepareToPdf(sprintf(Loc::getMessage('SALE_HPS_BILLLA_COMPANY_BANK_ROUTE_NO', null, $billLang).": %s\n", $bankRouteNo));
+	$bankDetails .= CSalePdf::prepareToPdf(sprintf(Loc::getMessage('SALE_HPS_BILLLA_COMPANY_BANK_SWIFT', null, $billLang).": %s\n", $bankSwift));
 
 	$pdf->MultiCell($width/2, 15, $bankDetails, 0, 'L');
 }

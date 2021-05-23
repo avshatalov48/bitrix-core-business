@@ -130,11 +130,14 @@ class CAllBlogComment
 				true
 			);
 
-			if($arResult["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_PUBLISH)
-				CBlogPost::Update($arResult["POST_ID"], array(
-					"=NUM_COMMENTS" => "NUM_COMMENTS - 1",
-					"=NUM_COMMENTS_ALL" => "NUM_COMMENTS_ALL - 1"
-				));
+			$updateFields = [
+				"=NUM_COMMENTS_ALL" => "NUM_COMMENTS_ALL - 1"
+			];
+			if($arResult["PUBLISH_STATUS"] === BLOG_PUBLISH_STATUS_PUBLISH)
+			{
+				$updateFields["=NUM_COMMENTS"] = "NUM_COMMENTS - 1";
+			}
+			CBlogPost::Update($arResult["POST_ID"], $updateFields);
 
 			$res = CBlogImage::GetList(array(), array("BLOG_ID" => $arResult["BLOG_ID"], "POST_ID"=>$arResult["POST_ID"], "IS_COMMENT" => "Y", "COMMENT_ID" => $ID));
 			while($aImg = $res->Fetch())

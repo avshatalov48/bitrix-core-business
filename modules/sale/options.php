@@ -851,7 +851,7 @@ $currentSettings['get_discount_percent_from_base_price'] = Option::get('sale', '
 $currentSettings['discount_apply_mode'] = (int)Option::get('sale', 'discount_apply_mode');
 $currentSettings['product_reserve_condition'] = (string)Option::get('sale', 'product_reserve_condition');
 $currentSettings['product_reserve_clear_period'] = (int)Option::get('sale', 'product_reserve_clear_period');
-$currentSettings['tracking_map_statuses'] = unserialize(Option::get('sale', 'tracking_map_statuses', ''));
+$currentSettings['tracking_map_statuses'] = unserialize(Option::get('sale', 'tracking_map_statuses', ''), ['allowed_classes' => false]);
 $currentSettings['tracking_check_switch'] = Option::get('sale', 'tracking_check_switch', 'N');
 $currentSettings['tracking_check_period'] = (int)Option::get('sale', 'tracking_check_period', '24');
 
@@ -1131,7 +1131,7 @@ $tabControl->BeginNextTab();
 		<td>
 			<?
 			$guestStatuses = \Bitrix\Main\Config\Option::get("sale", "allow_guest_order_view_status", "");
-			$guestStatuses = ($guestStatuses <> '') ?  unserialize($guestStatuses) : array();
+			$guestStatuses = ($guestStatuses <> '') ?  unserialize($guestStatuses, ['allowed_classes' => false]) : array();
 			$statusList = (array_slice($arStatuses,1));
 			?>
 
@@ -1145,7 +1145,7 @@ $tabControl->BeginNextTab();
 		</td>
 	</tr>
 	<?
-	$paths = unserialize(\Bitrix\Main\Config\Option::get("sale", "allow_guest_order_view_paths"));
+	$paths = unserialize(\Bitrix\Main\Config\Option::get("sale", "allow_guest_order_view_paths"), ['allowed_classes' => false]);
 	foreach($siteList as $site)
 	{
 		?>
@@ -1282,7 +1282,7 @@ $tabControl->BeginNextTab();
 			<?
 			$recStatuses = COption::GetOptionString("sale", "p2p_status_list", "");
 			if($recStatuses <> '')
-				$recStatuses = unserialize($recStatuses);
+				$recStatuses = unserialize($recStatuses, ['allowed_classes' => false]);
 			else
 				$recStatuses = array();
 
@@ -1380,7 +1380,7 @@ $tabControl->BeginNextTab();
 				$key = 0;
 				if($val <> '')
 				{
-					$arAmount = unserialize($val);
+					$arAmount = unserialize($val, ['allowed_classes' => false]);
 					foreach($arAmount as $key => $val)
 					{
 						?>
@@ -1417,12 +1417,12 @@ $tabControl->BeginNextTab();
 		<td colspan="2">
 			<?
 			$reminder = COption::GetOptionString("sale", "pay_reminder", "");
-			$arReminder = unserialize($reminder);
+			$arReminder = unserialize($reminder, ['allowed_classes' => false]);
 
 			$arSubscribeProd = array();
 			$subscribeProd = COption::GetOptionString("sale", "subscribe_prod", "");
 			if ($subscribeProd <> '')
-				$arSubscribeProd = unserialize($subscribeProd);
+				$arSubscribeProd = unserialize($subscribeProd, ['allowed_classes' => false]);
 
 			$aTabs2 = Array();
 			foreach($siteList as $val)
@@ -2210,7 +2210,7 @@ endfor;
 	<?$tabControl->BeginNextTab();?>
 	<?
 	$filterValues = Option::get('sale', 'archive_params');
-	$filterValues = unserialize($filterValues);
+	$filterValues = unserialize($filterValues, ['allowed_classes' => false]);
 	?>
 	<tr>
 		<td>

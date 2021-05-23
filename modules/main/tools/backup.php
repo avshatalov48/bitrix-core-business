@@ -129,12 +129,8 @@ while(ob_end_flush());
 
 @set_time_limit(0);
 
-if (function_exists('mb_internal_encoding'))
-	mb_internal_encoding('ISO-8859-1');
-
 $bGzip = function_exists('gzcompress');
-$bMcrypt = function_exists('mcrypt_encrypt') || function_exists('openssl_encrypt');
-$bBitrixCloud = $bMcrypt && CModule::IncludeModule('bitrixcloud') && CModule::IncludeModule('clouds');
+$bBitrixCloud = function_exists('openssl_encrypt') && CModule::IncludeModule('bitrixcloud') && CModule::IncludeModule('clouds');
 
 if ($public)
 {
@@ -170,7 +166,7 @@ else
 		'dump_old_cnt' => IntOption('dump_old_cnt'),
 		'dump_old_size' => IntOption('dump_old_size'),
 
-		'dump_site_id' => is_array($ar = unserialize(COption::GetOptionString("main","dump_site_id"."_auto"))) ? $ar : array(),
+		'dump_site_id' => is_array($ar = unserialize(COption::GetOptionString("main","dump_site_id"."_auto"), ['allowed_classes' => false])) ? $ar : array(),
 	);
 
 	$arExpertBackupDefaultParams = array(
@@ -183,7 +179,7 @@ else
 		'dump_file_kernel' => IntOption('dump_file_kernel', 1),
 		'dump_do_clouds' => IntOption('dump_do_clouds', 1),
 		'skip_mask' => IntOption('skip_mask', 0),
-		'skip_mask_array' => is_array($ar = unserialize(COption::GetOptionString("main","skip_mask_array_auto"))) ? $ar : array(),
+		'skip_mask_array' => is_array($ar = unserialize(COption::GetOptionString("main","skip_mask_array_auto"), ['allowed_classes' => false])) ? $ar : array(),
 		'dump_max_file_size' => IntOption('dump_max_file_size', 0),
 	);
 
@@ -229,7 +225,7 @@ if (!$NS['step'])
 	else
 	{
 		$prefix = str_replace('/', '', COption::GetOptionString("main", "server_name", ""));
-		$arc_name = CBackup::GetArcName(preg_match('#^[a-z0-9\.\-]+$#i', $prefix) ? mb_substr($prefix, 0, 20).'_' : '');
+		$arc_name = CBackup::GetArcName(preg_match('#^[a-z0-9\.\-]+$#i', $prefix) ? substr($prefix, 0, 20).'_' : '');
 	}
 
 	$NS['arc_name'] = $arc_name.($NS['dump_encrypt_key'] ? ".enc" : ".tar").($arParams['dump_use_compression'] ? ".gz" : '');
@@ -537,7 +533,7 @@ if ($NS['step'] == 6)
 		while(CheckPoint())
 		{
 			$file_size = filesize($NS["arc_name"]);
-			$file_name = $NS['BUCKET_ID'] == -1? basename($NS['arc_name']) : mb_substr($NS['arc_name'], mb_strlen(DOCUMENT_ROOT));
+			$file_name = $NS['BUCKET_ID'] == -1? basename($NS['arc_name']) : substr($NS['arc_name'], strlen(DOCUMENT_ROOT));
 			$obUpload = new CCloudStorageUpload($file_name);
 
 			if ($NS['BUCKET_ID'] == -1)
@@ -565,7 +561,12 @@ if ($NS['step'] == 6)
 					}
 				}
 				else
-					$obBucket = unserialize($NS['obBucket']);
+				{
+					$obBucket = unserialize(
+						$NS['obBucket'],
+						['allowed_classes' => ['CBitrixCloudBackupBucket']]
+					);
+				}
 
 				$obBucket->Init();
 				$obBucket->GetService()->setPublic(false);

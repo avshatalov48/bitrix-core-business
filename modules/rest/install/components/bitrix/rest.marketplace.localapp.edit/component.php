@@ -242,7 +242,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 }
 
 $arResult["SCOPE"] = \Bitrix\Rest\AppTable::cleanLocalPermissionList(
-	\CRestUtil::getScopeList()
+	\Bitrix\Rest\Engine\ScopeManager::getInstance()->listScope()
 );
 
 $this->IncludeComponentTemplate();

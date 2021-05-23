@@ -313,29 +313,8 @@ $arExcludeSites = CPullOptions::GetExcludeSites();
 	</tr>
 	<tbody id="pull_local_settings" style="<?= \CPullOptions::IsServerShared() || !CPullOptions::GetQueueServerStatus() ? "display: none" : ""?>">
 	<tr>
-		<td width="40%"><nobr><?=GetMessage("PULL_OPTIONS_NGINX_VERSION")?></nobr>:</td>
+		<td width="40%" valign="top" style="padding-top:9px"><nobr><?=GetMessage("PULL_OPTIONS_NGINX_VERSION")?></nobr>:</td>
 		<td width="60%">
-			<nobr>
-				<label>
-					<input type="radio" id="config_nginx_version_1" value="1" name="nginx_version" <?=(CPullOptions::GetQueueServerVersion() == 1?' checked':'')?>>
-					<?=GetMessage("PULL_OPTIONS_NGINX_VERSION_034")?>
-				</label>
-			</nobr>
-			<br>
-			<nobr>
-				<label>
-					<input type="radio" id="config_nginx_version_2" value="2" name="nginx_version" <?=(CPullOptions::GetQueueServerVersion() == 2?' checked':'')?>>
-					<?=GetMessage("PULL_OPTIONS_NGINX_VERSION_040")?>
-				</label>
-			</nobr>
-			<br>
-			<nobr>
-				<label>
-					<input type="radio" id="config_nginx_version_3" value="3" name="nginx_version" <?=(CPullOptions::GetQueueServerVersion() == 3?' checked':'')?>>
-					<?=GetMessage("PULL_OPTIONS_NGINX_VERSION_710")?>
-				</label>
-			</nobr>
-			<br>
 			<nobr>
 				<label>
 					<input type="radio" id="config_nginx_version_4" value="4" name="nginx_version" <?=(CPullOptions::GetQueueServerVersion() == 4?' checked':'')?>>
@@ -343,6 +322,32 @@ $arExcludeSites = CPullOptions::GetExcludeSites();
 				</label>
 			</nobr>
 			<br>
+			<br>
+			<div style="border: 1px solid darkred; padding: 10px">
+				<div style="padding-bottom: 5px">
+					<b><?=GetMessage('PULL_NOTIFY_OUTDATED');?></b>
+				</div>
+				<nobr>
+					<label>
+						<input type="radio" id="config_nginx_version_3" value="3" name="nginx_version" <?=(CPullOptions::GetQueueServerVersion() == 3?' checked':'')?>>
+						<?=GetMessage("PULL_OPTIONS_NGINX_VERSION_710")?>
+					</label>
+				</nobr>
+				<br>
+				<nobr>
+					<label>
+						<input type="radio" id="config_nginx_version_2" value="2" name="nginx_version" <?=(CPullOptions::GetQueueServerVersion() == 2?' checked':'')?>>
+						<?=GetMessage("PULL_OPTIONS_NGINX_VERSION_040")?>
+					</label>
+				</nobr>
+				<br>
+				<nobr>
+					<label>
+						<input type="radio" id="config_nginx_version_1" value="1" name="nginx_version" <?=(CPullOptions::GetQueueServerVersion() == 1?' checked':'')?>>
+						<?=GetMessage("PULL_OPTIONS_NGINX_VERSION_034")?>
+					</label>
+				</nobr>
+			</div>
 		</td>
 	</tr>
 	<tr class="heading">

@@ -244,7 +244,7 @@ class SequentNumberGenerator extends NumberGenerator implements Sequenceable, Us
 		$resultNumber = $this->currentNumber;
 		if ($this->length > 0)
 		{
-			$resultNumber = str_pad($resultNumber, $this->length, $this->padString, STR_PAD_LEFT);
+			$resultNumber = \Bitrix\Main\Text\UtfSafeString::pad($resultNumber, $this->length, $this->padString, STR_PAD_LEFT);
 		}
 		return str_replace(static::getPatternFor(static::TEMPLATE_WORD_NUMBER), $resultNumber, $template);
 	}

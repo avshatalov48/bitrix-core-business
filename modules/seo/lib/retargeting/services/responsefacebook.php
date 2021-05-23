@@ -13,9 +13,19 @@ class ResponseFacebook extends Response
 {
 	const TYPE_CODE = 'facebook';
 
+	/**
+	 * Parse response.
+	 *
+	 * @param array|string $data Data.
+	 * @throws \Bitrix\Main\ArgumentException
+	 */
 	public function parse($data)
 	{
-		$parsed = Json::decode($data);
+		$parsed = is_array($data)
+			? $data
+			: Json::decode($data)
+		;
+
 		if ($parsed['error'])
 		{
 			$errorText = (isset($parsed['error']['error_user_msg']) && $parsed['error']['error_user_msg']) ? $parsed['error']['error_user_msg'] : $parsed['error']['message'];

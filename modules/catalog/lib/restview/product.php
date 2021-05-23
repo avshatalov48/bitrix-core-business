@@ -146,7 +146,7 @@ final class Product extends Base
 			);
 			while ($property = $res->Fetch())
 			{
-				if(isset($property['USER_TYPE']))
+				if ((string)$property['USER_TYPE'] !== '')
 				{
 					if(!in_array($property['PROPERTY_TYPE'].':'.$property['USER_TYPE'], self::getUserType()))
 						continue;

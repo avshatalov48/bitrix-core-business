@@ -118,7 +118,8 @@ CREATE TABLE b_bp_task_user (
 	ORIGINAL_USER_ID int NOT NULL default 0,
 	primary key (ID),
 	unique ix_bp_task_user(USER_ID, TASK_ID),
-	index ix_bp_task_user_2(TASK_ID)
+	index ix_bp_task_user_2(TASK_ID),
+	index ix_bp_task_user_3(USER_ID,STATUS)
 );
 
 CREATE TABLE b_bp_history (
@@ -210,4 +211,51 @@ CREATE TABLE b_bp_global_const (
 	PROPERTY_SETTINGS text NULL,
 	PROPERTY_VALUE text NULL,
 	primary key (ID)
+);
+
+CREATE TABLE b_bp_script (
+	ID int NOT NULL auto_increment,
+	MODULE_ID varchar(32) NULL,
+	ENTITY varchar(64) NOT NULL,
+	DOCUMENT_TYPE varchar(128) NOT NULL,
+	NAME varchar(255) NULL,
+	DESCRIPTION text NULL,
+	WORKFLOW_TEMPLATE_ID int NOT NULL,
+	CREATED_DATE datetime NOT NULL,
+	CREATED_BY INT NOT NULL,
+	MODIFIED_DATE datetime NOT NULL,
+	MODIFIED_BY int NOT NULL,
+	ORIGINATOR_ID VARCHAR(255) NULL,
+	ORIGIN_ID VARCHAR(255) NULL,
+	`SORT` INT NOT NULL DEFAULT 10,
+	ACTIVE char(1) NOT NULL default 'Y',
+	primary key (ID),
+	index ix_bp_script_mo(MODULE_ID, ENTITY, DOCUMENT_TYPE)
+);
+
+CREATE TABLE b_bp_script_queue (
+		ID int NOT NULL auto_increment,
+		SCRIPT_ID INT NOT NULL,
+		STARTED_DATE datetime NULL,
+		STARTED_BY int NULL,
+		STATUS TINYINT UNSIGNED NOT NULL DEFAULT 0,
+		MODIFIED_DATE datetime NOT NULL,
+		MODIFIED_BY int NOT NULL,
+		WORKFLOW_PARAMETERS mediumtext NULL,
+		primary key (ID),
+		index ix_bp_sq_script_id(SCRIPT_ID),
+		index ix_bp_sq_started_by(STARTED_BY)
+);
+
+CREATE TABLE b_bp_script_queue_document (
+	ID int NOT NULL auto_increment,
+	QUEUE_ID INT NOT NULL,
+	DOCUMENT_ID varchar(128) NOT NULL,
+	WORKFLOW_ID varchar(32) NOT NULL DEFAULT '',
+	STATUS TINYINT UNSIGNED NOT NULL DEFAULT 0,
+	STATUS_MESSAGE varchar(255) NULL,
+	primary key (ID),
+	index ix_bp_sqd_queue_id(QUEUE_ID),
+	index ix_bp_sqd_wf(WORKFLOW_ID),
+	index ix_bp_sqd_queue_wf(QUEUE_ID, WORKFLOW_ID)
 );

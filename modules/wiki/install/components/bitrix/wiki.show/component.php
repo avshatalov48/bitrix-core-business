@@ -200,8 +200,6 @@ if($this->StartResultCache(false, array($USER->GetGroups(), $arCache)))
 	else
 		$arResult['IS_CATEGORY'] = false;
 
-	$arResult['ELEMENT'] = array();
-
 	$arResult['ELEMENT'] = CWiki::GetElementByName($arParams['ELEMENT_NAME'], $arFilter, $arParams);
 
 	if (!empty($arParams['ELEMENT_NAME']) && $arResult['ELEMENT'] != false)

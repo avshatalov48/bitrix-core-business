@@ -7,6 +7,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Delivery\Services;
 use Bitrix\Sale\Delivery\ExtraServices;
 use Bitrix\Currency;
+use Bitrix\Catalog\VatTable;
 
 use \Bitrix\Sale\Helpers\Admin\BusinessValueControl;
 
@@ -397,6 +398,7 @@ if(empty($fields["CLASS_NAME"]) && count($classNamesList) == 1)
 
 $isGroup = $fields["CLASS_NAME"] == '\Bitrix\Sale\Delivery\Services\Group';
 
+/** @var Services\Base|null $service */
 $service = null;
 
 if((isset($fields["CLASS_NAME"]) && $fields["CLASS_NAME"] <> '') || $parentService)
@@ -463,6 +465,16 @@ if((isset($fields["CLASS_NAME"]) && $fields["CLASS_NAME"] <> '') || $parentServi
 
 			if($fields["DESCRIPTION"] == '')
 				$fields["DESCRIPTION"] = $service->getClassDescription();
+
+			$serviceDefaultVatRate = $service->getDefaultVatRate();
+			if (
+				!is_null($serviceDefaultVatRate)
+				&& !isset($fields['VAT_ID'])
+				&& \Bitrix\Main\Loader::includeModule('catalog')
+			)
+			{
+				$fields['VAT_ID'] = VatTable::getActiveVatIdByRate($serviceDefaultVatRate, true);
+			}
 		}
 	}
 }

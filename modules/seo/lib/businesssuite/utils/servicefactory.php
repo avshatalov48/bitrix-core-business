@@ -7,11 +7,11 @@ use Bitrix\Seo\BusinessSuite\Exception;
 
 final class ServiceFactory
 {
-	/** @var Seo\Retargeting\IService[] $enginePool*/
+	/** @var Seo\BusinessSuite\IInternalService[] $enginePool*/
 	private static $enginePool;
 
 	/**
-	 * @return Seo\Retargeting\IService[]
+	 * @return Seo\BusinessSuite\IInternalService[]
 	 */
 	private static function getServices() : array
 	{
@@ -24,7 +24,7 @@ final class ServiceFactory
 	}
 
 	/**
-	 * @return Seo\Retargeting\IService[]
+	 * @return Seo\BusinessSuite\IInternalService[]
 	 */
 	private static function getEnginePool() : array
 	{
@@ -46,10 +46,10 @@ final class ServiceFactory
 	 * Return service instance by engine code
 	 * @param string $engineCode
 	 *
-	 * @return Seo\Retargeting\IService
+	 * @return Seo\BusinessSuite\IInternalService
 	 * @throws Exception\ServiceLoadException
 	 */
-	public static function getServiceByEngineCode(string $engineCode) : Seo\Retargeting\IService
+	public static function getServiceByEngineCode(string $engineCode) : Seo\BusinessSuite\IInternalService
 	{
 		if(array_key_exists($engineCode,$pool = static::getEnginePool()))
 		{

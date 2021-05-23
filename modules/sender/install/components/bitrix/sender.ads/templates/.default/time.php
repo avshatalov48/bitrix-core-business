@@ -29,7 +29,8 @@ $componentParameters = array(
 		'SENDER_LETTER_TIME_TMPL_DATE_SEND' => Loc::getMessage('SENDER_ADS_LETTER_TIME_TMPL_DATE_SEND'),
 		'SENDER_LETTER_TIME_COMP_TITLE' => Loc::getMessage('SENDER_ADS_LETTER_TIME_TMPL_ACT_SEND')
 	],
-	'MESSAGE_CODE_LIST' => \Bitrix\Sender\Message\Factory::getAdsMessageCodes(),
+	'MESSAGE_CODE_LIST' => array_merge(\Bitrix\Sender\Message\Factory::getAdsMessageCodes(),
+		\Bitrix\Sender\Message\Factory::getMarketingMessageCodes()),
 );
 if ($_REQUEST['IFRAME'] == 'Y')
 {

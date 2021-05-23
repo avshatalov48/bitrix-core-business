@@ -1160,7 +1160,7 @@ class CBPWorkflowTemplateResult extends CDBResult
 					$value = $value1;
 			}
 
-			$value = unserialize($value);
+			$value = unserialize($value, ['allowed_classes' => false]);
 			if (!is_array($value))
 				$value = array();
 		}

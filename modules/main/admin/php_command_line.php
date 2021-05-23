@@ -47,9 +47,6 @@ function fancy_output($content)
 	return sprintf('<p>%s</e>', $content);
 }
 
-define("BX_COMPRESSION_DISABLED", true);
-/* This code captures parse errors*/
-
 function isTextMode()
 {
 	return (isset($_POST['result_as_text']) && $_POST['result_as_text'] === 'y');
@@ -322,6 +319,12 @@ BX.ready(
 	}
 );
 
+function __FPHPRenderResult(result)
+{
+	document.getElementById('result_div').innerHTML = result;
+	CloseWaitWindow();
+}
+
 function __FPHPSubmit()
 {
 	if(confirm('<?=GetMessageJS("php_cmd_confirm")?>'))
@@ -335,18 +338,25 @@ function __FPHPSubmit()
 
 		window.scrollTo(0, 500);
 		ShowWaitWindow();
-		BX.ajax.post(
-			'php_command_line.php?lang=' + phpVars.LANGUAGE_ID + '&sessid=' + phpVars.bitrix_sessid,
-			{
-				query: BX('query' + m[1]).value,
-				result_as_text: resultAsText,
-				ajax: 'y'
+
+		var data = BX.ajax.prepareData({
+			query: BX('query' + m[1]).value,
+			result_as_text: resultAsText,
+			ajax: 'y'
+		});
+
+		BX.ajax({
+			'method': 'POST',
+			'dataType': 'html',
+			'url': 'php_command_line.php?lang=' + phpVars.LANGUAGE_ID + '&sessid=' + phpVars.bitrix_sessid,
+			'data':  data,
+			'onsuccess': function (result) {
+				__FPHPRenderResult(result);
 			},
-			function(result){
-				document.getElementById('result_div').innerHTML = result;
-				CloseWaitWindow();
+			'onfailure': function (type, status, config) {
+				__FPHPRenderResult(config.xhr.responseText);
 			}
-		);
+		});
 	}
 }
 

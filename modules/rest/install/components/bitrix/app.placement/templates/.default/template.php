@@ -18,10 +18,12 @@ $c = \Bitrix\Main\Text\Converter::getHtmlConverter();
 ?>
 <div id="rest_carousel_<?=$c->encode($arResult['PLACEMENT'])?>" class="rest-placement-carousel">
 <?php
-$applicationIdList = array();
+$applicationIdList = [];
+$applicationList = [];
 foreach($arResult['APPLICATION_LIST'] as $app):
 	$current = $app['ID'] == $arResult['APPLICATION_CURRENT'];
 	$applicationIdList[] = $app['ID'];
+	$applicationList[] = array_change_key_case($app, CASE_LOWER);
 ?>
 	<div id="rest_carousel_<?=$c->encode($arResult['PLACEMENT'].'_'.$app['ID'])?>" class="rest-placement-carousel-app"<?if(!$current):?> style="display: none"<?endif;?>>
 <?
@@ -42,6 +44,7 @@ endforeach;
 		layout: 'rest_carousel_<?=\CUtil::JSEscape($arResult['PLACEMENT'])?>',
 		node: 'rest_carousel_<?=\CUtil::JSEscape($arResult['PLACEMENT'])?>_#ID#',
 		list: <?=\CUtil::PhpToJSObject($applicationIdList)?>,
+		extendedList: <?=\CUtil::PhpToJSObject($applicationList)?>,
 		current: <?=intval($arResult['APPLICATION_CURRENT'])?>,
 		ajaxUrl: '<?=\CUtil::JSEscape($arResult['AJAX_URL'])?>',
 		unload: false

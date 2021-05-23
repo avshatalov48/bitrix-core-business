@@ -2,7 +2,6 @@
 
 namespace Bitrix\Catalog\v2\Property;
 
-use Bitrix\Catalog\v2\BaseCollection;
 use Bitrix\Catalog\v2\BaseIblockElementEntity;
 use Bitrix\Catalog\v2\RepositoryContract;
 
@@ -16,5 +15,5 @@ use Bitrix\Catalog\v2\RepositoryContract;
  */
 interface PropertyRepositoryContract extends RepositoryContract
 {
-	public function getCollectionByParent(BaseIblockElementEntity $entity): BaseCollection;
+	public function getCollectionByParent(BaseIblockElementEntity $entity): PropertyCollection;
 }

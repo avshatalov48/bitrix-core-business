@@ -19,7 +19,7 @@ class Order
 	public static function isAllowGuestView(Sale\Order $order)
 	{
 		$guestStatuses = Option::get("sale", "allow_guest_order_view_status", "");
-		$guestStatuses = ($guestStatuses <> '') ?  unserialize($guestStatuses) : array();
+		$guestStatuses = ($guestStatuses <> '') ?  unserialize($guestStatuses, ['allowed_classes' => false]) : array();
 		return (is_array($guestStatuses) && in_array($order->getField('STATUS_ID'), $guestStatuses) && Option::get("sale", "allow_guest_order_view") === 'Y');
 	}
 
@@ -41,7 +41,7 @@ class Order
 		));
 		$site = $siteData->fetch();
 
-		$paths = unserialize(Option::get("sale", "allow_guest_order_view_paths"));
+		$paths = unserialize(Option::get("sale", "allow_guest_order_view_paths"), ['allowed_classes' => false]);
 		$path =  htmlspecialcharsbx($paths[$site['LID']]);
 
 		if (isset($path) && mb_strpos($path, '#order_id#'))

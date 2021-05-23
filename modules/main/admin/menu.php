@@ -788,7 +788,7 @@ if($USER->CanDoOperation('view_other_settings'))
 	);
 }
 
-if ($USER->CanDoOperation("view_other_settings") && \Bitrix\Main\Analytics\SiteSpeed::isRussianSiteManager())
+if ($USER->CanDoOperation("view_other_settings") && \Bitrix\Main\Analytics\SiteSpeed::isOn())
 {
 	AddEventHandler("main", "OnBuildGlobalMenu", array("\\Bitrix\\Main\\Analytics\\SiteSpeed", "onBuildGlobalMenu"));
 }

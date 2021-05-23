@@ -306,11 +306,13 @@ class CBPSocnetBlogPostActivity
 			),
 			'PostTitle' => array(
 				'Name' => GetMessage("SNBPA_POST_TITLE"),
+				'Description' => GetMessage("SNBPA_POST_TITLE"),
 				'FieldName' => 'post_title',
 				'Type' => 'string'
 			),
 			'PostMessage' => array(
 				'Name' => GetMessage("SNBPA_POST_MESSAGE"),
+				'Description' => GetMessage("SNBPA_POST_MESSAGE"),
 				'FieldName' => 'post_message',
 				'Type' => 'text',
 				'Required' => true

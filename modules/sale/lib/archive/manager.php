@@ -125,7 +125,7 @@ class Manager
 			throw new Main\SystemException("Settings of order's archiving are null or empty");
 		}
 
-		$filter = unserialize($filter);
+		$filter = unserialize($filter, ['allowed_classes' => false]);
 
 		if (isset($filter['PERIOD']))
 		{

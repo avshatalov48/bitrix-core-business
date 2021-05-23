@@ -765,7 +765,6 @@ class CPushManager
 				$arTmpMessages["USER_" . $message["USER_ID"]][] = htmlspecialcharsback($message);
 			}
 		}
-
 		if (empty($arDevices))
 		{
 			$arDevices = \Bitrix\Pull\Model\PushTable::getList([
@@ -793,11 +792,12 @@ class CPushManager
 			$tmpMessage = $arTmpMessages["USER_" . $arDevice["USER_ID"]];
 			$voipMessage = $arVoipMessages["USER_" . $arDevice["USER_ID"]];
 
-			if($tmpMessage)
+			if(is_array($tmpMessage))
 			{
 				$deviceType = $arDevice["DEVICE_TYPE"];
 				$deviceToken = $arDevice["DEVICE_TOKEN"];
-				if(isset(static::$pushServices[$deviceType]))
+				$filteredMessages = static::filterMessagesBeforeSend($tmpMessage, $deviceType, $deviceToken);
+				if(isset(static::$pushServices[$deviceType]) && count($filteredMessages) > 0)
 				{
 					$arPushMessages[$deviceType][$deviceToken] = [
 						"messages" => $tmpMessage,
@@ -805,11 +805,12 @@ class CPushManager
 					];
 				}
 			}
-			if($voipMessage)
+			if(is_array($voipMessage))
 			{
 				$deviceType = $arDevice["VOIP_TYPE"] && $arDevice["VOIP_TOKEN"] ? $arDevice["VOIP_TYPE"]: $arDevice["DEVICE_TYPE"];
 				$deviceToken = $arDevice["VOIP_TYPE"] && $arDevice["VOIP_TOKEN"] ? $arDevice["VOIP_TOKEN"] : $arDevice["DEVICE_TOKEN"];
-				if(isset(static::$pushServices[$deviceType]))
+				$filteredMessages = static::filterMessagesBeforeSend($voipMessage, $deviceType, $deviceToken);
+				if(isset(static::$pushServices[$deviceType]) && count($filteredMessages) > 0)
 				{
 					$arPushMessages[$deviceType][$deviceToken] = [
 						"messages" => $voipMessage,
@@ -890,6 +891,30 @@ class CPushManager
 		}
 
 		return false;
+	}
+
+	protected static function filterMessagesBeforeSend(array $messages, string $deviceType, string $deviceToken)
+	{
+		foreach ($messages as $k => $message)
+		{
+			if (isset($message['ADVANCED_PARAMS']['filterCallback']) && is_callable($message['ADVANCED_PARAMS']['filterCallback']))
+			{
+				$filterResult = call_user_func_array(
+					$message['ADVANCED_PARAMS']['filterCallback'],
+					[
+						'message' => $message,
+						'deviceType' => $deviceType,
+						'deviceToken' => $deviceToken
+					]
+				);
+				if (!$filterResult)
+				{
+					unset($messages[$k]);
+				}
+				unset($messages[$k]['ADVANCED_PARAMS']['filterCallback']);
+			}
+		}
+		return $messages;
 	}
 
 	public static function DeleteFromQueueBySubTag($userId, $tag, $appId = self::DEFAULT_APP_ID)

@@ -233,9 +233,13 @@
 			}
 		}
 
-		BX.addCustomEvent('BX.Translate.Process.BeforeRequestStart', BX.delegate(function(process, params){
-			/** @type {BX.Translate.Process} process */
-			if (process instanceof BX.Translate.Process)
+		BX.Event.EventEmitter.subscribe(BX.UI.StepProcessing.ProcessEvent.BeforeRequest, BX.delegate(function(event){
+			/** @type {BX.Main.Event.BaseEvent} event */
+			var process = event.data.process ? event.data.process : {};
+			var params = event.data.actionData ? event.data.actionData : {};
+
+			/** @type {BX.UI.StepProcessing.Process} process */
+			if (process instanceof BX.UI.StepProcessing.Process)
 			{
 				process.setParam('file', this.getCurrentPath());
 				process.method = 'POST';

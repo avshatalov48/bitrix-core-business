@@ -2,6 +2,9 @@
 
 namespace Bitrix\Mail\Integration\Calendar\ICal;
 
+use Bitrix\Calendar\ICal\MailInvitation\IncomingInvitationReplyHandler;
+use Bitrix\Calendar\ICal\Parser\Calendar;
+use Bitrix\Calendar\ICal\Parser\Dictionary;
 use Bitrix\Mail\Helper\Message;
 use Bitrix\Mail\Internals\MailMessageAttachmentTable;
 use Bitrix\Mail\MailMessageTable;
@@ -23,9 +26,9 @@ class ICalMailEventManager
 			foreach ($files as $file)
 			{
 				$data = ICalMailManager::getFileContent($file['FILE_ID']);
-				list($event, $method) = ICalMailManager::parseRequest($data);
+				$icalComponent = ICalMailManager::parseRequest($data);
 
-				if (!isset($method))
+				if (!($icalComponent instanceof Calendar))
 				{
 					continue;
 				}
@@ -39,9 +42,12 @@ class ICalMailEventManager
 					]);
 				}
 
-				if ($method === 'REPLY')
+				if ($icalComponent->getMethod() === Dictionary::METHOD['reply']
+					&& $icalComponent->hasOneEvent()
+				)
 				{
-					ICalMailManager::manageReply(['event' => $event, 'userId' => $userId]);
+					ICalMailManager::handleReply($icalComponent);
+
 					break;
 				}
 			}

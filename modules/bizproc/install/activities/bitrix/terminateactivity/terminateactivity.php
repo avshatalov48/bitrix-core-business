@@ -1,89 +1,109 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
 
-class CBPTerminateActivity
-	extends CBPActivity
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+class CBPTerminateActivity extends CBPActivity
 {
 	public function __construct($name)
 	{
 		parent::__construct($name);
-		$this->arProperties = array('Title' => '', 'StateTitle' => '');
+		$this->arProperties = [
+			'Title' => '',
+			'StateTitle' => '',
+			'KillWorkflow' => 'N',
+		];
 	}
 
 	public function Execute()
 	{
-		$rootActivity = $this->GetRootActivity();
-		$documentId = $rootActivity->GetDocumentId();
+		$killWorkflow = ($this->KillWorkflow === 'Y');
 
-		CBPDocument::TerminateWorkflow(
-			$this->GetWorkflowInstanceId(),
-			$documentId,
-			$arErrorsTmp,
-			(string) $this->StateTitle
-		);
-
-		throw new Exception("TerminateActivity");
-
-		return CBPActivityExecutionStatus::Closed;
-	}
-
-	public static function ValidateProperties($arTestProperties = array(), CBPWorkflowTemplateUser $user = null)
-	{
-		$arErrors = array();
-		return array_merge($arErrors, parent::ValidateProperties($arTestProperties, $user));
-	}
-
-	public static function GetPropertiesDialog($documentType, $activityName, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $arCurrentValues = null, $formName = "")
-	{
-		$runtime = CBPRuntime::GetRuntime();
-
-		if (!is_array($arWorkflowParameters))
-			$arWorkflowParameters = array();
-		if (!is_array($arWorkflowVariables))
-			$arWorkflowVariables = array();
-
-		if (!is_array($arCurrentValues))
+		if ($killWorkflow)
 		{
-			$arCurrentValues = array("state_title" => '');
-
-			$arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
-			if (is_array($arCurrentActivity["Properties"]))
-			{
-				$arCurrentValues["state_title"] = $arCurrentActivity["Properties"]["StateTitle"];
-			}
+			CBPDocument::killWorkflow($this->GetWorkflowInstanceId());
+		}
+		else
+		{
+			CBPDocument::TerminateWorkflow(
+				$this->GetWorkflowInstanceId(),
+				$this->GetDocumentId(),
+				$arErrorsTmp,
+				(string)$this->StateTitle
+			);
 		}
 
-		if (empty($arCurrentValues["state_title"]))
-			$arCurrentValues["state_title"] = GetMessage('BPTA1_STATE_TITLE');
+		throw new Exception('TerminateActivity');
 
-		return $runtime->ExecuteResourceFile(
-			__FILE__,
-			"properties_dialog.php",
-			array(
-				"arCurrentValues" => $arCurrentValues,
-				"formName" => $formName,
-			)
-		);
+		//No effect
+		//return CBPActivityExecutionStatus::Closed;
 	}
 
-	public static function GetPropertiesDialogValues($documentType, $activityName, &$arWorkflowTemplate, &$arWorkflowParameters, &$arWorkflowVariables, $arCurrentValues, &$arErrors)
+	public static function GetPropertiesDialog($documentType, $activityName, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $arCurrentValues = null, $formName = '', $popupWindow = null, $siteId = '')
 	{
-		$arErrors = array();
+		$dialog = new \Bitrix\Bizproc\Activity\PropertiesDialog(__FILE__, [
+			'documentType' => $documentType,
+			'activityName' => $activityName,
+			'workflowTemplate' => $arWorkflowTemplate,
+			'workflowParameters' => $arWorkflowParameters,
+			'workflowVariables' => $arWorkflowVariables,
+			'currentValues' => $arCurrentValues,
+			'formName' => $formName,
+			'siteId' => $siteId
+		]);
 
-		$runtime = CBPRuntime::GetRuntime();
+		$dialog->setMap([
+			'StateTitle' => [
+				'Name' => GetMessage('BPTA1_STATE_TITLE_NAME'),
+				'FieldName' => 'state_title',
+				'Type' => 'string',
+				'Default' => GetMessage('BPTA1_STATE_TITLE'),
+			],
+			'KillWorkflow' => [
+				'Name' => GetMessage('BPTA1_KILL_WF_NAME'),
+				'FieldName' => 'kill_workflow',
+				'Type' => 'bool',
+				'Default' => 'Y',
+			],
+		]);
 
-		$arProperties = array(
-			"StateTitle" => $arCurrentValues["state_title"]
-		);
+		return $dialog;
+	}
 
-		$arErrors = self::ValidateProperties($arProperties, new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser));
-		if (count($arErrors) > 0)
+	public static function GetPropertiesDialogValues($documentType, $activityName, &$arWorkflowTemplate, &$arWorkflowParameters, &$arWorkflowVariables, $arCurrentValues, &$errors)
+	{
+		$errors = [];
+
+		$properties = [
+			'StateTitle' => $arCurrentValues['state_title'],
+			'KillWorkflow' => 'N',
+		];
+
+		if (!empty($arCurrentValues['kill_workflow']))
+		{
+			$properties['KillWorkflow'] = CBPHelper::getBool($arCurrentValues['kill_workflow']) ? 'Y' : 'N';
+		}
+		elseif (
+			!empty($arCurrentValues['kill_workflow_text'])
+			&& static::isExpression($arCurrentValues['kill_workflow_text'])
+		)
+		{
+			$properties['KillWorkflow'] = $arCurrentValues['kill_workflow_text'];
+		}
+
+		$user = new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser);
+		$errors = self::ValidateProperties($properties, $user);
+
+		if ($errors)
+		{
 			return false;
+		}
 
-		$arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
-		$arCurrentActivity["Properties"] = $arProperties;
+		$activity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
+		$activity['Properties'] = $properties;
 
 		return true;
 	}
 }
-?>

@@ -60,10 +60,10 @@ class CRestServer
 	protected $tokenCheck = false;
 	protected $authType = null;
 
-	public function __construct($params)
+	public function __construct($params, $toLowerMethod = true)
 	{
 		$this->class = $params['CLASS'];
-		$this->method = ToLower($params['METHOD']);
+		$this->method = $toLowerMethod ? ToLower($params['METHOD']) : $params['METHOD'];
 		$this->query = $params['QUERY'];
 
 		$this->transport = $params['TRANSPORT'];

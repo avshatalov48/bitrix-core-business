@@ -1,31 +1,53 @@
 <?php
 namespace Bitrix\Sale\Internals\Analytics;
 
-use Bitrix\Sale\PaySystem,
-	Bitrix\Sale\Cashbox;
+use Bitrix\Main\SystemException,
+	Bitrix\Sale\PaySystem,
+	Bitrix\Sale\Cashbox,
+	Bitrix\Sale\Delivery;
 
 /**
  * Class Factory
  * @package Bitrix\Sale\Internals\Analytics
+ * @internal
  */
 final class Factory
 {
 	/**
 	 * @param string $type
-	 * @return Provider|null
+	 * @return Cashbox\Internals\Analytics\Provider|PaySystem\Internals\Analytics\Provider
+	 * @throws SystemException
 	 */
-	public static function create(string $type): ?Provider
+	public static function create(string $type)
 	{
-		if ($type === PaySystem\Internals\Analytics\Provider::getCode())
+		$knowProvidersMap = self::getKnownProvidersMap();
+		if (!isset($knowProvidersMap[$type]))
 		{
-			return new PaySystem\Internals\Analytics\Provider();
+			throw new SystemException("Provider with type \"{$type}\" not found");
 		}
 
-		if ($type === Cashbox\Internals\Analytics\Provider::getCode())
+		return new $knowProvidersMap[$type]();
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private static function getKnownProvidersMap(): array
+	{
+		$result = [];
+
+		$knownClasses = [
+			PaySystem\Internals\Analytics\Provider::class,
+			Cashbox\Internals\Analytics\Provider::class,
+			Delivery\Internals\Analytics\Provider::class,
+		];
+
+		/** @var Provider $knownClass */
+		foreach ($knownClasses as $knownClass)
 		{
-			return new Cashbox\Internals\Analytics\Provider;
+			$result[$knownClass::getCode()] = $knownClass;
 		}
 
-		return null;
+		return $result;
 	}
 }

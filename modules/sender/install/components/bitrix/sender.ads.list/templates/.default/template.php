@@ -35,8 +35,19 @@ foreach ($arResult['ROWS'] as $index => $data)
 	if ($data['TITLE'] && $data['URLS']['EDIT'])
 	{
 		ob_start();
+		$editUrl = $data['URLS']['EDIT']['EXTERNAL']??$data['URLS']['EDIT'];
 		?>
-		<a class="sender-letter-list-link" onclick="BX.Sender.Page.open('<?=CUtil::JSEscape($data['URLS']['EDIT'])?>'); return false;" href="<?=htmlspecialcharsbx($data['URLS']['EDIT'])?>">
+		<a class="sender-letter-list-link"
+			onclick="<?php if (isset($data['URLS']['EDIT']['EXTERNAL'])):?>
+				BX.Sender.Page.redirect('<?=CUtil::JSEscape($editUrl)?>');
+				<?php else:?>
+				BX.Sender.Page.open('<?=CUtil::JSEscape($editUrl)?>');
+				<?php endif?>
+				return false;
+		"
+			href="<?=htmlspecialcharsbx($editUrl)?>"
+
+		>
 			<?=htmlspecialcharsbx($data['TITLE'])?>
 		</a>
 		<div class="sender-letter-list-desc-small-black">
@@ -239,16 +250,21 @@ foreach ($arResult['ROWS'] as $index => $data)
 	$actions[] = array(
 		'TITLE' => $arParams['CAN_EDIT'] ? Loc::getMessage('SENDER_LETTER_LIST_ACT_EDIT') : Loc::getMessage('SENDER_LETTER_LIST_ACT_VIEW'),
 		'TEXT' => $arParams['CAN_EDIT'] ? Loc::getMessage('SENDER_LETTER_LIST_ACT_EDIT') : Loc::getMessage('SENDER_LETTER_LIST_ACT_VIEW'),
-		'ONCLICK' => "BX.Sender.Page.open('".CUtil::JSEscape($data['URLS']['EDIT'])."')",
+		'ONCLICK' => !isset($data['URLS']['EDIT']['EXTERNAL']) ? "BX.Sender.Page.open('".CUtil::JSEscape
+			($data['URLS']['EDIT'])."')"
+			: "BX.Sender.Page.redirect('".CUtil::JSEscape($data['URLS']['EDIT']['EXTERNAL'])."')",
 		'DEFAULT' => true
 	);
 	if ($arParams['CAN_EDIT'])
 	{
-		$actions[] = array(
-			'TITLE' => Loc::getMessage('SENDER_LETTER_LIST_ACT_COPY'),
-			'TEXT' => Loc::getMessage('SENDER_LETTER_LIST_ACT_COPY'),
-			'ONCLICK' => "BX.Sender.LetterList.copy({$data['ID']});"
-		);
+		if(!isset($data['URLS']['EDIT']['EXTERNAL']))
+		{
+			$actions[] = array(
+				'TITLE' => Loc::getMessage('SENDER_LETTER_LIST_ACT_COPY'),
+				'TEXT' => Loc::getMessage('SENDER_LETTER_LIST_ACT_COPY'),
+				'ONCLICK' => "BX.Sender.LetterList.copy({$data['ID']});"
+			);
+		}
 
 		$actions[] = array(
 			'TITLE' => Loc::getMessage('SENDER_LETTER_LIST_ACT_REMOVE'),

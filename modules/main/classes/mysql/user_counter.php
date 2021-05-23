@@ -334,38 +334,38 @@ class CUserCounter extends CAllUserCounter
 
 		if ($bMultiple)
 		{
-			$siteToDelete = "";
-			$strUpsertSQL = "
-				INSERT INTO b_user_counter (USER_ID, SITE_ID, CODE, CNT, LAST_DATE) VALUES ";
-
-			foreach ($site_id as $i => $site_id_tmp)
-			{
-				if ($i > 0)
-				{
-					$strUpsertSQL .= ",";
-					$siteToDelete .= ",";
-				}
-
-				$siteToDelete .= "'".$DB->ForSQL($site_id_tmp)."'";
-				$strUpsertSQL .= " (".$user_id.", '".$DB->ForSQL($site_id_tmp)."', '".$DB->ForSQL($code)."', 0, ".$DB->CurrentTimeFunction().") ";
-			}
-			$strUpsertSQL .= " ON DUPLICATE KEY UPDATE CNT = 0, LAST_DATE = ".$DB->CurrentTimeFunction();
-
-			$strDeleteSQL = "
-				DELETE FROM b_user_counter
-				WHERE
-					USER_ID = ".$user_id."
-					".(
-						count($site_id) == 1
-							? " AND SITE_ID = '".$site_id[0]."' "
-							: " AND SITE_ID IN (".$siteToDelete.") "
-					)."
-					AND CODE LIKE '".$DB->ForSQL($code)."L%'
-				";
-
 			$connection = \Bitrix\Main\Application::getConnection();
-			if($connection->lock('counter_delete', 25))
+			if($connection->lock('counter_delete'))
 			{
+				$siteToDelete = "";
+				$strUpsertSQL = "
+					INSERT INTO b_user_counter (USER_ID, SITE_ID, CODE, CNT, LAST_DATE) VALUES ";
+
+				foreach ($site_id as $i => $site_id_tmp)
+				{
+					if ($i > 0)
+					{
+						$strUpsertSQL .= ",";
+						$siteToDelete .= ",";
+					}
+
+					$siteToDelete .= "'".$DB->ForSQL($site_id_tmp)."'";
+					$strUpsertSQL .= " (".$user_id.", '".$DB->ForSQL($site_id_tmp)."', '".$DB->ForSQL($code)."', 0, ".$DB->CurrentTimeFunction().") ";
+				}
+				$strUpsertSQL .= " ON DUPLICATE KEY UPDATE CNT = 0, LAST_DATE = ".$DB->CurrentTimeFunction();
+
+				$strDeleteSQL = "
+					DELETE FROM b_user_counter
+					WHERE
+						USER_ID = ".$user_id."
+						".(
+							count($site_id) == 1
+								? " AND SITE_ID = '".$site_id[0]."' "
+								: " AND SITE_ID IN (".$siteToDelete.") "
+						)."
+						AND CODE LIKE '".$DB->ForSQL($code)."L%'
+					";
+
 				$DB->Query($strDeleteSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 				$DB->Query($strUpsertSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 

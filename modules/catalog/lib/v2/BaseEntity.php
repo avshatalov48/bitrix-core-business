@@ -59,7 +59,10 @@ abstract class BaseEntity
 
 	public function initFields(array $fields): self
 	{
-		$this->getFieldStorage()->initFields($fields);
+		if (!empty($fields))
+		{
+			$this->getFieldStorage()->initFields($fields);
+		}
 
 		return $this;
 	}
@@ -95,9 +98,19 @@ abstract class BaseEntity
 
 	public function setField(string $name, $value): self
 	{
+		return $this->setFieldNoDemand($name, $value);
+	}
+
+	public function setFieldNoDemand(string $name, $value): self
+	{
 		$this->getFieldStorage()->setField($name, $value);
 
 		return $this;
+	}
+
+	public function hasField(string $name): bool
+	{
+		return $this->getFieldStorage()->hasField($name);
 	}
 
 	public function getField(string $name)

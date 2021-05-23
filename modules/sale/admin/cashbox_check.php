@@ -111,19 +111,20 @@ $filterFields = array(
 		"name" => GetMessage("SALE_F_CASHBOX"),
 		"type" => "list",
 		"items" => $cashBox,
-		"filterable" => "",
-		"default" => true
+		"filterable" => ""
 	),
 	array(
 		"id" => "ID",
 		"name" => GetMessage("SALE_CHECK_ID"),
 		"type" => "number",
-		"filterable" => ""
+		"filterable" => "",
+		"default" => true
 	),
 	array(
 		"id" => "DATE_CREATE",
 		"name" => GetMessage("SALE_F_CHECK_CREATE"),
 		"type" => "date",
+		"default" => true
 	),
 	array(
 		"id" => "ORDER_ID",
@@ -143,6 +144,18 @@ $filterFields = array(
 );
 
 $filter = array();
+
+$filterPresets = [
+	'base' => [
+		'name' => GetMessage('SALE_CASHBOX_CHECK_TITLE'),
+		'default' => true,
+		'current' => true,
+		'fields' => [
+			'DATE_CREATE_datesel' => \Bitrix\Main\UI\Filter\DateType::CURRENT_DAY,
+		]
+	],
+];
+$lAdmin->setFilterPresets($filterPresets);
 
 $lAdmin->AddFilter($filterFields, $filter);
 
@@ -405,7 +418,14 @@ while ($check = $dbResultList->Fetch())
 		}
 	}
 	$row->AddField("LINK_PARAMS", $checkLink);
-	$row->AddField("STATUS", Loc::getMessage('SALE_CASHBOX_STATUS_'.$check['STATUS']));
+
+	$errorMessage = null;
+	if (isset($check['ERROR_MESSAGE']))
+	{
+		$errorMessage = ' (' . $check['ERROR_MESSAGE'] . ')';
+	}
+
+	$row->AddField("STATUS", Loc::getMessage('SALE_CASHBOX_STATUS_'.$check['STATUS']) . $errorMessage);
 
 	$arActions = array();
 	if ($check['STATUS'] === 'E' || $check['STATUS'] == 'N')

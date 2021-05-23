@@ -229,7 +229,7 @@ class Manager
 	 */
 	protected static function getMappedStatuses()
 	{
-		$result = unserialize(Option::get('sale', 'tracking_map_statuses',''));
+		$result = unserialize(Option::get('sale', 'tracking_map_statuses',''), ['allowed_classes' => false]);
 
 		if(!is_array($result))
 			$result = array();

@@ -151,6 +151,7 @@ CREATE TABLE b_im_recent(
 	ITEM_OLID int(18) DEFAULT 0,
 	PINNED char(1) DEFAULT 'N',
 	UNREAD char(1) DEFAULT 'N',
+	DATE_MESSAGE datetime null,
 	DATE_UPDATE datetime null,
 	PRIMARY KEY (USER_ID, ITEM_TYPE, ITEM_ID),
 	KEY IX_IM_REC_1 (ITEM_TYPE, ITEM_ID),
@@ -283,7 +284,8 @@ CREATE TABLE b_im_alias
 	ENTITY_TYPE varchar(255) not null,
 	ENTITY_ID varchar(255) not null,
 	PRIMARY KEY PK_B_IM_ALIAS (ID),
-	UNIQUE UX_B_IM_ALIAS (ALIAS)
+	UNIQUE UX_B_IM_ALIAS (ALIAS),
+	INDEX IX_IM_ALIAS_1 (ENTITY_TYPE, ENTITY_ID)
 );
 
 CREATE TABLE b_im_external_avatar
@@ -333,8 +335,11 @@ CREATE TABLE b_im_call_user
 	CALL_ID int not null,
 	USER_ID int not null,
 	STATE varchar(50),
+	FIRST_JOINED datetime,
 	LAST_SEEN datetime,
 	IS_MOBILE char(1),
+	SHARED_SCREEN char(1),
+	RECORDED char(1),
 
 	PRIMARY KEY PK_B_IM_CALL_USER(CALL_ID, USER_ID)
 );

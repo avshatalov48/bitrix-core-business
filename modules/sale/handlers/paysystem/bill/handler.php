@@ -42,7 +42,7 @@ class BillHandler
 
 		return $this->showTemplate($payment, $template);
 	}
-	
+
 	/**
 	 * @param Sale\Payment|null $payment
 	 * @param string $template
@@ -108,7 +108,7 @@ class BillHandler
 		if ($userColumns !== null)
 		{
 			$extraParams['USER_COLUMNS'] = array();
-			$userColumns = unserialize($userColumns);
+			$userColumns = unserialize($userColumns, ['allowed_classes' => false]);
 			if ($userColumns)
 			{
 				foreach ($userColumns as $id => $columns)

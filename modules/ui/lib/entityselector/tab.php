@@ -4,6 +4,8 @@ namespace Bitrix\UI\EntitySelector;
 class Tab implements \JsonSerializable
 {
 	protected $id;
+
+	/** @var TextNode */
 	protected $title = '';
 	protected $visible = true;
 	protected $itemOrder = [];
@@ -20,6 +22,12 @@ class Tab implements \JsonSerializable
 	/** @var array */
 	protected $footerOptions;
 
+	/** @var bool */
+	protected $showDefaultFooter = true;
+
+	/** @var bool | null */
+	protected $showAvatars;
+
 	public function __construct(array $options)
 	{
 		if (!empty($options['id']) && is_string($options['id']))
@@ -27,7 +35,7 @@ class Tab implements \JsonSerializable
 			$this->id = $options['id'];
 		}
 
-		if (!empty($options['title']) && is_string($options['title']))
+		if (!empty($options['title']) && (is_string($options['title']) || is_array($options['title'])))
 		{
 			$this->setTitle($options['title']);
 		}
@@ -68,7 +76,7 @@ class Tab implements \JsonSerializable
 			}
 		}
 
-		if (!empty($options['visible']) && is_bool($options['visible']))
+		if (isset($options['visible']) && is_bool($options['visible']))
 		{
 			$this->setVisible($options['visible']);
 		}
@@ -103,6 +111,16 @@ class Tab implements \JsonSerializable
 
 			$this->setFooter($options['footer'], $footerOptions);
 		}
+
+		if (isset($options['showDefaultFooter']) && is_bool($options['showDefaultFooter']))
+		{
+			$this->showDefaultFooter = $options['showDefaultFooter'];
+		}
+
+		if (isset($options['showAvatars']) && is_bool($options['showAvatars']))
+		{
+			$this->setShowAvatars($options['showAvatars']);
+		}
 	}
 
 	public function getId(): ?string
@@ -112,17 +130,25 @@ class Tab implements \JsonSerializable
 
 	public function getTitle(): string
 	{
+		return $this->getTitleNode() && !$this->getTitleNode()->isNullable() ? $this->getTitleNode()->getText() : '';
+	}
+
+	public function getTitleNode(): ?TextNode
+	{
 		return $this->title;
 	}
 
-	public function setTitle(string $title): self
+	public function setTitle($title): self
 	{
-		$this->title = $title;
+		if (is_string($title) || is_array($title) || $title === null)
+		{
+			$this->title = $title === null ? null : new TextNode($title);
+		}
 
 		return $this;
 	}
 
-	public function getIcon()
+	public function getIcon(): array
 	{
 		return $this->icon;
 	}
@@ -134,7 +160,7 @@ class Tab implements \JsonSerializable
 		return $this;
 	}
 
-	public function getTextColor()
+	public function getTextColor(): array
 	{
 		return $this->textColor;
 	}
@@ -146,7 +172,7 @@ class Tab implements \JsonSerializable
 		return $this;
 	}
 
-	public function getBgColor()
+	public function getBgColor(): array
 	{
 		return $this->bgColor;
 	}
@@ -158,19 +184,23 @@ class Tab implements \JsonSerializable
 		return $this;
 	}
 
-	public function setVisible(bool $flag)
+	public function setVisible(bool $flag): self
 	{
 		$this->visible = $flag;
+
+		return $this;
 	}
 
-	public function isVisible()
+	public function isVisible(): bool
 	{
 		return $this->visible;
 	}
 
-	public function setItemOrder(array $order)
+	public function setItemOrder(array $order): self
 	{
 		$this->itemOrder = $order;
+
+		return $this;
 	}
 
 	public function getItemOrder(): array
@@ -178,9 +208,11 @@ class Tab implements \JsonSerializable
 		return $this->itemOrder;
 	}
 
-	public function setItemMaxDepth(int $depth)
+	public function setItemMaxDepth(int $depth): self
 	{
 		$this->itemMaxDepth = $depth;
+
+		return $this;
 	}
 
 	public function getItemMaxDepth(): ?int
@@ -188,12 +220,14 @@ class Tab implements \JsonSerializable
 		return $this->itemMaxDepth;
 	}
 
-	public function setStub($stub)
+	public function setStub($stub): self
 	{
 		if (is_bool($stub) || is_string($stub))
 		{
 			$this->stub = $stub;
 		}
+
+		return $this;
 	}
 
 	public function getStub()
@@ -201,9 +235,11 @@ class Tab implements \JsonSerializable
 		return $this->stub;
 	}
 
-	public function setStubOptions(array $options)
+	public function setStubOptions(array $options): self
 	{
 		$this->stubOptions = $options;
+
+		return $this;
 	}
 
 	public function getStubOptions(): ?array
@@ -211,13 +247,15 @@ class Tab implements \JsonSerializable
 		return $this->stubOptions;
 	}
 
-	public function setFooter(string $footer, array $options = [])
+	public function setFooter(string $footer, array $options = []): self
 	{
 		if (strlen($footer) > 0)
 		{
 			$this->footer = $footer;
 			$this->footerOptions = $options;
 		}
+
+		return $this;
 	}
 
 	public function getFooter(): ?string
@@ -230,11 +268,42 @@ class Tab implements \JsonSerializable
 		return $this->footerOptions;
 	}
 
+	public function canShowDefaultFooter(): bool
+	{
+		return $this->showDefaultFooter;
+	}
+
+	public function enableDefaultFooter(): self
+	{
+		$this->showDefaultFooter = true;
+
+		return $this;
+	}
+
+	public function disableDefaultFooter(): self
+	{
+		$this->showDefaultFooter = false;
+
+		return $this;
+	}
+
+	public function setShowAvatars(bool $flag): self
+	{
+		$this->showAvatars = $flag;
+
+		return $this;
+	}
+
+	public function getShowAvatars(): ?bool
+	{
+		return $this->showAvatars;
+	}
+
 	public function jsonSerialize()
 	{
 		$json = [
 			'id' => $this->getId(),
-			'title' => $this->getTitle(),
+			'title' => $this->getTitleNode(),
 			'visible' => $this->isVisible(),
 			'itemOrder' => $this->getItemOrder(),
 			'itemMaxDepth' => $this->getItemMaxDepth(),
@@ -257,6 +326,16 @@ class Tab implements \JsonSerializable
 		{
 			$json['footer'] = $this->getFooter();
 			$json['footerOptions'] = $this->getFooterOptions();
+		}
+
+		if (!$this->canShowDefaultFooter())
+		{
+			$json['showDefaultFooter'] = false;
+		}
+
+		if ($this->getShowAvatars() !== null)
+		{
+			$json['showAvatars'] = $this->getShowAvatars();
 		}
 
 		return $json;

@@ -109,6 +109,10 @@ export default class TagSelector extends EventEmitter
 		return this.dialog;
 	}
 
+	/**
+	 * @internal
+	 * @param dialog
+	 */
 	setDialog(dialog: ?Dialog): void
 	{
 		this.dialog = dialog;
@@ -344,6 +348,9 @@ export default class TagSelector extends EventEmitter
 		return this.rendered;
 	}
 
+	/**
+	 * @private
+	 */
 	updateTags(): void
 	{
 		if (this.isRendered())
@@ -456,6 +463,7 @@ export default class TagSelector extends EventEmitter
 	clearTextBox(): void
 	{
 		this.getTextBox().value = '';
+		this.textBoxOldValue = '';
 	}
 
 	showTextBox(): void
@@ -764,7 +772,7 @@ export default class TagSelector extends EventEmitter
 
 	handleContainerClick(event: MouseEvent): void
 	{
-		this.emit('onContainerClick', { selector: this, event });
+		this.emit('onContainerClick', { event });
 	}
 
 	handleTextBoxInput(event: InputEvent): void
@@ -773,17 +781,17 @@ export default class TagSelector extends EventEmitter
 		if (newValue !== this.textBoxOldValue)
 		{
 			this.textBoxOldValue = newValue;
-			this.emit('onInput', { selector: this, event });
+			this.emit('onInput', { event });
 		}
 	}
 
 	handleTextBoxBlur(event: FocusEvent): void
 	{
-		this.emit('onBlur', { selector: this, event });
+		this.emit('onBlur', { event });
 
 		if (this.textBoxAutoHide)
 		{
-			this.getTextBox().value = '';
+			this.clearTextBox();
 			this.showAddButton();
 			this.hideTextBox();
 		}
@@ -791,15 +799,15 @@ export default class TagSelector extends EventEmitter
 
 	handleTextBoxKeyUp(event: KeyboardEvent): void
 	{
-		this.emit('onKeyUp', { selector: this, event });
+		this.emit('onKeyUp', { event });
 
 		if (event.key === 'Enter')
 		{
-			this.emit('onEnter', { selector: this, event });
+			this.emit('onEnter', { event });
 
 			if (this.textBoxAutoHide)
 			{
-				this.getTextBox().value = '';
+				this.clearTextBox();
 				this.showAddButton();
 				this.hideTextBox();
 			}
@@ -815,11 +823,11 @@ export default class TagSelector extends EventEmitter
 
 			if ((Browser.isMac() && event.metaKey) || event.ctrlKey)
 			{
-				this.emit('onMetaEnter', { selector: this, event });
+				this.emit('onMetaEnter', { event });
 			}
 		}
 
-		this.emit('onKeyDown', { selector: this, event });
+		this.emit('onKeyDown', { event });
 	}
 
 	handleAddButtonClick(event: MouseEvent): void
@@ -828,11 +836,11 @@ export default class TagSelector extends EventEmitter
 		this.showTextBox();
 		this.focusTextBox();
 
-		this.emit('onAddButtonClick', { selector: this, event });
+		this.emit('onAddButtonClick', { event });
 	}
 
 	handleCreateButtonClick(event: MouseEvent): void
 	{
-		this.emit('onCreateButtonClick', { selector: this, event });
+		this.emit('onCreateButtonClick', { event });
 	}
 }

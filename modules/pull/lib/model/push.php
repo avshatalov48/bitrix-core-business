@@ -89,7 +89,7 @@ class PushTable extends Main\Entity\DataManager
 			),
 			'DEVICE_TOKEN' => array(
 				'data_type' => 'string',
-				'required' => true,
+				'required' => false,
 				'validation' => array(__CLASS__, 'validateDeviceToken'),
 				'title' => Loc::getMessage('PUSH_ENTITY_DEVICE_TOKEN_FIELD'),
 			),
@@ -167,14 +167,24 @@ class PushTable extends Main\Entity\DataManager
 		if ($result instanceof Entity\AddResult)
 		{
 			$entity = self::getEntity();
+			$tokensReceived = !empty($data["DEVICE_TOKEN"]) || !empty($data["VOIP_TOKEN"]);
+			$checkToken = function($token) {
+				return $token == null || preg_match('~^[a-f0-9]{64}$~i', $token);
+			};
 
 			if (!$data["DEVICE_TYPE"] || !in_array($data["DEVICE_TYPE"], $availableDataTypes))
 			{
 				$result->addError(new Entity\FieldError($entity->getField("DEVICE_TYPE"), "Wrong field value", FieldError::INVALID_VALUE));
 			}
-			if (!preg_match('~^[a-f0-9]{64}$~i', $data["DEVICE_TOKEN"]) && $data["DEVICE_TYPE"] == "APPLE")
+			if(!$tokensReceived)
 			{
-				$result->addError(new Entity\FieldError($entity->getField("DEVICE_TYPE"), "Wrong format of token for iOS", FieldError::INVALID_VALUE));
+				$result->addError(new Entity\FieldError($entity->getField("DEVICE_TYPE"), "Tokens were not received", FieldError::INVALID_VALUE));
+			}
+
+			if ($data["DEVICE_TYPE"] == "APPLE")
+			{
+				if (!$checkToken($data["DEVICE_TOKEN"]) || !$checkToken($data["DEVICE_TOKEN_VOIP"]))
+					$result->addError(new Entity\FieldError($entity->getField("DEVICE_TYPE"), "Wrong format of token for iOS", FieldError::INVALID_VALUE));
 			}
 		}
 	}

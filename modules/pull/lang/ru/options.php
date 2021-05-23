@@ -63,4 +63,5 @@ $MESS["PULL_OPTIONS_CLOUD_REGISTRATION_INACTIVE"] = "Неактивна";
 $MESS["PULL_OPTIONS_CLOUD_REGISTRATION_ERROR"] = "Ошибка";
 $MESS["PULL_OPTIONS_CLOUD_ACTIVE_KEY_REQUIRED"] = "Обратите внимание, для работы с облачным сервером требуется активная лицензия";
 $MESS["PULL_OPTIONS_PUSH_SERVER_IS_REQUIRED"] = "Для корректной работы Bitrix24 необходимо либо установить и настроить сервер локально, либо воспользоваться облачным сервером 1С-Битрикс";
+$MESS["PULL_NOTIFY_OUTDATED"] = "Указанные ниже версии объявлены устаревшими и скоро перестанут поддерживаться. Используйте Bitrix Push server 2.0 или подключите облачный сервер. <a href=\"https://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=41&LESSON_ID=21636\" target=\"_blank\">Подробнее.</a>";
 ?>

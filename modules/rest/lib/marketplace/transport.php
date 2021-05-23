@@ -17,6 +17,7 @@ if(!defined('REST_MARKETPLACE_URL'))
 class Transport
 {
 	const SERVICE_URL = REST_MARKETPLACE_URL;
+	private const VERSION = 1;
 
 	const SOCKET_TIMEOUT = 10;
 	const STREAM_TIMEOUT = 10;
@@ -98,6 +99,10 @@ class Transport
 		}
 
 		$fields['action'] = $method;
+		if (Client::isSubscriptionAccess())
+		{
+			$fields['queryVersion'] = static::VERSION;
+		}
 		$fields['lang'] = LANGUAGE_ID;
 		$fields['bsm'] = ModuleManager::isModuleInstalled('intranet') ? '0' : '1';
 

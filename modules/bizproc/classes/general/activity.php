@@ -688,6 +688,11 @@ abstract class CBPActivity
 				$result = new Bizproc\BaseType\Value\Date();
 				$property = array('Type' => 'date');
 			}
+			elseif ($systemField === 'eol')
+			{
+				$result = PHP_EOL;
+				$property = ['Type' => 'string'];
+			}
 			if ($result === null)
 			{
 				$return = false;
@@ -1027,19 +1032,7 @@ abstract class CBPActivity
 		if ($stream == '')
 			throw new Exception("stream");
 
-		$pos = mb_strpos($stream, ";");
-		$strUsedActivities = mb_substr($stream, 0, $pos);
-		$stream = mb_substr($stream, $pos + 1);
-
-		$runtime = CBPRuntime::GetRuntime();
-		$arUsedActivities = explode(",", $strUsedActivities);
-
-		foreach ($arUsedActivities as $activityCode)
-		{
-			$runtime->IncludeActivityFile($activityCode);
-		}
-
-		return unserialize($stream);
+		return CBPRuntime::GetRuntime()->unserializeWorkflowStream($stream);
 	}
 
 	protected function GetACNames()

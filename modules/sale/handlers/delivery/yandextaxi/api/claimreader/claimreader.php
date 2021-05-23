@@ -412,15 +412,19 @@ final class ClaimReader
 		{
 			$result->setTaxiClass($node['taxi_class']);
 		}
-		if (isset($node['cargo_type']))
+
+		$options = [];
+		foreach ($node as $key => $value)
 		{
-			$result->setCargoType($node['cargo_type']);
+			if ($key === 'taxi_class')
+			{
+				continue;
+			}
+
+			$options[$key] = $value;
 		}
-		if (isset($node['cargo_loaders']))
-		{
-			$result->setCargoLoaders($node['cargo_loaders']);
-		}
-		
+		$result->setOptions($options);
+
 		return $result;
 	}
 }

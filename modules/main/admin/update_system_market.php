@@ -800,7 +800,7 @@ else
 
 	if($arResult["modules"]["#"]["navData"][0]["#"] <> '')
 	{
-		$dat = unserialize($arResult["modules"]["#"]["navData"][0]["#"]);
+		$dat = unserialize($arResult["modules"]["#"]["navData"][0]["#"], ['allowed_classes' => false]);
 		if(intval($dat["NavPageCount"]) > 1)
 		{
 			$dbRes = new CDBResult;

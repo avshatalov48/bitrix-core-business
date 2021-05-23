@@ -546,12 +546,12 @@ class OrderEdit
 					//Let's extract cached provider product data from field
 					if(!empty($productData["PROVIDER_DATA"]) && CheckSerializedData($productData["PROVIDER_DATA"]))
 					{
-						$providerData = unserialize($productData["PROVIDER_DATA"]);
+						$providerData = unserialize($productData["PROVIDER_DATA"], ['allowed_classes' => false]);
 						self::setProviderTrustData($item, $order, $providerData);
 					}
 
 					if(!empty($productData["SET_ITEMS_DATA"]) && CheckSerializedData($productData["SET_ITEMS_DATA"]))
-						$productData["SET_ITEMS"] = unserialize($productData["SET_ITEMS_DATA"]);
+						$productData["SET_ITEMS"] = unserialize($productData["SET_ITEMS_DATA"], ['allowed_classes' => false]);
 
 					$res = $item->setField("QUANTITY", $item->getField("QUANTITY")+$productData["QUANTITY"]);
 
@@ -967,14 +967,14 @@ class OrderEdit
 
 					if(!empty($productData["PROVIDER_DATA"]) && !self::$needUpdateNewProductPrice && CheckSerializedData($productData["PROVIDER_DATA"]))
 					{
-						$providerData = unserialize($productData["PROVIDER_DATA"]);
+						$providerData = unserialize($productData["PROVIDER_DATA"], ['allowed_classes' => false]);
 					}
 
 					if(is_array($providerData) && !empty($providerData))
 						self::setProviderTrustData($item, $order, $providerData);
 
 					if(!empty($productData["SET_ITEMS_DATA"]) && CheckSerializedData($productData["SET_ITEMS_DATA"]))
-						$productData["SET_ITEMS"] = unserialize($productData["SET_ITEMS_DATA"]);
+						$productData["SET_ITEMS"] = unserialize($productData["SET_ITEMS_DATA"], ['allowed_classes' => false]);
 
 					/** @var \Bitrix\Sale\Result $res */
 					$res = self::setBasketItemFields($item, $itemFields);
@@ -1189,13 +1189,13 @@ class OrderEdit
 			if(self::$isTrustProductFormData && !$isDataNeedUpdate)
 			{
 				if(!empty($productData["PROVIDER_DATA"]) && CheckSerializedData($productData["PROVIDER_DATA"]))
-					$trustData[$basketCode] = unserialize($productData["PROVIDER_DATA"]);
+					$trustData[$basketCode] = unserialize($productData["PROVIDER_DATA"], ['allowed_classes' => false]);
 
 				// if quantity changed we must get fresh data from provider
 				if(!empty($trustData[$basketCode]) && $trustData[$basketCode]["QUANTITY"] == $productData["QUANTITY"])
 				{
 					if(!empty($productData["SET_ITEMS_DATA"]) && CheckSerializedData($productData["SET_ITEMS_DATA"]))
-						$productData["SET_ITEMS"] = unserialize($productData["SET_ITEMS_DATA"]);
+						$productData["SET_ITEMS"] = unserialize($productData["SET_ITEMS_DATA"], ['allowed_classes' => false]);
 
 					if(is_array($trustData[$basketCode]) && !empty($trustData[$basketCode]))
 						self::setProviderTrustData($item, $order, $trustData[$basketCode]);
@@ -1471,13 +1471,13 @@ class OrderEdit
 		if(self::$isTrustProductFormData && !$needDataUpdate)
 		{
 			if(!empty($productData["PROVIDER_DATA"]) && CheckSerializedData($productData["PROVIDER_DATA"]))
-				$data[$basketCode] = unserialize($productData["PROVIDER_DATA"]);
+				$data[$basketCode] = unserialize($productData["PROVIDER_DATA"], ['allowed_classes' => false]);
 
 			// if quantity changed we must get fresh data from provider
 			if(!empty($data[$basketCode]) && $data[$basketCode] == $productData["QUANTITY"])
 			{
 				if(!empty($productData["SET_ITEMS_DATA"]) && CheckSerializedData($productData["SET_ITEMS_DATA"]))
-					$productData["SET_ITEMS"] = unserialize($productData["SET_ITEMS_DATA"]);
+					$productData["SET_ITEMS"] = unserialize($productData["SET_ITEMS_DATA"], ['allowed_classes' => false]);
 
 				if(is_array($data[$basketCode]) && !empty($data[$basketCode]))
 					self::setProviderTrustData($item, $order, $data[$basketCode]);

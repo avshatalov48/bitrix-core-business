@@ -4,9 +4,7 @@ namespace Bitrix\Sale\Cashbox\Internals\Analytics;
 use Bitrix\Sale\Internals\Analytics,
 	Bitrix\Sale\Cashbox\CheckManager,
 	Bitrix\Sale\Cashbox\Manager,
-	Bitrix\Main\Type\DateTime,
-	Bitrix\Main\Loader,
-	Bitrix\Main\Context;
+	Bitrix\Main\Type\DateTime;
 
 /**
  * Class Cachbox
@@ -38,10 +36,13 @@ final class Provider extends Analytics\Provider
 		/** @var \Bitrix\Sale\Cashbox\Cashbox $cashboxHandler */
 		foreach ($this->getCashboxHandlers() as $cashboxHandler)
 		{
-			if ($this->isCheckExists($cashboxHandler, $dateFrom, $dateTo))
+			$checkData = $this->getCheckData($cashboxHandler, $dateFrom, $dateTo);
+			if ($checkData)
 			{
-				$data['cashbox'] = $cashboxHandler::getCode();
-				$result[] = $data;
+				$result[] = [
+					'cashbox' => $cashboxHandler::getCode(),
+					'date_time' => $checkData['date_time'],
+				];
 			}
 		}
 
@@ -56,6 +57,7 @@ final class Provider extends Analytics\Provider
 		return [
 			\Bitrix\Sale\Cashbox\CashboxOrangeData::class,
 			\Bitrix\Sale\Cashbox\CashboxCheckbox::class,
+			\Bitrix\Sale\Cashbox\CashboxBusinessRu::class,
 		];
 	}
 
@@ -63,21 +65,23 @@ final class Provider extends Analytics\Provider
 	 * @param string $cashboxHandler
 	 * @param DateTime $dateFrom
 	 * @param DateTime $dateTo
-	 * @return bool
+	 * @return array
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	private function isCheckExists(string $cashboxHandler, DateTime $dateFrom, DateTime $dateTo): bool
+	private function getCheckData(string $cashboxHandler, DateTime $dateFrom, DateTime $dateTo): array
 	{
 		$cashboxIdList = $this->getCashboxIdList($cashboxHandler);
 		if (!$cashboxIdList)
 		{
-			return false;
+			return [];
 		}
 
-		return (bool)CheckManager::getList([
-			'select' => ['ID'],
+		$result = [];
+
+		$checkData = CheckManager::getList([
+			'select' => ['ID', 'DATE_PRINT_END'],
 			'filter' => [
 				'CASHBOX_ID' => $cashboxIdList,
 				'STATUS' => 'Y',
@@ -85,7 +89,16 @@ final class Provider extends Analytics\Provider
 				'<=DATE_PRINT_END' => $dateTo,
 			],
 			'limit' => 1,
+			'order' => ['ID' => 'DESC'],
 		])->fetch();
+		if ($checkData)
+		{
+			$result = [
+				'date_time' => $checkData['DATE_PRINT_END']->format('Y-m-01'),
+			];
+		}
+
+		return $result;
 	}
 
 	/**
@@ -112,19 +125,5 @@ final class Provider extends Analytics\Provider
 		}
 
 		return $result;
-	}
-
-	/**
-	 * @param array $data
-	 * @return string
-	 * @throws \Bitrix\Main\LoaderException
-	 */
-	protected function getHash(array $data): string
-	{
-		$hostName = Loader::includeModule('bitrix24')
-			? BX24_HOST_NAME
-			: Context::getCurrent()->getRequest()->getHttpHost();
-
-		return md5((new \DateTime())->format('m.Y').serialize($data).$hostName);
 	}
 }

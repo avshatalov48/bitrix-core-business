@@ -2,7 +2,6 @@
 
 namespace Bitrix\Catalog\v2\MeasureRatio;
 
-use Bitrix\Catalog\v2\BaseCollection;
 use Bitrix\Catalog\v2\BaseEntity;
 use Bitrix\Catalog\v2\Fields\TypeCasters\MapTypeCaster;
 
@@ -19,20 +18,6 @@ abstract class BaseMeasureRatio extends BaseEntity
 	public function __construct(MeasureRatioRepositoryContract $measureRatioRepository)
 	{
 		parent::__construct($measureRatioRepository);
-	}
-
-	public function setParentCollection(?BaseCollection $collection): BaseEntity
-	{
-		parent::setParentCollection($collection);
-
-		$parent = $this->getParent();
-
-		if ($parent && !$parent->isNew())
-		{
-			$this->setProductId($parent->getId());
-		}
-
-		return $this;
 	}
 
 	public function setRatio(float $ratio): self

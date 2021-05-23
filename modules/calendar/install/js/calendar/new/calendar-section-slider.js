@@ -389,14 +389,29 @@
 
 		switchSection: function(section)
 		{
-			if (BX.hasClass(section.DOM.checkbox, 'calendar-list-slider-item-checkbox-checked'))
+			var checkboxNodes = this.sectionListWrap.querySelectorAll(
+				'.calendar-list-slider-item[data-bx-calendar-section=\''
+				+ section.id
+				+ '\'] .calendar-list-slider-item-checkbox');
+
+			for (var i = 0; i < checkboxNodes.length; i++)
 			{
-				BX.removeClass(section.DOM.checkbox, 'calendar-list-slider-item-checkbox-checked');
+				if (section.isShown())
+				{
+					BX.removeClass(checkboxNodes[i], 'calendar-list-slider-item-checkbox-checked');
+				}
+				else
+				{
+					BX.addClass(checkboxNodes[i], 'calendar-list-slider-item-checkbox-checked');
+				}
+			}
+
+			if (section.isShown())
+			{
 				section.hide();
 			}
 			else
 			{
-				BX.addClass(section.DOM.checkbox, 'calendar-list-slider-item-checkbox-checked');
 				section.show();
 			}
 			this.calendar.reload();
@@ -462,11 +477,18 @@
 					text: BX.message('EC_ACTION_EXPORT'), onclick: BX.delegate(function ()
 					{
 						this.sectionActionMenu.close();
-						if (!this.calendar.syncSlider)
+						var options = {
+							sectionLink: section.data.EXPORT.LINK,
+							calendarPath: this.calendar.util.config.path,
+						};
+						if (BX.Calendar.Sync.Interface.IcalSyncPopup.checkPathes(options))
 						{
-							this.calendar.syncSlider = new window.BXEventCalendar.SyncSlider({calendar: this.calendar});
+							BX.Calendar.Sync.Interface.IcalSyncPopup.createInstance(options).show();
 						}
-						this.calendar.syncSlider.showICalExportDialog(section);
+						else
+						{
+							BX.Calendar.Sync.Interface.IcalSyncPopup.showPopupWithPathesError();
+						}
 					}, this)
 				});
 			}
@@ -495,14 +517,14 @@
 					}, this)
 				});
 
-				if (this.calendar.syncSlider)
+				if (this.calendar.syncInterface && this.calendar.syncInterface.syncButton)
 				{
 					menuItems.push({
 						text : BX.message('EC_ACTION_EXTERNAL_ADJUST'),
 						onclick: BX.delegate(function ()
 						{
 							this.sectionActionMenu.close();
-							this.calendar.syncSlider.showCalDavSyncDialog();
+							this.calendar.syncInterface.syncButton.handleClick();
 						}, this)
 					});
 				}

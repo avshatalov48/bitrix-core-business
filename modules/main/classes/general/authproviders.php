@@ -87,27 +87,6 @@ class CGroupAuthProvider extends CAuthProvider implements IProviderInterface
 		CAccess::RecalculateForUser($USER_ID, self::ID);
 	}
 
-	public static function OnUserLogin($USER_ID)
-	{
-		global $USER;
-		
-		$arGroups = $USER->GetUserGroupArray();
-		
-		$arCodes = array();
-		$res = CAccess::GetUserCodes($USER_ID, array("PROVIDER_ID" => self::ID));
-		while($arCode = $res->Fetch())
-		{
-			$arCodes[] = substr($arCode["ACCESS_CODE"], 1);
-		}
-		
-		sort($arCodes);
-		
-		if($arCodes <> $arGroups)
-		{
-			CAccess::RecalculateForUser($USER_ID, self::ID);
-		}
-	}
-
 	protected static function RecalculateForGroup($ID)
 	{
 		global $DB;
@@ -116,6 +95,31 @@ class CGroupAuthProvider extends CAuthProvider implements IProviderInterface
 		while($user = $users->Fetch())
 		{
 			CAccess::RecalculateForUser($user["USER_ID"], self::ID);
+		}
+	}
+
+	/**
+	 * @todo Remove later.
+	 * @param $USER_ID
+	 */
+	public static function OnUserLogin($USER_ID)
+	{
+		global $USER;
+
+		$arGroups = $USER->GetUserGroupArray();
+
+		$arCodes = array();
+		$res = CAccess::GetUserCodes($USER_ID, array("PROVIDER_ID" => self::ID));
+		while($arCode = $res->Fetch())
+		{
+			$arCodes[] = substr($arCode["ACCESS_CODE"], 1);
+		}
+
+		sort($arCodes);
+
+		if($arCodes <> $arGroups)
+		{
+			CAccess::RecalculateForUser($USER_ID, self::ID);
 		}
 	}
 

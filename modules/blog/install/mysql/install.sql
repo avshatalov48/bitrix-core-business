@@ -88,6 +88,7 @@ create table b_blog_post
 ,  SEO_TITLE varchar(255) null
 ,  SEO_TAGS varchar(255) null
 ,  SEO_DESCRIPTION text null
+,  BACKGROUND_CODE varchar(100) null
 ,  primary key (ID)
 ,  index IX_BLOG_POST_1(BLOG_ID, PUBLISH_STATUS, DATE_PUBLISH)
 ,  index IX_BLOG_POST_2(BLOG_ID, DATE_PUBLISH, PUBLISH_STATUS)

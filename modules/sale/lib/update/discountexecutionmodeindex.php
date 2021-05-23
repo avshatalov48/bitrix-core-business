@@ -79,7 +79,7 @@ final class DiscountExecutionModeIndex extends Stepper
 	protected function loadCurrentStatus()
 	{
 		$status = Option::get('sale', 'discountexecutionmodeindex', '');
-		$status = ($status !== '' ? @unserialize($status) : array());
+		$status = ($status !== '' ? @unserialize($status, ['allowed_classes' => false]) : array());
 		$status = (is_array($status) ? $status : array());
 
 		if (empty($status))

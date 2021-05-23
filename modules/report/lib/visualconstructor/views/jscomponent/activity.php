@@ -128,7 +128,7 @@ class Activity extends Base
 	 *
 	 * @return array
 	 */
-	private function getWeekDaysMap()
+	protected function getWeekDaysMap()
 	{
 		return array(
 			array(
@@ -170,7 +170,7 @@ class Activity extends Base
 	 *
 	 * @return array
 	 */
-	private function getHourList()
+	protected function getHourList()
 	{
 		$result = array();
 		for ($i = 1; $i <= 24; $i++)

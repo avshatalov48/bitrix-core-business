@@ -2,7 +2,6 @@
 
 namespace Bitrix\Catalog\v2\Property;
 
-use Bitrix\Catalog\v2\BaseCollection;
 use Bitrix\Catalog\v2\BaseEntity;
 use Bitrix\Catalog\v2\BaseIblockElementEntity;
 use Bitrix\Catalog\v2\PropertyValue\PropertyValueFactory;
@@ -124,11 +123,14 @@ class PropertyRepository implements PropertyRepositoryContract
 
 		if (!empty($props) && $result->isSuccess())
 		{
-			\CIBlockElement::setPropertyValues(
-				$parentEntity->getId(),
-				$parentEntity->getIblockId(),
-				$props
-			);
+			$element = new \CIBlockElement();
+			$res = $element->update($parentEntity->getId(), [
+				'PROPERTY_VALUES' => $props
+			]);
+			if (!$res)
+			{
+				$result->addError(new Error($element->LAST_ERROR));
+			}
 		}
 
 		return $result;
@@ -139,7 +141,7 @@ class PropertyRepository implements PropertyRepositoryContract
 		return new Result();
 	}
 
-	public function getCollectionByParent(BaseIblockElementEntity $entity): BaseCollection
+	public function getCollectionByParent(BaseIblockElementEntity $entity): PropertyCollection
 	{
 		if ($entity->isNew())
 		{
@@ -215,9 +217,9 @@ class PropertyRepository implements PropertyRepositoryContract
 		return $result;
 	}
 
-	protected function createCollection(array $entityFields, BaseIblockElementEntity $parent): BaseCollection
+	protected function createCollection(array $entityFields, BaseIblockElementEntity $parent): PropertyCollection
 	{
-		$collection = $this->factory->createCollection($parent);
+		$collection = $this->factory->createCollection();
 
 		$propertySettings = null;
 		// ToDo if has no section collection - check parents? (in case when SKU)
@@ -247,12 +249,10 @@ class PropertyRepository implements PropertyRepositoryContract
 			$settings = $this->prepareSettings($settings);
 			$fields = $this->prepareField($entityFields[$settings['ID']] ?? [], $settings);
 
-			/** @var \Bitrix\Catalog\v2\Property\Property $property */
 			$property = $this->createEntity();
 			$property->setSettings($settings);
 
-			/** @var \Bitrix\Catalog\v2\PropertyValue\PropertyValueCollection $propertyValueCollection */
-			$propertyValueCollection = $this->propertyValueFactory->createCollection($property);
+			$propertyValueCollection = $this->propertyValueFactory->createCollection();
 			$propertyValueCollection->initValues($fields);
 
 			$property->setPropertyValueCollection($propertyValueCollection);
@@ -298,7 +298,7 @@ class PropertyRepository implements PropertyRepositoryContract
 			{
 				$userType = \CIBlockProperty::GetUserType($settings['USER_TYPE']);
 
-				if (array_key_exists('ConvertFromDB', $userType))
+				if (isset($userType['ConvertFromDB']))
 				{
 					$field = call_user_func($userType['ConvertFromDB'], $settings, $field);
 				}
@@ -319,7 +319,7 @@ class PropertyRepository implements PropertyRepositoryContract
 		return $settings;
 	}
 
-	protected function createEntity(array $fields = []): BaseEntity
+	protected function createEntity(array $fields = []): Property
 	{
 		$entity = $this->factory->createEntity();
 

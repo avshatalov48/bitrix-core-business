@@ -3,7 +3,7 @@
 $dbSite = CSite::GetByID(WIZARD_SITE_ID);
 if($arSite = $dbSite -> Fetch())
 	$lid = $arSite["LANGUAGE_ID"];
-if(strlen($lid) <= 0)
+if($lid == '')
 	$lid = "ru";
 
 $dbEvent = CEventMessage::GetList($b="ID", $order="ASC", Array("EVENT_NAME" => "SALE_NEW_ORDER", "SITE_ID" => WIZARD_SITE_ID));

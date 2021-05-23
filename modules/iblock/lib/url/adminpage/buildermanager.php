@@ -7,15 +7,15 @@ class BuilderManager
 {
 	public const EVENT_ID = 'onGetUrlBuilders';
 
-	private static $instance = null;
+	private static $instance;
 
-	protected $mode = null;
+	protected $mode;
 
 	/** @var BaseBuilder[] */
-	protected $builders = null;
+	protected $builders;
 
 	/** @var array */
-	protected $map = null;
+	protected $map;
 
 	protected function __construct()
 	{

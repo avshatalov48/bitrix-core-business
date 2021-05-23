@@ -537,7 +537,7 @@ class CSaleActionGiftCtrlGroup extends CSaleActionCtrlGroup
 				(empty($fields['ACTIONS_LIST']) || !is_array($fields['ACTIONS_LIST']))
 				&& CheckSerializedData($fields['ACTIONS']))
 		{
-			$actions = unserialize($fields['ACTIONS']);
+			$actions = unserialize($fields['ACTIONS'], ['allowed_classes' => false]);
 		}
 		else
 		{
@@ -997,7 +997,7 @@ class CSaleActionGift extends CSaleActionCtrl
 				(empty($fields['ACTIONS_LIST']) || !is_array($fields['ACTIONS_LIST']))
 				&& CheckSerializedData($fields['ACTIONS']))
 		{
-			$actions = unserialize($fields['ACTIONS']);
+			$actions = unserialize($fields['ACTIONS'], ['allowed_classes' => false]);
 		}
 		else
 		{
@@ -1632,6 +1632,11 @@ class CSaleActionTree extends CGlobalCondTree
 			$arParams['ROW_NUM'] = $intRowNum;
 			if (!empty($arLevel['CLASS_ID']))
 			{
+				$defaultBlock = $this->GetDefaultConditions();
+				if ($arLevel['CLASS_ID'] !== $defaultBlock['CLASS_ID'])
+				{
+					return false;
+				}
 				if (isset($this->arControlList[$arLevel['CLASS_ID']]))
 				{
 					$arOneControl = $this->arControlList[$arLevel['CLASS_ID']];

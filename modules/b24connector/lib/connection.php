@@ -7,7 +7,6 @@ use Bitrix\Main\Result;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Socialservices\ApTable;
-use Bitrix\Socialservices\ContactConnectTable;
 
 Loc::loadMessages(__FILE__);
 

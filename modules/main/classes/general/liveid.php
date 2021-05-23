@@ -25,11 +25,11 @@ class WLL_User
     */
 	public function __construct($timestamp, $id, $flags, $context, $token)
 	{
-		WLL_User::setTimestamp($timestamp);
-		WLL_User::setId($id);
-		WLL_User::setFlags($flags);
-		WLL_User::setContext($context);
-		WLL_User::setToken($token);
+		$this->setTimestamp($timestamp);
+		$this->setId($id);
+		$this->setFlags($flags);
+		$this->setContext($context);
+		$this->setToken($token);
 	}
 
 	/*private*/
@@ -196,12 +196,12 @@ class WLL_ConsentToken
 	/*public*/
 	function isValid()
 	{
-		if (!WLL_ConsentToken::getDelegationToken()) {
+		if (!$this->getDelegationToken()) {
 			return false;
 		}
 
 		$now = time();
-		return (($now-300) < WLL_ConsentToken::getExpiry());
+		return (($now-300) < $this->getExpiry());
 	}
 
 	/**
@@ -216,7 +216,7 @@ class WLL_ConsentToken
 		if (!$ct) {
 			return false;
 		}
-		WLL_ConsentToken::copy($ct);
+		$this->copy($ct);
 		return true;
 	}
 
@@ -235,15 +235,15 @@ class WLL_ConsentToken
 				)
 	{
 		$this->_wll = $wll;
-		WLL_ConsentToken::setDelegationToken($delegationtoken);
-		WLL_ConsentToken::setRefreshToken($refreshtoken);
-		WLL_ConsentToken::setSessionKey($sessionkey);
-		WLL_ConsentToken::setExpiry($expiry);
-		WLL_ConsentToken::setOffers($offers);
-		WLL_ConsentToken::setLocationID($locationID);
-		WLL_ConsentToken::setContext($context);
-		WLL_ConsentToken::setDecodedToken($decodedtoken);
-		WLL_ConsentToken::setToken($token);
+		$this->setDelegationToken($delegationtoken);
+		$this->setRefreshToken($refreshtoken);
+		$this->setSessionKey($sessionkey);
+		$this->setExpiry($expiry);
+		$this->setOffers($offers);
+		$this->setLocationID($locationID);
+		$this->setContext($context);
+		$this->setDecodedToken($decodedtoken);
+		$this->setToken($token);
 	}
 
 	/*private*/
@@ -562,7 +562,7 @@ class WindowsLiveLogin
 	/*private*/
 	function fatal($string)
 	{
-		WindowsLiveLogin::debug($string);
+		$this->debug($string);
 		//throw new Exception($string);
 		$this->setError($string);
 	}
@@ -596,22 +596,22 @@ class WindowsLiveLogin
 					$policyurl=null, $returnurl=null
 				)
 	{
-		WindowsLiveLogin::setForceDelAuthNonProvisioned($force_delauth_nonprovisioned);
+		$this->setForceDelAuthNonProvisioned($force_delauth_nonprovisioned);
 
 		if ($appid) {
-			WindowsLiveLogin::setAppId($appid);
+			$this->setAppId($appid);
 		}
 		if ($secret) {
-			WindowsLiveLogin::setSecret($secret);
+			$this->setSecret($secret);
 		}
 		if ($securityalgorithm) {
-			WindowsLiveLogin::setSecurityAlgorithm($securityalgorithm);
+			$this->setSecurityAlgorithm($securityalgorithm);
 		}
 		if ($policyurl) {
-			WindowsLiveLogin::setPolicyUrl($policyurl);
+			$this->setPolicyUrl($policyurl);
 		}
 		if ($returnurl) {
-			WindowsLiveLogin::setReturnUrl($returnurl);
+			$this->setReturnUrl($returnurl);
 		}
 	}
 
@@ -684,10 +684,10 @@ class WindowsLiveLogin
 			if ($_force_delauth_nonprovisioned) {
 				return;
 			}
-			WindowsLiveLogin::fatal('Error: setAppId: Null application ID.');
+			$this->fatal('Error: setAppId: Null application ID.');
 		}
 		if (!preg_match('/^\w+$/', $appid)) {
-			WindowsLiveLogin::fatal("Error: setAppId: Application ID must be alpha-numeric: $appid");
+			$this->fatal("Error: setAppId: Application ID must be alpha-numeric: $appid");
 		}
 		$this->_appid = $appid;
 	}
@@ -699,7 +699,7 @@ class WindowsLiveLogin
 	function getAppId()
 	{
 		if (!$this->_appid) {
-			WindowsLiveLogin::fatal('Error: getAppId: Application ID was not set. Aborting.');
+			$this->fatal('Error: getAppId: Application ID was not set. Aborting.');
 		}
 		return $this->_appid;
 	}
@@ -717,15 +717,15 @@ class WindowsLiveLogin
 	function setSecret($secret)
 	{
 		$_force_delauth_nonprovisioned = $this->_force_delauth_nonprovisioned;
-		if (!$secret || (mb_strlen($secret) < 16)) {
+		if (!$secret || (strlen($secret) < 16)) {
 			if ($_force_delauth_nonprovisioned) {
 				return;
 			}
-			WindowsLiveLogin::fatal("Error: setSecret: Secret key is expected to be non-null and longer than 16 characters.");
+			$this->fatal("Error: setSecret: Secret key is expected to be non-null and longer than 16 characters.");
 		}
 
-		$this->_signkey  = WindowsLiveLogin::derive($secret, "SIGNATURE");
-		$this->_cryptkey = WindowsLiveLogin::derive($secret, "ENCRYPTION");
+		$this->_signkey  = $this->derive($secret, "SIGNATURE");
+		$this->_cryptkey = $this->derive($secret, "ENCRYPTION");
 	}
 
 	/*private*/
@@ -753,12 +753,12 @@ class WindowsLiveLogin
 		if (!$secret) {
 			return;
 		}
-		if (mb_strlen($secret) < 16) {
-			WindowsLiveLogin::fatal("Error: setOldSecret: Secret key is expected to be non-null and longer than 16 characters.");
+		if (strlen($secret) < 16) {
+			$this->fatal("Error: setOldSecret: Secret key is expected to be non-null and longer than 16 characters.");
 		}
 
-		$this->_oldsignkey  = WindowsLiveLogin::derive($secret, "SIGNATURE");
-		$this->_oldcryptkey = WindowsLiveLogin::derive($secret, "ENCRYPTION");
+		$this->_oldsignkey  = $this->derive($secret, "SIGNATURE");
+		$this->_oldcryptkey = $this->derive($secret, "ENCRYPTION");
 	}
 
 	/*private*/
@@ -781,7 +781,7 @@ class WindowsLiveLogin
 		}
 
 		if (!preg_match('/^\d+$/', $timestamp) || ($timestamp <= 0)) {
-			WindowsLiveLogin::fatal('Error: setOldSecretExpiry Invalid timestamp: '
+			$this->fatal('Error: setOldSecretExpiry Invalid timestamp: '
 			. $timestamp);
 		}
 
@@ -848,7 +848,7 @@ class WindowsLiveLogin
 		$_force_delauth_nonprovisioned = $this->_force_delauth_nonprovisioned;
 		if (!$policyurl) {
 			if ($_force_delauth_nonprovisioned) {
-				WindowsLiveLogin::fatal("Error: setPolicyUrl: Null policy URL given.");
+				$this->fatal("Error: setPolicyUrl: Null policy URL given.");
 			}
 		}
 		$this->_policyurl = $policyurl;
@@ -863,9 +863,9 @@ class WindowsLiveLogin
 		$policyurl = $this->_policyurl;
 		$_force_delauth_nonprovisioned = $this->_force_delauth_nonprovisioned;
 		if (!$policyurl) {
-			WindowsLiveLogin::debug("Warning: In the initial release of Delegated Auth, a Policy URL must be configured in the SDK for both provisioned and non-provisioned scenarios.");
+			$this->debug("Warning: In the initial release of Delegated Auth, a Policy URL must be configured in the SDK for both provisioned and non-provisioned scenarios.");
 			if ($_force_delauth_nonprovisioned) {
-				WindowsLiveLogin::fatal("Error: getPolicyUrl: Policy URL must be set in a Del Auth non-provisioned scenario. Aborting.");
+				$this->fatal("Error: getPolicyUrl: Policy URL must be set in a Del Auth non-provisioned scenario. Aborting.");
 			}
 		}
 		return $policyurl;
@@ -887,7 +887,7 @@ class WindowsLiveLogin
 		$_force_delauth_nonprovisioned = $this->_force_delauth_nonprovisioned;
 		if (!$returnurl) {
 			if ($_force_delauth_nonprovisioned) {
-				WindowsLiveLogin::fatal("Error: setReturnUrl: Null return URL given.");
+				$this->fatal("Error: setReturnUrl: Null return URL given.");
 			}
 		}
 		$this->_returnurl = $returnurl;
@@ -903,7 +903,7 @@ class WindowsLiveLogin
 		$returnurl = $this->_returnurl;
 		if (!$returnurl) {
 			if ($_force_delauth_nonprovisioned) {
-				WindowsLiveLogin::fatal("Error: getReturnUrl: Return URL must be set in a Del Auth non-provisioned scenario. Aborting.");
+				$this->fatal("Error: getReturnUrl: Return URL must be set in a Del Auth non-provisioned scenario. Aborting.");
 			}
 		}
 		return $returnurl;
@@ -1006,9 +1006,9 @@ class WindowsLiveLogin
 	/*public*/
 	function getLoginUrl($context=null, $market=null)
 	{
-		$url  = WindowsLiveLogin::getBaseUrl();
-		$url .= 'wlogin.srf?appid=' . WindowsLiveLogin::getAppId();
-		$url .= '&alg=' . WindowsLiveLogin::getSecurityAlgorithm();
+		$url  = $this->getBaseUrl();
+		$url .= 'wlogin.srf?appid=' . $this->getAppId();
+		$url .= '&alg=' . $this->getSecurityAlgorithm();
 		$url .= ($context ? '&appctx=' . urlencode($context) : '');
 		$url .= ($market ? '&mkt=' . urlencode($market) : '');
 		return $url;
@@ -1021,8 +1021,8 @@ class WindowsLiveLogin
 	/*public*/
 	function getLogoutUrl($market=null)
 	{
-		$url = WindowsLiveLogin::getBaseUrl();
-		$url .= "logout.srf?appid=" . WindowsLiveLogin::getAppId();
+		$url = $this->getBaseUrl();
+		$url .= "logout.srf?appid=" . $this->getAppId();
 		$url .= ($market ? '&mkt=' . urlencode($market) : '');
 		return $url;
 	}
@@ -1040,12 +1040,12 @@ class WindowsLiveLogin
 	{
 		$action = @$query['action'];
 		if ($action != 'login') {
-			WindowsLiveLogin::debug("Warning: processLogin: query action ignored: $action");
+			$this->debug("Warning: processLogin: query action ignored: $action");
 			return;
 		}
 		$token  = @$query['stoken'];
 		$context = urldecode(@$query['appctx']);
-		return WindowsLiveLogin::processToken($token, $context);
+		return $this->processToken($token, $context);
 	}
 
 	/**
@@ -1057,26 +1057,26 @@ class WindowsLiveLogin
 	function processToken($token, $context=null)
 	{
 		if (!$token) {
-			WindowsLiveLogin::debug('Error: processToken: Invalid token specified.');
+			$this->debug('Error: processToken: Invalid token specified.');
 			return;
 		}
 
-		$decodedToken = WindowsLiveLogin::decodeAndValidateToken($token);
+		$decodedToken = $this->decodeAndValidateToken($token);
 		if (!$decodedToken) {
-			WindowsLiveLogin::debug("Error: processToken: Failed to decode/validate token: $token");
+			$this->debug("Error: processToken: Failed to decode/validate token: $token");
 			return;
 		}
 
-		$parsedToken = WindowsLiveLogin::parse($decodedToken);
+		$parsedToken = $this->parse($decodedToken);
 		if (!$parsedToken) {
-			WindowsLiveLogin::debug("Error: processToken: Failed to parse token after decoding: $token");
+			$this->debug("Error: processToken: Failed to parse token after decoding: $token");
 			return;
 		}
 
-		$appid = WindowsLiveLogin::getAppId();
+		$appid = $this->getAppId();
 		$tokenappid = @$parsedToken['appid'];
 		if ($appid != $tokenappid) {
-			WindowsLiveLogin::debug("Error: processToken: Application ID in token did not match ours: $tokenappid, $appid");
+			$this->debug("Error: processToken: Application ID in token did not match ours: $tokenappid, $appid");
 			return;
 		}
 
@@ -1089,7 +1089,7 @@ class WindowsLiveLogin
 			$context, $token);
 		//} catch (Exception $e) {
 		if ($user->getError() !== false)
-			WindowsLiveLogin::debug("Error: processToken: Contents of token considered invalid: " + $user->getError());
+			$this->debug("Error: processToken: Contents of token considered invalid: " + $user->getError());
 		//}
 
 		return $user;
@@ -1143,15 +1143,15 @@ class WindowsLiveLogin
 			$this->setError('Error: getConsentUrl: Invalid offers list.');
 			return false;
 		}
-		$url  = WindowsLiveLogin::getConsentBaseUrl();
+		$url  = $this->getConsentBaseUrl();
 		$url .= 'Delegation.aspx?ps=' . urlencode($offers);
-		$ru = ($ru ? $ru : WindowsLiveLogin::getReturnUrl());
+		$ru = ($ru ? $ru : $this->getReturnUrl());
 		$url .= ($ru ? '&ru=' . urlencode($ru) : '');
-		$pl = WindowsLiveLogin::getPolicyUrl();
+		$pl = $this->getPolicyUrl();
 		$url .= ($pl ? '&pl=' . urlencode($pl) : '');
 		$url .= ($market ? '&mkt=' . urlencode($market) : '');
 		if (!$this->_force_delauth_nonprovisioned) {
-			$url .= '&app=' . WindowsLiveLogin::getAppVerifier();
+			$url .= '&app=' . $this->getAppVerifier();
 		}
 		$url .= ($context ? '&appctx=' . urlencode($context) : '');
 		return $url;
@@ -1179,14 +1179,14 @@ class WindowsLiveLogin
 			return false;
 		}
 
-		$url  = WindowsLiveLogin::getConsentBaseUrl();
+		$url  = $this->getConsentBaseUrl();
 		$url .= 'RefreshToken.aspx?ps=' . urlencode($offers);
 		$url .= '&reft=' . $refreshtoken;
-		$ru = ($ru ? $ru : WindowsLiveLogin::getReturnUrl());
+		$ru = ($ru ? $ru : $this->getReturnUrl());
 		$url .= ($ru ? '&ru=' . urlencode($ru) : '');
 
 		if (!$this->_force_delauth_nonprovisioned) {
-			$url .= '&app=' . WindowsLiveLogin::getAppVerifier();
+			$url .= '&app=' . $this->getAppVerifier();
 		}
 
 		return $url;
@@ -1202,7 +1202,7 @@ class WindowsLiveLogin
 	/*public*/
 	function getManageConsentUrl($market=null)
 	{
-		$url  = WindowsLiveLogin::getConsentBaseUrl();
+		$url  = $this->getConsentBaseUrl();
 		$url .= 'ManageConsent.aspx';
 		$url .= ($market ? '?mkt=' . urlencode($market) : '');
 		return $url;
@@ -1219,17 +1219,17 @@ class WindowsLiveLogin
 	{
 		$action = @$query['action'];
 		if ($action != 'delauth') {
-			WindowsLiveLogin::debug("Warning: processConsent: query action ignored: $action");
+			$this->debug("Warning: processConsent: query action ignored: $action");
 			return;
 		}
 		$responsecode = @$query['ResponseCode'];
 		if ($responsecode != 'RequestApproved') {
-			WindowsLiveLogin::debug("Warning: processConsent: consent was not successfully granted: $responsecode");
+			$this->debug("Warning: processConsent: consent was not successfully granted: $responsecode");
 			return;
 		}
 		$token  = @$query['ConsentToken'];
 		$context = urldecode(@$query['appctx']);
-		return WindowsLiveLogin::processConsentToken($token, $context);
+		return $this->processConsentToken($token, $context);
 	}
 
 	/*
@@ -1241,27 +1241,27 @@ class WindowsLiveLogin
 	function processConsentToken($token, $context=null)
 	{
 		if (!$token) {
-			WindowsLiveLogin::debug('Error: processConsentToken: Null token.');
+			$this->debug('Error: processConsentToken: Null token.');
 			return;
 		}
 
 		$decodedToken = $token;
-		$parsedToken = WindowsLiveLogin::parse(urldecode($decodedToken));
+		$parsedToken = $this->parse(urldecode($decodedToken));
 		if (!$parsedToken) {
-			WindowsLiveLogin::debug("Error: processConsentToken: Failed to parse token: $token");
+			$this->debug("Error: processConsentToken: Failed to parse token: $token");
 			return;
 		}
 
 		$eact = @$parsedToken['eact'];
 		if ($eact) {
-			$decodedToken = WindowsLiveLogin::decodeAndValidateToken($eact);
+			$decodedToken = $this->decodeAndValidateToken($eact);
 			if (!$decodedToken) {
-				WindowsLiveLogin::debug("Error: processConsentToken: Failed to decode/validate token: $token");
+				$this->debug("Error: processConsentToken: Failed to decode/validate token: $token");
 				return;
 			}
-			$parsedToken = WindowsLiveLogin::parse($decodedToken);
+			$parsedToken = $this->parse($decodedToken);
 			if (!$parsedToken) {
-				WindowsLiveLogin::debug("Error: processConsentToken: Failed to parse token after decoding: $token");
+				$this->debug("Error: processConsentToken: Failed to parse token after decoding: $token");
 				return;
 			}
 			$decodedToken = urlencode($decodedToken);
@@ -1280,7 +1280,7 @@ class WindowsLiveLogin
 			$context, $decodedToken, $token);
 		//} catch (Exception $e) {
 		if($consenttoken->getError() !== false)
-			WindowsLiveLogin::debug("Error: processConsentToken: Contents of token considered invalid: " + $consenttoken->getError());
+			$this->debug("Error: processConsentToken: Contents of token considered invalid: " + $consenttoken->getError());
 		//}
 		return $consenttoken;
 	}
@@ -1293,10 +1293,10 @@ class WindowsLiveLogin
 	function refreshConsentToken($token, $ru=null)
 	{
 		if (!$token) {
-			WindowsLiveLogin::debug("Error: refreshConsentToken: Null consent token.");
+			$this->debug("Error: refreshConsentToken: Null consent token.");
 			return;
 		}
-		WindowsLiveLogin::refreshConsentToken2($token->getOffersString(), $token->getRefreshToken(), $ru);
+		$this->refreshConsentToken2($token->getOffersString(), $token->getRefreshToken(), $ru);
 	}
 
 	/*
@@ -1306,9 +1306,9 @@ class WindowsLiveLogin
 	/*public*/
 	function refreshConsentToken2($offers_string, $refreshtoken, $ru=null)
 	{
-		$body = WindowsLiveLogin::fetch(WindowsLiveLogin::getRefreshConsentTokenUrl($offers_string, $refreshtoken, $ru));
+		$body = $this->fetch($this->getRefreshConsentTokenUrl($offers_string, $refreshtoken, $ru));
 		if (!$body) {
-			WindowsLiveLogin::debug("Error: refreshConsentToken2: Failed to obtain a new token.");
+			$this->debug("Error: refreshConsentToken2: Failed to obtain a new token.");
 			return;
 		}
 
@@ -1317,7 +1317,7 @@ class WindowsLiveLogin
 			return $matches[1];
 		}
 		else {
-			WindowsLiveLogin::debug("Error: refreshConsentToken2: Failed to extract token: $body");
+			$this->debug("Error: refreshConsentToken2: Failed to extract token: $body");
 			return;
 		}
 	}
@@ -1339,7 +1339,7 @@ class WindowsLiveLogin
 		}
 
 		$haveoldsecret = false;
-		$oldsecretexpiry = WindowsLiveLogin::getOldSecretExpiry();
+		$oldsecretexpiry = $this->getOldSecretExpiry();
 		$oldcryptkey = $this->_oldcryptkey;
 		$oldsignkey = $this->_oldsignkey;
 
@@ -1350,16 +1350,16 @@ class WindowsLiveLogin
 		}
 		$haveoldsecret = ($haveoldsecret and $internal_allow_recursion);
 
-		$stoken = WindowsLiveLogin::decodeToken($token, $cryptkey);
+		$stoken = $this->decodeToken($token, $cryptkey);
 
 		if ($stoken) {
-			$stoken = WindowsLiveLogin::validateToken($stoken, $signkey);
+			$stoken = $this->validateToken($stoken, $signkey);
 		}
 
 		if (!$stoken and $haveoldsecret) {
-			WindowsLiveLogin::debug("Warning: Failed to validate token with current secret, attempting old secret.");
+			$this->debug("Warning: Failed to validate token with current secret, attempting old secret.");
 			$stoken =
-			WindowsLiveLogin::decodeAndValidateToken($token, $oldcryptkey, $oldsignkey, false);
+			$this->decodeAndValidateToken($token, $oldcryptkey, $oldsignkey, false);
 		}
 
 		return $stoken;
@@ -1379,23 +1379,22 @@ class WindowsLiveLogin
 			$cryptkey = $this->_cryptkey;
 		}
 		if (!$cryptkey) {
-			WindowsLiveLogin::fatal("Error: decodeToken: Secret key was not set. Aborting.");
+			$this->fatal("Error: decodeToken: Secret key was not set. Aborting.");
 		}
 
 		$ivLen = 16;
-		$token = WindowsLiveLogin::u64($token);
-		$len = mb_strlen($token);
+		$token = $this->u64($token);
+		$len = strlen($token);
 
 		if (!$token || ($len <= $ivLen) || (($len % $ivLen) != 0)) {
-			WindowsLiveLogin::debug("Error: decodeToken: Attempted to decode invalid token.");
+			$this->debug("Error: decodeToken: Attempted to decode invalid token.");
 			return;
 		}
 
-		$iv = mb_substr($token, 0, 16);
-		$crypted = mb_substr($token, 16);
-		$mode    = MCRYPT_MODE_CBC;
-		$enc     = MCRYPT_RIJNDAEL_128;
-		return mcrypt_decrypt($enc, $cryptkey, $crypted, $mode, $iv);
+		$iv = substr($token, 0, 16);
+		$crypted = substr($token, 16);
+
+		return openssl_decrypt($crypted, "AES-128-CBC", $cryptkey, OPENSSL_RAW_DATA | OPENSSL_NO_PADDING, $iv);
 	}
 
 	/**
@@ -1409,18 +1408,15 @@ class WindowsLiveLogin
 			$signkey = $this->_signkey;
 		}
 		if (!$signkey) {
-			WindowsLiveLogin::fatal("Error: signToken: Secret key was not set. Aborting.");
+			$this->fatal("Error: signToken: Secret key was not set. Aborting.");
 		}
 
 		if (!$token) {
-			WindowsLiveLogin::debug("Attempted to sign null token.");
+			$this->debug("Attempted to sign null token.");
 			return;
 		}
 
-		if(function_exists('mhash'))
-			return mhash(MHASH_SHA256, $token, $signkey);
-		else
-			return hash_hmac("sha256", $token, $signkey, true);
+		return hash_hmac("sha256", $token, $signkey, true);
 	}
 
 	/**
@@ -1433,26 +1429,26 @@ class WindowsLiveLogin
 			$signkey = $this->_signkey;
 		}
 		if (!$token) {
-			WindowsLiveLogin::debug("Error: validateToken: Invalid token.");
+			$this->debug("Error: validateToken: Invalid token.");
 			return;
 		}
 
 		$split = explode("&sig=", $token);
 		if (count($split) != 2) {
-			WindowsLiveLogin::debug("ERROR: validateToken: Invalid token: $token");
+			$this->debug("ERROR: validateToken: Invalid token: $token");
 			return;
 		}
 		list($body, $sig) = $split;
 
-		$sig = WindowsLiveLogin::u64($sig);
+		$sig = $this->u64($sig);
 		if (!$sig) {
-			WindowsLiveLogin::debug("Error: validateToken: Could not extract signature from token.");
+			$this->debug("Error: validateToken: Could not extract signature from token.");
 			return;
 		}
 
-		$sig2 = WindowsLiveLogin::signToken($body, $signkey);
+		$sig2 = $this->signToken($body, $signkey);
 		if (!$sig2) {
-			WindowsLiveLogin::debug("Error: validateToken: Could not generate signature for the token.");
+			$this->debug("Error: validateToken: Could not generate signature for the token.");
 			return;
 		}
 
@@ -1461,7 +1457,7 @@ class WindowsLiveLogin
 			return $token;
 		}
 
-		WindowsLiveLogin::debug("Error: validateToken: Signature did not match.");
+		$this->debug("Error: validateToken: Signature did not match.");
 		return;
 	}
 
@@ -1475,9 +1471,9 @@ class WindowsLiveLogin
 	/*public*/
 	function getAppVerifier($ip=null)
 	{
-		$token  = 'appid=' . WindowsLiveLogin::getAppId() . '&ts=' . WindowsLiveLogin::getTimestamp();
+		$token  = 'appid=' . $this->getAppId() . '&ts=' . $this->getTimestamp();
 		$token .= ($ip ? "&ip={$ip}" : '');
-		$token .= '&sig=' . WindowsLiveLogin::e64(WindowsLiveLogin::signToken($token));
+		$token .= '&sig=' . $this->e64($this->signToken($token));
 		return urlencode($token);
 	}
 
@@ -1504,9 +1500,9 @@ class WindowsLiveLogin
 	/*public*/
 	function getAppLoginUrl($siteid=null, $ip=null, $js=null)
 	{
-		$url  = WindowsLiveLogin::getSecureUrl();
-		$url .= 'wapplogin.srf?app=' . WindowsLiveLogin::getAppVerifier($ip);
-		$url .= '&alg=' . WindowsLiveLogin::getSecurityAlgorithm();
+		$url  = $this->getSecureUrl();
+		$url .= 'wapplogin.srf?app=' . $this->getAppVerifier($ip);
+		$url .= '&alg=' . $this->getSecurityAlgorithm();
 		$url .= ($siteid ? "&id=$siteid" : '');
 		$url .= ($js ? '&js=1' : '');
 		return $url;
@@ -1532,9 +1528,9 @@ class WindowsLiveLogin
 	/*public*/
 	function getAppSecurityToken($siteid=null, $ip=null)
 	{
-		$body = WindowsLiveLogin::fetch(WindowsLiveLogin::getAppLoginUrl($siteid, $ip));
+		$body = $this->fetch($this->getAppLoginUrl($siteid, $ip));
 		if (!$body) {
-			WindowsLiveLogin::debug("Error: getAppSecurityToken: Could not fetch the application security token.");
+			$this->debug("Error: getAppSecurityToken: Could not fetch the application security token.");
 			return;
 		}
 
@@ -1543,7 +1539,7 @@ class WindowsLiveLogin
 			return $matches[1];
 		}
 		else {
-			WindowsLiveLogin::debug("Error: getAppSecurityToken: Failed to extract token: $body");
+			$this->debug("Error: getAppSecurityToken: Failed to extract token: $body");
 			return;
 		}
 	}
@@ -1557,7 +1553,7 @@ class WindowsLiveLogin
 	/*public*/
 	function getAppRetCode()
 	{
-		return 'appid=' . WindowsLiveLogin::getAppId();
+		return 'appid=' . $this->getAppId();
 	}
 
 	/**
@@ -1579,14 +1575,14 @@ class WindowsLiveLogin
 	/*public*/
 	function getTrustedParams($user, $retcode=null)
 	{
-		$token  = WindowsLiveLogin::getTrustedToken($user);
+		$token  = $this->getTrustedToken($user);
 		if (!$token) {
 			return;
 		}
 		$token = "<wst:RequestSecurityTokenResponse xmlns:wst=\"http://schemas.xmlsoap.org/ws/2005/02/trust\"><wst:RequestedSecurityToken><wsse:BinarySecurityToken xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\">$token</wsse:BinarySecurityToken></wst:RequestedSecurityToken><wsp:AppliesTo xmlns:wsp=\"http://schemas.xmlsoap.org/ws/2004/09/policy\"><wsa:EndpointReference xmlns:wsa=\"http://schemas.xmlsoap.org/ws/2004/08/addressing\"><wsa:Address>uri:WindowsLiveID</wsa:Address></wsa:EndpointReference></wsp:AppliesTo></wst:RequestSecurityTokenResponse>";
 
 		$params = array();
-		$params['wa']      = WindowsLiveLogin::getSecurityAlgorithm();
+		$params['wa']      = $this->getSecurityAlgorithm();
 		$params['wresult'] = $token;
 
 		if ($retcode) {
@@ -1607,13 +1603,13 @@ class WindowsLiveLogin
 	function getTrustedToken($user)
 	{
 		if (!$user) {
-			WindowsLiveLogin::debug('Error: getTrustedToken: Null user specified.');
+			$this->debug('Error: getTrustedToken: Null user specified.');
 			return;
 		}
 
-		$token  = "appid=" . WindowsLiveLogin::getAppId() . "&uid=" . urlencode($user)
-		. "&ts=". WindowsLiveLogin::getTimestamp();
-		$token .= "&sig="  . WindowsLiveLogin::e64(WindowsLiveLogin::signToken($token));
+		$token  = "appid=" . $this->getAppId() . "&uid=" . urlencode($user)
+		. "&ts=". $this->getTimestamp();
+		$token .= "&sig="  . $this->e64($this->signToken($token));
 		return urlencode($token);
 	}
 
@@ -1623,7 +1619,7 @@ class WindowsLiveLogin
 	/*public*/
 	function getTrustedLoginUrl()
 	{
-		return WindowsLiveLogin::getSecureUrl() . 'wlogin.srf';
+		return $this->getSecureUrl() . 'wlogin.srf';
 	}
 
 	/**
@@ -1633,7 +1629,7 @@ class WindowsLiveLogin
 	/*public*/
 	function getTrustedLogoutUrl()
 	{
-		return WindowsLiveLogin::getSecureUrl() . "logout.srf?appid=" + WindowsLiveLogin::getAppId();
+		return $this->getSecureUrl() . "logout.srf?appid=" + $this->getAppId();
 	}
 
 	/* Helper methods */
@@ -1654,12 +1650,12 @@ class WindowsLiveLogin
 
 		$doc = new DOMDocument();
 		if (!$doc->load($settingsFile)) {
-			WindowsLiveLogin::fatal("Error: parseSettings: Error while reading $settingsFile");
+			$this->fatal("Error: parseSettings: Error while reading $settingsFile");
 		}
 
 		$nl = $doc->getElementsByTagName('windowslivelogin');
 		if($nl->length != 1) {
-			WindowsLiveLogin::fatal("error: parseSettings: Failed to parse settings file:"
+			$this->fatal("error: parseSettings: Failed to parse settings file:"
 			. $settingsFile);
 		}
 
@@ -1668,7 +1664,7 @@ class WindowsLiveLogin
 			if ($node->nodeType == XML_ELEMENT_NODE) {
 				$firstChild = $node->firstChild;
 				if (!$firstChild) {
-					WindowsLiveLogin::fatal("error: parseSettings: Failed to parse settings file:"
+					$this->fatal("error: parseSettings: Failed to parse settings file:"
 					. $settingsFile);
 				}
 				$settings[$node->nodeName] = $firstChild->nodeValue;
@@ -1686,23 +1682,20 @@ class WindowsLiveLogin
 	function derive($secret, $prefix)
 	{
 		if (!$secret || !$prefix) {
-			WindowsLiveLogin::fatal("Error: derive: secret or prefix is null.");
+			$this->fatal("Error: derive: secret or prefix is null.");
 		}
 
 		$keyLen = 16;
 		$key = $prefix . $secret;
 
-		if(function_exists('mhash'))
-			$key = mhash(MHASH_SHA256, $key);
-		else
-			$key = hash("sha256", $key, true);
+		$key = hash("sha256", $key, true);
 
-		if (!$key || (mb_strlen($key) < $keyLen)) {
-			WindowsLiveLogin::debug("Error: derive: Unable to derive key.");
+		if (!$key || (strlen($key) < $keyLen)) {
+			$this->debug("Error: derive: Unable to derive key.");
 			return;
 		}
 
-		return mb_substr($key, 0, $keyLen);
+		return substr($key, 0, $keyLen);
 	}
 
 	/**
@@ -1715,7 +1708,7 @@ class WindowsLiveLogin
 	function parse($input)
 	{
 		if (!$input) {
-			WindowsLiveLogin::debug("Error: parse: Null input.");
+			$this->debug("Error: parse: Null input.");
 			return;
 		}
 
@@ -1725,7 +1718,7 @@ class WindowsLiveLogin
 		foreach ($input as $pair) {
 			$kv = explode('=', $pair);
 			if (count($kv) != 2) {
-				WindowsLiveLogin::debug("Error: parse: Bad input to parse: " . $pair);
+				$this->debug("Error: parse: Bad input to parse: " . $pair);
 				return;
 			}
 			$pairs[$kv[0]] = $kv[1];
@@ -1827,7 +1820,6 @@ class WindowsLiveLogin
 
 	function IsAvailable()
 	{
-		return function_exists('mcrypt_decrypt') && (function_exists('mhash') || function_exists('hash'));
+		return function_exists('hash');
 	}
 }
-?>

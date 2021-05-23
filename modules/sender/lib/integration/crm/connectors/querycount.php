@@ -56,6 +56,25 @@ class QueryCount
 		return self::exec($query, $dataTypeId);
 	}
 
+
+	/**
+	 * Get count.
+	 *
+	 * @param Entity\Query $query Query.
+	 * @param integer $dataTypeId Data type ID.
+	 * @return array
+	 */
+	public static function getPreparedCount(
+		Entity\Query $query,
+		string $entityDbName,
+		string $entityName,
+		$dataTypeId = null
+	)
+	{
+		self::prepare($query, $dataTypeId, $entityDbName, $entityName);
+		return self::exec($query, $dataTypeId, $entityDbName, $entityName);
+	}
+
 	/**
 	 * Execute query.
 	 *
@@ -66,10 +85,10 @@ class QueryCount
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	protected static function exec(Entity\Query $query, $dataTypeId = null)
+	protected static function exec(Entity\Query $query, $dataTypeId = null, $entityDbName = null, $entityName = null)
 	{
 		$result = array();
-		$resultDb = Helper::prepareQuery($query, $dataTypeId)->exec();
+		$resultDb = Helper::prepareQuery($query, $dataTypeId, $entityDbName, $entityName)->exec();
 		while ($row = $resultDb->fetch())
 		{
 			$ignoredTypes = [];
@@ -110,7 +129,7 @@ class QueryCount
 	 * @param integer $dataTypeId Data type ID.
 	 * @return Entity\Query
 	 */
-	private static function prepare(Entity\Query $query, $dataTypeId = null)
+	private static function prepare(Entity\Query $query, $dataTypeId = null, $entityDbName = null, $entityName = null)
 	{
 		$fields = array();
 		foreach (self::getTypes() as $typeId => $field)
@@ -120,8 +139,8 @@ class QueryCount
 				continue;
 			}
 
-			$entityName = mb_strtoupper($query->getEntity()->getName());
-			$entityDbName = "crm_".mb_strtolower($query->getEntity()->getName());
+			$entityName = $entityName ?? mb_strtoupper($query->getEntity()->getName());
+			$entityDbName = $entityDbName ?? "crm_".mb_strtolower($query->getEntity()->getName());
 
 			$useEmptyValue = false;
 			if (mb_strpos($field['DATA_COLUMN'], '.') > 0)

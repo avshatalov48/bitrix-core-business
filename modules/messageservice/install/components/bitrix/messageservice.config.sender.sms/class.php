@@ -47,7 +47,7 @@ class MessageServiceConfigSenderSmsComponent extends CBitrixComponent
 		$sender->sync();
 
 		$this->arResult['sender'] = $sender;
-		$this->IncludeComponentTemplate($sender->getId());
+		$this->IncludeComponentTemplate($sender->getConfigComponentTemplatePageName());
 	}
 
 	protected function getSenderId()

@@ -20,17 +20,21 @@ abstract class Engine
 {
 	protected $file;
 	protected $info;
+	protected $options;
 
 	/**
 	 * Engine constructor.
 	 * @param string|null $file
+	 * @param array $options
 	 */
-	public function __construct($file = null)
+	public function __construct($file = null, array $options = [])
 	{
 		if($file !== null)
 		{
 			$this->setFile($file);
 		}
+
+		$this->options = $options;
 	}
 
 	/**

@@ -1,0 +1,109 @@
+.name-code-container .ui-ctl-before {
+	background-color: transparent;
+	width: 30px;
+}
+
+.name-code-container .ui-ctl {
+	padding-left: 34px !important;
+}
+
+.name-code-container .ui-entity-editor-block-title {
+	margin-left: 37px;
+}
+
+.name-code-container-hidden {
+	display: none;
+}
+
+.ui-entity-editor-content-block--code {
+	padding: 10px 14px 3px 14px;
+	border: 1px solid #eff0f2;
+	border-radius: 1px;
+	/*width: calc(100% - 14px);*/
+	width: 100%;
+}
+
+.ui-entity-editor-content-block--no-code .ui-entity-editor-block-title {
+	display: none;
+}
+
+.ui-entity-editor-content-block--code .ui-entity-editor-block-context-menu {
+	right: -25px;
+	top: 31px;
+}
+
+.ui-entity-editor-symbol-code {
+	position: relative;
+	display: block;
+	margin-bottom: 5px;
+	padding: 13px 12px;
+	border: 1px solid #edeef0;
+	border-radius: 1px;
+	background-color: #fdfdfd;
+	transition: 160ms all ease;
+}
+
+.ui-entity-editor-content-block-text-name {
+	margin: 0 0 15px 0;
+}
+
+.ui-entity-editor-symbol-code-box {
+	margin-left: 13px;
+}
+
+.ui-ctl-element-symbol-code-input-disabled {
+	background-color: rgba(244, 244, 244, .66);
+	border-color: #e5e7ea;
+	color: rgba(51, 51, 51, .5);
+}
+
+.ui-entity-editor-symbol-code-label {
+	display: block;
+	margin-bottom: 4px;
+	font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #525c69;
+	opacity: .5;
+}
+
+.ui-entity-editor-symbol-code-value {
+	position: relative;
+	display: block;
+	padding-left: 20px;
+	font: 14px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #a7acb3;
+}
+
+.ui-entity-editor-symbol-code-value:before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	display: block;
+	width: 14px;
+	height: 17px;
+}
+
+.ui-entity-editor-symbol-code-value-chain:before {
+	background: url("data:image/svg+xml;charset=US-ASCII,%3csvg width='5px' height='14px' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M10.0807 1.10193L11.3545 1.10193C12.1432 1.10193 12.7888 1.73093 12.7888 2.49993C12.7888 3.26893 12.1432 3.89843 11.3545 3.89843L10.0807 3.89843C9.51814 3.89843 9.03406 3.57543 8.79919 3.11293L9.192 3.11293C9.53763 3.11293 9.82121 2.83743 9.82121 2.49993C9.82121 2.16243 9.53763 1.88643 9.192 1.88643L8.79919 1.88643C9.03406 1.42443 9.51814 1.10193 10.0807 1.10193ZM3.91902 3.89843L2.64522 3.89843C1.85653 3.89843 1.21143 3.26893 1.21143 2.49993C1.21143 1.73093 1.85653 1.10193 2.64522 1.10193L3.91902 1.10193C4.48156 1.10193 4.96616 1.42443 5.20051 1.88643L4.57643 1.88643C4.23029 1.88643 3.94722 2.16243 3.94722 2.49993C3.94722 2.83743 4.23029 3.11293 4.57643 3.11293L5.20051 3.11293C4.96616 3.57543 4.48156 3.89843 3.91902 3.89843ZM3.99985 0L2.56401 0C1.1538 0 0 1.125 0 2.5C-1.53841e-16 3.875 1.1538 5 2.56401 5L3.99985 5C5.19212 5 6.19208 4.193 6.47617 3.113L7.52383 3.113C7.80741 4.193 8.80788 5 9.99963 5L11.436 5C12.8462 5 14 3.875 14 2.5C14 1.125 12.8462 3.60002e-15 11.436 0L9.99963 0C8.80788 1.20001e-15 7.80741 0.807 7.52383 1.8865L6.47617 1.8865C6.19208 0.807 5.19212 0 3.99985 0Z' transform='matrix(-4.371139E-08 -1 1 -4.371139E-08 0 14)' id='Shape' fill='%23525C69' fill-opacity='0.51' fill-rule='evenodd' stroke='none' /%3e%3c/svg%3e") no-repeat top 2px center;
+}
+
+.ui-entity-editor-symbol-code-value-unchain:before {
+	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2212%22%20height%3D%2215%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M6.857%209.618V8.263a2.546%202.546%200%20011.804%202.435v1.455a2.545%202.545%200%2011-5.09%200v-1.455c0-1.157.772-2.134%201.83-2.443v1.346a1.308%201.308%200%2000-.594%201.097v1.455a1.31%201.31%200%20002.619%200v-1.455c0-.41-.19-.777-.486-1.017l-.083-.063zM5.4%205.795V7.14a2.546%202.546%200%2001-1.83-2.443V3.243a2.545%202.545%200%20015.09%200v1.455c0%201.148-.76%202.118-1.804%202.436V5.778c.343-.236.569-.632.569-1.08V3.243a1.31%201.31%200%2010-2.62%200v1.455c0%20.42.2.795.508%201.035l.087.062zM.3%207.824c0-.301.245-.545.546-.545h1.636a.545.545%200%20010%201.09H.847a.545.545%200%2001-.545-.545zm10.914%202.925a.545.545%200%2001-.745.2l-1.416-.818a.545.545%200%2001.545-.944l1.416.818c.261.15.35.484.2.744zm-10.328%200a.545.545%200%2001.2-.744l1.416-.818a.545.545%200%2001.545.944l-1.416.818a.545.545%200%2001-.745-.2zm10.328-5.724c.15.26.061.594-.2.744L9.6%206.587a.545.545%200%2001-.545-.944l1.416-.818a.545.545%200%2001.745.2zm-10.328%200c.15-.261.484-.35.745-.2l1.416.818a.545.545%200%2001-.545.944L1.086%205.77a.545.545%200%2001-.2-.744zm10.811%202.799a.545.545%200%2001-.545.545H9.517a.545.545%200%20010-1.09h1.636c.301%200%20.545.244.545.545z%22%20fill%3D%22%23525C69%22%20fill-rule%3D%22evenodd%22%20opacity%3D%22.505%22/%3E%3C/svg%3E') no-repeat top 1px center;
+}
+
+.name-code-container .ui-entity-editor-block-title {
+	justify-content: flex-start;
+}
+
+.name-code-container .ui-hint {
+	height: 13px;
+	line-height: 13px;
+}
+
+.name-code-container .ui-hint-icon {
+	margin: 0;
+}
+
+.ui-entity-editor-content-block-click-editable p {
+	margin: 0 0 10px;
+}

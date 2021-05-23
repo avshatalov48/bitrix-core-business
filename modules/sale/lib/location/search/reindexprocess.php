@@ -109,7 +109,10 @@ final class ReindexProcess extends Location\Util\Process
 		}
 		else
 		{
-			$instance = unserialize($this->data['WORD_TABLE_INSTANCE_SERIALIZED']);
+			$instance = unserialize(
+				$this->data['WORD_TABLE_INSTANCE_SERIALIZED'],
+				['allowed_classes' => [WordTable::class]]
+			);
 		}
 
 		$this->wordInstance = $instance;
@@ -162,7 +165,10 @@ final class ReindexProcess extends Location\Util\Process
 			));
 		}
 		else
-			$instance = unserialize($this->data['WORD_TABLE_INSTANCE_SERIALIZED']);
+			$instance = unserialize(
+				$this->data['WORD_TABLE_INSTANCE_SERIALIZED'],
+				['allowed_classes' => [WordTable::class]]
+			);
 
 		$this->wordInstance = $instance;
 	}
@@ -217,7 +223,10 @@ final class ReindexProcess extends Location\Util\Process
 			));
 		}
 		else
-			$instance = unserialize($this->data['CHAIN_TABLE_INSTANCE_SERIALIZED']);
+			$instance = unserialize(
+				$this->data['CHAIN_TABLE_INSTANCE_SERIALIZED'],
+				['allowed_classes' => [ChainTable::class]]
+			);
 
 		$this->chainInstance = $instance;
 	}

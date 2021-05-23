@@ -497,7 +497,7 @@ class CAllCatalogDiscount
 						}
 						else
 						{
-							$arFields['CONDITIONS'] = unserialize($arFields['CONDITIONS']);
+							$arFields['CONDITIONS'] = unserialize($arFields['CONDITIONS'], ['allowed_classes' => false]);
 							if (empty($arFields['CONDITIONS']) || !is_array($arFields['CONDITIONS']))
 							{
 								$boolCond = false;
@@ -543,7 +543,7 @@ class CAllCatalogDiscount
 								$boolResult = false;
 								$arMsg[] = array('id' => 'CONDITIONS', 'text' => Loc::getMessage('BT_MOD_CATALOG_DISC_ERR_CONDITIONS_TOO_LONG'));
 								unset($arFields['UNPACK']);
-								$arFields['CONDITIONS'] = unserialize($arFields['CONDITIONS']);
+								$arFields['CONDITIONS'] = unserialize($arFields['CONDITIONS'], ['allowed_classes' => false]);
 							}
 						}
 					}
@@ -3149,7 +3149,7 @@ class CAllCatalogDiscount
 				{
 					$property['USER_TYPE_SETTINGS'] = (
 						CheckSerializedData($property['USER_TYPE_SETTINGS'])
-						? unserialize($property['USER_TYPE_SETTINGS'])
+						? unserialize($property['USER_TYPE_SETTINGS'], ['allowed_classes' => false])
 						: array()
 					);
 				}
@@ -3667,7 +3667,7 @@ class CAllCatalogDiscount
 			{
 				if (CheckSerializedData($arFields['CONDITIONS']))
 				{
-					$arConditions = unserialize($arFields['CONDITIONS']);
+					$arConditions = unserialize($arFields['CONDITIONS'], ['allowed_classes' => false]);
 				}
 			}
 			else

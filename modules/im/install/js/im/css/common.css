@@ -367,7 +367,7 @@
 
 .bx-messenger-file-image-text,
 .bx-messenger-file-image-src .bx-bxu-proper-canvas{
-	max-height: 100vh;
+	max-height: 30vh;
 	max-width: 100%;
 	vertical-align: top;
 	border-radius: 6px;
@@ -478,6 +478,7 @@
 	text-shadow: none!important;
 	transition: background .3s;
 	text-transform: none !important;
+	box-sizing: content-box;
 }
 .bx-notifier-item-button:hover, .bx-messenger-mark .popup-window-button:hover {
 	line-height: 22px;
@@ -494,7 +495,7 @@
 	background: #e5e5e5;
 }
 .bx-notifier-item-button-accept, .bx-messenger-mark .popup-window-button-accept {
-	color: #fff!important;
+	color: #fff;
 	border: 0;
 	padding: 3px 11px;
 	background: #a4c31e;

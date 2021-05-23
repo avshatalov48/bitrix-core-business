@@ -11,6 +11,15 @@ use Bitrix\Main;
  */
 class ClaimsTable extends Main\Entity\DataManager
 {
+	public const EXTERNAL_STATUS_SUCCESS = 'success';
+	public const EXTERNAL_STATUS_FAILED = 'failed';
+
+	/** @var string[] */
+	public static $externalStatuses = [
+		self::EXTERNAL_STATUS_SUCCESS,
+		self::EXTERNAL_STATUS_FAILED,
+	];
+
 	/**
 	 * @inheritdoc
 	 */
@@ -69,9 +78,21 @@ class ClaimsTable extends Main\Entity\DataManager
 				'data_type' => 'string',
 				'required' => true,
 			],
-			'EXTERNAL_CURRENCY' => ['data_type' => 'string'],
-			'EXTERNAL_FINAL_PRICE' => ['data_type' => 'float'],
-			'INITIAL_CLAIM' => ['data_type' => 'string']
+			'EXTERNAL_CURRENCY' => [
+				'data_type' => 'string'
+			],
+			'EXTERNAL_FINAL_PRICE' => [
+				'data_type' => 'float'
+			],
+			'INITIAL_CLAIM' => [
+				'data_type' => 'string'
+			],
+			new Main\Entity\BooleanField(
+				'IS_SANDBOX_ORDER',
+				[
+					'values' => ['N', 'Y'],
+				]
+			),
 		];
 	}
 }

@@ -183,7 +183,7 @@ class CBPAllStateService
 				"STATE_MODIFIED" => $arResult["MODIFIED"],
 				"STATE_NAME" => $arResult["STATE"],
 				"STATE_TITLE" => $arResult["STATE_TITLE"],
-				"STATE_PARAMETERS" => ($arResult["STATE_PARAMETERS"] <> '' ? unserialize($arResult["STATE_PARAMETERS"]) : array()),
+				"STATE_PARAMETERS" => ($arResult["STATE_PARAMETERS"] <> '' ? unserialize($arResult["STATE_PARAMETERS"], ['allowed_classes' => false]) : array()),
 				"WORKFLOW_STATUS" => $arResult["STATUS"],
 				"STATE_PERMISSIONS" => array(),
 				"DOCUMENT_ID" => array($arResult["MODULE_ID"], $arResult["ENTITY"], $arResult["DOCUMENT_ID"]),
@@ -248,7 +248,8 @@ class CBPAllStateService
 		$sqlAdditionalFilter = "";
 		if (is_array($workflowId) && count($workflowId) > 0)
 		{
-			$workflowId = array_map(function ($id) use ($DB) {
+			$workflowId = array_map(function ($id) use ($DB)
+			{
 				return '\''.$DB->ForSql((string)$id).'\'';
 			}, $workflowId);
 			$sqlAdditionalFilter = " AND WS.ID IN (".implode(',', $workflowId).")";
@@ -281,17 +282,24 @@ class CBPAllStateService
 		return $arStates;
 	}
 
-	public static function getIdsByDocument(array $documentId)
+	public static function getIdsByDocument(array $documentId, int $limit = null)
 	{
 		$documentId = \CBPHelper::ParseDocumentId($documentId);
-		$rows = WorkflowStateTable::getList([
+		$params = [
 			'select' => ['ID'],
 			'filter' => [
 				'=MODULE_ID' => $documentId[0],
 				'=ENTITY' => $documentId[1],
 				'=DOCUMENT_ID' => $documentId[2]
 			]
-		])->fetchAll();
+		];
+
+		if ($limit)
+		{
+			$params['limit'] = $limit;
+		}
+
+		$rows = WorkflowStateTable::getList($params)->fetchAll();
 
 		return array_column($rows, 'ID');
 	}
@@ -362,6 +370,11 @@ class CBPAllStateService
 		}
 
 		return $state;
+	}
+
+	public static function exists(string $workflowId)
+	{
+		return WorkflowStateTable::getCount(['=ID' => $workflowId]) > 0;
 	}
 
 	public static function getWorkflowIntegerId($workflowId)
@@ -606,7 +619,7 @@ class CBPAllStateService
 		{
 			$stateParameters = array();
 			if ($arResult["STATE_PARAMETERS"] <> '')
-				$stateParameters = unserialize($arResult["STATE_PARAMETERS"]);
+				$stateParameters = unserialize($arResult["STATE_PARAMETERS"], ['allowed_classes' => false]);
 
 			$stateParameters[] = $arStateParameter;
 
@@ -639,7 +652,7 @@ class CBPAllStateService
 		{
 			$stateParameters = array();
 			if ($arResult["STATE_PARAMETERS"] <> '')
-				$stateParameters = unserialize($arResult["STATE_PARAMETERS"]);
+				$stateParameters = unserialize($arResult["STATE_PARAMETERS"], ['allowed_classes' => false]);
 
 			$ar = array();
 			foreach ($stateParameters as $v)

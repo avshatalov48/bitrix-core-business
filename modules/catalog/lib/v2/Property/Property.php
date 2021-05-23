@@ -4,8 +4,13 @@ namespace Bitrix\Catalog\v2\Property;
 
 use Bitrix\Catalog\v2\BaseEntity;
 use Bitrix\Catalog\v2\Fields\FieldStorage;
+use Bitrix\Catalog\v2\HasSettingsTrait;
 use Bitrix\Catalog\v2\PropertyValue\HasPropertyValueCollection;
 use Bitrix\Catalog\v2\PropertyValue\PropertyValueCollection;
+use Bitrix\Catalog\v2\PropertyFeature\PropertyFeatureRepositoryContract;
+use Bitrix\Catalog\v2\PropertyFeature\PropertyFeatureCollection;
+use Bitrix\Catalog\v2\PropertyFeature\PropertyFeature;
+use Bitrix\Iblock;
 use Bitrix\Main\NotSupportedException;
 use Bitrix\Main\Result;
 
@@ -19,15 +24,23 @@ use Bitrix\Main\Result;
  */
 class Property extends BaseEntity implements HasPropertyValueCollection
 {
-	/** @var \Bitrix\Catalog\v2\Fields\FieldStorage */
-	protected $settings;
+	use HasSettingsTrait;
+
 	/** @var \Bitrix\Catalog\v2\PropertyValue\PropertyValueCollection */
 	protected $propertyValueCollection;
+	/** @var PropertyFeatureRepositoryContract */
+	protected $propertyFeatureRepository;
+	/** @var PropertyFeatureCollection */
+	protected $propertyFeatureCollection;
 
-	public function __construct(PropertyRepositoryContract $productRepository)
+	public function __construct(
+		PropertyRepositoryContract $productRepository,
+		PropertyFeatureRepositoryContract $propertyFeatureRepository
+	)
 	{
 		parent::__construct($productRepository);
 		$this->settings = new FieldStorage();
+		$this->propertyFeatureRepository = $propertyFeatureRepository;
 	}
 
 	public function getPropertyValueCollection(): PropertyValueCollection
@@ -35,30 +48,44 @@ class Property extends BaseEntity implements HasPropertyValueCollection
 		return $this->propertyValueCollection;
 	}
 
-	public function setPropertyValueCollection(PropertyValueCollection $propertyValueCollection): void
+	public function setPropertyValueCollection(PropertyValueCollection $propertyValueCollection): self
 	{
-		$this->propertyValueCollection = $propertyValueCollection;
-	}
+		$propertyValueCollection->setParent($this);
 
-	/**
-	 * @param array $settings
-	 * @return \Bitrix\Catalog\v2\Property\Property
-	 */
-	public function setSettings(array $settings): Property
-	{
-		$this->settings->initFields($settings);
+		$this->propertyValueCollection = $propertyValueCollection;
 
 		return $this;
 	}
 
-	public function getSettings(): array
+	/**
+	 * @return PropertyFeatureCollection|PropertyFeature[]
+	 */
+	public function getPropertyFeatureCollection(): PropertyFeatureCollection
 	{
-		return $this->settings->toArray();
+		if ($this->propertyFeatureCollection === null)
+		{
+			// ToDo make lazy load like sku collection with iterator callback?
+			$this->setPropertyFeatureCollection($this->loadPropertyFeatureCollection());
+		}
+
+		return $this->propertyFeatureCollection;
 	}
 
-	public function getSetting(string $name)
+	/**
+	 * @return PropertyFeatureCollection|PropertyFeature[]
+	 */
+	protected function loadPropertyFeatureCollection(): PropertyFeatureCollection
 	{
-		return $this->settings->getField($name);
+		return $this->propertyFeatureRepository->getCollectionByParent($this);
+	}
+
+	public function setPropertyFeatureCollection(PropertyFeatureCollection $propertyFeatureCollection): self
+	{
+		$propertyFeatureCollection->setParent($this);
+
+		$this->propertyFeatureCollection = $propertyFeatureCollection;
+
+		return $this;
 	}
 
 	public function getId(): ?int
@@ -122,6 +149,24 @@ class Property extends BaseEntity implements HasPropertyValueCollection
 	public function isMultiple(): bool
 	{
 		return $this->getSetting('MULTIPLE') === 'Y';
+	}
+
+	public function isPublic(): bool
+	{
+		$featureCollection = $this->getPropertyFeatureCollection();
+		$detailFeature = $featureCollection->findByFeatureId(Iblock\Model\PropertyFeature::FEATURE_ID_DETAIL_PAGE_SHOW);
+		if (!$detailFeature || !$detailFeature->isEnabled())
+		{
+			return false;
+		}
+
+		$listFeature = $featureCollection->findByFeatureId(Iblock\Model\PropertyFeature::FEATURE_ID_LIST_PAGE_SHOW);
+		if (!$listFeature || !$listFeature->isEnabled())
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	public function isFileType(): bool

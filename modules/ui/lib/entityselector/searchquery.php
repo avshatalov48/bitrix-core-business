@@ -26,12 +26,12 @@ class SearchQuery implements \JsonSerializable
 		}
 	}
 
-	public function getQueryWords()
+	public function getQueryWords(): array
 	{
 		return $this->queryWords;
 	}
 
-	public function getQuery()
+	public function getQuery(): string
 	{
 		return $this->query;
 	}
@@ -48,7 +48,7 @@ class SearchQuery implements \JsonSerializable
 		}
 	}
 
-	public function isCacheable()
+	public function isCacheable(): bool
 	{
 		return $this->cacheable;
 	}

@@ -81,6 +81,7 @@ class CashboxRestHandlerTable extends DataManager
 					'serialized' => true,
 				]
 			),
+			new StringField('APP_ID'),
 		];
 	}
 

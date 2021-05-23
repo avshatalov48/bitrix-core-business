@@ -1771,7 +1771,7 @@ class CSaleOrderLoader
 			$dbExport = CSaleExport::GetList(array(), array("PERSON_TYPE_ID" => $this->arPersonTypesIDs));
 			while($arExport = $dbExport->Fetch())
 			{
-				$this->arExportInfo[$arExport["PERSON_TYPE_ID"]] = unserialize($arExport["VARS"]);
+				$this->arExportInfo[$arExport["PERSON_TYPE_ID"]] = unserialize($arExport["VARS"], ['allowed_classes' => false]);
 			}
 		}
 	}
@@ -2697,7 +2697,7 @@ class CSaleOrderLoader
 						$dbExport = CSaleExport::GetList(array(), array("PERSON_TYPE_ID" => $arPersonTypesIDs));
 						while($arExport = $dbExport->Fetch())
 						{
-							$arExportInfo[$arExport["PERSON_TYPE_ID"]] = unserialize($arExport["VARS"]);
+							$arExportInfo[$arExport["PERSON_TYPE_ID"]] = unserialize($arExport["VARS"], ['allowed_classes' => false]);
 						}
 					}
 
@@ -3790,7 +3790,7 @@ class CSaleOrderLoader
 					$dbExport = CSaleExport::GetList(array(), array("PERSON_TYPE_ID" => $arPersonTypesIDs));
 					while($arExport = $dbExport->Fetch())
 					{
-						$arExportInfo[$arExport["PERSON_TYPE_ID"]] = unserialize($arExport["VARS"]);
+						$arExportInfo[$arExport["PERSON_TYPE_ID"]] = unserialize($arExport["VARS"], ['allowed_classes' => false]);
 					}
 				}
 

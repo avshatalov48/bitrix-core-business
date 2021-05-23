@@ -16,23 +16,36 @@ class Department
 {
 	const XML_ID = "im_bot";
 
-	public static function getId()
+	public static function getId($skipCreate = false)
 	{
-		if (!\Bitrix\Main\Loader::includeModule('intranet') || !\Bitrix\Main\Loader::includeModule('iblock'))
+		if (
+			!\Bitrix\Main\Loader::includeModule('intranet')
+			|| !\Bitrix\Main\Loader::includeModule('iblock')
+		)
+		{
 			return 0;
+		}
 
 		$departments = \CIntranetUtils::getDeparmentsTree(0, false);
 		if (!is_array($departments) || !isset($departments[0][0]))
+		{
 			return 0;
+		}
 
 		$departmentRootId = \Bitrix\Main\Config\Option::get('intranet', 'iblock_structure', 0);
 		if($departmentRootId <= 0)
+		{
 			return 0;
+		}
 
 		$section = \CIBlockSection::GetList(Array(), Array('ACTIVE' => 'Y', 'IBLOCK_ID' => $departmentRootId, 'XML_ID' => self::XML_ID));
 		if ($row = $section->Fetch())
 		{
-			$sectionId = $row['ID'];
+			$sectionId = (int)$row['ID'];
+		}
+		else if ($skipCreate)
+		{
+			return 0;
 		}
 		else
 		{
@@ -47,7 +60,7 @@ class Department
 		}
 		if (!$sectionId)
 		{
-			$sectionId = intval($departments[0][0]);
+			$sectionId = (int)$departments[0][0];
 		}
 
 		return $sectionId;

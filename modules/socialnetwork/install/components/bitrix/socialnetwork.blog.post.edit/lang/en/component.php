@@ -8,7 +8,6 @@ $MESS['BLOG_EMPTY_TITLE_PLACEHOLDER'] = "Image";
 $MESS['BLOG_EMPTY_TITLE_PLACEHOLDER2'] = "File";
 $MESS['BLOG_EMPTY_TITLE_PLACEHOLDER3'] = "Title";
 $MESS['BLOG_ERR_NO_RIGHTS'] = "Error: insufficient permissions to write message";
-$MESS['BLOG_GRAT_IBLOCKELEMENT_NAME'] = "Appreciation of #GRAT_NAME#";
 $MESS['BLOG_MODULE_NOT_INSTALL'] = "Blog module is not installed.";
 $MESS['BLOG_NEW_MESSAGE'] = "New conversation";
 $MESS['BLOG_POST_EDIT'] = "Edit post";

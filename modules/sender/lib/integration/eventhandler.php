@@ -266,6 +266,8 @@ class EventHandler
 				'Bitrix\Sender\Integration\Seo\Ads\MessageGa',
 				'Bitrix\Sender\Integration\Seo\Ads\MessageVk',
 				'Bitrix\Sender\Integration\Seo\Ads\MessageFb',
+				'Bitrix\Sender\Integration\Seo\Ads\MessageMarketingFb',
+				'Bitrix\Sender\Integration\Seo\Ads\MessageMarketingInstagram',
 				'Bitrix\Sender\Integration\Seo\Ads\MessageLookalikeVk',
 				'Bitrix\Sender\Integration\Seo\Ads\MessageLookalikeFb',
 			);
@@ -355,6 +357,8 @@ class EventHandler
 			$list[] = 'Bitrix\Sender\Integration\Seo\Ads\TransportGa';
 			$list[] = 'Bitrix\Sender\Integration\Seo\Ads\TransportVk';
 			$list[] = 'Bitrix\Sender\Integration\Seo\Ads\TransportFb';
+			$list[] = 'Bitrix\Sender\Integration\Seo\Ads\TransportMarketingFb';
+			$list[] = 'Bitrix\Sender\Integration\Seo\Ads\TransportMarketingInstagram';
 			$list[] = 'Bitrix\Sender\Integration\Seo\Ads\TransportLookalikeVk';
 			$list[] = 'Bitrix\Sender\Integration\Seo\Ads\TransportLookalikeFb';
 		}
@@ -399,6 +403,17 @@ class EventHandler
 				}
 
 				$letter = Entity\Letter::createInstanceById($data['primary']['ID']);
+
+				if (is_null($letter))
+				{
+					$result->addError(
+						new MainEntity\EntityError(
+							Loc::getMessage("SENDER_LETTER_ONBEFOREUPDATE_ERROR_LETTER_NOT_AVAILABLE"), 'FEATURE_NOT_AVAILABLE'
+						)
+					);
+					return;
+				}
+
 				if (!$letter->getMessage()->isAvailable())
 				{
 					$result->addError(

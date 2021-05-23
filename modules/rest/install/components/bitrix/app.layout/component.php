@@ -556,7 +556,7 @@ if(
 			$componentPage = 'error';
 			if (\Bitrix\Main\Loader::includeModule('ui'))
 			{
-				$code = Access::getHelperCode();
+				$code = Access::getHelperCode(Access::ACTION_OPEN, Access::ENTITY_TYPE_APP, $arResult['APP_ID']);
 				if ($code !== '')
 				{
 					$arResult['HELPER_DATA']['TEMPLATE_URL'] = \Bitrix\UI\InfoHelper::getUrl();

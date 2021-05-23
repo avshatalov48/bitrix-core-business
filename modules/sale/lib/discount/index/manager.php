@@ -27,7 +27,7 @@ final class Manager
 
 		return self::$instance;
 	}
-	
+
 	private function __construct()
 	{
 		$this->errorCollection = new ErrorCollection;
@@ -54,7 +54,7 @@ final class Manager
 		{
 			return false;
 		}
-		
+
 		list($elementIds, $sectionIds) = $this->extractElementsAndSections($condition);
 
 		$this->dropIndex($discount['ID']);
@@ -73,7 +73,7 @@ final class Manager
 		{
 			IndexSectionTable::fillByDiscount($discount['ID'], $sectionIds);
 		}
-		
+
 		return true;
 	}
 
@@ -102,7 +102,7 @@ final class Manager
 
 		if(is_string($conditions))
 		{
-			$conditions = unserialize($conditions);
+			$conditions = unserialize($conditions, ['allowed_classes' => false]);
 		}
 
 		if(!$conditions || !is_array($conditions))

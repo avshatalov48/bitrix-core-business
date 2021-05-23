@@ -42,6 +42,7 @@ $MESS["IBEL_A_F_CREATED_BY"] = "Created by";
 $MESS["IBEL_A_F_CREATED_WHEN"] = "Creation date";
 $MESS["IBEL_A_F_DESC"] = "Description";
 $MESS["IBEL_A_F_ID"] = "Element ID";
+$MESS["IBEL_A_F_LAST_STATUS"] = "Intermediate status as used in the workflow";
 $MESS["IBEL_A_F_MODIFIED_BY"] = "Modified by";
 $MESS["IBEL_A_F_MODIFIED_WHEN"] = "Modification date";
 $MESS["IBEL_A_F_NAME"] = "Name";

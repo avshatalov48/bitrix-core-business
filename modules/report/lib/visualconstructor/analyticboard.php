@@ -15,6 +15,7 @@ class AnalyticBoard
 	private $machineKey;
 	private $filter;
 	private $batchKey = null;
+	private $group = null;
 	private $buttons = [];
 	private $disabled = false;
 	private $stepperEnabled = false;
@@ -370,5 +371,21 @@ private $isExternal = false;
 	public function resetToDefault()
 	{
 		// nothing here
+	}
+
+	/**
+	 * @return null
+	 */
+	public function getGroup()
+	{
+		return $this->group;
+	}
+
+	/**
+	 * @param null $group
+	 */
+	public function setGroup($group): void
+	{
+		$this->group = $group;
 	}
 }

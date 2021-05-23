@@ -10,7 +10,6 @@
  * @global CMain $APPLICATION
  * @global CUser $USER
  * @global CDatabase $DB
- * @global array $BX_GROUP_POLICY;
  */
 
 require_once(dirname(__FILE__)."/../include/prolog_admin_before.php");
@@ -158,7 +157,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_REQUEST["save"] <> '' || $_REQUEST
 	$group = new CGroup;
 
 	$arGroupPolicy = array();
-	foreach ($BX_GROUP_POLICY as $key => $value)
+	foreach (CUser::$GROUP_POLICY as $key => $value)
 	{
 		$curVal = ${"gp_".$key};
 		$curValParent = ${"gp_".$key."_parent"};
@@ -692,11 +691,11 @@ $tabControl->BeginNextTab();
 		</td>
 	</tr>
 	<?
-	$arGroupPolicy = unserialize(htmlspecialcharsback($str_SECURITY_POLICY));
+	$arGroupPolicy = unserialize(htmlspecialcharsback($str_SECURITY_POLICY), ['allowed_classes' => false]);
 	if (!is_array($arGroupPolicy))
 		$arGroupPolicy = array();
 
-	foreach ($BX_GROUP_POLICY as $key => $value)
+	foreach (CUser::$GROUP_POLICY as $key => $value)
 	{
 		$curVal = $arGroupPolicy[$key];
 		$curValParent = !array_key_exists($key, $arGroupPolicy);
@@ -708,7 +707,7 @@ $tabControl->BeginNextTab();
 		?>
 		<tr valign="top">
 			<td><label for="gp_<?echo $key?>"><?
-			$gpTitle = GetMessage("GP_".$key);
+			$gpTitle = GetMessage("GP_".$key, ["#SPECIAL_CHARS#" => \CUser::PASSWORD_SPECIAL_CHARS]);
 			if ($gpTitle == '')
 				$gpTitle = $key;
 

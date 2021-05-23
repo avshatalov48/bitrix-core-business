@@ -8,12 +8,19 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Web\Json;
 use Bitrix\Sender\Internals\PrettyDate;
+use Bitrix\Sender\Posting\SegmentDataBuilder;
 
 /** @var CAllMain $APPLICATION */
 /** @var array $arParams */
 /** @var array $arResult */
 
-Extension::load("ui.buttons");
+Extension::load([
+	"pull.client",
+	'ui.notification',
+	'ui.notification',
+	'ui',
+	'ui.alerts',
+]);
 $containerId = 'bx-sender-segment-edit';
 ?>
 <div id="<?=htmlspecialcharsbx($containerId)?>" class="bx-sender-segment-edit-wrapper">
@@ -37,6 +44,12 @@ $containerId = 'bx-sender-segment-edit';
 				<input data-role="segment-title" type="text" name="NAME" value="<?=htmlspecialcharsbx($arResult['ROW']['NAME'])?>" class="bx-sender-form-control bx-sender-letter-field-input">
 			</div>
 		</div>
+
+		<?php if (!$arResult['PREPARED']): ?>
+		<div class="ui-alert ui-alert-warning">
+			<span class="ui-alert-message"><?php echo Loc::getMessage('SENDER_SEGMENT_NOT_PREPARED') ?></span>
+		</div>
+		<?php endif; ?>
 
 		<div class="bx-sender-letter-field" style="<?=(!$arParams['CAN_EDIT'] || $arParams['ONLY_CONNECTOR_FILTERS'] ? 'display: none;' : '')?>">
 			<div class="bx-sender-caption">
@@ -255,7 +268,7 @@ $containerId = 'bx-sender-segment-edit';
 				,
 				'SAVE' => $arParams['CAN_EDIT'] ? [] : null,
 				'CANCEL' => array(
-					'URL' => $arParams['PATH_TO_LIST']
+					'URL' => $arParams['PATH_TO_LIST'],
 				),
 			),
 			false
@@ -267,7 +280,13 @@ $containerId = 'bx-sender-segment-edit';
 	<script type="text/javascript">
 		BX.ready(function () {
 
-			BX.Sender.Connector.Manager.init(<?=Json::encode(array(
+			BX.Loc.setMessage(
+				'SENDER_SEGMENT_SEARCH_INFORMATION',
+				'<?=Loc::getMessage("SENDER_SEGMENT_SEARCH_INFORMATION")?>'
+			);
+
+			window.bxConnectorManager = BX.Sender.Connector.Manager.init(<?=Json::encode(array(
+				'groupId' => $arParams['ID'],
 				'containerId' => $containerId,
 				'actionUri' => $arResult['ACTION_URI'],
 				'isFrame' => $arParams['IFRAME'] == 'Y',
@@ -282,6 +301,7 @@ $containerId = 'bx-sender-segment-edit';
 				'segmentTile' => $arResult['SEGMENT_TILE'],
 				'availableConnectors' => array_values($arResult['CONNECTOR']['AVAILABLE']),
 				'prettyDateFormat' => PrettyDate::getDateFormat(),
+				'filterCounterTag' => SegmentDataBuilder::FILTER_COUNTER_TAG,
 				'mess' => array(
 					'patternTitle' => Loc::getMessage('SENDER_SEGMENT_EDIT_TMPL_PATTERN_TITLE1') ?: Loc::getMessage('SENDER_SEGMENT_EDIT_TMPL_PATTERN_TITLE'),
 					'newTitle' => Loc::getMessage('SENDER_SEGMENT_EDIT_TMPL_NEW_TITLE'),
@@ -294,4 +314,18 @@ $containerId = 'bx-sender-segment-edit';
 
 		});
 	</script>
+
+	<?php if ($arResult['IS_NEW']): ?>
+		<script>
+			BX.ready(function() {
+				setTimeout(function(){
+					BX.UI.Notification.Center.notify({
+						content: '<?=Loc::getMessage('SENDER_SEGMENT_CREATED')?>',
+						position: 'top-right',
+						autoHideDelay: 15000,
+					});
+				})
+			}, 1000);
+		</script>
+	<?php endif; ?>
 </div>

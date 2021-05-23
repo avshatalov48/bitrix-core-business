@@ -4,12 +4,15 @@
 namespace Bitrix\Calendar\ICal\Parser;
 
 
-use Bitrix\Calendar\ICal\Basic\BasicComponent;
-use Bitrix\Calendar\ICal\Basic\Content;
-
-class Timezone extends BasicComponent implements ParserComponent
+class Timezone extends ParserComponent
 {
+	/**
+	 * @var ParserPropertyType|null
+	 */
 	private $tzid;
+	/**
+	 * @var ParserPropertyType|null
+	 */
 	private $tzurl;
 	/**
 	 * @var array
@@ -20,21 +23,33 @@ class Timezone extends BasicComponent implements ParserComponent
 	 */
 	private $daylight;
 
-	public static function getInstance(): Timezone
+	/**
+	 * @return Timezone
+	 */
+	public static function createInstance(): Timezone
 	{
 		return new self();
 	}
 
+	/**
+	 * Timezone constructor.
+	 */
 	public function __construct()
 	{
 
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getType(): string
 	{
 		return 'VTIMEZONE';
 	}
 
+	/**
+	 * @return string[]
+	 */
 	public function getProperties(): array
 	{
 		return [
@@ -43,45 +58,73 @@ class Timezone extends BasicComponent implements ParserComponent
 		];
 	}
 
-	public function setTimezoneId($value): Timezone
+	/**
+	 * @param ParserPropertyType|null $tzid
+	 * @return $this
+	 */
+	public function setTimezoneId(?ParserPropertyType $tzid): Timezone
 	{
-		$this->tzid = $value;
+		$this->tzid = $tzid;
+
 		return $this;
 	}
 
-	public function setTimezoneUrl($value)
+	/**
+	 * @param ParserPropertyType|null $url
+	 * @return $this
+	 */
+	public function setTimezoneUrl(?ParserPropertyType $url): Timezone
 	{
-		$this->tzurl = $value;
+		$this->tzurl = $url;
+
 		return $this;
 	}
 
-	public function setSubComponents(array $subComponents)
+	/**
+	 * @param array $subComponents
+	 * @return $this
+	 */
+	public function setSubComponents(iterable $subComponents): Timezone
 	{
 		foreach ($subComponents as $subComponent)
 		{
-			if ($subComponent instanceof BasicComponent)
+			if ($subComponent instanceof Observance)
 			{
-				if ($subComponent->getType() === 'STANDARD')
+				if ($subComponent instanceof StandardObservance)
 				{
 					$this->standard[] = $subComponent;
 				}
-				else
+				elseif($subComponent instanceof DaylightObservance)
 				{
 					$this->daylight[] = $subComponent;
 				}
 			}
 		}
+
 		return $this;
 	}
 
-
-	protected function setContent(): Content
-	{
-
-	}
-
-	public function getContent()
+	/**
+	 *
+	 */
+	public function getContent(): void
 	{
 		// TODO: Implement getContent() method.
+	}
+
+	/**
+	 * @return ParserPropertyType|null
+	 */
+	public function getTzUrl(): ?ParserPropertyType
+	{
+		return $this->tzurl;
+	}
+
+	/**
+	 * @return ParserPropertyType|null
+	 */
+	public function getTzId(): ?ParserPropertyType
+	{
+		return $this->tzid;
 	}
 }

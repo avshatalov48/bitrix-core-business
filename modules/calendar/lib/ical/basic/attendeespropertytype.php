@@ -8,7 +8,7 @@ class AttendeesPropertyType extends PropertyType
 {
 	private $calendarAddress;
 
-	public static function getInstance($names, AttendeesProperty $calendarAddress): AttendeesPropertyType
+	public static function createInstance($names, AttendeesProperty $calendarAddress): AttendeesPropertyType
 	{
 		return new self($names, $calendarAddress);
 	}
@@ -21,20 +21,17 @@ class AttendeesPropertyType extends PropertyType
 
 		if ($this->calendarAddress->participationStatus)
 		{
-			$value = Dictionary::OUT_ATTENDEES_STATUS[$this->calendarAddress->participationStatus];
-			$this->addParameter(Parameter::getInstance('PARTSTAT', $value));
+			$this->addParameter(Parameter::getInstance('PARTSTAT', $this->calendarAddress->participationStatus));
 		}
 
 		if ($this->calendarAddress->role)
 		{
-//			$value = Dictionary::OUT_ATTENDEES_STATUS[$this->calendarAddress->participationStatus];
-			$this->addParameter(Parameter::getInstance('ROLE', 'REQ-PARTICIPANT'));
+			$this->addParameter(Parameter::getInstance('ROLE', $this->calendarAddress->role));
 		}
 
 		if ($this->calendarAddress->cutype)
 		{
-//			$value = Dictionary::OUT_ATTENDEES_STATUS[$this->calendarAddress->participationStatus];
-			$this->addParameter(Parameter::getInstance('CUTYPE', 'INDIVIDUAL'));
+			$this->addParameter(Parameter::getInstance('CUTYPE', $this->calendarAddress->cutype));
 		}
 
 		$this->addParameter(Parameter::getInstance('RSVP', 'TRUE'));

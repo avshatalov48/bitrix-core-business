@@ -614,7 +614,7 @@ class PersonalProfileDetail extends CBitrixComponent
 		{
 			if ($propertyValues['PROP_TYPE'] === 'FILE')
 			{
-				$baseArray = unserialize(htmlspecialchars_decode($propertyValues['VALUE']));
+				$baseArray = unserialize(htmlspecialchars_decode($propertyValues['VALUE']), ['allowed_classes' => false]);
 				if ($idFileDeletingList = $request->get("ORDER_PROP_" . $propertyValues["ORDER_PROPS_ID"] . "_del"))
 				{
 					$propertyValues['VALUE'] = $this->deleteFromPropertyTypeFile($idFileDeletingList, $baseArray);
@@ -678,7 +678,7 @@ class PersonalProfileDetail extends CBitrixComponent
 	protected function deleteFromPropertyTypeFile($idFileDeletingList, $baseArray)
 	{
 		if (CheckSerializedData($idFileDeletingList)
-			&& ($serialisedValue = @unserialize($idFileDeletingList)) !== false)
+			&& ($serialisedValue = @unserialize($idFileDeletingList, ['allowed_classes' => false])) !== false)
 		{
 			$idFileDeletingList = $serialisedValue;
 		}

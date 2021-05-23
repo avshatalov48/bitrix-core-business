@@ -1,18 +1,19 @@
 import { Extension, Runtime, Type } from 'main.core';
-import { EventEmitter } from 'main.core.events';
+import { OrderedArray } from 'main.core.collections';
 
-import ItemCollection from '../item/item-collection';
 import SearchField from '../search/search-field';
+import TextNode from '../common/text-node';
 
 import type Item from '../item/item';
 import type { EntityOptions } from './entity-options';
 import type { SearchFieldOptions } from '../search/search-field-options';
 import type { ItemBadgeOptions } from '../item/item-badge-options';
+import type { EntityBadgeOptions } from './entity-badge-options';
 
 /**
  * @memberof BX.UI.EntitySelector
  */
-export default class Entity extends EventEmitter
+export default class Entity
 {
 	static extensions: string[] = null;
 	static defaultOptions: { [entityId: string]: { [key: string]: any } } = null;
@@ -20,7 +21,7 @@ export default class Entity extends EventEmitter
 	id: string = null;
 	options: { [key: string]: any } = {};
 	searchable: boolean = true;
-	searchFields: ItemCollection<SearchField> = new ItemCollection();
+	searchFields: OrderedArray<SearchField> = null;
 	dynamicLoad: boolean = false;
 	dynamicSearch: boolean = false;
 	searchCacheLimits: RegExp[] = [];
@@ -28,12 +29,10 @@ export default class Entity extends EventEmitter
 	itemOptions: { [key: string]: any } = {};
 	tagOptions: { [key: string]: any } = {};
 	badgeOptions: ItemBadgeOptions[] = [];
+	textNodes: Map<string, Map<string, TextNode>> = new Map();
 
 	constructor(entityOptions: EntityOptions)
 	{
-		super();
-		this.setEventNamespace('BX.UI.EntitySelector.Entity');
-
 		let options: EntityOptions = Type.isPlainObject(entityOptions) ? entityOptions : {};
 		if (!Type.isStringFilled(options.id))
 		{
@@ -43,13 +42,31 @@ export default class Entity extends EventEmitter
 		const defaultOptions = this.constructor.getEntityDefaultOptions(options.id) || {};
 		options = Runtime.merge(JSON.parse(JSON.stringify(defaultOptions)), options);
 
-		this.id = options.id;
+		this.id = options.id.toLowerCase();
 		this.options = Type.isPlainObject(options.options) ? options.options : {};
 		this.itemOptions = Type.isPlainObject(options.itemOptions) ? options.itemOptions : {};
 		this.tagOptions = Type.isPlainObject(options.tagOptions) ? options.tagOptions : {};
 		this.badgeOptions = Type.isArray(options.badgeOptions) ? options.badgeOptions : [];
+		this.searchFields = new OrderedArray((fieldA: SearchField, fieldB: SearchField) => {
+			if (fieldA.getSort() !== null && fieldB.getSort() === null)
+			{
+				return -1;
+			}
+			else if (fieldA.getSort() === null && fieldB.getSort() !== null)
+			{
+				return 1;
+			}
+			else if (fieldA.getSort() === null && fieldB.getSort() === null)
+			{
+				return -1;
+			}
+			else
+			{
+				return fieldA.getSort() - fieldB.getSort();
+			}
+		});
 
-		this.setSeachable(options.searchable);
+		this.setSearchable(options.searchable);
 		this.setDynamicLoad(options.dynamicLoad);
 		this.setDynamicSearch(options.dynamicSearch);
 		this.setSearchFields(options.searchFields);
@@ -147,7 +164,7 @@ export default class Entity extends EventEmitter
 		return this.itemOptions;
 	}
 
-	static getItemOption(entityId: string, option: string, entityType?: string)
+	static getItemOption(entityId: string, option: string, entityType?: string): any
 	{
 		return this.getOptionInternal(this.getItemOptions(entityId), option, entityType);
 	}
@@ -162,7 +179,7 @@ export default class Entity extends EventEmitter
 		return this.tagOptions;
 	}
 
-	static getTagOption(entityId: string, option: string, entityType?: string)
+	static getTagOption(entityId: string, option: string, entityType?: string): any
 	{
 		return this.getOptionInternal(this.getTagOptions(entityId), option, entityType);
 	}
@@ -191,12 +208,12 @@ export default class Entity extends EventEmitter
 		return null;
 	}
 
-	getBadges(item: Item)
+	getBadges(item: Item): EntityBadgeOptions[]
 	{
 		const entityTypeBadges = this.getItemOption('badges', item.getEntityType()) || [];
 		const badges = [...entityTypeBadges];
 
-		this.badgeOptions.forEach((badge) => {
+		this.badgeOptions.forEach((badge: EntityBadgeOptions) => {
 			if (Type.isPlainObject(badge.conditions))
 			{
 				for (const condition in badge.conditions)
@@ -214,27 +231,57 @@ export default class Entity extends EventEmitter
 		return badges;
 	}
 
+	getOptionTextNode(option: string, entityType?: string): ?TextNode
+	{
+		if (!Type.isString(option))
+		{
+			return null;
+		}
+
+		if (!Type.isString(entityType))
+		{
+			entityType = 'default';
+		}
+
+		let optionNodes = this.textNodes.get(option);
+		let node = optionNodes ? optionNodes.get(entityType) : undefined;
+
+		if (Type.isUndefined(node))
+		{
+			if (!optionNodes)
+			{
+				optionNodes = new Map();
+				this.textNodes.set(option, optionNodes);
+			}
+
+			const itemOption = this.getItemOption(option, entityType);
+			node = Type.isString(itemOption) || Type.isPlainObject(itemOption) ? new TextNode(itemOption) : null;
+
+			optionNodes.set(entityType, node);
+		}
+
+		return node;
+	}
+
 	isSearchable(): boolean
 	{
 		return this.searchable;
 	}
 
-	setSeachable(flag: boolean): this
+	setSearchable(flag: boolean): void
 	{
 		if (Type.isBoolean(flag))
 		{
 			this.searchable = flag;
 		}
-
-		return this;
 	}
 
-	getSearchFields(): ItemCollection<SearchField>
+	getSearchFields(): OrderedArray<SearchField>
 	{
 		return this.searchFields;
 	}
 
-	setSearchFields(searchFields: SearchFieldOptions[])
+	setSearchFields(searchFields: SearchFieldOptions[]): void
 	{
 		this.searchFields.clear();
 
@@ -260,11 +307,16 @@ export default class Entity extends EventEmitter
 					this.searchFields.delete(subtitleField);
 				}
 			}
+
 			this.searchFields.add(field);
+		});
+
+		this.searchFields.forEach((field: SearchField, index: number) => {
+			field.setSort(index);
 		});
 	}
 
-	setSearchCacheLimits(limits: string[])
+	setSearchCacheLimits(limits: string[]): void
 	{
 		if (Type.isArrayFilled(limits))
 		{
@@ -282,34 +334,30 @@ export default class Entity extends EventEmitter
 		return this.searchCacheLimits;
 	}
 
-	hasDynamicLoad()
+	hasDynamicLoad(): boolean
 	{
 		return this.dynamicLoad;
 	}
 
-	setDynamicLoad(flag: boolean): this
+	setDynamicLoad(flag: boolean): void
 	{
 		if (Type.isBoolean(flag))
 		{
 			this.dynamicLoad = flag;
 		}
-
-		return this;
 	}
 
-	hasDynamicSearch()
+	hasDynamicSearch(): boolean
 	{
 		return this.dynamicSearch;
 	}
 
-	setDynamicSearch(flag: boolean): this
+	setDynamicSearch(flag: boolean): void
 	{
 		if (Type.isBoolean(flag))
 		{
 			this.dynamicSearch = flag;
 		}
-
-		return this;
 	}
 
 	toJSON()

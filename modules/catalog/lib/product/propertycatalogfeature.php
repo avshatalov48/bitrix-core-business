@@ -110,7 +110,7 @@ if (Loader::includeModule('iblock'))
 				case \CCatalogSku::TYPE_OFFERS:
 					$filter = [
 						'!=PROPERTY.PROPERTY_TYPE' => Iblock\PropertyTable::TYPE_FILE,
-						'!=ID' => $catalog['SKU_PROPERTY_ID']
+						'!=PROPERTY.ID' => $catalog['SKU_PROPERTY_ID']
 					];
 					break;
 			}

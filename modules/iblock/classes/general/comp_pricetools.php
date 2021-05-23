@@ -1208,7 +1208,7 @@ class CIBlockPriceTools
 				$skuTreeProps = base64_decode((string)$skuTreeProps);
 				if (false !== $skuTreeProps && CheckSerializedData($skuTreeProps))
 				{
-					$skuPropsList = unserialize($skuTreeProps);
+					$skuPropsList = unserialize($skuTreeProps, ['allowed_classes' => false]);
 					if (!is_array($skuPropsList))
 					{
 						$skuPropsList = array();
@@ -1918,7 +1918,7 @@ class CIBlockPriceTools
 				$propInfo['USER_TYPE_SETTINGS'] = (string)$propInfo['USER_TYPE_SETTINGS'];
 				if ($propInfo['USER_TYPE_SETTINGS'] == '')
 					continue;
-				$propInfo['USER_TYPE_SETTINGS'] = unserialize($propInfo['USER_TYPE_SETTINGS']);
+				$propInfo['USER_TYPE_SETTINGS'] = unserialize($propInfo['USER_TYPE_SETTINGS'], ['allowed_classes' => false]);
 				if (!isset($propInfo['USER_TYPE_SETTINGS']['TABLE_NAME']) || empty($propInfo['USER_TYPE_SETTINGS']['TABLE_NAME']))
 					continue;
 				if (self::$highLoadInclude === null)
@@ -2567,13 +2567,13 @@ class CIBlockPriceTools
 			{
 				$propertyCode = array($propertyCode);
 			}
-			
+
 			if (!empty($propertyCode))
 			{
 				foreach ($propertyCode as $index => $code)
 				{
 					$code = (string)$code;
-					
+
 					if ($code !== '' && isset($item['PROPERTIES'][$code]))
 					{
 						$prop = $item['PROPERTIES'][$code];

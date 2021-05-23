@@ -8,10 +8,10 @@
 
 namespace Bitrix\Sender\Message;
 
-use Bitrix\Main\Error;
-use Bitrix\Main\Result;
 use Bitrix\Main\ArgumentException;
+use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Result;
 
 Loc::getMessage(__FILE__);
 
@@ -91,6 +91,7 @@ class Configuration
 	 *
 	 * @param $key
 	 * @param $value
+	 * @return mixed
 	 */
 	public function set($key, $value)
 	{
@@ -100,6 +101,8 @@ class Configuration
 		{
 			$option->setValue($value);
 		}
+
+		return $value;
 	}
 
 	/**

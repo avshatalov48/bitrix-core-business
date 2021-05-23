@@ -1,7 +1,11 @@
 <?php
 namespace Bitrix\Im\Integration\Intranet;
 
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\Entity\ExpressionField;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Type\DateTime;
+use Bitrix\Main\UserTable;
 
 class User
 {
@@ -74,7 +78,6 @@ class User
 				'#USERS#' => implode(', ', $userForSend)
 			]),
 			'SYSTEM' => 'Y',
-			'INCREMENT_COUNTER' => 'N',
 			'PUSH' => 'N'
 		]);
 	}
@@ -106,7 +109,6 @@ class User
 				'#USERS#' => implode(', ', $users)
 			]),
 			'SYSTEM' => 'Y',
-			'INCREMENT_COUNTER' => 'N',
 			'PUSH' => 'N'
 		]);
 	}
@@ -326,6 +328,70 @@ class User
 		self::$isEmployee[$userId] = $result['USER_TYPE'] === 'employee';
 
 		return self::$isEmployee[$userId];
+	}
+
+	public static function getBirthdayForToday()
+	{
+		if (!IsModuleInstalled('intranet'))
+		{
+			return [];
+		}
+
+		$option = Option::get('im', 'contact_list_birthday');
+		if ($option === 'none' || \Bitrix\Im\User::getInstance()->isExtranet())
+		{
+			return [];
+		}
+
+		global $USER;
+
+		$today = (new DateTime())->format('m-d');
+		if ($option === 'department')
+		{
+			$cacheId = 'birthday_'.$today.'_'.$USER->GetID();
+		}
+		else
+		{
+			$cacheId = 'birthday_'.$today;
+		}
+
+		$cache = \Bitrix\Main\Data\Cache::createInstance();
+		if($cache->initCache(86400, $cacheId, '/bx/im/birthday/'))
+		{
+			return $cache->getVars();
+		}
+
+		$user = \CUser::getById($USER->GetId())->Fetch();
+
+		$filter = [
+			'=BIRTHDAY_DATE' => $today,
+			'=IS_REAL_USER' => true,
+		];
+		if ($option === 'department')
+		{
+			$filter['=UF_DEPARTMENT'] = $user['UF_DEPARTMENT'];
+		}
+
+		$result = [];
+		$users = UserTable::getList([
+			'filter' => $filter,
+			'select' => ['ID'],
+			'runtime' => [
+				new ExpressionField('BIRTHDAY_DATE', "DATE_FORMAT(%s, '%%m-%%d')", 'PERSONAL_BIRTHDAY')
+			],
+			'limit' => 100,
+		])->fetchAll();
+
+		foreach ($users as $user)
+		{
+			$result[] = \Bitrix\Im\User::getInstance($user['ID'])->getArray(['SKIP_ONLINE' => 'Y', 'JSON' => 'Y']);
+		}
+
+		$cache->forceRewriting(true);
+		$cache->startDataCache();
+		$cache->endDataCache($result);
+
+		return $result;
 	}
 
 	public static function registerEventHandler()

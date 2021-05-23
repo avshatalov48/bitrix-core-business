@@ -113,6 +113,29 @@ class UserProvider extends BaseProvider
 		{
 			$this->options['inviteGuestLink'] = $options['inviteGuestLink'];
 		}
+
+		if (isset($options['userId']))
+		{
+			if (is_array($options['userId']))
+			{
+				$this->options['userId'] = $options['userId'];
+			}
+			elseif (is_string($options['userId']) || is_int($options['userId']))
+			{
+				$this->options['userId'] = (int)$options['userId'];
+			}
+		}
+		elseif (isset($options['!userId']))
+		{
+			if (is_array($options['!userId']))
+			{
+				$this->options['!userId'] = $options['!userId'];
+			}
+			elseif (is_string($options['!userId']) || is_int($options['!userId']))
+			{
+				$this->options['!userId'] = (int)$options['!userId'];
+			}
+		}
 	}
 
 	public function isAvailable(): bool
@@ -269,7 +292,8 @@ class UserProvider extends BaseProvider
 			$dialog->addItems(
 				$this->getUserItems([
 					'searchByEmail' => $searchQuery->getQuery(),
-					'myEmailUsers' => false
+					'myEmailUsers' => false,
+					'limit' => 100
 				])
 			);
 		}
@@ -278,6 +302,7 @@ class UserProvider extends BaseProvider
 			$dialog->addItems(
 				$this->getUserItems([
 					'searchQuery' => $searchQuery->getQuery(),
+					'limit' => 100
 				])
 			);
 		}
@@ -674,9 +699,13 @@ class UserProvider extends BaseProvider
 			$query->setOrder(['LAST_NAME' => 'asc']);
 		}
 
-		if ($userFilter === null || empty($userIds))
+		if (isset($options['limit']) && is_int($options['limit']))
 		{
-			$query->setLimit(isset($options['limit']) && is_int($options['limit']) ? $options['limit'] : 100);
+			$query->setLimit($options['limit']);
+		}
+		elseif ($userFilter !== 'userId' || empty($userIds))
+		{
+			$query->setLimit(100);
 		}
 
 		//echo '<pre>'.$query->getQuery().'</pre>';

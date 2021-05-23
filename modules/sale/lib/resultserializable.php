@@ -50,7 +50,7 @@ class ResultSerializable
 	 */
 	public function unserialize($data)
 	{
-		$vars = unserialize($data);
+		$vars = unserialize($data, ['allowed_classes' => [static::class]]);
 		$isNeedRecode = !empty($vars['CHARSET']) && $vars['CHARSET'] != ToUpper(SITE_CHARSET);
 		$this->errors = new ErrorCollection();
 

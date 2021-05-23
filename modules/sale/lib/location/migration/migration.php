@@ -71,7 +71,7 @@ final class MigrationProcess extends Location\Util\Process
 		if(!isset($this->data['migrator_data']))
 			$this->migrator = new CUpdaterLocationPro();
 		else
-			$this->migrator = unserialize($this->data['migrator_data']);
+			$this->migrator = unserialize($this->data['migrator_data'], ['allowed_classes' => false]);
 	}
 
 	public function onAfterPerformIteration()

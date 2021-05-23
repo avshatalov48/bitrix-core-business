@@ -273,9 +273,11 @@ else
 			}
 			$arResult["GROUP"] = $arBlogGroupTmp;
 
-			$arResult["AUTO_GROUPS"] = Array();
+			$arResult["AUTO_GROUPS"] = [];
 			if(!empty($arBlog))
-				$arResult["AUTO_GROUPS"] = unserialize($arBlog["AUTO_GROUPS"]);
+			{
+				$arResult["AUTO_GROUPS"] = unserialize($arBlog["AUTO_GROUPS"], ['allowed_classes' => false]);
+			}
 				
 			if(!empty($arBlog))
 			{

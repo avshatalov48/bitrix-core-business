@@ -16,5 +16,5 @@ use Bitrix\Catalog\v2\RepositoryContract;
  */
 interface SectionRepositoryContract extends RepositoryContract
 {
-	public function getCollectionByProduct(BaseProduct $product): BaseCollection;
+	public function getCollectionByProduct(BaseProduct $product): SectionCollection;
 }

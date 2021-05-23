@@ -1,0 +1,14 @@
+<?php
+$MESS["UI_STEP_PROCESSING_AUTH_ERROR"] = "Your session has expired. Please authorize again.";
+$MESS["UI_STEP_PROCESSING_REQUEST_ERR"] = "Error processing request.";
+$MESS["UI_STEP_PROCESSING_FILE_DELETE"] = "Delete file";
+$MESS["UI_STEP_PROCESSING_FILE_DOWNLOAD"] = "Download file";
+$MESS["UI_STEP_PROCESSING_FILE_EMPTY_ERROR"] = "File to upload is required";
+$MESS["UI_STEP_PROCESSING_CANCELED"] = "Canceled";
+$MESS["UI_STEP_PROCESSING_COMPLETED"] = "Completed";
+$MESS["UI_STEP_PROCESSING_BTN_START"] = "Run";
+$MESS["UI_STEP_PROCESSING_BTN_STOP"] = "Stop";
+$MESS["UI_STEP_PROCESSING_BTN_CLOSE"] = "Close";
+$MESS["UI_STEP_PROCESSING_CANCELING"] = "Canceling...";
+$MESS["UI_STEP_PROCESSING_EMPTY_ERROR"] = "Empty";
+$MESS["UI_STEP_PROCESSING_WAITING"] = "Please wait...";

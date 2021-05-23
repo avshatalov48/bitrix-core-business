@@ -256,7 +256,7 @@ $arAllOptions = array(
 	),
 );
 
-if (\Bitrix\Main\Analytics\SiteSpeed::isRussianSiteManager())
+if (\Bitrix\Main\Analytics\SiteSpeed::isOn())
 {
 	$arAllOptions["main"][] = GetMessage("MAIN_CATALOG_STAT_SETTINGS");
 	$arAllOptions["main"][] = array("gather_catalog_stat", GetMessage("MAIN_GATHER_CATALOG_STAT"), "Y", Array("checkbox", "Y"));
@@ -277,7 +277,7 @@ $imageEditorOptions["Y"] = GetMessage("MAIN_OPTION_IMAGE_EDITOR_PROXY_ENABLED_YE
 $imageEditorOptions["YWL"] = GetMessage("MAIN_OPTION_IMAGE_EDITOR_PROXY_ENABLED_YES_FROM_WHITE_LIST");
 $arAllOptions["main"][] = Array("imageeditor_proxy_enabled", GetMessage("MAIN_OPTION_IMAGE_EDITOR_PROXY_ENABLED"), "N", array("selectbox", $imageEditorOptions));
 
-$allowedHostsList = unserialize(COption::GetOptionString("main", "imageeditor_proxy_white_list"));
+$allowedHostsList = unserialize(COption::GetOptionString("main", "imageeditor_proxy_white_list"), ['allowed_classes' => false]);
 
 if (!is_array($allowedHostsList) || empty($allowedHostsList))
 {
@@ -399,12 +399,12 @@ $arAllOptions["main"][] = Array("", "", $addAllowedHost, Array("statichtml"));
 CJSCore::Init(array('access'));
 
 //show the public panel for users
-$arCodes = unserialize(COption::GetOptionString("main", "show_panel_for_users"));
+$arCodes = unserialize(COption::GetOptionString("main", "show_panel_for_users"), ['allowed_classes' => false]);
 if(!is_array($arCodes))
 	$arCodes = array();
 
 //hide the public panel for users
-$arHideCodes = unserialize(COption::GetOptionString("main", "hide_panel_for_users"));
+$arHideCodes = unserialize(COption::GetOptionString("main", "hide_panel_for_users"), ['allowed_classes' => false]);
 if(!is_array($arHideCodes))
 	$arHideCodes = array();
 
@@ -1187,7 +1187,7 @@ if(COption::GetOptionString("main", "controller_member", "N")!="Y"):
 	foreach (array("db", "files") as $name):
 		$res = array();
 		if (COption::GetOptionString("main_size", "~".$name."_params"))
-			$res = unserialize(COption::GetOptionString("main_size", "~".$name."_params"));
+			$res = unserialize(COption::GetOptionString("main_size", "~".$name."_params"), ['allowed_classes' => false]);
 		if ($res)
 		{
 			$res = array_merge(

@@ -13,33 +13,33 @@ Loc::loadMessages(__FILE__);
 
 class DiscountManager
 {
-	protected static $discountCache = array();
-	protected static $typeCache = array();
-	protected static $editUrlTemplate = array();
+	protected static $discountCache = [];
+	protected static $typeCache = [];
+	protected static $editUrlTemplate = [];
 	protected static $saleIncluded = null;
-	protected static $preloadedPriceData = array();
-	protected static $preloadedProductsData = array();
-	protected static $productProperties = array();
+	protected static $preloadedPriceData = [];
+	protected static $preloadedProductsData = [];
+	protected static $productProperties = [];
 
 	/**
 	 * Return methods for prepare discount.
 	 *
 	 * @param Main\Event $event					Event data from discount manager.
 	 * @return Main\EventResult
+	 * @noinspection PhpUnusedParameterInspection
 	 */
-	public static function catalogDiscountManager(/** @noinspection PhpUnusedParameterInspection */Main\Event $event)
+	public static function catalogDiscountManager(Main\Event $event): Main\EventResult
 	{
-		$result = new Main\EventResult(
+		return new Main\EventResult(
 			Main\EventResult::SUCCESS,
-			array(
-				'prepareData' => array(__CLASS__, 'prepareData'),
-				'getEditUrl' => array(__CLASS__, 'getEditUrl'),
-				'calculateApplyCoupons' => array(__CLASS__, 'calculateApplyCoupons'),
-				'roundBasket' => array(__CLASS__, 'roundBasket')
-			),
+			[
+				'prepareData' => [__CLASS__, 'prepareData'],
+				'getEditUrl' => [__CLASS__, 'getEditUrl'],
+				'calculateApplyCoupons' => [__CLASS__, 'calculateApplyCoupons'],
+				'roundBasket' => [__CLASS__, 'roundBasket']
+			],
 			'catalog'
 		);
-		return $result;
 	}
 
 	/**
@@ -49,7 +49,7 @@ class DiscountManager
 	 * @param array $params					Params.
 	 * @return array|bool
 	 */
-	public static function prepareData($discount, $params = array())
+	public static function prepareData(array $discount, $params = [])
 	{
 		if (empty($discount) || empty($discount['ID']))
 			return false;
@@ -68,7 +68,9 @@ class DiscountManager
 				if ($loadData['CURRENCY'] != $params['CURRENCY'])
 					Catalog\DiscountTable::convertCurrency($loadData, $params['CURRENCY']);
 				self::createSaleAction($loadData, $params);
-				$loadData['EDIT_PAGE_URL'] = self::getEditUrl(array('ID' => $discountId, 'TYPE' => $loadData['TYPE']));
+				$loadData['EDIT_PAGE_URL'] = self::getEditUrl([
+					'ID' => $discountId, 'TYPE' => $loadData['TYPE']
+				]);
 				self::$discountCache[$discountId] = $loadData;
 			}
 		}
@@ -90,14 +92,14 @@ class DiscountManager
 	 * @param array $discount			Discount data.
 	 * @return string
 	 */
-	public static function getEditUrl($discount)
+	public static function getEditUrl(array $discount): string
 	{
 		if (empty(self::$editUrlTemplate))
 		{
-			self::$editUrlTemplate = array(
+			self::$editUrlTemplate = [
 				Catalog\DiscountTable::TYPE_DISCOUNT => '/bitrix/admin/cat_discount_edit.php?lang='.LANGUAGE_ID.'&ID=',
 				Catalog\DiscountTable::TYPE_DISCOUNT_SAVE => '/bitrix/admin/cat_discsave_edit.php?lang='.LANGUAGE_ID.'&ID='
-			);
+			];
 		}
 		$result = '';
 		if (empty($discount['ID']) || (int)$discount['ID'] <= 0)
@@ -116,10 +118,10 @@ class DiscountManager
 			}
 			else
 			{
-				$discountIterator = Catalog\DiscountTable::getList(array(
-					'select' => array('ID', 'TYPE'),
-					'filter' => array('=ID' => $id)
-				));
+				$discountIterator = Catalog\DiscountTable::getList([
+					'select' => ['ID', 'TYPE'],
+					'filter' => ['=ID' => $id]
+				]);
 				$data = $discountIterator->fetch();
 				if (!empty($data))
 				{
@@ -144,9 +146,9 @@ class DiscountManager
 	 * @return array
 	 * @throws Main\ArgumentException
 	 */
-	public static function calculateApplyCoupons(array $couponsList, array $basket, array $params)
+	public static function calculateApplyCoupons(array $couponsList, array $basket, array $params): array
 	{
-		$result = array();
+		$result = [];
 
 		if (empty($couponsList))
 			return $result;
@@ -159,7 +161,7 @@ class DiscountManager
 		if (empty($filteredBasket))
 			return $result;
 
-		$filteredCoupons = array();
+		$filteredCoupons = [];
 		foreach ($couponsList as $coupon)
 		{
 			if (!isset($coupon['COUPON']) || $coupon['COUPON'] == '')
@@ -172,13 +174,13 @@ class DiscountManager
 		if (empty($filteredCoupons))
 			return $result;
 
-		$discountIds = array();
-		$discountCoupons = array();
-		$oneRowCoupons = array();
-		$couponsIterator = Catalog\DiscountCouponTable::getList(array(
-			'select' => array('ID', 'COUPON', 'DISCOUNT_ID', 'TYPE'),
-			'filter' => array('@COUPON' => $filteredCoupons, 'ACTIVE' => 'Y')
-		));
+		$discountIds = [];
+		$discountCoupons = [];
+		$oneRowCoupons = [];
+		$couponsIterator = Catalog\DiscountCouponTable::getList([
+			'select' => ['ID', 'COUPON', 'DISCOUNT_ID', 'TYPE'],
+			'filter' => ['@COUPON' => $filteredCoupons, 'ACTIVE' => 'Y']
+		]);
 		while ($coupon = $couponsIterator->fetch())
 		{
 			$discountIds[$coupon['DISCOUNT_ID']] = true;
@@ -196,9 +198,9 @@ class DiscountManager
 		$userGroups = Main\UserTable::getUserGroupIds($userId);
 		$userGroups[] = -1;
 
-		$iblockList = array();
-		$product2Iblock = array();
-		$itemIds = array();
+		$iblockList = [];
+		$product2Iblock = [];
+		$itemIds = [];
 		foreach ($filteredBasket as $basketItem)
 		{
 			$productId = (int)$basketItem['PRODUCT_ID'];
@@ -206,16 +208,16 @@ class DiscountManager
 		}
 		unset($basketItem);
 
-		$itemIterator = Iblock\ElementTable::getList(array(
-			'select' => array('ID', 'IBLOCK_ID'),
-			'filter' => array('@ID' => $itemIds, 'ACTIVE' => 'Y')
-		));
+		$itemIterator = Iblock\ElementTable::getList([
+			'select' => ['ID', 'IBLOCK_ID'],
+			'filter' => ['@ID' => $itemIds, '=ACTIVE' => 'Y']
+		]);
 		while ($item = $itemIterator->fetch())
 		{
 			$id = (int)$item['ID'];
 			$iblockId = (int)$item['IBLOCK_ID'];
 			if (!isset($iblockList[$iblockId]))
-				$iblockList[$iblockId] = array();
+				$iblockList[$iblockId] = [];
 			$iblockList[$iblockId][$id] = $id;
 			$product2Iblock[$id] = $iblockId;
 			unset($iblockId, $id);
@@ -231,7 +233,7 @@ class DiscountManager
 			/** @noinspection PhpMethodOrClassCallIsNotCaseSensitiveInspection */
 			\CCatalogDiscount::setProductSectionsCache($elements);
 			/** @noinspection PhpMethodOrClassCallIsNotCaseSensitiveInspection */
-			\CCatalogDiscount::setDiscountProductCache($elements, array('IBLOCK_ID' => $iblockId, 'GET_BY_ID' => 'Y'));
+			\CCatalogDiscount::setDiscountProductCache($elements, ['IBLOCK_ID' => $iblockId, 'GET_BY_ID' => 'Y']);
 		}
 		unset($iblockId, $elements);
 
@@ -239,7 +241,7 @@ class DiscountManager
 		if (isset($params['USE_BASE_PRICE']))
 			\CCatalogDiscount::setUseBasePrice($params['USE_BASE_PRICE'] == 'Y');
 
-		Main\Type\Collection::sortByColumn($filteredBasket, array('PRICE' => SORT_DESC), '', null, true);
+		Main\Type\Collection::sortByColumn($filteredBasket, ['PRICE' => SORT_DESC], '', null, true);
 		foreach ($filteredBasket as $basketCode => $basketItem)
 		{
 			$productId = (int)$basketItem['PRODUCT_ID'];
@@ -252,7 +254,7 @@ class DiscountManager
 			$discountList = \CCatalogDiscount::getDiscount(
 				$productId,
 				$product2Iblock[$productId],
-				array(-1),
+				[-1],
 				$userGroups,
 				'N',
 				$params['SITE_ID'],
@@ -262,7 +264,7 @@ class DiscountManager
 			if (empty($discountList))
 				continue;
 
-			$itemDiscounts = array();
+			$itemDiscounts = [];
 			foreach ($discountList as $discount)
 			{
 				if (!isset($discountIds[$discount['ID']]))
@@ -277,7 +279,7 @@ class DiscountManager
 			unset($itemDiscounts);
 			if (!empty($itemsDiscountResult['DISCOUNT_LIST']))
 			{
-				$result[$basketCode] = array();
+				$result[$basketCode] = [];
 				foreach ($itemsDiscountResult['DISCOUNT_LIST'] as $discount)
 				{
 					$result[$basketCode][] = \CCatalogDiscount::getDiscountDescription($discount);
@@ -305,10 +307,10 @@ class DiscountManager
 	 * @param array $roundData		Round rule.
 	 * @return array
 	 */
-	public static function roundPrice(array $basketItem, array $roundData = array())
+	public static function roundPrice(array $basketItem, array $roundData = []): array
 	{
 		if (empty($basketItem))
-			return array();
+			return [];
 
 		$result = self::roundBasket([0 => $basketItem], [0 => $roundData], []);
 		return (!empty($result[0]) ? $result[0] : []);
@@ -321,19 +323,20 @@ class DiscountManager
 	 * @param array $basketRoundData	Round rules.
 	 * @param array $order				Order fields (without basket, can be absent).
 	 * @return array
+	 * @noinspection PhpUnusedParameterInspection
 	 */
-	public static function roundBasket(array $basket, array $basketRoundData = array(), array $order = array())
+	public static function roundBasket(array $basket, array $basketRoundData = [], array $order = []): array
 	{
 		if (empty($basket))
-			return array();
+			return [];
 
-		$result = array();
+		$result = [];
 		$basket = array_filter($basket, '\Bitrix\Catalog\Discount\DiscountManager::basketFilter');
 		if (!empty($basket))
 		{
-			$priceTypes = array();
-			$loadPriceId = array();
-			$loadBasketCodes = array();
+			$priceTypes = [];
+			$loadPriceId = [];
+			$loadBasketCodes = [];
 			foreach ($basket as $basketCode => $basketItem)
 			{
 				if (!empty($basketRoundData[$basketCode]))
@@ -371,10 +374,10 @@ class DiscountManager
 				sort($loadPriceId);
 				foreach (array_chunk($loadPriceId, 500) as $pageIds)
 				{
-					$iterator = Catalog\PriceTable::getList(array(
-						'select' => array('ID', 'CATALOG_GROUP_ID'),
-						'filter' => array('@ID' => $pageIds)
-					));
+					$iterator = Catalog\PriceTable::getList([
+						'select' => ['ID', 'CATALOG_GROUP_ID'],
+						'filter' => ['@ID' => $pageIds]
+					]);
 					while ($row = $iterator->fetch())
 					{
 						$id = (int)$row['ID'];
@@ -420,8 +423,9 @@ class DiscountManager
 	 * @param array &$product			Product data.
 	 * @param array $discount			Discount data.
 	 * @return void
+	 * @noinspection PhpMissingParamTypeInspection
 	 */
-	public static function applyDiscount(&$product, $discount)
+	public static function applyDiscount(&$product, $discount): void
 	{
 		if (empty($product) || !is_array($product))
 			return;
@@ -480,16 +484,16 @@ class DiscountManager
 	/**
 	 * Returns price for product which has catalog group.
 	 *
-	 * @param int $productId		Product id.
-	 * @param int $catalogGroupId	Catalog group.
+	 * @param int $productId Product id.
+	 * @param int $catalogGroupId Catalog group.
 	 * @return null|array
 	 */
-	public static function getPriceDataByProductId($productId, $catalogGroupId)
+	public static function getPriceDataByProductId(int $productId, int $catalogGroupId): ?array
 	{
 		if (!isset(self::$preloadedPriceData[$productId.'-'.$catalogGroupId]))
 		{
 			self::$preloadedPriceData[$productId.'-'.$catalogGroupId] = null;
-			self::preloadPriceData(array($productId), array($catalogGroupId));
+			self::preloadPriceData([$productId], [$catalogGroupId]);
 		}
 		return self::$preloadedPriceData[$productId.'-'.$catalogGroupId];
 	}
@@ -500,6 +504,7 @@ class DiscountManager
 	 * @param int $productId		Product id.
 	 * @param array $props			Property values.
 	 * @return void
+	 * @noinspection PhpMissingParamTypeInspection
 	 */
 	public static function setProductPropertiesCache($productId, $props)
 	{
@@ -516,7 +521,7 @@ class DiscountManager
 	 */
 	public static function clearProductPropertiesCache()
 	{
-		self::$productProperties = array();
+		self::$productProperties = [];
 	}
 
 	/**
@@ -526,7 +531,7 @@ class DiscountManager
 	 */
 	public static function clearProductsCache()
 	{
-		self::$preloadedProductsData = array();
+		self::$preloadedProductsData = [];
 	}
 
 	/**
@@ -536,7 +541,7 @@ class DiscountManager
 	 */
 	public static function clearProductPricesCache()
 	{
-		self::$preloadedPriceData = array();
+		self::$preloadedPriceData = [];
 	}
 
 	/**
@@ -572,13 +577,13 @@ class DiscountManager
 			return;
 		}
 
-		$dbPrice = Catalog\PriceTable::getList(array(
-			'select' => array('*'),
-			'filter' => array('@PRODUCT_ID' => $productIds, '@CATALOG_GROUP_ID' => $catalogGroups)
-		));
+		$dbPrice = Catalog\PriceTable::getList([
+			'select' => ['*'],
+			'filter' => ['@PRODUCT_ID' => $productIds, '@CATALOG_GROUP_ID' => $catalogGroups]
+		]);
 		while($priceRow = $dbPrice->fetch())
 		{
-			self::$preloadedPriceData[$priceRow['PRODUCT_ID'] . '-' . $priceRow['CATALOG_GROUP_ID']] = $priceRow;
+			self::$preloadedPriceData[$priceRow['PRODUCT_ID'].'-'.$priceRow['CATALOG_GROUP_ID']] = $priceRow;
 		}
 	}
 
@@ -654,7 +659,7 @@ class DiscountManager
 		$iblockData = self::getProductIblocks($productIds);
 		self::fillProductPropertyList($entityData, $iblockData);
 
-		$productData = array_fill_keys($productIds, array());
+		$productData = array_fill_keys($productIds, []);
 		if(empty($iblockData['iblockElement']))
 		{
 			return;
@@ -665,7 +670,7 @@ class DiscountManager
 		$cacheKeyForEntityList = self::getCacheKeyForEntityList($entityList);
 		if(!isset(self::$preloadedProductsData[$cacheKeyForEntityList]))
 		{
-			self::$preloadedProductsData[$cacheKeyForEntityList] = array();
+			self::$preloadedProductsData[$cacheKeyForEntityList] = [];
 		}
 
 		foreach($productData as $productId => $data)
@@ -680,10 +685,10 @@ class DiscountManager
 	 * @param Main\Event $event			Event.
 	 * @return Main\EventResult
 	 */
-	public static function extendOrderData(Main\Event $event)
+	public static function extendOrderData(Main\Event $event): Main\EventResult
 	{
 		$process = true;
-		$resultData = array();
+		$resultData = [];
 		$orderData = $event->getParameter('ORDER');
 		$entityList = $event->getParameter('ENTITY');
 		$cacheKeyForEntityList = self::getCacheKeyForEntityList($entityList);
@@ -711,10 +716,10 @@ class DiscountManager
 		}
 		if ($process)
 		{
-			$productMap = array();
-			$productList = array();
-			$productData = array();
-			$priceList = array();
+			$productMap = [];
+			$productList = [];
+			$productData = [];
+			$priceList = [];
 
 			$basket = array_filter($orderData['BASKET_ITEMS'], '\Bitrix\Catalog\Discount\DiscountManager::basketFilter');
 			if (!empty($basket))
@@ -724,7 +729,7 @@ class DiscountManager
 					$basketItem['PRODUCT_ID'] = (int)$basketItem['PRODUCT_ID'];
 					$productList[] = $basketItem['PRODUCT_ID'];
 					if (!isset($productMap[$basketItem['PRODUCT_ID']]))
-						$productMap[$basketItem['PRODUCT_ID']] = array();
+						$productMap[$basketItem['PRODUCT_ID']] = [];
 					$productMap[$basketItem['PRODUCT_ID']][] = &$basket[$basketCode];
 					$priceList[] = $basketItem['PRODUCT_PRICE_ID'];
 				}
@@ -738,7 +743,7 @@ class DiscountManager
 					$productList = array_diff($productList, $preloadedProductIds);
 				}
 
-				$productData = array_fill_keys($productList, array());
+				$productData = array_fill_keys($productList, []);
 
 				if($productData)
 				{
@@ -792,18 +797,18 @@ class DiscountManager
 		return $result;
 	}
 
-	protected static function getCacheKeyForEntityList(array $entityList)
+	protected static function getCacheKeyForEntityList(array $entityList): string
 	{
 		return md5(serialize($entityList));
 	}
 
-	protected static function extendProductIdsToOffer(array $productIds)
+	protected static function extendProductIdsToOffer(array $productIds): array
 	{
-		static $cache = array();
+		static $cache = [];
 
 		Collection::normalizeArrayValuesByInt($productIds);
 		if (empty($productIds))
-			return array();
+			return [];
 		$key = md5(implode('|', $productIds));
 
 		if(!isset($cache[$key]))
@@ -829,10 +834,10 @@ class DiscountManager
 	/**
 	 * Filter for catalog basket items.
 	 *
-	 * @param array $basketItem			Basket item data.
+	 * @param array $basketItem Basket item data.
 	 * @return bool
 	 */
-	protected static function basketFilter($basketItem)
+	protected static function basketFilter(array $basketItem): bool
 	{
 		return (
 			(
@@ -846,10 +851,10 @@ class DiscountManager
 	/**
 	 * Filter for stop discount calculate for basket item.
 	 *
-	 * @param array $basketItem			Basket item data.
+	 * @param array $basketItem Basket item data.
 	 * @return bool
 	 */
-	protected static function lastDiscountFilter($basketItem)
+	protected static function lastDiscountFilter(array $basketItem): bool
 	{
 		return (
 			!isset($basketItem['LAST_DISCOUNT'])
@@ -859,13 +864,13 @@ class DiscountManager
 
 	/**
 	 * Load discount data from db.
-	 * @param int $id					Discount id.
-	 * @param array $discount			Exist discount data.
+	 * @param int $id Discount id.
+	 * @param array $discount Exist discount data.
 	 * @return bool|array
 	 */
-	protected static function loadFromDatabase($id, $discount)
+	protected static function loadFromDatabase(int $id, array $discount)
 	{
-		$select = array();
+		$select = [];
 		if (!isset($discount['NAME']))
 			$select['NAME'] = true;
 		if (empty($discount['CONDITIONS']))
@@ -906,10 +911,10 @@ class DiscountManager
 
 		if (!empty($select))
 		{
-			$discountIterator = Catalog\DiscountTable::getList(array(
+			$discountIterator = Catalog\DiscountTable::getList([
 				'select' => $selectKeys,
-				'filter' => array('=ID' => $id)
-			));
+				'filter' => ['=ID' => $id]
+			]);
 			$loadData = $discountIterator->fetch();
 			if (empty($loadData))
 				return false;
@@ -937,7 +942,7 @@ class DiscountManager
 		}
 		if (empty($discount['MODULES']))
 		{
-			$discount['MODULES'] = array();
+			$discount['MODULES'] = [];
 
 			$conn = Main\Application::getConnection();
 			$helper = $conn->getSqlHelper();
@@ -961,17 +966,18 @@ class DiscountManager
 	 *
 	 * @param array $entityList			Entity list.
 	 * @return array|bool
+	 * @noinspection PhpMissingParamTypeInspection
 	 */
 	protected static function prepareEntity($entityList)
 	{
-		$result = array(
-			'iblockFields' => array(),
+		$result = [
+			'iblockFields' => [],
 			'sections' => false,
-			'iblockProperties' => array(),
-			'iblockPropertiesMap' => array(),
-			'catalogFields' => array(),
-			'priceFields' => array()
-		);
+			'iblockProperties' => [],
+			'iblockPropertiesMap' => [],
+			'catalogFields' => [],
+			'priceFields' => []
+		];
 
 		if (!is_array($entityList))
 			return false;
@@ -1005,10 +1011,10 @@ class DiscountManager
 					$property = (int)$propertyData[1];
 					unset($propertyData);
 					if (!isset($result['iblockProperties'][$iblock]))
-						$result['iblockProperties'][$iblock] = array();
+						$result['iblockProperties'][$iblock] = [];
 					$result['iblockProperties'][$iblock][] = $property;
 					if (!isset($result['iblockPropertiesMap'][$iblock]))
-						$result['iblockPropertiesMap'][$iblock] = array();
+						$result['iblockPropertiesMap'][$iblock] = [];
 					$result['iblockPropertiesMap'][$iblock][$property] = $entity['FIELD_ENTITY'];
 				}
 				unset($iblock, $property, $entity);
@@ -1035,30 +1041,30 @@ class DiscountManager
 	/**
 	 * Returns product separate by iblocks.
 	 *
-	 * @param array $productList		Product id list.
+	 * @param array $productList Product id list.
 	 * @return array
 	 */
-	protected static function getProductIblocks($productList)
+	protected static function getProductIblocks(array $productList): array
 	{
-		$result = array(
-			'iblockElement' => array(),
-			'iblockList' => array(),
-			'skuIblockList' => array()
-		);
+		$result = [
+			'iblockElement' => [],
+			'iblockList' => [],
+			'skuIblockList' => []
+		];
 
 		if (empty($productList))
 			return $result;
 
-		$elementIterator = Iblock\ElementTable::getList(array(
-			'select' => array('ID', 'IBLOCK_ID'),
-			'filter' => array('@ID' => $productList)
-		));
+		$elementIterator = Iblock\ElementTable::getList([
+			'select' => ['ID', 'IBLOCK_ID'],
+			'filter' => ['@ID' => $productList]
+		]);
 		while ($element = $elementIterator->fetch())
 		{
 			$element['ID'] = (int)$element['ID'];
 			$element['IBLOCK_ID'] = (int)$element['IBLOCK_ID'];
 			if (!isset($result['iblockElement'][$element['IBLOCK_ID']]))
-				$result['iblockElement'][$element['IBLOCK_ID']] = array();
+				$result['iblockElement'][$element['IBLOCK_ID']] = [];
 			$result['iblockElement'][$element['IBLOCK_ID']][] = $element['ID'];
 		}
 		unset($element, $elementIterator);
@@ -1066,10 +1072,10 @@ class DiscountManager
 		{
 			$result['iblockList'] = array_keys($result['iblockElement']);
 
-			$skuIterator = Catalog\CatalogIblockTable::getList(array(
-				'select' => array('IBLOCK_ID', 'PRODUCT_IBLOCK_ID', 'SKU_PROPERTY_ID'),
-				'filter' => array('@IBLOCK_ID' => $result['iblockList'], '!=PRODUCT_IBLOCK_ID' => 0)
-			));
+			$skuIterator = Catalog\CatalogIblockTable::getList([
+				'select' => ['IBLOCK_ID', 'PRODUCT_IBLOCK_ID', 'SKU_PROPERTY_ID'],
+				'filter' => ['@IBLOCK_ID' => $result['iblockList'], '!=PRODUCT_IBLOCK_ID' => 0]
+			]);
 			while ($sku = $skuIterator->fetch())
 			{
 				$sku['IBLOCK_ID'] = (int)$sku['IBLOCK_ID'];
@@ -1086,13 +1092,13 @@ class DiscountManager
 	/**
 	 * Create property list for discounts.
 	 *
-	 * @param array &$entityData			Entity data.
-	 * @param array $iblockData				Iblock data.
+	 * @param array &$entityData Entity data.
+	 * @param array $iblockData Iblock data.
 	 * @return void
 	 */
-	protected static function fillProductPropertyList(&$entityData, $iblockData)
+	protected static function fillProductPropertyList(array &$entityData, array $iblockData): void
 	{
-		$entityData['needProperties'] = array();
+		$entityData['needProperties'] = [];
 		if (!empty($entityData['iblockProperties']) && !empty($iblockData['iblockList']))
 		{
 			foreach ($iblockData['iblockList'] as $iblock)
@@ -1107,7 +1113,7 @@ class DiscountManager
 			foreach ($iblockData['skuIblockList'] as $skuData)
 			{
 				if (!isset($entityData['needProperties'][$skuData['IBLOCK_ID']]))
-					$entityData['needProperties'][$skuData['IBLOCK_ID']] = array();
+					$entityData['needProperties'][$skuData['IBLOCK_ID']] = [];
 				$entityData['needProperties'][$skuData['IBLOCK_ID']][] = $skuData['SKU_PROPERTY_ID'];
 				$entityData['iblockPropertiesMap'][$skuData['IBLOCK_ID']][$skuData['SKU_PROPERTY_ID']] = 'PARENT_ID';
 				if (!empty($entityData['iblockProperties'][$skuData['PRODUCT_IBLOCK_ID']]))
@@ -1125,8 +1131,9 @@ class DiscountManager
 	 * @param array $entityData				Entity data.
 	 * @param array $iblockData				Iblock data.
 	 * @return void
+	 * @noinspection PhpMissingParamTypeInspection
 	 */
-	protected static function convertProperties(&$productData, $propertyValues, $entityData, $iblockData)
+	protected static function convertProperties(&$productData, $propertyValues, $entityData, $iblockData): void
 	{
 		if (empty($productData) || !is_array($productData))
 			return;
@@ -1140,7 +1147,7 @@ class DiscountManager
 		if (empty($entityData['needProperties']) || !is_array($entityData['needProperties']))
 			return;
 		$propertyIblocks = array_keys($entityData['needProperties']);
-		foreach ($propertyIblocks as &$iblock)
+		foreach ($propertyIblocks as $iblock)
 		{
 			if (empty($iblockData['iblockElement'][$iblock]))
 				continue;
@@ -1217,7 +1224,7 @@ class DiscountManager
 					}
 					else
 					{
-						$value = array();
+						$value = [];
 						if (!empty($property['USER_TYPE']))
 						{
 							switch($property['USER_TYPE'])
@@ -1272,7 +1279,7 @@ class DiscountManager
 										unset($oneValue);
 									}
 									if (empty($value))
-										$value = array(-1);
+										$value = [-1];
 									break;
 								case Iblock\PropertyTable::TYPE_ELEMENT:
 								case Iblock\PropertyTable::TYPE_SECTION:
@@ -1287,7 +1294,7 @@ class DiscountManager
 										unset($oneValue);
 									}
 									if (empty($value))
-										$value = array(-1);
+										$value = [-1];
 									break;
 								default:
 									$value = $property['VALUE'];
@@ -1295,7 +1302,7 @@ class DiscountManager
 							}
 						}
 					}
-					$productData[$element][$propertyKey] = (is_array($value) ? $value : array($value));
+					$productData[$element][$propertyKey] = (is_array($value) ? $value : [$value]);
 				}
 			}
 			unset($element);
@@ -1382,19 +1389,20 @@ class DiscountManager
 	 * @param array $entityData				Entity data.
 	 * @param array $iblockData				Iblock data.
 	 * @return void
+	 * @noinspection PhpMissingParamTypeInspection
 	 */
-	protected static function getParentProducts(&$productData, $entityData, $iblockData)
+	protected static function getParentProducts(&$productData, $entityData, $iblockData): void
 	{
 		if (empty($iblockData['skuIblockList']))
 			return;
 		if (empty($productData) || !is_array($productData))
 			return;
-		$parentMap = array();
-		$parentData = array();
-		$parentIblockData = array(
-			'iblockElement' => array(),
-			'iblockList' => array()
-		);
+		$parentMap = [];
+		$parentData = [];
+		$parentIblockData = [
+			'iblockElement' => [],
+			'iblockList' => []
+		];
 		if (!empty($entityData['iblockFields']))
 		{
 			foreach ($entityData['iblockFields'] as &$value)
@@ -1411,18 +1419,18 @@ class DiscountManager
 				if (empty($productData[$element]['PARENT_ID']))
 					continue;
 				$parentId = (int)(
-				is_array($productData[$element]['PARENT_ID'])
+					is_array($productData[$element]['PARENT_ID'])
 					? current($productData[$element]['PARENT_ID'])
 					: $productData[$element]['PARENT_ID']
 				);
 				if ($parentId <= 0)
 					continue;
 				if (!isset($parentMap[$parentId]))
-					$parentMap[$parentId] = array();
+					$parentMap[$parentId] = [];
 				$parentMap[$parentId][] = $element;
-				$parentData[$parentId] = array();
+				$parentData[$parentId] = [];
 				if (!isset($parentIblockData['iblockElement'][$skuData['PRODUCT_IBLOCK_ID']]))
-					$parentIblockData['iblockElement'][$skuData['PRODUCT_IBLOCK_ID']] = array();
+					$parentIblockData['iblockElement'][$skuData['PRODUCT_IBLOCK_ID']] = [];
 				$parentIblockData['iblockElement'][$skuData['PRODUCT_IBLOCK_ID']][] = $parentId;
 			}
 			unset($parentId, $element);
@@ -1436,7 +1444,7 @@ class DiscountManager
 
 		foreach ($parentData as $parentId => $data)
 		{
-			$parentSections = array();
+			$parentSections = [];
 			if ($entityData['sections'])
 			{
 				$parentSections = $data['SECTION_ID'];
@@ -1463,7 +1471,7 @@ class DiscountManager
 		unset($parentId, $data);
 	}
 
-	protected static function loadIblockFields(array $productIds, array $fields)
+	protected static function loadIblockFields(array $productIds, array $fields): array
 	{
 		if (isset($fields['DATE_ACTIVE_FROM']))
 		{
@@ -1476,13 +1484,13 @@ class DiscountManager
 			unset($fields['DATE_ACTIVE_TO']);
 		}
 
-		$productData = array();
+		$productData = [];
 
 		\CTimeZone::Disable();
-		$elementIterator = Iblock\ElementTable::getList(array(
-			'select' => array_merge(array('ID'), array_keys($fields)),
-			'filter' => array('@ID' => $productIds)
-		));
+		$elementIterator = Iblock\ElementTable::getList([
+			'select' => array_merge(['ID'], array_keys($fields)),
+			'filter' => ['@ID' => $productIds]
+		]);
 		while ($element = $elementIterator->fetch())
 		{
 			$element['ID'] = (int)$element['ID'];
@@ -1499,13 +1507,13 @@ class DiscountManager
 		return $productData;
 	}
 
-	protected static function loadSections(array $productIds)
+	protected static function loadSections(array $productIds): array
 	{
-		$productSection = array_fill_keys($productIds, array());
-		$elementSectionIterator = Iblock\SectionElementTable::getList(array(
-			'select' => array('*'),
-			'filter' => array('@IBLOCK_ELEMENT_ID' => $productIds)
-		));
+		$productSection = array_fill_keys($productIds, []);
+		$elementSectionIterator = Iblock\SectionElementTable::getList([
+			'select' => ['*'],
+			'filter' => ['@IBLOCK_ELEMENT_ID' => $productIds]
+		]);
 		while ($elementSection = $elementSectionIterator->fetch())
 		{
 			$elementSection['IBLOCK_ELEMENT_ID'] = (int)$elementSection['IBLOCK_ELEMENT_ID'];
@@ -1514,7 +1522,7 @@ class DiscountManager
 			if ($elementSection['ADDITIONAL_PROPERTY_ID'] > 0)
 				continue;
 			$productSection[$elementSection['IBLOCK_ELEMENT_ID']][$elementSection['IBLOCK_SECTION_ID']] = true;
-			$parentSectionIterator = \CIBlockSection::GetNavChain(0, $elementSection['IBLOCK_SECTION_ID'], array('ID'));
+			$parentSectionIterator = \CIBlockSection::GetNavChain(0, $elementSection['IBLOCK_SECTION_ID'], ['ID']);
 			while ($parentSection = $parentSectionIterator->fetch())
 			{
 				$parentSection['ID'] = (int)$parentSection['ID'];
@@ -1527,14 +1535,14 @@ class DiscountManager
 		return $productSection;
 	}
 
-	protected static function loadCatalogFields(array $productIds, array $fields)
+	protected static function loadCatalogFields(array $productIds, array $fields): array
 	{
-		$productData = array();
+		$productData = [];
 
-		$productIterator = Catalog\ProductTable::getList(array(
-			'select' => array_merge(array('ID'), array_keys($fields)),
-			'filter' => array('@ID' => $productIds)
-		));
+		$productIterator = Catalog\ProductTable::getList([
+			'select' => array_merge(['ID'], array_keys($fields)),
+			'filter' => ['@ID' => $productIds]
+		]);
 		while ($product = $productIterator->fetch())
 		{
 			$product['ID'] = (int)$product['ID'];
@@ -1549,7 +1557,7 @@ class DiscountManager
 
 	protected static function fillProperties(array &$productData, array $productIds, array $iblockData, array $entityData)
 	{
-		$propertyValues = array_fill_keys($productIds, array());
+		$propertyValues = array_fill_keys($productIds, []);
 		foreach ($entityData['needProperties'] as $iblock => $propertyList)
 		{
 			if (empty($iblockData['iblockElement'][$iblock]))
@@ -1580,7 +1588,7 @@ class DiscountManager
 					if (!$allExist)
 					{
 						// if property value is not exist
-						$propertyValues[$productId] = array();
+						$propertyValues[$productId] = [];
 					}
 					else
 					{
@@ -1594,25 +1602,25 @@ class DiscountManager
 			{
 				$needProductIds = array_keys($needToLoad);
 				sort($needProductIds);
-				$iblockPropertyValues = array_fill_keys($needProductIds, array());
+				$iblockPropertyValues = array_fill_keys($needProductIds, []);
 
 				\CTimeZone::Disable();
 				foreach (array_chunk($needProductIds, 500) as $pageIds)
 				{
-					$filter = array(
+					$filter = [
 						'ID' => $pageIds,
 						'IBLOCK_ID' => $iblock
-					);
+					];
 
 					\CIBlockElement::GetPropertyValuesArray(
 						$iblockPropertyValues,
 						$iblock,
 						$filter,
-						array('ID' => $propertyList),
-						array(
+						['ID' => $propertyList],
+						[
 							'USE_PROPERTY_ID' => 'Y',
-							'PROPERTY_FIELDS' => array('ID', 'PROPERTY_TYPE', 'MULTIPLE', 'USER_TYPE')
-						)
+							'PROPERTY_FIELDS' => ['ID', 'PROPERTY_TYPE', 'MULTIPLE', 'USER_TYPE']
+						]
 					);
 					foreach ($iblockPropertyValues as $productId => $data)
 					{
@@ -1645,8 +1653,9 @@ class DiscountManager
 	 * @param array $entityData				Entity data.
 	 * @param array $iblockData				Iblock list data.
 	 * @return void
+	 * @noinspection PhpMissingParamTypeInspection
 	 */
-	protected static function getProductData(&$productData, $entityData, $iblockData)
+	protected static function getProductData(&$productData, $entityData, $iblockData): void
 	{
 		if (!empty($iblockData['iblockElement']))
 		{
@@ -1706,15 +1715,16 @@ class DiscountManager
 	 * @param array &$discount			Discount data.
 	 * @param array $params				Manager parameters.
 	 * @return void
+	 * @noinspection PhpMissingParamTypeInspection
 	 */
-	protected static function createSaleAction(&$discount, $params)
+	protected static function createSaleAction(&$discount, $params): void
 	{
-		$data = array(
+		$data = [
 			'TYPE' => $discount['VALUE_TYPE'],
 			'VALUE' => $discount['VALUE'],
 			'CURRENCY' => $discount['CURRENCY'],
 			'USE_BASE_PRICE' => $params['USE_BASE_PRICE']
-		);
+		];
 		if ($discount['TYPE'] == Catalog\DiscountTable::VALUE_TYPE_PERCENT)
 			$data['MAX_VALUE'] = $discount['MAX_VALUE'];
 
@@ -1729,14 +1739,14 @@ class DiscountManager
 			return;
 
 		$type = '';
-		$descr = array(
+		$descr = [
 			'VALUE_ACTION' => (
 				$discount['TYPE'] == Catalog\DiscountTable::TYPE_DISCOUNT_SAVE
 				? Sale\Discount\Formatter::VALUE_ACTION_CUMULATIVE
 				: Sale\Discount\Formatter::VALUE_ACTION_DISCOUNT
 			),
 			'VALUE' => $discount['VALUE']
-		);
+		];
 		switch ($discount['VALUE_TYPE'])
 		{
 			case Catalog\DiscountTable::VALUE_TYPE_PERCENT:
@@ -1766,36 +1776,33 @@ class DiscountManager
 		$descrResult = Sale\Discount\Formatter::prepareRow($type, $descr);
 		if ($descrResult !== null)
 		{
-			$discount['ACTIONS_DESCR'] = array(
-				'BASKET' => array(
+			$discount['ACTIONS_DESCR'] = [
+				'BASKET' => [
 					0 => $descrResult
-				)
-			);
+				]
+			];
 		}
 		unset($descrResult, $descr, $type);
 	}
 
 	protected static function fillProductPriceList(&$entityData, $priceIds)
 	{
-		$entityData['priceData'] = array();
+		$entityData['priceData'] = [];
 		if(empty($entityData['priceFields']) || empty($priceIds))
 		{
 			return;
 		}
 
-		$priceData = array();
-		$priceList = Catalog\PriceTable::getList(array(
-			'select' => array(
-				'PRODUCT_ID',
-				'CATALOG_GROUP_ID',
-			),
-			'filter' => array('@ID' => $priceIds),
-		));
+		$priceData = [];
+		$priceList = Catalog\PriceTable::getList([
+			'select' => ['PRODUCT_ID', 'CATALOG_GROUP_ID'],
+			'filter' => ['@ID' => $priceIds],
+		]);
 		while($price = $priceList->fetch())
 		{
 			if(!isset($priceData[$price['PRODUCT_ID']]))
 			{
-				$priceData[$price['PRODUCT_ID']] = array();
+				$priceData[$price['PRODUCT_ID']] = [];
 			}
 			$priceData[$price['PRODUCT_ID']] = $price['CATALOG_GROUP_ID'];
 		}
@@ -1810,7 +1817,7 @@ class DiscountManager
 	 * @param string $currency Currency.
 	 * @return float
 	 */
-	protected static function roundValue($value, $currency)
+	protected static function roundValue($value, string $currency): float
 	{
 		if (self::$saleIncluded === null)
 			self::$saleIncluded = Loader::includeModule('sale');
@@ -1828,11 +1835,11 @@ class DiscountManager
 	 * @param array $roundData      Round rule.
 	 * @return array
 	 */
-	private static function getRoundResult(array $basketItem, array $roundData)
+	private static function getRoundResult(array $basketItem, array $roundData): array
 	{
-		$result = array(
+		$result = [
 			'ROUND_RULE' => $roundData
-		);
+		];
 		$result['PRICE'] = Catalog\Product\Price::roundValue(
 			$basketItem['PRICE'],
 			$roundData['ROUND_PRECISION'],

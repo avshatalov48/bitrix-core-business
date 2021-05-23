@@ -234,7 +234,7 @@ class FinderDestTable extends Main\UI\EntitySelector\EntityUsageTable
 		{
 			if (!empty($option["VALUE"]))
 			{
-				$optionValue = unserialize($option["VALUE"]);
+				$optionValue = unserialize($option["VALUE"], ['allowed_classes' => false]);
 
 				if (is_array($optionValue))
 				{
@@ -274,7 +274,7 @@ class FinderDestTable extends Main\UI\EntitySelector\EntityUsageTable
 		{
 			if (!empty($option["VALUE"]))
 			{
-				$optionValue = unserialize($option["VALUE"]);
+				$optionValue = unserialize($option["VALUE"], ['allowed_classes' => false]);
 
 				if (is_array($optionValue))
 				{

@@ -1,0 +1,94 @@
+.landing-form-role-title {
+	margin-bottom: 30px;
+}
+
+.landing-form-role-caption {
+	display: block;
+	margin: 0 0 6px 0;
+	font: 13px/15px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #80868e;
+}
+
+.landing-form-role-input {
+	padding: 7px 30px 7px 14px;
+	min-width: 308px;
+	height: 38px;
+	border: none;
+	-webkit-box-shadow: inset 0 0 0 1px #C6CDD3;
+	box-shadow: inset 0 0 0 1px #C6CDD3;
+	border-radius: 2px;
+	font: 15px/17px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #333;
+	background: #fff;
+	box-sizing: border-box;
+	transition: border-color .3s ease;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	outline: none;
+	width: 100%;
+}
+
+.landing-form-role-input:focus {
+	box-shadow: inset 0 0 0 1px rgba(81, 203, 238, 1);
+}
+
+.table-blue-td-select-landing {
+	width: 200px;
+}
+
+.table-blue-td-select-remove {
+	width: 135px;
+}
+
+.landing-role-add {
+	color: #2067b0;
+	cursor: pointer;
+	border-bottom: 1px dashed rgba(0, 105, 196, .7);
+	transition: border-color .2s linear;
+}
+
+.landing-role-add:hover {
+	border-color: rgba(0, 105, 196, 1);
+}
+
+.landing-rightsblock-content > td {
+	border-top: 1px solid #e7e8ea;
+}
+
+.table-blue-landing-role td {
+	padding-top: 12px;
+	padding-bottom: 12px;
+}
+
+.landing-role-popup {
+	width: 320px;
+}
+
+.landing-role-popup .popup-window-content {
+	overflow: auto;
+	max-height: 300px;
+}
+
+.landing-role-popup .menu-popup-item-text {
+	max-width: 270px;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
+.landing-message-label {
+	font-size: 14px;
+	color: #5e6675;
+	background: #ebf5b5;
+	line-height: 17px;
+	padding: 11px 15px;
+	position: relative;
+	margin-bottom: 10px;
+}
+
+.landing-message-label.error {
+	background: #fee7e7;
+}
+
+.landing-message-label.warning {
+	background: #ffeca8;
+}

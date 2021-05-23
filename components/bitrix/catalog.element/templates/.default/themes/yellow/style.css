@@ -1,0 +1,32 @@
+/* catalog.section */
+
+/*
+#f4b236
+#f6c042
+#f7c95e
+#f9d857
+*/
+
+/* Slider */
+.bx-yellow .product-item-image-slider-progress-bar { background-color: #f9a91d; }
+
+.bx-yellow .product-item-image-slider-control:hover { background-color: rgba(249, 169, 29, .8); }
+
+.bx-yellow .product-item-image-slider-control.active,
+.bx-yellow .product-item-image-slider-control:hover { background-color: #f9a91d; }
+
+.bx-yellow .product-item-selected-scu,
+.bx-yellow .product-item-detail-slider-controls-image:hover,
+.bx-yellow .product-item-detail-slider-controls-image.active { outline-color: #f4b236; }
+
+/* SCU */
+.bx-yellow .product-item-scu-item-text-block:hover,
+.bx-yellow .product-item-scu-item-color-block:hover,
+.bx-yellow .product-item-scu-item-text-container.selected .product-item-scu-item-text-block,
+.bx-yellow .product-item-scu-item-color-container.selected .product-item-scu-item-color-block { outline-color: #f4b236; }
+
+/* Amount */
+.bx-yellow .product-item-amount-field:focus { border-color: #f4b236; }
+
+/*Proress Bar*/
+.bx-yellow .product-item-detail-slider-progress-bar { background-color: #f4b236; }

@@ -1,0 +1,6 @@
+<?
+$MESS["SENDER_CONTACT_SET_LIST_BTN_REMOVE_TITLE"] = "Delete static recipient list";
+$MESS["SENDER_CONTACT_SET_LIST_BTN_EDIT_TITLE"] = "Edit static recipient list";
+$MESS["SENDER_CONTACT_SET_LIST_BTN_REMOVE"] = "Delete";
+$MESS["SENDER_CONTACT_SET_LIST_BTN_EDIT"] = "Edit";
+?>

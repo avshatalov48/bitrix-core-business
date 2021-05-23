@@ -1,0 +1,35 @@
+<?
+$MESS["F_SHOW_TAGS"] = "Показывать теги";
+$MESS["F_PAGE_NAVIGATION_TEMPLATE"] = "Название шаблона для вывода постраничной навигации";
+$MESS["F_THEMES"] = "Темы";
+$MESS["F_PAGE_NAVIGATION_WINDOW"] = "Количество страниц в постраничной навигации";
+$MESS["F_THEME_BEIGE"] = "Бежевый";
+$MESS["F_THEME_BLUE"] = "Голубой";
+$MESS["F_THEME_FLUXBB"] = "FluxBB";
+$MESS["F_THEME_GRAY"] = "Серый";
+$MESS["F_THEME_GREEN"] = "Зеленый";
+$MESS["F_THEME_ORANGE"] = "Оранжевый";
+$MESS["F_THEME_RED"] = "Красный";
+$MESS["F_THEME_WHITE"] = "Белый";
+$MESS["F_SHOW_AUTH"] = "Показывать форму авторизации";
+$MESS["F_SHOW_ADDITIONAL_MARKER"] = "Дополнительный маркер для новых сообщений";
+$MESS["F_SHOW_NAVIGATION"] = "Показывать навигационную цепочку";
+$MESS["F_SHOW_SUBSCRIBE_LINK"] = "Показывать ссылку \"Подписка\" в верхнем меню";
+$MESS["F_SMILES_COUNT"] = "Количество смайлов, которые буду показаны статически (при значении 0 количество смайлов будет высчитываться динамически)";
+$MESS["F_SHOW_LEGEND"] = "Показывать легенду";
+$MESS["F_SHOW_FIRST_POST"] = "Всегда показывать первое сообщение темы (при отключенной опции будет использоваться значение из настроек форума)";
+$MESS["F_SHOW_FORUMS"] = "Показывать форумы для быстрого доступа";
+$MESS["F_SHOW_AUTHOR_COLUMN"] = "Показывать колонку \"Автор\" в списке тем";
+$MESS["F_SHOW_STATISTIC"] = "Показывать статистику";
+$MESS["F_AJAX_POST"] = "Использовать AJAX в диалогах";
+$MESS["F_SHOW_STATISTIC_BLOCK"] = "Показывать блоки статистики";
+$MESS["F_STATISTIC_BLOCK_STATISTIC"] = "Количество сообщений и тем";
+$MESS["F_STATISTIC_BLOCK_BIRTHDAY"] = "Дни рождения";
+$MESS["F_STATISTIC_BLOCK_ONLINE"] = "Пользователи онлайн";
+$MESS["F_SHOW_FORUM_USERS"] = "Показывать список пользователей";
+$MESS["F_SEO_USER_1"] = "Как показывать имя пользователя (seo)";
+$MESS["F_SEO_USER_2"] = "Скрытой от поисковых ботов ссылкой";
+$MESS["F_SEO_USER_3"] = "Ссылкой";
+$MESS["F_SEO_USER_4"] = "Текстом";
+$MESS["F_SEO_USE_AN_EXTERNAL_SERVICE"] = "Использовать внешний сервис для перевода названия темы (seo)";
+?>

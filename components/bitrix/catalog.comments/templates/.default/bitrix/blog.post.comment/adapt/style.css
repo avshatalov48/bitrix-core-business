@@ -1,0 +1,24 @@
+div.blog-comment-form {width: 100% !important;}
+
+div.blog-comment .blog-author {
+  font-size: 0.85em;
+}
+
+.blog-comment-content {
+  font-size: 13px;
+  overflow: hidden!important;
+  padding-top: 0 !important;
+}
+
+div.blog-comment-buttons input {
+  font-size: 13px !important;
+  padding: 0 3px !important;
+}
+
+.blog-post-rating {
+  padding: 10px 0 0 0;
+}
+
+.workarea_wrap {
+  padding: 0 !important;
+}

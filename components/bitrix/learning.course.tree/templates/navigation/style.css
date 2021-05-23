@@ -1,0 +1,26 @@
+div.learn-course-start
+{
+	width:17px;
+	height:17px;
+	float:left;
+	background-repeat:no-repeat;
+	background-image:url(images/arrow.gif);
+}
+
+div.learn-course-back, div.learn-course-next
+{
+	width:7px;
+	height:10px;
+	background-repeat:no-repeat;
+}
+
+div.learn-course-back
+{
+	float:left;
+	background-image:url(images/arr_left.gif);
+}
+div.learn-course-next
+{
+	display:inline;
+	background-image:url(images/arr_right.gif);
+}

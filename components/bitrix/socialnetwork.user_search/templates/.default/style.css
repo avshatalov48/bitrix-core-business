@@ -1,0 +1,205 @@
+table.sonet-user-profile-friends, table.sonet-user-profile-groups
+{
+	border:1px solid #C4C4C3;
+	border-collapse:collapse;
+}
+
+table.sonet-user-profile-friends td, table.sonet-user-profile-groups td
+{
+	border:1px solid #c4c4c4;
+	padding:6px 5px;
+}
+
+table.sonet-user-profile-friends thead td, table.sonet-user-profile-friends th, table.sonet-user-profile-groups thead td, table.sonet-user-profile-groups th
+{
+	background-color:#f2f2ea;
+	/*text-align:left;*/
+	font-weight:bold;
+	font-size:12px;
+	background-image:none;
+	border:1px solid #C4C4C3;
+	border-bottom:none;
+	padding:8px;
+}
+
+
+table.sonet-user-profile-friend-box tbody td, table.sonet-user-profile-friend-box td
+{
+	border:none;
+	padding:6px 5px;
+	background:transparent;
+}
+
+table.sonet-user-search-box tbody td, table.sonet-user-search-box td
+{
+	border:none;
+	padding:2px 1px;
+	background:transparent;
+}
+
+.sonet-icon-create {
+	padding-top: 3px;
+	height: 20px;
+	padding-left: 22px;
+	clear: both;
+	background-image: url(/bitrix/images/socialnetwork/02.gif);
+	background-repeat: no-repeat;
+	background-position: 0 0;
+}
+
+.required-field
+{
+	font-weight:bold;
+	color:#FF0000;
+}
+
+
+
+table.bx-users-toolbar {width: 100%; border-collapse:collapse; border: solid 5px #D8E3E8; background-color: #D8E3E8;}
+table.bx-users-toolbar td {border: solid 5px #D8E3E8; padding: 1px; white-space: nowrap !important; color: black;}
+table.bx-users-toolbar td.bx-users-toolbar-last {width: 100%; text-align: right;}
+table.bx-users-toolbar td.bx-users-toolbar-delimiter {width: 1px; padding: 0 1px 0 0; background-color: #98B7C5;}
+
+table.bx-users-toolbar .bx-users-selected {background-color: #F0F5F7; border: solid 1px #6290A6; font-weight: bold; color: #0C4797;}
+table.bx-users-toolbar .bx-users-icon {display: block; height: 20px; padding-left: 20px; background-position: 1px 1px; background-repeat: no-repeat; cursor: pointer; line-height: 20px;}
+
+table.bx-users-toolbar .bx-users-view-list {background-image: url(images/icon_view_list.gif);}
+table.bx-users-toolbar .bx-users-view-list:hover, table.bx-users-toolbar .bx-users-view-list-active {background-image: url(images/icon_view_list_active.gif);}
+table.bx-users-toolbar .bx-users-view-table {background-image: url(images/icon_view_table.gif);}
+table.bx-users-toolbar .bx-users-view-table:hover, table.bx-users-toolbar .bx-users-view-table-active {background-image: url(images/icon_view_table_active.gif);}
+
+table.bx-users-toolbar .bx-users-excel {background-image: url(images/icon_excel.gif); float: right; text-decoration: none;}
+table.bx-users-toolbar .bx-users-excel:hover {background-image: url(images/icon_excel_active.gif); text-decoration: underline;}
+table.bx-users-toolbar .bx-users-letter {padding: 2px; width: 35px; text-align: center; cursor: pointer;}
+
+div.bx-users-alphabet {/*float: right; */margin: /*5px 0px 5px 5px*/ 10px 0px; background-color: #F0F5F7; border: solid 1px #AAC3CF; padding: 3px; color: #98B7C5; text-align: center;}
+div.bx-users-alphabet a {font-weight: bold; text-decoration: none; margin: 0 2px}
+div.bx-users-alphabet a:hover {text-decoration: underline;}
+div.bx-users-nav {margin: 5px 0px;}
+
+ul.bx-users-selector {
+	height: 26px;
+	list-style-image: none;
+	list-style-position: outside;
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	display: block;
+	background-color: #AEBEC5;
+	width: 400px;
+}
+
+ul.bx-users-selector li {
+	height: 16px;
+	float: left;
+	display: block;
+	padding: 5px 30px;
+	font-weight: bold;
+	color: #072838;
+	cursor: pointer;
+}
+
+ul.bx-users-selector li.bx-selected {
+	padding-right: 30px;
+	background-color: #D8E3E8;
+	background-image: url(images/filter_delimiter.gif);
+	background-position: right top;
+	background-repeat: no-repeat;
+}
+
+div.bx-users-selector-filter {
+	background-color: #D8E3E8;
+	width: 400px;
+	padding: 10px 0px 0px 0px;
+}
+
+div.bx-users-selector-filter form {
+	padding: 0px; margin: 0px;
+}
+
+div.bx-users-selector-filter table.bx-selector-table{
+	border-collapse: collapse;
+	width: 100%;
+	margin: 0px;
+}
+
+div.bx-users-selector-filter table.bx-selector-table tbody td {
+	padding: 4px;
+	vertical-align: top;
+	width: 65%;
+}
+
+div.bx-users-selector-filter table.bx-selector-table tbody td.bx-filter-caption {
+	text-align: right;
+	width: 35%;
+}
+
+div.bx-users-selector-filter table.bx-selector-table tbody td input[type="text"]/*IE sux!*/, div.bx-users-selector-filter table.bx-selector-table tbody td select {
+	width: 90%;
+}
+
+div.bx-users-selector-filter table.bx-selector-table tfoot td {
+	text-align: right;
+	padding: 10px;
+	border-top: solid 1px #C3D0D6;
+}
+
+.sonet_online
+{
+	color:#c30808;
+	font-weight:bold;
+	font-size:11px;
+}
+
+.bx-user-info {border: solid 1px #C4C4C4; margin: 0px 0px 10px 0px;}
+
+.bx-user-text {}
+.bx-user-text .bx-user-name, .bx-user-text .bx-user-post {margin-bottom: 10px;}
+
+.bx-user-image {float: left; height: 102px; width: 104px; padding-top: 2px; border: solid 1px #C4C4C4; text-align: center; margin-right: 15px;}
+.bx-user-image a {display: block; height: 102px; width: 104px; text-decoration: none;}
+.bx-user-image img {border: 0;}
+.bx-user-image-default {
+	background-image: url('/bitrix/components/bitrix/socialnetwork.user_search/templates/.default/images/nopic_user_100_noborder.gif');
+}
+
+.bx-user-name {font-size: 1.5em; margin: 0px;}
+.bx-user-name a {text-decoration: none;}
+.bx-user-name a:hover {text-decoration: underline;}
+
+.bx-users-delimiter {clear: both;}
+
+.bx-user-post {font-weight: bold;}
+.bx-user-properties {color: #6D808F;}
+
+.bx-user-controls {float: right;}
+.bx-user-controls .bx-user-control {
+	border-left: solid 1px #C4C4C4;
+	padding: 5px 0px 5px 10px;
+	margin: 0px;
+	margin-bottom: 10px;
+	width: 160px;
+}
+
+.bx-user-controls .bx-user-control a {text-decoration: none;}
+.bx-user-controls .bx-user-control a:hover {text-decoration: underline;}
+
+.bx-user-controls .bx-user-control ul {list-style-image: none; list-style-position: outside; list-style-type: none; margin: 0; padding: 0;}
+.bx-user-control ul li.bx-icon {
+	padding-top: 3px;
+	height: 20px;
+	display: block;
+	padding-left: 22px;
+	clear: both;
+	background-image: url(/bitrix/components/bitrix/socialnetwork.user_search/templates/.default/images/icons_all_new.png);
+	background-repeat: no-repeat;
+}
+
+.bx-user-control .bx-icon-message{background-position: 0 0;}
+.bx-user-control .bx-icon-online{background-position: 0 -20px;}
+.bx-user-control .bx-icon-away{background-position: 0 -40px;}
+.bx-user-control .bx-icon-birth{background-position: 0 -60px;}
+.bx-user-control .bx-icon-featured{background-position: 0 -80px;}
+.bx-user-control .bx-icon-addfriend{background-position: 0 -100px;}
+
+div.sonet-cntnr-user-search, div.sonet-cntnr-user-search2, div.sonet-cntnr-user-search3 { margin-bottom: 1em; }

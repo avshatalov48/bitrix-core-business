@@ -1,0 +1,39 @@
+.NewsCalWeekend, .NewsCalToday, .NewsCalDefault, .NewsCalOtherMonth , .NewsCalHeader, .NewsCalMonthNav, .NewsCalDay, .NewsCalNews{
+	font-size:9pt;
+	color:#000000;
+}
+.NewsCalToday, .NewsCalDefault, .NewsCalOtherMonth, .NewsCalWeekend, .NewsCalHeader {
+	padding-left:8px;
+}
+.NewsCalToday{
+	background-color:#dadded;
+}
+.NewsCalDefault{
+	background-color:#FFFFFF;
+}
+.NewsCalOtherMonth{
+	background-color:#F8F9EF;
+}
+.NewsCalWeekend{
+	background-color:#F6E5E1;
+}
+.NewsCalHeader{
+	background-color:#EFF1F9;
+	color:#365D91;
+}
+.NewsCalTable, .NewsCalTable tr, .NewsCalTable td{
+	border-collapse:collapse;
+	border:1px solid #B3B3B3;
+}
+.NewsCalMonthNav{
+}
+.NewsCalDay{
+	color:#000000;
+}
+.NewsCalDayOther{
+	color:#365D91;
+}
+.NewsCalNews{
+	color:#7488B9;
+	font-size:8pt;
+}

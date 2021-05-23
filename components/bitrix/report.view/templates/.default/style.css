@@ -1,0 +1,146 @@
+.workarea-content-paddings {
+	padding: 0 !important;
+	overflow-x: visible !important;
+}
+
+.report-table-wrap .main-grid-container {
+	overflow-x: auto;
+}
+
+.main-grid-fade {
+	position: relative;
+}
+
+
+.main-grid-fade-shadow-left,
+.main-grid-fade-shadow-right {
+	position: absolute;
+	text-decoration: none;
+	top: 0;
+	bottom: 0;
+	width: 10px;
+	height: auto;
+	z-index: 0;
+	pointer-events: none;
+	opacity: 0;
+}
+
+.main-grid-fade-shadow-left {
+	content: '';
+	position: absolute;
+	width: 10px;
+	top: 0;
+	bottom: 0;
+	z-index: 10;
+	opacity: 1;
+	right: auto;
+	transition: margin-left 200ms ease;
+	overflow: hidden;
+	border-left: 1px rgba(238, 242, 244, .5) solid;
+	transform: translateX(-1px);
+}
+
+.main-grid-fade-shadow-left::before {
+	content: '';
+	position: absolute;
+	width: 10px;
+	-webkit-border-radius: 80%;
+	border-radius: 80%;
+	top: 0;
+	bottom: 0;
+	z-index: 1;
+	box-shadow: 0 0 10px rgba(0,0,0,.2);
+	left: -10px;
+	right: auto;
+	opacity: 0;
+	transition: opacity 200ms ease, margin-left 200ms ease;
+}
+
+.main-grid-fade-shadow-right {
+	content: '';
+	position: absolute;
+	width: 10px;
+	-webkit-border-radius: 80%;
+	border-radius: 80%;
+	top: 0;
+	bottom: 0;
+	z-index: 9;
+	opacity: 0;
+	box-shadow: 0 0 10px rgba(0,0,0,.2);
+	left: auto;
+	right: -10px;
+	transition: .2s;
+}
+
+.main-grid-fade-right .main-grid-fade-shadow-right {
+	opacity: 1;
+}
+
+.main-grid-fade-left .main-grid-fade-shadow-left::before {
+	opacity: 1;
+}
+
+.main-grid-ear {
+	position: absolute;
+	width: 50px;
+	height: 160px;
+	margin-bottom: -80px;
+	z-index: 1;
+	opacity: 0;
+	will-change: transform;
+	-webkit-transform: translate3d(0px, 48px, 0);
+	-moz-transform: translate3d(0px, 48px, 0);
+	-ms-transform: translate3d(0px, 48px, 0);
+	-o-transform: translate3d(0px, 48px, 0);
+	transform: translate3d(0px, 48px, 0);
+	-webkit-transition: opacity 200ms ease, margin 200ms ease, height 200ms ease;
+	-moz-transition: opacity 200ms ease, margin 200ms ease, height 200ms ease;
+	-ms-transition: opacity 200ms ease, margin 200ms ease, height 200ms ease;
+	-o-transition: opacity 200ms ease, margin 200ms ease, height 200ms ease;
+	transition: opacity 200ms ease, margin 200ms ease, height 200ms ease;
+}
+
+.main-grid-ear.show {
+	opacity: .6;
+}
+
+.main-grid-ear:hover {
+	opacity: .8;
+}
+
+.main-grid-ear-left {
+	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2042%2081%22%3E%3Cpath%20fill%3D%22%23535c69%22%20opacity%3D%220.3%22%20d%3D%22M0%2C0H1.023A40.977%2C40.977%2C0%2C0%2C1%2C42%2C40.977v0A40.024%2C40.024%2C0%2C0%2C1%2C1.977%2C81H0a0%2C0%2C0%2C0%2C1%2C0%2C0V0A0%2C0%2C0%2C0%2C1%2C0%2C0Z%22/%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M20.8%2C49.09l-8.014-8.576L20.8%2C31.939a0.762%2C0.762%2C0%2C0%2C0%2C0-1.026l-1.563-1.673a0.647%2C0.647%2C0%2C0%2C0-.959%2C0l-8.014%2C8.576h0L8.224%2C40a0.762%2C0.762%2C0%2C0%2C0%2C0%2C1.026L18.28%2C51.788a0.647%2C0.647%2C0%2C0%2C0%2C.959%2C0L20.8%2C50.116A0.761%2C0.761%2C0%2C0%2C0%2C20.8%2C49.09Z%22/%3E%3C/svg%3E') center left no-repeat;
+	margin-left: -50px;
+	left: 0;
+}
+
+.main-grid-ear-left.show {
+	margin-left: 0;
+}
+
+.main-grid-ear-right {
+	background: url('data:image/svg+xml;charset=US-ASCII,%0A%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2042%2081%22%3E%3Cpath%20fill%3D%22%23535c69%22%20opacity%3D%220.3%22%20d%3D%22M40.024%2C0H42a0%2C0%2C0%2C0%2C1%2C0%2C0V81a0%2C0%2C0%2C0%2C1%2C0%2C0H40.977A40.977%2C40.977%2C0%2C0%2C1%2C0%2C40.024v0A40.024%2C40.024%2C0%2C0%2C1%2C40.024%2C0Z%22/%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M20.2%2C31.91l8.014%2C8.576L20.2%2C49.061a0.762%2C0.762%2C0%2C0%2C0%2C0%2C1.026l1.563%2C1.672a0.647%2C0.647%2C0%2C0%2C0%2C.958%2C0l8.014-8.576h0L32.776%2C41a0.762%2C0.762%2C0%2C0%2C0%2C0-1.025L22.72%2C29.212a0.647%2C0.647%2C0%2C0%2C0-.958%2C0L20.2%2C30.885A0.762%2C0.762%2C0%2C0%2C0%2C20.2%2C31.91Z%22/%3E%3C/svg%3E%0A') center right no-repeat;
+	margin-right: -50px;
+	right: 0;
+	left: auto;
+}
+
+.main-grid-ear-right.show {
+	margin-right: 0;
+}
+
+.chfilter-field-money .report-filter-vcc { white-space: nowrap; }
+.chfilter-field-money .report-filter-vcc .money-editor input[type=text] {
+	height: 16px;
+	width: 125px;
+	vertical-align: top;
+}
+.chfilter-field-money .report-filter-vcc .money-editor select {
+	border-width: 1px;
+	height: 22px;
+	margin: 0 0 0 2px;
+	width: 119px;
+	vertical-align: top;
+}
+
+.filter-field-hidden { display: none; }

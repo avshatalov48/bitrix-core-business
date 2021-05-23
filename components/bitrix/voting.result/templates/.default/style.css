@@ -1,0 +1,37 @@
+.voting-result-box ol.vote-items-list,.voting-result-box  ol.vote-items-list li {
+	margin: 0; padding: 0; border: none; font-size: 100%; list-style-type: none;}
+.voting-result-box ol.vote-items-list li {
+	padding: 0.55em;
+	border-left: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;}
+.voting-result-box ol.vote-items-list li.vote-item-vote-first{
+	border-top: 1px solid #ccc;}
+.voting-result-box .vote-item-title{
+	font-weight:bold;}
+.voting-result-box div.vote-item-image{
+	float:left;
+	padding-right:0.55em;}
+.voting-result-box .vote-bar-table {
+	width:98%; }
+.voting-result-box .vote-answer-table,.voting-result-box  .vote-answer-table td, .vote-bar-table, .vote-bar-table td {
+	font-size:100%; }
+.vote-answer-table .answer-counter {
+    text-align:right; }
+.vote-answer-bar {
+    height: 16px;
+    float: left;
+    margin-top:3px; }
+.vote-answer-counter {
+    display:block;
+    float:left;
+    line-height:23px;
+    width:19%;
+}
+.vote-answer-lolight {
+    color:#999; }
+.voting-result-box form {
+	margin:0;}
+.voting-result-box .vote-bar-square {
+	width:10px;
+	height:10px;}

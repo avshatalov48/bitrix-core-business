@@ -1,0 +1,22 @@
+<?php
+$MESS["BIZPROC_SCRIPT_EDIT_BTN_CHANGE"] = "Змінити";
+$MESS["BIZPROC_SCRIPT_EDIT_CONSTANT_DESCRIPTION"] = "Ці параметри повинні бути попередньо налаштовані для коректної роботи сценарію.";
+$MESS["BIZPROC_SCRIPT_EDIT_CONSTANT_LABEL"] = "Налаштування адміністратора";
+$MESS["BIZPROC_SCRIPT_EDIT_DELAY_AFTER_HELP"] = "Час, через який спрацює робот після запуску сценарію";
+$MESS["BIZPROC_SCRIPT_EDIT_DELAY_NOW_HELP"] = "Робот спрацює відразу після запуску сценарію";
+$MESS["BIZPROC_SCRIPT_EDIT_MENU_CONFIGS"] = "Налаштування сценарію";
+$MESS["BIZPROC_SCRIPT_EDIT_MENU_GENERAL"] = "Опис";
+$MESS["BIZPROC_SCRIPT_EDIT_MENU_ROBOTS"] = "Роботи";
+$MESS["BIZPROC_SCRIPT_EDIT_MENU_TITLE"] = "Розумні сценарії";
+$MESS["BIZPROC_SCRIPT_EDIT_PARAMETER_DESCRIPTION"] = "Ці параметри будуть показуватися користувачеві при кожному запуску сценарію, щоб він міг внести в них зміни.";
+$MESS["BIZPROC_SCRIPT_EDIT_PARAMETER_LABEL"] = "Налаштування для користувача";
+$MESS["BIZPROC_SCRIPT_EDIT_ROBOT_HELP"] = "Роботи дозволять побудувати процес роботи з клієнтом і в подальшому допомагати менеджерам йти по заданому ланцюжку, а також будуть виконувати дії автоматично: відправляти листи, робити дзвінки і т.д.";
+$MESS["BIZPROC_SCRIPT_EDIT_SCRIPT_DESCRIPTION"] = "Опис";
+$MESS["BIZPROC_SCRIPT_EDIT_SCRIPT_DESCRIPTION_TEXT"] = "Текст опису";
+$MESS["BIZPROC_SCRIPT_EDIT_SCRIPT_NAME"] = "Назва сценарію";
+$MESS["BIZPROC_SCRIPT_EDIT_SCRIPT_NAME_DEFAULT"] = "Новий сценарій";
+$MESS["BIZPROC_SCRIPT_EDIT_SECTION_CONFIGS_EMPTY"] = "Додаткові налаштування поки не потрібні";
+$MESS["BIZPROC_SCRIPT_EDIT_SECTION_GENERAL"] = "Опис сценарію";
+$MESS["BIZPROC_SCRIPT_EDIT_SECTION_ROBOTS"] = "Налаштування роботів";
+$MESS["BIZPROC_SCRIPT_EDIT_VALIDATION_EMPTY_CONFIGS"] = "Необхідно заповнити налаштування адміністратора";
+$MESS["BIZPROC_SCRIPT_EDIT_VALIDATION_EMPTY_NAME"] = "Не вказана назва сценарію";

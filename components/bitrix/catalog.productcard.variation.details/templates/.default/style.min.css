@@ -1,0 +1,4 @@
+.ui-entity-editor-content-block.ui-entity-editor-field-select.ui-entity-editor-content-block-edit .ui-ctl-dropdown{width:320px !important}.ui-entity-editor-content-block-new-fields{--ui-field-spacing:0;}
+
+[data-name="variation_grid"] .ui-entity-editor-included-area-container-loader {
+	background: url(images/skeleton.svg); height:112px}.main-grid-cell.main-grid-cell-checkbox,.main-grid-cell-head.main-grid-cell-static.main-grid-cell-checkbox{display:none}

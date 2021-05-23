@@ -1,0 +1,30 @@
+<?
+$MESS["CP_BCSL_ADD_SECTIONS_CHAIN"] = "Add Section name to breadcrumb navigation";
+$MESS["CP_BCSL_CACHE_FILTER"] = "Cache if the filter is applied to";
+$MESS["CP_BCSL_CACHE_GROUPS"] = "Respect Access Permissions";
+$MESS["CP_BCSL_COUNT_ELEMENTS"] = "Show section elements count";
+$MESS["CP_BCSL_COUNT_ELEMENTS_ACTIVE"] = "active items";
+$MESS["CP_BCSL_COUNT_ELEMENTS_ALL"] = "all";
+$MESS["CP_BCSL_COUNT_ELEMENTS_FILTER"] = "Show quantity";
+$MESS["CP_BCSL_COUNT_PRODUCTS_ACTIVE"] = "active products";
+$MESS["CP_BCSL_COUNT_PRODUCTS_AVAILABLE"] = "available products";
+$MESS["CP_BCSL_FILTER_NAME_IN"] = "Array containing section filter values";
+$MESS["CP_BCSL_IBLOCK_ID"] = "Infoblock";
+$MESS["CP_BCSL_IBLOCK_TYPE"] = "Infoblock type";
+$MESS["CP_BCSL_SECTION_CODE"] = "Section code";
+$MESS["CP_BCSL_SECTION_FIELDS"] = "Section Fields";
+$MESS["CP_BCSL_SECTION_ID"] = "Section ID";
+$MESS["CP_BCSL_SECTION_URL"] = "URL of the page with the section contents";
+$MESS["CP_BCSL_SECTION_USER_FIELDS"] = "Section Properties";
+$MESS["CP_BCSL_TOP_DEPTH"] = "Maximum displayed section nesting level";
+$MESS["IBLOCK_TYPE_TIP"] = "Select one of the existing information block types in the list and click <b>OK</b>. This will load information blocks of the selected type.";
+$MESS["IBLOCK_ID_TIP"] = "Select one of information blocks of the chosen type. If you select <b>(other)-&gt;</b>, specify the information block ID in the field beside.";
+$MESS["SECTION_ID_TIP"] = "This field contains an expression that evaluates to the section ID. By default, the expression is <b>={\$_REQUEST[\"SECTION_ID\"]}</b>.";
+$MESS["SECTION_URL_TIP"] = "Specify here the URL of a page displaying the section contents.";
+$MESS["DISPLAY_PANEL_TIP"] = "If checked, the tool buttons will be shown on the administration toolbar and the component edit area toolbar in the site edit mode.";
+$MESS["ADD_SECTIONS_CHAIN_TIP"] = "If the option is active and the current information block contains sections, their names will be shown in the navigation chain.";
+$MESS["CACHE_TYPE_TIP"] = "<i>Auto</i>: the cache is valid during the time predefined in the cache settings;<br /><i>Cache</i>: always cache for the period specified in the next field;<br /><i>Do not cache</i>: no caching is performed.";
+$MESS["CACHE_TIME_TIP"] = "Specify here the period of time during which the cache is valid.";
+$MESS["COUNT_ELEMENTS_TIP"] = "Specifies to display the number of elements in a section.";
+$MESS["TOP_DEPTH_TIP"] = "Specifies the count of visible nested catalog subsections.";
+?>

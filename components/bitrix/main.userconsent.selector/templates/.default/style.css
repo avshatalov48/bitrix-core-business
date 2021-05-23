@@ -1,0 +1,76 @@
+.main-user-consent-selector-wrapper {
+
+}
+
+.main-user-consent-selector-block {
+	margin: 0 0 10px 0;
+	padding: 10px 20px 10px 20px;
+	-webkit-border-radius: 2px;
+	border-radius: 2px;
+	background: rgba(83,92,105,.07);
+	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	text-transform: lowercase;
+}
+
+.main-user-consent-selector-block-name {
+	margin: 0 0 5px 0;
+	color: #535C69;
+}
+.main-user-consent-selector-block-input {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	-ms-flex-align: center;
+	align-items: center;
+	margin: 0 0 10px 0;
+}
+.main-user-consent-selector-block-input-item {
+	margin: 0 12px 0 0;
+	padding: 5px 30px 5px 10px;
+	height: 38px;
+	width: 100%;
+	border: 1px solid #caced7;
+	border-radius: 0;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%228px%22%20height%3D%228px%22%20viewBox%3D%220%200%2011%207%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Ctitle%3EPath%3C/title%3E%3Cpath%20d%3D%22M5.485%204.228L1.37.114%200%201.484l4.8%204.8.685.687%205.486-5.485L9.6.115%205.484%204.227z%22%20fill%3D%22%23535C69%22%20fill-rule%3D%22evenodd%22/%3E%3C/svg%3E');
+	background-repeat: no-repeat;
+	background-position: 99% center;
+	background-color: #fff;
+	font: 15px 'HelveticaNeue', Helvetica, Arial, sans-serif;
+	color: #535C69;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	outline: none;
+}
+.main-user-consent-selector-alert a {
+	display: inline-block;
+	border-bottom: 1px solid transparent;
+	color: #0B66C3;
+	-webkit-transition: border-bottom .3s;
+	transition: border-bottom .3s;
+	cursor: pointer;
+}
+.main-user-consent-selector-alert a:hover {
+	border-bottom: 1px solid #0B66C3;
+}
+.main-user-consent-selector-block-link-bold {
+	font: bold 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+.main-user-consent-selector-block-hint {
+	margin: 0 0 10px 0;
+}
+.main-user-consent-selector-footer {
+	padding: 0 0 0 20px;
+}
+
+.main-user-consent-selector-alert {
+	margin: 0 0 16px 0;
+	padding: 14px 20px;
+	border-radius: 3px;
+	background: #FFFDE1;
+	font: 13px 'HelveticaNeue', Helvetica, Arial, sans-serif;
+	color: #8B7B60;
+}

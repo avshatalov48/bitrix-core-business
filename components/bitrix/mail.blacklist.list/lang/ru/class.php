@@ -1,0 +1,21 @@
+<?
+$MESS["MAIL_BLACKLIST_LIST_POPUP_CHECKBOX_TITLE"] = 'Для всех пользователей';
+$MESS['MAIL_BLACKLIST_LIST_INTERNAL_ERROR_TITLE'] = 'Произошла внутренняя ошибка';
+$MESS['MAIL_BLACKLIST_LIST_INTERNAL_AJAX_DELETE_ERROR'] = 'Ошибка при удалении';
+$MESS['MAIL_BLACKLIST_LIST_COLUMN_EMAIL'] = 'Email-адрес';
+$MESS['MAIL_BLACKLIST_LIST_POPUP_TITLE'] = 'Черный список';
+$MESS['MAIL_BLACKLIST_LIST_CREATE_BLACKLIST'] = 'Добавить в черный список';
+$MESS['MAIL_BLACKLIST_LIST_CREATE_BLACKLIST_2'] = 'Добавить адрес';
+$MESS['MAIL_BLACKLIST_LIST_PAGE_TITLE'] = 'Черный список email-адресов';
+$MESS['MAIL_BLACKLIST_LIST_PAGE_TITLE_2'] = 'Черный список';
+$MESS['MAIL_BLACKLIST_LIST_DELETE_TITLE'] = 'Удалить';
+$MESS['MAIL_BLACKLIST_LIST_DELETE_TEXT'] = 'Удалить email из черного списка';
+$MESS['MAIL_BLACKLIST_LIST_IS_FOR_ALL_USERS'] = 'Да';
+$MESS['MAIL_BLACKLIST_LIST_COLUMN_IS_FOR_ALL_USERS'] = 'Для всех пользователей';
+$MESS['MAIL_BLACKLIST_LIST_DELETE_ERROR'] = 'Не удалось удалить почтовый адрес #EMAIL#';
+$MESS['MAIL_BLACKLIST_LIST_FILTER_TYPE'] = 'Тип записи';
+$MESS['MAIL_BLACKLIST_LIST_FILTER_DOMAIN_TITLE'] = 'Домен';
+$MESS['MAIL_BLACKLIST_LIST_FILTER_MAIL_TITLE'] = 'Почтовый ящик';
+$MESS['MAIL_BLACKLIST_LIST_AJAX_DELETE_CONFIRM'] = 'Вы точно хотите удалить адрес из чёрного списка?';
+$MESS["MAIL_BLACKLIST_LIST_POPUP_BTN_ADD"] = 'Добавить';
+$MESS["MAIL_BLACKLIST_LIST_POPUP_BTN_CLOSE"] = 'Отмена';

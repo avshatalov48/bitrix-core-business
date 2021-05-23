@@ -1,0 +1,23 @@
+.webform-field-upload-list a.delete-file { vertical-align:top; display: inline-block; width:15px; height: 16px; background: url(/bitrix/js/main/core/images/controls-sprite.png) no-repeat 0 -280px; margin: 0 0 0 6px; outline: none;}
+.webform-field-upload-list a.delete-file:hover { background: url(/bitrix/js/main/core/images/controls-sprite.png) no-repeat -17px -280px; }
+.webform-field-upload-list i { vertical-align:top; display: none; width:15px; height: 15px; background: url(/bitrix/js/main/core/images/popup/upload-waiting.gif) no-repeat 0 2px; margin: 0 0 0 8px; }
+
+.hidden-caption {display: none;}
+
+/* from intranet-common.css */
+.webform-field-upload-list { margin:0 0 11px 2.8em; padding:0;}
+.webform-field-upload-list a.upload-file-name { margin: 0 0 0 -4px; color: #0069c4; text-decoration: underline;}
+.webform-field-upload-list a.upload-file-name:hover { color: #1c91e7; }
+.webform-field-upload-list li { margin: 0 0 3px -5px; white-space: nowrap; color: #888;}
+.webform-field-upload-list li.uploading { color: #bbbbbb; }
+.webform-field-upload-list li.uploading a.upload-file-name { cursor: default; -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)"; filter: alpha(opacity=50); -moz-opacity: 0.5; -khtml-opacity: 0.5; opacity: 0.5; }
+.webform-field-upload-list li.uploading i {  display: inline-block; }
+
+.webform-field-upload { overflow: hidden; width: 200px; height: 27px; }
+.webform-field-upload:hover .webform-button-text { color: #000; cursor:pointer !important;}
+.webform-field-upload input { margin-top: -50px; margin-left:-410px; -moz-opacity: 0; filter: alpha(opacity=0); opacity: 0; font-size: 150px; height: 100px; }
+
+.webform-button-upload, .webform-button-upload .webform-button-left, .webform-button-upload .webform-button-right, .webform-button-upload .webform-button-text { display: inline-block; vertical-align: top; height:27px; line-height:27px; cursor:pointer;}
+.webform-button-upload .webform-button-left { width:15px; background: url(/bitrix/js/main/core/images/controls-sprite.png) no-repeat 0 -222px;}
+.webform-button-upload .webform-button-text { background: url(/bitrix/js/main/core/images/controls-sprite.png) repeat-x 0 -251px; font: normal normal normal 14px/26px Arial, Helvetica, sans-serif; padding:0 8px; color: #5b5b5b; text-shadow: none;}
+.webform-button-upload .webform-button-right { width:6px; background: url(/bitrix/js/main/core/images/controls-sprite.png) no-repeat right -222px;}

@@ -1,0 +1,25 @@
+<?
+$MESS["SENDER_STATS_TITLE"] = "Старт";
+$MESS["SENDER_STATS_EFFICIENCY_TITLE"] = "Рівень ефективності";
+$MESS["SENDER_STATS_EFFICIENCY_LEVEL_1"] = "Погано";
+$MESS["SENDER_STATS_EFFICIENCY_LEVEL_2"] = "Непогано";
+$MESS["SENDER_STATS_EFFICIENCY_LEVEL_3"] = "Нормально";
+$MESS["SENDER_STATS_EFFICIENCY_LEVEL_4"] = "Добре";
+$MESS["SENDER_STATS_EFFICIENCY_LEVEL_5"] = "Відмінно";
+$MESS["SENDER_STATS_RECENT_POSTINGS"] = "Недавні розсилки";
+$MESS["SENDER_STATS_CREATE_NEW"] = "Створити розсилку";
+$MESS["SENDER_STATS_FILTER_PERIOD_FOR"] = "за";
+$MESS["SENDER_STATS_FILTER_FROM_AUTHOR"] = "від";
+$MESS["SENDER_STATS_COUNTER_SEND_ALL"] = "Усього відправлено листів";
+$MESS["SENDER_STATS_COUNTER_READ"] = "Прочитаних";
+$MESS["SENDER_STATS_COUNTER_CLICK"] = "Переходи";
+$MESS["SENDER_STATS_COUNTER_UNSUB"] = "Відписалися";
+$MESS["SENDER_STATS_COUNTER_SUBS"] = "Підписалися";
+$MESS["SENDER_STATS_COUNTER_POSTINGS"] = "Кількість випусків";
+$MESS["SENDER_STATS_CHART_EFFICIENCY"] = "Динаміка ефективності";
+$MESS["SENDER_STATS_CHART_READ"] = "Прочитання";
+$MESS["SENDER_STATS_CHART_CLICK"] = "Кліки";
+$MESS["SENDER_STATS_CHART_UNSUB"] = "Відписки";
+$MESS["SENDER_STATS_NO_DATA"] = "Немає даних";
+$MESS["SENDER_STATS_IN"] = "в";
+?>

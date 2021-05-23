@@ -1,0 +1,31 @@
+<?
+$MESS ['BLOG_TITLE'] = "Название блога:";
+$MESS ['BLOG_DESCR'] = "Описание блога:";
+$MESS ['BLOG_URL'] = "Название латиницей:";
+$MESS ['BLOG_URL_TITLE'] = "Укажите уникальное название блога латинскими буквами. Оно будет использоваться при формировании Web-адреса вашего блога в виде <nobr>http://this-site.ru/blog/[имя блога]</nobr>";
+$MESS ['BLOG_GRP'] = "Группа блогов:";
+$MESS ['BLOG_AUTO_MSG'] = "Автосообщения:";
+$MESS ['BLOG_AUTO_MSG_TITLE'] = "Использовать защиту от автоматических сообщений";
+$MESS ['BLOG_CAPTHA'] = "Требовать ввода текста с картинки при написании комментариев для неавторизованных пользователей";
+$MESS ['BLOG_OPENED_GRPS'] = "Открытые группы:";
+$MESS ['BLOG_OPENED_TITLE'] = "Укажите группы, в которые могут попасть все желающие без вашего подтверждения";
+$MESS ['BLOG_DEF_PERMS'] = "Доступ по умолчанию:";
+$MESS ['BLOG_GROUPS'] = "группы";
+$MESS ['BLOG_MESSAGES'] = "сообщения";
+$MESS ['BLOG_COMMENTS'] = "комментарии";
+$MESS ['BLOG_ALL_USERS'] = "Все пользователи";
+$MESS ['BLOG_REGISTERED'] = "Зарег. пользователи";
+$MESS ['BLOG_GROUP_ADD'] = "Добавить >>";
+$MESS ['BLOG_SAVE'] = "Сохранить";
+$MESS ['BLOG_CREATE'] = "Создать блог";
+$MESS ['BLOG_APPLY'] = "Применить";
+$MESS ['BLOG_CANCEL'] = "Отмена";
+$MESS ['BLOG_EMAIL_NOTIFY'] = "Уведомления";
+$MESS ['BLOG_EMAIL_NOTIFY_TITLE'] = "Отправлять уведомления на email";
+$MESS ['BLOG_EMAIL_NOTIFY_HELP'] = "Если включено - на ваш email будут приходить уведомления о комментариях и новых сообщениях в вашем блоге.";
+$MESS ['STOF_REQUIED_FIELDS_NOTE'] = "Символом \"звездочка\" (<font color=\"#FF0000\">*</font>) отмечены обязательные для заполнения поля.";
+$MESS ['BLOG_NEED_AUTH'] = "Необходимо сначала авторизоваться на сайте.";
+$MESS ['BLOG_CONFIRM_DELETE'] = "В этой группе есть пользователи. Вы уверены, что хотите её удалить?";
+$MESS ['BLOG_GROUP_DELETE'] = "Удалить";
+$MESS ['BLOG_NAME_CHANGE'] = "Изменить";
+?>

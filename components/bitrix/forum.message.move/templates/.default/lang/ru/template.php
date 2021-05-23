@@ -1,0 +1,35 @@
+<?
+$MESS["F_BUTTON_MOVE"] = "Перенести";
+$MESS["F_TITLE"] = "Перемещение сообщений";
+$MESS["F_TITLE_ON_FORUM"] = "в форуме";
+$MESS["F_HEAD_TO_EXIST_TOPIC"] = "существующую тему";
+$MESS["F_HEAD_TO_NEW_TOPIC"] = "новую тему";
+$MESS["F_TOPIC_NAME"] = "Заголовок";
+$MESS["F_TOPIC_DESCR"] = "Описание";
+$MESS["F_TOPIC_TAGS"] = "Теги";
+$MESS["F_AUTHOR_PROFILE"] = "Профиль автора сообщения";
+$MESS["F_NUM_MESS"] = "Всего сообщений:";
+$MESS["F_DATE_REGISTER"] = "Дата регистрации:";
+$MESS["F_TOPIC_NOT_FOUND"] = "тема не найдена";
+$MESS["F_TOPIC_SEARCH_TITLE"] = "Введите ID темы в поле ввода или воспользуйтесть кнопкой &laquo;...&raquo; для поиска темы.";
+$MESS["F_BAD_NEW_TOPIC"] = "Тема не найдена.";
+$MESS["F_TOPIC_ID"] = "ID темы";
+$MESS["F_BAD_TOPIC"] = "Тема не найдена.";
+$MESS["FORUM_MAIN_WAIT"] = "Пожалуйста, подождите...";
+$MESS["F_HIDE"] = "Скрыть";
+$MESS["F_SHOW"] = "Показать";
+$MESS["F_ANCHOR"] = "Ссылка на это сообщение";
+$MESS["F_ATTACH_FILES"] = "Прикрепленные файлы";
+$MESS["F_DELETE"] = "Удалить";
+$MESS["F_DELETE_MESSAGES_CONFIRM"] = "Сообщения будут удалены без возможности восстановления. Удалить?";
+$MESS["F_EDIT_HEAD"] = "Изменено:";
+$MESS["F_EDIT"] = "Изменить";
+$MESS["F_EMAIL_TITLE"] = "Отправить письмо на E-Mail автора сообщения";
+$MESS["F_POINTS"] = "Баллов:";
+$MESS["F_PRIVATE_MESSAGE"] = "Сообщение";
+$MESS["F_PRIVATE_MESSAGE_TITLE"] = "Отправить персональное сообщение автору";
+$MESS["F_REAL_IP"] = "/ реальный";
+$MESS["F_MOVE_TO"] = "Переместить сообщения в ";
+$MESS["F_USER_ID"] = "ID посетителя";
+$MESS["F_USER_ID_USER"] = "ID пользователя";
+?>

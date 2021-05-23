@@ -1,0 +1,36 @@
+<?
+$MESS ['B_B_MS_FROM'] = "от";
+$MESS ['B_B_MS_REPLY'] = "Ответить";
+$MESS ['B_B_MS_PARENT'] = "Родитель";
+$MESS ['B_B_MS_LINK'] = "Ссылка";
+$MESS ['B_B_MS_NAME'] = "Имя:";
+$MESS ['B_B_MS_SUBJECT'] = "Тема:";
+$MESS ['B_B_MS_M_BODY'] = "Сообщение:";
+$MESS ['B_B_MS_CAPTCHA_SYM'] = "Символы на картинке:";
+$MESS ['B_B_MS_SEND'] = "Отправить";
+$MESS ['B_B_MS_ADD_COMMENT'] = "Добавить комментарий";
+$MESS ['BLOG_P_INSERT_IMAGE_LINK'] = "Вставить ссылку на изображение";
+$MESS ['BPC_BOLD'] = "Жирный текст";
+$MESS ['BPC_ITALIC'] = "Наклонный текст";
+$MESS ['BPC_UNDER'] = "Подчеркнутый текст";
+$MESS ['BPC_FONT'] = "Шрифт";
+$MESS ['BPC_CLOSE_OPENED_TAGS'] = "Закрыть все открытые тэги";
+$MESS ['BPC_CLOSE_ALL_TAGS'] = "Закрыть все теги";
+$MESS ['BPC_HYPERLINK'] = "Ввод гиперссылки";
+$MESS ['BPC_IMAGE'] = "Цвет";
+$MESS ['BPC_CODE'] = "Оформление текста в виде кода";
+$MESS ['BPC_LIST'] = "Оформление текста в виде списка";
+$MESS ['BPC_QUOTE'] = "Оформление текста в виде цитаты";
+$MESS ['BPC_TEXT_ENTER_URL'] = "Введите полный адрес (URL)";
+$MESS ['BPC_TEXT_ENTER_URL_NAME'] = "Введите название сайта";
+$MESS ['BPC_TEXT_ENTER_IMAGE'] = "Введите полный адрес (URL) изображения";
+$MESS ['BPC_LIST_PROMPT'] = "Введите пункт списка. Нажмите 'Отмена' или оставьте пробел для завершения списка";
+$MESS ['BPC_ERROR_NO_URL'] = "Вы должны ввести адрес (URL)";
+$MESS ['BPC_ERROR_NO_TITLE'] = "Вы должны ввести название";
+$MESS ['BLOG_CATEGORY_NAME'] = "Название тега";
+$MESS ['BPC_PAGE'] = "Страница:";
+$MESS ['BPC_PAGE_OF'] = " из";
+$MESS ['BPC_MES_DELETE_POST_CONFIRM'] = "Вы уверены, что хотите удалить комментарий?";
+$MESS ['B_B_MS_PREVIEW'] = "Просмотр";
+$MESS ['B_B_MS_PREVIEW_TITLE'] = "Предпросмотр комментария";
+?>

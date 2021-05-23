@@ -1,0 +1,14 @@
+/*RATING*/
+.bx-newsdetail .fa.bx-star-active {
+	color: #E22B2B;
+}
+/*BTN*/
+.bx-newsdetail .btn {
+	background-color: #E22B2B;
+	border-color: #E22B2B;
+}
+.bx-newsdetail .btn:active,
+.bx-newsdetail .btn:hover {
+	background-color: #E95C5C;
+	border-color: #E95C5C;
+}

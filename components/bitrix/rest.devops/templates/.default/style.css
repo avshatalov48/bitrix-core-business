@@ -1,0 +1,8 @@
+#ui-page-slider-workarea
+{
+	min-height: 0;
+}
+.ui-page-slider-wrapper
+{
+	overflow: auto;
+}

@@ -1,0 +1,285 @@
+.sender-config-limits-wrap {
+	background: #fff;
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+.sender-config-limits-box {
+	margin: 0 0 45px 0;
+}
+
+.sender-config-limits-title {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin: 0 0 20px 0;
+	padding: 0 0 16px 0;
+	border-bottom: 1px solid rgba(82,92,105,.1);
+	font: 18px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #333;
+}
+
+.sender-config-limits-content {
+	display: flex;
+	align-items: center;
+	padding: 0 0 16px 0;
+}
+
+.sender-config-limits-caption {
+	margin: 0 7px 0 0;
+	font: 14px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #0063C6;
+}
+
+.sender-config-limits-subtitle {
+	display: block;
+	margin: 0 0 15px 0;
+	font: 20px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #1D6DCA;
+}
+
+.sender-config-limits-number {
+	margin: 0 10px 0 0;
+	font: 20px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #333;
+}
+
+.sender-config-limits-name {
+	font: 16px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #333;
+}
+
+.sender-config-limits-setup {
+	margin: 0 0 0 10px;
+}
+
+.sender-config-limits-setup-link {
+	margin: 0 0 0 10px;
+	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #d8d8d8;
+}
+
+.sender-config-limits-setup-link:hover {
+	color: #d8d8d8;
+	text-decoration: underline;
+}
+
+.sender-config-limits-block {
+	margin: 0 0 48px 0;
+	max-width: 800px;
+}
+
+.sender-config-limits-info {
+	font: 12px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #828B95;
+}
+
+.sender-config-limits-info .sender-config-limits-setup-link {
+	margin: 0;
+	border-bottom: 1px solid #929AA3;
+	color: #828B95;
+	transition: border-bottom .3s;
+}
+
+.sender-config-limits-info .sender-config-limits-setup-link:hover {
+	border-bottom: 1px solid transparent;
+	text-decoration: none;
+}
+
+.sender-config-limits-head {
+	display: flex;
+	align-items: center;
+	padding: 0 12px;
+	height: 30px;
+	border-radius: 3px 3px 0 0;
+	background: rgba(216,216,216,.26);
+	font: 11px 'OpenSans-Semibold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	text-transform: uppercase;
+}
+
+.sender-config-limits-head-left {
+	position: relative;
+	display: inline-block;
+	padding: 0 0 0 19px;
+	margin: 0 3px 0 0;
+	color: #828B95;
+}
+
+.sender-config-limits-head-left:before {
+	content: '';
+	position: absolute;
+	top: 1px;
+	left: 0;
+	display: inline-block;
+	width: 14px;
+	height: 13px;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2014%2013%22%3E%3Cg%20fill%3D%22%235E646A%22%20fill-rule%3D%22evenodd%22%20opacity%3D%22.588%22%3E%3Cpath%20d%3D%22M10.026%202.339a.6.6%200%200%200%20.428-.18.62.62%200%200%200%20.177-.436V.8a.61.61%200%200%200-.605-.615.61.61%200%200%200-.604.615v.923c0%20.163.063.32.176.435a.6.6%200%200%200%20.428.18zm-6.1.063c.354%200%20.641-.292.641-.651V.776a.646.646%200%200%200-.64-.651.646.646%200%200%200-.64.651v.975c0%20.172.067.338.187.46s.283.19.453.19zm8.411-.919h-1.003v.443c0%20.734-.586%201.329-1.308%201.329A1.318%201.318%200%200%201%208.72%201.926v-.443H5.234v.443c0%20.734-.585%201.329-1.307%201.329A1.318%201.318%200%200%201%202.62%201.926v-.443H1.616a1.6%201.6%200%200%200-1.188.527c-.306.336-.46.788-.423%201.245v8.86c0%20.488.39.885.872.885h12.2a.879.879%200%200%200%20.87-.886v-8.86c.018-.933-.693-1.715-1.61-1.771zm-.132%209.745H1.748V5.027h10.457v6.201z%22%20opacity%3D%22.7%22/%3E%3Cpath%20opacity%3D%22.7%22%20d%3D%22M3%207h2v2H3zM5.989%207h2v2h-2zM8.998%207h2v2h-2z%22/%3E%3C/g%3E%3C/svg%3E');
+	background-repeat: no-repeat;
+}
+
+.sender-config-limits-head-right {
+	display: inline-block;
+	color: #333;
+}
+
+.sender-config-limits-main {
+	padding: 23px 16px 16px 16px;
+	border: 1px solid rgba(151,151,151,.18);
+	border-radius: 0 0 3px 3px;
+}
+
+.sender-config-limits-progress-line {
+	position: relative;
+	margin: 0 0 10px 0;
+	height: 14px;
+	width: 100%;
+	border-radius: 2px;
+	background: rgba(130,139,149,.10);
+}
+
+.sender-config-limits-progress-bar {
+	position: absolute;
+	height: 14px;
+	width: 20%;
+	border-radius: 2px;
+	background: #5FD3E1;
+	transition: width .4s;
+}
+
+.sender-config-limits-progress-slider {
+	position: absolute;
+	top: 50%;
+	left: 40%;
+	height: 20px;
+	width: 3px;
+	border-radius: 6px;
+	background: #B3E600;
+	transition: left .4s;
+	transform: translate(0, -50%);
+}
+
+.sender-config-limits-progress-popup {
+	position: absolute;
+	top: -30px;
+	left: 50%;
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	padding: 10px 7px;
+	min-width: 80px;
+	height: 30px;
+	border-radius: 30px;
+	background: #fff;
+	text-align: center;
+	box-shadow: 0 4px 6px 0 rgba(0,0,0,.16);
+	transform: translate(-53%, 0) translate3d(0, 0, 0);
+	box-sizing: border-box;
+	z-index: 2;
+}
+
+.sender-config-limits-progress-triangle {
+	content: '';
+	position: absolute;
+	bottom: 2px;
+	left: 50%;
+	display: inline-block;
+	width: 13px;
+	height: 13px;
+	background: #fff;
+	transform: rotate(-45deg) translate(-50%,0);
+	z-index: -1;
+}
+
+.sender-config-limits-progress-percentage {
+	display: inline-block;
+	margin: 0 2px 0 0;
+	font: 14px 'OpenSans-Semibold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #A8ADB4;
+}
+
+.sender-config-limits-progress-name {
+	display: inline-block;
+	margin: 0 -3px 0 0;
+	color: #525C69;
+}
+
+.sender-config-limits-progress-button {
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	transition: opacity .3s;
+	opacity: .4;
+	cursor: pointer;
+}
+
+.sender-config-limits-progress-button:hover {
+	opacity: 1;
+}
+
+.sender-config-limits-progress-button-item {
+	display: inline-block;
+	width: 9px;
+	height: 9px;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%209%209%22%3E%0A%20%20%3Cpath%20fill%3D%22%2389919B%22%20d%3D%22M52.0692952%2C11%20L54%2C12.9308364%20L48.0760681%2C18.8537798%20L46.1453625%2C16.9229434%20L52.0692952%2C11%20Z%20M45.0071316%2C19.7334377%20C44.9877697%2C19.8067418%2045.0085147%2C19.884198%2045.0610698%2C19.9381422%20C45.1150079%2C19.9920864%2045.1924573%2C20.0128304%2045.2657574%2C19.9920864%20L47.5546664%2C19.3752129%20L45.6239616%2C17.4443765%20L45.0071316%2C19.7334377%20Z%22%20transform%3D%22translate%28-45%20-11%29%22/%3E%0A%3C/svg%3E%0A');
+	background-repeat: no-repeat;
+}
+
+.sender-config-limits-progress-input-box {
+	display: none;
+	font: 14px 'OpenSans-Semibold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #A8ADB4;
+}
+
+.sender-config-limits-progress-input {
+	margin: 0;
+	padding: 0;
+	font: 14px 'OpenSans-Semibold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+
+.sender-config-limits-available-box {
+	margin: 0 0 12px 0;
+}
+
+.sender-config-limits-available-left {
+	display: inline-block;
+	margin: 0 5px 0 0;
+	font: 17px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #828B95;
+}
+
+.sender-config-limits-available-right {
+	display: inline-block;
+	font: 17px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #424956;
+}
+
+.sender-config-limits-bottom {
+	display: flex;
+	justify-content: space-between;
+	font: 14px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #737C87;
+}
+
+.sender-config-limits-bottom .sender-config-limits-setup-link {
+	margin: 0 0 0 6px;
+	font: 11px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #1D6DCA;
+}
+
+.sender-config-limits-info-number {
+	font: 17px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #424956;
+}
+
+.sender-config-limits-info-name {
+	font: 14px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #525C69;
+}
+
+.sender-config-limits-progress-active .sender-config-limits-progress-percentage,
+.sender-config-limits-progress-active .sender-config-limits-progress-button {
+	display: none;
+}
+
+.sender-config-limits-progress-active .sender-config-limits-progress-input-box {
+	display: block;
+}

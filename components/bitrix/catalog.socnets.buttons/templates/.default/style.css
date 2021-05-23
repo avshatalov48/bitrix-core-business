@@ -1,0 +1,32 @@
+/*.catalog-sb-area{
+	position: relative;
+}
+*/
+.catalog-sb-item{
+	display: inline-block;
+/*	position: absolute;*/
+}
+/*
+
+.catalog-sb-area .fb{
+	left: 0;
+}
+.catalog-sb-area .tw{
+	left: 115px;
+}
+
+.catalog-sb-area .gp{
+	left: 220px;
+}
+
+.catalog-sb-area .vk{
+	left: 290px;
+}
+*/
+
+.catalog-sb-item+.vk a
+{
+	-webkit-box-sizing: content-box;
+	-moz-box-sizing: content-box;
+	box-sizing: content-box;
+}

@@ -1,0 +1,206 @@
+.sale-order-description {
+	color: #888;
+	font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.sale-order-list-title-container {
+	border: 1px solid #c2f388;
+	background: rgba(194, 243, 136, .5);
+}
+
+.sale-order-list-title-container h3 { font-size: 16px; }
+
+.sale-order-list-accomplished-title {
+	margin-top: 10px;
+	color: #2f3435;
+	font: bold 15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.sale-order-list-inner-container { border: 1px solid #efecec; border-top: none; }
+
+.sale-order-list-inner-title-line {
+	margin: 0;
+	height: 1px;
+	border: none;
+	background: #f2f2f2;
+}
+
+.sale-order-list-inner-title-line-item {
+	color: #9b9b9b;
+	font: bold 12px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.sale-order-list-inner-row-template { display: none; }
+
+.sale-order-list-payment-title,
+.sale-order-list-shipment-title {
+	color: #000;
+	font: bold 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.sale-order-list-payment-about-link,
+.sale-order-list-payment-repeat-link,
+.sale-order-list-payment-cancel-link { padding: 21px 0 0; }
+
+.sale-order-list-shipment-button,
+.sale-order-list-change-payment {
+	border-bottom: 1px dashed;
+	text-decoration: none;
+	font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	cursor: pointer;
+}
+
+.sale-order-list-repeat-link:before {
+	display: inline-block;
+	margin: 0 3px 4px 0;
+	width: 10px;
+	height: 13px;
+	background: url(images/sale-order-repeat.svg) no-repeat;
+	content: "";
+	vertical-align: middle;
+}
+
+.sale-order-link-accomplished {
+	padding: 0;
+	text-decoration: none;
+}
+
+.sale-order-list-shipment-button:hover,
+.sale-order-list-change-payment:hover {
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.sale-order-list-status-restricted,
+.sale-order-list-status-alert,
+.sale-order-list-status-success {
+	display: inline-block;
+	padding: 4px 10px 5px 8px;
+	border: 1px solid #eab3b9;
+	border-radius: 2px;
+	background: #ffe5e8;
+	color: #d0021b;
+	font: bold 12px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.sale-order-list-status-success {
+	border: 1px solid #bed277;
+	background: #e3f0bd;
+	color: #597707;
+}
+
+.sale-order-list-status-restricted {
+	border: 1px solid rgba(128, 134, 142, 0.20);
+	background: #f3f4f5;
+	color: #535c69;
+}
+
+.sale-order-list-status-restricted-message {
+	color: #9e9fa2;
+	font: 11px "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+
+.sale-order-list-shipment-status,
+.sale-order-list-shipment-item,
+.sale-order-list-payment-check,
+.sale-order-list-payment-price { font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif; }
+
+.sale-order-list-payment-check {
+	float: left;
+	width: 100%;
+}
+
+.sale-order-list-payment-check-left {
+	display: inline;
+	float: left;
+	padding-right: 5px;
+}
+
+.sale-order-list-shipment {
+	list-style: none;
+	font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.sale-order-list-shipment-list-item-link {
+	padding: 16px 0 0;
+	text-decoration: underline;
+}
+
+.sale-order-list-shipment-id { font-weight: 700; }
+
+.sale-order-list-shipment-id-icon {
+	display: inline-block;
+	width: 11px;
+	height: 13px;
+	background: url("images/sale-order-order-list-options-methods-shipment-list-item-id-element.svg") center no-repeat;
+	cursor: pointer;
+}
+
+.sale-order-list-top-border {
+	margin: 18px 15px 21px;
+	width: auto;
+	height: 1px;
+	background: #f2f2f2;
+}
+
+.sale-order-list-accomplished-title-container {
+	border: 1px solid #d6d6d6;
+	background: #f2f2f2;
+}
+
+.sale-order-list-accomplished-date-container { text-align: right; }
+
+.sale-order-list-accomplished-date { padding: 0 8px 0 0; }
+
+.sale-order-list-accomplished-date,
+.sale-order-list-accomplished-date-number {
+	display: inline-block;
+	margin: 10px 0 0;
+	font: bold 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.sale-order-list-accomplished-date { color: #888; }
+
+.sale-order-list-accomplished-date.canceled-order { color: #f00; }
+
+.sale-order-list-accomplished-date-number { color: #888; }
+
+.sale-order-list-shipment-status-item {
+	display: inline-block;
+	margin: 6px 0 5px;
+	vertical-align: middle;
+}
+
+.sale-order-list-shipment-status-block {
+	display: inline-block;
+	padding: 5px;
+	border: 1px solid rgba(128, 134, 142, 0.20);
+	border-radius: 2px;
+	background: #f3f4f5;
+	color: #535c69;
+	vertical-align: middle;
+	font: bold 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* state's */
+
+.sale-order-state-green { background: #c2f388; }
+
+.sale-order-state-yellow { background: #d7dd39; }
+
+.sale-order-state-red { background: #dd6239; }
+
+.sale-order-state-grey { background: #f2f2f2; }
+
+@media (max-width: 991px) {
+	.sale-order-list-accomplished-date-container,
+	.sale-order-list-repeat-accomplished { text-align: left; }
+}
+
+@media (max-width: 767px) {
+	.sale-order-list-button {
+		float: none;
+		margin: 10px 0 0;
+		max-width: none;
+	}
+}

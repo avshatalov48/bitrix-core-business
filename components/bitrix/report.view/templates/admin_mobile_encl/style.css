@@ -1,0 +1,47 @@
+.mobile-admin-report-ptitle{
+	color:#071c27;
+	font-weight:bold;
+	font-size:16px;
+	position:relative;
+	padding-bottom:10px;
+	text-shadow:0 1px 0 #fff;
+	text-align: center;
+}
+
+.bx_table_item_remainder{
+	border:1px solid #ccc;
+	margin-bottom: 15px;
+	width: 100%;
+}
+.bx_table_item_remainder tr td{border-right:1px solid #ccc}
+.bx_table_item_remainder thead tr td{
+	background: #ebeff0;
+	font-size:12px;
+	font-weight: bold;
+	padding:4px;
+}
+.bx_table_item_remainder tr td span{
+	display: block;
+	padding: 0 0 0 10px;
+	font-weight: normal;
+}
+
+.bx_table_item_remainder tbody tr td{
+	padding:7px 5px;
+	border-right:1px solid #ccc;
+	font-size:12px;
+	color:#000;
+}
+.bx_table_item_remainder tr td{
+	font-weight: bold;
+	vertical-align: middle !important;
+}
+.bx_table_item_remainder tr td{text-align: left}
+
+.bx_table_item_remainder tbody tr:last-child td{border-bottom: 1px solid #ccc}
+.bx_table_item_remainder tbody tr:nth-child(even) td{background: #f5f7f8}
+
+.mobile-admin-report-header,
+.mobile-admin-report-header td{
+	background: #b3c0c5 !important;
+}

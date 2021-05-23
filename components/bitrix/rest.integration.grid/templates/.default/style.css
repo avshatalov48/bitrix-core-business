@@ -1,0 +1,13 @@
+.filter-integration-grid {
+	padding: 0 19px;
+	margin-bottom: 15px;
+	background: #fff;
+}
+
+.filter-integration-grid .main-ui-filter-search {
+	border: 1px solid #C6CDD3;
+}
+
+.filter-integration-grid .main-ui-filter-search {
+	width: 100%;
+}

@@ -1,0 +1,33 @@
+<?
+$MESS["IBLOCK_SORT_SHOWS"] = "количество просмотров в среднем";
+$MESS["IBLOCK_SORT_SORT"] = "индекс сортировки";
+$MESS["IBLOCK_SORT_TIMESTAMP"] = "дата изменения";
+$MESS["IBLOCK_SORT_NAME"] = "название";
+$MESS["IBLOCK_SORT_ID"] = "ID";
+$MESS["IBLOCK_SORT_ACTIVE_FROM"] = "дата активности (с)";
+$MESS["IBLOCK_SORT_ACTIVE_TO"] = "дата активности (по)";
+$MESS["IBLOCK_SORT_ASC"] = "по возрастанию";
+$MESS["IBLOCK_SORT_DESC"] = "по убыванию";
+$MESS["IBLOCK_TYPE"] = "Тип инфоблока";
+$MESS["IBLOCK_IBLOCK"] = "Инфоблок";
+$MESS["IBLOCK_LINE_ELEMENT_COUNT"] = "Количество фотографий, выводимых в одной строке таблицы";
+$MESS["IBLOCK_ELEMENT_SORT_FIELD"] = "По какому полю сортируем фотографии";
+$MESS["IBLOCK_ELEMENT_SORT_ORDER"] = "Порядок сортировки фотографий в разделе";
+$MESS["IBLOCK_CACHE_FILTER"] = "Кешировать при установленном фильтре";
+$MESS["IBLOCK_SECTION_ID"] = "ID раздела";
+$MESS["IBLOCK_FILTER_NAME_IN"] = "Имя массива со значениями фильтра для фильтрации элементов";
+$MESS["IBLOCK_PAGE_ELEMENT_COUNT"] = "Количество элементов на странице";
+$MESS["IBLOCK_DETAIL_URL"] = "URL, ведущий на страницу с содержимым элемента раздела";
+$MESS["IBLOCK_SECTION_URL"] = "URL, ведущий на страницу с содержимым раздела";
+$MESS["IBLOCK_SECTION_CODE"] = "Код раздела";
+$MESS["IBLOCK_FIELD"] = "Поля";
+$MESS["IBLOCK_PROPERTY"] = "Свойства";
+$MESS["T_IBLOCK_DESC_PAGER_PHOTO"] = "Фотографии";
+$MESS["T_IBLOCK_DESC_ADD_SECTIONS_CHAIN"] = "Включать раздел в цепочку навигации";
+$MESS["T_IBLOCK_DESC_KEYWORDS"] = "Установить ключевые слова страницы из свойства";
+$MESS["T_IBLOCK_DESC_DESCRIPTION"] = "Установить описание страницы из свойства";
+$MESS["CP_BPS_BROWSER_TITLE"] = "Установить заголовок окна браузера из свойства";
+$MESS["CP_BPS_CACHE_GROUPS"] = "Учитывать права доступа";
+$MESS["CP_BPS_SECTION_USER_FIELDS"] = "Свойства раздела";
+$MESS["CP_BPS_SET_LAST_MODIFIED"] = "Устанавливать в заголовках ответа время модификации страницы";
+?>

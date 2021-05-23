@@ -1,0 +1,98 @@
+*{
+	padding:0;
+	margin:0;
+}
+body{
+	background:url(images/bg.png);
+	background-size:7px 1px;
+	font-family:"Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+	-webkit-font-smoothing:antialiased;
+}
+.order_infoblock{
+	background:#fff;
+	border-radius:5px;
+	margin:8px 0;
+	box-shadow:0 1px 1px 0 rgba(0,0,0,.15)
+}
+
+.order_infoblock .filled{
+	background:#edf5f9;
+	border-radius:5px;
+	margin:8px 0;
+	box-shadow:0 1px 1px 0 rgba(0,0,0,.15)
+}
+
+.order_infoblock.close .order_infoblock_title span{background-position:0 -160px}
+
+.order_infoblock.close .order_infoblock_content,
+.order_infoblock.close .order_detail_container,
+.order_infoblock.close .order_detail_container_itogi{
+	padding:0 9px;
+	border:none;
+	height:0;
+	overflow:hidden;
+}
+
+.order_infoblock_title{
+	padding:9px 40px 9px 15px;
+	color:#113549;
+	font-weight:bold;
+	font-size:14px;
+	text-shadow:0 1px 0 #fff;
+	position:relative;
+}
+.order_detail_container .order_infoblock_title{padding:9px 0}
+.time_icon{
+	display: inline-block;
+	padding-left: 30px;
+	background:url(images/icon_time.png) no-repeat 16px center;
+	background-size:auto 11px;
+}
+.order_infoblock_title span{
+	width:20px;
+	height:20px;
+	position:absolute;
+	top:50%;
+	margin-top:-10px;
+	right:10px;
+	display:block;
+	background:url(images/gui.png) no-repeat;
+	background-size:30px auto;
+	background-position:0 -140px;
+}
+.order_infoblock_content{
+	padding:9px 9px;
+	border-top:1px solid #e7ebed;
+}
+
+.order_infoblock_content_table_tdtitle{
+	font-size:13px;
+	color:#798186;
+	vertical-align:top;
+	padding:2px 0;
+}
+.order_infoblock_content_table_tdvalue{
+	font-size:13px;
+	padding:2px 0;
+	color:#000;
+	vertical-align:top;
+}
+.order_infoblock_order_canceled{
+	background:#f8d9d9;
+	border-radius:5px;
+	padding:3px 7px;
+	display:inline-block;
+	font-size:13px;
+	text-align:center;
+	display:block;
+}
+
+.order_infoblock_order_green {
+    background: none repeat scroll 0 0 #D9F8D9;
+    border-radius: 5px 5px 5px 5px;
+    font-size: 13px;
+    overflow: hidden;
+    padding: 3px 0;
+    text-align: center;
+    width: 100%;
+}

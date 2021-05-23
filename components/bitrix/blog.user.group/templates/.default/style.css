@@ -1,0 +1,39 @@
+.blog-group-add, .blog-group-edit, .blog-group-delete {
+	display:block; 
+	background-repeat:no-repeat; 
+	align:absmiddle;
+}
+.blog-group-add{
+	background-image: url(images/add_button.gif); 
+	width:18px; 
+	height:18px; 
+	float:left;
+}
+.blog-group-edit{
+	background-image: url(images/edit_button.gif); 
+	width:18px; 
+	height:18px; 
+	float:right;
+}
+.blog-group-delete{
+	background-image: url(images/delete_button.gif); 
+	width:18px; 
+	height:18px; 
+	float:right;
+}
+
+table.blog-group
+{
+	width:300px;
+	background-color:#FFFFFF;
+	border-collapse:collapse;
+	color: #000000; 
+	font-size:100%;
+}
+
+table.blog-group td
+{
+	border:1px solid #8FB0D2;
+	vertical-align:top;
+	padding: 3px;
+}

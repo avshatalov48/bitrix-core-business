@@ -1,0 +1,32 @@
+table.support-ticket-lamp td
+{
+	border:0px;
+	padding: 3px 5px;
+	vertical-align:top;
+}
+
+
+/*Lamps*/
+div.support-lamp-red, div.support-lamp-green, div.support-lamp-green-s, div.support-lamp-yellow, div.support-lamp-grey
+{
+	width:14px; height:14px; background-repeat:no-repeat;
+}
+
+div.support-lamp-red {background-image: url(images/red.gif)}
+div.support-lamp-green {background-image: url(images/green.gif)}
+div.support-lamp-green-s {background-image: url(images/green_s.gif)}
+div.support-lamp-yellow {background-image: url(images/yellow.gif)}
+div.support-lamp-grey {background-image: url(images/grey.gif)}
+
+.support-ticket-line {
+	height:1px; 
+	width:100%; 
+	overflow:hidden; 
+	background-color:#C7D2D5; 
+	margin-top:8px; 
+	margin-bottom:8px;
+}
+
+.support-ticket-info{
+font-size:95%;
+}

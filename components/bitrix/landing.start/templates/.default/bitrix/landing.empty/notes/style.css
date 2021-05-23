@@ -1,0 +1,31 @@
+.landing-title-btn {
+	display: none;
+}
+
+.landing-notes-block {
+	background: #fff;
+	margin-bottom: 40px;
+	padding: 17px 20px 22px 88px;
+	position: relative;
+}
+
+.landing-notes-block:before {
+	content: '';
+	position: absolute;
+	width: 42px;
+	height: 36px;
+	top: 50%;
+	left: 26px;
+	transform: translateY(-50%);
+	background: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2243%22%20height%3D%2236%22%3E%3Cpath%20fill%3D%22%23FF5752%22%20fill-rule%3D%22evenodd%22%20d%3D%22M41.854%2030.81L24.364%201.677c-1.348-2.236-4.56-2.236-5.879%200L.995%2030.81C-.383%2033.104%201.28%2036%203.947%2036H38.93c2.638%200%204.3-2.896%202.924-5.19zM18.915%2011.828a2.313%202.313%200%20012.323-2.323h.315a2.313%202.313%200%20012.323%202.323v8.688a2.313%202.313%200%2001-2.323%202.323h-.315a2.313%202.313%200%2001-2.323-2.323v-8.688zm2.495%2019.785a2.937%202.937%200%2001-2.925-2.925%202.937%202.937%200%20012.925-2.925%202.937%202.937%200%20012.925%202.925%202.937%202.937%200%2001-2.925%202.925z%22/%3E%3C/svg%3E) no-repeat center;
+}
+
+.landing-notes-title {
+	color: #333;
+	margin-bottom: 6px;
+	font: 22px/28px "OpenSans-Light", "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+
+.landing-notes-text {
+	color: #525c69;
+}

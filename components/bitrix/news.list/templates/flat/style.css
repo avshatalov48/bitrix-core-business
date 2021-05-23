@@ -1,0 +1,195 @@
+.bx-newslist {}
+.bx-newslist-block {
+	padding: 0 14px;
+	margin-bottom: 40px;
+}
+@media (min-width: 992px) {
+	.bx-newslist .bx-newslist-container:nth-child(3n+1) {
+		clear: both;
+	}
+}
+@media (min-width: 768px) and (max-width: 991px) {
+	.bx-newslist .bx-newslist-container:nth-child(2n+1) {
+		clear: both;
+	}
+}
+/* POST FORMATS */
+.bx-newslist-img,
+.bx-newslist-audio,
+.bx-newslist-youtube,
+.bx-newslist-slider {
+	position: relative;
+	text-align: center;
+	margin-bottom: 20px;
+}
+.bx-newslist-slider img,
+.bx-newslist-img img {
+	width: auto;
+	max-width: 100%;
+	height: auto;
+	max-height: 100%
+}
+.bx-newslist-video {
+	display: block;
+	position: absolute;
+	top: 0;
+	right: 0;
+	left: 0;
+	bottom: 0;
+	opacity: 0.7;
+	z-index: 1;
+	-webkit-transition: opacity .3s ease;
+	   -moz-transition: opacity .3s ease;
+	    -ms-transition: opacity .3s ease;
+	     -o-transition: opacity .3s ease;
+	        transition: opacity .3s ease;
+	background: url("images/bx-video.png") no-repeat center;
+}
+.bx-newslist-video:hover {
+	opacity: 1;
+}
+/* POST FORMATS /// SLIDER */
+.bx-newslist-slider {
+	width: 100%;
+	height: 0;
+	padding-bottom: 56.25%;
+	overflow: hidden;
+}
+.bx-newslist-slider-container {
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+}
+.bx-newslist-slider-slide {
+	float: left;
+	z-index: 100;
+}
+.bx-newslist-slider-arrow-container-left,
+.bx-newslist-slider-arrow-container-right {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 15%;
+	cursor: pointer;
+}
+.bx-newslist-slider-arrow-container-left {
+	left: 0;
+}
+.bx-newslist-slider-arrow-container-right {
+	right: 0;
+}
+.bx-newslist-slider-arrow {
+	position: absolute;
+	line-height: 34px;
+	vertical-align: middle;
+	color: #fff;
+	cursor: pointer;
+	font-size: 48px;
+	height: 48px;
+	width: 20px;
+	top: 50%;
+	margin-top: -24px;
+	z-index: 110;
+	opacity: .5;
+	text-shadow:0 0 2px rgba(0,0,0,.5);
+}
+.bx-newslist-slider-arrow-container-left:hover .bx-newslist-slider-arrow,
+.bx-newslist-slider-arrow-container-right:hover .bx-newslist-slider-arrow {
+	color: #FFF;
+	display: block;
+	opacity: 1;
+}
+.bx-newslist-slider-arrow-container-left .bx-newslist-slider-arrow {
+	left: 20px;
+}
+.bx-newslist-slider-arrow-container-right .bx-newslist-slider-arrow {
+	right: 20px;
+}
+.bx-newslist-slider-control {
+	margin: 0;
+	padding: 0;
+	position: absolute;
+	width: 100%;
+	bottom: 10px;
+	z-index: 110;
+	text-align: center;
+	word-spacing: -4px;
+}
+.bx-newslist-slider-control li {
+	display: inline-block;
+	border-radius: 50%;
+	background: #fff;
+	width: 10px;
+	height: 10px;
+	word-spacing: -4px;
+	margin: 0 3px;
+	opacity: .5;
+}
+.bx-newslist-slider-control li:hover,
+.bx-newslist-slider-control li.current {
+	background: #FFF;
+	opacity: 1;
+}
+bx-newslist-slider-arrow,
+.bx-newslist-slider-control li {
+	-webkit-transition: opacity .3s ease;
+	   -moz-transition: opacity .3s ease;
+	    -ms-transition: opacity .3s ease;
+	     -o-transition: opacity .3s ease;
+	        transition: opacity .3s ease;
+}
+.bx-newslist-title,
+.bx-newslist-title a {
+	color: #000;
+	margin: 0;
+	font-weight: 600;
+	padding: 2px 0 15px;
+	font-size: 18px;
+	font-family: "Open Sans", Arial, "Helvetica Neue", Helvetica, sans-serif;
+}
+.bx-newslist-title a:hover {
+	text-decoration: none;
+	border-bottom-color: transparent;
+}
+.bx-lg .bx-newslist-title {
+	font-size: 24pt;
+}
+.bx-md .bx-newslist-title {
+	font-size: 20pt;
+}
+.bx-xs .bx-newslist-title {
+	font-size: 18pt;
+}
+.bx-newslist-view,
+.bx-newslist-date,
+.bx-newslist-comments,
+.bx-newslist-author,
+.bx-newslist-other {
+	color: #a4a4a4;
+	font-size: 13px;
+	padding-bottom: 5px;
+	white-space: nowrap;
+}
+.bx-newslist-view i.fa,
+.bx-newslist-date i.fa,
+.bx-newslist-comments i.fa,
+.bx-newslist-author i.fa,
+.bx-newslist-tags i.fa,
+.bx-newslist-other i.fa {
+	width: 13px;
+	color: #b4b4b4;
+}
+.bx-newslist-tags {
+	color: #a4a4a4;
+	font-size: 13px;
+	padding-bottom: 5px;
+}
+.bx-newslist-content {
+	font-size: 14px;
+	margin-bottom: 5px;
+}
+.bx-newslist-more {
+	margin-top: 5px;
+	margin-bottom: 5px;
+}

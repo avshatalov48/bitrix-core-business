@@ -1,0 +1,114 @@
+div.title-search-result {
+	border:1px solid #c6c6c6;
+	display:none;
+	overflow:hidden;
+	z-index:205;
+}
+
+table.title-search-result {
+	border-collapse: collapse;
+	border:none;
+	width:10%;
+}
+
+table.title-search-result th {
+	background-color:#F7F7F7;
+	border-right:1px solid #e8e8e8;
+	color:#949494;
+	font-weight:normal;
+	padding-top:2px;
+	padding-bottom:2px;
+	padding-left:14px;
+ 	padding-right:12px;
+	text-align:right;
+	vertical-align:top;
+	white-space:nowrap;
+	width:1%;
+}
+
+table.title-search-result td {
+	background-color:white;
+	font-weight:normal;
+	padding-top:2px;
+	padding-bottom:2px;
+	text-align:left;
+	white-space:nowrap;
+}
+
+table.title-search-result td.title-search-item {
+	padding-left:8px;
+	padding-right:15px;
+}
+
+table.title-search-result td.title-search-item a {
+	padding-left:4px;
+	padding-right:15px;
+	vertical-align:top;
+	display:block;
+}
+
+table.title-search-result td.title-search-item img {
+	vertical-align:top;
+}
+
+table.title-search-result td.title-search-item b {
+	color:#cf0000;
+	font-weight:normal;
+}
+
+table.title-search-result tr.title-search-selected td
+,table.title-search-result tr.title-search-selected a
+,table.title-search-result tr.title-search-selected td.title-search-more a
+{
+	background-color:#fff2be;
+}
+
+table.title-search-result td.title-search-more {
+	font-size:11px;
+	font-weight:normal;
+	padding-right:15px;
+	padding-left:24px;
+	padding-top:0px;
+}
+
+table.title-search-result td.title-search-more a
+{
+	padding-left:12px;
+	padding-right:15px;
+	text-decoration:none;
+	color:#999999;
+}
+
+table.title-search-result td.title-search-all {
+	padding-left:24px;
+	padding-right:15px;
+}
+
+table.title-search-result td.title-search-all a
+{
+	padding-left:4px;
+	text-decoration:none;
+	color:#808080;
+}
+
+table.title-search-result td.title-search-separator
+, table.title-search-result th.title-search-separator {
+	padding-top:0px;
+	padding-bottom:0px;
+	font-size:4px;
+}
+
+div.title-search-fader {
+	display:none;
+	background-image: url('images/fader.png');
+	background-position: right top;
+	background-repeat: repeat-y;
+	position:absolute;
+}
+
+p.title-search-preview {
+	font-size:12px;
+}
+div.title-search-result td.title-search-price span {
+	font-size: 26px;
+}

@@ -1,0 +1,34 @@
+.photo-slider-inner {margin: 0 25px; width: 95%;}
+.photo-slider-container {position:relative; zoom:1; z-index:1; width: 100%;}
+.photo-slider-container .photo-prev-enabled,
+.photo-slider-container .photo-prev-wait,
+.photo-slider-container .photo-prev-disabled,
+.photo-slider-container .photo-next-enabled,
+.photo-slider-container .photo-next-wait, 
+.photo-slider-container .photo-next-disabled {position:absolute;top:50%;width:20px;height:48px;margin-top:-24px;display:block;z-index:100;}
+
+.photo-slider-container .photo-prev-enabled,
+.photo-slider-container .photo-next-enabled, 
+.photo-slider-container .photo-prev-wait,
+.photo-slider-container .photo-next-wait {background:url("/bitrix/components/bitrix/photogallery.detail.list/templates/slider/images/arr-enabled.png") no-repeat; cursor:pointer;}
+.photo-slider-container .photo-prev-disabled,
+.photo-slider-container .photo-next-disabled{background:url("/bitrix/components/bitrix/photogallery.detail.list/templates/slider/images/arr-disabled.png") no-repeat;}
+
+.photo-slider-container .photo-prev-enabled,
+.photo-slider-container .photo-prev-wait,
+.photo-slider-container .photo-prev-disabled{left:-25px}
+
+.photo-slider-container .photo-next-enabled,
+.photo-slider-container .photo-next-wait,
+.photo-slider-container .photo-next-disabled{right:-25px;background-position:-20px 0;}
+
+.photo-slider-container .photo-slider-data {position:absolute; overflow:hidden; width:100%;}
+.photo-slider-container .photo-slider-item{float:left!important;}
+.photo-slider-container .photo-slider-item .photo-slider-thumb, 
+.photo-slider-container .photo-slider-item .photo-slider-thumb td {border:none; padding:0; margin:0;}
+.photo-slider-container .photo-slider-item .photo-slider-thumb td {padding:0 1em;}
+
+.photo-slider-container .photo-slider-item img {border: 4px solid transparent;}
+.photo-slider-container .photo-slider-item a {border: 1px solid #b0b0b0; display:block; }
+.photo-slider-container .photo-slider-item div {border: 1px solid #ff4e00;}
+.photo-slider-container .photo-slider-data-list {zoom:1; position:relative!important; left:0; white-space: nowrap; overflow:hidden; width: 8000000px;}

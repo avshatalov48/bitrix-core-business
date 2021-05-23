@@ -1,0 +1,49 @@
+table.sonet-user-profile-friends, table.sonet-user-profile-groups
+{
+	border:1px solid #C4C4C3;
+	border-collapse:collapse;
+}
+
+table.sonet-user-profile-friends td, table.sonet-user-profile-groups td
+{
+	border:1px solid #c4c4c4;
+	padding:6px 5px;
+}
+
+table.sonet-user-profile-friends thead td, table.sonet-user-profile-friends th, table.sonet-user-profile-groups thead td, table.sonet-user-profile-groups th
+{
+	background-color:#f2f2ea;
+	/*text-align:left;*/
+	font-weight:bold;
+	font-size:12px;
+	background-image:none;
+	border:1px solid #C4C4C3;
+	border-bottom:none;
+	padding:8px;
+}
+
+
+table.sonet-user-profile-friend-box tbody td, table.sonet-user-profile-friend-box td
+{
+	border:none;
+	padding:6px 5px;
+	background:transparent;
+}
+
+.sonet-icon-create {
+	padding-top: 3px;
+	height: 20px;
+	padding-left: 22px;
+	clear: both;
+	background-image: url(/bitrix/images/socialnetwork/02.gif);
+	background-repeat: no-repeat;
+	background-position: 0 0;
+}
+
+.required-field
+{
+	font-weight:bold;
+	color:#FF0000;
+}
+
+div.sonet-cntnr-group-list2 { margin-bottom: 1em; }

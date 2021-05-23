@@ -1,0 +1,41 @@
+table.sonet-message-form  
+{
+	width: 100%;
+	border: 1px solid #ABC4D0;
+	border-collapse:collapse;
+	padding: 0px;
+
+}
+table.sonet-message-form td, table.sonet-message-form tbody td
+{
+	font-weight:normal;
+	font-size:11px;
+	border:none;
+	padding:7px;
+}
+
+table.sonet-message-form th
+{
+	font-weight:normal;
+	font-size:12px;
+	background-color:#F0F5F7;
+	padding: 7px;
+	border:none;	
+}
+
+table.sonet-message-form th.sonet-message-form-small
+{
+	font-size:11px;
+}
+
+table.sonet-message-form-smile tbody td, table.sonet-message-form-smile td
+{
+	border:none;
+	padding:3px;
+}
+
+.required-field
+{
+	font-weight:bold;
+	color:#FF0000;
+}

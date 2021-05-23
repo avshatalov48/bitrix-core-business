@@ -1,0 +1,43 @@
+.wizard_errortext 
+{
+	color:red;
+	font-weight:bold;
+}
+
+.wizard_oktext 
+{
+	color:green;
+	font-weight:bold;
+}
+
+.wizard_smalltext
+{
+	color:#215587;
+	font-family:Verdana;
+	font-size:9pt;
+}
+
+.wizard_title
+{
+	color:#215587;
+	font-size:14pt;
+	font-weight:bold;
+} 
+
+.wizard_step
+{
+	color:#215587;
+	font-size:12pt;
+} 
+
+.wizard_sections
+{
+	margin-top:4px;
+	margin-bottom:4px;
+}
+
+.wizard_field_name
+{
+	font-weight:bold;
+	margin-bottom:4px;
+}

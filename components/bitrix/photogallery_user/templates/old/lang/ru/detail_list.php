@@ -1,0 +1,36 @@
+<?
+$MESS ['P_UP'] = "Галерея";
+$MESS ['P_UP_TITLE'] = "Перейти на главную страницу галереи";
+$MESS ['P_PHOTO_SORT_ID'] = "Новые";
+$MESS ['P_PHOTO_SORT_ID_TITLE'] = "по дате добавления";
+$MESS ['P_PHOTO_SORT_SHOWS'] = "Популярные";
+$MESS ['P_PHOTO_SORT_SHOWS_TITLE'] = "по количеству просмотров";
+$MESS ['P_PHOTO_SORT_RATING'] = "Лучшие";
+$MESS ['P_PHOTO_SORT_RATING_TITLE'] = "по количеству голосов";
+$MESS ['P_PHOTO_SORT_COMMENTS'] = "Обсуждаемые";
+$MESS ['P_PHOTO_SORT_COMMENTS_TITLE'] = "по количеству комментариев";
+$MESS ['P_FILTER_SHOW'] = "Показать";
+$MESS ['P_FILTER_RESET'] = "Сбросить";
+$MESS ['P_PHOTO_ORDER_BY_DATE_CREATE'] = "Новые фотографии";
+$MESS ['P_PHOTO_ORDER_BY_SHOWS'] = "Популярные фотографии";
+$MESS ['P_PHOTO_ORDER_BY_RATING'] = "Лучшие фотографии";
+$MESS ['P_PHOTO_ORDER_BY_COMMENTS'] = "Обсуждаемые фотографии";
+$MESS ['P_SELECT_PHOTO_FROM_PERIOD'] = "Выбрать фотографии, добавленные в период";
+$MESS ['P_GROUP_BY_DATE_CREATE'] = "Группировать фотографии по дням добавления";
+$MESS ['P_SHOW_FILTER'] = "Фильтр редактора";
+$MESS ['P_SHOW_ONLY_NOT_ACTIVE'] = "неодобренные фото";
+$MESS ['P_SHOW_ONLY_NOT_ACTIVE_TILTE'] = "Неодобренные фото - это не прошедшие цензуру, не видимые никому, кроме автора и редактора.";
+$MESS ['P_SHOW_ONLY_NOT_PUBLIC'] = "неопубликованные фото";
+$MESS ['P_SHOW_ONLY_NOT_PUBLIC_TITLE'] = "Неопубликованные фото - это фото, которые будут размещены на главной странице и общих списках, но не получившие одобрения редактора. ";
+$MESS ['P_SHOW_ONLY_NOT_PUBLIC_TITLE1'] = "Неопубликованные фото - это фото, которые автор захотел разместить на главной странице и общих списках, но не получившие одобрения редактора. ";
+$MESS ['P_SHOW_SIMPLE'] = "одобренные фото";
+$MESS ['P_SHOW_SIMPLE_TITLE'] = "Будут показаны все фото, которые видит обычный пользователь.";
+$MESS ['P_OPEN_FILTER'] = "Показать фильтр";
+$MESS ['P_CLOSE_FILTER'] = "Скрыть фильтр";
+$MESS ['P_NO_PHOTO'] = "Список фотографий пуст.";
+$MESS ['P_DELETE_CONFIRM'] = "Вы действительно хотите удалить фотографии без возможности восстановления?";
+$MESS ['P_PUBLIC'] = "Опубликовать";
+$MESS ['P_NOT_PUBLIC'] = "Не публиковать";
+$MESS ['P_SHOW'] = "Показать";
+$MESS ['P_DELETE'] = "Удалить";
+?>

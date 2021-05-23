@@ -1,0 +1,12 @@
+<?php
+$MESS["IM_CONFERENCE_CREATE_TITLE"] = "Нова відеоконференція";
+$MESS["IM_CONFERENCE_EDIT_CLASS_ERROR_CONFERENCE_ACCESS_DENIED"] = "У вас немає доступу до цієї конференції";
+$MESS["IM_CONFERENCE_EDIT_CLASS_ERROR_CONFERENCE_CANT_EDIT"] = "Ви не можете редагувати цю конференцію";
+$MESS["IM_CONFERENCE_EDIT_CLASS_ERROR_CONFERENCE_NOT_FOUND"] = "Конференція не знайдена";
+$MESS["IM_CONFERENCE_EDIT_FIELDS_PASSWORD_CHECKBOX_LABEL"] = "Використовуйте пароль для входу";
+$MESS["IM_CONFERENCE_EDIT_FIELDS_PASSWORD_LABEL"] = "Пароль для входу";
+$MESS["IM_CONFERENCE_EDIT_FIELDS_PASSWORD_PLACEHOLDER"] = "Введіть пароль";
+$MESS["IM_CONFERENCE_EDIT_FIELDS_TITLE_LABEL"] = "Назва";
+$MESS["IM_CONFERENCE_EDIT_FIELDS_TITLE_PLACEHOLDER"] = "Введіть назву";
+$MESS["IM_CONFERENCE_EDIT_FIELDS_USER_SELECTOR_LABEL"] = "Внутрішні участники";
+$MESS["IM_CONFERENCE_EDIT_TITLE"] = "Редагування конференції";

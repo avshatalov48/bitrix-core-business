@@ -1,0 +1,131 @@
+.bx-flat-filter {
+	width: 100%;
+	min-width: 220px;
+	font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	margin-bottom: 20px;
+}
+.bx-flat-filter .bx-filter-section {
+	background: #edf6fc;
+	position: relative;
+	padding-top: 26px
+}
+.bx-flat-filter .bx-filter-section>.row {
+	padding: 0 5px;
+}
+.bx-flat-filter .bx-filter-title {
+	font-size: 18px;
+	margin-bottom: 10px;
+	color: #000;
+}
+/*
+ * Sections
+ */
+.bx-flat-filter .bx-filter-parameters-box-title {
+	font-size: 13px;
+	padding-bottom: 7px;
+}
+@media (min-width: 992px) {
+	.bx-flat-filter .bx-filter-section .col-md-4:nth-child(3n+1) {
+		clear: both;
+	}
+}
+@media (min-width: 768px) and (max-width: 991px) {
+	.bx-flat-filter .bx-filter-section .col-md-4:nth-child(2n+1) {
+		clear: both;
+	}
+}
+.bx-flat-filter .bx-filter-parameters-box-title span {
+	color: #039be5;
+	border-bottom: 1px solid transparent;
+	cursor: pointer;
+}
+.bx-flat-filter .bx-filter-parameters-box-title span:hover {
+	border-color: #039be5;
+}
+.bx-flat-filter .bx-filter-parameters-box.active .bx-filter-parameters-box-title span {
+	color: #95a1a8;
+}
+.bx-flat-filter .bx-filter-parameters-box.active .bx-filter-parameters-box-title span:hover {
+	color: #758087;
+	border-color: transparent;
+}
+.bx-flat-filter .bx-filter-block {
+	display: none;
+	-webkit-transition: padding .3s ease;
+	   -moz-transition: padding .3s ease;
+	    -ms-transition: padding .3s ease;
+	     -o-transition: padding .3s ease;
+	        transition: padding .3s ease;
+	-webkit-box-sizing: content-box;
+	   -moz-box-sizing: content-box;
+	        box-sizing: content-box;
+}
+.bx-flat-filter .bx-filter-button-box .bx-filter-block,
+.bx-flat-filter .bx-filter-parameters-box.active .bx-filter-block {
+	display: block;
+}
+.bx-filter-parameters-box-container {
+	padding-bottom: 20px;
+}
+.bx-filter-parameters-box-container .checkbox:first-child {
+	margin-top: 0;
+}
+.bx-flat-filter .bx-filter-parameters-box-container-block {
+	font-size: 11px;
+	color: #3f3f3f;
+}
+/*
+ * INPUTS
+ */
+.bx-flat-filter .bx-filter-input-container {
+}
+.bx-flat-filter .bx-filter-input-container input,
+.bx-flat-filter .bx-filter-input-container select {
+	display: block;
+	width: 100%;
+	font-size: 18px;
+	height: 38px;
+	margin: 0;
+	padding: 0 4px;
+	border: 1px solid #ccd5db;
+	border-radius: 2px;
+	background: #fff;
+	outline: none;
+}
+.bx-flat-filter .bx-filter-input-container input:focus,
+.bx-flat-filter .bx-filter-input-container select:focus {
+	border-color: #499fd8;
+}
+.bx-flat-filter .bx-filter-button-box {
+	clear: both;
+}
+/*
+ * LABEL
+ */
+.bx-flat-filter .bx-filter-param-label {
+	font-size: 13px;
+}
+.bx-flat-filter .bx-filter-param-text {
+	font-weight: normal;
+}
+/*
+ * CALENDAR
+ */
+.bx-flat-filter .bx-filter-parameters-box-container .bx-filter-calendar-container {
+	max-width: 100%;
+	position: relative;
+}
+.bx-flat-filter .bx-filter-parameters-box-container .bx-filter-calendar-container input.calendar {
+	padding: 0 23px 0 4px;
+	font-size: 15px;
+}
+.bx-flat-filter .bx-filter-parameters-box-container .bx-filter-calendar-container img.calendar-icon {
+	display: block;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	position: absolute;
+	font-size: 18px;
+	top: 7px;
+	right: 3px;
+}

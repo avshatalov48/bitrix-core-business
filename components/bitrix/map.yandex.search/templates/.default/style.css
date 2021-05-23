@@ -1,0 +1,9 @@
+div.bx-yandex-search-layout div.bx-yandex-search-results{
+	float: left;
+	max-width: 30%;
+	margin: 0 10px 0 0; 
+}
+
+div.bx-yandex-search-layout div.bx-yandex-search-results ul{
+	list-style-image: none; list-style-position: outside; list-style-type: none; padding: 0; margin: 0;
+}

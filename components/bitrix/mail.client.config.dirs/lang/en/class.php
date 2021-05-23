@@ -1,0 +1,15 @@
+<?
+$MESS["MAIL_CLIENT_CONFIG_DIRS_BTN_CANCEL"] = "Cancel";
+$MESS["MAIL_CLIENT_CONFIG_DIRS_BTN_CANCEL_ALL"] = "Select none";
+$MESS["MAIL_CLIENT_CONFIG_DIRS_BTN_SAVE"] = "Save";
+$MESS["MAIL_CLIENT_CONFIG_DIRS_BTN_SELECT_ALL"] = "Select all";
+$MESS["MAIL_CLIENT_CONFIG_DIRS_FOR"] = "Folder rules";
+$MESS["MAIL_CLIENT_CONFIG_DIRS_MAX_LEVEL_DIRS"] = "Maximum nesting levels exceeded";
+$MESS["MAIL_CLIENT_CONFIG_DIRS_NOT_SPECIFIED"] = "not specified";
+$MESS["MAIL_CLIENT_CONFIG_DIRS_OUTCOME_SAVE"] = "Save sent emails to folder:";
+$MESS["MAIL_CLIENT_CONFIG_DIRS_SPAM_SAVE"] = "Move spam to folder:";
+$MESS["MAIL_CLIENT_CONFIG_DIRS_SYNC"] = "Synchronize folders";
+$MESS["MAIL_CLIENT_CONFIG_DIRS_TITLE"] = "Configure Folders";
+$MESS["MAIL_CLIENT_CONFIG_DIRS_TRASH_SAVE"] = "Move deleted emails to folder:";
+$MESS["MAIL_CLIENT_MAILBOX_NOT_FOUND"] = "Mailbox was not found";
+?>

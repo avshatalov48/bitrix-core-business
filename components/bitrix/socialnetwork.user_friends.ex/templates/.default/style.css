@@ -1,0 +1,46 @@
+.sonet-members-item { min-height: 136px; position: relative; }
+* html .sonet-members-item { zoom: 1; }
+.sonet-members-item-name { color: #000; font-size: 15px; }
+.sonet-members-item-menu { color: #b2b2b2; font-size: 13px; right: 0; top: 0; position: absolute; }
+.sonet-members-item-menu-title { color: #b2b2b2; cursor: pointer; font-size: 13px; padding-right: 9px; position: relative; font-family: Arial,Verdana,Helvetica,sans-serif; }
+.sonet-members-item-menu-arrow { background: url("images/group-list-sprite.png") no-repeat -36px -99px; height: 3px; top: 7px; right: 4px; position: absolute; width: 5px; }
+
+.sonet-members-member-block-shift { margin-left:-7px; }
+* html .sonet-members-member-block-shift { margin-left:-25px; }
+.sonet-members-separator { background: url("images/group-list-sprite.png") no-repeat right -121px #F2F2F2; height: 1px; font-size: 1px; overflow: hidden; margin: 5px 0 8px; }
+.sonet-members-member-img-wrap { display: block; float: left; padding-left: 7%; vertical-align: top; zoom: 1; }
+* html .sonet-members-member-img-wrap { padding-left: 18px; }
+.sonet-members-member-img { background: url("images/group-list-sprite.png") no-repeat 0 -189px; border: none; display: inline-block; float: left; height: 42px; vertical-align: top; width: 42px; }
+
+.sonet-members-member-block { display: inline-block; height: auto; margin: 0 1% 8px 0; padding: 5px 0 3px; overflow: hidden; vertical-align: top; width: 28%; border-radius: 5px; min-width: 240px; position: relative; }
+* html .sonet-members-member-block { padding-left: 25px; width: 250px; }
+* + html .sonet-members-member-block { width: 46%; overflow: hidden; position: relative; }
+.sonet-members-item .sonet-members-member-block-over { background-color: #f5f5f5; }
+.sonet-members-item .sonet-members-member-block-active { background-color: #f5f1db!important; }
+.sonet-members-member-text {
+	display: block;
+	overflow: hidden;
+	padding-left: 3%;
+	padding-right: 3%;
+	width: auto;
+}
+* html .sonet-members-item .sonet-members-member-text { padding-right: 7px; padding-left: 7px; width: 345px; zoom: 1; }
+.sonet-members-checkbox { display: none; left: 2%; top: 4px; margin: 0; border: 0; overflow: hidden; height: 15px; width: 15px; padding: 0; font-size: 1px; line-height: 1; position: absolute; }
+* html .sonet-members-checkbox { left: 2px; top: 4px; }
+.sonet-members-item .sonet-members-member-block-over .sonet-members-checkbox,
+.sonet-members-item .sonet-members-member-block-active .sonet-members-checkbox { display: block; }
+.sonet-members-caption { color: #23ae26; display: block; font-size: 11px; }
+.sonet-members-member-title { display: block; font-size: 15px; margin-bottom: 4px; zoom: 1; }
+.sonet-members-member-link,
+.sonet-members-member-link:hover,
+.sonet-members-member-link:visited,
+.sonet-members-member-link:active { color: #000!important; font-size: 15px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+.sonet-members-member-link { text-decoration: none; }
+.sonet-members-member-link:hover { text-decoration: underline; }
+.sonet-members-member-description { display: block; text-overflow: ellipsis; overflow: hidden; font-size: 13px; color: #7F7F7F; white-space: nowrap; zoom: 1; }
+.sonet-members-nav { padding: 10px 0 20px 0; }
+.sonet-members-wait-cont { height: 31px; }
+.sonet-members-wait-icon { height: 31px; width: 31px; background: url('images/wait.gif') no-repeat 0 0; display: inline-block; position: relative; left: 1px; top: 1px; }
+.sonet-members-wait-text { height: 31px; display: inline-block; position: relative; padding: 0 10px 0 5px; left: 1px; top: -11px; color: #7F7F7F; }
+
+.sonet-members-error-text-block { padding: 20px; }

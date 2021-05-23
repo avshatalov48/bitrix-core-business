@@ -1,0 +1,38 @@
+.bx-socialsidebar {
+	margin: 10px 0;
+}
+.bx-socialsidebar .bx-block-title {
+	font-family: "Open Sans", Arial, "Helvetica Neue", Helvetica, sans-serif;
+	color: #343434;
+	text-transform: uppercase;
+	font-size: 12px;
+	margin-bottom: 9px;
+	font-weight: 600;
+}
+.bx-socialsidebar-group {}
+.bx-socialsidebar-group ul {
+	padding: 0;
+	margin: 0;
+	display: block;
+}
+.bx-socialsidebar-group ul li {
+	display: inline-block;
+	width: 35px;
+	height: 35px;
+	margin-right: 5px;
+}
+.bx-socialsidebar-group ul li a {
+	display: block;
+	width: 35px;
+	height: 35px;
+	background-image: url(images/sprite.png);
+	background-repeat: no-repeat;
+	/*opacity: .8;*/
+	border-bottom: none;
+}
+.bx-socialsidebar-group ul li a.fb {background-position: 0 0}
+.bx-socialsidebar-group ul li a.gp {background-position: -44px 0}
+.bx-socialsidebar-group ul li a.tw {background-position: -88px 0}
+.bx-socialsidebar-group ul li a.vk {background-position: -132px 0}
+.bx-socialsidebar-group ul li a.in {background-position: -176px 0}
+.bx-socialsidebar-group ul li a:hover {opacity: .9;}

@@ -1,0 +1,16 @@
+.bx-mylist-layout .bx-mylist-form {margin: 0 0 20px 0;}
+.bx-mylist-layout .bx-mylist-form .bx-mylist-form-info {margin: 0 0 5px 0;}
+.bx-mylist-layout .bx-mylist-form ul.bx-mylist-form-results {list-style-image: none; list-style-position: outside; list-style-type: none; margin: 0 0 5px 0; padding: 2px; border: solid 1px #B3C8D2;}
+.bx-mylist-layout .bx-mylist-form ul.bx-mylist-form-results li {display: block; line-height: 1.4em; padding: 4px;}
+.bx-mylist-layout .bx-mylist-form ul.bx-mylist-form-results li.bx-mylist-row-0 {background-color: #FFFFFF;}
+.bx-mylist-layout .bx-mylist-form ul.bx-mylist-form-results li.bx-mylist-row-1 {background-color: #F0F5F7;}
+.bx-mylist-layout .bx-mylist-form ul.bx-mylist-form-results li .bx-mylist-form-status {float: right; width: 190px; margin-left: 5px; padding-left: 5px; border-left: solid 1px gray;}
+.bx-mylist-layout .bx-mylist-form ul.bx-mylist-form-results li .bx-mylist-form-date {color: #808080;}
+
+.bx-mylist-layout .bx-mylist-form .bx-mylist-form-link {text-align: right;}
+.bx-mylist-layout .bx-mylist-form .bx-mylist-form-data {margin-right: 200px; overflow: hidden; height: 1.4em;}
+
+.statusgreen {color: green;}
+.statusred {color: red;}
+.statusblue {color: blue;}
+.statusgray {color: gray;}

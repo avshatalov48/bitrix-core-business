@@ -1,0 +1,25 @@
+/* 1st level */
+.bx_vertical_menu_advanced.bx_green{
+	border-left:7px solid #a7d380;
+	background:#bdeb94;
+}
+/* // 1st level */
+
+/* The Container */
+/*// Container */
+
+/* 2nd level*/
+.bx_vertical_menu_advanced.bx_green .bx_hma_one_lvl .bx_children_container .bx_children_block li.parent>a{color: #746b21}
+.bx_vertical_menu_advanced.bx_green .bx_hma_one_lvl .bx_children_container .bx_children_block li.parent>a:hover{color: #564f17}
+/* // 2nd level*/
+
+/* 3rd level */
+.bx_vertical_menu_advanced.bx_green .bx_hma_one_lvl .bx_children_container .bx_children_block li.parent ul a:hover{
+	background:#f7f3e0;
+	box-shadow:inset 0 1px 1px 0 #ebe9e3
+}
+/* // 3rd level */
+
+/* Panel */
+/* // The Panel*/
+

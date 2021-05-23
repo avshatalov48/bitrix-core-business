@@ -1,0 +1,54 @@
+.feed-com-collapsed {
+	position: relative;
+}
+
+.feed-com-collapsed > .feed-com-loader {
+	right: 15px;
+}
+
+.feed-com-collapsed > input[type=checkbox] {
+	display: none;
+}
+
+.feed-com-collapsed label[data-bx-collapse-role="show"],
+.feed-com-collapsed input[type=checkbox]:checked ~ label[data-bx-collapse-role="hide"] {
+	display: inline-block;
+}
+
+.feed-com-collapsed input[type=checkbox]:checked ~ label[data-bx-collapse-role="show"],
+.feed-com-collapsed label[data-bx-collapse-role="hide"] {
+	display: none;
+}
+
+.feed-com-collapsed > label .post-comment-control-item,
+.feed-com-collapsed > label .post-comment-control-item:last-child {
+	margin: 10px 0 5px 80px;
+}
+
+.feed-com-collapsed label[data-bx-collapse-role="hide"] {
+	margin-bottom: 10px;
+}
+
+.post-comments-wrap .feed-com-collapsed .feed-com-block-cover:nth-child(1) .post-comment-block {
+	padding-top: 0;
+}
+
+.feed-com-collapsed-block {
+	opacity: 0;
+	max-height: 0;
+	overflow: hidden;
+	transition: all 0.2s ease-out;
+}
+
+.feed-com-collapsed input[type=checkbox]:checked ~ .feed-com-collapsed-block {
+	opacity: 1;
+	max-height: none;
+}
+
+.feed-com-collapsed-block > div {
+	display: none;
+}
+
+.feed-com-collapsed input[type=checkbox]:checked ~ .feed-com-collapsed-block > div {
+	display: inherit;
+}

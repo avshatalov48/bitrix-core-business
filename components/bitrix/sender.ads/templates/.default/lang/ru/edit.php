@@ -1,0 +1,4 @@
+<?
+$MESS ['SENDER_ADS_SEGMENT_SELECTOR_INCLUDE_EDIT_TITLE'] = "Выбор сегментов";
+$MESS ['SENDER_ADS_SEGMENT_SELECTOR_INCLUDE_VIEW_TITLE'] = "Выбранные сегменты";
+$MESS ['SENDER_ADS_SEGMENT_SELECTOR_RECIPIENT_COUNT'] = "Отобрано на текущий момент";

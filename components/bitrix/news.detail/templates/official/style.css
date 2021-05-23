@@ -1,0 +1,10 @@
+div.news-detail img.detail_picture
+{
+	float:left;
+	margin:0 8px 6px 1px;
+}
+.news-date-time
+{
+	padding-top: 2px;
+	color:#486DAA;
+}

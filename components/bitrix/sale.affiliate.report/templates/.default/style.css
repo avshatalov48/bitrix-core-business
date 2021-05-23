@@ -1,0 +1,62 @@
+.affiliate-filter-table {
+	width: 0%;
+	border: 1px solid #B7BCDB;
+	border-collapse: collapse;
+}
+
+.affiliate-filter-table td {
+	padding: 3px;
+	border: 0px;
+	font-family: Arial, Helvetica, sans-serif; 
+	font-size:12px;
+}
+
+.affiliate-filter-table tfoot td {
+	font-size: 11px;
+}
+
+.affiliate-filter-table tfoot input {
+	font-family:Verdana,Arial,Helvetica; font-size:11px;
+}
+
+.affiliate-filter-table thead td, .affiliate-report-table thead td
+{
+	text-align: center;
+	background-color: #EBECF3;
+	color: #25639A;
+}
+
+.affiliate-filter-table tfoot td
+{
+	text-align: center;
+	background-color: #EBECF3;
+}
+
+.affiliate-report-table {
+	border: 1px solid #B7BCDB;
+	border-collapse: collapse;
+	width: 100%;
+}
+
+.affiliate-report-table td {
+	border: 1px solid #B7BCDB;
+	padding: 3px;
+	font-family: Arial, Helvetica, sans-serif; 
+	font-size:12px;
+}
+
+.affiliate-report-table tbody td
+{
+	background-color: #FFFFFF;
+}
+
+.affiliate-report-table tfoot td
+{
+	background-color: #EBECF3;
+	color: #25639A;	
+}
+
+.affiliate-report-table .affiliate-report-right
+{
+	text-align: right;
+}

@@ -1,0 +1,90 @@
+.sender-template-edit-wrap {
+	padding: 20px;
+	background: #fff;
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+.bx-sender-caption {
+	display: block;
+	margin: 0 0 6px 0;
+	font: 13px/15px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #80868E;
+}
+
+.bx-sender-form-control {
+	display: inline-block;
+	padding: 7px 30px 7px 14px;
+	min-width: 308px;
+	height: 38px;
+	border: none;
+	-webkit-box-shadow: inset 0 0 0 1px #C6CDD3;
+	box-shadow: inset 0 0 0 1px #C6CDD3;
+	border-radius: 2px;
+	font: 15px/17px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #333;
+	background: #fff;
+	box-sizing: border-box;
+	vertical-align: middle;
+	transition: border-color .3s ease;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	outline: none;
+	text-indent: 1px;
+	text-overflow: '';
+}
+
+.bx-sender-form-control:focus {
+	-webkit-box-shadow: inset 0 0 0 1px rgba(81, 203, 238, 1);
+	box-shadow: inset 0 0 0 1px rgba(81, 203, 238, 1);
+}
+
+.bx-sender-letter-field-input {
+	width: 100%;
+}
+
+.bx-sender-letter-steps {
+	margin: -15px;
+	background: #eef2f4;
+}
+.bx-sender-letter-step {
+	padding: 25px;
+	margin: 0 0 30px 0;
+	background: #ffffff;
+}
+.bx-sender-letter-step-caption {
+	margin: 0 0 30px 0;
+	font: 26px/25px "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+.bx-sender-letter-step-content {
+
+}
+
+
+.bx-sender-letter-types {
+	height: 40px;
+}
+.bx-sender-letter-type {
+	background: #85c2f7;
+	color: white;
+	padding: 15px;
+	float: left;
+	margin: 0 10px 0 0;
+	cursor: pointer;
+	font: 20px/19px "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+
+.bx-sender-letter-type:hover {
+	background: #5cb4ff;
+}
+
+
+.bx-sender-letter-field {
+	margin: 0 0 30px;
+}
+.bx-sender-letter-field .bx-sender-caption {
+	margin: 0 0 10px;
+	font: 16px/15px "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+.bx-sender-letter-field .bx-sender-value {
+
+}

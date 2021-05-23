@@ -1,0 +1,8 @@
+<?
+$MESS["MAIN_USER_CONSENT_REQUEST_BTN_ACCEPT"] = "I accept";
+$MESS["MAIN_USER_CONSENT_REQUEST_BTN_REJECT"] = "I decline";
+$MESS["MAIN_USER_CONSENT_REQUEST_ERR_TEXT_LOAD"] = "Cannot load the Consent text.";
+$MESS["MAIN_USER_CONSENT_REQUEST_LOADING"] = "Loading..";
+$MESS["MAIN_USER_CONSENT_REQUEST_TITLE"] = "User Consent";
+$MESS["MAIN_USER_CONSENT_REQUEST_URL_CONFIRM"] = "Please read the text using the link ";
+?>

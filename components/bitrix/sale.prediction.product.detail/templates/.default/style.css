@@ -1,0 +1,17 @@
+.catalog-element-popup-wrapper {
+	position: absolute;
+	box-sizing: border-box;
+	border-radius: 3px;
+	background: rgba(0, 0, 0, .77);
+}
+
+.catalog-element-popup-inner {
+	padding: 20px;
+	max-width: 300px;
+	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+
+.catalog-element-popup-element {
+	color: #ffa801;
+	font: bold 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+}

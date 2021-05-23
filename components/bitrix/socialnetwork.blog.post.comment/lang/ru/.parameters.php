@@ -1,0 +1,33 @@
+<?
+$MESS["BPC_PATH_TO_BLOG"] = "Шаблон пути к странице сообщений";
+$MESS["BPC_PATH_TO_USER"] = "Шаблон пути к странице пользователя";
+$MESS["BPC_PATH_TO_SMILE"] = "Путь к папке со смайликами относительно корня сайта";
+$MESS["BPC_USER_VAR"] = "Имя переменной для идентификатора пользователя";
+$MESS["BPC_POST_VAR"] = "Имя переменной для идентификатора сообщения";
+$MESS["BPC_PAGE_VAR"] = "Имя переменной для страницы";
+$MESS["BPC_ID"] = "Идентификатор сообщения";
+$MESS["B_VARIABLE_ALIASES"] = "Имена переменных";
+$MESS["BC_DATE_TIME_FORMAT"] = "Формат показа даты и времени";
+$MESS["BPC_COMMENT_ID_VAR"] = "Имя переменной для идентификатора комментария";
+$MESS["SHOW_RATING"] = "Включить рейтинг";
+$MESS["SHOW_RATING_CONFIG"] = "по умолчанию";
+$MESS["RATING_TYPE"] = "Вид кнопок рейтинга";
+$MESS["RATING_TYPE_CONFIG"] = "по умолчанию";
+$MESS["RATING_TYPE_STANDART_TEXT"] = "Нравится / Не нравится (текстовый)";
+$MESS["RATING_TYPE_STANDART_GRAPHIC"] = "Нравится / Не нравится (графический)";
+$MESS["RATING_TYPE_LIKE_TEXT"] = "Мне нравится (текстовый)";
+$MESS["RATING_TYPE_LIKE_GRAPHIC"] = "Мне нравится (графический)";
+$MESS["BPC_IMAGE_MAX_WIDTH"] = "Максимальная ширина изображения";
+$MESS["BPC_IMAGE_MAX_HEIGHT"] = "Максимальная высота изображения";
+$MESS["BPC_ALLOW_VIDEO"] = "Разрешить вставку видео";
+$MESS["BPC_SHOW_SPAM"] = "Показывать администраторам ссылку на все комментарии пользователя";
+$MESS["BPC_NO_URL_IN_COMMENTS"] = "Запретить вставку ссылок";
+$MESS["BPC_NO_URL_IN_COMMENTS_N"] = "Никому";
+$MESS["BPC_NO_URL_IN_COMMENTS_A"] = "Анонимным пользователям";
+$MESS["BPC_NO_URL_IN_COMMENTS_L"] = "Всем";
+$MESS["BPC_NO_URL_IN_COMMENTS_AUTHORITY"] = "Минимальный авторитет, с которым пользователи могут вставлять ссылки";
+$MESS["BPC_ALLOW_IMAGE_UPLOAD"] = "Разрешить загрузку изображений";
+$MESS["BPC_ALLOW_IMAGE_UPLOAD_A"] = "Всем";
+$MESS["BPC_ALLOW_IMAGE_UPLOAD_R"] = "Зарегистрированным пользователям";
+$MESS["BPC_ALLOW_IMAGE_UPLOAD_N"] = "Никому";
+?>

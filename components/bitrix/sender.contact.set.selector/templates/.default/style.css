@@ -1,0 +1,43 @@
+.sender-campaign-selector-title {
+	display: block;
+	margin: 0 0 6px 0;
+	font: 13px/15px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #80868E;
+}
+
+.sender-campaign-selector-main {
+	margin: 8px 0 0 0;
+}
+
+.sender-campaign-selector-main-sum {
+	display: flex;
+	align-items: center;
+	padding: 10px 18px;
+	margin: 0 0 8px 0;
+	min-height: 42px;
+	background: rgba(234,241,244,.3);
+	box-sizing: border-box;
+}
+
+.sender-campaign-selector-block {
+	display: flex;
+	align-items: center;
+	color: #525C69;
+}
+
+.sender-campaign-selector-block-name {
+	display: inline-block;
+	margin: 0 7px 0 0;
+	font: 13px/15px "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+
+.sender-campaign-selector-block-number {
+	font: 18px/22px "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+
+.sender-campaign-selector-site {
+	margin: 0 0 0 10px;
+	color: #d0d1d2;
+	font: 13px/15px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	transition: opacity .5s;
+}

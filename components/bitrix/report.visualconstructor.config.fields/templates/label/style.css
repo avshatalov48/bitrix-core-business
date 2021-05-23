@@ -1,0 +1,56 @@
+.report-configuration-label-wrapper .report-configuration-col-content {
+    display: flex;
+    align-items: center;
+
+}
+.report-configuration-label-wrapper
+{
+    width: 100%;
+}
+
+.report-configuration-label-wrapper .report-configuration-label {
+    display: inline-block;
+    margin: 0 5px 5px 0;
+    max-width: 100%;
+    font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+    color: rgba(82, 92, 105, .5);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.report-configuration-label-wrapper .report-configuration-field-input {
+    max-width: 80%;
+}
+
+.report-configuration-label-wrapper .report-configuration-field-input-inactive
+{
+    background: inherit;
+    border: none;
+}
+
+.report-configuration-label-wrapper:hover .report-configuration-input-pencil {
+    opacity: 0.5;
+}
+
+.report-configuration-label-wrapper .report-configuration-input-pencil {
+    display: inline-block;
+    width: 11px;
+    height: 11px;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2211%22%20height%3D%2211%22%3E%3Cpath%20fill%3D%22%23FFF%22%20d%3D%22M8.633%200l2.357%202.358L3.756%209.59%201.4%207.232%208.633%200zM.009%2010.664a.262.262%200%200%200%20.066.25c.065.066.16.091.25.066l2.795-.753L.762%207.869l-.753%202.795z%22/%3E%3C/svg%3E');
+    background-repeat: no-repeat;
+    transition: opacity .3s;
+    cursor: pointer;
+}
+
+.report-configuration-col-content .report-configuration-input-pencil {
+    opacity: 0;
+}
+
+.report-configuration-col-content:hover .report-configuration-input-pencil {
+    opacity: .5;
+}
+
+.report-configuration-col-content .report-configuration-input-pencil:hover {
+    opacity: 1;
+}

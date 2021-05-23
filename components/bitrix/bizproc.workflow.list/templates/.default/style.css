@@ -1,0 +1,5 @@
+td.popupmenu div.popupitem div.edit {background-image:url(/bitrix/themes/.default/images/popup/edit.gif);}
+td.popupmenu div.popupitem div.delete {background-image:url(/bitrix/themes/.default/images/popup/delete.gif);}
+form.bp-form{
+	padding:0;
+	margin:0;}

@@ -1,0 +1,37 @@
+<?
+$MESS ['ADV_JSSOR_PARAMETER_NO'] = "(не установлено)";
+$MESS ['ADV_JSSOR_PARAMETER_IMG'] = "Изображение слайда";
+$MESS ['ADV_JSSOR_PARAMETER_LINK_URL'] = "Ссылка слайда";
+$MESS ['ADV_JSSOR_PARAMETER_LINK_TITLE'] = "Текст всплывающей подсказки";
+$MESS ['ADV_JSSOR_PARAMETER_LINK_TARGET'] = "Где открыть ссылку";
+$MESS ['ADV_JSSOR_PARAMETER_LINK_TARGET_SELF'] = "в текущем окне";
+$MESS ['ADV_JSSOR_PARAMETER_LINK_TARGET_BLANK'] = "в новом окне";
+$MESS ['ADV_JSSOR_PARAMETER_LINK_TARGET_PARENT'] = "в своем фреймсете";
+$MESS ['ADV_JSSOR_PARAMETER_LINK_TARGET_TOP'] = "во всем текущем окне браузера";
+$MESS ['ADV_JSSOR_PARAMETER_HEADING'] = "Заголовок";
+$MESS ['ADV_JSSOR_PARAMETER_PRESET'] = "Шаблон слайда";
+$MESS ['ADV_JSSOR_PARAMETER_HEADING_SHOW'] = "Показать заголовок";
+$MESS ['ADV_JSSOR_PARAMETER_HEADING_TEXT'] = "Текст заголовка";
+$MESS ['ADV_JSSOR_PARAMETER_FONT_SIZE'] = "Размер текста";
+$MESS ['ADV_JSSOR_PARAMETER_FONT_COLOR'] = "Цвет текста";
+$MESS ['ADV_JSSOR_PARAMETER_BG_COLOR'] = "Цвет подложки";
+$MESS ['ADV_JSSOR_PARAMETER_BG_OPACITY'] = "Прозрачность подложки";
+$MESS ['ADV_JSSOR_PARAMETER_ANNOUNCEMENT_SHOW'] = "Показать анонс";
+$MESS ['ADV_JSSOR_PARAMETER_ANNOUNCEMENT_TEXT'] = "Текст анонса";
+$MESS ['ADV_JSSOR_PARAMETER_ANNOUNCEMENT'] = "Анонс";
+$MESS ['ADV_JSSOR_PARAMETER_ANNOUNCEMENT_MOBILE_HIDE'] = "Скрывать область с анонсом на мобильном телефоне";
+$MESS ['ADV_JSSOR_PARAMETER_BUTTON'] = "Показать кнопку";
+$MESS ['ADV_JSSOR_PARAMETER_BUTTON_TEXT'] = "Текст кнопки";
+$MESS ['ADV_JSSOR_PARAMETER_BUTTON_TEXT_DEF'] = "Подробнее";
+$MESS ['ADV_JSSOR_PARAMETER_BUTTON_BG_COLOR'] = "Цвет кнопки";
+$MESS ['ADV_JSSOR_PARAMETER_BUTTON_LINK_URL'] = "Ссылка кнопки";
+$MESS ['ADV_JSSOR_PARAMETER_ANIMATION'] = "Анимация";
+$MESS ['ADV_JSSOR_PARAMETER_ANIMATION_EFFECT'] = "Эффект";
+$MESS ['ADV_JSSOR_PARAMETER_ANIMATION_EFFECT_L'] = "слева направо";
+$MESS ['ADV_JSSOR_PARAMETER_ANIMATION_EFFECT_R'] = "справа налево";
+$MESS ['ADV_JSSOR_PARAMETER_ANIMATION_EFFECT_FADE'] = "появление";
+$MESS ['ADV_JSSOR_PARAMETER_ANIMATION_DELAY'] = "Задержка анимации (мсек)";
+$MESS ['ADV_JSSOR_PARAMETER_OVERLAY'] = "Фоновая заливка";
+$MESS ['ADV_JSSOR_PARAMETER_OVERLAY_COLOR'] = "Цвет фона";
+$MESS ['ADV_JSSOR_PARAMETER_OVERLAY_OPACITY'] = "Прозрачность фона";
+?>

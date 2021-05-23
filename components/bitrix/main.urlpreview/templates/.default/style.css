@@ -1,0 +1,167 @@
+.urlpreview{
+	position:relative;
+}
+
+.urlpreview__frame{
+	border-left: 2px solid #a6ca61;
+	padding-left: 7px;
+	overflow: hidden;
+}
+
+.urlpreview__frame-inner{
+	border-left: 2px solid #6ec2f6;
+	padding-left: 7px;
+}
+
+.urlpreview__container{
+	display: inline-block;
+	padding-left: 6px;
+}
+
+.urlpreview__container-left{
+	float: left;
+	padding: 0 6px 0 0;
+	max-width: 50%;
+}
+.urlpreview__container-switchable {
+	cursor: pointer;
+}
+
+.urlpreview__image {
+	position: relative;
+	display: inline-block;
+}
+
+.urlpreview__image img{
+	max-width: 300px;
+	max-height: 200px;
+}
+
+.urlpreview__embed {
+	overflow: hidden;
+}
+
+.urlpreview__embed .fb-post {
+	min-height: 150px;
+}
+
+.urlpreview__embed > iframe {
+	max-width: 600px;
+}
+
+.urlpreview__play {
+	opacity: 0.7;
+	color: white;
+	position: absolute;
+	left: 47%;
+	top: 45%;
+	font-size: 2em;
+	transition: opacity 0.2s ease;
+}
+
+.urlpreview__container:hover .urlpreview__play {
+	opacity: 1;
+}
+
+.urlpreview__container-left img{
+	width: auto;
+	height: auto;
+	max-height: 200px;
+}
+.urlpreview__container-hide-embed .urlpreview__embed {
+	display: none;
+}
+
+.urlpreview__container-hide-image .urlpreview__image {
+	display: none;
+}
+
+.urlpreview__title{
+	padding: 6px;
+	font-weight: bold;
+	text-align: justify;
+}
+
+.urlpreview__description{
+	padding: 6px;
+	font-size: 0.9em;
+	text-align: justify;
+}
+
+.urlpreview__detach{
+	float: right;
+	transition: color 0.2s ease;
+	cursor: pointer;
+	color: #878f9b;
+	font-size: 1.3em;
+	margin-top: 5px;
+	position: relative;
+	z-index: 10;
+}
+.urlpreview__detach:hover{
+	color: #5f6773;
+}
+
+.urlpreview__clearfix{
+	clear: both;
+}
+
+.urlpreview__bottom{
+	padding: 6px 0 0 6px;
+	font-size: 0.9em;
+}
+
+.urlpreview__button {
+	display: inline-block;
+	position: absolute;
+	top: 8px;
+	background: url(images/arrows.png) no-repeat center;
+	color: white;
+	transition: opacity 0.2s ease;
+	border: white 1px solid;
+	width: 20px;
+	height: 20px;
+	border-radius: 12px;
+	opacity: 0.8;
+	cursor: pointer;
+}
+
+.urlpreview__button:hover {
+	opacity: 1;
+}
+
+.urlpreview__button-prev {
+	left: 24px;
+	background-position: -1px -1px;
+}
+
+.urlpreview__button-next {
+	background-position: -28px -1px;
+	left: 50px;
+}
+
+.urlpreview__icon-destination {
+	background: url("images/live_feed_sprite_6.png?3") no-repeat 0 -78px;
+	display: inline-block;
+	height: 17px;
+	vertical-align: middle;
+	width: 10px;
+}
+
+.urlpreview__time-wrap {
+	display: inline-block;
+}
+.urlpreview__time-wrap > a, .urlpreview__time-wrap > a:hover {
+	color: #555;
+}
+
+.urlpreview__time-wrap:hover {
+	text-decoration: underline;
+}
+
+.urlpreview__time {
+	background: url("images/live_feed_sprite_6.png?3") no-repeat -146px -230px;
+	font-size: 11px;
+	margin-right: 12px;
+	padding-left: 13px;
+}

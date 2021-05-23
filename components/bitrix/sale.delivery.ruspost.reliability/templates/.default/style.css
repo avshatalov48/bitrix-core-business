@@ -1,0 +1,19 @@
+.sale-ruspost-reliability-reliable,
+.sale-ruspost-reliability-not-reliable{
+    line-height: 20px;
+    display: inline-block;
+    height: 20px;
+    margin-left: 10px;
+    padding: 0 10px 1px;
+    vertical-align: middle;
+    color: #fff;
+    border-radius: 3px;
+}
+
+.sale-ruspost-reliability-reliable{
+    background: #a1bf41;
+}
+
+.sale-ruspost-reliability-not-reliable{
+    background: #cb4143;
+}

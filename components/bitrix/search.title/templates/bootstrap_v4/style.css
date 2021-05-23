@@ -1,0 +1,28 @@
+.search-title-button{
+	background-image: url(images/icon-search.svg);
+	background-repeat: no-repeat;
+	background-position: center;
+	min-width:45px;
+}
+
+.title-search-result{
+	border: 1px solid #c6c6c6;
+	display: none;
+	overflow: hidden;
+	z-index: 205;
+	background-color: #fff;
+	padding: 10px;
+	border-radius: 3px;
+}
+
+.bx_item_block{
+	font-size: 14px;
+	padding-bottom:5px;
+	margin-bottom: 5px;
+	border-bottom:1px solid #ddd;
+}
+
+.all_result,
+.others_result { border: none; }
+
+.all_result { margin-bottom: 0;}

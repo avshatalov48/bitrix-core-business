@@ -1,0 +1,7 @@
+<?
+$MESS["REPORT_VIEW_STEXPORT_PROGRESS_SUMMARY"] = "Records processed: #PROCESSED_ITEMS# of #TOTAL_ITEMS#.";
+$MESS["REPORT_VIEW_STEXPORT_COMPLETED_SUMMARY1"] = "Report file has been created.";
+$MESS["REPORT_VIEW_STEXPORT_COMPLETED_SUMMARY2"] = "Records processed: #PROCESSED_ITEMS#.";
+$MESS["REPORT_VIEW_STEXPORT_DOWNLOAD"] = "Download export file";
+$MESS["REPORT_VIEW_STEXPORT_NO_DATA"] = "There are no data to export.";
+?>

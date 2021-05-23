@@ -1,0 +1,18 @@
+.mail-addressbook-contact-name {
+	display: flex;
+	align-items: center;
+}
+
+.mail-addressbook-contact-name-title {
+	margin: 0 0 0 10px;
+	max-width: 100%;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
+.mail-addressbook-pagetitle-flexible-space {
+	margin: auto 0 auto 19px;
+	max-width: 100%;
+	min-width: 200px;
+	flex: 1 1 auto;
+}

@@ -1,0 +1,20 @@
+.event-list-delete-button {
+	display: inline-block;
+	margin: 0 3px 0 6px;
+	width: 16px;
+	height: 16px;
+	border-radius: 30px;
+	font-size: 16px;
+	line-height: 16px;
+	text-align: center;
+	-webkit-transition: background .3s, color .3s;
+	transition: background .3s, color .3s;
+	text-decoration: none;
+	outline: none;
+	cursor: pointer;
+}
+
+.event-list-delete-button:hover {
+	background: #E00101;
+	color: #fff;
+}

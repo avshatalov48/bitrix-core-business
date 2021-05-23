@@ -1,0 +1,33 @@
+<?
+$MESS["IBLOCK_SORT_SHOWS"] = "average views";
+$MESS["IBLOCK_SORT_SORT"] = "sorting index";
+$MESS["IBLOCK_SORT_TIMESTAMP"] = "modification date";
+$MESS["IBLOCK_SORT_NAME"] = "name";
+$MESS["IBLOCK_SORT_ID"] = "ID";
+$MESS["IBLOCK_SORT_ACTIVE_FROM"] = "active from";
+$MESS["IBLOCK_SORT_ACTIVE_TO"] = "active to";
+$MESS["IBLOCK_SORT_ASC"] = "ascending";
+$MESS["IBLOCK_SORT_DESC"] = "descending";
+$MESS["IBLOCK_TYPE"] = "Type of information block";
+$MESS["IBLOCK_IBLOCK"] = "Information block";
+$MESS["IBLOCK_LINE_ELEMENT_COUNT"] = "Number of photos to display in a table row";
+$MESS["IBLOCK_ELEMENT_SORT_FIELD"] = "Field to sort photos";
+$MESS["IBLOCK_ELEMENT_SORT_ORDER"] = "Sort order of the photos in a section";
+$MESS["IBLOCK_CACHE_FILTER"] = "Cache if the filter is active";
+$MESS["IBLOCK_SECTION_ID"] = "Section ID";
+$MESS["IBLOCK_FILTER_NAME_IN"] = "Name of the array with values used to filter elements";
+$MESS["IBLOCK_PAGE_ELEMENT_COUNT"] = "Number of elements per page";
+$MESS["IBLOCK_DETAIL_URL"] = "URL of the page with the detail contents";
+$MESS["IBLOCK_SECTION_URL"] = "URL of the page with the section contents";
+$MESS["IBLOCK_SECTION_CODE"] = "Section code";
+$MESS["IBLOCK_FIELD"] = "Fields";
+$MESS["IBLOCK_PROPERTY"] = "Properties";
+$MESS["T_IBLOCK_DESC_PAGER_PHOTO"] = "Images";
+$MESS["T_IBLOCK_DESC_ADD_SECTIONS_CHAIN"] = "Add Section name to breadcrumb navigation";
+$MESS["T_IBLOCK_DESC_KEYWORDS"] = "Set page keywords from property";
+$MESS["T_IBLOCK_DESC_DESCRIPTION"] = "Set page description from property";
+$MESS["CP_BPS_BROWSER_TITLE"] = "Set browser window title from property value";
+$MESS["CP_BPS_CACHE_GROUPS"] = "Respect Access Permissions";
+$MESS["CP_BPS_SECTION_USER_FIELDS"] = "Section Properties";
+$MESS["CP_BPS_SET_LAST_MODIFIED"] = "Set page last modified date to response header";
+?>

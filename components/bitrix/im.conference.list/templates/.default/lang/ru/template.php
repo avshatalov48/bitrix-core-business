@@ -1,0 +1,11 @@
+<?
+$MESS['CONFERENCE_LIST_TITLE'] = "Видеоконференции";
+$MESS['CONFERENCE_LIST_BUTTON_CREATE'] = "Создать";
+$MESS['CONFERENCE_LIST_EMPTY_BUTTON_CREATE'] = "Создать конференцию";
+$MESS['CONFERENCE_LIST_EMPTY_TITLE'] = "Видеоконференции #HD# до 24 человек";
+$MESS['CONFERENCE_LIST_EMPTY_TITLE_HD'] = "HD";
+$MESS['CONFERENCE_LIST_NOTIFICATION_LINK_COPIED'] = "Ссылка на видеоконференцию скопирована";
+$MESS['CONFERENCE_LIST_CONTEXT_MENU_CHAT'] = "Чат";
+$MESS['CONFERENCE_LIST_CONTEXT_MENU_EDIT'] = "Редактировать";
+$MESS['CONFERENCE_LIST_CONTEXT_MENU_DELETE'] = "Удалить";
+?>

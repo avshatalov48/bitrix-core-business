@@ -1,0 +1,6 @@
+<?
+$MESS["GD_SONET_USER_DESC_CONTACT_TITLE"] = "Contact information";
+$MESS["GD_SONET_USER_DESC_PERSONAL_TITLE"] = "Personal details";
+$MESS["IDEA_USER_INFO_NAV_TITLE"] = "User #NAME#";
+$MESS["IDEA_USER_INFO_LINK_TITLE"] = "User ideas";
+?>

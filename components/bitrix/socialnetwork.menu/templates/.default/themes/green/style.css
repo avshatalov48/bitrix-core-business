@@ -1,0 +1,59 @@
+#ddmenuadd .bx-sm-feature-noselect .bx-sm-parent .bx-sm-actions {
+	background: url(images/tabs.gif) right -37px; 
+}
+
+#ddmenuadd .bx-sm-feature-select .bx-sm-parent .bx-sm-actions {
+	background: url(images/tabs.gif) right 0px; 
+}
+
+.bx-sm-feature-noselect .bx-sm-parent, .bx-sm-feature-noselect .bx-sm-parent-button { 
+	background: url(images/tabs.gif) no-repeat right -34px; 
+}
+.bx-sm-feature-select .bx-sm-parent { 
+	background: url(images/tabs.gif) no-repeat right 0px; 
+}
+.bx-sm-feature-select .bx-sm-parent-button { 
+	background: url(images/tabs.gif) no-repeat right 2px; 
+}
+
+.bx-sm-feature-noselect .bx-sm-parent .bx-sm-header, .bx-sm-feature-noselect .bx-sm-parent-button .bx-sm-header-button  { 
+	background: url(images/tabs.gif) no-repeat left -34px; 
+}
+
+.bx-sm-feature-select .bx-sm-parent .bx-sm-header { 
+	background: url(images/tabs.gif) no-repeat left -0px; 
+}
+
+.bx-sm-feature-select .bx-sm-parent-button .bx-sm-header-button  { 
+	background: url(images/tabs.gif) no-repeat left 2px; 
+}
+
+.bx-sm-separator { 
+	background: url(images/tabs.gif) no-repeat left -68px; 
+}
+
+.bx-sm-feature-noselect .bx-sm-parent .bx-sm-actions {
+	background: url(images/upper-passive-fill.gif) repeat-x; 
+}
+
+.bx-sm-feature-noselect .bx-sm-actions-left { 
+	background: url(images/upper-passive-left.gif) no-repeat center center; 
+}
+
+.bx-sm-feature-noselect .bx-sm-actions-right { 
+	background: url(images/upper-passive-right.gif) no-repeat center center; 
+}
+
+#ddmenuadd .bx-sm-feature-noselect .bx-sm-actions-right { 
+	background: url(images/upper-passive-right.gif) no-repeat center center; 
+}
+
+.bx-sm-feature-noselect .bx-sm-parent a, .bx-sm-feature-noselect a.bx-sm-parent, .bx-sm-feature-noselect a.bx-sm-parent-button  { 
+	color: #737973;
+}
+.bx-sm-feature-noselect .bx-sm-parent a:visited, .bx-sm-feature-noselect a.bx-sm-parent:visited, .bx-sm-feature-noselect a.bx-sm-parent-button:visited  { 
+	color: #737973;
+}
+.bx-sm-feature-noselect .bx-sm-parent a:hover, .bx-sm-feature-noselect a.bx-sm-parent:hover, .bx-sm-feature-noselect a.bx-sm-parent-button:hover{ 
+	color: #737973;
+}

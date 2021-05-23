@@ -1,0 +1,36 @@
+<?
+$MESS["SBBL_PATH_TO_BASKET"] = "Страница корзины";
+$MESS["SBBL_SHOW_NUM_PRODUCTS"] = "Показывать количество товаров";
+$MESS["SBBL_SHOW_TOTAL_PRICE"] = "Показывать общую сумму по товарам";
+$MESS["SBBL_SHOW_EMPTY_VALUES"] = "Выводить нулевые значения в пустой корзине";
+$MESS["SBBL_PERSONAL"] = "Персональный раздел";
+$MESS["SBBL_SHOW_PERSONAL_LINK"] = "Отображать персональный раздел";
+$MESS["SBBL_PATH_TO_PERSONAL"] = "Страница персонального раздела";
+$MESS["SBBL_AUTHOR"] = "Авторизация";
+$MESS["SBBL_SHOW_AUTHOR"] = "Добавить возможность авторизации";
+$MESS["SBBL_SHOW_REGISTRATION"] = "Добавить возможность регистрации";
+$MESS["SBBL_PATH_TO_REGISTER"] = "Страница регистрации";
+$MESS["SBBL_PATH_TO_AUTHORIZE"] = "Страница авторизации";
+$MESS["SBBL_PATH_TO_PROFILE"] = "Страница профиля";
+$MESS["SBBL_LIST"] = "Список товаров";
+$MESS["SBBL_SHOW_PRODUCTS"] = "Показывать список товаров";
+$MESS["SBBL_SHOW_DELAY"] = "Показывать отложенные товары";
+$MESS["SBBL_SHOW_NOTAVAIL"] = "Показывать товары, недоступные для покупки";
+$MESS["SBBL_SHOW_IMAGE"] = "Выводить картинку товара";
+$MESS["SBBL_SHOW_PRICE"] = "Выводить цену товара";
+$MESS["SBBL_SHOW_SUMMARY"] = "Выводить подытог по строке";
+$MESS["SBBL_PATH_TO_ORDER"] = "Страница оформления заказа";
+$MESS["SBBL_HIDE_ON_BASKET_PAGES"] = "Не показывать на страницах корзины и оформления заказа";
+$MESS["SBBL_POSITION_FIXED"] = "Отображать корзину поверх шаблона";
+$MESS["SBBL_POSITION_VERTICAL"] = "Положение по вертикали";
+$MESS["SBBL_POSITION_VERTICAL_TOP"] = "вверху";
+$MESS["SBBL_POSITION_VERTICAL_BOTTOM"] = "внизу";
+$MESS["SBBL_POSITION_HORIZONTAL"] = "Положение по горизонтали";
+$MESS["SBBL_POSITION_HORIZONTAL_LEFT"] = "слева";
+$MESS["SBBL_POSITION_HORIZONTAL_RIGHT"] = "справа";
+$MESS["SBBL_POSITION_CENTER"] = "по центру";
+$MESS["SBBL_MAX_IMAGE_SIZE"] = "Максимальный размер картинки товара";
+$MESS["HIDE_ON_BASKET_PAGES_TIP"] = "Опция позволяет скрыть компонент на страницах корзины и оформления заказа. Рекомендуется оставлять данную опцию включенной во избежание снижения производительности на этих страницах.";
+$MESS["PATH_TO_REGISTER_TIP"] = "Если поле не заполнено, путь к странице регистрации будет браться из настроек Главного модуля";
+$MESS["PATH_TO_AUTHORIZE_TIP"] = "Поле необходимо заполнять только в случае, когда необходима отдельная страница авторизации. Если поле не заполнить, будет использован путь к странице регистрации";
+?>

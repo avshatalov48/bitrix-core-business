@@ -1,0 +1,125 @@
+/* Personal Messages */
+.pm-messages-notification { 
+	display: inline-block; 
+	position:absolute; 
+	z-index:500; 
+	height:26px; 
+	cursor:pointer;
+}
+.pm-messages-alert { 
+	left:600px;
+}
+
+.pm-messages-notification span, .pm-messages-notification a {display:inline-block; height: 26px; vertical-align:top;}
+.pm-messages-notification-left, .pm-messages-notification-right {  width: 3px;  }
+.pm-messages-notification-text { white-space: nowrap; color: #fff; padding:0 20px 0 7px; font: bold 12px/22px Verdana, Tahoma, sans-serif;}
+.pm-messages-notification-text-text { padding-left:5px;}
+.pm-messages-notification-close, .pm-messages-notification-close span { width:20px; cursor:pointer; }
+
+.pm-messages-notification .pm-messages-notification-left { background: url(images/pm-messages-sprite.png) no-repeat 0 0; }
+.pm-messages-notification .pm-messages-notification-text { background: url(images/pm-messages-sprite.png) repeat-x 0 -26px; }
+.pm-messages-notification .pm-messages-notification-right { background: url(images/pm-messages-sprite.png) no-repeat -3px 0; }
+.pm-messages-notification .pm-messages-notification-close { background: url(images/pm-messages-sprite.png) repeat-x 0 -26px; }
+.pm-messages-notification .pm-messages-notification-close span { background: url(images/pm-messages-sprite.png) no-repeat -159px 0; }
+.pm-messages-notification .pm-messages-notification-close:hover span { background: url(images/pm-messages-sprite.png) no-repeat -134px 0;} 
+
+
+.pm-messages-alert .pm-messages-notification-left { background: url(images/pm-messages-sprite.png) no-repeat -19px 0; }
+.pm-messages-alert .pm-messages-notification-text { background: url(images/pm-messages-sprite.png) repeat-x 0 -52px; padding:0 10px 0 7px; }
+.pm-messages-alert .pm-messages-notification-right { background: url(images/pm-messages-sprite.png) no-repeat -22px 0; }
+.pm-messages-alert .pm-messages-notification-close { background: url(images/pm-messages-sprite.png) repeat-x 0 -52px; }
+.pm-messages-alert .pm-messages-notification-close span { background: url(images/pm-messages-sprite.png) no-repeat -159px 0; }
+.pm-messages-alert .pm-messages-notification-close:hover span { background: url(images/pm-messages-sprite.png) no-repeat -134px 0;}
+
+
+.pm-messages-box {
+	background:url(images/pm-messages-sprite.png) no-repeat right -108px;
+	position:absolute;
+	top:60px;
+	left:300px;
+	z-index:500;
+	width: 540px;
+	height:245px;
+
+	letter-spacing:normal !important;
+	list-style:none !important;
+	text-align: left !important;
+	text-indent:0 !important;
+	text-transform: none !important;
+	visibility:visible !important;
+	white-space: normal !important;
+	word-spacing:normal !important;
+	vertical-align:baseline !important;
+	font:normal normal normal 13px/normal Verdana, Tahoma, sans-serif !important;
+	color: #000 !important;
+}
+
+.pm-messages-box a { color: #000 !important; }
+
+
+.pm-messages-box-inner
+{
+	background:#fff;
+	margin: 0 8px 0 0;
+	border-top: 2px solid #d1d1d1;
+	border-left: 2px solid #d1d1d1;
+}
+
+.pm-messages-box-content { height:243px; }
+
+.pm-messages-box-bottom { height:9px; overflow:hidden; font-size:1px !important; position:absolute; width:100%;}
+.pm-messages-box-bottom-left, .pm-messages-box-bottom-right { width: 8px; height: 9px; position:absolute;}
+.pm-messages-box-bottom-left { top: 0; left:0; background:url(images/pm-messages-sprite.png) no-repeat 0 -80px;}
+.pm-messages-box-bottom-right { top: 0; left:-8px; margin-left:100%; background:url(images/pm-messages-sprite.png) no-repeat -10px -80px;}
+.pm-messages-box-bottom-center { margin: 0 8px; height:9px; background:url(images/pm-messages-sprite.png) repeat-x 0 -91px;}
+
+.pm-messages-box-title { height: 26px; background: #e0efda;  padding: 0 0 0 14px; position:relative;}
+.pm-messages-box-alert .pm-messages-box-title { background: #fbf3c2; } 
+.pm-messages-box-title span { color: #000 !important; font: normal normal normal 15px/25px Arial, Helvetica, sans-serif !important; height:26px; display:block; margin:0 27px 0 0; cursor:move;}
+.pm-messages-box-title a { width: 26px; height: 26px; position:absolute; top:0; right:0; background:url(images/pm-messages-sprite.png) -98px 2px no-repeat; outline:none; cursor:pointer;}
+
+.pm-messages-box-profile { margin: 7px 14px 1px 14px; overflow:hidden; position:relative; border-bottom: 1px solid #e2e2e2; padding:0 0 7px 0; zoom:1;}
+.pm-messages-box-profile-inner { height:44px;}
+.pm-messages-box-profile-avatar {  float: left; margin:0; }
+.pm-messages-box-profile-avatar a {display: inline-block; width: 42px; height:42px; background: url(images/sprite.png) no-repeat -33px -485px; border:1px solid #afafaf; position:relative;}
+.pm-messages-box-profile-info { margin-left: 55px; padding: 3px 0 0 0; }
+.pm-messages-box-profile-info a { font: normal normal normal 12px/normal Verdana, Tahoma, sans-serif !important; text-decoration:underline; color: #0069c4 !important; outline:none; padding: 3px 0 0 0; white-space: nowrap !important;}
+.pm-messages-box-profile-info span {display:block; color: #000; font-size:11px !important; margin-top:5px; background: url(images/icon-user-online-small.gif) no-repeat 0 2px; padding: 0 0 0 15px;}
+.pm-messages-box-profile-info span i { font-style: normal !important; color: #909090;}
+.pm-messages-box-date { display: block; padding: 0 0 0 10px; height:20px; position:absolute; top: 2px; right:0; font: normal normal normal 11px/normal Verdana, Tahoma, sans-serif !important; color: #999 !important; background:#fff; }
+
+
+.pm-messages-box-text { margin: 0 14px 0 14px; padding:0 0 0 14px;  }
+.pm-messages-box-text-inner { height: 115px; overflow:auto; /**/}
+.pm-messages-box-text-content { margin :10px 0 5px 0;}
+.pm-messages-box-text-content a { color: #0069c4 !important; }
+.pm-messages-box-text-content-author { padding: 0 0 5px 0;}
+
+.pm-messages-box-actions {  overflow:hidden; margin: 1px 14px 0 17px; border-top: 1px solid #e2e2e2; padding: 7px 0 0 0;}
+.pm-messages-box-actions-inner { height:30px; position:relative;}
+.pm-messages-box-buttons { position: absolute; top: 0; right:6px;  height: 25px; }
+.pm-messages-box-buttons input.read-checkbox { height: 25px; }
+.pm-messages-box-paging { vertical-align:middle; margin: 0; position:absolute; top:3px; left:0; }
+.pm-messages-box-paging span, .pm-messages-box-paging i, .pm-messages-box-paging b, .pm-messages-box-paging a { vertical-align:middle; height:17px; display:inline-block; font:normal normal normal 12px/normal Verdana, Tahoma, sans-serif !important;}
+.pm-messages-box-paging a { text-decoration: none; color: #0069c4 !important; outline:none; width: 20px; height:20px;}
+.pm-messages-box-larr { background:transparent url(images/pm-messages-sprite.png) -6px -106px no-repeat; }
+.pm-messages-box-rarr { background:transparent url(images/pm-messages-sprite.png) -27px -106px no-repeat; }
+.pm-messages-box-larr:hover, .pm-messages-box-rarr:hover { background-color: #eee;}
+.pm-messages-box-paging i { margin:0 3px 0 6px;}
+.pm-messages-box-paging b { margin:0 6px 0 3px;}
+.pm-messages-box-paging i { color:#0069c4 !important; font-weight:bold !important;}
+.pm-messages-box-paging span, .pm-messages-box-paging b { color: #a1a1a1 !important;}
+
+.pm-messages-box-buttons label { font: normal normal normal 11px/normal Verdana, Tahoma, sans-serif !important; color:#999 !important; vertical-align:middle; margin: 0 3px 0 3px;}
+.pm-messages-box-buttons input { vertical-align:middle; font: normal normal normal 13px/normal Arial, Helvetica, sans-serif !important; margin: 0 0 0 10px;}
+
+* html .pm-messages-box { background:none; }
+* html .pm-messages-box-inner { border: 2px solid #d1d1d1;}
+* html .pm-messages-box-bottom-left {  background:none; }
+* html .pm-messages-box-bottom-center {  background:none;  }
+* html .pm-messages-box-bottom-right {  background:none;  }
+* html .pm-messages-box-larr { background:transparent url(images/pm-messages-sprite.gif) -1px -27px no-repeat; }
+* html .pm-messages-box-rarr { background:transparent url(images/pm-messages-sprite.gif) -22px -27px no-repeat;  }
+* html .pm-messages-box-title a { background:url(images/pm-messages-sprite.gif) -2px 0 no-repeat; }
+* html .pm-messages-notification .pm-messages-notification-close span { background: url(images/pm-messages-sprite.gif) no-repeat -62px 0; }
+* html .pm-messages-notification .pm-messages-notification-close:hover span { background: url(images/pm-messages-sprite.gif) no-repeat -37px 0;}

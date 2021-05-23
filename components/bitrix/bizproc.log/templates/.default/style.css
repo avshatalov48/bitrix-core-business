@@ -1,0 +1,8 @@
+div.bizproc-item-title, div.bizproc-workflow-state-log label {
+	font-weight:bold;}
+div.bizproc-workflow-state-log {
+	margin-top: 1em;}
+ul.bizproc-workflow-state-log-data, ul.bizproc-workflow-state-log-data li {
+	margin: 0; padding: 0; border: none; font-size: 100%; list-style-type: none;}
+ul.bizproc-workflow-state-log-data{
+	padding-left: 1em;} 

@@ -1,0 +1,34 @@
+<?
+$MESS["FID_TIP"] = "ID форума";
+$MESS["TID_TIP"] = "ID темы";
+$MESS["MID_TIP"] = "ID сообщения";
+$MESS["URL_TEMPLATES_READ_TIP"] = "Страница чтения темы";
+$MESS["URL_TEMPLATES_MESSAGE_TIP"] = "Страница чтения темы (с ID сообщения)";
+$MESS["URL_TEMPLATES_LIST_TIP"] = "Страница списка тем";
+$MESS["URL_TEMPLATES_MESSAGE_MOVE_TIP"] = "Страница переноса сообщений";
+$MESS["URL_TEMPLATES_PROFILE_VIEW_TIP"] = "Страница профиля пользователя";
+$MESS["URL_TEMPLATES_TOPIC_NEW_TIP"] = "Страница создания новой темы";
+$MESS["URL_TEMPLATES_SUBSCR_LIST_TIP"] = "Страница подписки";
+$MESS["URL_TEMPLATES_TOPIC_MOVE_TIP"] = "Страница переноса тем";
+$MESS["URL_TEMPLATES_INDEX_TIP"] = "Страница списка форумов";
+$MESS["URL_TEMPLATES_PM_EDIT_TIP"] = "Страница личных сообщений";
+$MESS["URL_TEMPLATES_MESSAGE_SEND_TIP"] = "Страница отправки сообщения";
+$MESS["URL_TEMPLATES_RSS_TIP"] = "Страница RSS";
+$MESS["URL_TEMPLATES_USER_POST_TIP"] = "Страница сообщений пользователя";
+$MESS["MESSAGES_PER_PAGE_TIP"] = "Количество сообщений на одной странице";
+$MESS["DATE_FORMAT_TIP"] = "Формат показа даты";
+$MESS["DATE_TIME_FORMAT_TIP"] = "Формат показа даты и времени";
+$MESS["PAGE_NAVIGATION_TEMPLATE_TIP"] = "Название шаблона для вывода постраничной навигации";
+$MESS["PAGE_NAVIGATION_WINDOW_TIP"] = "Количество страниц в постраничной навигации";
+$MESS["PAGE_NAVIGATION_SHOW_ALL_TIP"] = "Разрешать показывать все страницы форума";
+$MESS["WORD_LENGTH_TIP"] = "Длина слова";
+$MESS["IMAGE_SIZE_TIP"] = "Размер прикрепленного рисунка (px)";
+$MESS["SHOW_FIRST_POST_TIP"] = "Показывать первое сообщение темы на каждой странице";
+$MESS["SET_NAVIGATION_TIP"] = "Показывать навигацию (хлебные крошки)";
+$MESS["AJAX_TYPE_TIP"] = "Использовать AJAX";
+$MESS["SET_PAGE_PROPERTY_TIP"] = "Устанавливать теги и описание темы в свойства страницы";
+$MESS["SET_TITLE_TIP"] = "Устанавливать заголовок страницы";
+$MESS["CACHE_TYPE_TIP"] = "Тип кеширования";
+$MESS["CACHE_TIME_TIP"] = "Время кеширования (сек.)";
+$MESS["SHOW_RATING_TIP"] = "Выводить рейтинг";
+?>

@@ -1,0 +1,15 @@
+.bx-rating {
+	display: block;
+	text-align: center;
+}
+
+.bx-rating-icon-container  {
+	margin-right: 3px;
+	cursor: pointer;
+}
+
+.bx-rating .bx-rating-icon-container:last-child { margin-right: 0; }
+
+.bx-rating-icon {
+	fill: var(--primary)
+}

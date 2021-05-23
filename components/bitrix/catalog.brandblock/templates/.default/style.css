@@ -1,0 +1,138 @@
+.bx_item_detail_inc_two_2 .bx_item_detail_inc_one_container{ width: 49.5%; }
+.bx_item_detail_inc_two_2 .bx_popup{ width: 80%; }
+
+.bx_item_detail_inc_two_3 .bx_item_detail_inc_one_container{ width: 32.8%; }
+.bx_item_detail_inc_two_3 .bx_popup{ width: 100%; }
+
+.bx_item_detail_inc_two_4 .bx_item_detail_inc_one_container{ width: 24.5%; }
+.bx_item_detail_inc_two_4 .bx_popup{ width: 130%; }
+
+.bx_item_detail_inc_two_5 .bx_item_detail_inc_one_container{ width: 19.5%; }
+.bx_item_detail_inc_two_5 .bx_popup{ width: 200%; }
+
+.bx_item_detail_inc_two_6 .bx_item_detail_inc_one_container{ width: 16%; }
+.bx_item_detail_inc_two_6 .bx_popup{ width: 230%; }
+
+.bx_item_detail_inc_two_7 .bx_item_detail_inc_one_container{ width: 13.8%; }
+.bx_item_detail_inc_two_7 .bx_popup{ width: 260%; }
+
+.bx_item_detail_inc_two_8 .bx_item_detail_inc_one_container{ width: 11.5%; }
+.bx_item_detail_inc_two_8 .bx_popup{ width: 260%; }
+
+.general{
+	height: 54px;
+}
+[class|="bx_item_detail_inc_two_"] .bx_item_vidget, .bx_item_vidget.icon img, .bx_item_detail_inc_one_container{
+	float: left;
+}
+
+.bx_item_detail_inc_two .bx_popup{
+	width: 250%;
+}
+
+.bx_item_detail_inc_two{
+	margin-bottom: 20px;
+	text-align: right;
+}
+@media (max-width:767px){.bx_item_detail_inc_two{ display:none;}}
+.brandblock-block{
+	position: relative;
+	text-decoration: none;
+	display: inline-block;
+	border-radius: 4px;
+	text-align: left;
+	color: #585858;
+	font-size: 13px;
+	line-height: normal;
+	box-sizing: border-box;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	width: 100%;
+	padding-top: 54px;
+	height: 54px;
+	margin:0 auto 5px;
+	border: 1px solid #c3c3c3;
+}
+.bx-retina .brandblock-block{ border-width: .5px;}
+
+.brandblock-block.icon {
+	background: no-repeat 3px center;
+	background-size:30px auto;
+	padding: 7px 7px 7px 35px;
+	height: 54px;
+}
+.bx_item_detail_inc_one_container .bx_popup,
+.bx_popup{
+	display: none;
+}
+
+.bx_item_detail_inc_one_container.hover .bx_popup,
+.brandblock-block.hover .bx_popup {
+	position: absolute;
+	display: block;
+	border: 1px solid #c3c3c3;
+	border-radius: 3px;
+	box-shadow: 0 3px 4px 0 rgba(0,0,0,.27);
+	color: #3f3f3f;
+	right: 100.1%;
+	top: 0;
+	padding: 10px;
+	font-size: 12px;
+	box-sizing: border-box;
+	z-index: 1010;
+	min-width: 90%;
+	background: #fff;
+	text-align: left;
+}
+
+.bx_popup .arrow{
+	width: 8px;
+	height: 14px;
+	position: absolute;
+	top: 11px;
+	right: -8px;
+	background: url(images/arr_right.png) no-repeat center;
+	max-height: 100%;
+	overflow: hidden;
+}
+
+.brandblock-container{
+	width: 100%;
+	position: relative;
+	border-radius: 3px;
+	margin-right: 2px;
+	padding: 5px 0;
+}
+
+.brandblock-container a{
+	display: block;
+	background-size: contain;
+}
+
+.brandblock-container img {
+	margin: 0 auto;
+	display: block;
+}
+
+.brandblock-wrap{
+	vertical-align: middle;
+	text-align: center;
+	height: 54px;
+}
+.brandblock-text{
+	display: block;
+	position: absolute;
+	top: 50%;
+	left:5px;
+	right:5px;
+	-webkit-transform: translateY(-50%);
+	   -moz-transform: translateY(-50%);
+		-ms-transform: translateY(-50%);
+		 -o-transform: translateY(-50%);
+			transform: translateY(-50%);
+	word-wrap: break-word;
+}
+.brandblock-block.icon .brandblock-text{
+	left: 35px;
+}

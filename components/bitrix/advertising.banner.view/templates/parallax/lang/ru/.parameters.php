@@ -1,0 +1,31 @@
+<?
+$MESS ['ADV_PARALL_PARAMETER_IMG'] = "Изображение слайда";
+$MESS ['ADV_PARALL_PARAMETER_NO'] = "(не установлено)";
+$MESS ['ADV_PARALL_PARAMETER_LINK_URL'] = "Ссылка слайда";
+$MESS ['ADV_PARALL_PARAMETER_LINK_TITLE'] = "Текст всплывающей подсказки";
+$MESS ['ADV_PARALL_PARAMETER_LINK_TARGET'] = "Где открыть ссылку";
+$MESS ['ADV_PARALL_PARAMETER_LINK_TARGET_SELF'] = "в текущем окне";
+$MESS ['ADV_PARALL_PARAMETER_LINK_TARGET_BLANK'] = "в новом окне";
+$MESS ['ADV_PARALL_PARAMETER_LINK_TARGET_PARENT'] = "в своем фреймсете";
+$MESS ['ADV_PARALL_PARAMETER_LINK_TARGET_TOP'] = "во всем текущем окне браузера";
+$MESS ['ADV_PARALL_PARAMETER_HEADING'] = "Заголовок";
+$MESS ['ADV_PARALL_PARAMETER_PRESET'] = "Шаблон слайда";
+$MESS ['ADV_PARALL_PARAMETER_HEADING_SHOW'] = "Показать заголовок";
+$MESS ['ADV_PARALL_PARAMETER_HEADING_TEXT'] = "Текст заголовка";
+$MESS ['ADV_PARALL_PARAMETER_FONT_SIZE'] = "Размер текста";
+$MESS ['ADV_PARALL_PARAMETER_FONT_COLOR'] = "Цвет текста";
+$MESS ['ADV_PARALL_PARAMETER_BG_COLOR'] = "Цвет подложки";
+$MESS ['ADV_PARALL_PARAMETER_BG_OPACITY'] = "Прозрачность подложки";
+$MESS ['ADV_PARALL_PARAMETER_ANNOUNCEMENT_SHOW'] = "Показать анонс";
+$MESS ['ADV_PARALL_PARAMETER_ANNOUNCEMENT_TEXT'] = "Текст анонса";
+$MESS ['ADV_PARALL_PARAMETER_ANNOUNCEMENT'] = "Анонс";
+$MESS ['ADV_PARALL_PARAMETER_BUTTON'] = "Показать кнопку";
+$MESS ['ADV_PARALL_PARAMETER_BUTTON_TEXT'] = "Текст кнопки";
+$MESS ['ADV_PARALL_PARAMETER_BUTTON_TEXT_DEF'] = "Подробнее";
+$MESS ['ADV_PARALL_PARAMETER_BUTTON_BG_COLOR'] = "Цвет кнопки";
+$MESS ['ADV_PARALL_PARAMETER_BUTTON_LINK_URL'] = "Ссылка кнопки";
+$MESS ['ADV_PARALL_PARAMETER_OVERLAY'] = "Фоновая заливка";
+$MESS ['ADV_PARALL_PARAMETER_OVERLAY_COLOR'] = "Цвет фона";
+$MESS ['ADV_PARALL_PARAMETER_OVERLAY_OPACITY'] = "Прозрачность фона";
+$MESS ['ADV_PARALL_PARAMETER_FONT_SIZE_TOOLTIP'] = "Заданный размер текста может быть автоматически изменен под размер области отображения в баннере";
+?>

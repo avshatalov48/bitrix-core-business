@@ -1,0 +1,30 @@
+.sale-personal-profile-list-arrow-up,
+.sale-personal-profile-list-arrow-down {
+	color: #d8d8d8;
+	transition: color .3s ease;
+}
+
+.sale-personal-profile-list-arrow-up:hover,
+.sale-personal-profile-list-arrow-down:hover { color: #337ab7; }
+
+.sale-personal-profile-list-close-button {
+	display: inline-block;
+	width: 18px;
+	height: 18px;
+	background: url(images/sale-personal-profile-list-close.svg) 4px 4px no-repeat;
+	vertical-align: middle;
+	font-size: 0;
+	opacity: .5;
+	cursor: pointer;
+	transition: opacity .3s ease;
+}
+
+.sale-personal-profile-list-close-button:hover { opacity: 1; }
+
+.sale-personal-profile-list-border {
+	display: inline-block;
+	margin: 0 5px;
+	height: 23px;
+	border-right: 1px solid #dee2e7;
+	vertical-align: middle;
+}

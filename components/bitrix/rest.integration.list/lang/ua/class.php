@@ -1,0 +1,3 @@
+<?php
+$MESS["REST_INTEGRATION_INDEX_TITLE"] = "Інтеграції";
+$MESS["REST_INTEGRATION_LIST_ERROR_ACCESS_DENIED"] = "Немає доступу";

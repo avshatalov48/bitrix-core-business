@@ -1,0 +1,79 @@
+/*Table*/
+table.support-ticket-list
+{
+	width:100%;
+	background-color:#F9FAFB;
+	border-collapse:collapse;
+	font-size:100%;
+}
+
+/*Table head*/
+table.support-ticket-list th
+{
+	background-image:url(images/table_head.gif);
+	background-repeat:repeat-x;
+	text-align: left;
+	color:#25639A;
+}
+
+/* Table cells and heads*/
+table.support-ticket-list th, table.support-ticket-list td
+{
+	border:1px solid #ADC3D5;
+	padding: 3px 5px;
+	vertical-align:top;
+}
+
+/* Only table cells*/
+table.support-ticket-list td
+{
+}
+
+/*Lamps*/
+div.support-lamp-red, div.support-lamp-green, div.support-lamp-green-s, div.support-lamp-yellow, div.support-lamp-grey
+{
+	width:14px; height:14px; background-repeat:no-repeat;
+}
+
+div.support-lamp-red {background-image: url(images/red.gif)}
+div.support-lamp-green {background-image: url(images/green.gif)}
+div.support-lamp-green-s {background-image: url(images/green_s.gif)}
+div.support-lamp-yellow {background-image: url(images/yellow.gif)}
+div.support-lamp-grey {background-image: url(images/grey.gif)}
+
+
+/*Filter*/
+
+table.support-ticket-filter
+{
+	background-color:#F9FAFB;
+	font-size:100%;
+	border-collapse:collapse;
+}
+
+table.support-ticket-filter th
+{
+	background-image:url(images/table_head.gif);
+	background-repeat:repeat-x;
+	text-align: center;
+	font-size:100%;
+	color:#25639A;
+}
+
+table.support-ticket-filter td, table.support-ticket-filter th
+{
+	padding:3px;
+	border:1px solid #ADC3D5;
+}
+
+table.support-ticket-filter td
+{
+	vertical-align: top;
+}
+
+/*Hint */
+
+table.support-ticket-hint
+{
+	font-size:100%;
+}

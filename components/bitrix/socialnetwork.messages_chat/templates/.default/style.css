@@ -1,0 +1,110 @@
+body.socnet-chat{background-image:url(images/bg.gif); background-color:white;}
+form {padding:0px; margin:0px;}
+
+div.socnet-chat-body{padding:7px; text-align:left; box-sizing:border-box; -moz-box-sizing:border-box;}
+div.socnet-chat-body a {color:#1759B4;}
+div.socnet-chat-body a:visited {color:#1759B4;}
+div.socnet-chat-body a:hover {color:red;}
+
+div.socnet-chat-warning{background-color:white; border:1px solid #C2C2C2; padding:15px;}
+
+div.socnet-chat-info{padding:8px; border:1px solid; margin-right:4px; border-top-color:#BBBEC0; border-left-color:#B1B6B8; border-right-color:#B1B6B8; border-bottom-color:#A8B0B4; background-color:#D8E3E8; background-image:url(images/bg-top.gif); background-attachment:left top; background-repeat:repeat-x; box-sizing:border-box; -moz-box-sizing:border-box;}
+div.socnet-chat-info td {padding-left:10px; padding-right:20px;}
+div.socnet-chat-info td.bx-photo {padding:0px;}
+div.socnet-chat-info td.bx-border {border-left:1px solid #B8BEC0; font-size:85%;}
+div.socnet-chat-info div.socnet-user-name {font-weight:bold; padding-left:2px;}
+div#socnet_user_online_text{padding-top:2px;}
+
+div.socnet-chat-info div.bx-icon {height: 20px; width: 20px;  margin:0px 2px 2px 0px; background-image: url(images/icons_all.gif); background-repeat: no-repeat; float:left;}
+div.socnet-chat-info div.bx-icon-online{background-position: 0 -20px; margin-left:0px}
+div.socnet-chat-info div.bx-icon-offline{background-position: 0 -100px; margin-left:0px}
+div.socnet-chat-info div.bx-icon-away{background-position: 0 -40px;}
+div.socnet-chat-info div.bx-icon-birth{background-position: 0 -60px;}
+div.socnet-chat-info div.bx-icon-featured{background-position: 0 -80px;}
+
+a.socnet-button {display:block; border:1px solid #C8CBCD; width:29px; height:29px; margin:0px 2px 2px 0px; background-position:center; background-repeat:no-repeat; float:left;}
+a.socnet-button:hover {border-color:#969FA3;}
+a.socnet-button-group-profile {background-image: url(images/button-group-profile.gif);}
+a.socnet-button-profile {background-image: url(images/button-profile.gif);}
+a.socnet-button-history {background-image: url(images/button-history.gif);}
+a.socnet-button-messages {background-image: url(images/button-messages.gif);}
+a.socnet-sound-on{background-image:url(images/sound_on.gif)}
+a.socnet-sound-off{background-image:url(images/sound_off.gif)}
+a.socnet-button-videocall{background-image:url(images/button-videocall.gif)}
+
+div#sonet_chat_messages{font-family:Tahoma,Verdana,Arial; font-size:92%; margin-top:5px; margin-right:4px; height:100px; overflow:auto; border:1px solid #C2C2C2; padding:3px; background-color: #FFFFFF; box-sizing:border-box; -moz-box-sizing:border-box;}
+div#sonet_chat_messages span.socnet-chat-date{color:#808080;}
+div#sonet_chat_messages span.socnet-chat-incoming{color:#800000;}
+div#sonet_chat_messages span.socnet-chat-outcoming{color:#000080;}
+div#sonet_chat_messages div.socnet-chat-icon{width:16px; height:16px; float:left; margin-right:2px; background-position:left top; background-repeat:no-repeat;}
+div#sonet_chat_messages span.socnet-chat-incoming div.socnet-chat-icon{background-image:url(images/incoming_mess.gif);}
+div#sonet_chat_messages span.socnet-chat-outcoming div.socnet-chat-icon{background-image:url(images/outcoming_mess.gif);}
+div#sonet_chat_messages br {font-size:6px;}
+
+div.socnet-quote {background-color:#F3F3F3; border-left:2px solid #DFDFDF; margin-left:10px; padding:3px 10px 3px 10px; float:left;}
+div.socnet-quote span.socnet-quote-title {color:black;}
+
+div.socnet-chat-form{margin-top:5px; margin-right:4px; padding:5px 20px 10px 20px; border:1px solid; border-top-color:#B7BBBC; border-left-color:#A4ADB1; border-right-color:#A4ADB1; border-bottom-color:#A5AEB2; background-color:#D7E2E7; background-image:url(images/bg-bottom.gif); background-attachment:left top; background-repeat:repeat-x; box-sizing:border-box; -moz-box-sizing:border-box;}
+div.socnet-chat-form textarea {width:100%; margin-bottom:7px;}
+
+div.socnet-chat-input {width:100%;}
+
+div.socnet-chat-buttons div.form-button{width:22px; height:22px; border:none; float:left; cursor:pointer; cursor:hand; background-position: center center; background-repeat:no-repeat;	margin:1px;}
+div.socnet-chat-buttons div.button-color{background-image: url(images/form/font_color.gif);}
+div.socnet-chat-buttons div.button-bold{background-image: url(images/form/font_bold.gif);}
+div.socnet-chat-buttons div.button-italic{background-image: url(images/form/font_italic.gif);}
+div.socnet-chat-buttons div.button-underline{background-image: url(images/form/font_underline.gif);}
+div.socnet-chat-buttons div.button-url{	background-image: url(images/form/font_link.gif);}
+div.socnet-chat-buttons div.button-img{	background-image: url(images/form/font_image.gif);}
+div.socnet-chat-buttons div.button-quote{background-image: url(images/form/font_quote.gif);}
+div.socnet-chat-buttons div.button-font{width:78px;	margin:1px;	padding:0px; height:22px;}
+div.socnet-chat-buttons div.button-font select{width:70px; margin-left:3px; padding:0px;}
+div.socnet-chat-buttons div.marked{background-color:#C7D6DC;}
+div.socnet-chat-buttons div.opened{background-color:#A2BAC4;}
+
+div.socnet-chat-smiles{padding-top:4px; padding-left:5px;}
+div.socnet-chat-smiles img {margin-right:5px; margin-bottom:4px; cursor:pointer;}
+
+table.palette {border-collapse:collapse;}
+table.palette td {border:1px solid gray; width:10px; height:10px;}
+
+td.socnet-user-group-divider{width:6px; background-image:url(images/sep_bg.gif); background-position:left top; background-repeat:repeat-y; border-top:1px solid #ADB6BA; border-bottom:1px solid #ADB6BA;  cursor:e-resize;}
+a.socnet-divider{display:block; width:6px; height:70px; background-image:url(images/sep_left.gif); background-position:left top; background-repeat:no-repeat;}
+a.socnet-divider:hover{background-image:url(images/sep_left_over.gif);}
+a.socnet-divider-right{background-image:url(images/sep_right.gif);}
+a.socnet-divider-right:hover{background-image:url(images/sep_right_over.gif);}
+
+div.socnet-group-search {background-color:#D9E4E9; padding:4px 8px 4px 8px; margin-bottom:1px;}
+div.socnet-group-search input {font-size:11px; width:100%; color:#808080;}
+div.socnet-group-search input.active {color:black;}
+span.socnet-search-highlight {background-color:#5F7B89; color:#FFFF00;}
+
+div.socnet-group-separator{height:5px; margin-bottom:1px; background-image:url(images/sep_line.gif); background-position:left top; background-repeat:repeat-x; overflow:hidden;}
+
+td.socnet-user-group {width:180px;}
+td.socnet-user-group td {font-size:11px; white-space:nowrap; padding:0px;}
+div#socnet_user_group {width:180px; border:1px solid #C2C2C2; margin-left:4px; background-color:white; box-sizing:border-box; -moz-box-sizing:border-box;}
+div#socnet_chat_selectors {background-color:white;}
+div#socnet_user_list {width:178px; height:100px; overflow:auto; box-sizing:border-box; -moz-box-sizing:border-box;}
+
+div.socnet-user-section {height:21px; margin-bottom:2px; background-image:url(images/subgroup_bg.gif); background-position:left top; background-repeat:repeat-x;}
+div.socnet-user-section table {height:21px;}
+div.socnet-user-contact {margin-bottom:2px;}
+td.socnet-contact-section {padding-left:3px; cursor:default;}
+td.socnet-contact-user a, td.socnet-contact-user a:visited {text-decoration:none; color:black;}
+td.socnet-contact-user a:hover {text-decoration:underline; color:black;}
+div.socnet-indent{width:17px;}
+div.socnet-arrow {width:13px; height:13px; margin:0px 1px 0px 3px; background-position:left top; background-repeat:no-repeat; overflow:hidden; cursor:hand; cursor:pointer;}
+div.socnet-arrow-down {background-image:url(images/arrow_down.gif);}
+div.socnet-arrow-right {background-image:url(images/arrow_right.gif);}
+a.socnet-status, div.socnet-status {display:block; width:16px; height:16px; background-position:left 1px; background-repeat:no-repeat;} 
+a.socnet-online, div.socnet-online {background-image:url(images/user_online.gif);}
+a.socnet-offline, div.socnet-offline {background-image:url(images/user_offline.gif);}
+a.socnet-message, div.socnet-message {background-image:url(images/message.gif);}
+
+div.socnet-selector{font-size:11px; background-color:#D9E4E9; padding:2px 0px 0px 10px; margin-bottom:1px; height:18px;  box-sizing:border-box; -moz-box-sizing:border-box; cursor:hand; cursor:pointer;}
+div.socnet-selector-active{background-image:url(images/group_bg_active.gif); color:white; background-color:#6E8C9B; background-position:left top; background-repeat:repeat-x;}
+
+/* Wait window */
+iframe.socnet-waitwindow {position:absolute; border:0px; z-index:9999;}
+div.socnet-waitwindow {position:absolute; width:39px; height:39px; background-color:#FCF7D1; border:1px solid #EACB6B; z-index:10000; background-image:url(images/wait.gif); background-position:center center; background-repeat:no-repeat;}

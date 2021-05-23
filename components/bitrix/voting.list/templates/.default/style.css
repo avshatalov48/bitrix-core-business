@@ -1,0 +1,32 @@
+ol.vote-items-list, ol.vote-items-list li {
+	margin: 0; padding: 0; border: none; font-size: 100%; list-style-type: none;}
+ol.vote-items-list li {
+	padding: 0.55em;
+	border-left: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;}
+ol.vote-items-list li.vote-item-vote-first{
+	border-top: 1px solid #ccc;}
+
+
+div.vote-item-links{
+	float:right;}
+.vote-item-title{
+	font-weight:bold;}
+div.vote-item-date{
+	font-style: italic;}
+div.vote-item-header{
+	margin-bottom: 0.5em;}
+div.vote-item-footer{
+	margin-top: 0.5em;}
+div.vote-item-image{
+	float:left;
+	padding-right:0.55em;}
+div.vote-item-lamp{
+	display:none;}
+.vote-item-lamp-green span {
+	color:green;}
+.vote-item-lamp-red span {
+	color:red;}
+div.vote-clear-float { 
+	clear: both;}

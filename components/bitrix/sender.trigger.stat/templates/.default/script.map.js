@@ -1,0 +1,1 @@
+{"version":3,"sources":["script.js"],"names":["window","BX","namespace","Sender","Letter","Stat","Page","prototype","init","initButtons"],"mappings":"CAAC,SAAWA,GAGXC,GAAGC,UAAU,oBACb,GAAID,GAAGE,OAAOC,OAAOC,KACrB,CACC,OAGD,IAAIC,EAAOL,GAAGE,OAAOG,KAMrB,SAASD,KAGTA,EAAKE,UAAUC,KAAO,WAErBF,EAAKG,eAGNR,GAAGE,OAAOC,OAAOC,KAAO,IAAIA,GAvB5B,CAyBEL","file":""}

@@ -1,0 +1,49 @@
+div.empty {width:1px; height:1px; overflow:hidden;}
+
+/* Toolbar */
+div.bx-interface-toolbar {margin:16px 0px 16px 0px;}
+table.bx-interface-toolbar {width:100%;  border-collapse:separate;}
+table.bx-interface-toolbar td {background-color:#FDFDFD; font-size:100%;}
+table.bx-interface-toolbar tr.bx-top td {border-top:1px solid #DFDFDF;}
+table.bx-interface-toolbar td.bx-left {background-image:url(images/toolbar/l.gif); background-repeat:no-repeat; background-position:left top;}
+table.bx-interface-toolbar td.bx-right {background-image:url(images/toolbar/r.gif); background-repeat:no-repeat; background-position:left top;}
+table.bx-interface-toolbar tr.bx-top td.bx-left {border:0px; background-image:url(images/toolbar/lt.gif); height:2px; width:2px;}
+table.bx-interface-toolbar tr.bx-top td.bx-right {border:0px; background-image:url(images/toolbar/rt.gif); height:2px; width:2px;}
+table.bx-interface-toolbar tr.bx-bottom td {background-color:#E4E4E4;}
+table.bx-interface-toolbar tr.bx-bottom td.bx-left {border:0px; background-image:url(images/toolbar/lb.gif); height:1px; width:2px;}
+table.bx-interface-toolbar tr.bx-bottom td.bx-right {border:0px; background-image:url(images/toolbar/rb.gif); height:1px; width:2px;}
+table.bx-interface-toolbar tr.bx-bottom-all td {background-color:#B3B3B3;}
+table.bx-interface-toolbar tr.bx-bottom-all td.bx-left {border:0px; background-image:url(images/toolbar/bl.gif); height:1px; width:2px;}
+table.bx-interface-toolbar tr.bx-bottom-all td.bx-right {border:0px; background-image:url(images/toolbar/br.gif); height:1px; width:2px;}
+table.bx-interface-toolbar td.bx-content {height:28px; background-color:white; background-image:url(images/toolbar/bg.png); background-repeat:repeat-x; background-position:left bottom;}
+table.bx-interface-toolbar td.bx-content table td {padding:0px; background-color:transparent;}
+table.bx-interface-toolbar div {box-sizing:border-box; -moz-box-sizing:border-box; -webkit-box-sizing:border-box;}
+table.bx-interface-toolbar div.bx-section-separator {width:3px; height:17px; border-left:1px solid #D1D1D1; border-right:1px solid #D1D1D1; margin:0px 0px 0px 6px;}
+table.bx-interface-toolbar div.bx-separator {width:1px; height:17px; border-left:1px solid #D1D1D1; margin:0px 0px 0px 6px;}
+
+table.bx-interface-toolbar a.bx-context-button {display:block; padding:2px; padding-top:3px; border:1px solid transparent; margin:1px 1px 1px 5px; white-space:nowrap;}
+table.bx-interface-toolbar a.bx-context-button:hover {border:1px solid #AEB6C2; background-color:#DBE3F2;}
+
+table.bx-interface-toolbar a.bx-icon {padding-left:21px; background-repeat:no-repeat; background-position:left top;}
+table.bx-interface-toolbar a.pressed {margin:0px 0px 0px 5px; border:1px solid #A6A6A6; background-color:white;}
+table.bx-interface-toolbar a, table.bx-interface-toolbar a:visited, table.bx-interface-toolbar a:active {color:#5D5D5D; text-decoration:none;}
+table.bx-interface-toolbar a:hover {color:black;}
+table.bx-interface-toolbar img.bx-arrow {border:0px; margin:0px 0px 2px 4px; width:5px; height:3px;}
+
+/* Toolbar common icons */
+table.bx-interface-toolbar a.btn-list {background-image:url(images/buttons/list.gif);}
+table.bx-interface-toolbar a.btn-new {background-image:url(images/buttons/new.gif);}
+table.bx-interface-toolbar a.btn-delete {background-image:url(images/buttons/delete.gif);}
+table.bx-interface-toolbar a.btn-copy {background-image:url(images/buttons/copy.gif);}
+table.bx-interface-toolbar a.btn-excel {background-image:url(images/buttons/excel.gif);}
+table.bx-interface-toolbar a.btn-settings {background-image:url(images/buttons/settings.gif);}
+
+/*Common actions icons */
+td.popupmenu div.popupitem div.edit {background-image:url(images/popup/edit.gif);}
+td.popupmenu div.popupitem div.copy {background-image:url(images/popup/copy.gif);}
+td.popupmenu div.popupitem div.delete {background-image:url(images/popup/delete.gif);}
+td.popupmenu div.popupitem div.view {background-image:url(images/popup/view.gif);}
+td.popupmenu div.popupitem div.checked {background-image:url(images/popup/checkbox.gif);}
+td.popupmenu div.popupitem div.list {background-image:url(images/popup/list.gif);}
+td.popupmenu div.popupitem div.add {background-image:url(images/popup/new.gif);}
+

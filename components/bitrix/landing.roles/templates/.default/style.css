@@ -1,0 +1,31 @@
+.landing-additional-rights-table {
+	margin-bottom: 15px;
+}
+
+.landing-form-footer-container {
+	margin-bottom: 30px;
+}
+
+.landing-additional-rights-table tr:first-child td {
+	padding-top: 20px;
+}
+
+.landing-additional-rights-table td:last-child {
+	vertical-align: bottom;
+}
+
+.table-blue-delete-landing-role {
+	margin-left: 6px;
+}
+
+.landing-role-users {
+	margin-bottom: 7px;
+}
+
+.landing-role-users:last-child {
+	margin-bottom: 0;
+}
+
+.landing-additional-rights-table .table-blue-td-name {
+	vertical-align: top;
+}

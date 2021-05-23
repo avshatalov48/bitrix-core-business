@@ -1,0 +1,31 @@
+<?
+$MESS["SENDER_LETTER_STAT_RESEND"] = "Відправити повторно";
+$MESS["SENDER_LETTER_STAT_RESEND_HINT"] = "Повторно відправити одержувачам, листи яким не були відправлені через помилку. Ті, хто вже отримав лист, другий не отримають.";
+$MESS["SENDER_LETTER_STAT_STATS_TITLE"] = "Статистика";
+$MESS["SENDER_LETTER_STAT_STATS_ANALYTICS"] = "Аналітика";
+$MESS["SENDER_LETTER_STAT_STATS_NO_DATA"] = "Немає даних";
+$MESS["SENDER_LETTER_STAT_STATS_NOW"] = "зараз";
+$MESS["SENDER_LETTER_STAT_STATS_FROM"] = "з";
+$MESS["SENDER_LETTER_STAT_STATS_NO_POSTINGS"] = "Немає даних. Випуск не відправлявся або відправка не завершена.";
+$MESS["SENDER_LETTER_STAT_STATS_EFFICIENCY_TITLE"] = "Рівень ефективності розсилки";
+$MESS["SENDER_LETTER_STAT_STATS_EFFICIENCY_LEVEL_1"] = "Погано";
+$MESS["SENDER_LETTER_STAT_STATS_EFFICIENCY_LEVEL_2"] = "Непогано";
+$MESS["SENDER_LETTER_STAT_STATS_EFFICIENCY_LEVEL_3"] = "Нормально";
+$MESS["SENDER_LETTER_STAT_STATS_EFFICIENCY_LEVEL_4"] = "Добре";
+$MESS["SENDER_LETTER_STAT_STATS_EFFICIENCY_LEVEL_5"] = "Відмінно";
+$MESS["SENDER_LETTER_STAT_STATS_MAILING"] = "Кампанія";
+$MESS["SENDER_LETTER_STAT_STATS_POSTING"] = "Розсилка";
+$MESS["SENDER_LETTER_STAT_STATS_READ"] = "Переглянуто";
+$MESS["SENDER_LETTER_STAT_STATS_CLICKED"] = "Переходів";
+$MESS["SENDER_LETTER_STAT_STATS_MAILING_AVG"] = "У середньому за розсилкою";
+$MESS["SENDER_LETTER_STAT_STATS_MAILING_SENT_BY_AUTHOR"] = "Відправлено %date%, автором: %name%";
+$MESS["SENDER_LETTER_STAT_STATS_COUNTER_SEND_ALL"] = "Усього відправлено листів";
+$MESS["SENDER_LETTER_STAT_STATS_COUNTER_READ"] = "Прочитаних";
+$MESS["SENDER_LETTER_STAT_STATS_COUNTER_CLICK"] = "Переходи";
+$MESS["SENDER_LETTER_STAT_STATS_COUNTER_UNSUB"] = "Відписалися";
+$MESS["SENDER_LETTER_STAT_STATS_COUNTER_SEND_ERROR"] = "З помилкою";
+$MESS["SENDER_LETTER_STAT_STATS_CLICK_MAP"] = "Карта кліків";
+$MESS["SENDER_LETTER_STAT_STATS_READ_BY_TIME"] = "Час прочитання";
+$MESS["SENDER_LETTER_STAT_STATS_POSTINGS_ALL"] = "усі випуски";
+$MESS["SENDER_LETTER_STAT_STATS_READ_BY_TIME_CHART_BALLOON"] = "У %time% було прочитано листів: %cnt%";
+?>

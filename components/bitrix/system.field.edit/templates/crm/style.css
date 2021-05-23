@@ -1,0 +1,21 @@
+.crm-button-open span {
+	border-bottom: 1px dashed #0069C4;
+	outline: medium none;
+	text-decoration: none;
+	margin-right: 5px;
+	color: #2067b0;
+}
+.crm-button-open span:hover {
+	border-bottom: 1px dashed #E00000;
+	cursor: pointer;
+	color: #2067b0;
+}
+.crm-lable-create-entity {
+	color: #000;
+	font-weight: bold;
+	padding: 5px 7px 5px 10px;
+}
+.crm-lable-create-entity:hover {
+	cursor: pointer;
+	background-color: #eef2f4;;
+}

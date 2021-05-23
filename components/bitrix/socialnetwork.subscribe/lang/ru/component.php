@@ -1,0 +1,33 @@
+<?
+$MESS["SONET_MODULE_NOT_INSTALL"] = "Модуль социальной сети не установлен.";
+$MESS["SONET_P_USER_NO_USER"] = "Пользователь не найден.";
+$MESS["SONET_C3_NO_ENTITY_ID"] = "Код сущности не задан";
+$MESS["SONET_C3_PERMS"] = "У вас нет прав на эту операцию";
+$MESS["SONET_C3_NO_SUBSCRIPTIONS"] = "Нет доступных подписок";
+$MESS["SONET_C3_NO_GROUP"] = "Группа не найдена";
+$MESS["SONET_C3_GROUP_SETTINGS"] = "Подписка";
+$MESS["SONET_C3_USER_SETTINGS"] = "Подписка";
+$MESS["SUBSCRIBE_NAME_forum"] = "Форум";
+$MESS["SUBSCRIBE_NAME_blog"] = "Блог";
+$MESS["SUBSCRIBE_NAME_calendar"] = "Календарь";
+$MESS["SUBSCRIBE_NAME_tasks"] = "Задачи";
+$MESS["SUBSCRIBE_NAME_files"] = "Файлы";
+$MESS["SUBSCRIBE_NAME_photo"] = "Фото";
+$MESS["SUBSCRIBE_NAME1_forum"] = "Общение";
+$MESS["SUBSCRIBE_NAME1_blog"] = "Отчеты";
+$MESS["SUBSCRIBE_NAME1_calendar"] = "Календарь";
+$MESS["SUBSCRIBE_NAME1_tasks"] = "Задачи";
+$MESS["SUBSCRIBE_NAME1_files"] = "Файлы";
+$MESS["SUBSCRIBE_NAME1_photo"] = "Фото";
+$MESS["SONET_C3_PVG_OWNER"] = "Только владелец группы";
+$MESS["SONET_C3_PVG_MOD"] = "Владелец группы и модераторы группы";
+$MESS["SONET_C3_PVG_USER"] = "Все члены группы";
+$MESS["SONET_C3_PVG_ALL"] = "Все пользователи";
+$MESS["SONET_C3_PVU_NONE"] = "Только я";
+$MESS["SONET_C3_PVU_FR"] = "Только друзья";
+$MESS["SONET_C3_PVU_FR2"] = "Только друзья и друзья друзей";
+$MESS["SONET_C3_PVU_ALL"] = "Все пользователи";
+$MESS["SONET_C3_SYSTEM"] = "Системные";
+$MESS["SONET_C3_SYSTEM_FR"] = "Друзья";
+$MESS["SONET_C3_SYSTEM_GR"] = "Группы";
+?>

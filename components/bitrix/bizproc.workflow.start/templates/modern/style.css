@@ -1,0 +1,28 @@
+fieldset.bizproc-item {
+	border: 1px solid #D8D8D8;
+	padding: 0 1.5em 1.5em 1em;
+}
+legend.bizproc-item-legend {
+	padding: 0 1em;
+	margin-left: 2em;
+	font-size: 110%;
+	color: #000000;
+}
+
+.bizproc-modern-type-control-container {
+	clear: both;
+	display: block;
+	overflow: hidden;
+	margin: 0 0 17px 0;
+	position: relative;
+}
+
+.bizproc-modern-type-control-container-title {
+	display: inline-block;
+	font-size: 13px;
+	color: #80868e;
+}
+.bizproc-modern-type-control-container-title-top {
+	display: block;
+	margin: 0 0 15px 0;
+}

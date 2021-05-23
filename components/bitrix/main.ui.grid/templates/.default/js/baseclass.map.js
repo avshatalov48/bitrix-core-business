@@ -1,0 +1,1 @@
+{"version":3,"file":"baseclass.min.js","sources":["baseclass.js"],"names":["BX","namespace","Grid","BaseClass","parent","this","prototype","getParent"],"mappings":"CAAC,WACA,YAEAA,IAAGC,UAAU,UAObD,IAAGE,KAAKC,UAAY,SAASC,GAE5BC,KAAKD,OAASA,EAGfJ,IAAGE,KAAKC,UAAUG,WACjBC,UAAW,WAEV,MAAOF,MAAKD"}

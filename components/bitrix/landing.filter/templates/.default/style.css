@@ -1,0 +1,59 @@
+#workarea-content {
+	position: relative;
+}
+
+.landing-filter-loading-container {
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	background: transparent;
+	top: 0;
+	left: 0;
+	z-index: 999;
+}
+
+.landing-filter-loading-hide {
+	display: none;
+}
+
+.bitrix24-light-theme .landing-filter-loading {
+	background: url("/bitrix/images/landing/circular-loader-light-mode.svg") no-repeat;
+}
+
+.bitrix24-dark-theme .landing-filter-loading {
+	background: url("/bitrix/images/landing/circular-loader-dark-mode.svg") no-repeat;
+	opacity: 0.4;
+}
+
+.landing-filter-action-link {
+	text-decoration: none;
+}
+
+.landing-filter-action-link:hover {
+	text-decoration: none;
+}
+
+.landing-filter-buttons-container {
+	display: flex;
+	align-items: center;
+}
+
+.landing-filter-folder-input {
+	display:block;
+	-webkit-box-sizing:border-box;
+	-moz-box-sizing:border-box;
+	box-sizing:border-box;
+	width:100%;
+	height:36px;
+	vertical-align:middle;
+	border:1px solid #c5cdd3;
+	border-radius:2px;
+	background-color:#fff;
+	padding: 0 10px;
+	font-size: 16px;
+	margin-top: 10px;
+}
+
+.landing-filter-action-link {
+	margin-left: 12px;
+}

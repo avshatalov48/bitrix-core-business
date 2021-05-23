@@ -1,0 +1,10 @@
+div.forum-popup-image{}
+div.forum-popup-image div.empty{
+	background-image:url("images/close.gif");
+	background-repeat:no-repeat;
+	background-position:center;
+	cursor:pointer;
+	cursor:hand;
+	width:14px;
+	height:14px;
+	margin:0px;}

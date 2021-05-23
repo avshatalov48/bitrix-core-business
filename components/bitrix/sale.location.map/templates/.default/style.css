@@ -1,0 +1,95 @@
+.install-load-block {
+	background-color: #f7fafa;
+	border-radius: 3px;
+	-webkit-box-shadow: 0 1px 0 #ebebeb;
+	box-shadow: 0 1px 0 #ebebeb;
+}
+
+.install-load-block .install-load-title {
+	border-bottom: 1px solid #e6eaeb;
+	color: #000;
+	font-size: 18px;
+	font-weight: bold;
+	margin-bottom: 19px;
+	padding:0 0 15px 3px;
+}
+.install-load-block .install-load-label {
+	color: #000;
+	margin-bottom: 15px;
+}
+
+.install-load-block .install-load-error {
+	color: red;
+	margin-bottom: 15px;
+}
+
+.install-load-block .install-progress-bar-outer
+{
+	height: 32px;
+	border:1px solid;
+	border-color:#9ba6a8 #b1bbbe #bbc5c9 #b1bbbe;
+	-webkit-box-shadow: 1px 1px 0 #fff, inset 0 2px 2px #c0cbce;
+	box-shadow: 1px 1px 0 #fff, inset 0 2px 2px #c0cbce;
+	background-color:#cdd8da;
+	background-image:-webkit-linear-gradient(top, #cdd8da, #c3ced1);
+	background-image:-moz-linear-gradient(top, #cdd8da, #c3ced1);
+	background-image:-ms-linear-gradient(top, #cdd8da, #c3ced1);
+	background-image:-o-linear-gradient(top, #cdd8da, #c3ced1);
+	background-image:linear-gradient(top, #ced9db, #c3ced1);
+	border-radius: 2px;
+	text-align: center;
+	color: #6a808e;
+	text-shadow: 0 1px rgba(255,255,255,0.85);
+	font-size: 18px;
+	line-height: 35px;
+	font-weight: bold;
+}
+
+.install-load-block .install-progress-bar-outer .install-progress-bar-alignment {
+	height: 28px;
+	margin: 0 2px;
+	position: relative;
+	color: #6A808E;
+	font-size: 18px;
+	font-weight: bold;
+	line-height: 35px;
+	text-align: center;
+	text-shadow: 0 1px rgba(255, 255, 255, 0.85);
+}
+
+.install-progress-bar-alignment .install-progress-bar-inner {
+	height: 28px;
+	border-radius: 2px;
+	border-top: solid 1px #52b9df;
+	background-color:#2396ce;
+	background-image:-webkit-linear-gradient(top, #27a8d7, #2396ce, #1c79c0);
+	background-image:-moz-linear-gradient(top, #27a8d7, #2396ce, #1c79c0);
+	background-image:-ms-linear-gradient(top, #27a8d7, #2396ce, #1c79c0);
+	background-image:-o-linear-gradient(top, #27a8d7, #2396ce, #1c79c0);
+	background-image:linear-gradient(top, #27a8d7, #2396ce, #1c79c0);
+	position: absolute;
+	overflow: hidden;
+	top: 2px;
+	left:0
+}
+
+.install-progress-bar-inner .install-progress-bar-inner-text {
+	color: #fff;
+	text-shadow: 0 1px rgba(0,0,0,0.2);
+	font-size: 18px;
+	line-height: 32px;
+	font-weight: bold;
+	text-align: center;
+	position: absolute;
+	left: -2px;
+	top: -2px;
+}
+
+.install-progress-bar-alignment .install-progress-bar-span {
+	color: #6A808E;
+	font-size: 18px;
+	font-weight: bold;
+	line-height: 35px;
+	text-align: center;
+	text-shadow: 0 1px rgba(255, 255, 255, 0.85);
+}

@@ -1,0 +1,54 @@
+.ui-editor-config {
+    display: block;
+    position: relative;
+    height: 30px;
+}
+
+.ui-editor-config-item {
+    display: inline-block;
+    margin-left: -9px;
+    position: relative;
+    width: 26px;
+    height: 26px;
+    border: 2px solid #fff;
+    border-radius: 100%;
+}
+
+.main-grid-row:hover .ui-editor-config-item {
+    border-color: #f6f8f9;
+}
+
+.ui-editor-config-item:first-child {
+    margin-left: 0;
+}
+
+.ui-editor-config-item--add {
+    height: 24px;
+    width: 24px;
+    position: relative;
+    border: none;
+    background: #fff;
+    box-shadow: 0 2px 4px 0 rgba(0,0,0,.14);
+    border-radius: 100%;
+    cursor: pointer;
+}
+
+.ui-editor-config-item--add:before {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    top: 50%;
+    left: 50%;
+    margin: -5px 0 0 -5px;
+    opacity: .7;
+    background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2210%22%20height%3D%2210%22%20viewBox%3D%220%200%2010%2010%22%3E%3Cpath%20fill%3D%22%23828B95%22%20d%3D%22M6%2C0%20L6%2C4%20L10%2C4%20L10%2C6%20L6%2C6%20L6%2C10%20L4%2C10%20L4%2C5.999%20L0%2C6%20L0%2C4%20L4%2C3.999%20L4%2C0%20L6%2C0%20Z%22/%3E%3C/svg%3E') center no-repeat;
+}
+
+.ui-editor-config-item-avatar {
+    display: inline-block;
+    width: 26px;
+    height: 26px;
+    border-radius: 100%;
+    background-size: cover;
+}

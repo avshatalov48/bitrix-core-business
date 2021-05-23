@@ -1,0 +1,4 @@
+<?
+$MESS["SENDER_COMP_TEMPLATE_EDIT_TITLE_ADD"] = "Create Email Template";
+$MESS["SENDER_COMP_TEMPLATE_EDIT_TITLE_EDIT"] = "Edit Email Template";
+?>

@@ -1,0 +1,29 @@
+.bx-sonet-layout-include {width: 100%;}
+.bx-sonet-layout-include .bx-sonet-group-info {border-bottom: solid 1px #C4C4C4; padding: 6px 0px;}
+
+.bx-sonet-layout-include .bx-sonet-group-info-inner .bx-sonet-group-date, .bx-sonet-layout-include .bx-sonet-group-info-inner .bx-user-name, .bx-sonet-layout-include .bx-sonet-group-info-inner .bx-user-post {margin-bottom: 2px; margin-left: 60px;}
+
+.bx-sonet-layout-include .bx-sonet-group-info-inner .no-image, 
+.bx-sonet-layout-include .bx-sonet-group-info-inner .no-image, 
+.bx-sonet-layout-include .bx-sonet-group-info-inner .no-image {
+	margin-left: 0px!important;
+}
+
+.bx-sonet-layout-include .bx-sonet-group-info-inner .bx-sonet-group-image {float: left; height: 50px; width: 50px; border: solid 1px #C4C4C4;}
+.bx-sonet-layout-include .bx-sonet-group-info-inner .bx-sonet-group-image-default {background-image: url('images/nopic_user_50_noborder.gif');}
+.bx-sonet-layout-include .bx-sonet-group-info-inner .bx-sonet-group-image a {display: block; height: 50px; width: 50px; text-decoration: none; text-align: center;}
+.bx-sonet-layout-include .bx-sonet-group-info-inner .bx-sonet-group-image img {border: 0;}
+.bx-sonet-layout-include .bx-users-delimiter {clear: both;}
+.bx-sonet-layout-include .bx-sonet-group-date-today {font-weight: bold;}
+
+.bx-sonet-group-date {
+	color: #82929A;
+	font-size: 0.95em;
+}
+
+.bx-sonet-layout-include .bx-sonet-group-arrows {
+	display: inline-block;
+	background-image: url('images/arrows.gif');
+	width: 7px;
+	height: 7px;
+}

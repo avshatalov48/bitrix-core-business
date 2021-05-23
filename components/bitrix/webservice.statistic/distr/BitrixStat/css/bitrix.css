@@ -1,0 +1,56 @@
+body
+{
+    margin:0px;
+    padding:0px;
+    color: #FFFFFF;
+    background-color:#FFCCCC;
+    font-family: Calibri, Tahoma, sans-serif;
+    background-repeat:no-repeat;
+}
+
+a.textError:hover
+{
+  color:#FF0000;
+}
+
+a.textLoad:hover
+{
+  color:#009900;
+}
+
+table#statContentTable
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	line-height: 12px;
+	text-decoration: none;
+	margin-left: 8px;
+	margin-top: 3px;
+	color: #FFFFFF;
+}
+
+.data-div-style
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	line-height: 15px;
+	text-decoration: none;
+}
+
+.titleText
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	line-height: 12px;
+	text-decoration: none;
+	COLOR: #FFFFFF;
+}
+
+.titleTextY
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	line-height: 12px;
+	text-decoration: none;
+	COLOR: yellow;
+}

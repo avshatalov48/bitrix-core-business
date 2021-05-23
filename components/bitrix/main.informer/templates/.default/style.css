@@ -1,0 +1,61 @@
+div.wd-info-banner {
+	border:1px solid #C4C4C4;
+	margin-bottom:1.5em;
+	background-color: #f6f6f6;}
+div.wd-info-banner div.wd-info-banner-head {
+	background-color: #dddddd;
+	height: 21px;}
+div.wd-info-banner div.wd-info-banner-head .btn-close {
+	display: block;
+	height: 21px;
+	width: 21px;
+	float: right;
+	background-image: url('images/close.gif');
+	background-repeat: no-repeat;}
+div.wd-info-banner div.wd-info-banner-body {
+	margin:1em 1em 0 1.5em;}
+div.wd-info-banner div.wd-info-banner-icon {
+	display: block;
+	float: left;
+	padding-right: 1em;}
+table.wd-info-banner-body, table.wd-info-banner-body td, table.wd-info-banner-body th{
+	border:none;
+	margin:0;
+	padding:0;}
+table.wd-info-banner-body{
+	width:99%;}
+table.wd-info-banner-body th {
+	padding-right:1em;}
+table.wd-info-banner-body td {
+	padding-left:1.2em;
+	border-left: 1px solid #E5E5E5;
+	width:100%;}
+div.wd-info-banner a.wd-info-banner-icon {
+	display: block;
+	height: 39px;
+	width: 39px;
+	background-image: url('images/icon.gif');
+	background-position: left top;
+	background-repeat: no-repeat;}
+div.wd-infobox-inner{
+	padding-bottom:1em;}
+td.wd-info-banner-buttons{
+	text-align:right;}
+a.bx-bnr-button  {
+	display: block;
+	float: right;
+	border: 1px solid #E5E5E5;
+	font-weight: bold;
+	padding: 5px 9px;
+	color: black;
+	text-decoration: none;
+	margin-left:1em;
+	white-space: nowrap;}
+a.bx-bnr-button:hover {
+	border: solid 1px #B7B7B7;}
+div.wd-info-banner-content{
+	height:5em;
+	overflow-y:auto;}
+td.wd-cell-bp_published{
+	text-align:center;}
+

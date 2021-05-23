@@ -1,0 +1,15 @@
+div.catalog-detail-properties { clear: both; padding: 1em 0 0;  overflow: hidden; width: 80%; }
+div.catalog-detail-property { margin: 0 0 1em; width: 100%; clear: both; }
+div.catalog-detail-property span { float: left; position: relative; top: 0.31em; padding-right: 3px; zoom: 1;}
+div.catalog-detail-properties-title { font-size: 1em; font-weight: bold; margin: 2em 0 1em; }
+img.catalog-detail-image { float: left; margin: 0 10px 10px 0; }
+
+.last
+{
+	text-align: right;
+}
+
+.central
+{
+	text-align: right;
+}

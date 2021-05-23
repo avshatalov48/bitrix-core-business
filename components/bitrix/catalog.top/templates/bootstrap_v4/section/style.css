@@ -1,0 +1,9 @@
+.catalog-top-header{
+	font-size:14px;
+	font-weight: bold;
+	text-align: left;
+	margin:5px 0;
+	padding:5px 15px;
+	border-bottom: 2px solid #d9dee6;
+	color: #000;
+}

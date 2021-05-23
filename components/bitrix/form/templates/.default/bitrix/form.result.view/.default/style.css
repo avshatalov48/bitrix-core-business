@@ -1,0 +1,61 @@
+.form-anstext {color:#166122;}
+.form-ansvalue {color:#FF0000;}
+
+table.form-table
+{
+	width:100%;
+	background-color:white;
+	border-collapse:collapse;
+	font-size:100%;
+	font-weight:normal;
+	line-height:160%;
+}
+
+table.form-table th, table.form-table td
+{
+	border:1px solid #ADC3D5;
+	padding: 5px 5px;
+	vertical-align:top;
+}
+
+table.form-table th
+{
+	background-image:url(images/table_head.gif);
+	background-repeat:repeat-x;
+	text-align: left;
+	color:#25639A;
+}
+
+
+table.form-table td
+{
+	width: 50%;
+	padding: 15px 5px;
+}
+
+table.form-info-table
+{
+	background-color:white;
+	font-size:100%;
+	border-collapse:collapse;
+}
+
+table.form-info-table th
+{
+	background-image:url(images/table_head.gif);
+	background-repeat:repeat-x;
+	text-align: center;
+	font-size:100%;
+	color:#25639A;
+}
+
+table.form-info-table td, table.form-info-table th
+{
+	padding:3px;
+	border:1px solid #ADC3D5;
+}
+
+table.form-info-table td
+{
+	vertical-align: top;
+}

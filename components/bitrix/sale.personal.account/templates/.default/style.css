@@ -1,0 +1,70 @@
+.sale-personal-account-wallet-container{
+	width:100%;
+	max-width:430px;
+	margin-bottom:20px;
+}
+.sale-personal-account-wallet-title{
+	background-color: #E39A20;
+	color: #fff;
+	font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-weight: bold;
+	text-transform: uppercase;
+	font-size:12px;
+	padding:11px 17px;
+	border-radius: 3px 3px 0 0;
+}
+.sale-personal-account-wallet-list-container{
+	background-color: #F5A623;
+	color: #fff;
+	border-radius: 0 0 3px 3px;
+}
+.sale-personal-account-wallet-list{}
+.sale-personal-account-wallet-list-item{
+	position: relative;
+	padding:11px 17px 12px 17px;
+	font-size:15px;
+	overflow: hidden;
+	border-bottom: 1px solid #E39A20;
+}
+.sale-personal-account-wallet-list .sale-personal-account-wallet-list-item:last-child{
+	border-bottom: none;
+}
+/*.sale-personal-account-wallet-list-item:before{*/
+	/*content:" ";*/
+	/*display: block;*/
+	/*position: absolute;*/
+	/*left:15px;*/
+	/*width: 22px;*/
+	/*height:22px;*/
+	/*background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDMiIGhlaWdodD0iNTAzIiB2aWV3Qm94PSIwIDAgNTAzIDUwMyI+ICA8cGF0aCBmaWxsPSIjRkZGRkZGIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0yNTEuNywwLjYgQzExMi45LDAuNiAwLjUsMTEzLjEgMC41LDI1MS44IEMwLjUsMzkwLjUgMTEzLDUwMyAyNTEuNyw1MDMgQzM5MC40LDUwMyA1MDIuOSwzOTAuNSA1MDIuOSwyNTEuOCBDNTAyLjksMTEzLjEgMzkwLjUsMC42IDI1MS43LDAuNiBMMjUxLjcsMC42IFogTTI1MS43LDQzNS44IEMxNTAuMSw0MzUuOCA2Ny44LDM1My40IDY3LjgsMjUxLjkgQzY3LjgsMTUwLjQgMTUwLjIsNjggMjUxLjcsNjggQzM1My4yLDY4IDQzNS42LDE1MC40IDQzNS42LDI1MS45IEM0MzUuNiwzNTMuNCAzNTMuMyw0MzUuOCAyNTEuNyw0MzUuOCBMMjUxLjcsNDM1LjggWiBNMjQwLjMsMTMwLjUgQzIzNy45LDEzOC45IDIzNC4zLDE0NS41IDIyOS41LDE1MC41IEMyMjIuNiwxNTcuOCAyMTMuNiwxNjIuNyAyMDIuNiwxNjUuMSBDMTk1LjcsMTY2LjYgMTgzLjYsMTY3LjggMTY2LjMsMTY4LjYgTDE2Ni4zLDIwNiBMMjMyLDIwNiBMMjMyLDM5OC43IEwyODguMywzOTguNyBMMjg4LjMsMTE5LjMgTDI0Mi40LDExOS4zIEMyNDIuNCwxMjEuOCAyNDEuNywxMjUuNSAyNDAuMywxMzAuNSBMMjQwLjMsMTMwLjUgWiIvPjwvc3ZnPg==) no-repeat center;*/
+	/*background-size:22px;*/
+	/*top:50%;*/
+	/*margin-top:-11px;*/
+/*}*/
+
+.sale-personal-account-wallet-currency {
+	display: inline-block;
+	float: left;
+	font-size: 15px;
+	line-height:22px;
+	vertical-align: middle;
+}
+
+.sale-personal-account-wallet-currency-item {
+	font: bold 14px/17px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #955d00;
+}
+
+.sale-personal-account-wallet-currency-item + .sale-personal-account-wallet-currency-item {
+	font: bold 11px "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+
+.sale-personal-account-wallet-sum {
+	display: inline-block;
+	float: right;
+	white-space: nowrap;
+	font-weight: bold;
+	font-size: 22px;
+	/*line-height: 22px;*/
+	vertical-align: middle;
+}

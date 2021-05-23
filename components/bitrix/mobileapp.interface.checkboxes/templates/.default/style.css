@@ -1,0 +1,72 @@
+.order_status_infoblock,
+.order_acceptpay_infoblock{
+	background:#fff;
+	border-radius:5px;
+	margin:5px 0;
+	padding:3px 10px;
+	box-shadow:0 1px 1px 0 rgba(0,0,0,.15)
+}
+.order_status_infoblock ul,
+.order_acceptpay_infoblock ul{display:block}
+.order_status_infoblock ul li,
+.order_acceptpay_infoblock ul li{
+	padding:5px 0;
+	display:block;
+	border-bottom:1px solid #e7ecee;
+}
+
+.order_acceptpay_infoblock_title{
+	padding:9px 0;
+	color:#8f9396;
+	font-weight:bold;
+	font-size:14px;
+	text-shadow:0 1px 0 #fff;
+	position:relative;
+	border-bottom:1px solid #e7ecee;
+}
+
+.order_acceptpay_li_container{
+	border-radius:5px;
+	padding:5px;
+}
+.order_status_li_container    table>tr>td,
+.order_acceptpay_li_container table>tr>td{min-height:30px;vertical-align:middle}
+.order_status_li_container    .inputradio,
+.order_status_li_container    .inputcheckbox,
+.order_acceptpay_li_container .inputradio,
+.order_acceptpay_li_container .inputcheckbox{
+	background:url(images/gui.png) no-repeat;
+	background-size:30px auto;
+	background-position:0 -210px;
+	width:30px;
+	height:30px;
+	position:relative;
+	bottom:-2px;
+	display:inline-block;
+}
+
+.order_status_li_container    .inputcheckbox input[type=checkbox],
+.order_acceptpay_li_container .inputradio    input[type=radio],
+.order_acceptpay_li_container .inputcheckbox input[type=checkbox]{
+	width:30px;
+	height:30px;
+	opacity:0;
+}
+.order_status_li_container.checked,
+.order_acceptpay_li_container.checked{
+	background:#ebf1f2;
+	box-shadow:inset 0 1px 2px 0 rgba(0,0,0,.2)
+}
+.order_status_li_container.checked    .inputradio,
+.order_acceptpay_li_container.checked .inputradio   {background-position:0 -180px}
+.order_status_li_container.checked 	  .inputcheckbox,
+.order_acceptpay_li_container.checked .inputcheckbox{background-position:0 -240px}
+.order_status_li_container    label,
+.order_acceptpay_li_container label,
+.order_acceptpay_infoblock_title_tac{
+	font-size:14px;
+	font-weight:bold;
+	text-shadow:0 1px 0 #fff;
+	line-height:14px;
+	color:#414b51;
+}

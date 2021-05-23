@@ -1,0 +1,44 @@
+div.search-tags-chain a {margin:2px;}
+div.search-tags-chain a.search-tags-link {color:#333333; font-size:90%; text-decoration:none;color:#535353;}
+div.search-tags-cloud a {white-space: normal;}
+
+div.search-advanced { overflow: hidden; margin: 0.5em 0; zoom:1;}
+div.search-advanced-result { float: left; width:70%;}
+div.search-advanced-filter { float: right; }
+div.search-advanced-filter a { outline: none;}
+
+div.search-item { margin: 0 0 1.5em; padding: 0 0 1.5em; border-bottom: 1px solid;}
+div.search-item h4 { font-size: 140%; font-weight: normal; line-height: 1.2; margin: 1.3em 0 0.4em;}
+div.search-item h4 a { text-decoration:none;}
+div.search-item h4 img { border:0px;vertical-align:middle;}
+div.search-item h4 span { vertical-align:middle;text-decoration:underline;}
+div.search-result { margin: 0;}
+div.search-preview {margin: 0.5em 0;}
+
+div.search-item-meta { margin: 1em 0 0 0; overflow: hidden; zoom: 1;}
+div.search-item-rate { float: left; margin: -3px 6px 0 0;}
+div.search-item-tags { float: left; }
+div.search-item-date { float: right;}
+
+div.search-page input.search-query {width: 99%; border: 1px solid; font-size:1.3em;}
+div.search-page input.search-suggest {width: 99%; border: 1px solid; font-size:1.3em;}
+div.search-page input.search-button { font-size: 1.2em; }
+
+div.search-filter h2 { margin:1em 0 0.5em; border: none;}
+table.search-filter { width: 100%;  margin-top: 0.5em;}
+table.search-filter td { padding: 1em; border-top: 1px solid;}
+td.search-filter-name { width: 10%; text-align: right;}
+td.search-filter-field { width: 50%;}
+
+table.search-filter input.input-field { border: 1px solid; font-size:1.3em; }
+table.search-filter select.select-field {border: 1px solid; font-size:1.2em; }
+
+div.search-sorting { margin: 0.5em 0;}
+div.search-sorting b { padding: 0.2em 0.3em 0.3em ; font-weight: normal;}
+/* COLORS */
+div.search-item, table.search-filter td { border-color: #E9E9E9;}
+div.search-page input.search-query, div.search-page input.search-suggest, table.search-filter input.input-field, table.search-filter select.select-field { background: #F8F7F7; border-color: #D9D9D9; }
+div.search-advanced, div.search-item-meta, div.search-item-meta a { color: #8a8a8a; }
+div.search-sorting b { background: #e8e9ec; }
+
+.search-item-rate {font-size: 11px;}

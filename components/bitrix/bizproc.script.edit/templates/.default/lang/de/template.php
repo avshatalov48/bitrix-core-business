@@ -1,0 +1,22 @@
+<?php
+$MESS["BIZPROC_SCRIPT_EDIT_BTN_CHANGE"] = "Bearbeiten";
+$MESS["BIZPROC_SCRIPT_EDIT_CONSTANT_DESCRIPTION"] = "Diese Parameter müssen vor dem Starten von beliebigen Skripts konfiguriert werden, damit alles korrekt funktioniert.";
+$MESS["BIZPROC_SCRIPT_EDIT_CONSTANT_LABEL"] = "Administrative Einstellungen";
+$MESS["BIZPROC_SCRIPT_EDIT_DELAY_AFTER_HELP"] = "Verzögerung vor dem Starten der Automatisierungsregel, nachdem das Skript gestartet wird";
+$MESS["BIZPROC_SCRIPT_EDIT_DELAY_NOW_HELP"] = "Automatisierungsregel wird ausgeführt, sobald das Skript startet";
+$MESS["BIZPROC_SCRIPT_EDIT_MENU_CONFIGS"] = "Skript konfigurieren";
+$MESS["BIZPROC_SCRIPT_EDIT_MENU_GENERAL"] = "Beschreibung";
+$MESS["BIZPROC_SCRIPT_EDIT_MENU_ROBOTS"] = "Automatisierungsregeln";
+$MESS["BIZPROC_SCRIPT_EDIT_MENU_TITLE"] = "Smarte Skripts";
+$MESS["BIZPROC_SCRIPT_EDIT_PARAMETER_DESCRIPTION"] = "Diese Parameter können von einem Nutzer jedes Mal konfiguriert werden, wenn ein Skript gestartet wird.";
+$MESS["BIZPROC_SCRIPT_EDIT_PARAMETER_LABEL"] = "Nutzereinstellungen";
+$MESS["BIZPROC_SCRIPT_EDIT_ROBOT_HELP"] = "Nutzen Sie die Automatisierungsregeln, um die Prozesse im Kundenmanagement zu optimieren. So können Ihre Mitarbeiter auch dem etablierten Weg in der Leadbearbeitung folgen. Die Automatisierungsregeln ermöglichen es Ihnen, verschiedene Aktionen wie Versand von E-Mails, Anrufe usw. zu automatisieren.";
+$MESS["BIZPROC_SCRIPT_EDIT_SCRIPT_DESCRIPTION"] = "Beschreibung";
+$MESS["BIZPROC_SCRIPT_EDIT_SCRIPT_DESCRIPTION_TEXT"] = "Beschreibungstext";
+$MESS["BIZPROC_SCRIPT_EDIT_SCRIPT_NAME"] = "Skriptname";
+$MESS["BIZPROC_SCRIPT_EDIT_SCRIPT_NAME_DEFAULT"] = "Neues Skript";
+$MESS["BIZPROC_SCRIPT_EDIT_SECTION_CONFIGS_EMPTY"] = "Keine zusätzliche Konfiguration ist erforderlich";
+$MESS["BIZPROC_SCRIPT_EDIT_SECTION_GENERAL"] = "Skriptbeschreibung";
+$MESS["BIZPROC_SCRIPT_EDIT_SECTION_ROBOTS"] = "Automatisierungsregeln konfigurieren";
+$MESS["BIZPROC_SCRIPT_EDIT_VALIDATION_EMPTY_CONFIGS"] = "Administrative Einstellungen müssen angegeben werden";
+$MESS["BIZPROC_SCRIPT_EDIT_VALIDATION_EMPTY_NAME"] = "Skriptname ist nicht angegeben";

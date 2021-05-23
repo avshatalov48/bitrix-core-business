@@ -1,0 +1,34 @@
+<?
+$MESS["SONET_GRE_T_DO_SAVE"] = "Одобрить вступление";
+$MESS["SONET_GRE_T_REJECT"] = "Отказать";
+$MESS["SONET_GRE_T_REJECT_OUT"] = "Отменить приглашения";
+$MESS["SONET_GRE_T_CHECK_ALL"] = "Отметить все/Снять отметку у всех";
+$MESS["SONET_GRE_T_SUBTITLE_IN"] = "Запросы на вступление в группу";
+$MESS["SONET_GRE_T_SUBTITLE_IN_PROJECT"] = "Запросы на вступление в проект";
+$MESS["SONET_GRE_T_SUBTITLE_OUT"] = "Приглашения для вступления в группу";
+$MESS["SONET_GRE_T_SUBTITLE_OUT_PROJECT"] = "Приглашения для вступления в проект";
+$MESS["SONET_GRE_T_USER"] = "Пользователь";
+$MESS["SONET_GRE_T_DATE_REQUEST_IN"] = "Дата запроса";
+$MESS["SONET_GRE_T_DATE_REQUEST_OUT"] = "Дата приглашения";
+$MESS["SONET_GRE_T_SENDER"] = "Отправитель";
+$MESS["SONET_GRE_T_RECIPIENT"] = "Получатель";
+$MESS["SONET_GRE_T_MESSAGE_IN"] = "Сообщения от пользователей";
+$MESS["SONET_GRE_T_MESSAGE2_IN"] = "Текст запроса";
+$MESS["SONET_GRE_T_MESSAGE_OUT"] = "Сообщения пользователям";
+$MESS["SONET_GRE_T_MESSAGE2_OUT"] = "Текст приглашения";
+$MESS["SONET_GRE_T_NO_REQUESTS"] = "Нет запросов.";
+$MESS["SONET_GRE_T_NO_REQUESTS_DESCR"] = "Здесь показываются запросы пользователей на вступление в группу.";
+$MESS["SONET_GRE_T_NO_REQUESTS_DESCR_PROJECT"] = "Здесь показываются запросы пользователей на вступление в проект.";
+$MESS["SONET_GRE_T_NO_REQUESTS2"] = "На данный момент запросов пользователей на вступление в группу нет";
+$MESS["SONET_GRE_T_NO_REQUESTS2_PROJECT"] = "На данный момент запросов пользователей на вступление в проект нет";
+$MESS["SONET_GRE_T_NO_REQUESTS_OUT"] = "Нет приглашений.";
+$MESS["SONET_GRE_T_NO_REQUESTS_OUT_DESCR"] = "Здесь показываются приглашения пользователям для вступления в группу.";
+$MESS["SONET_GRE_T_NO_REQUESTS_OUT_DESCR_PROJECT"] = "Здесь показываются приглашения пользователям для вступления в проект.";
+$MESS["SONET_GRE_T_NO_REQUESTS2_OUT"] = "На данный момент приглашений пользователям для вступления в группу нет";
+$MESS["SONET_GRE_T_NO_REQUESTS2_OUT_PROJECT"] = "На данный момент приглашений пользователям для вступления в проект нет";
+$MESS["SONET_GRE_T_INVITE"] = "Пригласить в группу";
+$MESS["SONET_GRE_T_INVITE_PROJECT"] = "Пригласить в проект";
+$MESS["SONET_GRE_T_ERROR"] = "Произошла ошибка обработки запроса";
+$MESS["SONET_GRE_T_BUTTON_ACCEPT"] = "Принять";
+$MESS["SONET_GRE_T_BUTTON_DECLINE"] = "Отклонить";
+?>

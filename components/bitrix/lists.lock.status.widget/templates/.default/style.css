@@ -1,0 +1,18 @@
+.lists-lock-status-widget-container {
+    display: flex;
+}
+.lists-lock-status-widget-container .ui-hint-icon {
+    margin: 0;
+}
+.lists-lock-status-widget-yellow {
+    color: darkgoldenrod;
+}
+.lists-lock-status-widget-red {
+    color: darkred;
+}
+.lists-lock-status-widget-green {
+    color: forestgreen;
+}
+.lists-lock-status-widget-locked-by {
+    padding: 0 0 0 5px;
+}

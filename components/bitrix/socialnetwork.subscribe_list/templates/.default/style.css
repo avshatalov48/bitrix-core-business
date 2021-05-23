@@ -1,0 +1,115 @@
+div.sonet-cntnr-subscribe-list { margin-bottom: 1em; }
+
+table.subscribe-list-table td.subscribe-list-entity-td {
+	border-bottom: 1px solid #EFEFEF;
+	padding-left: 10px;
+}
+
+table.subscribe-list-table td.subscribe-list-entity-name { padding-left: 28px; }
+table.subscribe-list-table td.subscribe-list-header { padding-top: 10px; }
+table.subscribe-list-table td.subscribe-list-header table { border-collapse:collapse; }
+table.subscribe-list-table td.subscribe-list-header table td { padding: 0; }
+table.subscribe-list-table td.subscribe-list-header table td.subscribe-list-header-left { background: url(images/sprite-subscr.png) no-repeat 0 0; }
+table.subscribe-list-table td.subscribe-list-header table td.subscribe-list-header-right { background: url(images/sprite-subscr.png) no-repeat 0 -64px; }
+
+table.subscribe-list-table td.subscribe-list-header table td.subscribe-list-header-center {
+	background: url(images/sprite-subscr.png) repeat-x 0 -32px;
+	padding-left: 10px;
+	width: 100%;	
+}
+
+div.subscribe-list-selector {
+	width: 14px;
+	height: 14px;
+	float: left;
+	margin-right: 5px;
+	margin-top: 2px;	
+}
+
+div.subscribe-list-selector-plus { background: url(images/sprite-subscr.png) no-repeat 0 -96px; }
+div.subscribe-list-selector-minus { background: url(images/sprite-subscr.png) no-repeat 0 -113px; }
+
+a.subscribe-list-del {
+	display: block;
+	width: 13px;
+	height: 13px;
+	background: url(images/sprite-subscr.png) no-repeat -1px -128px;
+}
+
+a.subscribe-list-del:hover { background: url(images/sprite-subscr.png) no-repeat -1px -143px; }
+
+table.subscribe-list-feature { border-collapse:collapse; }
+table.subscribe-list-feature td { padding: 5px; }
+table.subscribe-list-feature td.subscribe-list-feature-sep { height: 6px; padding: 0; }
+table.subscribe-list-feature td.subscribe-list-corners { padding: 0px; }
+tr.subscribe-list-features { background: #EFEFEF; }
+
+td.subscribe-list-feature-name {
+	width: 30%;
+	vertical-align: top;
+	text-align: right;
+}
+
+table.subscribe-list-table select { width: 300px; }
+table.subscribe-list-table td { font-size: 12px; }
+
+div.subscribe-list-features-lt {
+	position: relative;
+	background: url(images/sprite-subscr.png) no-repeat 0 -165px;
+	height: 2px;
+	font-size: 1px;
+}
+
+div.subscribe-list-features-rt {
+	position: absolute;
+	right: 0;
+	top: 0;
+	height: 2px;
+	width: 2px;	
+	font-size: 1px;	
+	background: url(images/sprite-subscr.png) no-repeat 0 -169px;
+}
+
+div.subscribe-list-features-lb {
+	position: relative;
+	background: url(images/sprite-subscr.png) no-repeat 0 -177px;
+	height: 2px;
+	font-size: 1px;
+}
+
+div.subscribe-list-features-rb {
+	position: absolute;
+	right: 0;
+	top: 0;
+	height: 2px;
+	width: 2px;		
+	background: url(images/sprite-subscr.png) no-repeat 0 -173px;
+}
+
+.subscribe-list-checkbox {
+	padding-bottom: 5px;
+	width: 300px;
+}
+
+span.subscribe-list-checkbox-icon {
+	width: 14px;
+	height: 14px;
+	display: inline-block;
+	vertical-align: middle;
+	margin-top: 5px;
+}
+
+span.subscribe-list-checkbox-text {
+	display: inline-block;
+	cursor: default;
+	padding-left: 5px;
+	vertical-align: middle;
+	margin-top: 5px;
+}
+
+.subscribe-list-checkbox-i-Y span.subscribe-list-checkbox-icon { background: url(images/checkbox-yes-disabled.gif); }
+.subscribe-list-checkbox-i-N span.subscribe-list-checkbox-icon { background: url(images/checkbox-no-disabled.gif); }
+.subscribe-list-checkbox-Y span.subscribe-list-checkbox-icon { background: url(images/checkbox-yes-enabled.gif); }
+.subscribe-list-checkbox-N span.subscribe-list-checkbox-icon { background: url(images/checkbox-no-enabled.gif); }
+
+div.subscribe-list-submit { padding-top: 10px; }

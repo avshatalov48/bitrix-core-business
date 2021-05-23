@@ -1,0 +1,34 @@
+<?
+$MESS["SONET_GRE_T_DO_SAVE"] = "Approve membership";
+$MESS["SONET_GRE_T_REJECT"] = "Decline";
+$MESS["SONET_GRE_T_REJECT_OUT"] = "Cancel invitations";
+$MESS["SONET_GRE_T_CHECK_ALL"] = "Check All / Uncheck All";
+$MESS["SONET_GRE_T_SUBTITLE_IN"] = "Workgroup membership requests";
+$MESS["SONET_GRE_T_SUBTITLE_OUT"] = "Workgroup membership invitations";
+$MESS["SONET_GRE_T_SENDER"] = "Sender";
+$MESS["SONET_GRE_T_RECIPIENT"] = "Recipient";
+$MESS["SONET_GRE_T_MESSAGE_IN"] = "Messages from users";
+$MESS["SONET_GRE_T_MESSAGE_OUT"] = "Messages to users";
+$MESS["SONET_GRE_T_NO_REQUESTS"] = "No requests.";
+$MESS["SONET_GRE_T_NO_REQUESTS_DESCR"] = "Shows user requests for group membership.";
+$MESS["SONET_GRE_T_NO_REQUESTS_OUT"] = "No invitations.";
+$MESS["SONET_GRE_T_NO_REQUESTS_OUT_DESCR"] = "Shows workgroup membership invitations.";
+$MESS["SONET_GRE_T_INVITE"] = "Invite to group";
+$MESS["SONET_GRE_T_SUBTITLE_IN_PROJECT"] = "Project membership requests";
+$MESS["SONET_GRE_T_SUBTITLE_OUT_PROJECT"] = "Project membership invitations";
+$MESS["SONET_GRE_T_NO_REQUESTS_DESCR_PROJECT"] = "Shows user requests for project membership.";
+$MESS["SONET_GRE_T_NO_REQUESTS_OUT_DESCR_PROJECT"] = "Shows project membership invitations.";
+$MESS["SONET_GRE_T_INVITE_PROJECT"] = "Invite to project";
+$MESS["SONET_GRE_T_USER"] = "User";
+$MESS["SONET_GRE_T_DATE_REQUEST_IN"] = "Request date";
+$MESS["SONET_GRE_T_DATE_REQUEST_OUT"] = "Invite date";
+$MESS["SONET_GRE_T_MESSAGE2_IN"] = "Request text";
+$MESS["SONET_GRE_T_MESSAGE2_OUT"] = "Invitation text";
+$MESS["SONET_GRE_T_NO_REQUESTS2"] = "There are no currently workgroup membership requests.";
+$MESS["SONET_GRE_T_NO_REQUESTS2_PROJECT"] = "There are no currently project membership requests.";
+$MESS["SONET_GRE_T_NO_REQUESTS2_OUT"] = "There are no currently workgroup invitations.";
+$MESS["SONET_GRE_T_NO_REQUESTS2_OUT_PROJECT"] = "There are no currently project invitations.";
+$MESS["SONET_GRE_T_ERROR"] = "Error processing request.";
+$MESS["SONET_GRE_T_BUTTON_ACCEPT"] = "Accept";
+$MESS["SONET_GRE_T_BUTTON_DECLINE"] = "Decline";
+?>

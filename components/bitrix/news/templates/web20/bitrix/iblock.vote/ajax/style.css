@@ -1,0 +1,28 @@
+div.star-active
+{
+	cursor: pointer;
+}
+
+div.star-empty
+{
+	background-image: url(images/empty.gif);
+	width:15px;
+	height:15px;
+	overflow:hidden;
+}
+
+div.star-voted
+{
+	background-image: url(images/voted.gif);
+	width:15px;
+	height:15px;
+	overflow:hidden;
+}
+
+div.star-over
+{
+	background-image: url(images/over.gif);
+	width:15px;
+	height:15px;
+	overflow:hidden;
+}

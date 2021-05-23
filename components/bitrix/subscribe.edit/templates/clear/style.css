@@ -1,0 +1,42 @@
+/* Subscription */
+div.subscription { /*width: 80%;*/ margin: 0 0 2em;}
+div.subscription-title-inner { font-weight: bold; padding: 8px 12px 10px 12px; overflow: hidden; zoom: 1;}
+/*div.subscription-title .r2, div.subscription-title .r0 { border-left: 1px solid; border-right: 1px solid;}*/
+div.subscription-form { padding: 17px 11px 0; border: 1px solid; border-top:none; margin: 0 0 1.5em;}
+table.subscription-layout { width: 100%; }
+table.subscription-layout td { vertical-align: top; padding: 0 0 20px;}
+table.subscription-layout td.field-name { width: 70px; text-align: right; padding-right: 7px;}
+table.subscription-layout td.field-form {  }
+input.subscription-email { width: 150px;}
+input.subscription-textbox { width: 230px;}
+div.subscription-format { white-space:nowrap; float: right; margin-right:1em;}
+div.subscription-rubric { padding: 0 0 1em; overflow: hidden;}
+div.subscription-rubric input { float: left; margin-right: -23px;}
+div.subscription-rubric label { margin-left: 23px; display: block; padding-top: 2px;}
+div.subscription-rubric span { display:block; margin-top: 0.25em; font-size: 0.85em; }
+div.subscription-notes { margin: 1em 0 1.5em;}
+div.subscription-utility p { font-size: 0.85em;}
+div.subscription-buttons { margin-top: 1em;}
+
+/* Subscription colors*/
+div.subscription-title b, div.subscription-title-inner {background-color:#E6E6E6;}
+div.subscription-title .r2, div.subscription-title .r0 {border-color:#FAFAFA;}
+div.subscription-form { border-color: #E5E5E5;}
+div.subscription-rubric span, div.subscription-format span, div.subscription-utility p { color: #787878; }
+
+
+
+div.subscribe-edit .red {
+	color:red;
+}
+div.subscribe-edit .green {
+	color:green;
+}
+div.subscribe-edit .errorcolor {
+	color:red;
+}
+div.subscribe-edit .successcolor {
+	color:green;
+}
+
+

@@ -1,0 +1,5 @@
+.bxc-iconkit-c{background-image: url(/bitrix/images/main/clock/clock_iconkit.gif);}
+.bxc-iconkit-a{background-image: url(/bitrix/images/main/clock/arrows_iconkit.gif);}
+
+img.bx-clock-icon{width: 18px; height: 19px; background-position: 0px -95px; border-width: 0px; margin: 1px 1px 1px 6px; vertical-align: top;}
+/* a.bxc-icon-hover img.bx-clock-icon{background-color:#DBE3F2; border:1px solid #AEB6C2; margin:1px 0 0 1px;}  */

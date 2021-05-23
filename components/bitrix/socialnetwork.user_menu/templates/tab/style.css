@@ -1,0 +1,32 @@
+.sonet-user-menu-tabs {list-style:none; padding:0; margin:0; height:32px;}
+.sonet-user-menu-tabs li {display:block; float:left; margin:0; }
+.sonet-user-menu-tabs li a {display:block; text-decoration:none; position:relative;}
+
+.sonet-user-menu-tabs li a b.p1 {display:block; width:3px; height:32px; background:url(images/tableft.gif) no-repeat; float:left; cursor:pointer; cursor: hand;}
+.sonet-user-menu-tabs li a b.p2 {display:block; height:32px; padding:0 10px; background:url(images/tab_bg.gif) repeat-x; float:left; text-align:center; line-height:31px; color:#697D87; font-weight:bold; font-family:verdana; font-size:13px; cursor:pointer; cursor: hand;}
+.sonet-user-menu-tabs li a b.p3 {display:block; width:6px; height:32px; background:url(images/tabright.gif) no-repeat; float:left; position:relative; cursor:pointer; cursor: hand;}
+
+.sonet-user-menu-tabs li a.selected b.p1
+{position:relative; background:url(images/tableft-selected.gif) no-repeat; cursor:pointer; cursor: hand;}
+.sonet-user-menu-tabs li a.selected b.p2
+{position:relative; background:url(images/tab_bg_selected.gif) repeat-x; color:#000; cursor:pointer; cursor: hand;}
+.sonet-user-menu-tabs li a.selected b.p3
+{position:relative; background:url(images/tabright-selected.gif) no-repeat; cursor:pointer; cursor: hand;}
+
+.sonet-user-menu-tabdiv
+{
+	background:url(images/tab_space.gif) bottom repeat-x; 
+	width:100%; 
+	border:0;
+	padding: 0;
+	margin: 0;
+}
+div.sonet-user-menu-menu-clear-left
+{
+	background-color:#D8E3E8;
+	border-left:1px solid #afc7d2;
+	border-right:1px solid #afc7d2;
+	height:4px;
+	font-size:1px;
+	clear:left;
+}

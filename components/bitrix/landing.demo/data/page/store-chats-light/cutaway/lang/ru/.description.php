@@ -1,0 +1,7 @@
+<?php
+$MESS['LANDING_DEMO_STORE_CHATS_LIGHT-CUTAWAY-NAME'] = 'Визитка';
+$MESS['LANDING_DEMO_STORE_CHATS_LIGHT-CUTAWAY-DESC'] = 'Выберите удобный способ связи с компанией';
+$MESS['LANDING_DEMO_STORE_CHATS_LIGHT-CUTAWAY-RICH_NAME'] = 'Визитка';
+$MESS['LANDING_DEMO_STORE_CHATS_LIGHT-CUTAWAY-RICH_DESC'] = 'Выберите удобный способ связи с компанией';
+$MESS['LANDING_DEMO_STORE_CHATS_LIGHT-CUTAWAY-TEXT1'] = 'Пишите прямо сейчас';
+$MESS['LANDING_DEMO_STORE_CHATS_LIGHT-CUTAWAY-TEXT2'] = 'Мы в соцсетях';

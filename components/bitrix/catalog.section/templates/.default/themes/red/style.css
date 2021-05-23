@@ -1,0 +1,26 @@
+/* catalog.section */
+
+/*
+#651c0d
+#a9331c
+#772c1c
+#bd4b35
+*/
+
+/* Slider */
+.bx-red .product-item-image-slider-progress-bar { background-color: #F42C2C;}
+.bx-red .product-item-image-slider-control:hover{ background-color: rgba(244,44,44,.8);}
+.bx-red .product-item-image-slider-control.active,
+.bx-red .product-item-image-slider-control:hover{ background-color: #F42C2C;}
+
+/* SCU */
+.bx-red .product-item-scu-item-text-block:hover,
+.bx-red .product-item-scu-item-color-block:hover,
+.bx-red .product-item-scu-item-text-container.selected .product-item-scu-item-text-block,
+.bx-red .product-item-scu-item-color-container.selected .product-item-scu-item-color-block{ outline-color: #da3737;}
+
+/* Amount */
+.bx-red .product-item-amount-field:focus{border-color: #da3737;}
+
+
+.bx-red .catalog-section-header{border-color:#da3737;}

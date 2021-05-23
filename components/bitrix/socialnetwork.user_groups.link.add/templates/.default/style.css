@@ -1,0 +1,6 @@
+.sonet-add-group-button { margin: 10px 0px 10px 0px; }
+.sonet-add-group-button-left { background: url(images/add_group_button_left.gif) no-repeat; display: block; float: left; width: 26px; height: 27px; }
+.sonet-add-group-button-fill { background: url(images/add_group_button_fill.gif) center left repeat-x; display: block; float: left; height: 27px; text-align: left; padding: 0px 10px 0px 2px; }
+.sonet-add-group-button-fill-text { line-height: 24px; text-decoration: none; color: #000000; font-weight: bold; }
+.sonet-add-group-button-right { background: url(images/add_group_button_right.gif) no-repeat; display: block; float: left; width: 4px; height: 27px; }
+.sonet-add-group-button-clear { clear: both; }

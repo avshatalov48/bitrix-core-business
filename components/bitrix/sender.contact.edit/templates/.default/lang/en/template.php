@@ -1,0 +1,9 @@
+<?
+$MESS["SENDER_CONTACT_EDIT_TMPL_FIELD_ADDRESS"] = "Recipient";
+$MESS["SENDER_CONTACT_EDIT_TMPL_FIELD_SET"] = "Used in static recipient lists";
+$MESS["SENDER_CONTACT_EDIT_TMPL_FIELD_TYPE"] = "Type";
+$MESS["SENDER_CONTACT_EDIT_TMPL_FIELD_NAME"] = "First name";
+$MESS["SENDER_CONTACT_EDIT_TMPL_FIELD_SUB"] = "Subscribed to campaigns";
+$MESS["SENDER_CONTACT_EDIT_TMPL_FIELD_UNSUB"] = "Unsubscribed from campaigns";
+$MESS["SENDER_CONTACT_EDIT_TMPL_FIELD_SENT"] = "Received newsletters";
+?>

@@ -1,0 +1,98 @@
+body
+{
+    margin: 0px;
+    padding: 0px;
+    width: 303px;
+    height: 225px;
+    color: #FFFFFF;
+    font-size: 10px;
+    background-color:#ff00ff;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    background-repeat: no-repeat;
+    background-image:url('images/flyoutBack.png');
+}
+
+div#flyoutBack
+{   
+    position: absolute;
+    left: 5px;
+    top: 3px;
+    width:291px;
+    height:26px;
+	color: #FFFFFF;
+}
+
+div#flyoutContentDiv
+{   
+	position: absolute;
+	left: 0px;
+	top: 20px;
+	width: 291px;
+	height: 194px;
+	color: #000000;
+	font-size: 12px;
+	overflow:auto;
+	padding-right:10px;
+	padding-left:10px;
+	padding-top:10px;
+}
+
+.tableHead1
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	line-height: 12px;
+	text-decoration: none;
+	font-weight: bold;
+	text-align: center;
+	border-right: #999999 1px dotted; border-top: #999999 1px dotted; border-left: #999999 1px dotted; border-bottom: #999999 1px dotted;
+}
+
+.tableHead2
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	line-height: 12px;
+	text-decoration: none;
+	font-weight: bold;
+	text-align: center;
+	border-right: #999999 1px dotted; border-top: #999999 1px dotted; border-bottom: #999999 1px dotted;
+}
+
+.tableHead3
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	line-height: 12px;
+	text-decoration: none;
+	font-weight: bold;
+	text-align: center;
+	border-right: #999999 1px dotted; border-top: #999999 1px dotted; border-bottom: #999999 1px dotted;
+}
+
+.tableBody1
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	line-height: 12px;
+	text-decoration: none;
+	border-right: #999999 1px dotted; border-left: #999999 1px dotted; border-bottom: #999999 1px dotted;
+}
+
+.tableBody2
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	line-height: 12px;
+	text-decoration: none;
+	border-right: #999999 1px dotted; border-bottom: #999999 1px dotted;
+}
+
+.tableBody3
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	line-height: 12px;
+	text-decoration: none;
+	border-right: #999999 1px dotted; border-bottom: #999999 1px dotted;
+}

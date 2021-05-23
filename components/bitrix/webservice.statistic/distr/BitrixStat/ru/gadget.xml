@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<gadget>
+	<name>Bitrix statistics summary</name>
+	<namespace>bitrix</namespace>
+	<version>1.0.0.0</version>
+	<author name="Bitrix">
+		<info url="http://www.bitrixsoft.com/?referer1=gadget&amp;referer2=info" text="www.bitrixsoft.com" />
+		<logo src="logo.png" />
+	</author>
+	<copyright>Bitrix &#169; 2007</copyright>
+	<description>Bitrix statistics summary monitor</description>
+	<icons>
+		<icon height="64" width="64" src="/images/icon_rus.png" />
+	</icons>
+	<hosts>
+		<host name="sidebar">
+			<base type="HTML" apiVersion="1.0.0" src="stat.html" />
+			<permissions>Full</permissions>
+			<platform minPlatformVersion="0.3" />
+		</host>
+	</hosts>
+</gadget>

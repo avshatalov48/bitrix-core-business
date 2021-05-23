@@ -1,0 +1,70 @@
+.sale-personal-section-index-block{
+	opacity: .8;
+	padding: 0;
+	margin: 15px 0;
+	text-align: center;
+	text-transform: uppercase;
+	-webkit-transition: all 0.3s;
+	   -moz-transition: all 0.3s;
+		-ms-transition: all 0.3s;
+		 -o-transition: all 0.3s;
+			transition: all 0.3s;
+	color: #fff;
+	background-size: cover;
+	border-radius: 3px;
+	height: 87%;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	justify-content: space-around;
+}
+
+@media (max-width: 992px)
+{
+	.sale-personal-section-index-block {
+		height: auto;
+		margin: 8px 0;
+	}
+}
+
+.sale-personal-section-index-block.bx-theme-green{
+	background: url(images/wt_green.png) center top;
+}
+.sale-personal-section-index-block.bx-theme-blue{
+	background: url(images/wt_blue.png) center top;
+}
+.sale-personal-section-index-block.bx-theme-red{
+	background: url(images/wt_red.png) center top;
+}
+.sale-personal-section-index-block.bx-theme-yellow{
+	background: url(images/wt_yellow.png) center top;
+}
+.sale-personal-section-index-block.bx-theme-black{
+	background: url(images/wt_black.png) center top;
+}
+.sale-personal-section-index-block:hover{
+	opacity: 1;
+}
+.sale-personal-section-index-block-link,
+.sale-personal-section-index-block-link:hover,
+.sale-personal-section-index-block-link:active,
+.sale-personal-section-index-block-link:focus,
+.sale-personal-section-index-block-link:visited{
+	text-decoration: none;
+	display: block;
+	padding:25px 15px;
+	color: #fff;
+}
+.sale-personal-section-index-block-link{color: #fff;}
+.sale-personal-section-index-block-ico {font-size: 64px;}
+.sale-personal-section-index-block-name{font-size: 16px;}
+.sale-personal-section-account-sub-header{
+	margin-top:40px;
+}
+
+.sale-personal-section-row-flex {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-flow: row wrap;
+}

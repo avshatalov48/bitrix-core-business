@@ -1,0 +1,57 @@
+div.statistic-table {
+	color: #696C72;
+	background-color:#EBECF3;
+	border:1px solid #B7BCDB;
+	padding:5px;
+	width:85px;
+	padding-bottom:15px;
+	font-size: 10px;
+}
+div.statistic-table .container {
+	position:relative;
+	display:block;
+	width:100%;
+}
+div.statistic-table .inner {
+	display:block;
+	width:100%;
+}
+div.statistic-table .inner-dots {
+	display:block;
+	width:100%;
+	/* This is the way how browser should draw dotted border
+	border-bottom:dotted 1px #696C72;
+	But we have to use image in order to draw border correctly with IE*/
+	padding-bottom: 1px;
+	background: url(images/dots.gif) repeat-x bottom;
+}
+div.statistic-table .left {
+	float:left;
+	position:relative;
+	left:0px;
+	top:2px;
+	background-color:#EBECF3;
+}
+div.statistic-table .right {
+	float:right;
+	position:relative;
+	right:0px;
+	top:2px;
+	background-color:#EBECF3;
+}
+div.statistic-table .clear {
+	clear:both;
+}
+div.statistic-table  a {
+	color: #696C72;
+	text-decoration: none;
+}
+div.statistic-table  a:hover {
+	text-decoration: underline;
+}
+div.statistic-table .today {
+	color: #FF7979;
+}
+div.statistic-table .today a {
+	color: #FF7979;
+}

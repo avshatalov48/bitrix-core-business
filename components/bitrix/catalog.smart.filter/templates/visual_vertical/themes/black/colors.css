@@ -1,0 +1,15 @@
+.bx_filter_vertical.bx_black .bx_filter_section{
+	background: #c3e9f4;
+	border: 7px solid #e1f5fb;
+}
+.bx_filter_vertical.bx_black .bx_ui_slider_range{
+	background: url(images/range_bg.png);
+}
+.bx_filter_vertical.bx_black .bx_filter_control_section{text-align: center}
+.bx_filter_vertical.bx_black .bx_filter_search_button{
+	height: 33px;
+	line-height:33px;
+}
+.bx_filter_vertical.bx_black span.icon_lupe{
+	background: url(images/searchicon.png) no-repeat center;
+}

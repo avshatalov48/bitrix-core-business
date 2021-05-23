@@ -1,0 +1,22 @@
+div.learning-course-contents
+{
+	font:normal 100% Verdana, sans-serif;
+}
+
+.learning-course-contents h2
+{
+	font-size: 120%;
+	font-weight:bold;
+	color:#000;
+}
+
+div.page-break
+{
+	page-break-after:always;
+}
+
+.learning-course-toc ul
+{
+	margin:3px;
+	padding-left:12px;
+}

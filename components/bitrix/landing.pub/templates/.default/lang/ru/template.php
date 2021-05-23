@@ -1,0 +1,29 @@
+<?
+$MESS["LANDING_TPL_TITLE"] = "Сайт";
+$MESS["LANDING_TPL_COPY_NAME_SMN_0"] = "Быстро с";
+$MESS["LANDING_TPL_COPY_NAME_SMN_1"] = "1С-Битрикс";
+$MESS["LANDING_TPL_COPY_NAME_0"] = "Заряжено";
+$MESS["LANDING_TPL_COPY_NAME"] = "Битрикс24";
+$MESS["LANDING_TPL_COPY_REVIEW"] = "Бесплатные Сайты и CRM.";
+$MESS["LANDING_TPL_COPY_LINK"] = "Создать сайт";
+$MESS["LANDING_TPL_COPY_FULL"] = "Заряжено #LOGO# &mdash; Бесплатные Сайты и CRM. <linkcreate>Создать сайт</linkcreate>";
+$MESS["LANDING_TPL_COPY_FULL2"] = "Заряжено <linklogo>#LOGO#</linklogo> &mdash; <linksite>Бесплатные Сайты</linksite> и <linkcrm>CRM</linkcrm>. <linkcreate>Создать сайт</linkcreate>";
+$MESS["LANDING_TPL_EDIT_PAGE"] = "Редактировать страницу";
+$MESS["LANDING_TPL_EDIT_PAGE_KNOWLEDGE"] = "Редактировать статью";
+$MESS["LANDING_TPL_EDIT_PAGE_GROUP"] = "Редактировать статью";
+$MESS["LANDING_TPL_SITES"] = "Мои сайты";
+$MESS["LANDING_TPL_SITES_STORE"] = "Мои магазины";
+$MESS["LANDING_TPL_SITES_KNOWLEDGE"] = "Базы знаний";
+$MESS["LANDING_TPL_SITES_GROUP"] = "Базы знаний";
+$MESS["LANDING_TPL_SETTINGS_BUTTON_TITLE"] = "Настройки";
+$MESS["LANDING_TPL_ERROR_NOT_FOUND_NOTE"] = "Может быть, ошибка в адресе? Проверьте еще раз.";
+$MESS["LANDING_TPL_ERROR_NOT_FOUND_NOTE_KNOWLEDGE"] = "Попробуйте найти нужную вам базу знаний в #LINK1#общем списке#LINK2#";
+$MESS["LANDING_TPL_ERROR_NOT_ALLOWED_NOTE_KNOWLEDGE"] = "Отправьте запрос на доступ одному из пользователей, который сможет выдать вам разрешение на просмотр базы знаний";
+$MESS["LANDING_TPL_ERROR_NOT_ALLOWED_NOTE_GROUP"] = "Вступите в группу или сделайте запрос на вступление через профайл #LINK1#рабочей группы#LINK2#.";
+$MESS["LANDING_TPL_ERROR_NOT_ALLOWED_ASK"] = "Отправить запрос";
+$MESS["LANDING_TPL_ERROR_NOT_ALLOWED_GROUP"] = "Перейти в группу";
+$MESS["LANDING_TPL_ACCESS_ASK_TITLE_KNOWLEDGE"] = "Запрос доступа";
+$MESS["LANDING_TPL_ACCESS_ASK_HEADER_KNOWLEDGE"] = "База знаний закрыта для публичного просмотра";
+$MESS["LANDING_TPL_ACCESS_ASK_DESCRIPTION_KNOWLEDGE"] = "Отправьте запрос одному из пользователей, чтобы получить разрешение на просмотр базы знаний.";
+$MESS["LANDING_TPL_ACCESS_ASK_SEND_KNOWLEDGE"] = "Запросить доступ";
+?>

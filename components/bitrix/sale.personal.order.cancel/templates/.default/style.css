@@ -1,0 +1,94 @@
+.bx_my_order_cancel{
+	margin-top: 20px;
+	font-size: 15px;
+}
+.bx_my_order_cancel a{
+	color: #0073a3;
+}
+
+.bx_my_order_cancel textarea{
+	margin-top: 10px;
+	height: 100px;
+	width: 100%;
+	max-width: 500px;
+}
+
+.bx_my_order_cancel  input[type="submit"]{
+	border-radius:3px;
+	text-align:center;
+	text-decoration:none;
+	font-size:14px;
+	color: #3f3f3f !important;
+	font-weight: bold;
+	font-size: 13px;
+	padding: 10px 25px;
+}
+.bx_my_order_cancel .bx_shadow input[type="submit"]{box-shadow:0 1px 1px 0 rgba(0,0,0,.2)}
+.bx_my_order_cancel .bx_shadow input[type="submit"]:active{box-shadow:none}
+
+.bx_my_order_cancel  input[type="submit"] 		{
+	border:1px solid #e9e9e9;
+	background:#fcfcfc;
+	background:url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZjZmNmYyIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNmMWYxZjEiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#fcfcfc), color-stop(100%,#f1f1f1));
+	background:-webkit-linear-gradient(top, #fcfcfc 0%,#f1f1f1 100%);
+	background:   -moz-linear-gradient(top, #fcfcfc 0%,#f1f1f1 100%);
+	background:    -ms-linear-gradient(top, #fcfcfc 0%,#f1f1f1 100%);
+	background:     -o-linear-gradient(top, #fcfcfc 0%,#f1f1f1 100%);
+	background:        linear-gradient(to bottom, #fcfcfc 0%,#f1f1f1 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#f1f1f1',GradientType=0 );
+	color:#656565;
+	text-shadow:0 1px 0 #fff;
+}
+.bx_my_order_cancel  input[type="submit"]:hover 	{background:#fff}
+.bx_my_order_cancel  input[type="submit"]:active {
+	background:#f1f1f1;
+	background:url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2YxZjFmMSIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNmY2ZjZmMiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#f1f1f1), color-stop(100%,#fcfcfc));
+	background:-webkit-linear-gradient(top, #f1f1f1 0%,#fcfcfc 100%);
+	background:   -moz-linear-gradient(top, #f1f1f1 0%,#fcfcfc 100%);
+	background:    -ms-linear-gradient(top, #f1f1f1 0%,#fcfcfc 100%);
+	background:     -o-linear-gradient(top, #f1f1f1 0%,#fcfcfc 100%);
+	background:        linear-gradient(to bottom, #f1f1f1 0%,#fcfcfc 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#f1f1f1', endColorstr='#fcfcfc',GradientType=0 );
+	box-shadow:inset 0 2px 2px 0 rgba(0,0,0,.05);
+}
+
+.bx_my_order_cancel .bx_small input[type="submit"]{
+	display:inline-block;
+	min-width:20px;
+	line-height:20px;
+}
+.bx_my_order_cancel .bx_small input[type="submit"] 		{}
+.bx_my_order_cancel .bx_small input[type="submit"]:hover {}
+.bx_my_order_cancel .bx_small input[type="submit"]:active{}
+
+.bx_my_order_cancel .bx_medium input[type="submit"]	{
+	padding:0 13px;
+	height:25px;
+	font-weight:bold;
+	line-height:25px;
+}
+
+.bx_my_order_cancel .bx_medium input[type="submit"] 		 {font-weight:bold}
+.bx_my_order_cancel .bx_medium input[type="submit"]:hover {}
+.bx_my_order_cancel .bx_medium input[type="submit"]:active{}
+
+.bx_my_order_cancel .bx_big input[type="submit"]	{
+	padding:0 13px;
+	height:34px;
+	font-weight:bold;
+	line-height:34px;
+}
+
+.bx_my_order_cancel .bx_big input[type="submit"] 	  {}
+.bx_my_order_cancel .bx_big input[type="submit"]:hover {}
+.bx_my_order_cancel .bx_big input[type="submit"]:active{}
+
+.bx_my_order_cancel_switch {
+	margin-bottom: 15px;
+	line-height: 30px;
+}
+.bx_my_order_cancel_switch .bx_mo_link{
+	margin-right: 20px;
+}

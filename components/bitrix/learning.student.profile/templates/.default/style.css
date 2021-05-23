@@ -1,0 +1,40 @@
+/*Table*/
+table.learn-student-profile
+{
+	width:100%;
+	background-color:#F9FAFB;
+	border-collapse:collapse;
+	font-size:100%;
+}
+
+/*Table head*/
+table.learn-student-profile th
+{
+	text-align: left;
+	color:#25639A;
+}
+
+/* Table cells and heads*/
+table.learn-student-profile th, table.learn-student-profile td
+{
+	border:1px solid #ADC3D5;
+	padding: 3px 5px;
+	vertical-align:top;
+}
+
+/* Only table cells*/
+table.learn-student-profile td
+{
+}
+
+table.learn-student-profile td.field-name
+{
+	text-align:right;
+	width:30%;
+}
+
+table.learn-student-profile textarea
+{
+	width:70%; 
+	height:200px;
+}

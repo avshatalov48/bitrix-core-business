@@ -1,0 +1,26 @@
+.bx-blue.bx-top-nav .bx-top-nav-container {
+	background: #0083d1;
+}
+.bx-blue.bx-top-nav .bx-top-nav-container .bx-nav-1-lvl.bx-hover>a,
+.bx-blue.bx-top-nav .bx-top-nav-container .bx-nav-1-lvl.bx-active>a,
+.bx-blue.bx-top-nav .bx-top-nav-container .bx-nav-1-lvl:hover>a {
+	background: #5ca6e4;
+	border-bottom: none;
+}
+.bx-blue.bx-top-nav .bx-top-nav-container .bx-nav-1-lvl.bx-nav-parent.bx-hover>a,
+.bx-blue.bx-top-nav .bx-top-nav-container .bx-nav-1-lvl.bx-nav-parent:hover>a {
+	color: #0083d1;
+	background-color: transparent;
+}
+/*2 lvl*/
+.bx-blue.bx-top-nav .bx-top-nav-container .bx-nav-2-lvl>a.bx-active,
+.bx-blue.bx-top-nav .bx-top-nav-container .bx-nav-2-lvl>a:hover {
+	color: #0083D1;
+	background: #f0f6f8;
+}
+/*3 lvl*/
+.bx-blue.bx-top-nav .bx-top-nav-container .bx-nav-3-lvl a.bx-active,
+.bx-blue.bx-top-nav .bx-top-nav-container .bx-nav-3-lvl a:hover {
+	color: #0083D1;
+	background: #f0f6f8;
+}

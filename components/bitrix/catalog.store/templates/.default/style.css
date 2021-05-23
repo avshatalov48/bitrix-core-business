@@ -1,0 +1,40 @@
+/*Table*/
+table.sale_personal_profile_list
+{
+	border: 0 double #000000;
+	width: 80%;
+	background-color:#F9FAFB;
+	/*border-collapse:collapse;*/
+	font-size:12px;
+}
+
+/*Table head*/
+table.sale_personal_profile_list th
+{
+
+	text-align: center;
+	color:#25639A;
+}
+
+/* Table cells and heads*/
+table.sale_personal_profile_list th, table.sale_personal_profile_list td
+{
+	border: 0 double #000000;
+	padding: 3px 5px 7px;
+	vertical-align:top;
+}
+
+div.catalog-detail-properties { clear: both; padding: 1em 0 0;  overflow: hidden; width: 80%; }
+div.catalog-detail-property { margin: 0 0 1em;  float: left; width: 100%;}
+div.catalog-detail-property span { float: left; position: relative; top: 0.31em; padding-right: 3px; zoom: 1;}
+div.catalog-detail-properties-title { font-size: 1em; font-weight: bold; margin: 2em 0 1em; }
+
+.last
+{
+	text-align: right;
+}
+
+.central
+{
+	text-align: right;
+}
